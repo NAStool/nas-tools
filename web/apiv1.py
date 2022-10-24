@@ -692,32 +692,336 @@ class ConfigRestore(ClientResource):
         return WebAction().action(cmd='restory_backup', data=self.parser.parse_args())
 
 
+@subscribe.route('/delete')
+class SubscribeDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='名称', location='form')
+    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form')
+    parser.add_argument('year', type=str, help='发行年份', location='form')
+    parser.add_argument('season', type=int, help='季号', location='form')
+    parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        删除订阅
+        """
+        return WebAction().action(cmd='remove_rss_media', data=self.parser.parse_args())
+
+
+@subscribe.route('/add')
+class SubscribeAdd(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('year', type=str, help='发行年份', location='form')
+    parser.add_argument('season', type=int, help='季号', location='form')
+    parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
+    parser.add_argument('doubanid', type=str, help='豆瓣ID', location='form')
+    parser.add_argument('match', type=bool, help='模糊匹配', location='form')
+    parser.add_argument('sites', type=list, help='RSS站点', location='form')
+    parser.add_argument('search_sites', type=list, help='搜索站点', location='form')
+    parser.add_argument('over_edition', type=bool, help='洗版', location='form')
+    parser.add_argument('rss_restype', type=str, help='资源类型', location='form')
+    parser.add_argument('rss_pix', type=str, help='分辨率', location='form')
+    parser.add_argument('rss_team', type=str, help='字幕组/发布组', location='form')
+    parser.add_argument('rss_rule', type=str, help='过滤规则', location='form')
+    parser.add_argument('total_ep', type=int, help='总集数', location='form')
+    parser.add_argument('current_ep', type=int, help='开始集数', location='form')
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改订阅
+        """
+        return WebAction().action(cmd='add_rss_media', data=self.parser.parse_args())
+
+
+@subscribe.route('/movie/date')
+class SubscribeMovieDate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='TMDBID/DB:豆瓣ID', location='form', required=True)
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        电影上映日期
+        """
+        return WebAction().action(cmd='movie_calendar_data', data=self.parser.parse_args())
+
+
+@subscribe.route('/tv/date')
+class SubscribeTVDate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='TMDBID/DB:豆瓣ID', location='form', required=True)
+    parser.add_argument('season', type=int, help='季号', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称', location='form')
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        电视剧上映日期
+        """
+        return WebAction().action(cmd='tv_calendar_data', data=self.parser.parse_args())
+
+
+@subscribe.route('/search')
+class SubscribeSearch(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('rssid', type=int, help='订阅ID', location='form', required=True)
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        订阅搜索
+        """
+        return WebAction().action(cmd='refresh_rss', data=self.parser.parse_args())
+
+
+@subscribe.route('/info')
+class SubscribeInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('rssid', type=int, help='订阅ID', location='form', required=True)
+    parser.add_argument('type', type=str, help='订阅类型（MOV、TV）', location='form', required=True)
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        订阅详情
+        """
+        return WebAction().action(cmd='rss_detail', data=self.parser.parse_args())
+
+
+@subscribe.route('/redo')
+class SubscribeRedo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('rssid', type=int, help='订阅历史ID', location='form', required=True)
+    parser.add_argument('type', type=str, help='订阅类型（MOV、TV）', location='form', required=True)
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        历史重新订阅
+        """
+        return WebAction().action(cmd='re_rss_history', data=self.parser.parse_args())
+
+
+@subscribe.route('/history/delete')
+class SubscribeHistoryDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('rssid', type=int, help='订阅ID', location='form', required=True)
+
+    @subscribe.doc(parser=parser)
+    def post(self):
+        """
+        删除订阅历史
+        """
+        return WebAction().action(cmd='delete_rss_history', data=self.parser.parse_args())
+
+
+@subscribe.route('/cache/delete')
+class SubscribeCacheDelete(ClientResource):
+    @staticmethod
+    def post():
+        """
+        清理订阅缓存
+        """
+        return WebAction().action(cmd='truncate_rsshistory')
+
+
+@recommend.route('/list')
+class RecommendList(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str,
+                        help='类型（hm、ht、nm、nt、dbom、dbhm、dbht、dbdh、dbnm、dbtop、dbzy）',
+                        location='form', required=True)
+    parser.add_argument('page', type=int, help='页码', location='form', required=True)
+
+    @recommend.doc(parser=parser)
+    def post(self):
+        """
+        推荐列表
+        """
+        return WebAction().action(cmd='get_recommend', data=self.parser.parse_args())
+
+
+@rss.route('/info')
+class RssInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅任务详情
+        """
+        return WebAction().action(cmd='get_userrss_task', data=self.parser.parse_args())
+
+
+@rss.route('/delete')
+class RssDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        删除自定义订阅任务
+        """
+        return WebAction().action(cmd='delete_userrss_task', data=self.parser.parse_args())
+
+
+@rss.route('/update')
+class RssUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form')
+    parser.add_argument('name', type=str, help='任务名称', location='form', required=True)
+    parser.add_argument('address', type=str, help='RSS地址', location='form', required=True)
+    parser.add_argument('parser', type=int, help='解析器ID', location='form', required=True)
+    parser.add_argument('interval', type=int, help='刷新间隔（分钟）', location='form', required=True)
+    parser.add_argument('uses', type=str, help='动作', location='form', required=True)
+    parser.add_argument('state', type=str, help='状态（Y/N）', location='form', required=True)
+    parser.add_argument('include', type=str, help='包含', location='form')
+    parser.add_argument('exclude', type=str, help='排除', location='form')
+    parser.add_argument('filterrule', type=int, help='过滤规则', location='form')
+    parser.add_argument('note', type=str, help='备注', location='form')
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改自定义订阅任务
+        """
+        return WebAction().action(cmd='update_userrss_task', data=self.parser.parse_args())
+
+
+@rss.route('/parser/info')
+class RssParserInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='解析器ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        解析器详情
+        """
+        return WebAction().action(cmd='get_rssparser', data=self.parser.parse_args())
+
+
+@rss.route('/parser/delete')
+class RssParserDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='解析器ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        删除解析器
+        """
+        return WebAction().action(cmd='delete_rssparser', data=self.parser.parse_args())
+
+
+@rss.route('/parser/update')
+class RssParserUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='解析器ID', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（JSON/XML）', location='form', required=True)
+    parser.add_argument('format', type=str, help='解析格式', location='form', required=True)
+    parser.add_argument('params', type=str, help='附加参数', location='form')
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改解析器
+        """
+        return WebAction().action(cmd='update_rssparser', data=self.parser.parse_args())
+
+
+@rss.route('/run')
+class RssRun(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        运行自定义订阅任务
+        """
+        return WebAction().action(cmd='run_userrss', data=self.parser.parse_args())
+
+
+@rss.route('/preview')
+class RssPreview(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅预览
+        """
+        return WebAction().action(cmd='list_rss_articles', data=self.parser.parse_args())
+
+
+@rss.route('/name/test')
+class RssNameTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('taskid', type=int, help='任务ID', location='form', required=True)
+    parser.add_argument('title', type=str, help='名称', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅名称测试
+        """
+        return WebAction().action(cmd='rss_article_test', data=self.parser.parse_args())
+
+
+@rss.route('/item/history')
+class RssItemHistory(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='任务ID', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅任务条目处理记录
+        """
+        return WebAction().action(cmd='list_rss_history', data=self.parser.parse_args())
+
+
+@rss.route('/item/set')
+class RssItemSet(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('flag', type=str, help='操作类型（set_finished、set_unfinish）', location='form', required=True)
+    parser.add_argument('articles', type=list, help='条目（{title、enclosure}）', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅任务条目状态调整
+        """
+        return WebAction().action(cmd='rss_articles_check', data=self.parser.parse_args())
+
+
+@rss.route('/item/download')
+class RssItemDownload(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('taskid', type=int, help='任务ID', location='form', required=True)
+    parser.add_argument('articles', type=list, help='条目（{title、enclosure}）', location='form', required=True)
+
+    @rss.doc(parser=parser)
+    def post(self):
+        """
+        自定义订阅任务条目下载
+        """
+        return WebAction().action(cmd='rss_articles_download', data=self.parser.parse_args())
+
+
 """
-
-# subscribe
-"remove_rss_media": self.__remove_rss_media,
-"add_rss_media": self.__add_rss_media,
-"movie_calendar_data": self.__movie_calendar_data,
-"tv_calendar_data": self.__tv_calendar_data,
-
-# rss
-"refresh_rss": self.__refresh_rss,
-"rss_detail": self.__rss_detail,
-"get_userrss_task": self.__get_userrss_task,
-"delete_userrss_task": self.__delete_userrss_task,
-"update_userrss_task": self.__update_userrss_task,
-"get_rssparser": self.__get_rssparser,
-"delete_rssparser": self.__delete_rssparser,
-"update_rssparser": self.__update_rssparser,
-"run_userrss": self.__run_userrss,
-"list_rss_articles": self.__list_rss_articles,
-"rss_article_test": self.__rss_article_test,
-"list_rss_history": self.__list_rss_history,
-"re_rss_history": self.__re_rss_history,
-"rss_articles_check": self.__rss_articles_check,
-"rss_articles_download": self.__rss_articles_download,
-"delete_rss_history": self.__delete_rss_history,
-"truncate_rsshistory": self.__truncate_rsshistory,
 
 # media
 "modify_tmdb_cache": self.__modify_tmdb_cache,
@@ -748,8 +1052,6 @@ class ConfigRestore(ClientResource):
 "import_filtergroup": self.__import_filtergroup
 
 
-#recommend
-"get_recommend": self.get_recommend,
 
 # words
 "add_custom_word_group": self.__add_custom_word_group,

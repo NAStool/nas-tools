@@ -560,7 +560,8 @@ class RssChecker(object):
                                                          no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
-    def check_rss_articles(self, flag, articles):
+    @staticmethod
+    def check_rss_articles(flag, articles):
         """
         RSS报文处理设置
         :param flag: set_finished/set_unfinish
