@@ -949,7 +949,6 @@ class WebAction:
         """
         维护同步目录
         """
-        print(data)
         sid = data.get("sid")
         source = data.get("from")
         dest = data.get("to")
