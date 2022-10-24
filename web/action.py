@@ -1368,15 +1368,26 @@ class WebAction:
         return {"code": 0, "page": page}
 
     @staticmethod
-    def __refresh_message(data):
+    def get_system_message(lst_time):
+        messages = MessageCenter().get_system_messages(lst_time=lst_time)
+        if messages:
+            lst_time = messages[0].get("time")
+        return {
+            "code": 0,
+            "message": messages,
+            "lst_time": lst_time
+        }
+
+    def __refresh_message(self, data):
         """
         刷新首页消息中心
         """
         lst_time = data.get("lst_time")
-        messages = MessageCenter().get_system_messages(lst_time=lst_time)
+        system_msg = self.get_system_message(lst_time=lst_time)
+        messages = system_msg.get("message")
+        lst_time = system_msg.get("lst_time")
         message_html = []
         for message in list(reversed(messages)):
-            lst_time = message.get("time")
             level = "bg-red" if message.get("level") == "ERROR" else ""
             content = re.sub(r"[#]+", "<br>",
                              re.sub(r"<[^>]+>", "",
