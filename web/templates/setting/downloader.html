@@ -118,6 +118,17 @@
                 <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbusername or '' }}{% endif %}" id="qbittorrent.qbusername"
                   class="form-control" placeholder="admin">
               </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">密码</label>
+                <input type="password" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}" id="qbittorrent.qbpassword"
+                  class="form-control" placeholder="adminadmin">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if Config.qbittorrent.force_upload %}checked{% endif %}>
@@ -127,9 +138,10 @@
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">密码</label>
-                <input type="password" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}" id="qbittorrent.qbpassword"
-                  class="form-control" placeholder="adminadmin">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="qbittorrent.auto_management" {% if Config.qbittorrent.auto_management %}checked{% endif %}>
+                  <span class="form-check-label">自动管理模式 <span class="form-help" title="开启后下载目录将由Qbittorrent自动管理，不再使用NASTool传递的下载目录，需要同时在下载目录设置中配置好分类标签" data-bs-toggle="tooltip">?</span></span>
+                </label>
               </div>
             </div>
           </div>
@@ -296,13 +308,13 @@
                   </select>
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ attr['save_path'] or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+                  <input type="text" value="{{ attr.save_path or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ attr['container_path'] or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+                  <input type="text" value="{{ attr.container_path or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
                 </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ attr['label'] or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+                <div class="col-12 col-lg mb-1" style="{% if Config.pt.pt_client !='qbittorrent' or not Config.qbittorrent.auto_management %}display:none{% endif %}">
+                  <input type="text" value="{{ attr.label or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
                   <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">

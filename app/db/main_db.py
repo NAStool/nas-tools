@@ -100,3 +100,25 @@ class MainDb:
         回滚事务
         """
         self.session.rollback()
+
+
+class DbPersist(object):
+    """
+    数据库持久化装饰器
+    """
+
+    def __init__(self, db):
+        self.db = db
+
+    def __call__(self, f):
+        def persist(*args, **kwargs):
+            try:
+                f(*args, **kwargs)
+                self.db.commit()
+                return True
+            except Exception as e:
+                print(e.args)
+                self.db.rollback()
+                return False
+
+        return persist

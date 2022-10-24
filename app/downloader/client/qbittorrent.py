@@ -11,6 +11,7 @@ from pkg_resources import parse_version as v
 
 class Qbittorrent(IDownloadClient):
     _force_upload = False
+    _auto_management = False
     qbc = None
     ver = None
     client_type = DownloaderType.QB
@@ -26,6 +27,8 @@ class Qbittorrent(IDownloadClient):
             self.password = qbittorrent.get('qbpassword')
             # 强制做种开关
             self._force_upload = qbittorrent.get('force_upload')
+            # 自动管理模式开关
+            self._auto_management = qbittorrent.get('auto_management')
 
     def connect(self):
         if self.host and self.port:
@@ -248,9 +251,10 @@ class Qbittorrent(IDownloadClient):
         else:
             seeding_time_limit = None
         try:
-            use_auto_torrent_management = False
-            if not save_path:
+            if self._auto_management:
                 use_auto_torrent_management = True
+            else:
+                use_auto_torrent_management = False
             qbc_ret = self.qbc.torrents_add(urls=urls,
                                             torrent_files=torrent_files,
                                             save_path=save_path,

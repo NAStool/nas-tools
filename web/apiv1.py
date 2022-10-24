@@ -383,7 +383,7 @@ class UnknownRedo(ClientResource):
     @organization.doc(parser=parser)
     def post(self):
         """
-        自定义识别
+        重新识别
         """
         return WebAction().action(cmd='re_identification', data=self.parser.parse_args())
 

@@ -3,30 +3,10 @@ import os.path
 import time
 from enum import Enum
 from sqlalchemy import cast, func
-from app.db.main_db import MainDb
+from app.db.main_db import MainDb, DbPersist
 from app.db.models import *
 from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
-
-
-class DbPersist(object):
-    """
-    数据库持久化装饰器
-    """
-    def __init__(self, db):
-        self.db = db
-
-    def __call__(self, f):
-        def persist(*args, **kwargs):
-            try:
-                f(*args, **kwargs)
-                self.db.commit()
-                return True
-            except Exception as e:
-                print(e.args)
-                self.db.rollback()
-                return False
-        return persist
 
 
 class DbHelper:

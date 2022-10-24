@@ -108,7 +108,8 @@ SITE_CHECKIN_XPATH = [
     '//a[contains(@text, "签到")]',
     '//span[@id="sign_in"]/a',
     '//a[contains(@href, "addbonus")]',
-    '//input[@class="dt_button"][contains(@value, "打卡")]'
+    '//input[@class="dt_button"][contains(@value, "打卡")]',
+    '//a[contains(@href, "sign_in")]'
 ]
 
 # 线程锁

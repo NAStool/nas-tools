@@ -144,7 +144,7 @@ class Downloader:
             # 获取Cookie和ua
             cookie, ua = self.sites.get_site_cookie_ua(url)
             if not cookie:
-                log.warn(f"【Downloader】%s 获取站点cookie失败！" % url)
+                log.warn(f"【Downloader】%s 获取站点cookie失败！" % StringUtils.get_base_url(url))
             if _xpath:
                 # 从详情页面解析下载链接
                 url = Torrent.parse_download_url(page_url=url,

@@ -36,7 +36,7 @@ from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
 from app.subscribe import Subscribe
-from app.helper import DbHelper, DictHelper
+from app.helper import DbHelper
 from app.utils.types import *
 from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
@@ -394,7 +394,7 @@ def create_flask_app():
             # 结果
             SearchResults.append({
                 "id": item.ID,
-                "title_string": f"{item.TITLE} ({item.YEAR})",
+                "title_string": f"{item.TITLE} ({item.YEAR})" if item.YEAR else f"{item.TITLE}",
                 "restype": item.RES_TYPE,
                 "size": item.SIZE,
                 "seeders": item.SEEDERS,

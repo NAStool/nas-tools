@@ -1,11 +1,13 @@
-from app.db.main_db import MainDb
+from app.db.main_db import MainDb, DbPersist
 from app.db.models import SYSTEMDICT
 
 
 class DictHelper:
+    
+    _db = MainDb()
 
-    @staticmethod
-    def set(dtype, key, value, note=""):
+    @DbPersist(_db)
+    def set(self, dtype, key, value, note=""):
         """
         设置字典值
         :param dtype: 字典类型
@@ -16,23 +18,22 @@ class DictHelper:
         """
         if not dtype or not key or not value:
             return False
-        if DictHelper.exists(dtype, key):
-            return MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+        if self.exists(dtype, key):
+            return self._db.query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
                                                      SYSTEMDICT.KEY == key).update(
                 {
                     "VALUE": value
                 }
             )
         else:
-            return MainDb().insert(SYSTEMDICT(
+            return self._db.insert(SYSTEMDICT(
                 TYPE=dtype,
                 KEY=key,
                 VALUE=value,
                 NOTE=note
             ))
 
-    @staticmethod
-    def get(dtype, key):
+    def get(self, dtype, key):
         """
         查询字典值
         :param dtype: 字典类型
@@ -41,15 +42,15 @@ class DictHelper:
         """
         if not dtype or not key:
             return ""
-        ret = MainDb().query(SYSTEMDICT.VALUE).filter(SYSTEMDICT.TYPE == dtype,
+        ret = self._db.query(SYSTEMDICT.VALUE).filter(SYSTEMDICT.TYPE == dtype,
                                                       SYSTEMDICT.KEY == key).first()
         if ret:
             return ret[0]
         else:
             return ""
 
-    @staticmethod
-    def delete(dtype, key):
+    @DbPersist(_db)
+    def delete(self, dtype, key):
         """
         删除字典值
         :param dtype: 字典类型
@@ -58,11 +59,10 @@ class DictHelper:
         """
         if not dtype or not key:
             return False
-        return MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+        return self._db.query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
                                                  SYSTEMDICT.KEY == key).delete()
 
-    @staticmethod
-    def exists(dtype, key):
+    def exists(self, dtype, key):
         """
         查询字典是否存在
         :param dtype: 字典类型
@@ -71,7 +71,7 @@ class DictHelper:
         """
         if not dtype or not key:
             return False
-        ret = MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+        ret = self._db.query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
                                                 SYSTEMDICT.KEY == key).count()
         if ret > 0:
             return True

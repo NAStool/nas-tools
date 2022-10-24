@@ -226,7 +226,7 @@
                   <div>
                     <div>
                       <a
-                        href='{% if not Item.image %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
+                        href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
                         title="点击添加下载">
                       <strong>{% if Item.tmdbid or not Item.description %}{{ Item.title_string|replace("()", "") }}{% else %} {{ Item.description }} {% endif %}</strong></a>
                       {% if Item.seeders %}

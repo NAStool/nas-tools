@@ -64,9 +64,10 @@ class BrushTask(object):
         # 读取任务任务列表
         brushtasks = _dbhelper.get_brushtasks()
         self._brush_tasks = []
+        _dicthelper = DictHelper()
         for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
+            sendmessage_switch = _dicthelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
+            forceupload_switch = _dicthelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
             downloader_info = self.get_downloader_info(task.DOWNLOADER)
