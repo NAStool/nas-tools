@@ -43,6 +43,13 @@
               </div>
             </div>
             <div class="card-actions btn-actions">
+              <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                 <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+              </svg>
+            </a>
               <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -543,16 +550,18 @@
   });
 
   //重新识别
-  function re_identification(unknown_id) {
+  function re_identification(unknown_id, flag) {
     var cmd = "re_identification";
     var data = { "flag": "unknow", "ids": [unknown_id] };
     show_wait_process();
     ajax_post(cmd, data, function (ret) {
       hide_wait_process();
-      if (ret.retcode == 0) {
-        navmenu('unidentification');
-      } else {
-        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+      if(!flag){
+        if (ret.retcode == 0) {
+          navmenu('unidentification');
+        } else {
+          show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+        }
       }
     });
   }
@@ -597,6 +606,24 @@
       $("#rename_min_filesize_div").show();
     }
   });
+
+  //批量重新识别
+  function reidentification_all(){
+    var i = 0;
+    $("input[type=checkbox]").each(function () {
+      if ($(this).prop("checked")) {
+        checkid = $(this).attr("id");
+        if (checkid && checkid.startsWith("check_")) {
+          id = checkid.replace("check_", "");
+          re_identification(id, true);
+          i = i + 1;
+        }
+      }
+    });
+    if (i > 0){
+      navmenu('unidentification');
+    }
+  }
 
   //全选事件
   $("#unknown_check_all_btn").change(function () {
