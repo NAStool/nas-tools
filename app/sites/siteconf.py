@@ -407,8 +407,7 @@ class SiteConf:
             "proxy": False
         },
         'www.mp4ba.vip': {
-            "proxy": False,
-            "render": True
+            "proxy": False
         },
         'www.miobt.com': {
             "proxy": True

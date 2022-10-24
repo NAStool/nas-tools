@@ -484,15 +484,73 @@ class Sites:
             cookie = site_info.get("cookie")
             ua = site_info.get("ua")
         else:
-            site_info = self.get_public_sites(url=url)
+            short_url = StringUtils.get_base_url(url)
+            site_info = self.get_public_sites(url=short_url)
             if site_info:
-                try:
-                    res = RequestUtils(timeout=10).get_res(StringUtils.get_base_url(url))
-                    if res:
-                        cookie = dict_from_cookiejar(res.cookies)
-                except Exception as err:
-                    print(str(err))
+                if site_info.get("render"):
+                    # 开渲染
+                    chrome = ChromeHelper()
+                    if not chrome.get_status():
+                        log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
+                    else:
+                        with CHROME_LOCK:
+                            try:
+                                chrome.visit(url=short_url)
+                                cookie = chrome.get_cookies()
+                                ua = chrome.get_ua()
+                            except Exception as err:
+                                print(str(err))
+                                log.warn("【Sites】无法打开网站：%s" % short_url)
+                else:
+                    try:
+                        res = RequestUtils(timeout=10).get_res(short_url)
+                        if res:
+                            cookie = dict_from_cookiejar(res.cookies)
+                    except Exception as err:
+                        print(str(err))
         return cookie, ua
+
+    def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
+        """
+        从站点详情页面中解析中下载链接
+        :param page_url: 详情页面地址
+        :param xpath: 解析XPATH
+        :param cookie: 站点Cookie
+        :param ua: 站点User-Agent
+        """
+        if not page_url or not xpath:
+            return ""
+        page_source = ""
+        try:
+            short_url = StringUtils.get_base_url(page_url)
+            site_info = self.get_public_sites(url=short_url)
+            if site_info and site_info.get("render"):
+                # 开渲染
+                chrome = ChromeHelper()
+                if not chrome.get_status():
+                    log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
+                else:
+                    with CHROME_LOCK:
+                        try:
+                            chrome.visit(url=page_url)
+                            page_source = chrome.get_html()
+                        except Exception as err:
+                            print(str(err))
+                            log.warn("【Sites】无法打开网站：%s" % short_url)
+            else:
+                req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
+                if req and req.status_code == 200:
+                    if req.text:
+                        page_source = req.text
+            # xpath解析
+            if page_source:
+                html = etree.HTML(page_source)
+                urls = html.xpath(xpath)
+                if urls:
+                    return str(urls[0])
+        except Exception as err:
+            print(str(err))
+        return None
 
     @staticmethod
     @lru_cache(maxsize=128)

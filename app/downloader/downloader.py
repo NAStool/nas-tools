@@ -26,7 +26,7 @@ class Downloader:
     _download_order = None
     _pt_rmt_mode = None
     _downloaddir = []
-    
+
     message = None
     mediaserver = None
     filetransfer = None
@@ -147,9 +147,10 @@ class Downloader:
                 log.warn(f"【Downloader】%s 获取站点cookie失败！" % StringUtils.get_base_url(url))
             if _xpath:
                 # 从详情页面解析下载链接
-                url = Torrent.parse_download_url(page_url=url,
-                                                 xpath=_xpath,
-                                                 cookie=cookie)
+                url = self.sites.parse_site_download_url(page_url=url,
+                                                         xpath=_xpath,
+                                                         cookie=cookie,
+                                                         ua=ua)
                 if not url:
                     return None, "无法从详情页面：%s 解析出下载链接" % page_url
                 # 解析出来的是HASH值
@@ -159,7 +160,10 @@ class Downloader:
                     if not url:
                         return None, "%s 转换磁力链失败" % url
             # 下载种子文件
-            content, retmsg = Torrent.get_torrent_content(url=url, cookie=cookie, ua=ua)
+            content, retmsg = Torrent.get_torrent_content(url=url,
+                                                          cookie=cookie,
+                                                          ua=ua,
+                                                          referer=page_url)
             if not content:
                 return None, retmsg
         else:
