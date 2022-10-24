@@ -1,5 +1,5 @@
 from flask_restx import Api, reqparse, Resource
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from app.media import Media
 from app.sites import Sites
@@ -54,41 +54,6 @@ class ClientResource(Resource):
     method_decorators = [login_required]
 
 
-@site.route('/statistics')
-class SiteStatistic(ApiResource):
-    @staticmethod
-    def get():
-        """
-        获取站点数据明细
-        """
-        # 返回站点信息
-        return jsonify(
-            {
-                "code": 0,
-                "data": {
-                    "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
-                }
-            }
-        )
-
-
-@site.route('/sites')
-class SiteConf(ApiResource):
-    @staticmethod
-    def get():
-        """
-        获取站点配置
-        """
-        return jsonify(
-            {
-                "code": 0,
-                "data": {
-                    "user_sites": Sites().get_sites()
-                }
-            }
-        )
-
-
 @service.route('/mediainfo')
 class ServiceMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
@@ -97,33 +62,207 @@ class ServiceMediaInfo(ApiResource):
     @service.doc(parser=parser)
     def get(self):
         """
-        识别媒体信息
+        识别媒体信息（密钥认证）
         """
-        args = self.parser.parse_args()
-        name = args.get('name')
-        if not name:
-            return jsonify(
-                {
-                    "code": -1,
-                    "msg": "名称不能为空"
-                }
-            )
-        media_info = Media().get_media_info(title=name)
-        if not media_info:
-            return jsonify(
-                {
-                    "code": 1,
-                    "msg": "无法识别",
-                    "data": {}
-                }
-            )
-        mediainfo_dict = WebAction().mediainfo_dict(media_info)
-        return jsonify(
-            {
+        return WebAction().action(cmd='name_test', data=self.parser.parse_args())
+
+
+@service.route('/name/test')
+class ServiceNameTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+
+    @service.doc(parser=parser)
+    def post(self):
+        """
+        名称识别测试
+        """
+        return WebAction().action(cmd='name_test', data=self.parser.parse_args())
+
+
+@service.route('/rule/test')
+class ServiceRuleTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('title', type=str, help='名称', location='form', required=True)
+    parser.add_argument('subtitle', type=str, help='描述', location='form')
+    parser.add_argument('size', type=float, help='大小（GB）', location='form')
+
+    @service.doc(parser=parser)
+    def post(self):
+        """
+        过滤规则测试
+        """
+        return WebAction().action(cmd='rule_test', data=self.parser.parse_args())
+
+
+@service.route('/network/test')
+class ServiceNetworkTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('url', type=str, help='URL地址', location='form', required=True)
+
+    @service.doc(parser=parser)
+    def post(self):
+        """
+        网络连接性测试
+        """
+        return WebAction().action(cmd='net_test', data=self.parser.parse_args().get("url"))
+
+
+@service.route('/run')
+class ServiceRun(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('item', type=str, help='服务ID', location='form', required=True)
+
+    @service.doc(parser=parser)
+    def post(self):
+        """
+        运行服务
+        """
+        return WebAction().action(cmd='sch', data=self.parser.parse_args())
+
+
+@site.route('/statistics')
+class SiteStatistic(ApiResource):
+    @staticmethod
+    def get():
+        """
+        获取站点数据明细（密钥认证）
+        """
+        # 返回站点信息
+        return {
                 "code": 0,
-                "data": mediainfo_dict
+                "data": {
+                    "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
+                }
             }
-        )
+
+
+@site.route('/sites')
+class SiteSites(ApiResource):
+    @staticmethod
+    def get():
+        """
+        获取所有站点配置（密钥认证）
+        """
+        return {
+                "code": 0,
+                "data": {
+                    "user_sites": Sites().get_sites()
+                }
+            }
+
+
+@site.route('/update')
+class SiteUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('site_name', type=str, help='站点名称', location='form', required=True)
+    parser.add_argument('site_id', type=int, help='更新站点ID', location='form')
+    parser.add_argument('site_pri', type=str, help='优先级', location='form')
+    parser.add_argument('site_rssurl', type=str, help='RSS地址', location='form')
+    parser.add_argument('site_signurl', type=str, help='站点地址', location='form')
+    parser.add_argument('site_cookie', type=str, help='Cookie', location='form')
+    parser.add_argument('site_note', type=str, help='站点属性', location='form')
+    parser.add_argument('site_include', type=str, help='站点用途', location='form')
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        新增/删除站点
+        """
+        return WebAction().action(cmd='update_site', data=self.parser.parse_args())
+
+
+@site.route('/info')
+class SiteInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='站点ID', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        查询单个站点详情
+        """
+        return WebAction().action(cmd='get_site', data=self.parser.parse_args())
+
+
+@site.route('/delete')
+class SiteDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='站点ID', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        删除站点
+        """
+        return WebAction().action(cmd='del_site', data=self.parser.parse_args())
+
+
+@site.route('/statistics/activity')
+class SiteStatisticsActivity(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='站点名称', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        查询站点 上传、下载、做种数据
+        """
+        return WebAction().action(cmd='get_site_activity', data=self.parser.parse_args())
+
+
+@site.route('/check')
+class SiteCheck(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('url', type=str, help='站点地址', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        检查站点是否支持FREE、HR检测
+        """
+        return WebAction().action(cmd='check_site_attr', data=self.parser.parse_args())
+
+
+@site.route('/statistics/history')
+class SiteStatisticsHistory(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('days', type=int, help='时间范围（天）', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        查询所有站点历史数据
+        """
+        return WebAction().action(cmd='get_site_history', data=self.parser.parse_args())
+
+
+@site.route('/statistics/seedinfo')
+class SiteStatisticsSeedinfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='站点名称', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        查询站点做种分布
+        """
+        return WebAction().action(cmd='get_site_seeding_info', data=self.parser.parse_args())
+
+
+@site.route('/resources')
+class SiteResources(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='站点索引ID', location='form', required=True)
+    parser.add_argument('page', type=int, help='页码', location='form')
+    parser.add_argument('keyword', type=str, help='站点名称', location='form')
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        查询站点资源列表
+        """
+        return WebAction().action(cmd='list_site_resources', data=self.parser.parse_args())
 
 
 @user.route('/login')
@@ -148,7 +287,7 @@ class UserLogin(Resource):
         # 校验密码
         if not user_info.verify_password(password):
             return {"code": 1, "message": "用户名或密码错误"}
-        return jsonify({
+        return {
             "code": 0,
             "token": generate_access_token(username),
             "apikey": Config().get_config("security").get("api_key"),
@@ -157,7 +296,7 @@ class UserLogin(Resource):
                 "username": user_info.username,
                 "userpris": str(user_info.pris).split(",")
             }
-        })
+        }
 
 
 @user.route('/info')
@@ -175,11 +314,11 @@ class UserInfo(ClientResource):
         user_info = User().get_user(username)
         if not user_info:
             return {"code": 1, "message": "用户名不正确"}
-        return jsonify({
+        return {
             "userid": user_info.id,
             "username": user_info.username,
             "userpris": str(user_info.pris).split(",")
-        })
+        }
 
 
 @user.route('/manage')
@@ -489,35 +628,77 @@ class SystemUpdate(ClientResource):
         return WebAction().action(cmd='logout')
 
 
+@system.route('/message')
+class SystemMessage(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('lst_time', type=str, help='时间（YYYY-MM-DD HH24:MI:SS）', location='form')
+
+    @system.doc(parser=parser)
+    def post(self):
+        """
+        查询消息中心消息
+        """
+        return WebAction().get_system_message(lst_time=self.parser.parse_args().get("lst_time"))
+
+
+@system.route('/progress')
+class SystemProgress(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（search/mediasync）', location='form', required=True)
+
+    @system.doc(parser=parser)
+    def post(self):
+        """
+        查询搜索/媒体同步等进度
+        """
+        return WebAction().action(cmd='refresh_process', data=self.parser.parse_args())
+
+
+@config.route('/update')
+class ConfigUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('items', type=dict, help='配置项', location='form', required=True)
+
+    def post(self):
+        """
+        新增/修改配置
+        """
+        return WebAction().action(cmd='update_config', data=self.parser.parse_args().get("items"))
+
+
+@config.route('/test')
+class ConfigTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('command', type=str, help='测试命令', location='form', required=True)
+
+    @config.doc(parser=parser)
+    def post(self):
+        """
+        测试配置连通性
+        """
+        return WebAction().action(cmd='test_connection', data=self.parser.parse_args())
+
+
+@config.route('/restore')
+class ConfigRestore(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('file_name', type=str, help='备份文件名', location='form', required=True)
+
+    @config.doc(parser=parser)
+    def post(self):
+        """
+        恢复备份的配置
+        """
+        return WebAction().action(cmd='restory_backup', data=self.parser.parse_args())
+
+
 """
-
-# system
-"refresh_message": self.__refresh_message,
-"refresh_process": self.__refresh_process,
-
-
-# site
-"update_site": self.__update_site,
-"get_site": self.__get_site,
-"del_site": self.__del_site,
-
-
-# config
-"update_config": self.__update_config,
-"update_directory": self.__update_directory,
-"test_connection": self.__test_connection,
-"restory_backup": self.__restory_backup,
-
 
 # subscribe
 "remove_rss_media": self.__remove_rss_media,
 "add_rss_media": self.__add_rss_media,
 "movie_calendar_data": self.__movie_calendar_data,
 "tv_calendar_data": self.__tv_calendar_data,
-
-
-# user
-"user_manager": self.__user_manager,
 
 # rss
 "refresh_rss": self.__refresh_rss,
@@ -555,12 +736,6 @@ class SystemUpdate(ClientResource):
 "get_downloader": self.__get_downloader,
 "run_brushtask": self.__run_brushtask,
 
-# service
-"name_test": self.__name_test,
-"rule_test": self.__rule_test,
-"net_test": self.__net_test,
-"sch": self.__sch,
-
 # filterrule
 "add_filtergroup": self.__add_filtergroup,
 "restore_filtergroup": self.__restore_filtergroup,
@@ -572,12 +747,6 @@ class SystemUpdate(ClientResource):
 "share_filtergroup": self.__share_filtergroup,
 "import_filtergroup": self.__import_filtergroup
 
-#site
-"get_site_activity": self.__get_site_activity,
-"get_site_history": self.__get_site_history,
-"check_site_attr": self.__check_site_attr,
-"get_site_seeding_info": self.__get_site_seeding_info,
-"list_site_resources": self.__list_site_resources,
 
 #recommend
 "get_recommend": self.get_recommend,
