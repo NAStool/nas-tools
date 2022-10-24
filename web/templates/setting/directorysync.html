@@ -246,7 +246,6 @@
     ajax_post("add_or_edit_sync_path", params, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
-        $("#modal-directory").modal('hide');
         navmenu('directorysync');
       } else {
         show_fail_modal(ret.msg);
