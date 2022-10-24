@@ -101,7 +101,7 @@
                         </svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:re_identification("{{ Path.id }}")'>
+                        <a class="dropdown-item" href='javascript:re_identification(["{{ Path.id }}"])'>
                           重新识别
                         </a>
                         <a class="dropdown-item"
@@ -550,18 +550,16 @@
   });
 
   //重新识别
-  function re_identification(unknown_id, flag) {
+  function re_identification(unknown_ids) {
     var cmd = "re_identification";
-    var data = { "flag": "unknow", "ids": [unknown_id] };
+    var data = { "flag": "unknow", "ids": unknown_ids };
     show_wait_process();
     ajax_post(cmd, data, function (ret) {
       hide_wait_process();
-      if(!flag){
-        if (ret.retcode == 0) {
-          navmenu('unidentification');
-        } else {
-          show_fail_modal("重新识别失败：" + ret.retmsg + "！");
-        }
+      if (ret.retcode == 0) {
+        navmenu('unidentification');
+      } else {
+        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
       }
     });
   }
@@ -570,7 +568,7 @@
   function delete_checked_unknown() {
     var ids = [];
     var i = 0;
-    $("input[type=checkbox]").each(function () {
+    $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
@@ -610,23 +608,25 @@
   //批量重新识别
   function reidentification_all(){
     var i = 0;
-    $("input[type=checkbox]").each(function () {
+    var ids = []
+    $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
+        debugger;
         if (checkid && checkid.startsWith("check_")) {
           id = checkid.replace("check_", "");
-          re_identification(id, true);
+          ids[i] = id;
           i = i + 1;
         }
       }
     });
     if (i > 0){
-      navmenu('unidentification');
+      re_identification(ids);
     }
   }
 
   //全选事件
   $("#unknown_check_all_btn").change(function () {
-    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
 </script>

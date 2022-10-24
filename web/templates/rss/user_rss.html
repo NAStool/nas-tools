@@ -720,7 +720,7 @@
         $("#table-rss-articles").append(content);
         // 绑定全选事件
         $("#articles_check_all_btn").bind("change",function(){
-            $("input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
+            $(".table-responsive input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
         });
       }else{
         var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
@@ -735,7 +735,7 @@
   function batch_articles_action(id, flag){
     var articles = [];
     var i = 0;
-    $("input[type=checkbox]").each(function(){
+    $(".table-responsive input[type=checkbox]").each(function(){
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {

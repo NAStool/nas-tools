@@ -1145,7 +1145,7 @@ class WebAction:
         flag = data.get("flag")
         ids = data.get("ids")
         ret_flag = True
-        ret_msg = ""
+        ret_msg = []
         if flag == "unknow":
             for wid in ids:
                 paths = self.dbhelper.get_unknown_path_by_id(wid)
@@ -1165,7 +1165,8 @@ class WebAction:
                     self.dbhelper.update_transfer_unknown_state(path)
                 else:
                     ret_flag = False
-                    ret_msg = "%s\n%s" % (ret_msg, msg)
+                    if msg not in ret_msg:
+                        ret_msg.append(msg)
         elif flag == "history":
             for wid in ids:
                 paths = self.dbhelper.get_transfer_path_by_id(wid)
@@ -1183,11 +1184,12 @@ class WebAction:
                                                                target_dir=dest_dir)
                 if not succ_flag:
                     ret_flag = False
-                    ret_msg = "%s\n%s" % (ret_msg, msg)
+                    if msg not in ret_msg:
+                        ret_msg.append(msg)
         if ret_flag:
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
-            return {"retcode": 2, "retmsg": ret_msg}
+            return {"retcode": 2, "retmsg": "、".join(ret_msg)}
 
     def __media_info(self, data):
         """

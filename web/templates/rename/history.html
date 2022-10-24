@@ -89,7 +89,7 @@
                 {% if TotalCount > 0 %}
                 {% for History in Historys %}
                 <tr>
-                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History[-1] }}" type="checkbox"></td>
+                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}" type="checkbox"></td>
                   <td>
                     <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
@@ -476,7 +476,7 @@
   });
   //全选事件
   $("#history_check_all_btn").change(function () {
-    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
   // 批量删除/重新识别
   function batch_check_action(flag){
