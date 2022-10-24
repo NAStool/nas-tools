@@ -3,6 +3,7 @@ import os.path
 import time
 from enum import Enum
 from sqlalchemy import cast, func
+
 from app.db.main_db import MainDb, DbPersist
 from app.db.models import *
 from app.utils import StringUtils
@@ -1205,19 +1206,20 @@ class DbHelper:
                                           func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
                                           func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).filter(
                     SITESTATISTICSHISTORY.DATE >= min_date,
-                    SITESTATISTICSHISTORY.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).subquery()
+                    SITESTATISTICSHISTORY.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).group_by(
+                    SITESTATISTICSHISTORY.SITE, SITESTATISTICSHISTORY.DATE).subquery()
             else:
                 subquery = self._db.query(SITESTATISTICSHISTORY.SITE.label("SITE"),
                                           SITESTATISTICSHISTORY.DATE.label("DATE"),
                                           func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
-                                          func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).subquery()
-            rets = self._db.query(SITESTATISTICSHISTORY.SITE,
-                                  func.min(SITESTATISTICSHISTORY.UPLOAD),
-                                  func.min(SITESTATISTICSHISTORY.DOWNLOAD),
-                                  func.max(SITESTATISTICSHISTORY.UPLOAD),
-                                  func.max(SITESTATISTICSHISTORY.DOWNLOAD)).filter(
-                SITESTATISTICSHISTORY.SITE == subquery.c.SITE
-            ).group_by(SITESTATISTICSHISTORY.SITE).all()
+                                          func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).filter(
+                    SITESTATISTICSHISTORY.DATE >= min_date).group_by(
+                    SITESTATISTICSHISTORY.SITE, SITESTATISTICSHISTORY.DATE).subquery()
+            rets = self._db.query(subquery.c.SITE,
+                                  func.min(subquery.c.UPLOAD),
+                                  func.min(subquery.c.DOWNLOAD),
+                                  func.max(subquery.c.UPLOAD),
+                                  func.max(subquery.c.DOWNLOAD)).group_by(subquery.c.SITE).all()
             for ret_b in rets:
                 # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
                 ret_b = list(ret_b)
