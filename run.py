@@ -93,9 +93,11 @@ def init_db():
     """
     初始化数据库
     """
+    log.console('【Db】数据库初始化...')
     MediaDb().init_db()
     MainDb().init_db()
     MainDb().init_data()
+    log.console('【Db】数据库初始化已完成')
 
 
 def update_db(cfg):
@@ -104,11 +106,12 @@ def update_db(cfg):
     """
     db_location = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
     script_location = os.path.join(os.path.dirname(__file__), 'alembic').replace('\\', '/')
-    log.console(f'Running DB migrations in {script_location} on {db_location}')
+    log.console('【Db】数据库更新...')
     alembic_cfg = alembic_config()
     alembic_cfg.set_main_option('script_location', script_location)
     alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
     alembic_upgrade(alembic_cfg, 'head')
+    log.console('【Db】数据库更新已完成')
 
 
 def update_config(cfg):
@@ -380,8 +383,8 @@ def update_config(cfg):
                                                   mode=rmt_mode,
                                                   rename=1,
                                                   enabled=0)
-        _config['sync'].pop('sync_path')
-        overwrite_cofig = True
+            _config['sync'].pop('sync_path')
+            overwrite_cofig = True
     except Exception as e:
         print(str(e))
     # 重写配置文件
@@ -397,6 +400,9 @@ if __name__ == "__main__":
     log.console('NASTool 当前版本号：%s' % APP_VERSION)
 
     config = Config()
+
+    # 数据库初始化
+    init_db()
 
     # 数据库更新
     update_db(config)

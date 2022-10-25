@@ -143,6 +143,8 @@ class Category:
                 if not info_value:
                     match_flag = False
                     continue
+                elif attr == "production_countries":
+                    info_values = [str(val.get("iso_3166_1")).upper() for val in info_value]
                 else:
                     if isinstance(info_value, list):
                         info_values = [str(val).upper() for val in info_value]
