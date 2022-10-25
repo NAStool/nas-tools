@@ -1974,3 +1974,13 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
+
+    @DbPersist(_db)
+    def set_db_version(self, version=None):
+        """
+        设置数据库版本
+        """
+        if not version:
+            return
+        self._db.query(ALEMBICVERSION).delete()
+        self._db.insert(ALEMBICVERSION(version_num=str(version)))

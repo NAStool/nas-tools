@@ -89,14 +89,24 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
-def init_db():
+def init_maindb():
     """
-    初始化数据库
+    初始化主数据库
     """
-    MediaDb().init_db()
     MainDb().init_db()
     MainDb().init_data()
+    _dbhelper = DbHelper()
+    # 设置数据库版本为最新，防止触发alembic升级报错
+    _dbhelper.set_db_version('53a9ae5d2835')
+    print("【Db】user.db 数据库不存在，已初始化...")
 
+
+def init_mediadb():
+    """
+    初始化媒体数据库
+    """
+    MediaDb().init_db()
+    print("【Db】media.db 数据库不存在，已初始化...")
 
 def update_db(cfg):
     """
@@ -397,6 +407,12 @@ if __name__ == "__main__":
     log.console('NASTool 当前版本号：%s' % APP_VERSION)
 
     config = Config()
+
+    # 数据库初始化
+    if not os.path.exists(os.path.join(Config().get_config_path(), 'user.db')):
+        init_maindb()
+    if not os.path.exists(os.path.join(Config().get_config_path(), 'media.db')):
+        init_mediadb()
 
     # 数据库更新
     update_db(config)

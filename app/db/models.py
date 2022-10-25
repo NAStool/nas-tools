@@ -1,9 +1,15 @@
 # coding: utf-8
-from sqlalchemy import Column, Float, Index, Integer, Text, text, Sequence
+from sqlalchemy import Column, Float, Index, Integer, Text, text, Sequence, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 BaseMedia = declarative_base()
+
+
+class ALEMBICVERSION(Base):
+    __tablename__ = 'alembic_version'
+
+    version_num = Column(VARCHAR, primary_key=True)
 
 
 class CONFIGFILTERGROUP(Base):
