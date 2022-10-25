@@ -94,9 +94,9 @@ def init_db():
     初始化数据库
     """
     log.console('【Db】数据库初始化...')
+    MediaDb().init_db()
     MainDb().init_db()
     MainDb().init_data()
-    MediaDb().init_db()
     log.console('【Db】数据库初始化已完成')
 
 
