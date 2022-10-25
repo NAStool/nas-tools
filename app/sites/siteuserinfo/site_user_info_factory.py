@@ -10,6 +10,7 @@ from app.sites.siteuserinfo.gazelle import GazelleSiteUserInfo
 from app.sites.siteuserinfo.ipt_project import IptSiteUserInfo
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from app.sites.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
+from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
 from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
 from app.utils import RequestUtils
@@ -96,6 +97,9 @@ class SiteUserInfoFactory(object):
 
         if "Powered by Gazelle" in printable_text:
             return GazelleSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
+
+        if "Style by Rabbit" in printable_text:
+            return NexusRabbitSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
 
         if "Powered by Discuz!" in printable_text:
             return DiscuzUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
