@@ -456,12 +456,12 @@ class DbHelper:
         查询过滤规则
         """
         if not groupid:
-            return self._db.query(CONFIGFILTERRULES).group_by(CONFIGFILTERRULES.GROUP_ID,
+            return self._db.query(CONFIGFILTERRULES).order_by(CONFIGFILTERRULES.GROUP_ID,
                                                               cast(CONFIGFILTERRULES.PRIORITY,
                                                                    Integer)).all()
         else:
             return self._db.query(CONFIGFILTERRULES).filter(
-                CONFIGFILTERRULES.GROUP_ID == int(groupid)).group_by(CONFIGFILTERRULES.GROUP_ID,
+                CONFIGFILTERRULES.GROUP_ID == int(groupid)).order_by(CONFIGFILTERRULES.GROUP_ID,
                                                                      cast(CONFIGFILTERRULES.PRIORITY,
                                                                           Integer)).all()
 
