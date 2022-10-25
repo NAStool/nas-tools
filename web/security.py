@@ -1,8 +1,8 @@
 import datetime
 from functools import wraps
+
 import jwt
 from flask import request
-from flask_restx import abort
 
 from config import Config
 
@@ -11,6 +11,7 @@ def require_auth(func):
     """
     API安全认证
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         auth = request.headers.get("Authorization")
@@ -18,7 +19,12 @@ def require_auth(func):
             auth = str(auth).split()[-1]
             if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
-        return abort(401)
+        return {
+            "code": 401,
+            "success": False,
+            "message": "安全认证未通过，请检查ApiKey"
+        }
+
     return wrapper
 
 
@@ -84,10 +90,16 @@ def login_required(func):
     :param func:
     :return:
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization", default=None)
         if not token or not identify(token):
-            return abort(403)
+            return {
+                "code": 403,
+                "success": False,
+                "message": "安全认证未通过，请检查Token"
+            }
         return func(*args, **kwargs)
+
     return wrapper

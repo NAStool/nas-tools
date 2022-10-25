@@ -153,9 +153,33 @@ class WebAction:
     def action(self, cmd, data=None):
         func = self._actions.get(cmd)
         if not func:
-            return "非授权访问！"
+            return {"code": -1, "msg": "非授权访问！"}
         else:
             return func(data)
+
+    def api_action(self, cmd, data=None):
+        result = self.action(cmd, data)
+        if not result:
+            return {
+                "code": -1,
+                "success": False,
+                "message": "服务异常，未获取到返回结果"
+            }
+        code = result.get("code", result.get("retcode", 0))
+        if not code or str(code) == "0":
+            success = True
+        else:
+            success = False
+        message = result.get("msg", result.get("retmsg", ""))
+        for key in ['code', 'retcode', 'msg', 'retmsg']:
+            if key in result:
+                result.pop(key)
+        return {
+                "code": code,
+                "success": success,
+                "message": message,
+                "data": result
+            }
 
     @staticmethod
     def shutdown_server():

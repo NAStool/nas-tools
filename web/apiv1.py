@@ -1,7 +1,6 @@
+from flask import Blueprint
 from flask_restx import Api, reqparse, Resource
-from flask import Blueprint, jsonify, request
 
-from app.media import Media
 from app.sites import Sites
 from config import Config
 from web.action import WebAction
@@ -22,8 +21,8 @@ Apiv1 = Api(apiv1_bp,
             authorizations={"Bearer Auth": {"type": "apiKey", "name": "Authorization", "in": "header"}},
             )
 # API分组
-system = Apiv1.namespace('system', description='系统')
 user = Apiv1.namespace('user', description='用户')
+system = Apiv1.namespace('system', description='系统')
 config = Apiv1.namespace('config', description='设置')
 site = Apiv1.namespace('site', description='站点')
 service = Apiv1.namespace('service', description='服务')
@@ -54,6 +53,84 @@ class ClientResource(Resource):
     method_decorators = [login_required]
 
 
+@user.route('/login')
+class UserLogin(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
+    parser.add_argument('password', type=str, help='密码', location='form', required=True)
+
+    @user.doc(parser=parser)
+    def post(self):
+        """
+        用户登录
+        """
+        args = self.parser.parse_args()
+        username = args.get('username')
+        password = args.get('password')
+        if not username or not password:
+            return {"code": 1, "success": False, "message": "用户名或密码错误"}
+        user_info = User().get_user(username)
+        if not user_info:
+            return {"code": 1, "success": False, "message": "用户名或密码错误"}
+        # 校验密码
+        if not user_info.verify_password(password):
+            return {"code": 1, "success": False, "message": "用户名或密码错误"}
+        return {
+            "code": 0,
+            "success": True,
+            "data": {
+                "token": generate_access_token(username),
+                "apikey": Config().get_config("security").get("api_key"),
+                "userinfo": {
+                    "userid": user_info.id,
+                    "username": user_info.username,
+                    "userpris": str(user_info.pris).split(",")
+                }
+            }
+        }
+
+
+@user.route('/info')
+class UserInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
+
+    @user.doc(parser=parser)
+    def post(self):
+        """
+        获取用户信息
+        """
+        args = self.parser.parse_args()
+        username = args.get('username')
+        user_info = User().get_user(username)
+        if not user_info:
+            return {"code": 1, "success": False, "message": "用户名不正确"}
+        return {
+            "code": 0,
+            "success": True,
+            "data": {
+                "userid": user_info.id,
+                "username": user_info.username,
+                "userpris": str(user_info.pris).split(",")
+            }
+        }
+
+
+@user.route('/manage')
+class UserManage(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('oper', type=str, help='操作类型（add 新增、del删除）', location='form', required=True)
+    parser.add_argument('name', type=str, help='用户名', location='form', required=True)
+    parser.add_argument('pris', type=str, help='权限', location='form')
+
+    @user.doc(parser=parser)
+    def post(self):
+        """
+        用户管理
+        """
+        return WebAction().api_action(cmd='user_manager', data=self.parser.parse_args())
+
+
 @service.route('/mediainfo')
 class ServiceMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
@@ -64,7 +141,7 @@ class ServiceMediaInfo(ApiResource):
         """
         识别媒体信息（密钥认证）
         """
-        return WebAction().action(cmd='name_test', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='name_test', data=self.parser.parse_args())
 
 
 @service.route('/name/test')
@@ -77,7 +154,7 @@ class ServiceNameTest(ClientResource):
         """
         名称识别测试
         """
-        return WebAction().action(cmd='name_test', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='name_test', data=self.parser.parse_args())
 
 
 @service.route('/rule/test')
@@ -92,7 +169,7 @@ class ServiceRuleTest(ClientResource):
         """
         过滤规则测试
         """
-        return WebAction().action(cmd='rule_test', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rule_test', data=self.parser.parse_args())
 
 
 @service.route('/network/test')
@@ -105,7 +182,7 @@ class ServiceNetworkTest(ClientResource):
         """
         网络连接性测试
         """
-        return WebAction().action(cmd='net_test', data=self.parser.parse_args().get("url"))
+        return WebAction().api_action(cmd='net_test', data=self.parser.parse_args().get("url"))
 
 
 @service.route('/run')
@@ -118,7 +195,7 @@ class ServiceRun(ClientResource):
         """
         运行服务
         """
-        return WebAction().action(cmd='sch', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='sch', data=self.parser.parse_args())
 
 
 @site.route('/statistics')
@@ -130,11 +207,12 @@ class SiteStatistic(ApiResource):
         """
         # 返回站点信息
         return {
-                "code": 0,
-                "data": {
-                    "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
-                }
+            "code": 0,
+            "success": True,
+            "data": {
+                "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
             }
+        }
 
 
 @site.route('/sites')
@@ -145,11 +223,12 @@ class SiteSites(ApiResource):
         获取所有站点配置（密钥认证）
         """
         return {
-                "code": 0,
-                "data": {
-                    "user_sites": Sites().get_sites()
-                }
+            "code": 0,
+            "success": True,
+            "data": {
+                "user_sites": Sites().get_sites()
             }
+        }
 
 
 @site.route('/update')
@@ -169,7 +248,7 @@ class SiteUpdate(ClientResource):
         """
         新增/删除站点
         """
-        return WebAction().action(cmd='update_site', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='update_site', data=self.parser.parse_args())
 
 
 @site.route('/info')
@@ -182,7 +261,7 @@ class SiteInfo(ClientResource):
         """
         查询单个站点详情
         """
-        return WebAction().action(cmd='get_site', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_site', data=self.parser.parse_args())
 
 
 @site.route('/delete')
@@ -195,7 +274,7 @@ class SiteDelete(ClientResource):
         """
         删除站点
         """
-        return WebAction().action(cmd='del_site', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='del_site', data=self.parser.parse_args())
 
 
 @site.route('/statistics/activity')
@@ -208,7 +287,7 @@ class SiteStatisticsActivity(ClientResource):
         """
         查询站点 上传、下载、做种数据
         """
-        return WebAction().action(cmd='get_site_activity', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_site_activity', data=self.parser.parse_args())
 
 
 @site.route('/check')
@@ -221,7 +300,7 @@ class SiteCheck(ClientResource):
         """
         检查站点是否支持FREE、HR检测
         """
-        return WebAction().action(cmd='check_site_attr', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='check_site_attr', data=self.parser.parse_args())
 
 
 @site.route('/statistics/history')
@@ -234,7 +313,7 @@ class SiteStatisticsHistory(ClientResource):
         """
         查询所有站点历史数据
         """
-        return WebAction().action(cmd='get_site_history', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_site_history', data=self.parser.parse_args())
 
 
 @site.route('/statistics/seedinfo')
@@ -247,7 +326,7 @@ class SiteStatisticsSeedinfo(ClientResource):
         """
         查询站点做种分布
         """
-        return WebAction().action(cmd='get_site_seeding_info', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_site_seeding_info', data=self.parser.parse_args())
 
 
 @site.route('/resources')
@@ -262,78 +341,7 @@ class SiteResources(ClientResource):
         """
         查询站点资源列表
         """
-        return WebAction().action(cmd='list_site_resources', data=self.parser.parse_args())
-
-
-@user.route('/login')
-class UserLogin(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
-    parser.add_argument('password', type=str, help='密码', location='form', required=True)
-
-    @user.doc(parser=parser)
-    def post(self):
-        """
-        用户登录
-        """
-        args = self.parser.parse_args()
-        username = args.get('username')
-        password = args.get('password')
-        if not username or not password:
-            return {"code": 1, "message": "用户名或密码错误"}
-        user_info = User().get_user(username)
-        if not user_info:
-            return {"code": 1, "message": "用户名或密码错误"}
-        # 校验密码
-        if not user_info.verify_password(password):
-            return {"code": 1, "message": "用户名或密码错误"}
-        return {
-            "code": 0,
-            "token": generate_access_token(username),
-            "apikey": Config().get_config("security").get("api_key"),
-            "userinfo": {
-                "userid": user_info.id,
-                "username": user_info.username,
-                "userpris": str(user_info.pris).split(",")
-            }
-        }
-
-
-@user.route('/info')
-class UserInfo(ClientResource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
-
-    @user.doc(parser=parser)
-    def post(self):
-        """
-        获取用户信息
-        """
-        args = self.parser.parse_args()
-        username = args.get('username')
-        user_info = User().get_user(username)
-        if not user_info:
-            return {"code": 1, "message": "用户名不正确"}
-        return {
-            "userid": user_info.id,
-            "username": user_info.username,
-            "userpris": str(user_info.pris).split(",")
-        }
-
-
-@user.route('/manage')
-class UserManage(ClientResource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('oper', type=str, help='操作类型（add 新增、del删除）', location='form', required=True)
-    parser.add_argument('name', type=str, help='用户名', location='form', required=True)
-    parser.add_argument('pris', type=str, help='权限', location='form')
-
-    @user.doc(parser=parser)
-    def post(self):
-        """
-        用户管理
-        """
-        return WebAction().action(cmd='user_manager', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='list_site_resources', data=self.parser.parse_args())
 
 
 @search.route('/keyword')
@@ -350,7 +358,7 @@ class SearchKeyword(ClientResource):
         """
         根据关键字/TMDBID搜索
         """
-        return WebAction().action(cmd='search', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='search', data=self.parser.parse_args())
 
 
 @download.route('/search')
@@ -364,7 +372,7 @@ class DownloadSearch(ClientResource):
         """
         下载搜索结果
         """
-        return WebAction().action(cmd='download', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='download', data=self.parser.parse_args())
 
 
 @download.route('/item')
@@ -386,7 +394,7 @@ class DownloadItem(ClientResource):
         """
         下载链接
         """
-        return WebAction().action(cmd='download_link', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='download_link', data=self.parser.parse_args())
 
 
 @download.route('/start')
@@ -399,7 +407,7 @@ class DownloadStart(ClientResource):
         """
         开始下载任务
         """
-        return WebAction().action(cmd='pt_start', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='pt_start', data=self.parser.parse_args())
 
 
 @download.route('/stop')
@@ -412,7 +420,7 @@ class DownloadStop(ClientResource):
         """
         暂停下载任务
         """
-        return WebAction().action(cmd='pt_stop', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='pt_stop', data=self.parser.parse_args())
 
 
 @download.route('/info')
@@ -425,7 +433,7 @@ class DownloadInfo(ClientResource):
         """
         查询下载进度
         """
-        return WebAction().action(cmd='pt_info', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='pt_info', data=self.parser.parse_args())
 
 
 @download.route('/remove')
@@ -438,7 +446,7 @@ class DownloadRemove(ClientResource):
         """
         删除下载任务
         """
-        return WebAction().action(cmd='pt_remove', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='pt_remove', data=self.parser.parse_args())
 
 
 @download.route('/history')
@@ -451,7 +459,7 @@ class DownloadHistory(ClientResource):
         """
         查询下载历史
         """
-        return WebAction().action(cmd='get_downloaded', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_downloaded', data=self.parser.parse_args())
 
 
 @organization.route('/unknown/delete')
@@ -464,7 +472,7 @@ class UnknownDelete(ClientResource):
         """
         删除未识别记录
         """
-        return WebAction().action(cmd='del_unknown_path', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='del_unknown_path', data=self.parser.parse_args())
 
 
 @organization.route('/unknown/rename')
@@ -486,7 +494,7 @@ class UnknownRename(ClientResource):
         """
         手动识别
         """
-        return WebAction().action(cmd='rename', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rename', data=self.parser.parse_args())
 
 
 @organization.route('/unknown/renameudf')
@@ -510,7 +518,7 @@ class UnknownRenameUDF(ClientResource):
         """
         自定义识别
         """
-        return WebAction().action(cmd='rename_udf', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rename_udf', data=self.parser.parse_args())
 
 
 @organization.route('/unknown/redo')
@@ -524,7 +532,7 @@ class UnknownRedo(ClientResource):
         """
         重新识别
         """
-        return WebAction().action(cmd='re_identification', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='re_identification', data=self.parser.parse_args())
 
 
 @organization.route('/history/delete')
@@ -537,7 +545,7 @@ class TransferHistoryDelete(ClientResource):
         """
         删除媒体整理历史记录
         """
-        return WebAction().action(cmd='delete_history', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='delete_history', data=self.parser.parse_args())
 
 
 @organization.route('/library/start')
@@ -548,7 +556,7 @@ class MediaLibraryStart(ClientResource):
         """
         开始媒体库同步
         """
-        return WebAction().action(cmd='start_mediasync')
+        return WebAction().api_action(cmd='start_mediasync')
 
 
 @organization.route('/cache/empty')
@@ -559,7 +567,7 @@ class TransferCacheEmpty(ClientResource):
         """
         清空文件转移缓存
         """
-        return WebAction().action(cmd='mediasync_state')
+        return WebAction().api_action(cmd='mediasync_state')
 
 
 @organization.route('/library/status')
@@ -570,7 +578,7 @@ class MediaLibraryStart(ClientResource):
         """
         查询媒体库同步状态
         """
-        return WebAction().action(cmd='truncate_blacklist')
+        return WebAction().api_action(cmd='truncate_blacklist')
 
 
 @system.route('/logging')
@@ -581,7 +589,7 @@ class SystemLogging(ClientResource):
         """
         获取实时日志
         """
-        return WebAction().action(cmd='logging')
+        return WebAction().api_action(cmd='logging')
 
 
 @system.route('/version')
@@ -592,7 +600,7 @@ class SystemVersion(ClientResource):
         """
         查询最新版本号
         """
-        return WebAction().action(cmd='version')
+        return WebAction().api_action(cmd='version')
 
 
 @system.route('/restart')
@@ -603,7 +611,7 @@ class SystemRestart(ClientResource):
         """
         重启
         """
-        return WebAction().action(cmd='restart')
+        return WebAction().api_action(cmd='restart')
 
 
 @system.route('/update')
@@ -614,7 +622,7 @@ class SystemUpdate(ClientResource):
         """
         更新
         """
-        return WebAction().action(cmd='update_system')
+        return WebAction().api_action(cmd='update_system')
 
 
 @system.route('/logout')
@@ -625,7 +633,7 @@ class SystemUpdate(ClientResource):
         """
         注销
         """
-        return WebAction().action(cmd='logout')
+        return WebAction().api_action(cmd='logout')
 
 
 @system.route('/message')
@@ -651,7 +659,7 @@ class SystemProgress(ClientResource):
         """
         查询搜索/媒体同步等进度
         """
-        return WebAction().action(cmd='refresh_process', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='refresh_process', data=self.parser.parse_args())
 
 
 @config.route('/update')
@@ -663,7 +671,7 @@ class ConfigUpdate(ClientResource):
         """
         新增/修改配置
         """
-        return WebAction().action(cmd='update_config', data=self.parser.parse_args().get("items"))
+        return WebAction().api_action(cmd='update_config', data=self.parser.parse_args().get("items"))
 
 
 @config.route('/test')
@@ -676,7 +684,7 @@ class ConfigTest(ClientResource):
         """
         测试配置连通性
         """
-        return WebAction().action(cmd='test_connection', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='test_connection', data=self.parser.parse_args())
 
 
 @config.route('/restore')
@@ -689,7 +697,7 @@ class ConfigRestore(ClientResource):
         """
         恢复备份的配置
         """
-        return WebAction().action(cmd='restory_backup', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='restory_backup', data=self.parser.parse_args())
 
 
 @subscribe.route('/delete')
@@ -707,7 +715,7 @@ class SubscribeDelete(ClientResource):
         """
         删除订阅
         """
-        return WebAction().action(cmd='remove_rss_media', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='remove_rss_media', data=self.parser.parse_args())
 
 
 @subscribe.route('/add')
@@ -736,7 +744,7 @@ class SubscribeAdd(ClientResource):
         """
         新增/修改订阅
         """
-        return WebAction().action(cmd='add_rss_media', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='add_rss_media', data=self.parser.parse_args())
 
 
 @subscribe.route('/movie/date')
@@ -749,7 +757,7 @@ class SubscribeMovieDate(ClientResource):
         """
         电影上映日期
         """
-        return WebAction().action(cmd='movie_calendar_data', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='movie_calendar_data', data=self.parser.parse_args())
 
 
 @subscribe.route('/tv/date')
@@ -764,7 +772,7 @@ class SubscribeTVDate(ClientResource):
         """
         电视剧上映日期
         """
-        return WebAction().action(cmd='tv_calendar_data', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='tv_calendar_data', data=self.parser.parse_args())
 
 
 @subscribe.route('/search')
@@ -778,7 +786,7 @@ class SubscribeSearch(ClientResource):
         """
         订阅搜索
         """
-        return WebAction().action(cmd='refresh_rss', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='refresh_rss', data=self.parser.parse_args())
 
 
 @subscribe.route('/info')
@@ -792,7 +800,7 @@ class SubscribeInfo(ClientResource):
         """
         订阅详情
         """
-        return WebAction().action(cmd='rss_detail', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rss_detail', data=self.parser.parse_args())
 
 
 @subscribe.route('/redo')
@@ -806,7 +814,7 @@ class SubscribeRedo(ClientResource):
         """
         历史重新订阅
         """
-        return WebAction().action(cmd='re_rss_history', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='re_rss_history', data=self.parser.parse_args())
 
 
 @subscribe.route('/history/delete')
@@ -819,7 +827,7 @@ class SubscribeHistoryDelete(ClientResource):
         """
         删除订阅历史
         """
-        return WebAction().action(cmd='delete_rss_history', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='delete_rss_history', data=self.parser.parse_args())
 
 
 @subscribe.route('/cache/delete')
@@ -829,7 +837,7 @@ class SubscribeCacheDelete(ClientResource):
         """
         清理订阅缓存
         """
-        return WebAction().action(cmd='truncate_rsshistory')
+        return WebAction().api_action(cmd='truncate_rsshistory')
 
 
 @recommend.route('/list')
@@ -845,7 +853,7 @@ class RecommendList(ClientResource):
         """
         推荐列表
         """
-        return WebAction().action(cmd='get_recommend', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_recommend', data=self.parser.parse_args())
 
 
 @rss.route('/info')
@@ -858,7 +866,7 @@ class RssInfo(ClientResource):
         """
         自定义订阅任务详情
         """
-        return WebAction().action(cmd='get_userrss_task', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_userrss_task', data=self.parser.parse_args())
 
 
 @rss.route('/delete')
@@ -871,7 +879,7 @@ class RssDelete(ClientResource):
         """
         删除自定义订阅任务
         """
-        return WebAction().action(cmd='delete_userrss_task', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='delete_userrss_task', data=self.parser.parse_args())
 
 
 @rss.route('/update')
@@ -894,7 +902,7 @@ class RssUpdate(ClientResource):
         """
         新增/修改自定义订阅任务
         """
-        return WebAction().action(cmd='update_userrss_task', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='update_userrss_task', data=self.parser.parse_args())
 
 
 @rss.route('/parser/info')
@@ -907,7 +915,7 @@ class RssParserInfo(ClientResource):
         """
         解析器详情
         """
-        return WebAction().action(cmd='get_rssparser', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_rssparser', data=self.parser.parse_args())
 
 
 @rss.route('/parser/delete')
@@ -920,7 +928,7 @@ class RssParserDelete(ClientResource):
         """
         删除解析器
         """
-        return WebAction().action(cmd='delete_rssparser', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='delete_rssparser', data=self.parser.parse_args())
 
 
 @rss.route('/parser/update')
@@ -937,7 +945,7 @@ class RssParserUpdate(ClientResource):
         """
         新增/修改解析器
         """
-        return WebAction().action(cmd='update_rssparser', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='update_rssparser', data=self.parser.parse_args())
 
 
 @rss.route('/run')
@@ -950,7 +958,7 @@ class RssRun(ClientResource):
         """
         运行自定义订阅任务
         """
-        return WebAction().action(cmd='run_userrss', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='run_userrss', data=self.parser.parse_args())
 
 
 @rss.route('/preview')
@@ -963,7 +971,7 @@ class RssPreview(ClientResource):
         """
         自定义订阅预览
         """
-        return WebAction().action(cmd='list_rss_articles', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='list_rss_articles', data=self.parser.parse_args())
 
 
 @rss.route('/name/test')
@@ -977,7 +985,7 @@ class RssNameTest(ClientResource):
         """
         自定义订阅名称测试
         """
-        return WebAction().action(cmd='rss_article_test', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rss_article_test', data=self.parser.parse_args())
 
 
 @rss.route('/item/history')
@@ -990,7 +998,7 @@ class RssItemHistory(ClientResource):
         """
         自定义订阅任务条目处理记录
         """
-        return WebAction().action(cmd='list_rss_history', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='list_rss_history', data=self.parser.parse_args())
 
 
 @rss.route('/item/set')
@@ -1004,7 +1012,7 @@ class RssItemSet(ClientResource):
         """
         自定义订阅任务条目状态调整
         """
-        return WebAction().action(cmd='rss_articles_check', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rss_articles_check', data=self.parser.parse_args())
 
 
 @rss.route('/item/download')
@@ -1018,7 +1026,7 @@ class RssItemDownload(ClientResource):
         """
         自定义订阅任务条目下载
         """
-        return WebAction().action(cmd='rss_articles_download', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='rss_articles_download', data=self.parser.parse_args())
 
 
 """
