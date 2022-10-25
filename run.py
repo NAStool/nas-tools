@@ -98,7 +98,7 @@ def init_maindb():
     _dbhelper = DbHelper()
     # 设置数据库版本为最新，防止触发alembic升级报错
     _dbhelper.set_db_version('53a9ae5d2835')
-    print("【Db】user.db 数据库不存在，已初始化...")
+    log.console('【Db】user.db 数据库不存在，已初始化...')
 
 
 def init_mediadb():
@@ -106,7 +106,7 @@ def init_mediadb():
     初始化媒体数据库
     """
     MediaDb().init_db()
-    print("【Db】media.db 数据库不存在，已初始化...")
+    log.console('【Db】media.db 数据库不存在，已初始化...')
 
 def update_db(cfg):
     """
@@ -114,11 +114,12 @@ def update_db(cfg):
     """
     db_location = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
     script_location = os.path.join(os.path.dirname(__file__), 'alembic').replace('\\', '/')
-    log.console(f'Running DB migrations in {script_location} on {db_location}')
+    log.console('【Db】更新数据库...')
     alembic_cfg = alembic_config()
     alembic_cfg.set_main_option('script_location', script_location)
     alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
     alembic_upgrade(alembic_cfg, 'head')
+    log.console('【Db】数据库已更新')
 
 
 def update_config(cfg):

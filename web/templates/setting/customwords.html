@@ -131,9 +131,7 @@
                   <th>后定位词</th>
                   <th>状态</th>
                   <th>备注</th>
-                  {% if Group.words %}
                   <th class="w-5"></th>
-                  {% endif %}
                 </tr>
               </thead>
               <tbody>
@@ -193,7 +191,7 @@
                 </tr>
                 {% endfor %}
                 {% else %}
-                <tr><td colspan="6" align="center">未配置</td></tr>
+                <tr><td colspan="8" align="center">未配置</td></tr>
                 {% endif %}
               </tbody>
             </table>
