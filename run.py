@@ -89,24 +89,16 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
-def init_maindb():
+def init_db():
     """
-    初始化主数据库
+    初始化数据库
     """
+    log.console('【Db】数据库初始化...')
     MainDb().init_db()
     MainDb().init_data()
-    _dbhelper = DbHelper()
-    # 设置数据库版本为最新，防止触发alembic升级报错
-    _dbhelper.set_db_version('53a9ae5d2835')
-    log.console('【Db】user.db 数据库不存在，已初始化...')
-
-
-def init_mediadb():
-    """
-    初始化媒体数据库
-    """
     MediaDb().init_db()
-    log.console('【Db】media.db 数据库不存在，已初始化...')
+    log.console('【Db】数据库初始化已完成')
+
 
 def update_db(cfg):
     """
@@ -114,12 +106,12 @@ def update_db(cfg):
     """
     db_location = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
     script_location = os.path.join(os.path.dirname(__file__), 'alembic').replace('\\', '/')
-    log.console('【Db】更新数据库...')
+    log.console('【Db】数据库更新...')
     alembic_cfg = alembic_config()
     alembic_cfg.set_main_option('script_location', script_location)
     alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
     alembic_upgrade(alembic_cfg, 'head')
-    log.console('【Db】数据库已更新')
+    log.console('【Db】数据库更新已完成')
 
 
 def update_config(cfg):
@@ -391,8 +383,8 @@ def update_config(cfg):
                                                   mode=rmt_mode,
                                                   rename=1,
                                                   enabled=0)
-        _config['sync'].pop('sync_path')
-        overwrite_cofig = True
+            _config['sync'].pop('sync_path')
+            overwrite_cofig = True
     except Exception as e:
         print(str(e))
     # 重写配置文件
@@ -410,10 +402,7 @@ if __name__ == "__main__":
     config = Config()
 
     # 数据库初始化
-    if not os.path.exists(os.path.join(Config().get_config_path(), 'user.db')):
-        init_maindb()
-    if not os.path.exists(os.path.join(Config().get_config_path(), 'media.db')):
-        init_mediadb()
+    init_db()
 
     # 数据库更新
     update_db(config)

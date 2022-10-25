@@ -6,12 +6,6 @@ Base = declarative_base()
 BaseMedia = declarative_base()
 
 
-class ALEMBICVERSION(Base):
-    __tablename__ = 'alembic_version'
-
-    version_num = Column(VARCHAR, primary_key=True)
-
-
 class CONFIGFILTERGROUP(Base):
     __tablename__ = 'CONFIG_FILTER_GROUP'
 
