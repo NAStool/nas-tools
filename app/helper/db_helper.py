@@ -1626,6 +1626,7 @@ class DbHelper:
             )
         else:
             self._db.insert(CONFIGFILTERRULES(
+                GROUP_ID=item.get("group"),
                 ROLE_NAME=item.get("name"),
                 PRIORITY=item.get("pri"),
                 INCLUDE=item.get("include"),

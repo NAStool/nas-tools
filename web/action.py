@@ -2232,7 +2232,7 @@ class WebAction:
         return StringUtils.str_filesize(size, pre=1)
 
     @staticmethod
-    def __clear_tmdb_cache():
+    def __clear_tmdb_cache(data):
         """
         清空TMDB缓存
         """
