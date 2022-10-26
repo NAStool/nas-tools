@@ -1,3 +1,4 @@
+from functools import partial
 import os.path
 import regex as re
 
@@ -19,7 +20,14 @@ def MetaInfo(title, subtitle=None, mtype=None):
     """
 
     # 应用自定义识别词
-    title, msg, used_info = WordsHelper().process(title)
+    if subtitle:
+        name = f'{title}@@@{subtitle}'
+        name, msg, used_info = WordsHelper().process(name)
+        title = name.split('@@@')[0]
+        subtitle = name.split('@@@')[-1]
+    else:
+        title, msg, used_info = WordsHelper().process(title)
+
     if msg:
         log.warn("【Meta】%s" % msg)
 
