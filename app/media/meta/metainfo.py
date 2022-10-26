@@ -1,4 +1,3 @@
-from functools import partial
 import os.path
 import regex as re
 
