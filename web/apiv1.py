@@ -123,7 +123,7 @@ class UserInfo(ClientResource):
 @user.route('/manage')
 class UserManage(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('oper', type=str, help='操作类型（add 新增、del删除）', location='form', required=True)
+    parser.add_argument('oper', type=str, help='操作类型（add 新增/del删除）', location='form', required=True)
     parser.add_argument('name', type=str, help='用户名', location='form', required=True)
     parser.add_argument('pris', type=str, help='权限', location='form')
 
@@ -289,7 +289,7 @@ class SiteStatisticsActivity(ClientResource):
     @site.doc(parser=parser)
     def post(self):
         """
-        查询站点 上传、下载、做种数据
+        查询站点 上传/下载/做种数据
         """
         return WebAction().api_action(cmd='get_site_activity', data=self.parser.parse_args())
 
@@ -302,7 +302,7 @@ class SiteCheck(ClientResource):
     @site.doc(parser=parser)
     def post(self):
         """
-        检查站点是否支持FREE、HR检测
+        检查站点是否支持FREE/HR检测
         """
         return WebAction().api_action(cmd='check_site_attr', data=self.parser.parse_args())
 
@@ -714,7 +714,7 @@ class ConfigRestore(ClientResource):
 class SubscribeDelete(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('name', type=str, help='名称', location='form')
-    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form')
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form')
     parser.add_argument('year', type=str, help='发行年份', location='form')
     parser.add_argument('season', type=int, help='季号', location='form')
     parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
@@ -732,7 +732,7 @@ class SubscribeDelete(ClientResource):
 class SubscribeAdd(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
-    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
     parser.add_argument('year', type=str, help='发行年份', location='form')
     parser.add_argument('season', type=int, help='季号', location='form')
     parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
@@ -788,7 +788,7 @@ class SubscribeTVDate(ClientResource):
 @subscribe.route('/search')
 class SubscribeSearch(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('type', type=str, help='类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
     parser.add_argument('rssid', type=int, help='订阅ID', location='form', required=True)
 
     @subscribe.doc(parser=parser)
@@ -803,7 +803,7 @@ class SubscribeSearch(ClientResource):
 class SubscribeInfo(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('rssid', type=int, help='订阅ID', location='form', required=True)
-    parser.add_argument('type', type=str, help='订阅类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('type', type=str, help='订阅类型（MOV/TV）', location='form', required=True)
 
     @subscribe.doc(parser=parser)
     def post(self):
@@ -817,7 +817,7 @@ class SubscribeInfo(ClientResource):
 class SubscribeRedo(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('rssid', type=int, help='订阅历史ID', location='form', required=True)
-    parser.add_argument('type', type=str, help='订阅类型（MOV、TV）', location='form', required=True)
+    parser.add_argument('type', type=str, help='订阅类型（MOV/TV）', location='form', required=True)
 
     @subscribe.doc(parser=parser)
     def post(self):
@@ -854,7 +854,7 @@ class SubscribeCacheDelete(ClientResource):
 class RecommendList(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('type', type=str,
-                        help='类型（hm、ht、nm、nt、dbom、dbhm、dbht、dbdh、dbnm、dbtop、dbzy）',
+                        help='类型（hm/ht/nm/nt/dbom/dbhm/dbht/dbdh/dbnm/dbtop/dbzy）',
                         location='form', required=True)
     parser.add_argument('page', type=int, help='页码', location='form', required=True)
 
@@ -1014,8 +1014,8 @@ class RssItemHistory(ClientResource):
 @rss.route('/item/set')
 class RssItemSet(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('flag', type=str, help='操作类型（set_finished、set_unfinish）', location='form', required=True)
-    parser.add_argument('articles', type=list, help='条目（{title、enclosure}）', location='form', required=True)
+    parser.add_argument('flag', type=str, help='操作类型（set_finished/set_unfinish）', location='form', required=True)
+    parser.add_argument('articles', type=list, help='条目（{title/enclosure}）', location='form', required=True)
 
     @rss.doc(parser=parser)
     def post(self):
@@ -1029,7 +1029,7 @@ class RssItemSet(ClientResource):
 class RssItemDownload(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('taskid', type=int, help='任务ID', location='form', required=True)
-    parser.add_argument('articles', type=list, help='条目（{title、enclosure}）', location='form', required=True)
+    parser.add_argument('articles', type=list, help='条目（{title/enclosure}）', location='form', required=True)
 
     @rss.doc(parser=parser)
     def post(self):
@@ -1039,54 +1039,526 @@ class RssItemDownload(ClientResource):
         return WebAction().api_action(cmd='rss_articles_download', data=self.parser.parse_args())
 
 
-"""
+@media.route('/cache/update')
+class MediaCacheUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('key', type=str, help='缓存Key值', location='form', required=True)
+    parser.add_argument('title', type=str, help='标题', location='form', required=True)
 
-# media
-"modify_tmdb_cache": self.__modify_tmdb_cache,
-"clear_tmdb_cache": self.__clear_tmdb_cache,
-"get_tvseason_list": self.__get_tvseason_list,
-"get_categories": self.__get_categories,
-"media_info": self.__media_info,
-"delete_tmdb_cache": self.__delete_tmdb_cache,
-
-# brushtask
-"add_brushtask": self.__add_brushtask,
-"del_brushtask": self.__del_brushtask,
-"brushtask_detail": self.__brushtask_detail,
-"add_downloader": self.__add_downloader,
-"delete_downloader": self.__delete_downloader,
-"get_downloader": self.__get_downloader,
-"run_brushtask": self.__run_brushtask,
-
-# filterrule
-"add_filtergroup": self.__add_filtergroup,
-"restore_filtergroup": self.__restore_filtergroup,
-"set_default_filtergroup": self.__set_default_filtergroup,
-"del_filtergroup": self.__del_filtergroup,
-"add_filterrule": self.__add_filterrule,
-"del_filterrule": self.__del_filterrule,
-"filterrule_detail": self.__filterrule_detail,
-"share_filtergroup": self.__share_filtergroup,
-"import_filtergroup": self.__import_filtergroup
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        修改TMDB缓存标题
+        """
+        return WebAction().api_action(cmd='modify_tmdb_cache', data=self.parser.parse_args())
 
 
+@media.route('/cache/delete')
+class MediaCacheDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cache_key', type=str, help='缓存Key值', location='form', required=True)
 
-# words
-"add_custom_word_group": self.__add_custom_word_group,
-"delete_custom_word_group": self.__delete_custom_word_group,
-"add_or_edit_custom_word": self.__add_or_edit_custom_word,
-"get_custom_word": self.__get_custom_word,
-"delete_custom_word": self.__delete_custom_word,
-"check_custom_words": self.__check_custom_words,
-"export_custom_words": self.__export_custom_words,
-"analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
-"import_custom_words": self.__import_custom_words,
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        删除TMDB缓存
+        """
+        return WebAction().api_action(cmd='delete_tmdb_cache', data=self.parser.parse_args())
 
 
-# sync
-"add_or_edit_sync_path": self.__add_or_edit_sync_path,
-"get_sync_path": self.__get_sync_path,
-"delete_sync_path": self.__delete_sync_path,
-"check_sync_path": self.__check_sync_path,
+@media.route('/cache/clear')
+class MediaCacheClear(ClientResource):
 
-"""
+    @staticmethod
+    def post():
+        """
+        清空TMDB缓存
+        """
+        return WebAction().api_action(cmd='clear_tmdb_cache')
+
+
+@media.route('/tv/seasons')
+class MediaTvSeasons(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form', required=True)
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        查询电视剧季列表
+        """
+        return WebAction().api_action(cmd='get_tvseason_list', data=self.parser.parse_args())
+
+
+@media.route('/category/list')
+class MediaCategoryList(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（电影/电视剧/动漫）', location='form', required=True)
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        查询二级分类配置
+        """
+        return WebAction().api_action(cmd='get_categories', data=self.parser.parse_args())
+
+
+@media.route('/info')
+class MediaInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('id', type=str, help='TMDBID', location='form')
+    parser.add_argument('doubanid', type=str, help='豆瓣ID', location='form')
+    parser.add_argument('title', type=str, help='标题', location='form')
+    parser.add_argument('year', type=str, help='年份', location='form')
+    parser.add_argument('rssid', type=str, help='订阅ID', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        识别媒体信息
+        """
+        return WebAction().api_action(cmd='media_info', data=self.parser.parse_args())
+
+
+@brushtask.route('/update')
+class BrushTaskUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('brushtask_id', type=str, help='刷流任务ID', location='form')
+    parser.add_argument('brushtask_name', type=str, help='任务名称', location='form', required=True)
+    parser.add_argument('brushtask_site', type=int, help='站点', location='form', required=True)
+    parser.add_argument('brushtask_interval', type=int, help='刷新间隔(分钟)', location='form', required=True)
+    parser.add_argument('brushtask_downloader', type=int, help='下载器', location='form', required=True)
+    parser.add_argument('brushtask_totalsize', type=int, help='保种体积(GB)', location='form', required=True)
+    parser.add_argument('brushtask_state', type=str, help='状态（Y/N）', location='form', required=True)
+    parser.add_argument('brushtask_transfer', type=str, help='转移到媒体库（Y/N）', location='form')
+    parser.add_argument('brushtask_sendmessage', type=str, help='消息推送（Y/N）', location='form')
+    parser.add_argument('brushtask_forceupload', type=str, help='强制做种（Y/N）', location='form')
+    parser.add_argument('brushtask_free', type=str, help='促销（FREE/2XFREE）', location='form')
+    parser.add_argument('brushtask_hr', type=str, help='Hit&Run（HR）', location='form')
+    parser.add_argument('brushtask_torrent_size', type=int, help='种子大小(GB)', location='form')
+    parser.add_argument('brushtask_include', type=str, help='包含', location='form')
+    parser.add_argument('brushtask_exclude', type=str, help='排除', location='form')
+    parser.add_argument('brushtask_dlcount', type=int, help='同时下载任务数', location='form')
+    parser.add_argument('brushtask_peercount', type=int, help='做种人数限制', location='form')
+    parser.add_argument('brushtask_seedtime', type=float, help='做种时间(小时)', location='form')
+    parser.add_argument('brushtask_seedratio', type=float, help='分享率', location='form')
+    parser.add_argument('brushtask_seedsize', type=int, help='上传量(GB)', location='form')
+    parser.add_argument('brushtask_dltime', type=float, help='下载耗时(小时)', location='form')
+    parser.add_argument('brushtask_avg_upspeed', type=int, help='平均上传速度(KB/S)', location='form')
+    parser.add_argument('brushtask_pubdate', type=int, help='发布时间（小时）', location='form')
+    parser.add_argument('brushtask_upspeed', type=int, help='上传限速（KB/S）', location='form')
+    parser.add_argument('brushtask_downspeed', type=int, help='下载限速（KB/S）', location='form')
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改刷流任务
+        """
+        return WebAction().api_action(cmd='add_brushtask', data=self.parser.parse_args())
+
+
+@brushtask.route('/delete')
+class BrushTaskDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='刷流任务ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        删除刷流任务
+        """
+        return WebAction().api_action(cmd='del_brushtask', data=self.parser.parse_args())
+
+
+@brushtask.route('/info')
+class BrushTaskInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='刷流任务ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        刷流任务详情
+        """
+        return WebAction().api_action(cmd='del_brushtask', data=self.parser.parse_args())
+
+
+@brushtask.route('/downloader/update')
+class BrushTaskDownloaderUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('test', type=bool, help='测试', location='form', required=True)
+    parser.add_argument('id', type=int, help='下载器ID', location='form')
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（qbittorrent/transmission）', location='form', required=True)
+    parser.add_argument('host', type=str, help='地址', location='form', required=True)
+    parser.add_argument('port', type=int, help='端口', location='form', required=True)
+    parser.add_argument('username', type=str, help='用户名', location='form')
+    parser.add_argument('password', type=str, help='密码', location='form')
+    parser.add_argument('save_dir', type=str, help='保存目录', location='form')
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改刷流下载器
+        """
+        return WebAction().api_action(cmd='add_downloader', data=self.parser.parse_args())
+
+
+@brushtask.route('/downloader/delete')
+class BrushTaskDownloaderDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='下载器ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        删除刷流下载器
+        """
+        return WebAction().api_action(cmd='delete_downloader', data=self.parser.parse_args())
+
+
+@brushtask.route('/downloader/info')
+class BrushTaskDownloaderInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='下载器ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        刷流下载器详情
+        """
+        return WebAction().api_action(cmd='get_downloader', data=self.parser.parse_args())
+
+
+@brushtask.route('/run')
+class BrushTaskRun(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='刷流任务ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        刷流下载器详情
+        """
+        return WebAction().api_action(cmd='run_brushtask', data=self.parser.parse_args())
+
+
+@filterrule.route('/group/add')
+class FilterRuleGroupAdd(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('default', type=str, help='默认（Y/N）', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        新增规则组
+        """
+        return WebAction().api_action(cmd='add_filtergroup', data=self.parser.parse_args())
+
+
+@filterrule.route('/group/restore')
+class FilterRuleGroupRestore(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('groupids', type=list, help='规则组ID', location='form', required=True)
+    parser.add_argument('init_rulegroups', type=list, help='规则组脚本', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        恢复默认规则组
+        """
+        return WebAction().api_action(cmd='restore_filtergroup', data=self.parser.parse_args())
+
+
+@filterrule.route('/group/default')
+class FilterRuleGroupDefault(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='规则组ID', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        设置默认规则组
+        """
+        return WebAction().api_action(cmd='set_default_filtergroup', data=self.parser.parse_args())
+
+
+@filterrule.route('/group/delete')
+class FilterRuleGroupDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='规则组ID', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        删除规则组
+        """
+        return WebAction().api_action(cmd='del_filtergroup', data=self.parser.parse_args())
+
+
+@filterrule.route('/rule/update')
+class FilterRuleUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('rule_id', type=int, help='规则ID', location='form')
+    parser.add_argument('group_id', type=int, help='规则组ID', location='form', required=True)
+    parser.add_argument('rule_name', type=str, help='规则名称', location='form', required=True)
+    parser.add_argument('rule_pri', type=str, help='优先级', location='form', required=True)
+    parser.add_argument('rule_include', type=str, help='包含', location='form')
+    parser.add_argument('rule_exclude', type=str, help='排除', location='form')
+    parser.add_argument('rule_sizelimit', type=str, help='大小限制', location='form')
+    parser.add_argument('rule_free', type=str, help='促销（FREE/2XFREE）', location='form')
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改规则
+        """
+        return WebAction().api_action(cmd='add_filterrule', data=self.parser.parse_args())
+
+
+@filterrule.route('/rule/delete')
+class FilterRuleDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='规则ID', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        删除规则
+        """
+        return WebAction().api_action(cmd='del_filterrule', data=self.parser.parse_args())
+
+
+@filterrule.route('/rule/info')
+class FilterRuleInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('ruleid', type=int, help='规则ID', location='form', required=True)
+    parser.add_argument('groupid', type=int, help='规则组ID', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        规则详情
+        """
+        return WebAction().api_action(cmd='filterrule_detail', data=self.parser.parse_args())
+
+
+@filterrule.route('/rule/share')
+class FilterRuleShare(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='规则组ID', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        分享规则组
+        """
+        return WebAction().api_action(cmd='share_filtergroup', data=self.parser.parse_args())
+
+
+@filterrule.route('/rule/import')
+class FilterRuleImport(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('content', type=str, help='规则内容', location='form', required=True)
+
+    @filterrule.doc(parser=parser)
+    def post(self):
+        """
+        导入规则组
+        """
+        return WebAction().api_action(cmd='import_filtergroup', data=self.parser.parse_args())
+
+
+@words.route('/group/add')
+class WordsGroupAdd(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('tmdb_id', type=str, help='TMDBID', location='form', required=True)
+    parser.add_argument('tmdb_type', type=str, help='类型（movie/tv）', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        新增识别词组
+        """
+        return WebAction().api_action(cmd='add_custom_word_group', data=self.parser.parse_args())
+
+
+@words.route('/group/delete')
+class WordsGroupDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('gid', type=int, help='识别词组ID', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        删除识别词组
+        """
+        return WebAction().api_action(cmd='delete_custom_word_group', data=self.parser.parse_args())
+
+
+@words.route('/item/update')
+class WordItemUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='识别词ID', location='form', required=True)
+    parser.add_argument('gid', type=int, help='识别词组ID', location='form', required=True)
+    parser.add_argument('group_type', type=str, help='媒体类型（1/2）', location='form', required=True)
+    parser.add_argument('new_replaced', type=str, help='被替换词', location='form')
+    parser.add_argument('new_replace', type=str, help='替换词', location='form')
+    parser.add_argument('new_front', type=str, help='前定位词', location='form')
+    parser.add_argument('new_back', type=str, help='后定位词', location='form')
+    parser.add_argument('new_offset', type=str, help='偏移集数', location='form')
+    parser.add_argument('new_help', type=str, help='备注', location='form')
+    parser.add_argument('type', type=str, help='识别词类型（1/2/3/4）', location='form', required=True)
+    parser.add_argument('season', type=str, help='季', location='form')
+    parser.add_argument('enabled', type=str, help='状态（1/0）', location='form', required=True)
+    parser.add_argument('regex', type=str, help='正则表达式（1/0）', location='form')
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改识别词
+        """
+        return WebAction().api_action(cmd='add_or_edit_custom_word', data=self.parser.parse_args())
+
+
+@words.route('/item/info')
+class WordItemInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('wid', type=int, help='识别词ID', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        识别词详情
+        """
+        return WebAction().api_action(cmd='get_custom_word', data=self.parser.parse_args())
+
+
+@words.route('/item/delete')
+class WordItemDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='识别词ID', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        删除识别词
+        """
+        return WebAction().api_action(cmd='delete_custom_word', data=self.parser.parse_args())
+
+
+@words.route('/item/status')
+class WordItemStatus(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('ids_info', type=list, help='识别词IDS', location='form', required=True)
+    parser.add_argument('flag', type=int, help='状态（1/0）', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        设置识别词状态
+        """
+        return WebAction().api_action(cmd='check_custom_words', data=self.parser.parse_args())
+
+
+@words.route('/item/export')
+class WordItemExport(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('note', type=str, help='备注', location='form', required=True)
+    parser.add_argument('ids_info', type=str, help='识别词IDS（@_）', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        导出识别词
+        """
+        return WebAction().api_action(cmd='export_custom_words', data=self.parser.parse_args())
+
+
+@words.route('/item/analyse')
+class WordItemAnalyse(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('import_code', type=str, help='识别词代码', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        分析识别词
+        """
+        return WebAction().api_action(cmd='analyse_import_custom_words_code', data=self.parser.parse_args())
+
+
+@words.route('/item/import')
+class WordItemImport(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('import_code', type=str, help='识别词代码', location='form', required=True)
+    parser.add_argument('ids_info', type=list, help='识别词IDS', location='form', required=True)
+
+    @words.doc(parser=parser)
+    def post(self):
+        """
+        分析识别词
+        """
+        return WebAction().api_action(cmd='import_custom_words', data=self.parser.parse_args())
+
+
+@sync.route('/directory/update')
+class SyncDirectoryUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=int, help='同步目录ID', location='form')
+    parser.add_argument('from', type=str, help='源目录', location='form', required=True)
+    parser.add_argument('to', type=str, help='目的目录', location='form')
+    parser.add_argument('unknown', type=str, help='未知目录', location='form')
+    parser.add_argument('syncmod', type=str, help='同步模式', location='form')
+    parser.add_argument('rename', type=bool, help='重命名', location='form')
+    parser.add_argument('enabled', type=bool, help='开启', location='form')
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改同步目录
+        """
+        return WebAction().api_action(cmd='add_or_edit_sync_path', data=self.parser.parse_args())
+
+
+@sync.route('/directory/info')
+class SyncDirectoryInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=int, help='同步目录ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        同步目录详情
+        """
+        return WebAction().api_action(cmd='get_sync_path', data=self.parser.parse_args())
+
+
+@sync.route('/directory/delete')
+class SyncDirectoryDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=int, help='同步目录ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        删除同步目录
+        """
+        return WebAction().api_action(cmd='delete_sync_path', data=self.parser.parse_args())
+
+
+@sync.route('/directory/status')
+class SyncDirectoryStatus(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=int, help='同步目录ID', location='form', required=True)
+    parser.add_argument('flag', type=int, help='操作（rename/enable）', location='form', required=True)
+    parser.add_argument('checked', type=bool, help='状态', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        设置同步目录状态
+        """
+        return WebAction().api_action(cmd='check_sync_path', data=self.parser.parse_args())
