@@ -3,7 +3,7 @@ import ipaddress
 from config import Config
 
 
-class Security:
+class SecurityHelper:
     media_server_webhook_allow_ip = {}
     telegram_webhook_allow_ip = {}
 

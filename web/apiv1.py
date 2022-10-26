@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_restx import Api, reqparse, Resource
 
 from app.sites import Sites
+from app.utils import TokenCache
 from config import Config
 from web.action import WebAction
 from web.backend.user import User
@@ -75,11 +76,14 @@ class UserLogin(Resource):
         # 校验密码
         if not user_info.verify_password(password):
             return {"code": 1, "success": False, "message": "用户名或密码错误"}
+        # 缓存Token
+        token = generate_access_token(username)
+        TokenCache.set(token, token)
         return {
             "code": 0,
             "success": True,
             "data": {
-                "token": generate_access_token(username),
+                "token": token,
                 "apikey": Config().get_config("security").get("api_key"),
                 "userinfo": {
                     "userid": user_info.id,

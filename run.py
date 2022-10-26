@@ -1,7 +1,7 @@
 import os
 import signal
 import sys
-from alembic.config import Config as alembic_config
+from alembic.config import Config as AlembicConfig
 from alembic.command import upgrade as alembic_upgrade
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
@@ -104,13 +104,16 @@ def update_db(cfg):
     """
     更新数据库
     """
-    db_location = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
-    script_location = os.path.join(os.path.dirname(__file__), 'alembic').replace('\\', '/')
+    db_location = os.path.normpath(os.path.join(cfg.get_config_path(), 'user.db'))
+    script_location = os.path.normpath(os.path.join(os.path.dirname(__file__), 'alembic'))
     log.console('【Db】数据库更新...')
-    alembic_cfg = alembic_config()
-    alembic_cfg.set_main_option('script_location', script_location)
-    alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
-    alembic_upgrade(alembic_cfg, 'head')
+    try:
+        alembic_cfg = AlembicConfig()
+        alembic_cfg.set_main_option('script_location', script_location)
+        alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
+        alembic_upgrade(alembic_cfg, 'head')
+    except Exception as e:
+        print(str(e))
     log.console('【Db】数据库更新已完成')
 
 
