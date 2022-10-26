@@ -234,10 +234,18 @@ class TorrentSpider(feapder.AirSpider):
         items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
         if items:
             if not items[0].startswith("http"):
-                self.torrents_info['page_url'] = self.domain + items[0][1:] if items[0].startswith(
-                    "/") else self.domain + items[0]
+                if items[0].startswith("//"):
+                    self.torrents_info['page_url'] = self.domain.split(":")[0] + ":" + items[0]
+                elif items[0].startswith("/"):
+                    self.torrents_info['page_url'] = self.domain + items[0][1:]
+                else:
+                    self.torrents_info['page_url'] = self.domain + items[0]
             else:
                 self.torrents_info['page_url'] = items[0]
+            if 'filters' in self.fields.get('details', {}):
+                self.torrents_info['page_url'] = self.__filter_text(self.torrents_info.get('page_url'),
+                                                                    self.fields.get('details',
+                                                                                    {}).get('filters'))
 
     def Getdownload(self, torrent):
         # download link
@@ -431,6 +439,8 @@ class TorrentSpider(feapder.AirSpider):
                     text = datetime.datetime.strptime(text, r"%s" % args)
                 elif method_name == "strip":
                     text = text.strip()
+                elif method_name == "appendleft":
+                    text = f"{args}{text}"
             except Exception as err:
                 print(str(err))
         return text.strip()
