@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
 from app.sites import Sites
@@ -637,7 +637,13 @@ class SystemUpdate(ClientResource):
         """
         注销
         """
-        return WebAction().api_action(cmd='logout')
+        token = request.headers.get("Authorization", default=None)
+        if token:
+            TokenCache.delete(token)
+        return {
+            "code": 0,
+            "success": True
+        }
 
 
 @system.route('/message')
