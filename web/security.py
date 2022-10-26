@@ -4,6 +4,7 @@ from functools import wraps
 import jwt
 from flask import request
 
+from app.utils import TokenCache
 from config import Config
 
 
@@ -33,7 +34,7 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
     生成access_token
     :param username: 用户名(自定义部分)
     :param algorithm: 加密算法
-    :param exp: 过期时间
+    :param exp: 过期时间，默认2小时
     :return:token
     """
 
@@ -41,9 +42,7 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
     exp_datetime = now + datetime.timedelta(hours=exp)
     access_payload = {
         'exp': exp_datetime,
-        'flag': 0,
         'iat': now,
-        'iss': 'leon',
         'username': username
     }
     access_token = jwt.encode(access_payload,
@@ -52,36 +51,38 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
     return access_token
 
 
-def __decode_auth_token(token: str):
+def __decode_auth_token(token: str, algorithms='HS256'):
     """
     解密token
     :param token:token字符串
-    :return:
+    :return: 是否有效，playload
     """
+    key = Config().get_config("security").get("api_key")
     try:
         payload = jwt.decode(token,
-                             key=Config().get_config("security").get("api_key"),
-                             algorithms='HS256')
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.ImmatureSignatureError):
-        return {}
+                             key=key,
+                             algorithms=algorithms)
+    except jwt.ExpiredSignatureError:
+        return False, jwt.decode(token,
+                                 key=key,
+                                 algorithms=algorithms,
+                                 options={'verify_exp': False})
+    except (jwt.DecodeError, jwt.InvalidTokenError, jwt.ImmatureSignatureError):
+        return False, {}
     else:
-        return payload
+        return True, payload
 
 
 def identify(auth_header: str):
     """
-    用户鉴权
+    用户鉴权，返回是否有效、用户名
     """
+    flag = False
     if auth_header:
-        payload = __decode_auth_token(auth_header)
-        if not payload:
-            return False
-        if "username" in payload and "flag" in payload:
-            if payload.get("flag") == 0:
-                return payload.get("username")
-            else:
-                return None
-    return None
+        flag, payload = __decode_auth_token(auth_header)
+        if payload:
+            return flag, payload.get("username") or ""
+    return flag, ""
 
 
 def login_required(func):
@@ -93,13 +94,25 @@ def login_required(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        token = request.headers.get("Authorization", default=None)
-        if not token or not identify(token):
+
+        def auth_failed():
             return {
                 "code": 403,
                 "success": False,
                 "message": "安全认证未通过，请检查Token"
             }
+
+        token = request.headers.get("Authorization", default=None)
+        if not token:
+            return auth_failed()
+        latest_token = TokenCache.get(token)
+        if not latest_token:
+            return auth_failed()
+        flag, username = identify(latest_token)
+        if not username:
+            return auth_failed()
+        if not flag and username:
+            TokenCache.set(token, generate_access_token(username))
         return func(*args, **kwargs)
 
     return wrapper

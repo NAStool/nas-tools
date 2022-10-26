@@ -21,7 +21,7 @@ from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
-from app.helper import Security, MetaHelper
+from app.helper import SecurityHelper, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS, \
     Config
 from app.media.douban import DouBan
@@ -1485,7 +1485,7 @@ def create_flask_app():
     # Plex Webhook
     @App.route('/plex', methods=['POST'])
     def plex_webhook():
-        if not Security().check_mediaserver_ip(request.remote_addr):
+        if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
             log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
             return 'Reject'
         request_json = json.loads(request.form.get('payload', {}))
@@ -1496,7 +1496,7 @@ def create_flask_app():
     # Emby Webhook
     @App.route('/jellyfin', methods=['POST'])
     def jellyfin_webhook():
-        if not Security().check_mediaserver_ip(request.remote_addr):
+        if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
             log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
             return 'Reject'
         request_json = request.get_json()
@@ -1507,7 +1507,7 @@ def create_flask_app():
     @App.route('/emby', methods=['POST'])
     # Emby Webhook
     def emby_webhook():
-        if not Security().check_mediaserver_ip(request.remote_addr):
+        if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
             log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
             return 'Reject'
         request_json = json.loads(request.form.get('data', {}))
@@ -1519,7 +1519,7 @@ def create_flask_app():
     @App.route('/telegram', methods=['POST', 'GET'])
     def telegram():
         msg_json = request.get_json()
-        if not Security().check_telegram_ip(request.remote_addr):
+        if not SecurityHelper().check_telegram_ip(request.remote_addr):
             log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
             return 'Reject'
         if msg_json:
