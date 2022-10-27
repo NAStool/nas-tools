@@ -376,7 +376,7 @@ def create_flask_app():
     @login_required
     def rss_history():
         mtype = request.args.get("t")
-        RssHistory = WebAction().get_rss_history({"type": mtype})
+        RssHistory = WebAction().get_rss_history({"type": mtype}).get("result")
         return render_template("rss/rss_history.html",
                                Count=len(RssHistory),
                                Items=RssHistory,
