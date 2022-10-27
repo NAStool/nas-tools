@@ -23,8 +23,8 @@ jobs:
         git clone --depth=1 -b master https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
-        [System.Environment]::SetEnvironmentVariable('NASTOOL_CONFIG', 'D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml')
-        [System.Environment]::GetEnvironmentVariable('NASTOOL_CONFIG')
+        echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+        echo $env:NASTOOL_CONFIG
       shell: pwsh
     - name: package through pyinstaller
       run: |
