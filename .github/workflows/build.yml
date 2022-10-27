@@ -29,7 +29,6 @@ jobs:
     - name: package through pyinstaller
       run: |
         cd nas-tools
-        dir env:
         copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts
         copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
