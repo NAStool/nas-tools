@@ -6,41 +6,42 @@ import os.path
 import re
 import shutil
 import signal
+from math import floor
 
+import cn2an
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
-import cn2an
 import log
+from app.brushtask import BrushTask
 from app.doubansync import DoubanSync
+from app.downloader import Qbittorrent, Transmission, Downloader
+from app.filetransfer import FileTransfer
+from app.filterrules import FilterRule
+from app.helper import DbHelper, DictHelper
+from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
-from app.media.douban import DouBan
-from app.mediaserver import MediaServer
-from app.rsschecker import RssChecker
-from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.helper import ProgressHelper, ThreadHelper, MetaHelper
-from app.utils.types import RMT_MODES
-from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
-from app.message import Telegram, WeChat, Message, MessageCenter
-from app.brushtask import BrushTask
-from app.downloader import Qbittorrent, Transmission, Downloader
-from app.filterrules import FilterRule
-from app.mediaserver import Emby, Jellyfin, Plex
-from app.rss import Rss
-from app.sites import Sites
-from app.subtitle import Subtitle
 from app.media import Category, Media, MetaInfo
+from app.media.douban import DouBan
 from app.media.doubanv2api import DoubanApi
-from app.filetransfer import FileTransfer
-from app.scheduler import restart_scheduler, stop_scheduler
-from app.sync import stop_monitor
+from app.mediaserver import Emby, Jellyfin, Plex
+from app.mediaserver import MediaServer
+from app.message import Telegram, WeChat, Message, MessageCenter
+from app.rss import Rss
+from app.rsschecker import RssChecker
 from app.scheduler import Scheduler
-from app.sync import Sync
-from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
-from web.backend.search_torrents import search_medias_for_web, search_media_by_message
+from app.scheduler import restart_scheduler, stop_scheduler
+from app.sites import Sites
 from app.subscribe import Subscribe
-from app.helper import DbHelper, DictHelper
+from app.subtitle import Subtitle
+from app.sync import Sync
+from app.sync import stop_monitor
+from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
+from app.utils.types import RMT_MODES, RmtMode
+from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
+from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
+from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
 
 class WebAction:
@@ -152,7 +153,17 @@ class WebAction:
             "get_library_spacesize": self.get_library_spacesize,
             "get_library_mediacount": self.get_library_mediacount,
             "get_library_playhistory": self.get_library_playhistory,
-            "get_search_result": self.get_search_result
+            "get_search_result": self.get_search_result,
+            "search_media_infos": self.search_media_infos,
+            "get_movie_rss_list": self.get_movie_rss_list,
+            "get_tv_rss_list": self.get_tv_rss_list,
+            "get_rss_history": self.get_rss_history,
+            "get_transfer_history": self.get_transfer_history,
+            "get_unknown_list": self.get_unknown_list,
+            "get_customwords": self.get_customwords,
+            "get_directorysync": self.get_directorysync,
+            "get_users": self.get_users,
+            "get_filterrules": self.get_filterrules
         }
 
     def action(self, cmd, data=None):
@@ -180,11 +191,11 @@ class WebAction:
             if key in result:
                 result.pop(key)
         return {
-                "code": code,
-                "success": success,
-                "message": message,
-                "data": result
-            }
+            "code": code,
+            "success": success,
+            "message": message,
+            "data": result
+        }
 
     @staticmethod
     def shutdown_server():
@@ -1768,6 +1779,7 @@ class WebAction:
             # 保存
             self.dbhelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config,
                                                  note=None)
+            BrushTask().init_config()
             return {"code": 0}
 
     def __delete_downloader(self, data):
@@ -1777,6 +1789,7 @@ class WebAction:
         dl_id = data.get("id")
         if dl_id:
             self.dbhelper.delete_user_downloader(dl_id)
+            BrushTask().init_config()
         return {"code": 0}
 
     def __get_downloader(self, data):
@@ -2404,6 +2417,7 @@ class WebAction:
         删除订阅解析器
         """
         if self.dbhelper.delete_userrss_parser(data.get("id")):
+            RssChecker().init_config()
             return {"code": 0}
         else:
             return {"code": 1}
@@ -2420,6 +2434,7 @@ class WebAction:
             "params": data.get("params")
         }
         if self.dbhelper.update_userrss_parser(params):
+            RssChecker().init_config()
             return {"code": 0}
         else:
             return {"code": 1}
@@ -2939,7 +2954,7 @@ class WebAction:
             return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}
 
     @staticmethod
-    def get_library_spacesize():
+    def get_library_spacesize(data=None):
         """
         查询媒体库存储空间
         """
@@ -3021,8 +3036,7 @@ class WebAction:
                     "UsedSapce": UsedSapce,
                     "TotalSpace": TotalSpace}
 
-    @staticmethod
-    def get_transfer_statistics():
+    def get_transfer_statistics(self, data=None):
         """
         查询转移历史统计数据
         """
@@ -3031,7 +3045,7 @@ class WebAction:
         TvChartData = {}
         TvNums = []
         AnimeNums = []
-        for statistic in DbHelper().get_transfer_statistics():
+        for statistic in self.dbhelper.get_transfer_statistics():
             if statistic[0] == "电影":
                 MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
@@ -3057,7 +3071,7 @@ class WebAction:
         }
 
     @staticmethod
-    def get_library_mediacount():
+    def get_library_mediacount(data=None):
         """
         查询媒体库统计数据
         """
@@ -3078,16 +3092,18 @@ class WebAction:
             return {"code": -1, "msg": "媒体库服务器连接失败"}
 
     @staticmethod
-    def get_library_playhistory(num=30):
+    def get_library_playhistory(data=None):
         """
         查询媒体库播放记录
         """
-        return MediaServer().get_activity_log(num)
+        return {"code": 0, "result": MediaServer().get_activity_log(30)}
 
-    @staticmethod
-    def get_search_result():
+    def get_search_result(self, data=None):
+        """
+        查询所有搜索结果
+        """
         SearchResults = []
-        res = DbHelper().get_search_results()
+        res = self.dbhelper.get_search_results()
         for item in res:
             # 是否已存在
             if item.TMDBID:
@@ -3121,3 +3137,304 @@ class WebAction:
                 "exist": exist_flag
             })
         return {"code": 0, "result": SearchResults}
+
+    @staticmethod
+    def search_media_infos(data):
+        """
+        根据关键字搜索相似词条
+        """
+        medias = []
+        SearchWord = data.get("keyword")
+        if not SearchWord:
+            return []
+        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
+        if use_douban_titles:
+            _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
+            medias = DouBan().search_douban_medias(keyword=key_word,
+                                                   season=season_num,
+                                                   episode=episode_num)
+        else:
+            meta_info = MetaInfo(title=SearchWord)
+            tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
+            for tmdbinfo in tmdbinfos:
+                tmp_info = MetaInfo(title=SearchWord)
+                tmp_info.set_tmdb_info(tmdbinfo)
+                if meta_info.type == MediaType.TV and tmp_info.type != MediaType.TV:
+                    continue
+                if tmp_info.begin_season:
+                    tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
+                if tmp_info.begin_episode:
+                    tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
+                tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
+                medias.append(tmp_info.__dict__)
+
+        return {"code": 0, "result": medias}
+
+    def get_movie_rss_list(self, data=None):
+        """
+        查询所有电影订阅
+        """
+        return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_movies()]}
+
+    def get_tv_rss_list(self, data=None):
+        """
+        查询所有电视剧订阅
+        """
+        return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_tvs()]}
+
+    def get_rss_history(self, data):
+        """
+        查询所有订阅历史
+        """
+        mtype = data.get("type")
+        return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_history(rtype=mtype)]}
+
+    @staticmethod
+    def get_downloading(data=None):
+        """
+        查询正在下载的任务
+        """
+        Client, Torrents = Downloader().get_downloading_torrents()
+        DispTorrents = []
+        for torrent in Torrents:
+            if Client == DownloaderType.QB:
+                name = torrent.get('name')
+                # 进度
+                progress = round(torrent.get('progress') * 100, 1)
+                if torrent.get('state') in ['pausedDL']:
+                    state = "Stoped"
+                    speed = "已暂停"
+                else:
+                    state = "Downloading"
+                    dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
+                    upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
+                    if progress >= 100:
+                        speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                    else:
+                        eta = StringUtils.str_timelong(torrent.get('eta'))
+                        speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
+                # 主键
+                key = torrent.get('hash')
+            elif Client == DownloaderType.Client115:
+                name = torrent.get('name')
+                # 进度
+                progress = round(torrent.get('percentDone'), 1)
+                state = "Downloading"
+                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
+                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
+                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 主键
+                key = torrent.get('info_hash')
+            elif Client == DownloaderType.Aria2:
+                name = torrent.get('bittorrent', {}).get('info', {}).get("name")
+                # 进度
+                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
+                state = "Downloading"
+                dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
+                upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
+                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 主键
+                key = torrent.get('gid')
+            else:
+                name = torrent.name
+                if torrent.status in ['stopped']:
+                    state = "Stoped"
+                    speed = "已暂停"
+                else:
+                    state = "Downloading"
+                    dlspeed = StringUtils.str_filesize(torrent.rateDownload)
+                    upspeed = StringUtils.str_filesize(torrent.rateUpload)
+                    speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 进度
+                progress = round(torrent.progress)
+                # 主键
+                key = torrent.id
+
+            if not name:
+                continue
+            # 识别
+            media_info = Media().get_media_info(title=name)
+            if not media_info:
+                continue
+            if not media_info.tmdb_info:
+                year = media_info.year
+                if year:
+                    title = "%s (%s) %s" % (media_info.get_name(), year, media_info.get_season_episode_string())
+                else:
+                    title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
+            else:
+                title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
+            poster_path = media_info.get_poster_image()
+            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
+                            'progress': progress}
+            if torrent_info not in DispTorrents:
+                DispTorrents.append(torrent_info)
+
+        return {"code": 0, "result": DispTorrents}
+
+    def get_transfer_history(self, data):
+        """
+        查询媒体整理历史记录
+        """
+        PageNum = data.get("pagenum")
+        if not PageNum:
+            PageNum = 30
+        SearchStr = data.get("keyword")
+        if not SearchStr:
+            SearchStr = ""
+        CurrentPage = data.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = CurrentPage
+        totalCount, historys = self.dbhelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
+
+        TotalPage = floor(totalCount / PageNum) + 1
+
+        return {
+            "code": 0,
+            "total": totalCount,
+            "result": [his.as_dict() for his in historys],
+            "totalPage": TotalPage,
+            "pageNum": PageNum,
+            "currentPage": CurrentPage
+        }
+
+    def get_unknown_list(self, data=None):
+        """
+        查询所有未识别记录
+        """
+        Items = []
+        Records = self.dbhelper.get_transfer_unknown_paths()
+        for rec in Records:
+            if not rec.PATH:
+                continue
+            path = rec.PATH.replace("\\", "/") if rec.PATH else ""
+            path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
+            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
+
+        return {"code": 0, "items": Items}
+
+    def get_customwords(self, data=None):
+        words = []
+        words_info = self.dbhelper.get_custom_words(gid=-1)
+        for word_info in words_info:
+            words.append({"id": word_info.ID,
+                          "replaced": word_info.REPLACED,
+                          "replace": word_info.REPLACE,
+                          "front": word_info.FRONT,
+                          "back": word_info.BACK,
+                          "offset": word_info.OFFSET,
+                          "type": word_info.TYPE,
+                          "group_id": word_info.GROUP_ID,
+                          "season": word_info.SEASON,
+                          "enabled": word_info.ENABLED,
+                          "regex": word_info.REGEX,
+                          "help": word_info.HELP, })
+        groups = [{"id": "-1",
+                   "name": "通用",
+                   "link": "",
+                   "type": "1",
+                   "seasons": "0",
+                   "words": words}]
+        groups_info = self.dbhelper.get_custom_word_groups()
+        for group_info in groups_info:
+            gid = group_info.ID
+            name = "%s (%s)" % (group_info.TITLE, group_info.YEAR)
+            gtype = group_info.TYPE
+            if gtype == 1:
+                link = "https://www.themoviedb.org/movie/%s" % group_info.TMDBID
+            else:
+                link = "https://www.themoviedb.org/tv/%s" % group_info.TMDBID
+            words = []
+            words_info = self.dbhelper.get_custom_words(gid=gid)
+            for word_info in words_info:
+                words.append({"id": word_info.ID,
+                              "replaced": word_info.REPLACED,
+                              "replace": word_info.REPLACE,
+                              "front": word_info.FRONT,
+                              "back": word_info.BACK,
+                              "offset": word_info.OFFSET,
+                              "type": word_info.TYPE,
+                              "group_id": word_info.GROUP_ID,
+                              "season": word_info.SEASON,
+                              "enabled": word_info.ENABLED,
+                              "regex": word_info.REGEX,
+                              "help": word_info.HELP, })
+            groups.append({"id": gid,
+                           "name": name,
+                           "link": link,
+                           "type": group_info.TYPE,
+                           "seasons": group_info.SEASON_COUNT,
+                           "words": words})
+        return {
+            "code": 0,
+            "result": groups
+        }
+
+    def get_directorysync(self, data=None):
+        """
+        查询所有同步目录
+        """
+        sync_paths = self.dbhelper.get_config_sync_paths()
+        SyncPaths = []
+        if sync_paths:
+            for sync_item in sync_paths:
+                SyncPath = {'id': sync_item.ID,
+                            'from': sync_item.SOURCE,
+                            'to': sync_item.DEST or "",
+                            'unknown': sync_item.UNKNOWN or "",
+                            'syncmod': sync_item.MODE,
+                            'syncmod_name': RmtMode[sync_item.MODE.upper()].value,
+                            'rename': sync_item.RENAME,
+                            'enabled': sync_item.ENABLED}
+                SyncPaths.append(SyncPath)
+        SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
+        return {"code": 0, "result": SyncPaths}
+
+    def get_users(self, data=None):
+        """
+        查询所有用户
+        """
+        user_list = self.dbhelper.get_users()
+        Users = []
+        for user in user_list:
+            pris = str(user.PRIS).split(",")
+            Users.append({"id": user.ID, "name": user.NAME, "pris": pris})
+        return {"code": 0, "result": Users}
+
+    @staticmethod
+    def get_filterrules(data=None):
+        """
+        查询所有过滤规则
+        """
+        RuleGroups = FilterRule().get_rule_infos()
+        sql_file = os.path.join(Config().get_root_path(), "config", "init_filter.sql")
+        with open(sql_file, "r", encoding="utf-8") as f:
+            sql_list = f.read().split(';\n')
+            Init_RuleGroups = []
+            i = 0
+            while i < len(sql_list):
+                rulegroup = {}
+                rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
+                rulegroup['id'] = int(rulegroup_info[0])
+                rulegroup['name'] = rulegroup_info[1][1:-1]
+                rulegroup['rules'] = []
+                rulegroup['sql'] = [sql_list[i]]
+                if i + 1 < len(sql_list):
+                    rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i + 1], re.I)[0].split("),\n (")
+                    for rule in rules:
+                        rule_info = {}
+                        rule = rule.split(",")
+                        rule_info['name'] = rule[2][1:-1]
+                        rule_info['include'] = rule[4][1:-1]
+                        rule_info['exclude'] = rule[5][1:-1]
+                        rulegroup['rules'].append(rule_info)
+                    rulegroup["sql"].append(sql_list[i + 1])
+                Init_RuleGroups.append(rulegroup)
+                i = i + 2
+        return {
+            "code": 0,
+            "ruleGroups": RuleGroups,
+            "initRules": Init_RuleGroups
+        }

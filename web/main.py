@@ -11,33 +11,31 @@ import xml.dom.minidom
 from math import floor
 from pathlib import Path
 from urllib import parse
-import cn2an
+
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, login_user, login_required, current_user
-import re
+
 import log
 from app.brushtask import BrushTask
+from app.downloader import Downloader
+from app.filterrules import FilterRule
+from app.helper import DbHelper
+from app.helper import SecurityHelper, MetaHelper
+from app.indexer import BuiltinIndexer
+from app.media import MetaInfo
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
-from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
-from app.helper import SecurityHelper, MetaHelper
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS, \
-    Config
-from app.media.douban import DouBan
-from app.downloader import Downloader
-from app.filterrules import FilterRule
-from app.indexer import BuiltinIndexer
-from app.mediaserver import MediaServer
 from app.searcher import Searcher
 from app.sites import Sites
-from app.media import MetaInfo, Media
+from app.subscribe import Subscribe
+from app.utils import DomUtils, SystemUtils, WebUtils
+from app.utils.types import *
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, \
+    Config
+from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
-from web.action import WebAction
-from app.subscribe import Subscribe
-from app.helper import DbHelper
-from app.utils.types import *
 from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
@@ -186,7 +184,7 @@ def create_flask_app():
             ServerSucess = False
 
         # 获得活动日志
-        Activity = WebAction().get_library_playhistory()
+        Activity = WebAction().get_library_playhistory().get("result")
 
         # 磁盘空间
         LibrarySpaces = WebAction().get_library_spacesize()
@@ -345,28 +343,7 @@ def create_flask_app():
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
         OperType = request.args.get("t")
-        medias = []
-        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
-        if SearchWord and NeedSearch:
-            if use_douban_titles:
-                _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
-                medias = DouBan().search_douban_medias(keyword=key_word,
-                                                       season=season_num,
-                                                       episode=episode_num)
-            else:
-                meta_info = MetaInfo(title=SearchWord)
-                tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
-                for tmdbinfo in tmdbinfos:
-                    tmp_info = MetaInfo(title=SearchWord)
-                    tmp_info.set_tmdb_info(tmdbinfo)
-                    if meta_info.type == MediaType.TV and tmp_info.type != MediaType.TV:
-                        continue
-                    if tmp_info.begin_season:
-                        tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
-                    if tmp_info.begin_episode:
-                        tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
-                    tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
-                    medias.append(tmp_info)
+        medias = WebAction().search_media_infos({"keyword": SearchWord}).get("result")
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
@@ -378,7 +355,7 @@ def create_flask_app():
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
-        RssItems = DbHelper().get_rss_movies()
+        RssItems = WebAction().get_movie_rss_list().get("result")
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -388,7 +365,7 @@ def create_flask_app():
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
-        RssItems = DbHelper().get_rss_tvs()
+        RssItems = WebAction().get_tv_rss_list().get("result")
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -399,7 +376,7 @@ def create_flask_app():
     @login_required
     def rss_history():
         mtype = request.args.get("t")
-        RssHistory = DbHelper().get_rss_history(mtype)
+        RssHistory = WebAction().get_rss_history({"type": mtype})
         return render_template("rss/rss_history.html",
                                Count=len(RssHistory),
                                Items=RssHistory,
@@ -480,86 +457,9 @@ def create_flask_app():
     @App.route('/downloading', methods=['POST', 'GET'])
     @login_required
     def downloading():
-        DownloadCount = 0
-        Client, Torrents = Downloader().get_downloading_torrents()
-        DispTorrents = []
-        for torrent in Torrents:
-            if Client == DownloaderType.QB:
-                name = torrent.get('name')
-                # 进度
-                progress = round(torrent.get('progress') * 100, 1)
-                if torrent.get('state') in ['pausedDL']:
-                    state = "Stoped"
-                    speed = "已暂停"
-                else:
-                    state = "Downloading"
-                    dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
-                    upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
-                    if progress >= 100:
-                        speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                    else:
-                        eta = StringUtils.str_timelong(torrent.get('eta'))
-                        speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
-                # 主键
-                key = torrent.get('hash')
-            elif Client == DownloaderType.Client115:
-                name = torrent.get('name')
-                # 进度
-                progress = round(torrent.get('percentDone'), 1)
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
-                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 主键
-                key = torrent.get('info_hash')
-            elif Client == DownloaderType.Aria2:
-                name = torrent.get('bittorrent', {}).get('info', {}).get("name")
-                # 进度
-                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
-                upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 主键
-                key = torrent.get('gid')
-            else:
-                name = torrent.name
-                if torrent.status in ['stopped']:
-                    state = "Stoped"
-                    speed = "已暂停"
-                else:
-                    state = "Downloading"
-                    dlspeed = StringUtils.str_filesize(torrent.rateDownload)
-                    upspeed = StringUtils.str_filesize(torrent.rateUpload)
-                    speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 进度
-                progress = round(torrent.progress)
-                # 主键
-                key = torrent.id
-
-            if not name:
-                continue
-            # 识别
-            media_info = Media().get_media_info(title=name)
-            if not media_info:
-                continue
-            if not media_info.tmdb_info:
-                year = media_info.year
-                if year:
-                    title = "%s (%s) %s" % (media_info.get_name(), year, media_info.get_season_episode_string())
-                else:
-                    title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
-            else:
-                title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
-            poster_path = media_info.get_poster_image()
-            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
-                            'progress': progress}
-            if torrent_info not in DispTorrents:
-                DownloadCount += 1
-                DispTorrents.append(torrent_info)
-
+        DispTorrents = WebAction().get_downloading().get("result")
         return render_template("download/downloading.html",
-                               DownloadCount=DownloadCount,
+                               DownloadCount=len(DispTorrents),
                                Torrents=DispTorrents,
                                Client=Config().get_config("pt").get("pt_client"))
 
@@ -663,7 +563,7 @@ def create_flask_app():
     @App.route('/userdownloader', methods=['POST', 'GET'])
     @login_required
     def userdownloader():
-        downloaders = DbHelper().get_user_downloaders()
+        downloaders = BrushTask().get_downloader_info()
         return render_template("download/userdownloader.html",
                                Count=len(downloaders),
                                Downloaders=downloaders)
@@ -897,46 +797,34 @@ def create_flask_app():
     @App.route('/history', methods=['POST', 'GET'])
     @login_required
     def history():
-        PageNum = request.args.get("pagenum")
-        if not PageNum:
-            PageNum = 30
-        SearchStr = request.args.get("s")
-        if not SearchStr:
-            SearchStr = ""
-        CurrentPage = request.args.get("page")
-        if not CurrentPage:
-            CurrentPage = 1
-        else:
-            CurrentPage = int(CurrentPage)
-        totalCount, historys = DbHelper().get_transfer_history(SearchStr, CurrentPage, PageNum)
-
-        TotalPage = floor(totalCount / PageNum) + 1
-
-        if TotalPage <= 5:
+        pagenum = request.args.get("pagenum")
+        keyword = request.args.get("s")
+        current_page = request.args.get("page")
+        Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
+        if Result.get("totalPage") <= 5:
             StartPage = 1
-            EndPage = TotalPage
+            EndPage = Result.get("totalPage")
         else:
-            if CurrentPage <= 3:
+            if Result.get("totalPage") <= 3:
                 StartPage = 1
                 EndPage = 5
             else:
-                StartPage = CurrentPage - 3
-                if TotalPage > CurrentPage + 3:
-                    EndPage = CurrentPage + 3
+                StartPage = Result.get("totalPage") - 3
+                if Result.get("totalPage") > Result.get("currentPage") + 3:
+                    EndPage = Result.get("currentPage") + 3
                 else:
-                    EndPage = TotalPage
-
+                    EndPage = Result.get("totalPage")
         PageRange = range(StartPage, EndPage + 1)
 
         return render_template("rename/history.html",
-                               TotalCount=totalCount,
-                               Count=len(historys),
-                               Historys=historys,
-                               Search=SearchStr,
-                               CurrentPage=CurrentPage,
-                               TotalPage=TotalPage,
+                               TotalCount=Result.get("total"),
+                               Count=len(Result.get("result")),
+                               Historys=Result.get("result"),
+                               Search=keyword,
+                               CurrentPage=Result.get("currentPage"),
+                               TotalPage=Result.get("totalPage"),
                                PageRange=PageRange,
-                               PageNum=PageNum)
+                               PageNum=Result.get("currentPage"))
 
     # TMDB缓存页面
     @App.route('/tmdbcache', methods=['POST', 'GET'])
@@ -987,20 +875,12 @@ def create_flask_app():
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        Items = []
-        Records = DbHelper().get_transfer_unknown_paths()
-        TotalCount = len(Records)
         SyncMod = Config().get_config('pt').get('rmt_mode')
         if not SyncMod:
             SyncMod = "link"
-        for rec in Records:
-            if not rec.PATH:
-                continue
-            path = rec.PATH.replace("\\", "/") if rec.PATH else ""
-            path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
-            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
+        Items = WebAction().get_unknown_list().get("items")
         return render_template("rename/unidentification.html",
-                               TotalCount=TotalCount,
+                               TotalCount=len(Items),
                                Items=Items,
                                SyncMod=SyncMod)
 
@@ -1019,58 +899,7 @@ def create_flask_app():
     @App.route('/customwords', methods=['POST', 'GET'])
     @login_required
     def customwords():
-        _dbhelper = DbHelper()
-        words = []
-        words_info = _dbhelper.get_custom_words(gid=-1)
-        for word_info in words_info:
-            words.append({"id": word_info.ID,
-                          "replaced": word_info.REPLACED,
-                          "replace": word_info.REPLACE,
-                          "front": word_info.FRONT,
-                          "back": word_info.BACK,
-                          "offset": word_info.OFFSET,
-                          "type": word_info.TYPE,
-                          "group_id": word_info.GROUP_ID,
-                          "season": word_info.SEASON,
-                          "enabled": word_info.ENABLED,
-                          "regex": word_info.REGEX,
-                          "help": word_info.HELP, })
-        groups = [{"id": "-1",
-                   "name": "通用",
-                   "link": "",
-                   "type": "1",
-                   "seasons": "0",
-                   "words": words}]
-        groups_info = _dbhelper.get_custom_word_groups()
-        for group_info in groups_info:
-            gid = group_info.ID
-            name = "%s (%s)" % (group_info.TITLE, group_info.YEAR)
-            gtype = group_info.TYPE
-            if gtype == 1:
-                link = "https://www.themoviedb.org/movie/%s" % group_info.TMDBID
-            else:
-                link = "https://www.themoviedb.org/tv/%s" % group_info.TMDBID
-            words = []
-            words_info = _dbhelper.get_custom_words(gid=gid)
-            for word_info in words_info:
-                words.append({"id": word_info.ID,
-                              "replaced": word_info.REPLACED,
-                              "replace": word_info.REPLACE,
-                              "front": word_info.FRONT,
-                              "back": word_info.BACK,
-                              "offset": word_info.OFFSET,
-                              "type": word_info.TYPE,
-                              "group_id": word_info.GROUP_ID,
-                              "season": word_info.SEASON,
-                              "enabled": word_info.ENABLED,
-                              "regex": word_info.REGEX,
-                              "help": word_info.HELP, })
-            groups.append({"id": gid,
-                           "name": name,
-                           "link": link,
-                           "type": group_info.TYPE,
-                           "seasons": group_info.SEASON_COUNT,
-                           "words": words})
+        groups = WebAction().get_customwords().get("result")
         return render_template("setting/customwords.html",
                                Groups=groups,
                                GroupsCount=len(groups))
@@ -1079,25 +908,10 @@ def create_flask_app():
     @App.route('/directorysync', methods=['POST', 'GET'])
     @login_required
     def directorysync():
-        _dbhelper = DbHelper()
-        sync_paths = _dbhelper.get_config_sync_paths()
-        SyncPaths = []
-        if sync_paths:
-            for sync_item in sync_paths:
-                SyncPath = {'id': sync_item.ID,
-                            'from': sync_item.SOURCE,
-                            'to': sync_item.DEST or "",
-                            'unknown': sync_item.UNKNOWN or "",
-                            'syncmod': sync_item.MODE,
-                            'syncmod_name': RmtMode[sync_item.MODE.upper()].value,
-                            'rename': sync_item.RENAME,
-                            'enabled': sync_item.ENABLED}
-                SyncPaths.append(SyncPath)
-        SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
-        SyncCount = len(SyncPaths)
+        SyncPaths = WebAction().get_directorysync().get("result")
         return render_template("setting/directorysync.html",
                                SyncPaths=SyncPaths,
-                               SyncCount=SyncCount)
+                               SyncCount=len(SyncPaths))
 
     # 豆瓣页面
     @App.route('/douban', methods=['POST', 'GET'])
@@ -1153,47 +967,18 @@ def create_flask_app():
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
     def users():
-        user_list = DbHelper().get_users()
-        user_count = len(user_list)
-        Users = []
-        for user in user_list:
-            pris = str(user.PRIS).split(",")
-            Users.append({"id": user.ID, "name": user.NAME, "pris": pris})
-        return render_template("setting/users.html", Users=Users, UserCount=user_count)
+        Users = WebAction().get_users().get("result")
+        return render_template("setting/users.html", Users=Users, UserCount=len(Users))
 
     # 过滤规则设置页面
     @App.route('/filterrule', methods=['POST', 'GET'])
     @login_required
     def filterrule():
-        RuleGroups = FilterRule().get_rule_infos()
-        sql_file = os.path.join(Config().get_root_path(), "config", "init_filter.sql")
-        with open(sql_file, "r", encoding="utf-8") as f:
-            sql_list = f.read().split(';\n')
-            Init_RuleGroups = []
-            i = 0
-            while i < len(sql_list):
-                rulegroup = {}
-                rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
-                rulegroup['id'] = int(rulegroup_info[0])
-                rulegroup['name'] = rulegroup_info[1][1:-1]
-                rulegroup['rules'] = []
-                rulegroup['sql'] = [sql_list[i]]
-                if i + 1 < len(sql_list):
-                    rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i + 1], re.I)[0].split("),\n (")
-                    for rule in rules:
-                        rule_info = {}
-                        rule = rule.split(",")
-                        rule_info['name'] = rule[2][1:-1]
-                        rule_info['include'] = rule[4][1:-1]
-                        rule_info['exclude'] = rule[5][1:-1]
-                        rulegroup['rules'].append(rule_info)
-                    rulegroup["sql"].append(sql_list[i + 1])
-                Init_RuleGroups.append(rulegroup)
-                i = i + 2
+        result = WebAction().get_filterrules()
         return render_template("setting/filterrule.html",
-                               Count=len(RuleGroups),
-                               RuleGroups=RuleGroups,
-                               Init_RuleGroups=Init_RuleGroups)
+                               Count=len(result.get("ruleGroups")),
+                               RuleGroups=result.get("ruleGroups"),
+                               Init_RuleGroups=result.get("initRules"))
 
     # 自定义订阅页面
     @App.route('/user_rss', methods=['POST', 'GET'])

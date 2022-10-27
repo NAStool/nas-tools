@@ -226,10 +226,10 @@ class DbHelper:
         """
         查询识别转移记录
         """
-        if page == 1:
+        if int(page) == 1:
             begin_pos = 0
         else:
-            begin_pos = (page - 1) * rownum
+            begin_pos = (int(page) - 1) * int(rownum)
 
         if search:
             search = f"%{search}%"
@@ -237,11 +237,11 @@ class DbHelper:
                                                            | (TRANSFERHISTORY.TITLE.like(search))).count()
             data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
                                                           | (TRANSFERHISTORY.TITLE.like(search))).order_by(
-                TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
+                TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
             return count, data
         else:
             return self._db.query(TRANSFERHISTORY).count(), self._db.query(TRANSFERHISTORY).order_by(
-                TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
+                TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
 
     def get_transfer_path_by_id(self, logid):
         """

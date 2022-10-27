@@ -178,6 +178,9 @@ class RSSHISTORY(Base):
     FINISH_TIME = Column(Text)
     NOTE = Column(Text)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class RSSMOVIES(Base):
     __tablename__ = 'RSS_MOVIES'
@@ -189,6 +192,9 @@ class RSSMOVIES(Base):
     IMAGE = Column(Text)
     DESC = Column(Text)
     STATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class RSSTORRENTS(Base):
@@ -220,6 +226,9 @@ class RSSTVS(Base):
     TOTAL = Column(Integer)
     LACK = Column(Integer)
     STATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class RSSTVEPISODES(Base):
@@ -413,6 +422,9 @@ class TRANSFERHISTORY(Base):
     SE = Column(Text)
     DEST = Column(Text)
     DATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class TRANSFERUNKNOWN(Base):
