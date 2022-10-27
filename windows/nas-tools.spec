@@ -4,7 +4,7 @@
 from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT, BUNDLE, TOC
 
 
-def collect_pkg_data(package, include_py_files=True, subdir=None):
+def collect_pkg_data(package, include_py_files=False, subdir=None):
     import os
     from PyInstaller.utils.hooks import get_package_paths, remove_prefix, PY_IGNORE_EXTENSIONS
 
@@ -48,12 +48,7 @@ a = Analysis(
              pathex=pathex_tp,
              binaries=[],
              datas=[],
-             hiddenimports=['pkg_resources.py2_warn', 
-                            'babelfish.converters.alpha2',
-                            'babelfish.converters.alpha3b',
-                            'babelfish.converters.alpha3t',
-                            'babelfish.converters.name',
-                            'babelfish.converters.countryname'],
+             hiddenimports=[],
              hookspath=[],
              hooksconfig={},
              runtime_hooks=[],
