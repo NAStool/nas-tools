@@ -798,7 +798,7 @@ def create_flask_app():
     @login_required
     def history():
         pagenum = request.args.get("pagenum")
-        keyword = request.args.get("s")
+        keyword = request.args.get("s") or ""
         current_page = request.args.get("page")
         Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
         if Result.get("totalPage") <= 5:

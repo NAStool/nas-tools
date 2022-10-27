@@ -3280,8 +3280,6 @@ class WebAction:
         if not PageNum:
             PageNum = 30
         SearchStr = data.get("keyword")
-        if not SearchStr:
-            SearchStr = ""
         CurrentPage = data.get("page")
         if not CurrentPage:
             CurrentPage = 1
