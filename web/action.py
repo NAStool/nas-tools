@@ -35,7 +35,7 @@ from app.scheduler import restart_scheduler, stop_scheduler
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
-from app.sync import Sync, restart_monitor
+from app.sync import Sync
 from app.sync import stop_monitor
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
 from app.utils.types import RMT_MODES, RmtMode
@@ -3450,9 +3450,4 @@ class WebAction:
                                         data.get("replace_value"))
         # 保存配置
         self.config.save_config(cfg)
-        if data.get("key") == "sync.sync_path":
-            # 生效配置
-            Sync().init_config()
-            # 重启目录同步服务
-            restart_monitor()
         return {"code": 0}

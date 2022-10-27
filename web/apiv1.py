@@ -910,6 +910,21 @@ class ConfigInfo(ClientResource):
         }
 
 
+@config.route('/directory')
+class ConfigDirectory(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('oper', type=str, help='操作类型（add/sub/set）', location='form', required=True)
+    parser.add_argument('key', type=str, help='配置项', location='form', required=True)
+    parser.add_argument('value', type=str, help='配置值', location='form', required=True)
+
+    @config.doc(parser=parser)
+    def post(self):
+        """
+        配置媒体库目录
+        """
+        return WebAction().api_action(cmd='update_directory', data=self.parser.parse_args())
+
+
 @subscribe.route('/delete')
 class SubscribeDelete(ClientResource):
     parser = reqparse.RequestParser()

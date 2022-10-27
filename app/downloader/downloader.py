@@ -287,12 +287,16 @@ class Downloader:
         :return: 客户端类型，下载中的种子信息列表
         """
         if not self.client:
-            return []
+            return self._client_type, []
         if self._pt_monitor_only:
             tag = [PT_TAG]
         else:
             tag = None
-        return self._client_type, self.client.get_downloading_torrents(tag=tag)
+        try:
+            return self._client_type, self.client.get_downloading_torrents(tag=tag)
+        except Exception as err:
+            print(str(err))
+            return self._client_type, []
 
     def get_torrents(self, torrent_ids):
         """

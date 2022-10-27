@@ -101,8 +101,12 @@ class Transmission(IDownloadClient):
         """
         if not self.trc:
             return []
-        torrents, _ = self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
-        return torrents
+        try:
+            torrents, _ = self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
+            return torrents
+        except Exception as err:
+            print(str(err))
+            return []
 
     def set_torrents_status(self, ids):
         if not self.trc:

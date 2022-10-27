@@ -10,12 +10,7 @@ class User(UserMixin):
     用户
     """
     dbhelper = None
-    ADMIN_USERS = [{
-        "id": 0,
-        "name": Config().get_config('app').get('login_user'),
-        "password": Config().get_config('app').get('login_password')[6:],
-        "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
-    }]
+    admin_users = []
 
     def __init__(self, user=None):
         self.dbhelper = DbHelper()
@@ -24,6 +19,12 @@ class User(UserMixin):
             self.username = user.get('name')
             self.password_hash = user.get('password')
             self.pris = user.get('pris')
+        self.admin_users = [{
+            "id": 0,
+            "name": Config().get_config('app').get('login_user'),
+            "password": Config().get_config('app').get('login_password')[6:],
+            "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
+        }]
 
     def verify_password(self, password):
         """
@@ -45,7 +46,7 @@ class User(UserMixin):
         """
         if user_id is None:
             return None
-        for user in self.ADMIN_USERS:
+        for user in self.admin_users:
             if user.get('id') == user_id:
                 return User(user)
         for user in self.dbhelper.get_users():
@@ -59,7 +60,7 @@ class User(UserMixin):
         """
         根据用户名获取用户对像
         """
-        for user in self.ADMIN_USERS:
+        for user in self.admin_users:
             if user.get("name") == user_name:
                 return User(user)
         for user in self.dbhelper.get_users():

@@ -595,6 +595,7 @@
   // 解析导入的识别词分享代码并显示
   function analyse_import_custom_words_code(){
     var import_code = $("#import_code").val();
+    $("#import_groups_div").empty();
     $("#modal-import-custom-words-code").modal('hide');
     show_wait_process();
     ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {

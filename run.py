@@ -3,11 +3,10 @@ import signal
 import sys
 from alembic.config import Config as AlembicConfig
 from alembic.command import upgrade as alembic_upgrade
-
-# 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 from pyvirtualdisplay import Display
 from werkzeug.security import generate_password_hash
 
+# 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
     third_party = f.readlines()
@@ -125,7 +124,7 @@ def update_config(cfg):
     _config = cfg.get_config()
     overwrite_cofig = False
     # 密码初始化
-    login_password = _config.get("app", {}).get("login_password")
+    login_password = _config.get("app", {}).get("login_password") or "password"
     if login_password and not login_password.startswith("[hash]"):
         _config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
         overwrite_cofig = True
