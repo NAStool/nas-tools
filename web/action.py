@@ -35,7 +35,7 @@ from app.scheduler import restart_scheduler, stop_scheduler
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
-from app.sync import Sync
+from app.sync import Sync, restart_monitor
 from app.sync import stop_monitor
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
 from app.utils.types import RMT_MODES, RmtMode
@@ -74,6 +74,7 @@ class WebAction:
             "update_system": self.__update_system,
             "logout": self.__logout,
             "update_config": self.__update_config,
+            "update_directory": self.__update_directory,
             "add_or_edit_sync_path": self.__add_or_edit_sync_path,
             "get_sync_path": self.__get_sync_path,
             "delete_sync_path": self.__delete_sync_path,
@@ -2920,7 +2921,7 @@ class WebAction:
                 "free": rule.NOTE
             })
         rule_json = {
-            "name": group_info[0].NAME,
+            "name": group_info[0].GROUP_NAME,
             "rules": rules
         }
         json_string = base64.b64encode(json.dumps(rule_json).encode("utf-8")).decode('utf-8')
@@ -3437,3 +3438,21 @@ class WebAction:
             "ruleGroups": RuleGroups,
             "initRules": Init_RuleGroups
         }
+
+    def __update_directory(self, data):
+        """
+        维护媒体库目录
+        """
+        cfg = self.set_config_directory(self.config.get_config(),
+                                        data.get("oper"),
+                                        data.get("key"),
+                                        data.get("value"),
+                                        data.get("replace_value"))
+        # 保存配置
+        self.config.save_config(cfg)
+        if data.get("key") == "sync.sync_path":
+            # 生效配置
+            Sync().init_config()
+            # 重启目录同步服务
+            restart_monitor()
+        return {"code": 0}
