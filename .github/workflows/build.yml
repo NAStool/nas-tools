@@ -34,7 +34,7 @@ jobs:
         copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
-        [Environment]::SetEnvironmentVariable('NASTOOL_CONFIG', 'D:/a/nas-tools', 'Machine')
+        [Environment]::SetEnvironmentVariable('NASTOOL_CONFIG', 'D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml', 'Machine')
         cd windows
         pyinstaller nas-tools.spec
       shell: pwsh
