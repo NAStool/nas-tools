@@ -41,48 +41,48 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}show_edit_rss_media_modal("{{ Item[6] }}", "MOV"){% endif %}'>
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("MOV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "movie_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "MOV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+            <img class="rounded-top w-100" src="{{ Item.IMAGE }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
-              {% if Item[1] %}
-              {{ Item[0] }} ({{ Item[1] }})
+              {% if Item.YEAR %}
+              {{ Item.NAME }} ({{ Item.YEAR }})
               {% else %}
-              {{ Item[0] }}
+              {{ Item.NAME }}
               {% endif %}
             </div>
             <div class="text-muted">
               <span class="badge
-              {% if Item[5] == 'D' %}
+              {% if Item.STATE == 'D' %}
               bg-gray
-              {% elif Item[5] == 'S' %}
+              {% elif Item.STATE == 'S' %}
               bg-orange
-              {% elif Item[5] == 'R' %}
+              {% elif Item.STATE == 'R' %}
               bg-green
               {% else %}
               bg-blue
               {% endif %}
               "></span>
-              {% if Item[5] == "D" %}
+              {% if Item.STATE == "D" %}
               队列中
-              {% elif Item[5] == "S" %}
+              {% elif Item.STATE == "S" %}
               正在搜索
-              {% elif Item[5] == "R" %}
+              {% elif Item.STATE == "R" %}
               正在订阅
               {% else %}
               完成
               {% endif %}
             </div>
-            {% if Item[4]|rss_filter_string %}
+            {% if Item.DESC|rss_filter_string %}
             <div class="text-muted border-top pt-2 mt-2">
-              <small>{{ Item[4]|rss_filter_string|safe }}</small>
+              <small>{{ Item.DESC|rss_filter_string|safe }}</small>
             </div>
             {% endif %}
-            {% if Item[4]|rss_sites_string %}
-            <div class="text-muted {% if not Item[4]|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
-              <small>{{ Item[4]|rss_sites_string|safe }}</small>
+            {% if Item.DESC|rss_sites_string %}
+            <div class="text-muted {% if not Item.DESC|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
+              <small>{{ Item.DESC|rss_sites_string|safe }}</small>
             </div>
             {% endif %}
           </div>

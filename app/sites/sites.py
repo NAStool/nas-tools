@@ -23,7 +23,7 @@ from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.utils.torrent import TorrentAttr
 from config import SITE_CHECKIN_XPATH
 
@@ -35,21 +35,25 @@ class Sites:
     message = None
     filtersites = None
     siteconf = None
+
     __sites_data = {}
-    __pt_sites = None
+    __sites = None
     __last_update_time = None
+    __site_favicons = {}
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
+        _dbhelper = DbHelper()
         self.message = Message()
         self.filtersites = FilterRule()
         self.siteconf = SiteConf()
-        self.__pt_sites = SqlHelper.get_config_site()
+        self.__sites = _dbhelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
+        self.__site_favicons = {site.SITE: site.FAVICON for site in _dbhelper.get_site_user_statistics()}
 
     def get_sites(self,
                   siteid=None,
@@ -63,37 +67,35 @@ class Sites:
         """
         ret_sites = []
         # 补全 favicon
-        site_favicons = SqlHelper.get_site_user_statistics()
-        site_favicons = {site[0]: site[13] for site in site_favicons}
-        for site in self.__pt_sites:
+        for site in self.__sites:
             # 是否解析种子详情为|分隔的第1位
-            site_parse = str(site[9]).split("|")[0] or "Y"
+            site_parse = str(site.NOTE).split("|")[0] or "Y"
             # 站点过滤规则为|分隔的第2位
-            rule_groupid = str(site[9]).split("|")[1] if site[9] and len(str(site[9]).split("|")) > 1 else ""
+            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
             # 站点未读消息为|分隔的第3位
-            site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
+            site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(str(site.NOTE).split("|")) > 2 else "Y"
             # 自定义UA为|分隔的第4位
-            ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
+            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
             # 是否开启浏览器仿真为|分隔的第5位
-            chrome = str(site[9]).split("|")[4] if site[9] and len(str(site[9]).split("|")) > 4 else "N"
+            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
             # 是否使用代理为|分隔的第6位
-            proxy = str(site[9]).split("|")[5] if site[9] and len(str(site[9]).split("|")) > 5 else "N"
+            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if site[6] and str(site[6]).count("Q") else False
-            rss_enable = True if site[6] and str(site[6]).count("D") else False
-            brush_enable = True if site[6] and str(site[6]).count("S") else False
-            statistic_enable = True if site[6] and str(site[6]).count("T") else False
+            signin_enable = True if site.INCLUDE and str(site.INCLUDE).count("Q") else False
+            rss_enable = True if site.INCLUDE and str(site.INCLUDE).count("D") else False
+            brush_enable = True if site.INCLUDE and str(site.INCLUDE).count("S") else False
+            statistic_enable = True if site.INCLUDE and str(site.INCLUDE).count("T") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
                 rule_name = ""
             site_info = {
-                "id": site[0],
-                "name": site[1],
-                "pri": site[2] or 0,
-                "rssurl": site[3],
-                "signurl": site[4],
-                "cookie": site[5],
+                "id": site.ID,
+                "name": site.NAME,
+                "pri": site.PRI or 0,
+                "rssurl": site.RSSURL,
+                "signurl": site.SIGNURL,
+                "cookie": site.COOKIE,
                 "rule": rule_groupid,
                 "rule_name": rule_name,
                 "parse": site_parse,
@@ -102,21 +104,21 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
-                "favicon": site_favicons.get(site[1], ""),
+                "favicon": self.__site_favicons.get(site.NAME, ""),
                 "ua": ua,
                 "chrome": chrome,
                 "proxy": proxy
             }
-            if siteid and int(site[0]) == int(siteid):
+            if siteid and int(site.ID) == int(siteid):
                 return site_info
-            url = site[3] if not site[4] else site[4]
+            url = site.RSSURL if not site.SIGNURL else site.SIGNURL
             if siteurl and url and StringUtils.url_equal(siteurl, url):
                 return site_info
-            if rss and (not site[3] or not rss_enable):
+            if rss and (not site.RSSURL or not rss_enable):
                 continue
-            if brush and (not site[3] or not brush_enable):
+            if brush and (not site.RSSURL or not brush_enable):
                 continue
-            if signin and (not site[4] or not signin_enable):
+            if signin and (not site.SIGNURL or not signin_enable):
                 continue
             if statistic and not statistic_enable:
                 continue
@@ -125,11 +127,11 @@ class Sites:
             return {}
         return ret_sites
 
-    def refresh_all_pt_data(self, force=False, specify_sites=None):
+    def refresh_all_site_data(self, force=False, specify_sites=None):
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
-        if not self.__pt_sites:
+        if not self.__sites:
             return
         if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 6 * 3600:
             return
@@ -147,22 +149,23 @@ class Sites:
 
             # 并发刷新
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
-            SqlHelper.insert_site_statistics_history(site_user_infos)
+            _dbhelper = DbHelper()
+            _dbhelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
-            SqlHelper.update_site_user_statistics(site_user_infos)
+            _dbhelper.update_site_user_statistics(site_user_infos)
             # 实时做种信息
-            SqlHelper.update_site_seed_info(site_user_infos)
+            _dbhelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
             self.__last_update_time = datetime.now()
 
-    def __refresh_pt_data(self, site_info):
+    def __refresh_site_data(self, site_info):
         """
-        更新单个pt site 数据信息
+        更新单个site 数据信息
         :param site_info:
         :return:
         """
@@ -350,13 +353,13 @@ class Sites:
         """
         强制刷新站点数据
         """
-        self.refresh_all_pt_data(True)
+        self.refresh_all_site_data(True)
 
     def get_pt_date(self):
         """
         获取站点上传下载量
         """
-        self.refresh_all_pt_data()
+        self.refresh_all_site_data()
         return self.__sites_data
 
     def get_pt_site_statistics_history(self, days=7):
@@ -369,7 +372,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        return SqlHelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return DbHelper().get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
     def get_site_user_statistics(self, encoding="RAW"):
         """
@@ -384,7 +387,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        raw_statistics = SqlHelper.get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = DbHelper().get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":
             return raw_statistics
 
@@ -394,11 +397,21 @@ class Sites:
     def __todict(raw_statistics):
         statistics = []
         for site in raw_statistics:
-            statistics.append({"site": site[0], "username": site[1], "user_level": site[2],
-                               "join_at": site[3], "update_at": site[4],
-                               "upload": site[5], "download": site[6], "ratio": site[7],
-                               "seeding": site[8], "leeching": site[9], "seeding_size": site[10],
-                               "bonus": site[11], "url": site[12], "favicon": site[13], "msg_unread": site[14]
+            statistics.append({"site": site.SITE,
+                               "username": site.USERNAME,
+                               "user_level": site.USER_LEVEL,
+                               "join_at": site.JOIN_AT,
+                               "update_at": site.UPDATE_AT,
+                               "upload": site.UPLOAD,
+                               "download": site.DOWNLOAD,
+                               "ratio": site.RATIO,
+                               "seeding": site.SEEDING,
+                               "leeching": site.LEECHING,
+                               "seeding_size": site.SEEDING_SIZE,
+                               "bonus": site.BONUS,
+                               "url": site.URL,
+                               "favicon": site.FAVICON,
+                               "msg_unread": site.MSG_UNREAD
                                })
         return statistics
 
@@ -412,7 +425,7 @@ class Sites:
         if not isinstance(specify_sites, list):
             specify_sites = [specify_sites]
 
-        self.refresh_all_pt_data(force=True, specify_sites=specify_sites)
+        self.refresh_all_site_data(force=True, specify_sites=specify_sites)
 
     @staticmethod
     def get_pt_site_activity_history(site, days=365 * 2):
@@ -423,12 +436,16 @@ class Sites:
         :return:
         """
         site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
-        sql_site_activities = SqlHelper.get_site_statistics_history(site=site, days=days)
+        sql_site_activities = DbHelper().get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
-            timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
+            timestamp = datetime.strptime(sql_site_activity.DATE, '%Y-%m-%d').timestamp() * 1000
             site_activities.append(
-                [timestamp, sql_site_activity[1], sql_site_activity[2], sql_site_activity[3], sql_site_activity[4],
-                 sql_site_activity[5]])
+                [timestamp,
+                 sql_site_activity.UPLOAD,
+                 sql_site_activity.DOWNLOAD,
+                 sql_site_activity.BONUS,
+                 sql_site_activity.SEEDING,
+                 sql_site_activity.SEEDING_SIZE])
 
         return site_activities
 
@@ -440,11 +457,11 @@ class Sites:
         :return: seeding_info:[uploader_num, seeding_size]
         """
         site_seeding_info = {"seeding_info": []}
-        seeding_info = SqlHelper.get_site_seeding_info(site=site)
+        seeding_info = DbHelper().get_site_seeding_info(site=site)
         if not seeding_info:
             return site_seeding_info
 
-        site_seeding_info["seeding_info"] = json.loads(seeding_info[0][0])
+        site_seeding_info["seeding_info"] = json.loads(seeding_info[0])
         return site_seeding_info
 
     @staticmethod
@@ -467,15 +484,73 @@ class Sites:
             cookie = site_info.get("cookie")
             ua = site_info.get("ua")
         else:
-            site_info = self.get_public_sites(url=url)
+            short_url = StringUtils.get_base_url(url)
+            site_info = self.get_public_sites(url=short_url)
             if site_info:
-                try:
-                    res = RequestUtils(timeout=10).get_res(StringUtils.get_base_url(url))
-                    if res:
-                        cookie = dict_from_cookiejar(res.cookies)
-                except Exception as err:
-                    print(str(err))
+                if site_info.get("render"):
+                    # 开渲染
+                    chrome = ChromeHelper()
+                    if not chrome.get_status():
+                        log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
+                    else:
+                        with CHROME_LOCK:
+                            try:
+                                chrome.visit(url=short_url)
+                                cookie = chrome.get_cookies()
+                                ua = chrome.get_ua()
+                            except Exception as err:
+                                print(str(err))
+                                log.warn("【Sites】无法打开网站：%s" % short_url)
+                else:
+                    try:
+                        res = RequestUtils(timeout=10).get_res(short_url)
+                        if res:
+                            cookie = dict_from_cookiejar(res.cookies)
+                    except Exception as err:
+                        print(str(err))
         return cookie, ua
+
+    def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
+        """
+        从站点详情页面中解析中下载链接
+        :param page_url: 详情页面地址
+        :param xpath: 解析XPATH
+        :param cookie: 站点Cookie
+        :param ua: 站点User-Agent
+        """
+        if not page_url or not xpath:
+            return ""
+        page_source = ""
+        try:
+            short_url = StringUtils.get_base_url(page_url)
+            site_info = self.get_public_sites(url=short_url)
+            if site_info and site_info.get("render"):
+                # 开渲染
+                chrome = ChromeHelper()
+                if not chrome.get_status():
+                    log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
+                else:
+                    with CHROME_LOCK:
+                        try:
+                            chrome.visit(url=page_url)
+                            page_source = chrome.get_html()
+                        except Exception as err:
+                            print(str(err))
+                            log.warn("【Sites】无法打开网站：%s" % short_url)
+            else:
+                req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
+                if req and req.status_code == 200:
+                    if req.text:
+                        page_source = req.text
+            # xpath解析
+            if page_source:
+                html = etree.HTML(page_source)
+                urls = html.xpath(xpath)
+                if urls:
+                    return str(urls[0])
+        except Exception as err:
+            print(str(err))
+        return None
 
     @staticmethod
     @lru_cache(maxsize=128)
@@ -525,7 +600,7 @@ class Sites:
                     peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
                     ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
         except Exception as err:
-            print(err)
+            print(str(err))
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr

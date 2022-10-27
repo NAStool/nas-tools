@@ -1,6 +1,6 @@
 import regex as re
 
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.utils.commons import singleton
 
 
@@ -17,12 +17,13 @@ class WordsHelper:
         self.init_config()
 
     def init_config(self):
-        self.ignored_words_info = SqlHelper.get_custom_words(enabled=1, wtype=1, regex=1)
-        self.ignored_words_noregex_info = SqlHelper.get_custom_words(enabled=1, wtype=1, regex=0)
-        self.replaced_words_info = SqlHelper.get_custom_words(enabled=1, wtype=2, regex=1)
-        self.replaced_words_noregex_info = SqlHelper.get_custom_words(enabled=1, wtype=2, regex=0)
-        self.replaced_offset_words_info = SqlHelper.get_custom_words(enabled=1, wtype=3, regex=1)
-        self.offset_words_info = SqlHelper.get_custom_words(enabled=1, wtype=4, regex=1)
+        _dbhelper = DbHelper()
+        self.ignored_words_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
+        self.ignored_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
+        self.replaced_words_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)
+        self.replaced_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=0)
+        self.replaced_offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=3, regex=1)
+        self.offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
 
     def process(self, title):
         # 错误信息
@@ -38,7 +39,7 @@ class WordsHelper:
             try:
                 ignored_words = []
                 for ignored_word_info in self.ignored_words_info:
-                    ignored_words.append(ignored_word_info[1])
+                    ignored_words.append(ignored_word_info.REPLACED)
                 ignored_words = "|".join(ignored_words)
                 ignored_words = re.compile(r'%s' % ignored_words)
                 # 去重
@@ -50,7 +51,7 @@ class WordsHelper:
         if self.ignored_words_noregex_info:
             try:
                 for ignored_word_noregex_info in self.ignored_words_noregex_info:
-                    ignored_word = ignored_word_noregex_info[1]
+                    ignored_word = ignored_word_noregex_info.REPLACED
                     if title.find(ignored_word) != -1:
                         title = title.replace(ignored_word, '')
                         used_ignored_words.append(ignored_word)
@@ -60,8 +61,8 @@ class WordsHelper:
         if self.replaced_words_info:
             for replaced_word_info in self.replaced_words_info:
                 try:
-                    replaced = replaced_word_info[1]
-                    replace = replaced_word_info[2]
+                    replaced = replaced_word_info.REPLACED
+                    replace = replaced_word_info.REPLACE
                     replaced_word = "%s@%s" % (replaced, replace)
                     if re.findall(r'%s' % replaced, title):
                         used_replaced_words.append(replaced_word)
@@ -71,8 +72,8 @@ class WordsHelper:
         if self.replaced_words_noregex_info:
             for replaced_word_noregex_info in self.replaced_words_noregex_info:
                 try:
-                    replaced = replaced_word_noregex_info[1]
-                    replace = replaced_word_noregex_info[2]
+                    replaced = replaced_word_noregex_info.REPLACED
+                    replace = replaced_word_noregex_info.REPLACE
                     replaced_word = "%s@%s" % (replaced, replace)
                     if title.find(replaced) != -1:
                         used_replaced_words.append(replaced_word)
@@ -83,11 +84,11 @@ class WordsHelper:
         if self.replaced_offset_words_info:
             for replaced_offset_word_info in self.replaced_offset_words_info:
                 try:
-                    replaced = replaced_offset_word_info[1]
-                    replace = replaced_offset_word_info[2]
-                    front = replaced_offset_word_info[3]
-                    back = replaced_offset_word_info[4]
-                    offset = replaced_offset_word_info[5]
+                    replaced = replaced_offset_word_info.REPLACED
+                    replace = replaced_offset_word_info.REPLACE
+                    front = replaced_offset_word_info.FRONT
+                    back = replaced_offset_word_info.BACK
+                    offset = replaced_offset_word_info.OFFSET
                     replaced_word = "%s@%s" % (replaced, replace)
                     if re.findall(r'%s' % replaced, title):
                         used_replaced_words.append(replaced_word)
@@ -98,9 +99,9 @@ class WordsHelper:
         # 集数偏移
         if self.offset_words_info:
             for offset_word_info in self.offset_words_info:
-                front = offset_word_info[3]
-                back = offset_word_info[4]
-                offset = offset_word_info[5]
+                front = offset_word_info.FRONT
+                back = offset_word_info.BACK
+                offset = offset_word_info.OFFSET
                 title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
 
         return title, msg, {"ignored": used_ignored_words,
@@ -110,8 +111,6 @@ class WordsHelper:
     @staticmethod
     def episode_offset(front, back, offset, used_offset_words, title):
         msg = ""
-        offset_num = int(offset)
-        offset_word = "%s@%s@%s" % (front, back, offset)
         try:
             if back and not re.findall(r'%s' % back, title):
                 return title, msg
@@ -121,11 +120,24 @@ class WordsHelper:
             episode_nums_str = re.findall(offset_word_info_re, title)
             if not episode_nums_str:
                 return title, msg
-            episode_nums_int = [int(x) for x in episode_nums_str]
-            episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
+            offset_word = "%s@%s@%s" % (front, back, offset)
+            episode_nums_offset_int = []
+            offset_flag = False
+            for episode_num_str in episode_nums_str:
+                episode_num_int = int(episode_num_str)
+                EP = episode_num_int
+                episode_num_offset_int = eval(offset)
+                # 向前偏移
+                if episode_num_int > episode_num_offset_int:
+                    offset_flag = True
+                # 向后偏移
+                else:
+                    offset_flag = False
+                episode_nums_offset_int.append(episode_num_offset_int)
+            episode_nums_dict = dict(zip(episode_nums_str, episode_nums_offset_int))
             used_offset_words.append(offset_word)
             # 集数向前偏移，集数按升序处理
-            if offset_num < 0:
+            if offset_flag:
                 episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
             # 集数向后偏移，集数按降序处理
             else:
@@ -133,8 +145,8 @@ class WordsHelper:
             for episode_num in episode_nums_list:
                 episode_offset_re = re.compile(
                     r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
-                title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
+                title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
             return title, msg
         except Exception as err:
-            msg = "自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err))
+            msg = "自定义集数偏移 %s 格式有误：%s" % (used_offset_words, str(err))
             return title, msg

@@ -3,7 +3,7 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.media import MetaInfo, Media
 from config import Config, PT_TAG, RMT_MEDIAEXT
 from app.message import Message
@@ -26,11 +26,13 @@ class Downloader:
     _download_order = None
     _pt_rmt_mode = None
     _downloaddir = []
+
     message = None
     mediaserver = None
     filetransfer = None
     media = None
     sites = None
+    dbhelper = None
 
     def __init__(self):
         self.message = Message()
@@ -38,6 +40,7 @@ class Downloader:
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.sites = Sites()
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
@@ -140,13 +143,12 @@ class Downloader:
         elif url.startswith("http"):
             # 获取Cookie和ua
             cookie, ua = self.sites.get_site_cookie_ua(url)
-            if not cookie:
-                log.warn(f"【Downloader】%s 获取站点cookie失败！" % url)
             if _xpath:
                 # 从详情页面解析下载链接
-                url = Torrent.parse_download_url(page_url=url,
-                                                 xpath=_xpath,
-                                                 cookie=cookie)
+                url = self.sites.parse_site_download_url(page_url=url,
+                                                         xpath=_xpath,
+                                                         cookie=cookie,
+                                                         ua=ua)
                 if not url:
                     return None, "无法从详情页面：%s 解析出下载链接" % page_url
                 # 解析出来的是HASH值
@@ -156,7 +158,10 @@ class Downloader:
                     if not url:
                         return None, "%s 转换磁力链失败" % url
             # 下载种子文件
-            content, retmsg = Torrent.get_torrent_content(url=url, cookie=cookie, ua=ua)
+            content, retmsg = Torrent.get_torrent_content(url=url,
+                                                          cookie=cookie,
+                                                          ua=ua,
+                                                          referer=page_url)
             if not content:
                 return None, retmsg
         else:
@@ -212,7 +217,7 @@ class Downloader:
                                               category=category)
             if ret:
                 # 登记下载历史
-                SqlHelper.insert_download_history(media_info)
+                self.dbhelper.insert_download_history(media_info)
                 return ret, ""
             else:
                 return ret, "请检查下载任务是否已存在"
@@ -423,7 +428,8 @@ class Downloader:
                         if set(item_season).issubset(set(need_season)):
                             if len(item_season) == 1:
                                 # 只有一季的可能是命名错误，需要打开种子鉴别，只有实际集数大于等于总集数才下载
-                                torrent_episodes = self.get_torrent_episodes(url=item.enclosure)
+                                torrent_episodes = self.get_torrent_episodes(url=item.enclosure,
+                                                                             page_url=item.page_url)
                                 if len(torrent_episodes) >= __get_season_episodes(need_tmdbid, item_season[0]):
                                     download_state = __download(item)
                                 else:
@@ -819,7 +825,7 @@ class Downloader:
         """
         return self._client_type
 
-    def get_torrent_episodes(self, url):
+    def get_torrent_episodes(self, url, page_url=None):
         """
         解析种子文件，获取集数
         """
@@ -830,7 +836,8 @@ class Downloader:
         file_path = Torrent.save_torrent_file(url=url,
                                               cookie=cookie,
                                               ua=ua,
-                                              path=os.path.join(Config().get_config_path(), "temp"))
+                                              path=os.path.join(Config().get_config_path(), "temp"),
+                                              referer=page_url)
         if not file_path:
             log.error("【Downloader】下载种子文件失败：%s" % url)
             return []

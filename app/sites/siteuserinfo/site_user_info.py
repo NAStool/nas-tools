@@ -68,6 +68,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         self._user_mail_unread_page = "messages.php?action=viewmailbox&box=1&unread=yes"
         self._sys_mail_unread_page = "messages.php?action=viewmailbox&box=-2&unread=yes"
         self._torrent_seeding_params = None
+        self._torrent_seeding_headers = None
 
         split_url = urlsplit(url)
         self.site_name = site_name
@@ -143,13 +144,16 @@ class ISiteUserInfo(metaclass=ABCMeta):
             for seeding_page in seeding_pages:
                 # 第一页
                 next_page = self._parse_user_torrent_seeding_info(
-                    self._get_page_content(urljoin(self._base_url, seeding_page), self._torrent_seeding_params))
+                    self._get_page_content(urljoin(self._base_url, seeding_page),
+                                           self._torrent_seeding_params,
+                                           self._torrent_seeding_headers))
 
                 # 其他页处理
                 while next_page:
                     next_page = self._parse_user_torrent_seeding_info(
                         self._get_page_content(urljoin(urljoin(self._base_url, seeding_page), next_page),
-                                               self._torrent_seeding_params),
+                                               self._torrent_seeding_params,
+                                               self._torrent_seeding_headers),
                         multi_page=True)
 
     @staticmethod
@@ -185,17 +189,34 @@ class ISiteUserInfo(metaclass=ABCMeta):
         if res:
             self.site_favicon = base64.b64encode(res.content).decode()
 
-    def _get_page_content(self, url, params=None):
+    def _get_page_content(self, url, params=None, headers=None):
         """
         :param url: 网页地址
         :param params: post参数
+        :param headers: 额外的请求头
         :return:
         """
+        req_headers = None
+        if self._ua or headers:
+            req_headers = {}
+            if headers:
+                req_headers.update(headers)
+
+            if isinstance(self._ua, str):
+                req_headers.update({
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "User-Agent": f"{self._ua}"
+                })
+            else:
+                req_headers.update(self._ua)
+
         if params:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).post_res(
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60,
+                               headers=req_headers).post_res(
                 url=url, params=params)
         else:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60,
+                               headers=req_headers).get_res(
                 url=url)
         if res is not None and res.status_code in (200, 500):
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:

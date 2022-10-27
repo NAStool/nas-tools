@@ -203,7 +203,7 @@
           {% for Item in Items %}
           <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item.id }}">
             <div class="card card-sm card-link-pop rounded-3">
-              {% if Item.vote > 0 %}
+              {% if Item.vote|int > 0 %}
               <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">
                 {{ Item.vote }}</div>
               {% endif %}
@@ -226,7 +226,7 @@
                   <div>
                     <div>
                       <a
-                        href='{% if not Item.image %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
+                        href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
                         title="点击添加下载">
                       <strong>{% if Item.tmdbid or not Item.description %}{{ Item.title_string|replace("()", "") }}{% else %} {{ Item.description }} {% endif %}</strong></a>
                       {% if Item.seeders %}

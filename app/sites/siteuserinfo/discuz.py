@@ -9,10 +9,6 @@ from app.utils import StringUtils
 
 class DiscuzUserInfo(ISiteUserInfo):
     _site_schema = "Discuz!"
-    _brief_page = "index.php"
-    _user_traffic_page = None
-    _user_detail_page = None
-    _torrent_seeding_page = None
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)

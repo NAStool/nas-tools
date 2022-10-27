@@ -211,4 +211,4 @@ class MediaServer:
         if not status:
             return {}
         else:
-            return {"movie_count":  status[0][1], "tv_count": status[0][2], "time": status[0][3]}
+            return {"movie_count":  status.MOVIE_COUNT, "tv_count": status.TV_COUNT, "time": status.UPDATE_TIME}

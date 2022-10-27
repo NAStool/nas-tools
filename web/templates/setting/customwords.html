@@ -4,7 +4,7 @@
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title">
-          自定义识别词  <span class="form-help" title="识别前屏蔽名称中的屏蔽词，优先级高" data-bs-toggle="tooltip">?</span>
+          自定义识别词  <span class="form-help ms-2" title="识别前对资源标题或种子文件名进行预处理，优先级从高到低：屏蔽，替换，集偏移" data-bs-toggle="tooltip">?</span>
         </h2>
       </div>
       <div class="col-auto ms-auto d-print-none">
@@ -131,10 +131,7 @@
                   <th>后定位词</th>
                   <th>状态</th>
                   <th>备注</th>
-                  {% if Group.words %}
-                  <th class="w-2"></th>
-                  <th class="w-2"></th>
-                  {% endif %}
+                  <th class="w-5"></th>
                 </tr>
               </thead>
               <tbody>
@@ -145,11 +142,8 @@
                   <td>{{ Word.replaced }}</td>
                   <td>{{ Word.replace }}</td>
                   <td>
-                    {% if Word.offset > 0 %}
-                    <span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">+{{ Word.offset }}</span>
-                    {% endif %}
-                    {% if Word.offset < 0 %}
-                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">{{ Word.offset }}</span>
+                    {% if Word.offset %}
+                    <span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">{{ Word.offset }}</span>
                     {% endif %}
                   </td>
                   <td>{{ Word.front }}</td>
@@ -167,9 +161,9 @@
                   <td>
                     {% if Word.season != -2 %}
                     {% if Word.season == -1 %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">全部</span>
+                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">全部季</span>
                     {% else %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">第{{ Word.season }}季</span>
+                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">第{{ Word.season }}季</span>
                     {% endif %}
                     {% endif %}
                     {% if Word.help %}
@@ -177,27 +171,27 @@
                     {% endif %}
                   </td>
                   <td>
-                    <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})" title="编辑替换词">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                        <line x1="16" y1="5" x2="19" y2="8" />
-                      </svg>
-                    </a>
-                  </td>
-                  <td>
-                    <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})" title="编辑替换词">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                          <line x1="16" y1="5" x2="19" y2="8" />
+                        </svg>
+                      </a>
+                      <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词" class="ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}
                 {% else %}
-                <tr><td colspan="7" align="center">未配置</td></tr>
+                <tr><td colspan="8" align="center">未配置</td></tr>
                 {% endif %}
               </tbody>
             </table>
@@ -258,7 +252,7 @@
             </div>
             <div class="col-lg-2" id="offset_div">
               <div class="mb-3">
-                <label class="form-label required">偏移集数 <span class="form-help" title="正数向后偏移，负数向前偏移" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">偏移集数 <span class="form-help" title="偏移集数支持运算，例如集数加1：EP+1；集数翻倍：2*EP；集数翻倍-1：2*EP-1" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="" id="new_offset" class="form-control"">
               </div>
             </div>
@@ -403,7 +397,7 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-export-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-export-custom-words-note" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -415,11 +409,33 @@
         <div class="card-body">
           <div class="row">
             <div class="col-lg-12">
-              <div class="mb-3" id="export_note_div">
+              <div class="mb-3">
                 <label class="form-label required">分享备注</label>
                 <textarea class="form-control" id="export_note" rows="8" placeholder="请备注分享的自定义识别词应用的资源标题或文件名，或应用的站点、发布组等信息"></textarea>
               </div>
-              <div class="mb-3" id="export_code_div">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:export_custom_words()" class="btn btn-primary">生成分享代码</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-export-custom-words-code" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导出自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
                 <label class="form-label required">自定义识别词内容 <span class="form-help" title="复制以下内容分享给他人，获得分享后使用导入功能导入自定义识别词" data-bs-toggle="tooltip">?</span></label>
                 <pre id="export_code">
                 </pre>
@@ -429,13 +445,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button id="export_btn_1" type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="export_btn_2" class="btn btn-primary"></a>
+        <a class="btn btn-primary" data-bs-dismiss="modal">关闭</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-import-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-import-custom-words-code" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -443,19 +458,7 @@
           <h5 class="modal-title">导入自定义识别词</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div id="import_groups_div">
-        </div>
-        <div class="card-body" id="import_note_div">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label required">应用说明</label>
-                <pre id="import_note"></pre>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-body" id="import_code_div">
+        <div class="card-body">
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
@@ -473,8 +476,36 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-import-custom-words-table" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导入自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div id="import_groups_div">
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">应用说明</label>
+                <pre id="import_note"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="import_btn" href="javascript:import_custom_words()" class="btn btn-primary">导入</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-  // 绑定屏蔽词全选事件
+  // 绑定识别词词全选事件
   $("[id^='all_check_group']").change(function(){
     $(`[id^='check_group${$(this).attr("id").replace("all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
   })
@@ -502,11 +533,10 @@
     if(flag == "disable" || flag == "enable"){
       show_wait_process();
       ajax_post("check_custom_words", {flag: flag, ids_info: ids_info}, function (ret) {
+        hide_wait_process();
         if(ret.code == 0){
-          hide_wait_process();
           navmenu('customwords');
         }else{
-          hide_wait_process();
           show_fail_modal(ret.msg);
         }
       });
@@ -520,7 +550,9 @@
 
   // 删除自定义识别词
   function delete_custom_word(id){
+    show_wait_process();
     ajax_post("delete_custom_word", {id: id}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         navmenu('customwords');
       }
@@ -530,13 +562,7 @@
   // 显示导出自定义识别词框
   function show_export_custom_words_modal(){
     $("#export_note").text('');
-    $("#export_btn_1").attr("style", "display: block;");
-    $("#export_btn_2").attr("href", "javascript:export_custom_words()");
-    $("#export_btn_2").attr("data-bs-dismiss", "");
-    $("#export_btn_2").text('生成分享代码');
-    $("#export_note_div").attr("style", "display: block;");
-    $("#export_code_div").attr("style", "display: none;");
-    $("#modal-export-custom-words").modal('show');
+    $("#modal-export-custom-words-note").modal('show');
   }
 
   // 导出自定义识别词
@@ -549,15 +575,13 @@
     }else{
       $("#export_note").removeClass("is-invalid");
     }
+    $("#modal-export-custom-words-note").modal('hide');
+    show_wait_process();
     ajax_post("export_custom_words", {note: export_note, ids_info: export_ids_info}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         $("#export_code").text(ret.string);
-        $("#export_btn_1").attr("style", "display: none;");
-        $("#export_btn_2").attr("href", "");
-        $("#export_btn_2").attr("data-bs-dismiss", "modal");
-        $("#export_btn_2").text('关闭');
-        $("#export_note_div").attr("style", "display: none;");
-        $("#export_code_div").attr("style", "display: block;");
+        $("#modal-export-custom-words-code").modal('show');
       }
     });
   }
@@ -565,19 +589,16 @@
   // 显示导入自定义识别词框
   function show_import_custom_words_modal(){
     $("#import_note").text('');
-    $("#import_btn").attr("href", "javascript:analyse_import_custom_words_code()");
-    $("#import_btn").text('解析分享代码');
-    $("#import_groups_div").attr("style", "display: none;");
-    $("#import_note_div").attr("style", "display: none;");
-    $("#import_code_div").attr("style", "display: block;");
-    $("#modal-import-custom-words").modal('show');
+    $("#modal-import-custom-words-code").modal('show');
   }
 
   // 解析导入的识别词分享代码并显示
   function analyse_import_custom_words_code(){
     var import_code = $("#import_code").val();
-    $("#import_groups_div").empty();
+    $("#modal-import-custom-words-code").modal('hide');
+    show_wait_process();
     ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         $("#import_note").text(ret.note_string);
         var Groups = ret.groups;
@@ -597,10 +618,8 @@
             var checkbox = `<td><input class="form-check-input m-0 align-middle" id="import_check_group${Group.id}_${Word.id}" type="checkbox"></td>`;
             var replaced = `<td>${Word.replaced}</td>`;
             var replace = `<td>${Word.replace}</td>`;
-            if(Word.offset > 0){
-              var offset = `<td><span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">+${Word.offset}</span></td>`;
-            }else if(Word.offset < 0){
-              var offset = `<td><span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">${Word.offset}</span></td>`;
+            if(Word.offset){
+              var offset = `<td><span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${Word.offset}</span></td>`;
             }else{
               var offset = "<td></td>";
             }
@@ -639,11 +658,7 @@
         $("[id^='import_all_check_group']").bind("change",function(){
           $(`[id^='import_check_group${$(this).attr("id").replace("import_all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
         });
-        $("#import_btn").attr("href", "javascript:import_custom_words()");
-        $("#import_btn").text('导入');
-        $("#import_groups_div").attr("style", "display: block;");
-        $("#import_note_div").attr("style", "display: block;");
-        $("#import_code_div").attr("style", "display: none;");
+        $("#modal-import-custom-words-table").modal('show');
       }
     });
   }
@@ -659,13 +674,12 @@
     });
     show_wait_process();
     ajax_post("import_custom_words", {ids_info: ids_info, import_code: import_code}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         $("#import_groups_div").empty();
-        hide_wait_process();
-        $("#modal-import-custom-words").modal('hide');
+        $("#modal-import-custom-words-table").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -687,14 +701,13 @@
         $("#tmdb_id").removeClass("is-invalid");
       }
     var tmdb_type = $("#tmdb_type").val();
+    $("#modal-add-custom-word-group").modal('hide');
     show_wait_process();
     ajax_post("add_custom_word_group", {tmdb_id: tmdb_id, tmdb_type: tmdb_type}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
-        $("#modal-add-custom-word-group").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -706,11 +719,10 @@
       hide_confirm_modal();
       show_wait_process();
       ajax_post("delete_custom_word_group", {gid: gid}, function (ret) {
+        hide_wait_process();
         if(ret.code == 0){
-          hide_wait_process();
           navmenu('customwords');
         }else{
-          hide_wait_process();
           show_fail_modal(ret.msg);
         }
       });
@@ -739,25 +751,21 @@
   }
 
   // 显示编辑识别词框
-  function show_edit_custom_word_modal(id, gid, group_type, seasons){
-    ajax_post("get_custom_word", {id: id}, function (ret) {
-      show_wait_process();
+  function show_edit_custom_word_modal(wid, gid, group_type, seasons){
+    show_wait_process();
+    ajax_post("get_custom_word", {wid: wid}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
         var word = ret.data;
         $("#customd_word_modal_title").text("编辑识别词");
-        $("#custom_word_id").val(id);
+        $("#custom_word_id").val(wid);
         $("#group_id").val(gid);
         $("#group_type").val(group_type);
         $("#new_replaced").val(word.replaced);
         $("#new_replace").val(word.replace);
         $("#new_front").val(word.front);
         $("#new_back").val(word.back);
-        if(word.offset == 0){
-          $("#new_offset").val('');
-        }else{
-          $("#new_offset").val(word.offset);
-        }
+        $("#new_offset").val(word.offset);
         $("#new_help").val(word.help);
         show_custom_word_group_type(group_type, seasons);
         if(group_type == '1'){
@@ -770,6 +778,8 @@
         $("#custom_word_enabled_2").val(word.enabled);
         show_custom_word_type(word.type);
         $("#modal-set-custom-word").modal('show');
+      }else{
+        show_fail_modal(ret.msg);
       }
     });
   }
@@ -827,7 +837,7 @@
       }else{
         $("#new_back").removeClass("is-invalid");
       }
-      if(!new_offset || isNaN(new_offset) || new_offset ==0){
+      if(!new_offset){
         $("#new_offset").addClass("is-invalid");
         return;
       }else{
@@ -860,7 +870,7 @@
       }else{
         $("#new_back").removeClass("is-invalid");
       }
-      if(!new_offset || isNaN(new_offset) || new_offset ==0){
+      if(!new_offset){
         $("#new_offset").addClass("is-invalid");
         return;
       }else{
@@ -883,12 +893,11 @@
                    regex: regex};
     show_wait_process();
     ajax_post("add_or_edit_custom_word", custom_word, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
         $("#modal-set-custom-word").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });

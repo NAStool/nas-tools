@@ -118,7 +118,7 @@
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载器</div>
-              <div class="datagrid-content">{{ Task.downloader or "" }}</div>
+              <div class="datagrid-content">{{ Task.downloader_name or "" }}</div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">消息推送</div>
@@ -245,7 +245,7 @@
                 <select class="form-select" id="brushtask_downloader">
                   <option value="" selected>请选择</option>
                   {% for downloader in Downloaders %}
-                  <option value="{{ downloader[0] }}">{{ downloader[1] }}</option>
+                  <option value="{{ downloader.id }}">{{ downloader.name }}</option>
                   {% endfor %}
                 </select>
               </div>

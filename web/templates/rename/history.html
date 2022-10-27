@@ -89,11 +89,11 @@
                 {% if TotalCount > 0 %}
                 {% for History in Historys %}
                 <tr>
-                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History[-1] }}" type="checkbox"></td>
+                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}" type="checkbox"></td>
                   <td>
                     <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
-                        {% if History[2] == "电影" %}
+                        {% if History.TYPE == "电影" %}
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
                           height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                           stroke-linecap="round" stroke-linejoin="round">
@@ -118,19 +118,19 @@
                         {% endif %}
                       </span>
                       <div class="flex-fill">
-                        <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{
-                            History[7] }}</a></div>
-                        {% if History[5] %}
-                        <div class="text-muted">类别：{{ History[5] }}</div>
+                        <div class="font-weight-medium"><a class="text-reset">{{ History.TITLE }} ({{ History.YEAR }}) {{
+                            History.SE }}</a></div>
+                        {% if History.CATEGORY %}
+                        <div class="text-muted">类别：{{ History.CATEGORY }}</div>
                         {% endif %}
                       </div>
                     </div>
                   </td>
                   <td>
-                    <div>{{ History[3] }}</div>
-                    <div class="text-muted">来自：{{ History[0] }}</div>
+                    <div>{{ History.FILE_NAME }}</div>
+                    <div class="text-muted">来自：{{ History.SOURCE }}</div>
                   </td>
-                  <td>{{ History[9] }}</td>
+                  <td>{{ History.DATE }}</td>
                   <td>
                     <div class="dropdown">
                       <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
@@ -145,15 +145,15 @@
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item"
-                          href='javascript:single_re_identification_history("{{History[10]}}",)'>
+                          href='javascript:single_re_identification_history("{{History.ID}}",)'>
                           重新识别
                         </a>
                         <a class="dropdown-item"
-                          href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
+                          href='javascript:rename_history("{{History.TYPE}}", "{{History.FILE_NAME}}", "{{History.ID}}")'>
                           手动识别
                         </a>
                         <a class="dropdown-item text-danger"
-                          href='javascript:single_delete_history("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
+                          href='javascript:single_delete_history("{{History.ID}}", "{{History.TITLE}} ({{History.YEAR}}) {{History.SE}}")'>
                           删除
                         </a>
                       </div>
@@ -476,7 +476,7 @@
   });
   //全选事件
   $("#history_check_all_btn").change(function () {
-    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
   // 批量删除/重新识别
   function batch_check_action(flag){

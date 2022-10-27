@@ -184,7 +184,7 @@
               </div>
               <div class="ms-auto">
                 <a href="javascript:void(0)" class="btn-icon"
-                  {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item[0] }}{% endfor %}')"
+                  {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item.site }}{% endfor %}')"
                   {%  endif %}
                   >
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -220,16 +220,16 @@
                 <tr>
                   <td class="sort-name">
                     <div class="d-flex py-1 align-items-center">
-                        {% if SiteErr.get(item[0]) %}
-                            <span class="badge bg-warning me-1" title="{{ SiteErr.get(item[0]) }}"></span>
+                        {% if SiteErr.get(item.site) %}
+                            <span class="badge bg-warning me-1" title="{{ SiteErr.get(item.site) }}"></span>
                         {% else %}
                             <span class="badge bg-success me-1"></span>
                         {% endif %}
-                      <img onclick="navmenu('statistics?refresh_site={{ item[0] }}')" title="点击刷新站点数据" class="rounded me-2 d-none d-md-block" src="data:image/ico;base64,{{ item[13] }}" width="24" height="24" alt=""
+                      <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据" class="rounded me-2 d-none d-md-block" src="data:image/ico;base64,{{ item.favicon }}" width="24" height="24" alt=""
                         onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
                       <div class="flex-fill">
-                        <div class="font-weight-medium"><a href="{{ item[12] }}" target="_blank">{{ item[0] }}</a>
-                            {% if item[14] > 0 %}
+                        <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
+                            {% if item.msg_unread > 0 %}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="gray" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                    <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
@@ -238,14 +238,14 @@
                                 </svg>
                             {% endif %}
                         </div>
-                        <div class="text-muted d-none d-md-block">{{ item[1] }}</div>
+                        <div class="text-muted d-none d-md-block">{{ item.username }}</div>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <span class="d-none d-lg-block">{{ item[2] }}</span>
+                    <span class="d-none d-lg-block">{{ item.user_level }}</span>
                   </td>
-                  <td class="sort-data" data-data="{{ item[5] }}">
+                  <td class="sort-data" data-data="{{ item.upload }}">
                       <div class="flex-fill">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                           stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -254,7 +254,7 @@
                           <line x1="18" y1="11" x2="12" y2="5"></line>
                           <line x1="6" y1="11" x2="12" y2="5"></line>
                         </svg>
-                        <small>{{ item[5] | filesizeformat(true) }}</small>
+                        <small>{{ item.upload | filesizeformat(true) }}</small>
                       </div>
                       <div class="flex-fill">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -264,22 +264,22 @@
                           <line x1="18" y1="13" x2="12" y2="19"></line>
                           <line x1="6" y1="13" x2="12" y2="19"></line>
                         </svg>
-                        <small>{{ item[6] | filesizeformat(true) }}</small>
+                        <small>{{ item.download | filesizeformat(true) }}</small>
                       </div>
                   </td>
-                    <td class="sort-ratio">{% if item[7] == 0.0 %}Infinity{% else %}{{ item[7] }}{% endif %}</td>
-                    <td class="sort-seeding" data-seeding="{{ item[8] }}"><a
-                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
-                            aria-label="seeding_info">{{ item[8] }}</a></td>
-                    <td class="sort-size" data-size="{{ item[10] }}"><a
-                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
-                            aria-label="seeding_info">{{ item[10] | filesizeformat(true) }}</a></td>
-                    <td class="sort-bonus">{{ item[11] }}</td>
+                    <td class="sort-ratio">{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}</td>
+                    <td class="sort-seeding" data-seeding="{{ item.seeding }}"><a
+                            href="javascript:show_site_seeding_info('{{ item.site }}')"
+                            aria-label="seeding_info">{{ item.seeding }}</a></td>
+                    <td class="sort-size" data-size="{{ item.seeding_size }}"><a
+                            href="javascript:show_site_seeding_info('{{ item.site }}')"
+                            aria-label="seeding_info">{{ item.seeding_size | filesizeformat(true) }}</a></td>
+                    <td class="sort-bonus">{{ item.bonus }}</td>
                   <td class="sort-rtime">
-                    <span class="d-none d-lg-block">{{ item[4] }}</span>
+                    <span class="d-none d-lg-block">{{ item.update_at }}</span>
                   </td>
                 <td class="activity">
-                    <a href="javascript:show_site_activity('{{ item[0] }}')" class="btn-icon d-none d-md-block" aria-label="activity">
+                    <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon d-none d-md-block" aria-label="activity">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                            <path d="M3 12h4l3 8l4 -16l3 8h4"></path>
@@ -302,7 +302,7 @@
   </div>
 </div>
     <div class="modal modal-blur fade" id="site-activity" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="site-activity-title">站点信息</h5>
@@ -318,7 +318,7 @@
         </div>
     </div>
     <div class="modal modal-blur fade" id="site-seeding-info" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="site-seeding-info-title">站点信息</h5>
@@ -604,7 +604,7 @@
                             },
                             xAxis: {
                                 scale: true,
-                                type: 'category',
+                                type: 'value',
                                 name: '做种人数'
                             },
                             yAxis: {

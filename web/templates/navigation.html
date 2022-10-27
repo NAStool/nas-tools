@@ -781,7 +781,7 @@
             <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" />
           </svg>
           <h3>失败</h3>
-          <div class="text-muted" id="system_fail_message">失败！</div>
+          <div class="text-muted" id="system_fail_message" style="overflow:hidden">失败！</div>
         </div>
         <div class="modal-footer">
           <div class="w-100">
@@ -1122,6 +1122,8 @@
       $("#system_success_message").text(title);
       if(func){
         $("#system_success_modal_btn").unbind('click').click(func);
+      }else{
+        $("#system_success_modal_btn").unbind('click');
       }
       $("#system-success-modal").modal("show");
     }
@@ -1131,6 +1133,8 @@
       $("#system_fail_message").text(title);
       if(func){
         $("#system_fail_modal_btn").unbind('click').click(func);
+      }else{
+        $("#system_fail_modal_btn").unbind('click');
       }
       $("#system-fail-modal").modal("show");
     }

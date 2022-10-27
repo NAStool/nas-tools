@@ -131,8 +131,9 @@ class DouBan:
             try:
                 html = etree.HTML(html_text)
                 # 标题
-                title = html.xpath("//span[@property='v:itemreviewed']/text()")[0]
+                title = html.xpath("//span[@property='v:itemreviewed']/text()")
                 if title:
+                    title = title[0]
                     metainfo = MetaInfo(title=title)
                     if metainfo.cn_name:
                         title = metainfo.cn_name
@@ -160,16 +161,20 @@ class DouBan:
                 else:
                     return None
                 # 年份
-                ret_media['year'] = html.xpath("//div[@id='content']//span[@class='year']/text()")[0][1:-1]
+                year = html.xpath("//div[@id='content']//span[@class='year']/text()")
+                if year:
+                    ret_media['year'] = year[0][1:-1]
                 # 简介
                 ret_media['intro'] = "".join(
                     [str(x).strip() for x in html.xpath("//span[@property='v:summary']/text()")])
                 # 封面图
-                ret_media['cover_url'] = html.xpath("//div[@id='mainpic']/a/img/@src")[0]
-                if ret_media['cover_url']:
-                    ret_media['cover_url'] = ret_media.get('cover_url').replace("s_ratio_poster", "m_ratio_poster")
+                cover_url = html.xpath("//div[@id='mainpic']/a/img/@src")
+                if cover_url:
+                    ret_media['cover_url'] = cover_url[0].replace("s_ratio_poster", "m_ratio_poster")
                 # 评分
-                ret_media['rating'] = {"value": float(html.xpath("//strong[@property='v:average']/text()")[0])}
+                rating = html.xpath("//strong[@property='v:average']/text()")
+                if rating:
+                    ret_media['rating'] = {"value": float(rating[0])}
                 detail_info = html.xpath("//div[@id='info']/text()")
                 if isinstance(detail_info, list):
                     # 集数
@@ -182,7 +187,7 @@ class DouBan:
                             ret_media['imdbid'] = str(info).strip()
                             break
             except Exception as err:
-                print(err)
+                print(str(err))
         return ret_media
 
     def get_douban_page_html(self, url):

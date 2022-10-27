@@ -415,5 +415,8 @@ class SiteConf:
         'katcr.to': {
             "proxy": True,
             "language": "en"
+        },
+        'btsow.quest': {
+            "proxy": True
         }
     }

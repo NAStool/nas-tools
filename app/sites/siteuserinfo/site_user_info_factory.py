@@ -6,11 +6,13 @@ from lxml import etree
 import log
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.sites.siteuserinfo.discuz import DiscuzUserInfo
-from app.sites.siteuserinfo.gazelle import GazelleUserInfo
+from app.sites.siteuserinfo.gazelle import GazelleSiteUserInfo
 from app.sites.siteuserinfo.ipt_project import IptSiteUserInfo
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from app.sites.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
+from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
+from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
 from app.utils import RequestUtils
 
 
@@ -19,7 +21,7 @@ class SiteUserInfoFactory(object):
     def build(url, site_name, site_cookie=None, ua=None, emulate=None):
         if not site_cookie:
             return None
-        log.debug(f"【Sites】站点 {site_name} site_cookie={site_cookie} ua={ua}")
+        log.debug(f"【Sites】站点 {site_name} url={url} site_cookie={site_cookie} ua={ua}")
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
@@ -72,7 +74,7 @@ class SiteUserInfoFactory(object):
                         return None
 
                 # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
-                if '"search"' not in html_text:
+                if '"search"' not in html_text and '"csrf-token"' not in html_text:
                     res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url + "/index.php")
                     if res and res.status_code == 200:
                         if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
@@ -94,12 +96,18 @@ class SiteUserInfoFactory(object):
         printable_text = html.xpath("string(.)") if html else ""
 
         if "Powered by Gazelle" in printable_text:
-            return GazelleUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
+            return GazelleSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
+
+        if "Style by Rabbit" in printable_text:
+            return NexusRabbitSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
 
         if "Powered by Discuz!" in printable_text:
             return DiscuzUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
 
-        if "NexusPHP" in html_text in html_text:
+        if "unit3d.js" in html_text:
+            return Unit3dSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
+
+        if "NexusPHP" in html_text:
             return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
 
         if "Nexus Project" in html_text:

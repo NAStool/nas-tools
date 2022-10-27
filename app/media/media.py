@@ -18,7 +18,7 @@ from app.helper import MetaHelper
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find
 from app.media.tmdbv3api.exceptions import TMDbException
 from app.media.doubanv2api import DoubanApi
-from app.utils.cache_manager import cacheman
+from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
 
 
@@ -226,10 +226,16 @@ class Media:
                     if movie.get('release_date'):
                         if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
                                 and movie.get('release_date')[0:4] == str(first_media_year):
-                            return movie
+                            if movie.get('production_countries'):
+                                return movie
+                            else:
+                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=movie.get('id'))
                         if self.__compare_tmdb_names(file_media_name, movie.get('original_title')) \
                                 and movie.get('release_date')[0:4] == str(first_media_year):
-                            return movie
+                            if movie.get('production_countries'):
+                                return movie
+                            else:
+                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=movie.get('id'))
             else:
                 for movie in movies:
                     if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
@@ -246,12 +252,18 @@ class Media:
                         index += 1
                         info, names = self.__search_tmdb_allnames(MediaType.MOVIE, movie.get("id"))
                         if self.__compare_tmdb_names(file_media_name, names):
-                            return info
+                            if info.get('production_countries'):
+                                return info
+                            else:
+                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=info.get('id'))
                     else:
                         index += 1
                         info, names = self.__search_tmdb_allnames(MediaType.MOVIE, movie.get("id"))
                         if self.__compare_tmdb_names(file_media_name, names):
-                            return info
+                            if info.get('production_countries'):
+                                return info
+                            else:
+                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=info.get('id'))
                     if index > 5:
                         break
         return {}

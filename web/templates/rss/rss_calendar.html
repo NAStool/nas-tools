@@ -27,35 +27,36 @@
     headerToolbar: {
       left: 'prev,next',
       center: 'title',
-      right: 'dayGridMonth,dayGridWeek,listMonth'
+      right: 'dayGridWeek,dayGridMonth,listMonth'
     },
+    defaultView: 'dayGridWeek',
     initialDate: '{{ Today }}',
     navLinks: true,
     editable: false,
     dayMaxEvents: true,
     selectable: false,
     events: [],
-  eventDisplay: 'list-item',
-    eventClick: function(info) {
+    eventDisplay: 'list-item',
+      eventClick: function(info) {
+        var eventData = info.event.extendedProps;
+        if (eventData.type == "电影") {
+          var type = "MOV";
+        } else {
+          var type = "TV";
+        }
+        show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar");
+      },
+    eventContent: function(info) {
       var eventData = info.event.extendedProps;
-      if (eventData.type == "电影") {
-        var type = "MOV";
-      } else {
-        var type = "TV";
+      if (eventData.type == '电影') {
+        var border_color = 'bg-green';
+      }else{
+        var border_color = 'bg-primary';
       }
-      show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar");
-    },
-  eventContent: function(info) {
-    var eventData = info.event.extendedProps;
-    if (eventData.type == '电影') {
-      var border_color = 'bg-green';
-    }else{
-      var border_color = 'bg-primary';
+      var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+      return { html: innerText };
     }
-    var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
-    return { html: innerText };
-  }
-    });
+  });
   calendar.render();
 </script>
 <script type="text/javascript">

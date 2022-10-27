@@ -1,6 +1,8 @@
 import os
 import signal
 import sys
+from alembic.config import Config as AlembicConfig
+from alembic.command import upgrade as alembic_upgrade
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 from pyvirtualdisplay import Display
@@ -40,7 +42,7 @@ if is_windows_exe:
         if not os.path.exists(feapder_tmpdir):
             os.makedirs(feapder_tmpdir)
     except Exception as err:
-        print(err)
+        print(str(err))
 
 # 启动虚拟显示
 is_docker = os.path.exists('/.dockerenv')
@@ -61,10 +63,11 @@ from app.utils import StringUtils
 from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
-from app.helper import check_config, IndexerHelper, SqlHelper
+from app.helper import check_config, IndexerHelper, DbHelper
 from version import APP_VERSION
 from web.app import FlaskApp
 from app.rsschecker import RssChecker
+from app.db import MainDb, MediaDb
 
 warnings.filterwarnings('ignore')
 
@@ -86,10 +89,39 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
+def init_db():
+    """
+    初始化数据库
+    """
+    log.console('【Db】数据库初始化...')
+    MediaDb().init_db()
+    MainDb().init_db()
+    MainDb().init_data()
+    log.console('【Db】数据库初始化已完成')
+
+
+def update_db(cfg):
+    """
+    更新数据库
+    """
+    db_location = os.path.normpath(os.path.join(cfg.get_config_path(), 'user.db'))
+    script_location = os.path.normpath(os.path.join(os.path.dirname(__file__), 'alembic'))
+    log.console('【Db】数据库更新...')
+    try:
+        alembic_cfg = AlembicConfig()
+        alembic_cfg.set_main_option('script_location', script_location)
+        alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
+        alembic_upgrade(alembic_cfg, 'head')
+    except Exception as e:
+        print(str(e))
+    log.console('【Db】数据库更新已完成')
+
+
 def update_config(cfg):
     """
     升级配置文件
     """
+    _dbhelper = DbHelper()
     _config = cfg.get_config()
     overwrite_cofig = False
     # 密码初始化
@@ -121,10 +153,12 @@ def update_config(cfg):
         }
         overwrite_cofig = True
     # API密钥初始化
-    if not _config.get("security", {}).get("subscribe_token"):
-        _config['security']['subscribe_token'] = _config.get("laboratory",
-                                                             {}).get("subscribe_token") \
-                                                 or StringUtils.generate_random_str()
+    if not _config.get("security", {}).get("api_key"):
+        _config['security']['api_key'] = _config.get("security",
+                                                     {}).get("subscribe_token") \
+                                         or StringUtils.generate_random_str()
+        if _config.get('security', {}).get('subscribe_token'):
+            _config['security'].pop('subscribe_token')
         overwrite_cofig = True
     # 消息推送开关初始化
     if not _config.get("message", {}).get("switch"):
@@ -238,8 +272,8 @@ def update_config(cfg):
         if ignored_words:
             ignored_words = ignored_words.split("||")
             for ignored_word in ignored_words:
-                if not SqlHelper.is_custom_words_existed(replaced=ignored_word):
-                    SqlHelper.insert_custom_word(replaced=ignored_word,
+                if not _dbhelper.is_custom_words_existed(replaced=ignored_word):
+                    _dbhelper.insert_custom_word(replaced=ignored_word,
                                                  replace="",
                                                  front="",
                                                  back="",
@@ -257,8 +291,8 @@ def update_config(cfg):
             replaced_words = replaced_words.split("||")
             for replaced_word in replaced_words:
                 replaced_word = replaced_word.split("@")
-                if not SqlHelper.is_custom_words_existed(replaced=replaced_word[0]):
-                    SqlHelper.insert_custom_word(replaced=replaced_word[0],
+                if not _dbhelper.is_custom_words_existed(replaced=replaced_word[0]):
+                    _dbhelper.insert_custom_word(replaced=replaced_word[0],
                                                  replace=replaced_word[1],
                                                  front="",
                                                  back="",
@@ -276,8 +310,8 @@ def update_config(cfg):
             offset_words = offset_words.split("||")
             for offset_word in offset_words:
                 offset_word = offset_word.split("@")
-                if not SqlHelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
-                    SqlHelper.insert_custom_word(replaced="",
+                if not _dbhelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
+                    _dbhelper.insert_custom_word(replaced="",
                                                  replace="",
                                                  front=offset_word[0],
                                                  back=offset_word[1],
@@ -290,54 +324,70 @@ def update_config(cfg):
                                                  whelp="")
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
-        ignored_words = SqlHelper.get_ignored_words()
-        if ignored_words:
-            for ignored_word in ignored_words:
-                if not SqlHelper.is_custom_words_existed(replaced=ignored_word[1]):
-                    SqlHelper.insert_custom_word(replaced=ignored_word[1],
-                                                 replace="",
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=1,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        replaced_words = SqlHelper.get_replaced_words()
-        if replaced_words:
-            for replaced_word in replaced_words:
-                if not SqlHelper.is_custom_words_existed(replaced=replaced_word[1]):
-                    SqlHelper.insert_custom_word(replaced=replaced_word[1],
-                                                 replace=replaced_word[2],
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=2,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        offset_words = SqlHelper.get_offset_words()
-        if offset_words:
-            for offset_word in offset_words:
-                if not SqlHelper.is_custom_words_existed(front=offset_word[1], back=offset_word[2]):
-                    SqlHelper.insert_custom_word(replaced="",
-                                                 replace="",
-                                                 front=offset_word[1],
-                                                 back=offset_word[2],
-                                                 offset=offset_word[3],
-                                                 wtype=4,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        SqlHelper.excute('''DROP TABLE IGNORED_WORDS''')
-        SqlHelper.excute('''DROP TABLE REPLACED_WORDS''')
-        SqlHelper.excute('''DROP TABLE OFFSET_WORDS''')
+    except Exception as e:
+        print(str(e))
+    # 目录同步兼容旧配置
+    try:
+        sync_paths = Config().get_config('sync').get('sync_path')
+        rmt_mode = Config().get_config('pt').get('sync_mod')
+        if sync_paths:
+            if isinstance(sync_paths, list):
+                for sync_items in sync_paths:
+                    SyncPath = {'from': "",
+                                'to': "",
+                                'unknown': "",
+                                'syncmod': rmt_mode,
+                                'rename': 1,
+                                'enabled': 1}
+                    # 是否启用
+                    if sync_items.startswith("#"):
+                        SyncPath['enabled'] = 0
+                        sync_items = sync_items[1:-1]
+                    # 是否重命名
+                    if sync_items.startswith("["):
+                        SyncPath['rename'] = 0
+                        sync_items = sync_items[1:-1]
+                    # 转移方式
+                    config_items = sync_items.split("@")
+                    if not config_items:
+                        continue
+                    if len(config_items) > 1:
+                        SyncPath['syncmod'] = config_items[-1]
+                    else:
+                        SyncPath['syncmod'] = rmt_mode
+                    if not SyncPath['syncmod']:
+                        continue
+                    # 源目录|目的目录|未知目录
+                    paths = config_items[0].split("|")
+                    if not paths:
+                        continue
+                    if len(paths) > 0:
+                        if not paths[0]:
+                            continue
+                        SyncPath['from'] = paths[0].replace("\\", "/")
+                    if len(paths) > 1:
+                        SyncPath['to'] = paths[1].replace("\\", "/")
+                    if len(paths) > 2:
+                        SyncPath['unknown'] = paths[2].replace("\\", "/")
+                    # 相同from的同步目录不能同时开启
+                    if SyncPath['enabled'] == 1:
+                        _dbhelper.check_config_sync_paths(source=SyncPath['from'],
+                                                          enabled=0)
+                    _dbhelper.insert_config_sync_path(source=SyncPath['from'],
+                                                      dest=SyncPath['to'],
+                                                      unknown=SyncPath['unknown'],
+                                                      mode=SyncPath['syncmod'],
+                                                      rename=SyncPath['rename'],
+                                                      enabled=SyncPath['enabled'])
+            else:
+                _dbhelper.insert_config_sync_path(source=sync_paths,
+                                                  dest="",
+                                                  unknown="",
+                                                  mode=rmt_mode,
+                                                  rename=1,
+                                                  enabled=0)
+            _config['sync'].pop('sync_path')
+            overwrite_cofig = True
     except Exception as e:
         print(str(e))
     # 重写配置文件
@@ -353,8 +403,16 @@ if __name__ == "__main__":
     log.console('NASTool 当前版本号：%s' % APP_VERSION)
 
     config = Config()
+
+    # 数据库初始化
+    init_db()
+
+    # 数据库更新
+    update_db(config)
+
     # 升级配置文件
     update_config(config)
+
     # 检查配置文件
     if not check_config(config):
         sys.exit()

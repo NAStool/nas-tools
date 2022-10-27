@@ -58,9 +58,37 @@
               {% endif %}
               {% if Site.rule %}
               <dt class="col-3">过滤规则:</dt>
-              <dd class="col-9"><span class="badge bg-green me-2">{{ Site.rule_name }}</span></dd>
+              <dd class="col-9"><span class="badge bg-orange me-2">{{ Site.rule_name }}</span></dd>
               {% endif %}
             </dl>
+            <div class="row">
+              <div class="col">
+                {% if Site.signin_enable and (Site.signurl or Site.rssurl) %}
+                <span class="badge badge-outline text-blue mb-1 me-1">签到</span>
+                {% endif %}
+                {% if Site.rss_enable and Site.rssurl %}
+                <span class="badge badge-outline text-azure mb-1 me-1">订阅</span>
+                {% endif %}
+                {% if Site.brush_enable and Site.rssurl %}
+                <span class="badge badge-outline text-indigo mb-1 me-1">刷流</span>
+                {% endif %}
+                {% if Site.statistic_enable and (Site.signurl or Site.rssurl) %}
+                <span class="badge badge-outline text-purple mb-1 me-1">数据统计</span>
+                {% endif %}
+                {% if Site.parse == 'Y' %}
+                <span class="badge badge-outline text-pink mb-1 me-1">解析</span>
+                {% endif %}
+                {% if Site.unread_msg_notify == 'Y' %}
+                <span class="badge badge-outline text-orange mb-1 me-1">消息</span>
+                {% endif %}
+                {% if Site.chrome == 'Y' %}
+                <span class="badge badge-outline text-yellow mb-1 me-1">仿真</span>
+                {% endif %}
+                {% if Site.proxy == 'Y' %}
+                <span class="badge badge-outline text-lime mb-1 me-1">代理</span>
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -103,26 +131,6 @@
               <div class="mb-3">
                 <label class="form-label">优先级 <span class="form-help" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_pri">
-                  <option value="1" selected>1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                  <option value="11">11</option>
-                  <option value="12">12</option>
-                  <option value="13">13</option>
-                  <option value="14">14</option>
-                  <option value="15">15</option>
-                  <option value="16">16</option>
-                  <option value="17">17</option>
-                  <option value="18">18</option>
-                  <option value="19">19</option>
-                  <option value="20">20</option>
                 </select>
               </div>
             </div>
@@ -441,6 +449,11 @@
       hide_ask_modal();
       del_site(siteid);
     });
+  }
+
+  // 优先级
+  for (var i = 1; i <= 50; i++) {
+    $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
 </script>

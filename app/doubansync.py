@@ -8,7 +8,7 @@ from lxml import etree
 import log
 from app.media.douban import DouBan
 from app.downloader import Downloader
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.media import Media, MetaInfo
 from app.message import Message
 from app.searcher import Searcher
@@ -24,6 +24,8 @@ class DoubanSync:
     searcher = None
     media = None
     downloader = None
+    dbhelper = None
+    subscribe = None
     __interval = None
     __auto_search = None
     __auto_rss = None
@@ -37,6 +39,8 @@ class DoubanSync:
         self.downloader = Downloader()
         self.media = Media()
         self.message = Message()
+        self.dbhelper = DbHelper()
+        self.subscribe = Subscribe()
         self.init_config()
 
     def init_config(self):
@@ -79,7 +83,7 @@ class DoubanSync:
                     if not media:
                         continue
                     # 查询数据库状态，已经加入RSS的不处理
-                    search_state = SqlHelper.get_douban_search_state(media.get_name(), media.year)
+                    search_state = self.dbhelper.get_douban_search_state(media.get_name(), media.year)
                     if not search_state or search_state[0][0] == "NEW":
                         if media.begin_season:
                             subtitle = "第%s季" % media.begin_season
@@ -98,7 +102,7 @@ class DoubanSync:
                         if exist_flag:
                             # 更新为已下载状态
                             log.info("【Douban】%s 已存在" % media.get_name())
-                            SqlHelper.insert_douban_media_state(media, "DOWNLOADED")
+                            self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
                             continue
                         if not self.__auto_rss:
                             # 合并季
@@ -110,22 +114,22 @@ class DoubanSync:
                                 no_exists=no_exists)
                             if search_result:
                                 # 下载全了更新为已下载，没下载全的下次同步再次搜索
-                                SqlHelper.insert_douban_media_state(media, "DOWNLOADED")
+                                self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
                         else:
                             # 需要加订阅，则由订阅去检索
                             log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
-                            code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
-                                                                       name=media.get_name(),
-                                                                       year=media.year,
-                                                                       season=media.begin_season,
-                                                                       doubanid=media.douban_id)
+                            code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
+                                                                            name=media.get_name(),
+                                                                            year=media.year,
+                                                                            season=media.begin_season,
+                                                                            doubanid=media.douban_id)
                             if code != 0:
                                 log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                             else:
                                 # 发送订阅消息
                                 self.message.send_rss_success_message(in_from=SearchType.DB, media_info=media)
                                 # 插入为已RSS状态
-                                SqlHelper.insert_douban_media_state(media, "RSS")
+                                self.dbhelper.insert_douban_media_state(media, "RSS")
                     else:
                         log.info("【Douban】%s %s 已处理过" % (media.get_name(), media.year))
             else:
@@ -134,19 +138,19 @@ class DoubanSync:
                     # 加入订阅，使状态为R
                     for media in medias:
                         log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
-                        code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
-                                                                   name=media.get_name(),
-                                                                   year=media.year,
-                                                                   season=media.begin_season,
-                                                                   doubanid=media.douban_id,
-                                                                   state="R")
+                        code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
+                                                                        name=media.get_name(),
+                                                                        year=media.year,
+                                                                        season=media.begin_season,
+                                                                        doubanid=media.douban_id,
+                                                                        state="R")
                         if code != 0:
                             log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                         else:
                             # 发送订阅消息
                             self.message.send_rss_success_message(in_from=SearchType.DB, media_info=media)
                             # 插入为已RSS状态
-                            SqlHelper.insert_douban_media_state(media, "RSS")
+                            self.dbhelper.insert_douban_media_state(media, "RSS")
             log.info("【Douban】豆瓣数据同步完成")
         finally:
             lock.release()

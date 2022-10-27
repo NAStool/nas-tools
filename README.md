@@ -1,4 +1,4 @@
-![image](https://raw.githubusercontent.com/jxxghp/nas-tools/a7e44dd95cda89f71664f766daa5f93e59543225/web/static/img/logo.svg) 
+![logo-blue](https://user-images.githubusercontent.com/51039935/197520391-f35db354-6071-4c12-86ea-fc450f04bc85.png)
 # NAS媒体库资源归集、整理自动化工具
 
 [![GitHub stars](https://img.shields.io/github/stars/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/stargazers)

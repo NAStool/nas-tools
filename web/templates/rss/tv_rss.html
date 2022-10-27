@@ -41,53 +41,53 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}show_edit_rss_media_modal("{{ Item[10] }}", "TV"){% endif %}'>
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("TV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "tv_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "TV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+            <img class="rounded-top w-100" src="{{ Item.IMAGE }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-progress">
-            <div class="progress-bar bg-green" style="width: {{ Item[9] or 0 }}%" role="progressbar" aria-valuenow="{{ Item[9] or 0 }}" aria-valuemin="0" aria-valuemax="100">
-              <span class="visually-hidden">{{ Item[9] }}%</span>
+            <div class="progress-bar bg-green" style="width: {% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}%" role="progressbar"
+                 aria-valuenow="{% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}" aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
-              {% if Item[1] %}
-              {{ Item[0] }} ({{ Item[1] }}) {% if Item[2] != "S00" %}{{ Item[2] }}{% endif %}
+              {% if Item.YEAR %}
+              {{ Item.NAME }} ({{ Item.YEAR }}) {% if Item.SEASON != "S00" %}{{ Item.SEASON }}{% endif %}
               {% else %}
-              {{ Item[0] }} {% if Item[2] != "S00" %}{{ Item[2] }}{% endif %}
+              {{ Item.NAME }} {% if Item.SEASON != "S00" %}{{ Item.SEASON }}{% endif %}
               {% endif %}
             </div>
             <div class="text-muted">
               <span class="badge
-              {% if Item[8] == 'D' %}
+              {% if Item.STATE == 'D' %}
               bg-gray
-              {% elif Item[8] == 'S' %}
+              {% elif Item.STATE == 'S' %}
               bg-orange
-              {% elif Item[8] == 'R' %}
+              {% elif Item.STATE == 'R' %}
               bg-green
               {% else %}
               bg-blue
               {% endif %}
               "></span>
-              {% if Item[8] == "D" %}
+              {% if Item.STATE == "D" %}
               队列中
-              {% elif Item[8] == "S" %}
+              {% elif Item.STATE == "S" %}
               正在搜索
-              {% elif Item[8] == "R" %}
-              正在订阅 {% if (Item[6] or -1) > 0 %}({{ (Item[6] or -1) - (Item[7] or -1) }}/{{ (Item[6] or -1) }}){% endif %}
+              {% elif Item.STATE == "R" %}
+              正在订阅 {% if (Item.TOTAL or -1) > 0 %}({{ (Item.TOTAL or -1) - (Item.LACK or -1) }}/{{ (Item.TOTAL or -1) }}){% endif %}
               {% else %}
               完成
               {% endif %}
             </div>
-            {% if Item[5]|rss_filter_string %}
+            {% if Item.DESC|rss_filter_string %}
             <div class="text-muted border-top pt-2 mt-2">
-              <small>{{ Item[5]|rss_filter_string|safe }}</small>
+              <small>{{ Item.DESC|rss_filter_string|safe }}</small>
             </div>
             {% endif %}
-            {% if Item[5]|rss_sites_string %}
-            <div class="text-muted {% if not Item[5]|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
-              <small>{{ Item[5]|rss_sites_string|safe }}</small>
+            {% if Item.DESC|rss_sites_string %}
+            <div class="text-muted {% if not Item.DESC|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
+              <small>{{ Item.DESC|rss_sites_string|safe }}</small>
             </div>
             {% endif %}
           </div>

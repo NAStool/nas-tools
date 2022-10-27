@@ -12,16 +12,30 @@ class RequestUtils:
     __timeout = 20
     __session = None
 
-    def __init__(self, headers=None, cookies=None, proxies=False, session=None, timeout=None):
+    def __init__(self,
+                 headers=None,
+                 cookies=None,
+                 proxies=False,
+                 session=None,
+                 timeout=None,
+                 referer=None):
         if headers:
             if isinstance(headers, str):
-                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                  "User-Agent": f"{headers}"}
+                self.__headers = {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "User-Agent": f"{headers}"
+                }
             else:
                 self.__headers = headers
         else:
-            self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                              "User-Agent": Config().get_ua()}
+            self.__headers = {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "User-Agent": Config().get_ua()
+            }
+        if referer:
+            self.__headers.update({
+                "referer": referer
+            })
         if cookies:
             if isinstance(cookies, str):
                 self.__cookies = self.cookie_parse(cookies)

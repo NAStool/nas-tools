@@ -2,7 +2,6 @@ import os.path
 import re
 from urllib.parse import quote
 import bencode
-from lxml import etree
 
 from app.utils.torrentParser import TorrentParser
 from config import TORRENT_SEARCH_PARAMS
@@ -59,19 +58,20 @@ class Torrent:
         return True
 
     @staticmethod
-    def get_torrent_content(url, cookie=None, ua=None):
+    def get_torrent_content(url, cookie=None, ua=None, referer=None):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
         :param cookie: 站点Cookie
         :param ua: 站点UserAgent
+        :param referer: 关联地址，有的网站需要这个否则无法下载
         """
         if not url:
             return None, "URL为空"
         if url.startswith("magnet:"):
             return url, "磁力链接"
         try:
-            req = RequestUtils(headers=ua, cookies=cookie).get_res(url=url)
+            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, "未下载到种子数据"
@@ -87,14 +87,14 @@ class Torrent:
             return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
 
     @staticmethod
-    def save_torrent_file(url, path, cookie, ua):
+    def save_torrent_file(url, path, cookie, ua, referer=None):
         """
         下载种子并保存到文件，返回文件路径
         """
         if not os.path.exists(path):
             os.makedirs(path)
         # 下载种子
-        ret = RequestUtils(cookies=cookie, headers=ua).get_res(url)
+        ret = RequestUtils(cookies=cookie, headers=ua, referer=referer).get_res(url)
         if ret and ret.status_code == 200:
             file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
             file_path = os.path.join(path, file_name)
@@ -210,30 +210,6 @@ class Torrent:
             "episode_info": {"total": total_episode,
                              "current": current_episode}
         }
-
-    @staticmethod
-    def parse_download_url(page_url, xpath, cookie=None, ua=None):
-        """
-        从详情页面中解析中下载链接
-        :param page_url: 详情页面地址
-        :param xpath: 解析XPATH
-        :param cookie: 站点Cookie
-        :param ua: 站点User-Agent
-        """
-        if not page_url or not xpath:
-            return ""
-        try:
-            req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
-            if req and req.status_code == 200:
-                if not req.text:
-                    return None
-                html = etree.HTML(req.text)
-                urls = html.xpath(xpath)
-                if urls:
-                    return str(urls[0])
-        except Exception as err:
-            print(str(err))
-        return None
 
     @staticmethod
     def convert_hash_to_magnet(hash_text, title):

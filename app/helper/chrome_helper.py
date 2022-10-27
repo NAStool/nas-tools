@@ -88,6 +88,9 @@ class ChromeHelper(object):
             cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
         return cookie_str
 
+    def get_ua(self):
+        return self.browser.execute_script("return navigator.userAgent")
+
     def __del__(self):
         if self._chrome:
             self._chrome.quit()

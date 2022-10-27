@@ -7,12 +7,8 @@ from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
 from app.utils import StringUtils
 
 
-class GazelleUserInfo(ISiteUserInfo):
+class GazelleSiteUserInfo(ISiteUserInfo):
     _site_schema = "Gazelle"
-    _brief_page = "/"
-    _user_traffic_page = None
-    _user_detail_page = None
-    _torrent_seeding_page = None
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)

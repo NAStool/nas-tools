@@ -12,16 +12,16 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
+from app.helper import ThreadHelper
+from app.media import Media, MetaInfo, Category, Scraper
+from app.mediaserver import MediaServer
+from app.message import Message
+from app.subtitle import Subtitle
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
-from app.message import Message
-from app.mediaserver import MediaServer
-from app.subtitle import Subtitle
-from app.media import Media, MetaInfo, Category, Scraper
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
-from app.helper import ThreadHelper
-from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()
 
@@ -33,6 +33,7 @@ class FileTransfer:
     mediaserver = None
     scraper = None
     threadhelper = None
+    dbhelper = None
 
     __system = OsType.LINUX
     __default_rmt_mode = None
@@ -64,6 +65,7 @@ class FileTransfer:
         self.mediaserver = MediaServer()
         self.scraper = Scraper()
         self.threadhelper = ThreadHelper()
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
@@ -158,33 +160,63 @@ class FileTransfer:
         try:
             lock.acquire()
             if self.__system == OsType.WINDOWS:
+                # Windows
                 if rmt_mode == RmtMode.LINK:
-                    retcode = subprocess.run(['mklink', '/H', target_file, file_item], shell=True).returncode
+                    # 硬链接
+                    retcode = subprocess.run(['mklink', '/H',
+                                              target_file,
+                                              r'"%s"' % file_item], shell=True).returncode
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    retcode = subprocess.run(['mklink', target_file, file_item], shell=True).returncode
+                    # 软链接
+                    retcode = subprocess.run(['mklink',
+                                              target_file,
+                                              r'"%s"' % file_item], shell=True).returncode
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = subprocess.run(['rename', file_item, os.path.basename(target_file)], shell=True).returncode
+                    # 移动
+                    retcode = subprocess.run(['rename',
+                                              r'"%s"' % file_item,
+                                              os.path.basename(target_file)], shell=True).returncode
                     if retcode != 0:
                         return retcode
-                    retcode = subprocess.run(['move', '/Y', os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file], shell=True).returncode
+                    retcode = subprocess.run(['move', '/Y',
+                                              r'"%s"' % os.path.join(os.path.dirname(file_item),
+                                                                     os.path.basename(target_file)),
+                                              target_file], shell=True).returncode
                 elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    # MINIO
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.MINIO:
-                        retcode = subprocess.run(['mc.exe', 'mv', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(['mc.exe', 'mv',
+                                                  '--recursive',
+                                                  r'"%s"' % file_item,
+                                                  r'NASTOOL/"{%s}"' % target_file], shell=True).returncode
                     else:
-                        retcode = subprocess.run(['mc.exe', 'cp', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(['mc.exe', 'cp',
+                                                  '--recursive',
+                                                  r'"%s"' % file_item,
+                                                  r'NASTOOL/"{%s}"' % target_file], shell=True).returncode
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
+                    # RCLONE
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = subprocess.run(['rclone.exe', 'moveto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(['rclone.exe', 'moveto',
+                                                  r'"%s"' % file_item,
+                                                  r'NASTOOL:"%s"' % target_file], shell=True).returncode
                     else:
-                        retcode = subprocess.run(['rclone.exe', 'copyto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(['rclone.exe', 'copyto',
+                                                  r'"%s"' % file_item,
+                                                  r'NASTOOL:"%s"' % target_file], shell=True).returncode
                 else:
-                    retcode = subprocess.run(['copy', '/Y', file_item, target_file], shell=True).returncode
+                    # 复制
+                    retcode = subprocess.run(['copy', '/Y',
+                                              r'"%s"' % file_item,
+                                              target_file], shell=True).returncode
             else:
+                # Linux
                 if rmt_mode == RmtMode.LINK:
+                    # 硬链接
                     if platform.release().find("-z4-") >= 0:
                         tmp = "%s/%s" % (PathUtils.get_parent_paths(target_file, 2), os.path.basename(target_file))
                         retcode = call(["ln", file_item, tmp])
@@ -193,13 +225,16 @@ class FileTransfer:
                     else:
                         retcode = call(["ln", file_item, target_file])
                 elif rmt_mode == RmtMode.SOFTLINK:
+                    # 软链接
                     retcode = call(["ln", "-s", file_item, target_file])
                 elif rmt_mode == RmtMode.MOVE:
+                    # 移动
                     tmp_file = os.path.join(os.path.dirname(file_item), os.path.basename(target_file))
                     retcode = call(["mv", file_item, tmp_file])
                     if retcode == 0:
                         retcode = call(["mv", tmp_file, target_file])
                 elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    # MINIO
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
@@ -207,6 +242,7 @@ class FileTransfer:
                     else:
                         retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
+                    # RCLONE
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
@@ -214,6 +250,7 @@ class FileTransfer:
                     else:
                         retcode = call(["rclone", "copyto", file_item, "NASTOOL:" + target_file])
                 else:
+                    # 复制
                     retcode = call(["cp", file_item, target_file])
         finally:
             lock.release()
@@ -333,9 +370,9 @@ class FileTransfer:
                 break
             else:
                 if not bludir:
-                    SqlHelper.insert_transfer_blacklist(file)
+                    self.dbhelper.insert_transfer_blacklist(file)
         if retcode == 0 and bludir:
-            SqlHelper.insert_transfer_blacklist(src_dir)
+            self.dbhelper.insert_transfer_blacklist(src_dir)
         return retcode
 
     def __transfer_origin_file(self, file_item, target_dir, rmt_mode):
@@ -372,7 +409,7 @@ class FileTransfer:
                                               target_file=target_file,
                                               rmt_mode=rmt_mode)
             if retcode == 0:
-                SqlHelper.insert_transfer_blacklist(file_item)
+                self.dbhelper.insert_transfer_blacklist(file_item)
         if retcode == 0:
             log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
         else:
@@ -400,7 +437,7 @@ class FileTransfer:
                                           rmt_mode=rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
-            SqlHelper.insert_transfer_blacklist(file_item)
+            self.dbhelper.insert_transfer_blacklist(file_item)
         else:
             log.error("【RMT】文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
             return retcode
@@ -527,7 +564,7 @@ class FileTransfer:
 
         # 目录同步模式下，过滤掉文件列表中已处理过的
         if in_from == SyncType.MON:
-            file_list = list(filter(SqlHelper.is_transfer_notin_blacklist, file_list))
+            file_list = list(filter(self.dbhelper.is_transfer_notin_blacklist, file_list))
             if not file_list:
                 log.info("【RMT】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
                 return True, "没有新文件需要处理"
@@ -577,7 +614,7 @@ class FileTransfer:
                     if udf_flag:
                         return success_flag, error_message
                     # 记录未识别
-                    SqlHelper.insert_transfer_unknown(reg_path, target_dir)
+                    self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                     failed_count += 1
                     alert_count += 1
                     if error_message not in alert_messages:
@@ -670,7 +707,7 @@ class FileTransfer:
                         if udf_flag:
                             return success_flag, error_message
                         # 记录未识别
-                        SqlHelper.insert_transfer_unknown(reg_path, target_dir)
+                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                         failed_count += 1
                         alert_count += 1
                         if error_message not in alert_messages:
@@ -703,7 +740,7 @@ class FileTransfer:
                             if udf_flag:
                                 return success_flag, error_message
                             # 记录未识别
-                            SqlHelper.insert_transfer_unknown(reg_path, target_dir)
+                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                             failed_count += 1
                             alert_count += 1
                             if error_message not in alert_messages:
@@ -747,11 +784,11 @@ class FileTransfer:
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
-                SqlHelper.insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                self.dbhelper.insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
                 if isinstance(episode[1], bool) and episode[1]:
                     # 未识别手动识别，更改未识别记录为已处理
-                    SqlHelper.update_transfer_unknown_state(file_item)
+                    self.dbhelper.update_transfer_unknown_state(file_item)
                 # 电影立即发送消息
                 if media.type == MediaType.MOVIE:
                     self.message.send_transfer_movie_message(in_from,

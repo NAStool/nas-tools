@@ -3,4 +3,3 @@ qbittorrent-api
 anitopy
 plexapi
 transmission-rpc
-cn2an

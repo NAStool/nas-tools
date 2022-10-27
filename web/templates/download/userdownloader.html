@@ -61,15 +61,15 @@
               {% if Downloaders %}
                 {% for Downloader in Downloaders %}
                 <tr>
-                  <td>{{ Downloader[1] or '' }}</td>
-                  <td>{{ Downloader[2] or '' }}</td>
-                  <td>{{ Downloader[3]}}:{{ Downloader[4]}}</td>
+                  <td>{{ Downloader.name or '' }}</td>
+                  <td>{{ Downloader.type or '' }}</td>
+                  <td>{{ Downloader.host}}:{{ Downloader.port}}</td>
                   <td>
                     <div class="d-flex">
-                      <a href="javascript:show_edit_downloader_modal('{{ Downloader[0] }}')" class="btn-action" title="编辑">
+                      <a href="javascript:show_edit_downloader_modal('{{ Downloader.id}}')" class="btn-action" title="编辑">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
                       </a>
-                      <a href="javascript:delete_downloader('{{ Downloader[0] }}')" class="btn-action" title="删除下载器">
+                      <a href="javascript:delete_downloader('{{ Downloader.id }}')" class="btn-action" title="删除下载器">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                            <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -248,13 +248,13 @@
     $("#dl_id").val(id);
     ajax_post("get_downloader", {"id": id}, function (ret) {
       if (ret.code == 0){
-        $("#dl_name").val(ret.info[1]);
-        $("#dl_type").val(ret.info[2]);
-        $("#dl_host").val(ret.info[3]);
-        $("#dl_port").val(ret.info[4]);
-        $("#dl_username").val(ret.info[5]);
-        $("#dl_password").val(ret.info[6]);
-        $("#dl_save_dir").val(ret.info[7]);
+        $("#dl_name").val(ret.info.NAME);
+        $("#dl_type").val(ret.info.TYPE);
+        $("#dl_host").val(ret.info.HOST);
+        $("#dl_port").val(ret.info.PORT);
+        $("#dl_username").val(ret.info.USERNAME);
+        $("#dl_password").val(ret.info.PASSWORD);
+        $("#dl_save_dir").val(ret.info.SAVE_DIR);
         $("#modal-add-downloader").modal('show');
       }
     });

@@ -11,7 +11,7 @@ from app.searcher import Searcher
 from app.utils import StringUtils
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
-from app.helper import SqlHelper, ProgressHelper
+from app.helper import DbHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
 from app.subscribe import Subscribe
 
@@ -29,6 +29,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     :param media_type: 媒体类型，配合tmdbid传入
     :return: 错误码，错误原因，成功时直接插入数据库
     """
+    _dbhelper = DbHelper()
     mtype, key_word, season_num, episode_num, year, content = StringUtils.get_keyword_from_string(content)
     if not key_word:
         log.info("【Web】%s 检索关键字有误！" % content)
@@ -170,7 +171,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
-    SqlHelper.delete_all_search_torrents()
+    _dbhelper.delete_all_search_torrents()
     # 结束进度
     search_process.end('search')
     if len(media_list) == 0:
@@ -182,7 +183,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        SqlHelper.insert_search_results(media_list)
+        _dbhelper.insert_search_results(media_list)
         return 0, ""
 
 
@@ -368,26 +369,28 @@ def __search_media(in_from, media_info, user_id):
         # 没有下载完成，且打开了自动添加订阅
         if not search_result and Config().get_config('pt').get('search_no_result_rss'):
             # 添加订阅
-            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id)
+            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id, state='R')
 
 
-def __rss_media(in_from, media_info, user_id=None):
+def __rss_media(in_from, media_info, user_id=None, state='D'):
     """
     开始添加订阅和发送消息
     """
     # 添加订阅
     if media_info.douban_id:
-        code, msg, media_info = Subscribe.add_rss_subscribe(media_info.type,
-                                                            media_info.title,
-                                                            media_info.year,
-                                                            media_info.begin_season,
-                                                            doubanid=media_info.douban_id)
+        code, msg, media_info = Subscribe().add_rss_subscribe(media_info.type,
+                                                              media_info.title,
+                                                              media_info.year,
+                                                              media_info.begin_season,
+                                                              doubanid=media_info.douban_id,
+                                                              state=state)
     else:
-        code, msg, media_info = Subscribe.add_rss_subscribe(media_info.type,
-                                                            media_info.title,
-                                                            media_info.year,
-                                                            media_info.begin_season,
-                                                            tmdbid=media_info.tmdb_id)
+        code, msg, media_info = Subscribe().add_rss_subscribe(media_info.type,
+                                                              media_info.title,
+                                                              media_info.year,
+                                                              media_info.begin_season,
+                                                              tmdbid=media_info.tmdb_id,
+                                                              state=state)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:

@@ -1,10 +1,8 @@
 import os
-import random
 import shutil
 from threading import Lock
 
 import ruamel.yaml
-from werkzeug.security import generate_password_hash
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
@@ -31,8 +29,6 @@ AUTO_REMOVE_TORRENTS_INTERVAL = 1800
 PT_TRANSFER_INTERVAL = 300
 # TMDB信息缓存定时保存时间
 METAINFO_SAVE_INTERVAL = 600
-# 配置文件定时生效时间
-RELOAD_CONFIG_INTERVAL = 600
 # SYNC目录同步聚合转移时间
 SYNC_TRANSFER_INTERVAL = 60
 # RSS队列中处理时间间隔
@@ -112,7 +108,8 @@ SITE_CHECKIN_XPATH = [
     '//a[contains(@text, "签到")]',
     '//span[@id="sign_in"]/a',
     '//a[contains(@href, "addbonus")]',
-    '//input[@class="dt_button"][contains(@value, "打卡")]'
+    '//input[@class="dt_button"][contains(@value, "打卡")]',
+    '//a[contains(@href, "sign_in")]'
 ]
 
 # 线程锁

@@ -10,10 +10,6 @@ from app.utils import StringUtils
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):
     _site_schema = "NexusPhp"
-    _brief_page = "index.php"
-    _user_traffic_page = "index.php"
-    _user_detail_page = "userdetails.php?id="
-    _torrent_seeding_page = "getusertorrentlistajax.php?userid="
 
     def _parse_site_page(self, html_text):
         html_text = self._prepare_html_text(html_text)

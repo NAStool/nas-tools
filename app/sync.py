@@ -7,7 +7,7 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
@@ -21,6 +21,7 @@ class FileMonitorHandler(FileSystemEventHandler):
     """
     目录监控响应类
     """
+    dhelper = None
 
     def __init__(self, monpath, sync, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
@@ -48,7 +49,6 @@ class Sync(object):
     __sync_sys = OsType.LINUX
     __synced_files = []
     __need_sync_paths = {}
-    __sync_mod = None
 
     # 转移模式
     __sync_mode_dict = {
@@ -67,13 +67,14 @@ class Sync(object):
         self.init_config()
 
     def init_config(self):
+        _dbhelper = DbHelper()
         config = Config()
         sync = config.get_config('sync')
-        if sync:
+        sync_paths = _dbhelper.get_config_sync_paths()
+        if sync and sync_paths:
             if sync.get('nas_sys') == "windows":
                 self.__sync_sys = OsType.WINDOWS
-            self.__sync_path = sync.get('sync_path')
-            self.__sync_mod = sync.get("sync_mod")
+            self.__sync_paths = sync_paths
             self.init_sync_dirs()
 
     def init_sync_dirs(self):
@@ -81,73 +82,38 @@ class Sync(object):
         初始化监控文件配置
         """
         self.sync_dir_config = {}
-        if self.__sync_path:
-            for sync_item in self.__sync_path:
+        if self.__sync_paths:
+            for sync_item in self.__sync_paths:
                 if not sync_item:
                     continue
                 # 启用标志
-                enabled = True
-                if sync_item.startswith('#'):
-                    enabled = False
-                    sync_item = sync_item[1:-1]
+                enabled = True if sync_item.ENABLED else False
                 # 仅硬链接标志
-                only_link = False
-                if sync_item.startswith('['):
-                    only_link = True
-                    sync_item = sync_item[1:-1]
-                # 读取目录和转移方式
-                config_items = sync_item.split('@')
-                if not config_items:
-                    continue
-                if len(config_items) > 1:
-                    path_syncmode = self.__sync_mode_dict.get(config_items[-1])
-                else:
-                    path_syncmode = self.__sync_mode_dict.get(self.__sync_mod)
-                if not path_syncmode:
-                    continue
+                only_link = False if sync_item.RENAME else True
+                # 转移方式
+                path_syncmode = self.__sync_mode_dict.get(sync_item.MODE)
                 # 源目录|目的目录|未知目录
-                monpaths = config_items[0].split('|')
-                if monpaths[0]:
-                    monpath = os.path.normpath(monpaths[0])
+                monpath = sync_item.SOURCE
+                target_path = sync_item.DEST
+                unknown_path = sync_item.UNKNOWN
+                if target_path and unknown_path:
+                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
+                        monpath, target_path, unknown_path, path_syncmode.value))
+                elif target_path:
+                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
                 else:
-                    continue
-                if len(monpaths) > 1:
-                    if monpaths[1]:
-                        target_path = os.path.normpath(monpaths[1])
-                    else:
-                        target_path = None
-                    if len(monpaths) > 2:
-                        if monpaths[2]:
-                            unknown_path = os.path.normpath(monpaths[2])
-                        else:
-                            unknown_path = None
-                    else:
-                        unknown_path = None
-                    if target_path and unknown_path:
-                        log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
-                            monpath, target_path, unknown_path, path_syncmode.value))
-                    elif target_path:
-                        log.info("【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
-                    else:
-                        log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
-                    if not enabled:
-                        log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
-                        continue
-                    if only_link:
-                        log.info("【Sync】%s 不进行识别和重命名" % monpath)
-                    if target_path and not os.path.exists(target_path):
-                        log.info("【Sync】目的目录不存在，正在创建：%s" % target_path)
-                        os.makedirs(target_path)
-                    if unknown_path and not os.path.exists(unknown_path):
-                        log.info("【Sync】未识别目录不存在，正在创建：%s" % unknown_path)
-                        os.makedirs(unknown_path)
-                else:
-                    target_path = None
-                    unknown_path = None
                     log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
-                    if not enabled:
-                        log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
-                        continue
+                if not enabled:
+                    log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
+                    continue
+                if only_link:
+                    log.info("【Sync】%s 不进行识别和重命名" % monpath)
+                if target_path and not os.path.exists(target_path):
+                    log.info("【Sync】目的目录不存在，正在创建：%s" % target_path)
+                    os.makedirs(target_path)
+                if unknown_path and not os.path.exists(unknown_path):
+                    log.info("【Sync】未识别目录不存在，正在创建：%s" % unknown_path)
+                    os.makedirs(unknown_path)
                 # 登记关系
                 if os.path.exists(monpath):
                     self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path,
@@ -230,7 +196,8 @@ class Sync(object):
 
                 # 只做硬链接，不做识别重命名
                 if onlylink:
-                    if SqlHelper.is_sync_in_history(event_path, target_path):
+                    _dbhelper = DbHelper()
+                    if _dbhelper.is_sync_in_history(event_path, target_path):
                         return
                     log.info("【Sync】开始同步 %s" % event_path)
                     ret = self.filetransfer.link_sync_files(src_path=monitor_dir,
@@ -240,7 +207,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (event_path, ret))
                     else:
-                        SqlHelper.insert_sync_history(event_path, monitor_dir, target_path)
+                        _dbhelper.insert_sync_history(event_path, monitor_dir, target_path)
                         log.info("【Sync】%s 同步完成" % event_path)
                 # 识别转移
                 else:
@@ -356,6 +323,7 @@ class Sync(object):
         """
         全量转移Sync目录下的文件，WEB界面点击目录同步时获发
         """
+        _dbhelper = DbHelper()
         for monpath, target_dirs in self.sync_dir_config.items():
             if not monpath:
                 continue
@@ -366,7 +334,7 @@ class Sync(object):
             # 只做硬链接，不做识别重命名
             if onlylink:
                 for link_file in PathUtils.get_dir_files(monpath):
-                    if SqlHelper.is_sync_in_history(link_file, target_path):
+                    if _dbhelper.is_sync_in_history(link_file, target_path):
                         continue
                     log.info("【Sync】开始同步 %s" % link_file)
                     ret = self.filetransfer.link_sync_files(src_path=monpath,
@@ -376,7 +344,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (link_file, ret))
                     else:
-                        SqlHelper.insert_sync_history(link_file, monpath, target_path)
+                        _dbhelper.insert_sync_history(link_file, monpath, target_path)
                         log.info("【Sync】%s 同步完成" % link_file)
             else:
                 for path in PathUtils.get_dir_level1_medias(monpath, RMT_MEDIAEXT):

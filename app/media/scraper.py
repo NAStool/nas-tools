@@ -42,6 +42,9 @@ class Scraper:
                     DomUtils.add_node(doc, root, "imdbid", imdbid)
                     uniqueid_imdb = DomUtils.add_node(doc, root, "uniqueid", imdbid)
                     uniqueid_imdb.setAttribute("type", "imdb")
+                    uniqueid_imdb.setAttribute("default", "true")
+                    uniqueid_tmdb.setAttribute("default", "false")
+
             # 简介
             xplot = DomUtils.add_node(doc, root, "plot")
             xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
@@ -63,6 +66,8 @@ class Scraper:
                 DomUtils.add_node(doc, xactor, "role", actor.get("character") or "")
                 DomUtils.add_node(doc, xactor, "order", actor.get("order") or "")
                 DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
+                DomUtils.add_node(doc, xactor, "thumb", f"https://image.tmdb.org/t/p/h632{actor.get('profile_path')}")
+                DomUtils.add_node(doc, xactor, "profile", f"https://www.themoviedb.org/person/{actor.get('id')}")
         if scraper_nfo.get("basic"):
             # 风格
             genres = tmdbinfo.get("genres") or []
@@ -87,7 +92,7 @@ class Scraper:
         :param file_name: 电影文件名，不含后缀
         """
         # 开始生成XML
-        log.info("【NFO】正在生成电影NFO文件：%s" % file_name)
+        log.info("【Meta】正在生成电影NFO文件：%s" % file_name)
         doc = minidom.Document()
         root = DomUtils.add_node(doc, doc, "movie")
         # 公共部分
@@ -123,7 +128,7 @@ class Scraper:
         :param out_path: 电视剧根目录
         """
         # 开始生成XML
-        log.info("【NFO】正在生成电视剧NFO文件：%s" % out_path)
+        log.info("【Meta】正在生成电视剧NFO文件：%s" % out_path)
         doc = minidom.Document()
         root = DomUtils.add_node(doc, doc, "tvshow")
         # 公共部分
@@ -154,7 +159,7 @@ class Scraper:
         :param season: 季号
         :param out_path: 电视剧季的目录
         """
-        log.info("【NFO】正在生成季NFO文件：%s" % out_path)
+        log.info("【Meta】正在生成季NFO文件：%s" % out_path)
         doc = minidom.Document()
         root = DomUtils.add_node(doc, doc, "season")
         # 添加时间
@@ -193,7 +198,7 @@ class Scraper:
         :param file_name: 电视剧文件名，不含后缀
         """
         # 开始生成集的信息
-        log.info("【NFO】正在生成剧集NFO文件：%s" % file_name)
+        log.info("【Meta】正在生成剧集NFO文件：%s" % file_name)
         # 集的信息
         episode_detail = {}
         for episode_info in tmdbinfo.get("episodes") or []:
@@ -258,7 +263,7 @@ class Scraper:
         if os.path.exists(os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))):
             return
         try:
-            log.info("【NFO】正在保存 %s 图片：%s" % (itype, out_path))
+            log.info("【Meta】正在保存 %s 图片：%s" % (itype, out_path))
             r = RequestUtils().get_res(url)
             if r:
                 with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
@@ -474,7 +479,7 @@ class Scraper:
                     if director_douban:
                         director["name"] = director_douban.get("name")
                     else:
-                        log.info("【NFO】豆瓣该影片或剧集无导演 %s 信息" % director.get("name"))
+                        log.info("【Meta】豆瓣该影片或剧集无导演 %s 信息" % director.get("name"))
             # 演员
             if actors:
                 for actor in actors:
@@ -484,9 +489,9 @@ class Scraper:
                         if actor_douban.get("character") != "演员":
                             actor["character"] = actor_douban.get("character")[2:]
                     else:
-                        log.info("【NFO】豆瓣该影片或剧集无演员 %s 信息" % actor.get("name"))
+                        log.info("【Meta】豆瓣该影片或剧集无演员 %s 信息" % actor.get("name"))
         else:
-            log.info("【NFO】豆瓣无该影片或剧集信息")
+            log.info("【Meta】豆瓣无该影片或剧集信息")
         return directors, actors
 
     def __match_people_in_douban(self, people, peoples_douban):

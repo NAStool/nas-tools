@@ -315,7 +315,7 @@
   function batch_download(){
     total_downloads = [];
     var i = 0;
-    $("input[type=checkbox]").each(function(){
+    $(".table-responsive input[type=checkbox]").each(function(){
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
@@ -337,7 +337,7 @@
 
   //全选事件
   $("#resources_check_all_btn").change(function () {
-    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
 
   //名称测试

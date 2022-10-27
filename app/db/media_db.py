@@ -1,168 +1,124 @@
 import os
-import sqlite3
 import threading
 import time
-
-import log
-from app.utils.commons import singleton
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.pool import QueuePool
+from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
 from config import Config
 
 lock = threading.Lock()
+_Engine = create_engine(
+    f"sqlite:///{os.path.join(Config().get_config_path(), 'media.db')}?check_same_thread=False",
+    echo=False,
+    poolclass=QueuePool,
+    pool_pre_ping=True,
+    pool_size=5,
+    pool_recycle=60 * 30
+)
+_Session = scoped_session(sessionmaker(bind=_Engine,
+                                       autoflush=True,
+                                       autocommit=False))
 
 
-@singleton
 class MediaDb:
-    _db_path = None
-    _mediadb = None
+    _session = None
 
     def __init__(self):
-        self._db_path = os.path.join(Config().get_config_path(), 'media.db')
-        self._mediadb = sqlite3.connect(database=self._db_path, timeout=5, check_same_thread=False)
-        self.__init_tables()
+        self._session = _Session()
 
-    def __init_tables(self):
-        with lock:
-            cursor = self._mediadb.cursor()
-            try:
-                # 媒体库同步信息表
-                cursor.execute('''CREATE TABLE IF NOT EXISTS MEDIASYNC_STATISTICS
-                                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                                   SERVER    TEXT,
-                                                   TOTAL_COUNT  TEXT,
-                                                   MOVIE_COUNT    TEXT,
-                                                   TV_COUNT    TEXT,
-                                                   UPDATE_TIME     TEXT);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_STATISTICS ON MEDIASYNC_STATISTICS (SERVER);''')
-                # 媒体数据表
-                cursor.execute('''CREATE TABLE IF NOT EXISTS MEDIASYNC_ITEMS
-                                                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                                                   SERVER   TEXT,
-                                                                   LIBRARY    TEXT,
-                                                                   ITEM_ID  TEXT,
-                                                                   ITEM_TYPE    TEXT,
-                                                                   TITLE    TEXT,
-                                                                   ORGIN_TITLE     TEXT,
-                                                                   YEAR     TEXT,
-                                                                   TMDBID     TEXT,
-                                                                   IMDBID     TEXT,
-                                                                   PATH     TEXT,
-                                                                   NOTE     TEXT,
-                                                                   JSON     TEXT);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_SL ON MEDIASYNC_ITEMS (SERVER, LIBRARY);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_LT ON MEDIASYNC_ITEMS (TITLE);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_OT ON MEDIASYNC_ITEMS (ORGIN_TITLE);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_TI ON MEDIASYNC_ITEMS (TMDBID);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_II ON MEDIASYNC_ITEMS (ITEM_ID);''')
-                self._mediadb.commit()
-            except Exception as e:
-                log.error(f"【Db】创建数据库错误：{e}")
-            finally:
-                cursor.close()
+    def __del__(self):
+        self._session.close()
 
-    def __excute(self, sql, data=None):
-        if not sql:
-            return False
-        with lock:
-            cursor = self._mediadb.cursor()
-            try:
-                if data:
-                    cursor.execute(sql, data)
-                else:
-                    cursor.execute(sql)
-                self._mediadb.commit()
-            except Exception as e:
-                print(str(e))
-                return False
-            finally:
-                cursor.close()
-            return True
+    @property
+    def session(self):
+        return self._session
 
-    def __select(self, sql, data):
-        if not sql:
-            return False
+    @staticmethod
+    def init_db():
         with lock:
-            cursor = self._mediadb.cursor()
-            try:
-                if data:
-                    res = cursor.execute(sql, data)
-                else:
-                    res = cursor.execute(sql)
-                ret = res.fetchall()
-            except Exception as e:
-                print(str(e))
-                return []
-            finally:
-                cursor.close()
-            return ret
+            BaseMedia.metadata.create_all(_Engine)
 
     def insert(self, server_type, iteminfo):
         if not server_type or not iteminfo:
             return False
-        self.delete(server_type, iteminfo.get("id"))
-        return self.__excute("INSERT INTO MEDIASYNC_ITEMS "
-                             "(SERVER, LIBRARY, ITEM_ID, ITEM_TYPE, TITLE, ORGIN_TITLE, YEAR, TMDBID, IMDBID, PATH, JSON) "
-                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                             (server_type,
-                              iteminfo.get("library"),
-                              iteminfo.get("id"),
-                              iteminfo.get("type"),
-                              iteminfo.get("title"),
-                              iteminfo.get("originalTitle"),
-                              iteminfo.get("year"),
-                              iteminfo.get("tmdbid"),
-                              iteminfo.get("imdbid"),
-                              iteminfo.get("path"),
-                              iteminfo.get("json")
-                              ))
-
-    def delete(self, server_type, itemid):
-        if not server_type or not itemid:
-            return False
-        return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND ITEM_ID = ?",
-                             (server_type, itemid))
+        try:
+            self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                      MEDIASYNCITEMS.ITEM_ID == iteminfo.get("id")).delete()
+            self.session.flush()
+            self.session.add(MEDIASYNCITEMS(
+                SERVER=server_type,
+                LIBRARY=iteminfo.get("library"),
+                ITEM_ID=iteminfo.get("id"),
+                ITEM_TYPE=iteminfo.get("type"),
+                TITLE=iteminfo.get("title"),
+                ORGIN_TITLE=iteminfo.get("originalTitle"),
+                YEAR=iteminfo.get("year"),
+                TMDBID=iteminfo.get("tmdbid"),
+                IMDBID=iteminfo.get("imdbid"),
+                PATH=iteminfo.get("path")
+            ))
+            self.session.commit()
+            return True
+        except Exception as e:
+            print(str(e))
+            self.session.rollback()
+        return False
 
     def empty(self, server_type=None, library=None):
-        if server_type and library:
-            return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND LIBRARY = ?",
-                                 (server_type, library))
-        else:
-            return self.__excute("DELETE FROM MEDIASYNC_ITEMS")
+        try:
+            if server_type and library:
+                self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                          MEDIASYNCITEMS.LIBRARY == library).delete()
+            else:
+                self.session.query(MEDIASYNCITEMS).delete()
+            self.session.commit()
+            return True
+        except Exception as e:
+            print(str(e))
+            self.session.rollback()
+        return False
 
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:
             return False
-        self.__excute("DELETE FROM MEDIASYNC_STATISTICS WHERE SERVER = ?", (server_type,))
-        return self.__excute("INSERT INTO MEDIASYNC_STATISTICS "
-                             "(SERVER, TOTAL_COUNT, MOVIE_COUNT, TV_COUNT, UPDATE_TIME) "
-                             "VALUES (?, ?, ?, ?, ?)", (server_type,
-                                                        total_count,
-                                                        movie_count,
-                                                        tv_count,
-                                                        time.strftime('%Y-%m-%d %H:%M:%S',
-                                                                      time.localtime(time.time()))))
+        try:
+            self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).delete()
+            self.session.flush()
+            self.session.add(MEDIASYNCSTATISTIC(
+                SERVER=server_type,
+                TOTAL_COUNT=total_count,
+                MOVIE_COUNT=movie_count,
+                TV_COUNT=tv_count,
+                UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
+                                          time.localtime(time.time()))
+            ))
+            self.session.commit()
+            return True
+        except Exception as e:
+            print(str(e))
+            self.session.rollback()
+        return False
 
     def exists(self, server_type, title, year, tmdbid):
         if not server_type or not title:
             return False
         if title and year:
-            ret = self.__select("SELECT COUNT(1) FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND TITLE = ? AND YEAR = ?",
-                                (server_type, title, year))
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title,
+                                                              MEDIASYNCITEMS.YEAR == str(year)).count()
         else:
-            ret = self.__select("SELECT COUNT(1) FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND TITLE = ?",
-                                (server_type, title))
-        if ret and ret[0][0] > 0:
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title).count()
+        if count > 0:
             return True
         elif tmdbid:
-            ret = self.__select("SELECT COUNT(1) FROM MEDIASYNC_ITEMS WHERE TMDBID = ?",
-                                (tmdbid,))
-            if ret and ret[0][0] > 0:
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.TMDBID == str(tmdbid)).count()
+            if count > 0:
                 return True
         return False
 
     def get_statistics(self, server_type):
         if not server_type:
             return None
-        return self.__select("SELECT TOTAL_COUNT, MOVIE_COUNT, TV_COUNT, UPDATE_TIME FROM MEDIASYNC_STATISTICS WHERE SERVER = ?", (server_type,))
+        return self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).first()

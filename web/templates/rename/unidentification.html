@@ -43,6 +43,13 @@
               </div>
             </div>
             <div class="card-actions btn-actions">
+              <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                 <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+              </svg>
+            </a>
               <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -94,7 +101,7 @@
                         </svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:re_identification("{{ Path.id }}")'>
+                        <a class="dropdown-item" href='javascript:re_identification(["{{ Path.id }}"])'>
                           重新识别
                         </a>
                         <a class="dropdown-item"
@@ -543,9 +550,9 @@
   });
 
   //重新识别
-  function re_identification(unknown_id) {
+  function re_identification(unknown_ids) {
     var cmd = "re_identification";
-    var data = { "flag": "unknow", "ids": [unknown_id] };
+    var data = { "flag": "unknow", "ids": unknown_ids };
     show_wait_process();
     ajax_post(cmd, data, function (ret) {
       hide_wait_process();
@@ -561,7 +568,7 @@
   function delete_checked_unknown() {
     var ids = [];
     var i = 0;
-    $("input[type=checkbox]").each(function () {
+    $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
@@ -573,11 +580,14 @@
     if (i == 0) {
       return;
     }
-    var cmd = "del_unknown_path";
-    var data = { "id": ids };
-    ajax_post(cmd, data, function (ret) {
-      navmenu('unidentification');
-    });
+    show_confirm_modal("是否确认删除所有选中的未识别记录？", function(){
+      hide_confirm_modal();
+      var cmd = "del_unknown_path";
+      var data = { "id": ids };
+      ajax_post(cmd, data, function (ret) {
+        navmenu('unidentification');
+      });
+    })
   }
 
   //单选框事件
@@ -595,8 +605,28 @@
     }
   });
 
+  //批量重新识别
+  function reidentification_all(){
+    var i = 0;
+    var ids = []
+    $(".table-responsive input[type=checkbox]").each(function () {
+      if ($(this).prop("checked")) {
+        checkid = $(this).attr("id");
+        debugger;
+        if (checkid && checkid.startsWith("check_")) {
+          id = checkid.replace("check_", "");
+          ids[i] = id;
+          i = i + 1;
+        }
+      }
+    });
+    if (i > 0){
+      re_identification(ids);
+    }
+  }
+
   //全选事件
   $("#unknown_check_all_btn").change(function () {
-    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
 </script>

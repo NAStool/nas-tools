@@ -9,10 +9,6 @@ from app.utils import StringUtils
 
 class SmallHorseSiteUserInfo(ISiteUserInfo):
     _site_schema = "Small Horse"
-    _brief_page = "index.php"
-    _user_traffic_page = "user.php?id="
-    _user_detail_page = None
-    _torrent_seeding_page = None
 
     def _parse_site_page(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -21,7 +17,7 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
         if user_detail and user_detail.group().strip():
             self._user_detail_page = user_detail.group().strip().lstrip('/')
             self.userid = user_detail.group(1)
-        self._user_traffic_page = self._user_traffic_page + self.userid
+        self._user_traffic_page = f"user.php?id={self.userid}"
 
         if not self.userid:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"
@@ -43,7 +39,8 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
         html = etree.HTML(html_text)
         tmps = html.xpath('//ul[@class = "stats nobullet"]')
         if tmps:
-            self.join_at = str(tmps[1].xpath("li")[0].xpath("span//text()")[0])
+            if tmps[1].xpath("li") and tmps[1].xpath("li")[0].xpath("span//text()"):
+                self.join_at = str(tmps[1].xpath("li")[0].xpath("span//text()")[0])
             self.upload = StringUtils.num_filesize(str(tmps[1].xpath("li")[2].xpath("text()")[0]).split(":")[1].strip())
             self.download = StringUtils.num_filesize(
                 str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())

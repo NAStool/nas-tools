@@ -242,11 +242,7 @@ message:
 
 # 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
 sync:
-  # 【监控目录列表】：监控目录有文件变化时会自动进行转移处理
-  # 可以配置多个，按'源目录|目的目录|未识别目录@转移模式'格式配置，源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录
-  # 使用[]将整项括起来表示该目录配置不识别重命名，使用#将整项括起来表示该目录配置不启用
-  # 目的目录和未识别目录为可选项；目的目录不配置时会自动分类往媒体库目录存放；未识别目录仅用于备份，程序也不会主动删除，可以不配置该目录，未识别的记录可会在媒体整理->手动识别找到并手工处理
-  sync_path:
+  # 监控目录配置已转移至数据库
   # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录或者是windows的docker，否则建议设置为linux
   nas_sys: linux
 
@@ -313,6 +309,8 @@ qbittorrent:
   qbpassword:
   # 转移完成后是否自动强制作种，按需要设置
   force_upload: true
+  # 是否开始自动管理模式
+  auto_management: false
 
 # 【配置transmission下载软件】：pt区的pt_client如配置为transmission则需要同步配置该项，需要3.0以上版本，否则可能会报错
 transmission:
@@ -388,8 +386,8 @@ security:
   telegram_webhook_allow_ip:
     ipv4: 127.0.0.1
     ipv6: ::/0
-  # 【订阅API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证
-  subscribe_token:
+  # 【API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证以及非客户端类的API调用
+  api_key:
 
 # 【实验室】
 laboratory:
