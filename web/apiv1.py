@@ -378,6 +378,16 @@ class SearchKeyword(ClientResource):
         return WebAction().api_action(cmd='search', data=self.parser.parse_args())
 
 
+@search.route('/result')
+class SearchResult(ClientResource):
+    @staticmethod
+    def post(self):
+        """
+        查询搜索结果
+        """
+        return WebAction().api_action(cmd='get_search_result')
+
+
 @download.route('/search')
 class DownloadSearch(ClientResource):
     parser = reqparse.RequestParser()

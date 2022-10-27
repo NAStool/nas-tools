@@ -151,7 +151,8 @@ class WebAction:
             "get_transfer_statistics": self.get_transfer_statistics,
             "get_library_spacesize": self.get_library_spacesize,
             "get_library_mediacount": self.get_library_mediacount,
-            "get_library_playhistory": self.get_library_playhistory
+            "get_library_playhistory": self.get_library_playhistory,
+            "get_search_result": self.get_search_result
         }
 
     def action(self, cmd, data=None):
@@ -3082,3 +3083,41 @@ class WebAction:
         查询媒体库播放记录
         """
         return MediaServer().get_activity_log(num)
+
+    @staticmethod
+    def get_search_result():
+        SearchResults = []
+        res = DbHelper().get_search_results()
+        for item in res:
+            # 是否已存在
+            if item.TMDBID:
+                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+            else:
+                exist_flag = False
+            # 结果
+            SearchResults.append({
+                "id": item.ID,
+                "title_string": f"{item.TITLE} ({item.YEAR})" if item.YEAR else f"{item.TITLE}",
+                "restype": item.RES_TYPE,
+                "size": item.SIZE,
+                "seeders": item.SEEDERS,
+                "enclosure": item.ENCLOSURE,
+                "site": item.SITE,
+                "year": item.YEAR,
+                "es_string": item.ES_STRING,
+                "image": item.IMAGE,
+                "type": item.TYPE,
+                "vote": item.VOTE,
+                "torrent_name": item.TORRENT_NAME,
+                "description": item.DESCRIPTION,
+                "tmdbid": item.TMDBID,
+                "poster": item.IMAGE,
+                "overview": item.OVERVIEW,
+                "pageurl": item.PAGEURL,
+                "releasegroup": item.OTHERINFO,
+                "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
+                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
+                "title": item.TITLE,
+                "exist": exist_flag
+            })
+        return {"code": 0, "result": SearchResults}

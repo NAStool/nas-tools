@@ -227,7 +227,8 @@ def create_flask_app():
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
-        res = DbHelper().get_search_results()
+        # 结果
+        SearchResults = WebAction().get_search_result().get("result")
         # 类型字典
         MeidaTypeDict = {}
         # 站点字典
@@ -240,13 +241,11 @@ def create_flask_app():
         MediaSPStateDict = {}
         # 名称
         MediaNameDict = {}
-        # 结果
-        SearchResults = []
         # 查询统计值
-        for item in res:
+        for item in SearchResults:
             # 资源类型
-            if str(item.RES_TYPE).find(" ") != -1:
-                restypes = str(item.RES_TYPE).split(" ")
+            if str(item.get("restype")).find(" ") != -1:
+                restypes = str(item.get("restype")).split(" ")
                 if len(restypes) > 0:
                     if not MediaRestypeDict.get(restypes[0]):
                         MediaRestypeDict[restypes[0]] = 1
@@ -259,61 +258,30 @@ def create_flask_app():
                     else:
                         MediaPixDict[restypes[1]] += 1
             # 类型
-            if item.TYPE:
-                mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE)
+            if item.get("type"):
+                mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.get("type"))
                 if not MeidaTypeDict.get(mtype):
                     MeidaTypeDict[mtype] = 1
                 else:
                     MeidaTypeDict[mtype] += 1
             # 站点
-            if item.SITE:
-                if not MediaSiteDict.get(item.SITE):
-                    MediaSiteDict[item.SITE] = 1
+            if item.get("site"):
+                if not MediaSiteDict.get(item.get("site")):
+                    MediaSiteDict[item.get("site")] = 1
                 else:
-                    MediaSiteDict[item.SITE] += 1
+                    MediaSiteDict[item.get("site")] += 1
             # 促销信息
-            sp_key = f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}"
+            sp_key = f"{item.get('uploadvalue')} {item.get('downloadvalue')}"
             if sp_key not in MediaSPStateDict:
                 MediaSPStateDict[sp_key] = 1
             else:
                 MediaSPStateDict[sp_key] += 1
             # 名称
-            if item.TITLE:
-                if item.TITLE not in MediaNameDict:
-                    MediaNameDict[item.TITLE] = 1
+            if item.get("title"):
+                if item.get("title") not in MediaNameDict:
+                    MediaNameDict[item.get("title")] = 1
                 else:
-                    MediaNameDict[item.TITLE] += 1
-            # 是否已存在
-            if item.TMDBID:
-                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
-            else:
-                exist_flag = False
-            # 结果
-            SearchResults.append({
-                "id": item.ID,
-                "title_string": f"{item.TITLE} ({item.YEAR})" if item.YEAR else f"{item.TITLE}",
-                "restype": item.RES_TYPE,
-                "size": item.SIZE,
-                "seeders": item.SEEDERS,
-                "enclosure": item.ENCLOSURE,
-                "site": item.SITE,
-                "year": item.YEAR,
-                "es_string": item.ES_STRING,
-                "image": item.IMAGE,
-                "type": item.TYPE,
-                "vote": item.VOTE,
-                "torrent_name": item.TORRENT_NAME,
-                "description": item.DESCRIPTION,
-                "tmdbid": item.TMDBID,
-                "poster": item.IMAGE,
-                "overview": item.OVERVIEW,
-                "pageurl": item.PAGEURL,
-                "releasegroup": item.OTHERINFO,
-                "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
-                "title": item.TITLE,
-                "exist": exist_flag
-            })
+                    MediaNameDict[item.get("title")] += 1
 
         # 展示类型
         MediaMTypes = []
