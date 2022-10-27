@@ -147,7 +147,11 @@ class WebAction:
             "re_rss_history": self.__re_rss_history,
             "delete_rss_history": self.__delete_rss_history,
             "share_filtergroup": self.__share_filtergroup,
-            "import_filtergroup": self.__import_filtergroup
+            "import_filtergroup": self.__import_filtergroup,
+            "get_transfer_statistics": self.get_transfer_statistics,
+            "get_library_spacesize": self.get_library_spacesize,
+            "get_library_mediacount": self.get_library_mediacount,
+            "get_library_playhistory": self.get_library_playhistory
         }
 
     def action(self, cmd, data=None):
@@ -2932,3 +2936,149 @@ class WebAction:
             return {"code": 0, "msg": ""}
         except Exception as err:
             return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}
+
+    @staticmethod
+    def get_library_spacesize():
+        """
+        查询媒体库存储空间
+        """
+        # 磁盘空间
+        UsedPercent = 0
+        TotalSpaceList = []
+        media = Config().get_config('media')
+        if media:
+            # 电影目录
+            movie_paths = media.get('movie_path')
+            if not isinstance(movie_paths, list):
+                movie_paths = [movie_paths]
+            movie_used, movie_total = 0, 0
+            for movie_path in movie_paths:
+                if not movie_path:
+                    continue
+                used, total = SystemUtils.get_used_of_partition(movie_path)
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
+                    movie_used += used
+                    movie_total += total
+            # 电视目录
+            tv_paths = media.get('tv_path')
+            if not isinstance(tv_paths, list):
+                tv_paths = [tv_paths]
+            tv_used, tv_total = 0, 0
+            for tv_path in tv_paths:
+                if not tv_path:
+                    continue
+                used, total = SystemUtils.get_used_of_partition(tv_path)
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
+                    tv_used += used
+                    tv_total += total
+            # 动漫目录
+            anime_paths = media.get('anime_path')
+            if not isinstance(anime_paths, list):
+                anime_paths = [anime_paths]
+            anime_used, anime_total = 0, 0
+            for anime_path in anime_paths:
+                if not anime_path:
+                    continue
+                used, total = SystemUtils.get_used_of_partition(anime_path)
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
+                    anime_used += used
+                    anime_total += total
+            # 总空间
+            TotalSpaceAry = []
+            if movie_total not in TotalSpaceAry:
+                TotalSpaceAry.append(movie_total)
+            if tv_total not in TotalSpaceAry:
+                TotalSpaceAry.append(tv_total)
+            if anime_total not in TotalSpaceAry:
+                TotalSpaceAry.append(anime_total)
+            TotalSpace = sum(TotalSpaceAry)
+            # 已使用空间
+            UsedSapceAry = []
+            if movie_used not in UsedSapceAry:
+                UsedSapceAry.append(movie_used)
+            if tv_used not in UsedSapceAry:
+                UsedSapceAry.append(tv_used)
+            if anime_used not in UsedSapceAry:
+                UsedSapceAry.append(anime_used)
+            UsedSapce = sum(UsedSapceAry)
+            # 电影电视使用百分比格式化
+            if TotalSpace:
+                UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
+            # 总剩余空间 格式化
+            FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024, 2))
+            # 总使用空间 格式化
+            UsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024, 2))
+            # 总空间 格式化
+            TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
+
+            return {"code": 0,
+                    "UsedPercent": UsedPercent,
+                    "FreeSpace": FreeSpace,
+                    "UsedSapce": UsedSapce,
+                    "TotalSpace": TotalSpace}
+
+    @staticmethod
+    def get_transfer_statistics():
+        """
+        查询转移历史统计数据
+        """
+        MovieChartLabels = []
+        MovieNums = []
+        TvChartData = {}
+        TvNums = []
+        AnimeNums = []
+        for statistic in DbHelper().get_transfer_statistics():
+            if statistic[0] == "电影":
+                MovieChartLabels.append(statistic[1])
+                MovieNums.append(statistic[2])
+            else:
+                if not TvChartData.get(statistic[1]):
+                    TvChartData[statistic[1]] = {"tv": 0, "anime": 0}
+                if statistic[0] == "电视剧":
+                    TvChartData[statistic[1]]["tv"] += statistic[2]
+                elif statistic[0] == "动漫":
+                    TvChartData[statistic[1]]["anime"] += statistic[2]
+        TvChartLabels = list(TvChartData)
+        for tv_data in TvChartData.values():
+            TvNums.append(tv_data.get("tv"))
+            AnimeNums.append(tv_data.get("anime"))
+
+        return {
+            "code": 0,
+            "MovieChartLabels": MovieChartLabels,
+            "MovieNums": MovieNums,
+            "TvChartLabels": TvChartLabels,
+            "TvNums": TvNums,
+            "AnimeNums": AnimeNums
+        }
+
+    @staticmethod
+    def get_library_mediacount():
+        """
+        查询媒体库统计数据
+        """
+        MediaServerClient = MediaServer()
+        media_counts = MediaServerClient.get_medias_count()
+        UserCount = MediaServerClient.get_user_count()
+        if media_counts:
+            return {
+                "code": 0,
+                "Movie": "{:,}".format(media_counts.get('MovieCount')),
+                "Series": "{:,}".format(media_counts.get('SeriesCount')),
+                "Episodes": "{:,}".format(media_counts.get('EpisodeCount')) if media_counts.get(
+                    'EpisodeCount') else "",
+                "Music": "{:,}".format(media_counts.get('SongCount')),
+                "User": UserCount
+            }
+        else:
+            return {"code": -1, "msg": "媒体库服务器连接失败"}
+
+    @staticmethod
+    def get_library_playhistory(num=30):
+        """
+        查询媒体库播放记录
+        """
+        return MediaServer().get_activity_log(num)

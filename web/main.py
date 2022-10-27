@@ -176,144 +176,41 @@ def create_flask_app():
     @App.route('/index', methods=['POST', 'GET'])
     @login_required
     def index():
-        # 获取媒体数量
-        ServerSucess = True
-        MovieCount = 0
-        SeriesCount = 0
-        EpisodeCount = 0
-        SongCount = 0
-        MediaServerClient = MediaServer()
-        media_count = MediaServerClient.get_medias_count()
+        # 媒体服务器类型
         MSType = Config().get_config('media').get('media_server')
-        if media_count:
-            MovieCount = "{:,}".format(media_count.get('MovieCount'))
-            SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
-            SongCount = "{:,}".format(media_count.get('SongCount'))
-            if media_count.get('EpisodeCount'):
-                EpisodeCount = "{:,}".format(media_count.get('EpisodeCount'))
-            else:
-                EpisodeCount = ""
-        elif media_count is None:
+        # 获取媒体数量
+        MediaCounts = WebAction().get_library_mediacount()
+        if MediaCounts.get("code") == 0:
+            ServerSucess = True
+        else:
             ServerSucess = False
 
         # 获得活动日志
-        Activity = MediaServerClient.get_activity_log(30)
-
-        # 用户数量
-        UserCount = MediaServerClient.get_user_count()
+        Activity = WebAction().get_library_playhistory()
 
         # 磁盘空间
-        UsedSapce = 0
-        TotalSpace = 0
-        FreeSpace = 0
-        UsedPercent = 0
-        TotalSpaceList = []
-        media = Config().get_config('media')
-        if media:
-            # 电影目录
-            movie_paths = media.get('movie_path')
-            if not isinstance(movie_paths, list):
-                movie_paths = [movie_paths]
-            movie_used, movie_total = 0, 0
-            for movie_path in movie_paths:
-                if not movie_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(movie_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    movie_used += used
-                    movie_total += total
-            # 电视目录
-            tv_paths = media.get('tv_path')
-            if not isinstance(tv_paths, list):
-                tv_paths = [tv_paths]
-            tv_used, tv_total = 0, 0
-            for tv_path in tv_paths:
-                if not tv_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(tv_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    tv_used += used
-                    tv_total += total
-            # 动漫目录
-            anime_paths = media.get('anime_path')
-            if not isinstance(anime_paths, list):
-                anime_paths = [anime_paths]
-            anime_used, anime_total = 0, 0
-            for anime_path in anime_paths:
-                if not anime_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(anime_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    anime_used += used
-                    anime_total += total
-            # 总空间
-            TotalSpaceAry = []
-            if movie_total not in TotalSpaceAry:
-                TotalSpaceAry.append(movie_total)
-            if tv_total not in TotalSpaceAry:
-                TotalSpaceAry.append(tv_total)
-            if anime_total not in TotalSpaceAry:
-                TotalSpaceAry.append(anime_total)
-            TotalSpace = sum(TotalSpaceAry)
-            # 已使用空间
-            UsedSapceAry = []
-            if movie_used not in UsedSapceAry:
-                UsedSapceAry.append(movie_used)
-            if tv_used not in UsedSapceAry:
-                UsedSapceAry.append(tv_used)
-            if anime_used not in UsedSapceAry:
-                UsedSapceAry.append(anime_used)
-            UsedSapce = sum(UsedSapceAry)
-            # 电影电视使用百分比格式化
-            if TotalSpace:
-                UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
-            # 总剩余空间 格式化
-            FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024, 2))
-            # 总使用空间 格式化
-            UsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024, 2))
-            # 总空间 格式化
-            TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
+        LibrarySpaces = WebAction().get_library_spacesize()
 
-        # 查询媒体统计
-        MovieChartLabels = []
-        MovieNums = []
-        TvChartData = {}
-        TvNums = []
-        AnimeNums = []
-        for statistic in DbHelper().get_transfer_statistics():
-            if statistic[0] == "电影":
-                MovieChartLabels.append(statistic[1])
-                MovieNums.append(statistic[2])
-            else:
-                if not TvChartData.get(statistic[1]):
-                    TvChartData[statistic[1]] = {"tv": 0, "anime": 0}
-                if statistic[0] == "电视剧":
-                    TvChartData[statistic[1]]["tv"] += statistic[2]
-                elif statistic[0] == "动漫":
-                    TvChartData[statistic[1]]["anime"] += statistic[2]
-        TvChartLabels = list(TvChartData)
-        for tv_data in TvChartData.values():
-            TvNums.append(tv_data.get("tv"))
-            AnimeNums.append(tv_data.get("anime"))
+        # 转移历史统计
+        TransferStatistics = WebAction().get_transfer_statistics()
 
         return render_template("index.html",
                                ServerSucess=ServerSucess,
-                               MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
-                                           'SongCount': SongCount, "EpisodeCount": EpisodeCount},
+                               MediaCount={'MovieCount': MediaCounts.get("Movie"),
+                                           'SeriesCount': MediaCounts.get("Series"),
+                                           'SongCount': MediaCounts.get("Music"),
+                                           "EpisodeCount": MediaCounts.get("Episodes")},
                                Activitys=Activity,
-                               UserCount=UserCount,
-                               FreeSpace=FreeSpace,
-                               TotalSpace=TotalSpace,
-                               UsedSapce=UsedSapce,
-                               UsedPercent=UsedPercent,
-                               MovieChartLabels=MovieChartLabels,
-                               TvChartLabels=TvChartLabels,
-                               MovieNums=MovieNums,
-                               TvNums=TvNums,
-                               AnimeNums=AnimeNums,
+                               UserCount=MediaCounts.get("User"),
+                               FreeSpace=LibrarySpaces.get("FreeSpace"),
+                               TotalSpace=LibrarySpaces.get("TotalSpace"),
+                               UsedSapce=LibrarySpaces.get("UsedSapce"),
+                               UsedPercent=LibrarySpaces.get("UsedPercent"),
+                               MovieChartLabels=TransferStatistics.get("MovieChartLabels"),
+                               TvChartLabels=TransferStatistics.get("TvChartLabels"),
+                               MovieNums=TransferStatistics.get("MovieNums"),
+                               TvNums=TransferStatistics.get("TvNums"),
+                               AnimeNums=TransferStatistics.get("AnimeNums"),
                                MediaServerType=MSType
                                )
 

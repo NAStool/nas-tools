@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
+from app.mediaserver import MediaServer
 from app.sites import Sites
 from app.utils import TokenCache
 from config import Config
@@ -28,11 +29,12 @@ config = Apiv1.namespace('config', description='设置')
 site = Apiv1.namespace('site', description='站点')
 service = Apiv1.namespace('service', description='服务')
 subscribe = Apiv1.namespace('subscribe', description='订阅')
-rss = Apiv1.namespace('rss', description='RSS')
+rss = Apiv1.namespace('rss', description='自定义RSS')
 recommend = Apiv1.namespace('recommend', description='推荐')
 search = Apiv1.namespace('search', description='搜索')
 download = Apiv1.namespace('download', description='下载')
 organization = Apiv1.namespace('organization', description='整理')
+library = Apiv1.namespace('library', description='媒体库')
 brushtask = Apiv1.namespace('brushtask', description='刷流')
 media = Apiv1.namespace('media', description='媒体')
 sync = Apiv1.namespace('sync', description='目录同步')
@@ -52,6 +54,17 @@ class ClientResource(Resource):
     登录认证
     """
     method_decorators = [login_required]
+
+
+def Failed():
+    """
+    返回失败报名
+    """
+    return {
+        "code": -1,
+        "success": False,
+        "data": {}
+    }
 
 
 @user.route('/login')
@@ -552,15 +565,15 @@ class TransferHistoryDelete(ClientResource):
         return WebAction().api_action(cmd='delete_history', data=self.parser.parse_args())
 
 
-@organization.route('/library/start')
-class MediaLibraryStart(ClientResource):
+@organization.route('/history/statistics')
+class HistoryStatistics(ClientResource):
 
     @staticmethod
     def post():
         """
-        开始媒体库同步
+        查询转移历史统计数据
         """
-        return WebAction().api_action(cmd='start_mediasync')
+        return WebAction().api_action(cmd='get_transfer_statistics')
 
 
 @organization.route('/cache/empty')
@@ -571,18 +584,62 @@ class TransferCacheEmpty(ClientResource):
         """
         清空文件转移缓存
         """
-        return WebAction().api_action(cmd='mediasync_state')
+        return WebAction().api_action(cmd='truncate_blacklist')
 
 
-@organization.route('/library/status')
-class MediaLibraryStart(ClientResource):
+@library.route('/library/start')
+class LibrarySyncStart(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        开始媒体库同步
+        """
+        return WebAction().api_action(cmd='start_mediasync')
+
+
+@library.route('/library/status')
+class LibrarySyncStatus(ClientResource):
 
     @staticmethod
     def post():
         """
         查询媒体库同步状态
         """
-        return WebAction().api_action(cmd='truncate_blacklist')
+        return WebAction().api_action(cmd='mediasync_state')
+
+
+@library.route('/library/playhistory')
+class LibraryPlayHistory(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询媒体库播放历史
+        """
+        return WebAction().api_action(cmd='get_library_playhistory')
+
+
+@library.route('/library/statistics')
+class LibraryStatistics(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询媒体库统计数据
+        """
+        return WebAction().api_action(cmd="get_library_mediacount")
+
+
+@library.route('/library/space')
+class LibrarySpace(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询媒体库存储空间
+        """
+        return WebAction().api_action(cmd='get_library_spacesize')
 
 
 @system.route('/logging')
@@ -624,7 +681,7 @@ class SystemUpdate(ClientResource):
     @staticmethod
     def post():
         """
-        更新
+        升级
         """
         return WebAction().api_action(cmd='update_system')
 
@@ -1181,7 +1238,7 @@ class BrushTaskInfo(ClientResource):
         """
         刷流任务详情
         """
-        return WebAction().api_action(cmd='del_brushtask', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='brushtask_detail', data=self.parser.parse_args())
 
 
 @brushtask.route('/downloader/update')
