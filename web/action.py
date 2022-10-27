@@ -163,7 +163,8 @@ class WebAction:
             "get_customwords": self.get_customwords,
             "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
-            "get_filterrules": self.get_filterrules
+            "get_filterrules": self.get_filterrules,
+            "get_downloading": self.get_downloading
         }
 
     def action(self, cmd, data=None):

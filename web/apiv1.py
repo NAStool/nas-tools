@@ -402,7 +402,7 @@ class SiteIndexers(ClientResource):
             "code": 0,
             "success": True,
             "data": {
-                "result": BuiltinIndexer().get_indexers(check=False, public=False)
+                "result": [index.__dict__ for index in BuiltinIndexer().get_indexers(check=False, public=False)]
             }
         }
 
@@ -862,6 +862,7 @@ class ConfigUpdate(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('items', type=dict, help='配置项', location='form', required=True)
 
+    @config.doc(parser=parser)
     def post(self):
         """
         新增/修改配置
@@ -1044,7 +1045,7 @@ class SubscribeHistory(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
 
-    @staticmethod
+    @subscribe.doc(parser=parser)
     def post(self):
         """
         查询订阅历史
