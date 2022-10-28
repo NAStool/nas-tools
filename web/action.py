@@ -3117,7 +3117,7 @@ class WebAction:
             if item.YEAR:
                 title_string = f"{title_string} ({item.YEAR})"
             if item.ES_STRING:
-                title_string = f"{title_string} ({item.ES_STRING})"
+                title_string = f"{title_string} {item.ES_STRING}"
             SearchResults.append({
                 "id": item.ID,
                 "title_string": title_string,
