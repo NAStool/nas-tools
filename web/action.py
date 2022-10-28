@@ -3291,7 +3291,7 @@ class WebAction:
         if not CurrentPage:
             CurrentPage = 1
         else:
-            CurrentPage = CurrentPage
+            CurrentPage = int(CurrentPage)
         totalCount, historys = self.dbhelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
 
         TotalPage = floor(totalCount / PageNum) + 1
