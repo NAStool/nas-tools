@@ -161,7 +161,7 @@ class Downloader:
             content, retmsg = Torrent.get_torrent_content(url=url,
                                                           cookie=cookie,
                                                           ua=ua,
-                                                          referer=page_url)
+                                                          referer=page_url if "mp4ba" in url else None)
             if not content:
                 return None, retmsg
         else:
