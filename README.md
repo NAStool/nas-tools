@@ -12,6 +12,8 @@ TG频道：https://t.me/nastool
 
 WIKI：https://github.com/jxxghp/nas-tools/wiki
 
+API: http://localhost:3000/api/v1/
+
 
 ## 功能：
 
