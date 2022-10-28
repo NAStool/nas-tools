@@ -805,13 +805,16 @@ def create_flask_app():
             StartPage = 1
             EndPage = Result.get("totalPage")
         else:
-            if Result.get("totalPage") <= 3:
+            if Result.get("currentPage") <= 3:
                 StartPage = 1
                 EndPage = 5
+            elif Result.get("currentPage") >= Result.get("totalPage") - 2:
+                StartPage = Result.get("totalPage") - 4
+                EndPage = Result.get("totalPage")
             else:
-                StartPage = Result.get("totalPage") - 3
-                if Result.get("totalPage") > Result.get("currentPage") + 3:
-                    EndPage = Result.get("currentPage") + 3
+                StartPage = Result.get("currentPage") - 2
+                if Result.get("totalPage") > Result.get("currentPage") + 2:
+                    EndPage = Result.get("currentPage") + 2
                 else:
                     EndPage = Result.get("totalPage")
         PageRange = range(StartPage, EndPage + 1)
