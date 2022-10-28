@@ -3113,9 +3113,14 @@ class WebAction:
             else:
                 exist_flag = False
             # 结果
+            title_string = f"{item.TITLE}"
+            if item.YEAR:
+                title_string = f"{title_string} ({item.YEAR})"
+            if item.ES_STRING:
+                title_string = f"{title_string} {item.ES_STRING}"
             SearchResults.append({
                 "id": item.ID,
-                "title_string": f"{item.TITLE} ({item.YEAR})" if item.YEAR else f"{item.TITLE}",
+                "title_string": title_string,
                 "restype": item.RES_TYPE,
                 "size": item.SIZE,
                 "seeders": item.SEEDERS,
