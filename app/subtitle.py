@@ -117,15 +117,17 @@ class Subtitle:
                 # 下载链接
                 Download_Link = subtitle.get('link')
                 # 下载后的字幕文件路径
-                Media_File = "%s%s" % (item.get("file"), item.get("file_ext"))
+                Media_File = "%s.zh-cn%s" % (item.get("file"), item.get("file_ext"))
                 log.info("【Subtitle】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
                 ret = RequestUtils(cookies=self.subhelper.get_cookie(),
                                    headers=self.subhelper.get_ua()).get_res(Download_Link)
                 if ret and ret.status_code == 200:
                     # 保存ZIP
-                    file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
-                    zip_file = os.path.join(self.__save_tmp_path, file_name)
+                    file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
+                    if not file_name:
+                        continue
+                    zip_file = os.path.join(self.__save_tmp_path, file_name[0])
                     zip_path = os.path.splitext(zip_file)[0]
                     with open(zip_file, 'wb') as f:
                         f.write(ret.content)
