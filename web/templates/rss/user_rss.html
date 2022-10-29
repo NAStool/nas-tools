@@ -668,7 +668,7 @@
                               <line x1="12" y1="4" x2="12" y2="16"></line>
                             </svg>
                           </a>`
-          var content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td id='flag_${i}'>${finish_flag}</td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          var content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };
@@ -810,6 +810,7 @@
       cancel_cursor_busy();
       if(ret.code == 0){
         $(info_id).empty();
+        $(flag_id).empty();
         var ignored_words = [];
         var replaced_words = [];
         var offset_words = [];
