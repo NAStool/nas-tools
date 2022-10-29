@@ -94,17 +94,23 @@ class Torrent:
         if not os.path.exists(path):
             os.makedirs(path)
         # 下载种子
-        ret = RequestUtils(cookies=cookie, headers=ua, referer=referer).get_res(url)
-        if ret and ret.status_code == 200:
-            file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
-            file_path = os.path.join(path, file_name)
-            with open(file_path, 'wb') as f:
-                f.write(ret.content)
-        elif not ret:
+        try:
+            ret = RequestUtils(cookies=cookie, headers=ua, referer=referer).get_res(url)
+            if ret and ret.status_code == 200:
+                file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
+                if not file_name:
+                    return None
+                file_path = os.path.join(path, file_name[0])
+                with open(file_path, 'wb') as f:
+                    f.write(ret.content)
+            elif not ret:
+                return None
+            else:
+                return None
+            return file_path
+        except Exception as err:
+            print(str(err))
             return None
-        else:
-            return None
-        return file_path
 
     @staticmethod
     def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
