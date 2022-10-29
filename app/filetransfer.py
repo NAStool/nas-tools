@@ -170,7 +170,7 @@ class FileTransfer:
                                               f'"{target_file}"',
                                               f'"{file_item}"'], startupinfo=st).returncode
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    # 硬链接
+                    # 软链接
                     retcode = subprocess.run(['powershell', 'cmd /C mklink',
                                               f'"{target_file}"',
                                               f'"{file_item}"'], startupinfo=st).returncode
