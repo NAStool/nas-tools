@@ -141,8 +141,8 @@ class Downloader:
             content = url
         # HTTP协议偿试下载种子内容
         elif url.startswith("http"):
-            # 获取Cookie和ua
-            cookie, ua = self.sites.get_site_cookie_ua(url)
+            # 获取Cookie和ua等
+            cookie, ua, referer = self.sites.get_site_attr(url)
             if _xpath:
                 # 从详情页面解析下载链接
                 url = self.sites.parse_site_download_url(page_url=url,
@@ -161,7 +161,7 @@ class Downloader:
             content, retmsg = Torrent.get_torrent_content(url=url,
                                                           cookie=cookie,
                                                           ua=ua,
-                                                          referer=page_url)
+                                                          referer=page_url if referer else None)
             if not content:
                 return None, retmsg
         else:
@@ -833,7 +833,7 @@ class Downloader:
         """
         解析种子文件，获取集数
         """
-        cookie, ua = self.sites.get_site_cookie_ua(url)
+        cookie, ua, referer = self.sites.get_site_attr(url)
         if not cookie:
             return []
         # 保存种子文件
@@ -841,7 +841,7 @@ class Downloader:
                                               cookie=cookie,
                                               ua=ua,
                                               path=os.path.join(Config().get_config_path(), "temp"),
-                                              referer=page_url)
+                                              referer=page_url if referer else None)
         if not file_path:
             log.error("【Downloader】下载种子文件失败：%s" % url)
             return []

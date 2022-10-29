@@ -619,7 +619,7 @@ class Media:
         # 识别
         meta_info = MetaInfo(title, subtitle=subtitle)
         if not meta_info.get_name() or not meta_info.type:
-            log.warn("【RMT】%s 未识别出有效信息！" % meta_info.org_string)
+            log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
             return None
         if mtype:
             meta_info.type = mtype
@@ -757,7 +757,7 @@ class Media:
                                                                          meta_info.begin_season)
                             meta_info.end_season = NumberUtils.max_ele(parent_info.end_season, meta_info.end_season)
                     if not meta_info.get_name() or not meta_info.type:
-                        log.warn("【RMT】%s 未识别出有效信息！" % meta_info.org_string)
+                        log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
                         continue
                     media_key = "[%s]%s-%s-%s" % (
                         meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
@@ -821,7 +821,7 @@ class Media:
                             meta_info.end_episode = end_ep
                 return_media_infos[file_path] = meta_info
             except Exception as err:
-                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))
+                log.error("【Rmt】发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         return return_media_infos
 
