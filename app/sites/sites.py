@@ -474,19 +474,21 @@ class Sites:
             return site_url
         return ""
 
-    def get_site_cookie_ua(self, url):
+    def get_site_attr(self, url):
         """
-        获取站点Cookie和UA
+        获取站点Cookie和UA等属性
         """
-        cookie, ua = None, None
+        cookie, ua, referer = None, None, False
         site_info = self.get_sites(siteurl=url)
         if site_info:
             cookie = site_info.get("cookie")
             ua = site_info.get("ua")
+            referer = False
         else:
             short_url = StringUtils.get_base_url(url)
             site_info = self.get_public_sites(url=short_url)
             if site_info:
+                referer = site_info.get('referer')
                 if site_info.get("render"):
                     # 开渲染
                     chrome = ChromeHelper()
@@ -508,7 +510,7 @@ class Sites:
                             cookie = dict_from_cookiejar(res.cookies)
                     except Exception as err:
                         print(str(err))
-        return cookie, ua
+        return cookie, ua, referer
 
     def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
         """
