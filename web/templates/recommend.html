@@ -15,6 +15,9 @@
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
+          {% if item.weekday %}
+          <span class="badge badge-pill bg-orange" style="position:absolute;top:10px;left:10px;">{{item.weekday}}</span>
+          {% endif %}
           {% if item.vote > 0%}
           <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
           {% endif %}
@@ -85,12 +88,18 @@
   if(title_type == "dbzy"){
     $("#recommend_title").text("豆瓣热门综艺");
   }
+  if(title_type == "bangumi"){
+    $("#recommend_title").text("Bangumi每日放送");
+  }
 
 
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id){
       if(id.indexOf("DB:") == 0){
         var doubanid = id.replace("DB:", "");
+        var tmdbid = "";
+      }if(isNaN(id)){
+        var doubanid = "";
         var tmdbid = "";
       }else{
         var doubanid = "";
@@ -121,7 +130,7 @@
 
   //增加红字标记
   function add_red_heart(id, type, name, year){
-    orgid = id.replace("DB:", "");
+    orgid = id.replace("DB:", "").replace("BG:", "");
     $("#recommend_svg_" + orgid).removeClass();
     $("#recommend_svg_" + orgid).addClass("icon icon-filled text-red");
     $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_del_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
@@ -129,7 +138,7 @@
 
   //移除红字标记
   function remove_red_heart(id, type, name, year){
-    orgid = id.replace("DB:", "");
+    orgid = id.replace("DB:", "").replace("BG:", "");
     $("#recommend_svg_" + orgid).removeClass();
     $("#recommend_svg_" + orgid).addClass("icon icon-tabler icon-tabler-heart");
     $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_add_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
@@ -175,6 +184,9 @@
         item = ret.Items[i];
         var html = '';
         html += '<div class="col-6 col-md-3 col-xl-2"><div class="card card-sm card-link-pop rounded-3">';
+        if(item.weekday){
+          html += '<span class="badge badge-pill bg-orange" style="position:absolute;top:10px;left:10px;">' + item.weekday + '</span>'
+        }
         if(item.vote){
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
         }

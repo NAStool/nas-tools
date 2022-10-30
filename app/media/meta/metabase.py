@@ -366,6 +366,15 @@ class MetaBase(object):
         else:
             return ""
 
+    # 查询TMDB详情页URL
+    def get_detail_url(self):
+        if not self.tmdb_id:
+            return ""
+        if self.type == MediaType.MOVIE:
+            return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
+        else:
+            return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+
     # 返回促销信息
     def get_volume_factor_string(self):
         if self.upload_volume_factor is None or self.download_volume_factor is None:

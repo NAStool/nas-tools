@@ -1102,7 +1102,7 @@ class SubscribeTvList(ClientResource):
 class RecommendList(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('type', type=str,
-                        help='类型（hm/ht/nm/nt/dbom/dbhm/dbht/dbdh/dbnm/dbtop/dbzy）',
+                        help='类型（hm/ht/nm/nt/dbom/dbhm/dbht/dbdh/dbnm/dbtop/dbzy/bangumi）',
                         location='form', required=True)
     parser.add_argument('page', type=int, help='页码', location='form', required=True)
 
