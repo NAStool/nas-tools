@@ -159,6 +159,8 @@ class FileTransfer:
         """
         try:
             lock.acquire()
+            file_item = os.path.normpath(file_item)
+            target_file = os.path.normpath(target_file)
             if self.__system == OsType.WINDOWS:
                 st = subprocess.STARTUPINFO()
                 st.dwFlags = subprocess.STARTF_USESHOWWINDOW
