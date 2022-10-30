@@ -63,12 +63,6 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
         self._parse_message_unread(html_text)
 
-        html_text = self._prepare_html_text(html_text)
-        user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=()\u4E00-\u9FA5_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>",
-                              html_text)
-        if user_name and user_name.group(1).strip():
-            self.username = user_name.group(1).strip()
-            return
         html = etree.HTML(html_text)
         if not html:
             return
@@ -193,9 +187,10 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
         # 加入日期
         join_at_text = html.xpath(
-            '//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()')
+            '//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()'
+            '|//div/b[text()="加入日期"]/../text()')
         if join_at_text:
-            self.join_at = join_at_text[0].split(' (')[0]
+            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].split(' (')[0].strip())
 
         # 做种体积 & 做种数
         # seeding 页面获取不到的话，此处再获取一次

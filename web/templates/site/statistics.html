@@ -210,6 +210,7 @@
                     <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
                     <th><button class="table-sort" data-sort="sort-size">做种体积</button></th>
                     <th><button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button></th>
+                    <th><span class="d-none d-lg-block"><button class="table-sort" data-sort="sort-jtime">加入时间</button></span></th>
                     <th><span class="d-none d-lg-block"><button class="table-sort" data-sort="sort-rtime">更新时间</button></span></th>
                     <th><span class="d-none d-lg-block"></span></th>
                 </tr>
@@ -267,14 +268,19 @@
                         <small>{{ item.download | filesizeformat(true) }}</small>
                       </div>
                   </td>
-                    <td class="sort-ratio">{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}</td>
+                    <td class="sort-ratio" data-ratio="{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}">
+                        {% if item.ratio == 0.0 or item.ratio > 10000 %}Infinity{% else %}{{ '%.2f' | format(item.ratio) }}{% endif %}
+                    </td>
                     <td class="sort-seeding" data-seeding="{{ item.seeding }}"><a
                             href="javascript:show_site_seeding_info('{{ item.site }}')"
                             aria-label="seeding_info">{{ item.seeding }}</a></td>
                     <td class="sort-size" data-size="{{ item.seeding_size }}"><a
                             href="javascript:show_site_seeding_info('{{ item.site }}')"
                             aria-label="seeding_info">{{ item.seeding_size | filesizeformat(true) }}</a></td>
-                    <td class="sort-bonus">{{ item.bonus }}</td>
+                    <td class="sort-bonus" data-bouns="{{ item.bonus }}">{{ item.bonus }}</td>
+                  <td class="sort-jtime">
+                    <span class="d-none d-lg-block">{{ item.join_at | string | truncate(10, True, '') }}</span>
+                  </td>
                   <td class="sort-rtime">
                     <span class="d-none d-lg-block">{{ item.update_at }}</span>
                   </td>
@@ -799,13 +805,13 @@
         tableDataList = new List('table-site-user-data', {
             sortClass: 'table-sort',
             listClass: 'table-tbody',
-            valueNames: ['sort-name', 'sort-ratio', 'sort-bonus', 'sort-rtime',
+            valueNames: ['sort-name', 'sort-bonus', 'sort-jtime', 'sort-rtime',
                 {attr: 'data-size', name: 'sort-size'},
                 {attr: 'data-seeding', name: 'sort-seeding'},
-                {attr: 'data-data', name: 'sort-data'}
+                {attr: 'data-data', name: 'sort-data'},
+                {attr: 'data-ratio', name: 'sort-ratio'}
             ]
         });
-
         // 生成统计数据图片并下载
         function save_statistics_pic() {
             var table =  $('#table-site-user-data-table').clone(true)[0];
