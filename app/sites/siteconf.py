@@ -419,5 +419,8 @@ class SiteConf:
         },
         'btsow.quest': {
             "proxy": True
+        },
+        'www.hdpianyuan.com': {
+            "proxy": False
         }
     }

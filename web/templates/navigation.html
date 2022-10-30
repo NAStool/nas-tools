@@ -240,6 +240,9 @@
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbzy')">
                   豆瓣热门综艺
                 </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=bangumi')">
+                  Bangumi每日放送
+                </a>
               </div>
             </li>
             {% endif %}
@@ -1148,6 +1151,9 @@
       if (tmdbid.startsWith("DB:")) {
         var doubanid = tmdbid.replace("DB:", "");
         tmdbid = "";
+      } else if (isNaN(tmdbid)) {
+        var doubanid = "";
+        tmdbid = "";
       } else {
         var doubanid = "";
       }
@@ -1159,6 +1165,7 @@
       }
       ajax_post("media_info", { "id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid, "page": page, "rssid": rssid }, function (ret) {
         hide_wait_process();
+        debugger;
         if (ret.code == 0) {
           //显示信息
           $("#system_media_name").text(ret.title);
@@ -1251,8 +1258,8 @@
         } else if (ret.code == 1) {
           if (ret.rssid) {
             show_edit_rss_media_modal(ret.rssid, ret.type_str);
-          } else {
-            window.open(ret.link_url);
+          }else{
+            show_fail_modal(name + " 未查询到TMDB媒体信息！");
           }
         }
       });
@@ -1525,17 +1532,14 @@
     //取消订阅
     function remove_rss_manual(type, name, year, rssid){
       $("#modal-manual-rss").modal('hide');
-      show_ask_modal("是否确认取消订阅 " + name + "？", function(){
-        hide_ask_modal();
-        if(CURRENT_PAGE_URI.startsWith("tv_rss")){
-          page = "tv_rss";
-        }else if (CURRENT_PAGE_URI.startsWith("movie_rss")){
-          page = "movie_rss";
-        }else{
-          page = undefined
-        }
-        remove_rss_media(name, year, type, rssid, page);
-      });
+      if(CURRENT_PAGE_URI.startsWith("tv_rss")){
+        page = "tv_rss";
+      }else if (CURRENT_PAGE_URI.startsWith("movie_rss")){
+        page = "movie_rss";
+      }else{
+        page = undefined
+      }
+      remove_rss_media(name, year, type, rssid, page);
     }
 
     // 显示编辑订阅

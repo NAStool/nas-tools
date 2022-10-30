@@ -23,6 +23,7 @@ from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
 from app.media import Category, Media, MetaInfo
+from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
 from app.media.doubanv2api import DoubanApi
 from app.mediaserver import Emby, Jellyfin, Plex
@@ -1253,7 +1254,13 @@ class WebAction:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().movie_detail(doubanid)
                 if not douban_info or douban_info.get("localized_message"):
-                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url, "rssid": rssid}
+                    return {
+                        "code": 1,
+                        "retmsg": "无法查询到豆瓣信息",
+                        "link_url": link_url,
+                        "rssid": rssid,
+                        "type_str": media_type.value
+                    }
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
@@ -1262,17 +1269,27 @@ class WebAction:
                 release_date = douban_info.get("pubdate")
                 year = douban_info.get("year")
             else:
-                link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
-                tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
-                if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
-                overview = tmdb_info.get("overview")
-                poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
-                    'poster_path') else ""
-                title = tmdb_info.get('title')
-                vote_average = round(float(tmdb_info.get("vote_average")), 1)
-                release_date = tmdb_info.get('release_date')
-                year = release_date[0:4] if release_date else ""
+                if tmdbid:
+                    media = MetaInfo(title=title, mtype=media_type)
+                    media.set_tmdb_info(Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid))
+                else:
+                    media = Media().get_media_info(title=title, mtype=media_type)
+                if not media or not media.tmdb_info:
+                    return {
+                        "code": 1,
+                        "retmsg": "无法查询到TMDB信息",
+                        "rssid": rssid,
+                        "type_str": media_type.value
+                    }
+                if not tmdbid:
+                    tmdbid = media.tmdb_id
+                link_url = media.get_detail_url()
+                overview = media.overview
+                poster_path = media.get_poster_image()
+                title = media.title
+                vote_average = round(float(media.vote_average or 0), 1)
+                release_date = media.tmdb_info.get('release_date')
+                year = media.year
 
             # 查订阅信息
             if not rssid:
@@ -1303,7 +1320,13 @@ class WebAction:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().tv_detail(doubanid)
                 if not douban_info or douban_info.get("localized_message"):
-                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url, "rssid": rssid}
+                    return {
+                        "code": 1,
+                        "retmsg": "无法查询到豆瓣信息",
+                        "link_url": link_url,
+                        "rssid": rssid,
+                        "type_str": media_type.value
+                    }
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
@@ -1313,20 +1336,31 @@ class WebAction:
                 year = douban_info.get("year")
                 seasons = []
             else:
-                link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
-                tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
-                if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
-                overview = tmdb_info.get("overview")
-                poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
-                    'poster_path') else ""
-                title = tmdb_info.get('name')
-                vote_average = round(float(tmdb_info.get("vote_average")), 1)
-                release_date = tmdb_info.get('first_air_date')
-                year = release_date[0:4] if release_date else ""
-                seasons = [{"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
-                            "num": season.get("season_number")} for season in
-                           Media().get_tmdb_seasons_list(tv_info=tmdb_info)]
+                if tmdbid:
+                    media = MetaInfo(title=title, mtype=media_type)
+                    media.set_tmdb_info(Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid))
+                else:
+                    media = Media().get_media_info(title=title, mtype=media_type)
+                if not media or not media.tmdb_info:
+                    return {
+                        "code": 1,
+                        "retmsg": "无法查询到TMDB信息",
+                        "rssid": rssid,
+                        "type_str": media_type.value
+                    }
+                if not tmdbid:
+                    tmdbid = media.tmdb_id
+                link_url = media.get_detail_url()
+                overview = media.overview
+                poster_path = media.get_poster_image()
+                title = media.title
+                vote_average = round(float(media.vote_average or 0), 1)
+                release_date = media.tmdb_info.get('first_air_date')
+                year = media.year
+                seasons = [{
+                    "text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
+                    "num": season.get("season_number")} for season in
+                    Media().get_tmdb_seasons_list(tv_info=media.tmdb_info)]
 
             # 查订阅信息
             if not rssid:
@@ -1822,17 +1856,13 @@ class WebAction:
         if not media_info:
             return {}
         tmdb_id = media_info.tmdb_id
-        tmdb_link = ""
+        tmdb_link = media_info.get_detail_url()
         tmdb_S_E_link = ""
         if tmdb_id:
-            if media_info.type == MediaType.MOVIE:
-                tmdb_link = "https://www.themoviedb.org/movie/" + str(tmdb_id)
-            else:
-                tmdb_link = "https://www.themoviedb.org/tv/" + str(tmdb_id)
-                if media_info.get_season_string():
-                    tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
-                    if media_info.get_episode_string():
-                        tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
+            if media_info.get_season_string():
+                tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
+                if media_info.get_episode_string():
+                    tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
         return {
             "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
@@ -2066,6 +2096,9 @@ class WebAction:
         elif RecommendType == "dbzy":
             # 豆瓣最新电视剧
             res_list = DouBan().get_douban_hot_show(CurrentPage)
+        elif RecommendType == "bangumi":
+            # Bangumi每日放送
+            res_list = Bangumi().get_bangumi_calendar(CurrentPage)
         else:
             res_list = []
 
@@ -2101,7 +2134,9 @@ class WebAction:
                 else:
                     year = ''
                 name = MetaInfo(title).get_name()
-                if RecommendType not in ['ht', 'nt']:
+                if RecommendType in ['bangumi']:
+                    rid = "BG:%s" % rid
+                elif RecommendType not in ['ht', 'nt']:
                     rid = "DB:%s" % rid
                 rssid = self.dbhelper.get_rss_tv_id(title=name, tmdbid=rid)
                 if rssid:
@@ -2130,7 +2165,9 @@ class WebAction:
                     'image': image,
                     'overview': overview,
                     'year': year,
-                    'rssid': rssid}
+                    'rssid': rssid,
+                    'weekday': res.get("weekday"),
+                    'url': res.get("url")}
             Items.append(item)
         return {"code": 0, "Items": Items}
 
