@@ -160,28 +160,25 @@ class FileTransfer:
         try:
             lock.acquire()
             if self.__system == OsType.WINDOWS:
+                st = subprocess.STARTUPINFO()
+                st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+                st.wShowWindow = subprocess.SW_HIDE
                 # Windows
                 if rmt_mode == RmtMode.LINK:
                     # 硬链接
-                    retcode = subprocess.run(['mklink', '/H',
-                                              target_file,
-                                              r'"%s"' % file_item], shell=True).returncode
+                    retcode = subprocess.run(['powershell', 'cmd /C mklink /H',
+                                              f'"{target_file}"',
+                                              f'"{file_item}"'], startupinfo=st).returncode
                 elif rmt_mode == RmtMode.SOFTLINK:
                     # 软链接
-                    retcode = subprocess.run(['mklink',
-                                              target_file,
-                                              r'"%s"' % file_item], shell=True).returncode
+                    retcode = subprocess.run(['powershell', 'cmd /C mklink',
+                                              f'"{target_file}"',
+                                              f'"{file_item}"'], startupinfo=st).returncode
                 elif rmt_mode == RmtMode.MOVE:
                     # 移动
-                    retcode = subprocess.run(['rename',
-                                              r'"%s"' % file_item,
-                                              os.path.basename(target_file)], shell=True).returncode
-                    if retcode != 0:
-                        return retcode
-                    retcode = subprocess.run(['move', '/Y',
-                                              r'"%s"' % os.path.join(os.path.dirname(file_item),
-                                                                     os.path.basename(target_file)),
-                                              target_file], shell=True).returncode
+                    retcode = subprocess.run(['powershell', 'move',
+                                              f'"{file_item}"',
+                                              f'"{target_file}"'], startupinfo=st).returncode
                 elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
                     # MINIO
                     if target_file.startswith("/") or target_file.startswith("\\"):
@@ -210,9 +207,9 @@ class FileTransfer:
                                                   r'NASTOOL:"%s"' % target_file], shell=True).returncode
                 else:
                     # 复制
-                    retcode = subprocess.run(['copy', '/Y',
-                                              r'"%s"' % file_item,
-                                              target_file], shell=True).returncode
+                    retcode = subprocess.run(['powershell', 'cp',
+                                              f'"{file_item}"',
+                                              f'"{target_file}"'], startupinfo=st).returncode
             else:
                 # Linux
                 if rmt_mode == RmtMode.LINK:
