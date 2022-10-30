@@ -72,7 +72,7 @@ class GazelleSiteUserInfo(ISiteUserInfo):
         # 加入日期
         join_at_text = html.xpath('//*[@id="join-date-value"]/@data-value')
         if join_at_text:
-            self.join_at = join_at_text[0].strip()
+            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].strip())
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """

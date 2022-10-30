@@ -52,7 +52,7 @@ class IptSiteUserInfo(ISiteUserInfo):
         # 加入日期
         join_at_text = html.xpath('//tr/th[text()="Join date"]/following-sibling::td[1]/text()')
         if join_at_text:
-            self.join_at = join_at_text[0].split(' (')[0]
+            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].split(' (')[0])
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         html = etree.HTML(html_text)

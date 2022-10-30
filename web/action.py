@@ -892,14 +892,14 @@ class WebAction:
                 # 退出主进程
                 self.shutdown_server()
         else:
-            # 安装依赖
-            os.system('pip install -r /nas-tools/requirements.txt')
             # 清理
             os.system("git clean -dffx")
             os.system("git reset --hard HEAD")
             # 升级
             os.system("git pull")
             os.system("git submodule update --init --recursive")
+            # 安装依赖
+            os.system('pip install -r /nas-tools/requirements.txt')
             # 退出主进程
             self.shutdown_server()
 

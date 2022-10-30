@@ -50,7 +50,7 @@ class DiscuzUserInfo(ISiteUserInfo):
         # 加入日期
         join_at_text = html.xpath('//li[em[text()="注册时间"]]/text()')
         if join_at_text:
-            self.join_at = join_at_text[0].strip()
+            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].strip())
 
         # 分享率
         ratio_text = html.xpath('//li[contains(.//text(), "分享率")]//text()')
