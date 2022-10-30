@@ -1429,8 +1429,8 @@ class WebAction:
             ret = self.dbhelper.delete_user(name)
 
         if ret == 1 or ret:
-            return {"code": 0}
-        return {"code": -1, 'message': '操作失败'}
+            return {"code": 0, "success": False}
+        return {"code": -1, "success": False, 'message': '操作失败'}
 
     @staticmethod
     def __refresh_rss(data):

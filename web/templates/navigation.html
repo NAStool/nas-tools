@@ -1257,6 +1257,7 @@
           $("#system-media-modal").modal("show");
         } else if (ret.code == 1) {
           if (ret.rssid) {
+            debugger;
             show_edit_rss_media_modal(ret.rssid, ret.type_str);
           }else{
             show_fail_modal(name + " 未查询到TMDB媒体信息！");
@@ -1593,19 +1594,26 @@
           }else{
             $("#over_edition").prop("checked", false);
           }
-          $("#rss_restype").val(ret.detail.filter.restype);
-          $("#rss_pix").val(ret.detail.filter.pix);
-          $("#rss_team").val(ret.detail.filter.team);
-          $("#rss_rule").val(ret.detail.filter.rule);
+          if(ret.detail.filter){
+            $("#rss_restype").val(ret.detail.filter.restype);
+            $("#rss_pix").val(ret.detail.filter.pix);
+            $("#rss_team").val(ret.detail.filter.team);
+            $("#rss_rule").val(ret.detail.filter.rule);
+          }else{
+            $("#rss_restype").val("");
+            $("#rss_pix").val("");
+            $("#rss_team").val("");
+            $("#rss_rule").val("");
+          }
           $("#rss_sites_div").find("input[type=checkbox]").each(function(){
-            if(ret.detail.r_sites.length==0 || ret.detail.r_sites.includes($(this).val())){
+            if(ret.detail.r_sites && (ret.detail.r_sites.length==0 || ret.detail.r_sites.includes($(this).val()))){
               $(this).prop("checked",true);
             }else{
               $(this).prop("checked",false);
             }
           });
           $("#rss_search_sites_div").find("input[type=checkbox]").each(function(){
-            if(ret.detail.s_sites.length==0 || ret.detail.s_sites.includes($(this).val())){
+            if(ret.detail.s_sites && (ret.detail.s_sites.length==0 || ret.detail.s_sites.includes($(this).val()))){
               $(this).prop("checked",true);
             }else{
               $(this).prop("checked",false);
