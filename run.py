@@ -363,11 +363,11 @@ def update_config(cfg):
                     if len(paths) > 0:
                         if not paths[0]:
                             continue
-                        SyncPath['from'] = paths[0].replace("\\", "/")
+                        SyncPath['from'] = os.path.normpath(paths[0])
                     if len(paths) > 1:
-                        SyncPath['to'] = paths[1].replace("\\", "/")
+                        SyncPath['to'] = os.path.normpath(paths[1])
                     if len(paths) > 2:
-                        SyncPath['unknown'] = paths[2].replace("\\", "/")
+                        SyncPath['unknown'] = os.path.normpath(paths[2])
                     # 相同from的同步目录不能同时开启
                     if SyncPath['enabled'] == 1:
                         _dbhelper.check_config_sync_paths(source=SyncPath['from'],
