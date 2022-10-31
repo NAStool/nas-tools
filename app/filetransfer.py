@@ -3,7 +3,6 @@ import os
 import random
 import re
 import shutil
-import subprocess
 import traceback
 from enum import Enum
 from threading import Lock
@@ -911,11 +910,13 @@ class FileTransfer:
             if os.path.exists(new_path):
                 log.info("【Rmt】目录 %s 已存在" % new_path)
                 return False
-            ret = subprocess.run(["mv", org_path, new_path], shell=True).returncode
+            ret, retmsg = SystemUtils.move(org_path, new_path)
             if ret == 0:
                 return True
+            else:
+                log.error("【Rmt】%s" % retmsg)
         else:
-            log.info("【Rmt】%s 目录不存在" % org_path)
+            log.error("【Rmt】%s 目录不存在" % org_path)
         return False
 
     def get_dest_path_by_info(self, dest, meta_info):
