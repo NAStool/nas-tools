@@ -1078,6 +1078,11 @@ class WebAction:
             Sync().init_config()
             return {"code": 0}
         elif flag == "enable":
+            # 若启用，则关闭其他相同源目录的同步目录
+            if checked:
+                sync_item = self.dbhelper.get_config_sync_paths(sid=sid)[0]
+                self.dbhelper.check_config_sync_paths(source=sync_item.SOURCE,
+                                                      enabled=0)
             self.dbhelper.check_config_sync_paths(sid=sid,
                                                   enabled=1 if checked else 0)
             Sync().init_config()

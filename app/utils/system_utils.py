@@ -79,95 +79,99 @@ class SystemUtils:
         return os.path.exists('/.dockerenv')
 
     @staticmethod
-    def copy(src, to):
+    def copy(src, dest):
         try:
-            shutil.copy2(os.path.normpath(src), os.path.normpath(to))
+            shutil.copy2(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def move(src, to):
+    def move(src, dest):
         try:
-            shutil.move(os.path.normpath(src), os.path.normpath(to))
+            shutil.move(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def link(src, to):
+    def link(src, dest):
         try:
-            os.link(os.path.normpath(src), os.path.normpath(to))
+            os.link(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def softlink(src, to):
+    def softlink(src, dest):
         try:
-            os.symlink(os.path.normpath(src), os.path.normpath(to))
+            os.symlink(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def rclone_move(src, to):
+    def rclone_move(src, dest):
         try:
-            if to.startswith("/") or to.startswith("\\"):
-                to = to[1:]
-            if platform.system() == 'Windows':
-                retcode = subprocess.run(['rclone.exe', 'moveto',
-                                          r'"%s"' % os.path.normpath(src),
-                                          r'NASTOOL:"%s"' % to.replace("\\", "/")], shell=True).returncode
-            else:
-                retcode = subprocess.call(["rclone", "moveto", os.path.normpath(src), f"NASTOOL:{to}"])
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            retcode = subprocess.run(['rclone', 'moveto',
+                                      src,
+                                      f'NASTOOL:{dest}'], startupinfo=st).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def rclone_copy(src, to):
+    def rclone_copy(src, dest):
         try:
-            if to.startswith("/") or to.startswith("\\"):
-                to = to[1:]
-            if platform.system() == 'Windows':
-                retcode = subprocess.run(['rclone.exe', 'copyto',
-                                          r'"%s"' % os.path.normpath(src),
-                                          r'NASTOOL:"%s"' % to.replace("\\", "/")], shell=True).returncode
-            else:
-                retcode = subprocess.call(["rclone", "copyto", os.path.normpath(src), f"NASTOOL:{to}"])
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            retcode = subprocess.run(['rclone', 'copyto',
+                                      src,
+                                      f'NASTOOL:{dest}'], startupinfo=st).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def minio_move(src, to):
+    def minio_move(src, dest):
         try:
-            if to.startswith("/") or to.startswith("\\"):
-                to = to[1:]
-            if platform.system() == 'Windows':
-                retcode = subprocess.run(['mc.exe', 'mv',
-                                          '--recursive',
-                                          r'"%s"' % os.path.normpath(src),
-                                          r'NASTOOL/"%s"' % to.replace("\\", "/")], shell=True).returncode
-            else:
-                retcode = subprocess.call(["mc", "mv", "--recursive", os.path.normpath(src), f"NASTOOL/{to}"])
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            if dest.startswith("/"):
+                dest = dest[1:]
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            retcode = subprocess.run(['mc', 'mv',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'], startupinfo=st).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
 
     @staticmethod
-    def minio_copy(src, to):
+    def minio_copy(src, dest):
         try:
-            if to.startswith("/") or to.startswith("\\"):
-                to = to[1:]
-            if platform.system() == 'Windows':
-                retcode = subprocess.run(['mc.exe', 'cp',
-                                          '--recursive',
-                                          r'"%s"' % os.path.normpath(src),
-                                          r'NASTOOL/"%s"' % to.replace("\\", "/")], shell=True).returncode
-            else:
-                retcode = subprocess.call(["mc", "cp", "--recursive", os.path.normpath(src), f"NASTOOL/{to}"])
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            if dest.startswith("/"):
+                dest = dest[1:]
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            retcode = subprocess.run(['mc', 'cp',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'], startupinfo=st).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
