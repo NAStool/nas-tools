@@ -771,7 +771,7 @@ class SystemPath(ClientResource):
             d = self.parser.parse_args().get("dir") or "/"
             ft = request.form.get("filter")
             # convert ft to bool
-            ft = True if (ft == "true" or ft == 'True' or ft == 'TRUE') else False
+            ft = True if ft else False
 
             if not os.path.isdir(d):
                 d = os.path.dirname(d)

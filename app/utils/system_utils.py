@@ -77,3 +77,97 @@ class SystemUtils:
     @staticmethod
     def is_docker():
         return os.path.exists('/.dockerenv')
+
+    @staticmethod
+    def copy(src, to):
+        try:
+            shutil.copy2(os.path.normpath(src), os.path.normpath(to))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def move(src, to):
+        try:
+            shutil.move(os.path.normpath(src), os.path.normpath(to))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def link(src, to):
+        try:
+            os.link(os.path.normpath(src), os.path.normpath(to))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def softlink(src, to):
+        try:
+            os.symlink(os.path.normpath(src), os.path.normpath(to))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def rclone_move(src, to):
+        try:
+            if to.startswith("/") or to.startswith("\\"):
+                to = to[1:]
+            if platform.system() == 'Windows':
+                retcode = subprocess.run(['rclone.exe', 'moveto',
+                                          r'"%s"' % os.path.normpath(src),
+                                          r'NASTOOL:"%s"' % to.replace("\\", "/")], shell=True).returncode
+            else:
+                retcode = subprocess.call(["rclone", "moveto", os.path.normpath(src), f"NASTOOL:{to}"])
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def rclone_copy(src, to):
+        try:
+            if to.startswith("/") or to.startswith("\\"):
+                to = to[1:]
+            if platform.system() == 'Windows':
+                retcode = subprocess.run(['rclone.exe', 'copyto',
+                                          r'"%s"' % os.path.normpath(src),
+                                          r'NASTOOL:"%s"' % to.replace("\\", "/")], shell=True).returncode
+            else:
+                retcode = subprocess.call(["rclone", "copyto", os.path.normpath(src), f"NASTOOL:{to}"])
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def minio_move(src, to):
+        try:
+            if to.startswith("/") or to.startswith("\\"):
+                to = to[1:]
+            if platform.system() == 'Windows':
+                retcode = subprocess.run(['mc.exe', 'mv',
+                                          '--recursive',
+                                          r'"%s"' % os.path.normpath(src),
+                                          r'NASTOOL/"%s"' % to.replace("\\", "/")], shell=True).returncode
+            else:
+                retcode = subprocess.call(["mc", "mv", "--recursive", os.path.normpath(src), f"NASTOOL/{to}"])
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def minio_copy(src, to):
+        try:
+            if to.startswith("/") or to.startswith("\\"):
+                to = to[1:]
+            if platform.system() == 'Windows':
+                retcode = subprocess.run(['mc.exe', 'cp',
+                                          '--recursive',
+                                          r'"%s"' % os.path.normpath(src),
+                                          r'NASTOOL/"%s"' % to.replace("\\", "/")], shell=True).returncode
+            else:
+                retcode = subprocess.call(["mc", "cp", "--recursive", os.path.normpath(src), f"NASTOOL/{to}"])
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)

@@ -157,102 +157,33 @@ class FileTransfer:
         :param target_file: 目标文件路径
         :param rmt_mode: RmtMode转移方式
         """
-        try:
-            lock.acquire()
-            file_item = os.path.normpath(file_item)
-            target_file = os.path.normpath(target_file)
-            if self.__system == OsType.WINDOWS:
-                st = subprocess.STARTUPINFO()
-                st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-                st.wShowWindow = subprocess.SW_HIDE
-                # Windows
-                if rmt_mode == RmtMode.LINK:
-                    # 硬链接
-                    retcode = subprocess.run(['powershell', 'cmd /C mklink /H',
-                                              f'"{target_file}"',
-                                              f'"{file_item}"'], startupinfo=st).returncode
-                elif rmt_mode == RmtMode.SOFTLINK:
-                    # 软链接
-                    retcode = subprocess.run(['powershell', 'cmd /C mklink',
-                                              f'"{target_file}"',
-                                              f'"{file_item}"'], startupinfo=st).returncode
-                elif rmt_mode == RmtMode.MOVE:
-                    # 移动
-                    retcode = subprocess.run(['powershell', 'move',
-                                              f'"{file_item}"',
-                                              f'"{target_file}"'], startupinfo=st).returncode
-                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
-                    # MINIO
-                    if target_file.startswith("/") or target_file.startswith("\\"):
-                        target_file = target_file[1:]
-                    if rmt_mode == RmtMode.MINIO:
-                        retcode = subprocess.run(['mc.exe', 'mv',
-                                                  '--recursive',
-                                                  r'"%s"' % file_item,
-                                                  r'NASTOOL/"{%s}"' % target_file], shell=True).returncode
-                    else:
-                        retcode = subprocess.run(['mc.exe', 'cp',
-                                                  '--recursive',
-                                                  r'"%s"' % file_item,
-                                                  r'NASTOOL/"{%s}"' % target_file], shell=True).returncode
-                elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
-                    # RCLONE
-                    if target_file.startswith("/") or target_file.startswith("\\"):
-                        target_file = target_file[1:]
-                    if rmt_mode == RmtMode.RCLONE:
-                        retcode = subprocess.run(['rclone.exe', 'moveto',
-                                                  r'"%s"' % file_item,
-                                                  r'NASTOOL:"%s"' % target_file], shell=True).returncode
-                    else:
-                        retcode = subprocess.run(['rclone.exe', 'copyto',
-                                                  r'"%s"' % file_item,
-                                                  r'NASTOOL:"%s"' % target_file], shell=True).returncode
-                else:
-                    # 复制
-                    retcode = subprocess.run(['powershell', 'cp',
-                                              f'"{file_item}"',
-                                              f'"{target_file}"'], startupinfo=st).returncode
+        with lock:
+            if rmt_mode == RmtMode.LINK:
+                # 更链接
+                retcode, retmsg = SystemUtils.link(file_item, target_file)
+            elif rmt_mode == RmtMode.SOFTLINK:
+                # 软链接
+                retcode, retmsg = SystemUtils.softlink(file_item, target_file)
+            elif rmt_mode == RmtMode.MOVE:
+                # 移动
+                retcode, retmsg = SystemUtils.move(file_item, target_file)
+            elif rmt_mode == RmtMode.RCLONE:
+                # Rclone移动
+                retcode, retmsg = SystemUtils.rclone_move(file_item, target_file)
+            elif rmt_mode == RmtMode.RCLONECOPY:
+                # Rclone复制
+                retcode, retmsg = SystemUtils.rclone_copy(file_item, target_file)
+            elif rmt_mode == RmtMode.MINIO:
+                # Minio移动
+                retcode, retmsg = SystemUtils.minio_move(file_item, target_file)
+            elif rmt_mode == RmtMode.MINIOCOPY:
+                # Minio复制
+                retcode, retmsg = SystemUtils.minio_copy(file_item, target_file)
             else:
-                # Linux
-                if rmt_mode == RmtMode.LINK:
-                    # 硬链接
-                    if platform.release().find("-z4-") >= 0:
-                        tmp = "%s/%s" % (PathUtils.get_parent_paths(target_file, 2), os.path.basename(target_file))
-                        retcode = call(["ln", file_item, tmp])
-                        if retcode == 0:
-                            retcode = call(["mv", tmp, target_file])
-                    else:
-                        retcode = call(["ln", file_item, target_file])
-                elif rmt_mode == RmtMode.SOFTLINK:
-                    # 软链接
-                    retcode = call(["ln", "-s", file_item, target_file])
-                elif rmt_mode == RmtMode.MOVE:
-                    # 移动
-                    tmp_file = os.path.join(os.path.dirname(file_item), os.path.basename(target_file))
-                    retcode = call(["mv", file_item, tmp_file])
-                    if retcode == 0:
-                        retcode = call(["mv", tmp_file, target_file])
-                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
-                    # MINIO
-                    if target_file.startswith("/") or target_file.startswith("\\"):
-                        target_file = target_file[1:]
-                    if rmt_mode == RmtMode.RCLONE:
-                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
-                    else:
-                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
-                elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
-                    # RCLONE
-                    if target_file.startswith("/") or target_file.startswith("\\"):
-                        target_file = target_file[1:]
-                    if rmt_mode == RmtMode.RCLONE:
-                        retcode = call(["rclone", "moveto", file_item, "NASTOOL:" + target_file])
-                    else:
-                        retcode = call(["rclone", "copyto", file_item, "NASTOOL:" + target_file])
-                else:
-                    # 复制
-                    retcode = call(["cp", file_item, target_file])
-        finally:
-            lock.release()
+                # 复制
+                retcode, retmsg = SystemUtils.copy(file_item, target_file)
+        if retcode != 0:
+            log.error("【Rmt】%s" % retmsg)
         return retcode
 
     def __transfer_subtitles(self, org_name, new_name, rmt_mode):
