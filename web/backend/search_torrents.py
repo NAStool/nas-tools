@@ -366,10 +366,10 @@ def __search_media(in_from, media_info, user_id):
                 Message().send_channel_msg(channel=in_from,
                                            title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
                                            user_id=user_id)
-        # 没有下载完成，且打开了自动添加订阅
-        if not search_result and Config().get_config('pt').get('search_no_result_rss'):
-            # 添加订阅
-            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id, state='R')
+    # 没有下载完成，且打开了自动添加订阅
+    if not search_result and Config().get_config('pt').get('search_no_result_rss'):
+        # 添加订阅
+        __rss_media(in_from=in_from, media_info=media_info, user_id=user_id, state='R')
 
 
 def __rss_media(in_from, media_info, user_id=None, state='D'):
