@@ -1,13 +1,11 @@
 import argparse
 import os
-import platform
 import random
 import re
 import shutil
 import subprocess
 import traceback
 from enum import Enum
-from subprocess import call
 from threading import Lock
 from time import sleep
 
@@ -19,7 +17,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
-from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
+from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
 
@@ -35,7 +33,6 @@ class FileTransfer:
     threadhelper = None
     dbhelper = None
 
-    __system = OsType.LINUX
     __default_rmt_mode = None
     __movie_path = None
     __tv_path = None
@@ -69,7 +66,6 @@ class FileTransfer:
         self.init_config()
 
     def init_config(self):
-        self.__system = SystemUtils.get_system()
         config = Config()
         media = config.get_config('media')
         self.__scraper_flag = media.get("nfo_poster")
@@ -150,7 +146,8 @@ class FileTransfer:
                     self.__tv_file_rmt_format = tv_formats[2]
         self.__default_rmt_mode = RMT_MODES.get(config.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
-    def __transfer_command(self, file_item, target_file, rmt_mode):
+    @staticmethod
+    def __transfer_command(file_item, target_file, rmt_mode):
         """
         使用系统命令处理单个文件
         :param file_item: 文件路径
