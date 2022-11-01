@@ -13,6 +13,7 @@ from app.sites import Sites
 from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
 from app.helper import MetaHelper
 from app.media import MetaInfo, Media
+from app.utils.rsstitle_utils import RssTitleUtils
 from app.utils.types import MediaType, SearchType
 from app.subscribe import Subscribe
 
@@ -572,10 +573,15 @@ class Rss:
         :param url: RSS地址
         :return: 种子信息列表
         """
+        _special_title_sites = {
+            'pt.keepfrds.com': RssTitleUtils.keepfriends_title
+        }
+
         # 开始处理
         ret_array = []
         if not url:
             return []
+        _, netloc = StringUtils.get_url_netloc(url)
         try:
             ret = RequestUtils().get_res(url)
             if not ret:
@@ -597,6 +603,9 @@ class Rss:
                         title = DomUtils.tag_value(item, "title", default="")
                         if not title:
                             continue
+                        # 标题特殊处理
+                        if netloc and netloc in _special_title_sites:
+                            title = _special_title_sites.get(netloc)(title)
                         # 描述
                         description = DomUtils.tag_value(item, "description", default="")
                         # 种子页面
