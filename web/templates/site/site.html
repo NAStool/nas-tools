@@ -17,6 +17,19 @@
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
+          <a href="javascript:show_sitetest_modal()" class="btn d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
+            </svg>
+            站点测试
+          </a>
+          <a href="javascript:show_sitetest_modal()" class="btn btn-secondary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
@@ -283,6 +296,47 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-sitetest" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">站点连通性测试</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table">
+            <thead>
+              <tr>
+                <th class="w-1"><input class="form-check-input m-0 align-middle" id="sitetest_check_all_btn"
+                    type="checkbox" aria-label="全选"></th>
+                <th>站点</th>
+                <th>连通性</th>
+                <th>耗时</th>
+                <th>错误信息</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for Site in Sites %}
+              <tr>
+                <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ Site.id }}" type="checkbox"></td>
+                <td><span>{{ Site.name }}</span></td>
+                <td id="sitetest_item{{ Site.id }}"></td>
+                <td id="sitetest_item{{ Site.id }}_time"></td>
+                <td id="sitetest_item{{ Site.id }}_msg"></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="sitetest_btn" class="btn btn-primary">测试</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   //打开新增站点框
   function show_site_modal(){
@@ -455,5 +509,55 @@
   for (var i = 1; i <= 50; i++) {
     $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
+
+  //全选事件
+  $("#sitetest_check_all_btn").change(function () {
+    $("#modal-sitetest input[type=checkbox]").prop("checked", $(this).prop("checked"));
+  });
+
+   //显示测试站点
+   function show_sitetest_modal(){
+     $("#modal-sitetest").modal("show");
+   }
+
+  //测试一个站点
+  var total_test_sites = 0
+  var finished_test_sites = 0
+  function test_one_site(siteid){
+    if(!siteid){
+      return;
+    }
+    $("#sitetest_btn").attr("disabled", true);
+    $("#sitetest_btn").text("测试中...");
+    total_test_sites = total_test_sites + 1;
+    ajax_post("test_site", {id: siteid}, function (ret) {
+      finished_test_sites = finished_test_sites + 1;
+      if(finished_test_sites >= total_test_sites){
+        $("#sitetest_btn").attr("disabled", false);
+        $("#sitetest_btn").text("测试");
+        total_test_sites = 0
+        finished_test_sites = 0
+      }
+      if(ret.code == 0){
+        $(`#sitetest_item${siteid}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
+        $(`#sitetest_item${siteid}_time`).html(`<span class="text-green">${ret.time} 毫秒</span>`);
+        $(`#sitetest_item${siteid}_msg`).html('');
+      }else{
+        $(`#sitetest_item${siteid}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
+        $(`#sitetest_item${siteid}_time`).html(`<span class="text-red">${ret.time} 毫秒</span>`);
+        $(`#sitetest_item${siteid}_msg`).html(`<span class="text-muted">${ret.msg}</span>`);
+      }
+    });
+  }
+
+  // 站点测试按钮
+  $("#sitetest_btn").click(function () {
+    $("#modal-sitetest input[type=checkbox]").each(function(){
+      if($(this).attr("id").startsWith("check_") && $(this).prop("checked")){
+        var siteid = $(this).attr("id").replace("check_", "");
+        test_one_site(siteid);
+      }
+    });
+  });
 
 </script>

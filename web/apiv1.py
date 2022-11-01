@@ -297,6 +297,19 @@ class SiteInfo(ClientResource):
         return WebAction().api_action(cmd='get_site', data=self.parser.parse_args())
 
 
+@site.route('/test')
+class SiteTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='站点ID', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        测试站点连通性
+        """
+        return WebAction().api_action(cmd='test_site', data=self.parser.parse_args())
+
+
 @site.route('/delete')
 class SiteDelete(ClientResource):
     parser = reqparse.RequestParser()

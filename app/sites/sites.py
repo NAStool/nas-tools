@@ -234,6 +234,31 @@ class Sites:
         else:
             self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
+    def test_connection(self, site_id):
+        """
+        测试站点连通性
+        :param site_id: 站点编号
+        :return: 是否连通、错误信息、耗时
+        """
+        site_info = self.get_sites(siteid=site_id)
+        if not site_info:
+            return False, "站点不存在", 0
+        site_cookie = site_info.get("cookie")
+        ua = site_info.get("ua")
+        site_url = site_info.get("signurl") or site_info.get("rssurl")
+        start_time = datetime.now()
+        res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
+        seconds = int((datetime.now() - start_time).microseconds / 1000)
+        if res and res.status_code == 200:
+            if not self.__is_signin_success(res.text):
+                return False, "Cookie失效", seconds
+            else:
+                return True, "连接成功", seconds
+        elif res.status_code:
+            return False, f"连接失败，状态码：{res.status_code}", seconds
+        else:
+            return False, "无法打开网站", seconds
+
     def signin(self):
         """
         站点签到入口，由定时服务调用
@@ -329,7 +354,7 @@ class Sites:
                         else:
                             log.info(f"【Sites】{site} {checkin_text}成功")
                             status.append(f"【{site}】{checkin_text}成功")
-                    elif res and res.status_code:
+                    elif res.status_code:
                         log.warn(f"【Sites】{site} {checkin_text}失败，状态码：{res.status_code}")
                         status.append(f"【{site}】{checkin_text}失败，状态码：{res.status_code}！")
                     else:
