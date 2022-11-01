@@ -1,7 +1,6 @@
 import os
 from urllib.parse import unquote
 
-import psutil
 from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
@@ -774,9 +773,9 @@ class SystemPath(ClientResource):
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
-                    partitions = psutil.disk_partitions()
+                    partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        d = partitions[0].device
+                        d = partitions[0]
                     else:
                         d = "C:/"
                 else:

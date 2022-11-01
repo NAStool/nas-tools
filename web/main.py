@@ -12,7 +12,6 @@ from math import floor
 from pathlib import Path
 from urllib import parse
 
-import psutil
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, login_user, login_required, current_user
 
@@ -1029,9 +1028,9 @@ def create_flask_app():
             in_dir = request.form.get('dir')
             if not in_dir or in_dir == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
-                    partitions = psutil.disk_partitions()
+                    partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        in_dir = partitions[0].device
+                        in_dir = partitions[0]
                     else:
                         in_dir = "C:/"
                 else:

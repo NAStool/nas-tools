@@ -80,6 +80,9 @@ class SystemUtils:
 
     @staticmethod
     def copy(src, dest):
+        """
+        复制
+        """
         try:
             shutil.copy2(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
@@ -88,6 +91,9 @@ class SystemUtils:
 
     @staticmethod
     def move(src, dest):
+        """
+        移动
+        """
         try:
             shutil.move(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
@@ -96,6 +102,9 @@ class SystemUtils:
 
     @staticmethod
     def link(src, dest):
+        """
+        硬链接
+        """
         try:
             os.link(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
@@ -104,6 +113,9 @@ class SystemUtils:
 
     @staticmethod
     def softlink(src, dest):
+        """
+        软链接
+        """
         try:
             os.symlink(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
@@ -112,6 +124,9 @@ class SystemUtils:
 
     @staticmethod
     def rclone_move(src, dest):
+        """
+        Rclone移动
+        """
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
@@ -127,6 +142,9 @@ class SystemUtils:
 
     @staticmethod
     def rclone_copy(src, dest):
+        """
+        Rclone复制
+        """
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
@@ -142,6 +160,9 @@ class SystemUtils:
 
     @staticmethod
     def minio_move(src, dest):
+        """
+        Minio移动
+        """
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
@@ -160,6 +181,9 @@ class SystemUtils:
 
     @staticmethod
     def minio_copy(src, dest):
+        """
+        Minio复制
+        """
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
@@ -175,3 +199,15 @@ class SystemUtils:
             return retcode, ""
         except Exception as err:
             return -1, str(err)
+
+    @staticmethod
+    def get_windows_drives():
+        """
+        获取Windows所有盘符
+        """
+        vols = []
+        for i in range(65, 91):
+            vol = chr(i) + ':'
+            if os.path.isdir(vol):
+                vols.append(vol)
+        return vols
