@@ -774,16 +774,13 @@ class SystemPath(ClientResource):
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
-                    if SystemUtils.get_system() == OsType.WINDOWS:
-                        partitions = SystemUtils.get_windows_drives()
-                        if partitions:
-                            dirs = partitions
-                        else:
-                            dirs = os.listdir("C:/")
+                    partitions = SystemUtils.get_windows_drives()
+                    if partitions:
+                        dirs = partitions
                     else:
-                        dirs = os.listdir("/")
+                        dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
                 else:
-                    dirs = os.listdir("/")
+                    dirs = [os.path.join("/", f) for f in os.listdir("/")]
             else:
                 d = os.path.normpath(unquote(d))
                 if not os.path.isdir(d):

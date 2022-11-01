@@ -1033,9 +1033,9 @@ def create_flask_app():
                     if partitions:
                         dirs = partitions
                     else:
-                        dirs = os.listdir("C:/")
+                        dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
                 else:
-                    dirs = os.listdir("/")
+                    dirs = [os.path.join("/", f) for f in os.listdir("/")]
             else:
                 d = os.path.normpath(urllib.parse.unquote(in_dir))
                 if not os.path.isdir(d):
