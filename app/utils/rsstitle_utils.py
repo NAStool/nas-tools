@@ -12,7 +12,7 @@ class RssTitleUtils:
             return ""
         try:
             title_re = re.search(r"\[(.*)]", title, re.IGNORECASE)
-            if title_re:
+            if title_re and title_re.span()[0] > 0:
                 torrent_name = title_re.group(1)
                 torrent_desc = title.replace(title_re.group(), "").strip()
                 title = "%s %s" % (torrent_name, torrent_desc)
