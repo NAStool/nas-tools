@@ -8,7 +8,7 @@ from app.brushtask import BrushTask
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
-from app.utils import TokenCache, SystemUtils
+from app.utils import TokenCache, SystemUtils, StringUtils
 from app.utils.types import OsType
 from config import Config
 from web.action import WebAction
@@ -774,7 +774,7 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=bool, help='仅目录', location='form', required=True)
+    parser.add_argument('filter', type=str, help='仅目录', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
@@ -783,7 +783,7 @@ class SystemPath(ClientResource):
         """
         r = []
         try:
-            ft = True if self.parser.parse_args().get("filter") else False
+            ft = StringUtils.to_bool(self.parser.parse_args().get("filter"), False)
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
