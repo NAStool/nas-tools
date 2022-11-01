@@ -12,6 +12,7 @@ from math import floor
 from pathlib import Path
 from urllib import parse
 
+import psutil
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, login_user, login_required, current_user
 
@@ -1025,7 +1026,17 @@ def create_flask_app():
         r = ['<ul class="jqueryFileTree" style="display: none;">']
         try:
             r = ['<ul class="jqueryFileTree" style="display: none;">']
-            d = os.path.normpath(urllib.parse.unquote(request.form.get('dir', '/')))
+            in_dir = request.form.get('dir')
+            if not in_dir or in_dir == "/":
+                if SystemUtils.get_system() == OsType.WINDOWS:
+                    partitions = psutil.disk_partitions()
+                    if partitions:
+                        in_dir = partitions[0].device
+                    else:
+                        in_dir = "C:/"
+                else:
+                    in_dir = "/"
+            d = os.path.normpath(urllib.parse.unquote(in_dir))
             ft = request.form.get("filter")
             if not os.path.isdir(d):
                 d = os.path.dirname(d)

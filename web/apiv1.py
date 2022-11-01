@@ -1,5 +1,7 @@
 import os
+from urllib.parse import unquote
 
+import psutil
 from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
@@ -7,7 +9,8 @@ from app.brushtask import BrushTask
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
-from app.utils import TokenCache
+from app.utils import TokenCache, SystemUtils
+from app.utils.types import OsType
 from config import Config
 from web.action import WebAction
 from web.backend.user import User
@@ -768,11 +771,18 @@ class SystemPath(ClientResource):
         """
         r = []
         try:
-            d = self.parser.parse_args().get("dir") or "/"
-            ft = request.form.get("filter")
-            # convert ft to bool
-            ft = True if ft else False
-
+            d = self.parser.parse_args().get("dir")
+            if not d or d == "/":
+                if SystemUtils.get_system() == OsType.WINDOWS:
+                    partitions = psutil.disk_partitions()
+                    if partitions:
+                        d = partitions[0].device
+                    else:
+                        d = "C:/"
+                else:
+                    d = "/"
+            d = os.path.normpath(unquote(d))
+            ft = True if request.form.get("filter") else False
             if not os.path.isdir(d):
                 d = os.path.dirname(d)
             for f in os.listdir(d):
