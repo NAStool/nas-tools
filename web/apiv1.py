@@ -770,22 +770,26 @@ class SystemPath(ClientResource):
         """
         r = []
         try:
+            ft = True if self.parser.parse_args().get("filter") else False
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
-                    partitions = SystemUtils.get_windows_drives()
-                    if partitions:
-                        d = partitions[0]
+                    if SystemUtils.get_system() == OsType.WINDOWS:
+                        partitions = SystemUtils.get_windows_drives()
+                        if partitions:
+                            dirs = partitions
+                        else:
+                            dirs = os.listdir("C:/")
                     else:
-                        d = "C:/"
+                        dirs = os.listdir("/")
                 else:
-                    d = "/"
-            d = os.path.normpath(unquote(d))
-            ft = True if request.form.get("filter") else False
-            if not os.path.isdir(d):
-                d = os.path.dirname(d)
-            for f in os.listdir(d):
-                ff = os.path.join(d, f)
+                    dirs = os.listdir("/")
+            else:
+                d = os.path.normpath(unquote(d))
+                if not os.path.isdir(d):
+                    d = os.path.dirname(d)
+                dirs = [os.path.join(d, f) for f in os.listdir(d)]
+            for ff in dirs:
                 if os.path.isdir(ff):
                     r.append({"path": ff.replace("\\", "/"), "type": "dir"})
                 else:

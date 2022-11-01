@@ -1026,21 +1026,25 @@ def create_flask_app():
         try:
             r = ['<ul class="jqueryFileTree" style="display: none;">']
             in_dir = request.form.get('dir')
+            ft = request.form.get("filter")
             if not in_dir or in_dir == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
                     partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        in_dir = partitions[0]
+                        dirs = partitions
                     else:
-                        in_dir = "C:/"
+                        dirs = os.listdir("C:/")
                 else:
-                    in_dir = "/"
-            d = os.path.normpath(urllib.parse.unquote(in_dir))
-            ft = request.form.get("filter")
-            if not os.path.isdir(d):
-                d = os.path.dirname(d)
-            for f in os.listdir(d):
-                ff = os.path.join(d, f)
+                    dirs = os.listdir("/")
+            else:
+                d = os.path.normpath(urllib.parse.unquote(in_dir))
+                if not os.path.isdir(d):
+                    d = os.path.dirname(d)
+                dirs = [os.path.join(d, f) for f in os.listdir(d)]
+            for ff in dirs:
+                f = os.path.basename(ff)
+                if not f:
+                    f = ff
                 if os.path.isdir(ff):
                     r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (
                         ff.replace("\\", "/"), f.replace("\\", "/")))
