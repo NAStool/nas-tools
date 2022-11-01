@@ -789,7 +789,7 @@ class SystemPath(ClientResource):
                 if SystemUtils.get_system() == OsType.WINDOWS:
                     partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        dirs = partitions
+                        dirs = [os.path.join(partition, "/") for partition in partitions]
                     else:
                         dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
                 else:
