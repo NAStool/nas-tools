@@ -252,6 +252,15 @@ class RssChecker(object):
                             media_info.get_title_string(),
                             media_info.get_season_episode_string()))
                     media_info.set_torrent_info(res_order=res_order)
+                # 插入数据库
+                # FIXME: 这里不能所有的种子都直接插入数据库
+                """
+                如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
+                # _dbhelper.insert_rss_torrents(media_info) 
+                好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
+                下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
+                还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
+                """
                 # 汇总处理
                 res_num = res_num + 1
                 if taskinfo.get("uses") == "D":
@@ -271,13 +280,6 @@ class RssChecker(object):
                     _dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_search_torrents:
                         rss_search_torrents.append(media_info)
-                # 插入数据库
-                # FIXME: 这里不能所有的种子都直接插入数据库
-                # 如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
-                # _dbhelper.insert_rss_torrents(media_info)
-                # 好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
-                # 下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
-                # 还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
             except Exception as e:
                 log_error("【RSSCHECKER】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                 continue
