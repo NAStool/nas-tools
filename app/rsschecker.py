@@ -204,55 +204,54 @@ class RssChecker(object):
                 if not media_info:
                     log_warn("【RSSCHECKER】%s 识别媒体信息出错！" % title)
                     continue
-                # 大小及种子页面
-                media_info.set_torrent_info(size=size,
-                                            page_url=page_url,
-                                            site=taskinfo.get("name"),
-                                            enclosure=enclosure,
-                                            download_volume_factor=0.0,
-                                            upload_volume_factor=1.0)
-                # 检查种子是否匹配过滤条件
-                match_flag, res_order = self.__is_match_rss(
-                    media_info=media_info,
-                    taskinfo=taskinfo)
-                # 未匹配
-                if not match_flag:
-                    log_info("【RSSCHECKER】%s 不匹配" % title)
-                    continue
-                else:
-                    log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
-                        title,
-                        media_info.get_title_string(),
-                        media_info.get_season_episode_string()))
-                media_info.set_torrent_info(res_order=res_order)
                 # 检查是否已存在
-                if taskinfo.get("uses") != "D":
-                    if not media_info.tmdb_info:
-                        log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                        continue
-                    if media_info.type == MediaType.MOVIE:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        if exist_flag:
-                            log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
-                            continue
-                    else:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        # 当前剧集已存在，跳过
-                        if exist_flag:
-                            # 已全部存在
-                            if not no_exists or not no_exists.get(
-                                    media_info.tmdb_id):
-                                log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
-                                    media_info.get_title_string(), media_info.get_season_episode_string()))
-                            continue
-                        if no_exists.get(media_info.tmdb_id):
-                            log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                 no_exists.get(media_info.tmdb_id)))
-                elif not enclosure:
-                    log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                if not media_info.tmdb_info:
+                    log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
                     continue
+                if media_info.type == MediaType.MOVIE:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    if exist_flag:
+                        log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
+                        continue
+                else:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    # 当前剧集已存在，跳过
+                    if exist_flag:
+                        # 已全部存在
+                        if not no_exists or not no_exists.get(
+                                media_info.tmdb_id):
+                            log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
+                                media_info.get_title_string(), media_info.get_season_episode_string()))
+                        continue
+                    if no_exists.get(media_info.tmdb_id):
+                        log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                                no_exists.get(media_info.tmdb_id)))
+                if taskinfo.get("uses") == "D":
+                    # 大小及种子页面
+                    media_info.set_torrent_info(size=size,
+                                                page_url=page_url,
+                                                site=taskinfo.get("name"),
+                                                enclosure=enclosure,
+                                                download_volume_factor=0.0,
+                                                upload_volume_factor=1.0)
+                    # 检查种子是否匹配过滤条件
+                    match_flag, res_order = self.__is_match_rss(media_info=media_info,
+                                                                taskinfo=taskinfo)
+                    if not enclosure:
+                        log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                        continue
+                    # 未匹配
+                    if not match_flag:
+                        log_info("【RSSCHECKER】%s 不匹配" % title)
+                        continue
+                    else:
+                        log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
+                            title,
+                            media_info.get_title_string(),
+                            media_info.get_season_episode_string()))
+                    media_info.set_torrent_info(res_order=res_order)
                 # 插入数据库
                 # FIXME: 这里不能所有的种子都直接插入数据库
                 """
