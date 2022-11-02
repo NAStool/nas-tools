@@ -254,7 +254,7 @@ class Sites:
                 return False, "Cookie失效", seconds
             else:
                 return True, "连接成功", seconds
-        elif res.status_code:
+        elif res is not None:
             return False, f"连接失败，状态码：{res.status_code}", seconds
         else:
             return False, "无法打开网站", seconds
@@ -354,7 +354,7 @@ class Sites:
                         else:
                             log.info(f"【Sites】{site} {checkin_text}成功")
                             status.append(f"【{site}】{checkin_text}成功")
-                    elif res.status_code:
+                    elif res is not None:
                         log.warn(f"【Sites】{site} {checkin_text}失败，状态码：{res.status_code}")
                         status.append(f"【{site}】{checkin_text}失败，状态码：{res.status_code}！")
                     else:
