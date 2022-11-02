@@ -11,11 +11,18 @@ class RssTitleUtils:
         if not title:
             return ""
         try:
-            title_re = re.search(r"\[(.*)]", title, re.IGNORECASE)
-            if title_re:
-                torrent_name = title_re.group(1)
-                torrent_desc = title.replace(title_re.group(), "").strip()
-                title = "%s %s" % (torrent_name, torrent_desc)
+            title_search = re.search(r"\[(.*)]", title, re.IGNORECASE)
+            if title_search:
+                if title_search.span()[0] == 0:
+                    title_all = re.findall(r"\[(.*?)]", title, re.IGNORECASE)
+                    if title_all and len(title_all) > 1:
+                        torrent_name = title_all[-1]
+                        torrent_desc = title.replace(f"[{torrent_name}]", "").strip()
+                        title = "%s %s" % (torrent_name, torrent_desc)
+                else:
+                    torrent_name = title_search.group(1)
+                    torrent_desc = title.replace(title_search.group(), "").strip()
+                    title = "%s %s" % (torrent_name, torrent_desc)
         except Exception as err:
             print(str(err))
         return title

@@ -408,7 +408,7 @@
       $("#test_size").removeClass("is-invalid");
     }
     var subtitle = $("#test_subtitle").val();
-    $("#ruletest_btn").text("测试中");
+    $("#ruletest_btn").text("测试中...");
     $("#ruletest_btn").attr("disabled", true);
     ajax_post("rule_test", {"title": title, "subtitle": subtitle, "size": size}, function (ret) {
       $("#ruletest_btn").text("测试");
@@ -430,7 +430,7 @@
     var targets = {{ SchedulerTasks[-2].targets | safe }};
     var currentIndex = 0;
     var stopindex = targets.length;
-    $("#nettest_btn").text("测试中");
+    $("#nettest_btn").text("测试中...");
     $("#nettest_btn").attr("disabled", true);
     net_test_ajax(targets,currentIndex,stopindex);
   }
@@ -446,10 +446,10 @@
     target = targets[currentIndex];
     ajax_post("net_test", target, function (ret) {
       if(ret.res){
-        $(`#nettest_item${currentIndex}`).html('<span class="badge badge-outline text-green me-1 mb-1">是</span>');
+        $(`#nettest_item${currentIndex}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
         $(`#nettest_item${currentIndex}_time`).html(`<span class="text-green">${ret.time}</span>`);
       }else{
-        $(`#nettest_item${currentIndex}`).html('<span class="badge badge-outline text-red me-1 mb-1">否</span>');
+        $(`#nettest_item${currentIndex}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
         $(`#nettest_item${currentIndex}_time`).html(`<span class="text-red">${ret.time}</span>`);
       }
       currentIndex++;

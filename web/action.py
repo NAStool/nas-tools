@@ -166,7 +166,8 @@ class WebAction:
             "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
             "get_filterrules": self.get_filterrules,
-            "get_downloading": self.get_downloading
+            "get_downloading": self.get_downloading,
+            "test_site": self.__test_site
         }
 
     def action(self, cmd, data=None):
@@ -1278,7 +1279,7 @@ class WebAction:
                     media = MetaInfo(title=title, mtype=media_type)
                     media.set_tmdb_info(Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid))
                 else:
-                    media = Media().get_media_info(title=title, mtype=media_type)
+                    media = Media().get_media_info(title=f"{title} {year}", mtype=media_type)
                 if not media or not media.tmdb_info:
                     return {
                         "code": 1,
@@ -1345,7 +1346,7 @@ class WebAction:
                     media = MetaInfo(title=title, mtype=media_type)
                     media.set_tmdb_info(Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid))
                 else:
-                    media = Media().get_media_info(title=title, mtype=media_type)
+                    media = Media().get_media_info(title=f"{title} {year}", mtype=media_type)
                 if not media or not media.tmdb_info:
                     return {
                         "code": 1,
@@ -3501,3 +3502,12 @@ class WebAction:
         # 保存配置
         self.config.save_config(cfg)
         return {"code": 0}
+
+    @staticmethod
+    def __test_site(data):
+        """
+        测试站点连通性
+        """
+        flag, msg, times = Sites().test_connection(data.get("id"))
+        code = 0 if flag else -1
+        return {"code": code, "msg": msg, "time": times}

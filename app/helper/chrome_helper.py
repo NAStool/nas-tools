@@ -15,9 +15,13 @@ class ChromeHelper(object):
 
     _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
     _chrome = None
+    _headless = False
 
-    def __init__(self):
-        pass
+    def __init__(self, headless=False):
+        if not os.environ.get("NASTOOL_DISPLAY"):
+            self._headless = True
+        else:
+            self._headless = headless
 
     @property
     def browser(self):
@@ -43,7 +47,7 @@ class ChromeHelper(object):
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        if not os.environ.get("NASTOOL_DISPLAY"):
+        if self._headless:
             options.add_argument('--headless')
         prefs = {
             "useAutomationExtension": False,

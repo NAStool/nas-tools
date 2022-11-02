@@ -8,7 +8,7 @@ from app.brushtask import BrushTask
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
-from app.utils import TokenCache, SystemUtils
+from app.utils import TokenCache, SystemUtils, StringUtils
 from app.utils.types import OsType
 from config import Config
 from web.action import WebAction
@@ -295,6 +295,19 @@ class SiteInfo(ClientResource):
         查询单个站点详情
         """
         return WebAction().api_action(cmd='get_site', data=self.parser.parse_args())
+
+
+@site.route('/test')
+class SiteTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='站点ID', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        测试站点连通性
+        """
+        return WebAction().api_action(cmd='test_site', data=self.parser.parse_args())
 
 
 @site.route('/delete')
@@ -761,7 +774,7 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=bool, help='仅目录', location='form', required=True)
+    parser.add_argument('filter', type=str, help='仅目录', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
@@ -770,13 +783,13 @@ class SystemPath(ClientResource):
         """
         r = []
         try:
-            ft = True if self.parser.parse_args().get("filter") else False
+            ft = StringUtils.to_bool(self.parser.parse_args().get("filter"), False)
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
                     partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        dirs = partitions
+                        dirs = [os.path.join(partition, "/") for partition in partitions]
                     else:
                         dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
                 else:
