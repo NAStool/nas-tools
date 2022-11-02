@@ -204,64 +204,54 @@ class RssChecker(object):
                 if not media_info:
                     log_warn("【RSSCHECKER】%s 识别媒体信息出错！" % title)
                     continue
-                # 大小及种子页面
-                media_info.set_torrent_info(size=size,
-                                            page_url=page_url,
-                                            site=taskinfo.get("name"),
-                                            enclosure=enclosure,
-                                            download_volume_factor=0.0,
-                                            upload_volume_factor=1.0)
-                # 检查种子是否匹配过滤条件
-                match_flag, res_order = self.__is_match_rss(
-                    media_info=media_info,
-                    taskinfo=taskinfo)
-                # 未匹配
-                if not match_flag:
-                    log_info("【RSSCHECKER】%s 不匹配" % title)
-                    continue
-                else:
-                    log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
-                        title,
-                        media_info.get_title_string(),
-                        media_info.get_season_episode_string()))
-                media_info.set_torrent_info(res_order=res_order)
                 # 检查是否已存在
-                if taskinfo.get("uses") != "D":
-                    if not media_info.tmdb_info:
-                        log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                        continue
-                    if media_info.type == MediaType.MOVIE:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        if exist_flag:
-                            log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
-                            continue
-                    else:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        # 当前剧集已存在，跳过
-                        if exist_flag:
-                            # 已全部存在
-                            if not no_exists or not no_exists.get(
-                                    media_info.tmdb_id):
-                                log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
-                                    media_info.get_title_string(), media_info.get_season_episode_string()))
-                            continue
-                        if no_exists.get(media_info.tmdb_id):
-                            log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                 no_exists.get(media_info.tmdb_id)))
-                elif not enclosure:
-                    log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                if not media_info.tmdb_info:
+                    log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
                     continue
-                # 插入数据库
-                # FIXME: 这里不能所有的种子都直接插入数据库
-                """
-                如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
-                # _dbhelper.insert_rss_torrents(media_info) 
-                好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
-                下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
-                还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
-                """
+                if media_info.type == MediaType.MOVIE:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    if exist_flag:
+                        log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
+                        continue
+                else:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    # 当前剧集已存在，跳过
+                    if exist_flag:
+                        # 已全部存在
+                        if not no_exists or not no_exists.get(
+                                media_info.tmdb_id):
+                            log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
+                                media_info.get_title_string(), media_info.get_season_episode_string()))
+                        continue
+                    if no_exists.get(media_info.tmdb_id):
+                        log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                                no_exists.get(media_info.tmdb_id)))
+                if taskinfo.get("uses") == "D":
+                    # 大小及种子页面
+                    media_info.set_torrent_info(size=size,
+                                                page_url=page_url,
+                                                site=taskinfo.get("name"),
+                                                enclosure=enclosure,
+                                                download_volume_factor=0.0,
+                                                upload_volume_factor=1.0)
+                    # 检查种子是否匹配过滤条件
+                    match_flag, res_order = self.__is_match_rss(media_info=media_info,
+                                                                taskinfo=taskinfo)
+                    if not enclosure:
+                        log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                        continue
+                    # 未匹配
+                    if not match_flag:
+                        log_info("【RSSCHECKER】%s 不匹配" % title)
+                        continue
+                    else:
+                        log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
+                            title,
+                            media_info.get_title_string(),
+                            media_info.get_season_episode_string()))
+                    media_info.set_torrent_info(res_order=res_order)
                 # 汇总处理
                 res_num = res_num + 1
                 if taskinfo.get("uses") == "D":
@@ -281,6 +271,13 @@ class RssChecker(object):
                     _dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_search_torrents:
                         rss_search_torrents.append(media_info)
+                # 插入数据库
+                # FIXME: 这里不能所有的种子都直接插入数据库
+                # 如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
+                # _dbhelper.insert_rss_torrents(media_info)
+                # 好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
+                # 下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
+                # 还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
             except Exception as e:
                 log_error("【RSSCHECKER】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                 continue
