@@ -742,8 +742,11 @@ class Media:
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                             parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                            parent_parent_info.begin_season)
+                            # 对于文件，不可能有多季
+                            """
                             parent_info.end_season = NumberUtils.max_ele(parent_info.end_season,
                                                                          parent_parent_info.end_season)
+                            """
                         if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
                             meta_info.en_name = parent_info.en_name
@@ -755,7 +758,8 @@ class Media:
                         if meta_info.type == MediaType.TV:
                             meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                          meta_info.begin_season)
-                            meta_info.end_season = NumberUtils.max_ele(parent_info.end_season, meta_info.end_season)
+                            # 对于文件，不可能有多季
+                            # meta_info.end_season = NumberUtils.max_ele(parent_info.end_season, meta_info.end_season)
                     if not meta_info.get_name() or not meta_info.type:
                         log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
                         continue
