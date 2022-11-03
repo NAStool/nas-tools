@@ -836,7 +836,8 @@ class WebAction:
                                                    rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
-
+        # 初始化刷流任务
+        BrushTask().init_config()
         return {"code": ret}
 
     @staticmethod
@@ -870,6 +871,7 @@ class WebAction:
         if tid:
             ret = self.dbhelper.delete_config_site(tid)
             Sites().init_config()
+            BrushTask().init_config()
             return {"code": ret}
         else:
             return {"code": 0}

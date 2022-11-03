@@ -227,8 +227,11 @@ class RssChecker(object):
                         continue
                     if no_exists.get(media_info.tmdb_id):
                         log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                no_exists.get(media_info.tmdb_id)))
+                                                             no_exists.get(media_info.tmdb_id)))
                 if taskinfo.get("uses") == "D":
+                    if not enclosure:
+                        log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                        continue
                     # 大小及种子页面
                     media_info.set_torrent_info(size=size,
                                                 page_url=page_url,
@@ -239,9 +242,6 @@ class RssChecker(object):
                     # 检查种子是否匹配过滤条件
                     match_flag, res_order = self.__is_match_rss(media_info=media_info,
                                                                 taskinfo=taskinfo)
-                    if not enclosure:
-                        log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
-                        continue
                     # 未匹配
                     if not match_flag:
                         log_info("【RSSCHECKER】%s 不匹配" % title)

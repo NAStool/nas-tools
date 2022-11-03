@@ -61,17 +61,45 @@ class BrushTask(object):
                     "save_dir": downloader_info.SAVE_DIR
                 }
             )
-        # 读取任务任务列表
-        brushtasks = _dbhelper.get_brushtasks()
-        self._brush_tasks = []
+        # 读取刷流任务列表
+        self._brush_tasks = self.get_brushtask_info()
+        if not self._brush_tasks:
+            return
+        # 启动RSS任务
+        task_flag = False
+        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+        for task in self._brush_tasks:
+            if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
+                task_flag = True
+                self._scheduler.add_job(func=self.check_task_rss,
+                                        args=[task.get("id")],
+                                        trigger='interval',
+                                        seconds=int(task.get("interval")) * 60)
+        # 启动删种任务
+        if task_flag:
+            self._scheduler.add_job(func=self.remove_tasks_torrents,
+                                    trigger='interval',
+                                    seconds=BRUSH_REMOVE_TORRENTS_INTERVAL)
+            # 启动
+            self._scheduler.print_jobs()
+            self._scheduler.start()
+            log_info("刷流服务启动")
+
+    def get_brushtask_info(self, taskid=None):
+        """
+        读取刷流任务列表
+        """
+        _dbhelper = DbHelper()
         _dicthelper = DictHelper()
+        brushtasks = _dbhelper.get_brushtasks()
+        _brush_tasks = []
         for task in brushtasks:
             sendmessage_switch = _dicthelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
             forceupload_switch = _dicthelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
             downloader_info = self.get_downloader_info(task.DOWNLOADER)
-            self._brush_tasks.append({
+            _brush_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
                 "site": site_info.get("name"),
@@ -96,36 +124,13 @@ class BrushTask(object):
                 "lst_mod_date": task.LST_MOD_DATE,
                 "site_url": "%s://%s" % (scheme, netloc)
             })
-        if not self._brush_tasks:
-            return
-        # 启动RSS任务
-        task_flag = False
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
-        for task in self._brush_tasks:
-            if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
-                task_flag = True
-                self._scheduler.add_job(func=self.check_task_rss,
-                                        args=[task.get("id")],
-                                        trigger='interval',
-                                        seconds=int(task.get("interval")) * 60)
-        # 启动删种任务
-        if task_flag:
-            self._scheduler.add_job(func=self.remove_tasks_torrents,
-                                    trigger='interval',
-                                    seconds=BRUSH_REMOVE_TORRENTS_INTERVAL)
-            # 启动
-            self._scheduler.print_jobs()
-            self._scheduler.start()
-            log_info("刷流服务启动")
-
-    def get_brushtask_info(self, taskid=None):
         if taskid:
-            for task in self._brush_tasks:
+            for task in _brush_tasks:
                 if task.get("id") == int(taskid):
                     return task
             return {}
         else:
-            return self._brush_tasks
+            return _brush_tasks
 
     def check_task_rss(self, taskid):
         """
