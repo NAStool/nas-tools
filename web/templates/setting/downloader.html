@@ -10,18 +10,22 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-               <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24"
+              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+              <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
             </svg>
             下载目录
           </a>
           <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-               <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24"
+              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+              <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
             </svg>
           </a>
         </div>
@@ -42,7 +46,8 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Qbittorrent</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "qbittorrent" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "qbittorrent" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -55,7 +60,8 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Transmission</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "transmission" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "transmission" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -68,7 +74,8 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">115网盘</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "client115" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "client115" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -81,68 +88,77 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Aria2</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "aria2" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "aria2" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-qbittorrent" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-qbittorrent" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Qbittorrent</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title">Qbittorrent</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbhost or '' }}{% endif %}"
+                id="qbittorrent.qbhost" class="form-control" placeholder="127.0.0.1">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">端口</label>
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbport or '' }}{% endif %}"
+                id="qbittorrent.qbport" class="form-control" placeholder="8080">
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbhost or '' }}{% endif %}" id="qbittorrent.qbhost" class="form-control" placeholder="127.0.0.1">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">端口</label>
-                <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbport or '' }}{% endif %}" id="qbittorrent.qbport" class="form-control" placeholder="8080">
-              </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名</label>
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbusername or '' }}{% endif %}"
+                id="qbittorrent.qbusername" class="form-control" placeholder="admin">
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">用户名</label>
-                <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbusername or '' }}{% endif %}" id="qbittorrent.qbusername"
-                  class="form-control" placeholder="admin">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">密码</label>
-                <input type="password" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}" id="qbittorrent.qbpassword"
-                  class="form-control" placeholder="adminadmin">
-              </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">密码</label>
+              <input type="password"
+                value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}"
+                id="qbittorrent.qbpassword" class="form-control" placeholder="adminadmin">
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if Config.qbittorrent.force_upload %}checked{% endif %}>
-                  <span class="form-check-label">自动强制作种 <span class="form-help" title="开启后下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能" data-bs-toggle="tooltip">?</span></span>
-                </label>
-              </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if
+                  Config.qbittorrent.force_upload %}checked{% endif %}>
+                <span class="form-check-label">自动强制作种 <span class="form-help"
+                    title="开启后下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能" data-bs-toggle="tooltip">?</span></span>
+              </label>
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="qbittorrent.auto_management" {% if Config.qbittorrent.auto_management %}checked{% endif %}>
-                  <span class="form-check-label">自动管理模式 <span class="form-help" title="开启后下载目录将由Qbittorrent自动管理，不再使用NASTool传递的下载目录，需要同时在下载目录设置中配置好分类标签" data-bs-toggle="tooltip">?</span></span>
-                </label>
-              </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="qbittorrent.auto_management" {% if
+                  Config.qbittorrent.auto_management %}checked{% endif %}>
+                <span class="form-check-label">自动管理模式 <span class="form-help"
+                    title="开启后下载目录将由Qbittorrent自动管理，不再使用NASTool传递的下载目录，需要同时在下载目录设置中配置好分类标签"
+                    data-bs-toggle="tooltip">?</span></span>
+              </label>
             </div>
           </div>
         </div>
@@ -157,43 +173,47 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-transmission" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-transmission" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Transmission</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trhost or '' }}{% endif %}" id="transmission.trhost" class="form-control" placeholder="127.0.0.1">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">端口</label>
-                <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trport or '' }}{% endif %}" id="transmission.trport" class="form-control" placeholder="9091">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Transmission</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trhost or '' }}{% endif %}"
+                id="transmission.trhost" class="form-control" placeholder="127.0.0.1">
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">用户名</label>
-                <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trusername or '' }}{% endif %}" id="transmission.trusername"
-                  class="form-control" placeholder="admin">
-              </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">端口</label>
+              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trport or '' }}{% endif %}"
+                id="transmission.trport" class="form-control" placeholder="9091">
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">密码</label>
-                <input type="password" value="{% if Config.transmission %}{{ Config.transmission.trpassword or '' }}{% endif %}" id="transmission.trpassword"
-                  class="form-control" placeholder="">
-              </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名</label>
+              <input type="text"
+                value="{% if Config.transmission %}{{ Config.transmission.trusername or '' }}{% endif %}"
+                id="transmission.trusername" class="form-control" placeholder="admin">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">密码</label>
+              <input type="password"
+                value="{% if Config.transmission %}{{ Config.transmission.trpassword or '' }}{% endif %}"
+                id="transmission.trpassword" class="form-control" placeholder="">
             </div>
           </div>
         </div>
@@ -208,21 +228,22 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-client115" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-client115" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">115网盘</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label required">Cookie <span class="form-help" title="115网盘Cookie" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}" id="client115.cookie" class="form-control" placeholder="通过115网盘网页端抓取Cookie">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">115网盘</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label required">Cookie <span class="form-help" title="115网盘Cookie"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}"
+                id="client115.cookie" class="form-control" placeholder="通过115网盘网页端抓取Cookie">
             </div>
           </div>
         </div>
@@ -231,39 +252,40 @@
         <a href="javascript:test_downloader_config('client115')" id="client115_test_btn" class="btn me-auto">
           测试
         </a>
-        <a href="javascript:save_downloader_config('client115')" id="client115_save_btn"
-          class="btn btn-primary">确定</a>
+        <a href="javascript:save_downloader_config('client115')" id="client115_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-aria2" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-aria2" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Aria2</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">IP地址</label>
-                <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.host or '' }}{% endif %}" id="aria2.host" class="form-control" placeholder="127.0.0.1">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Aria2</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">IP地址</label>
+              <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.host or '' }}{% endif %}" id="aria2.host"
+                class="form-control" placeholder="127.0.0.1">
             </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">端口</label>
-                <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.port or '' }}{% endif %}" id="aria2.port" class="form-control" placeholder="6800">
-              </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">端口</label>
+              <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.port or '' }}{% endif %}" id="aria2.port"
+                class="form-control" placeholder="6800">
             </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">令牌</label>
-                <input type="password" value="{% if Config.aria2 %}{{ Config.aria2.secret or '' }}{% endif %}" id="aria2.secret" class="form-control">
-              </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">令牌</label>
+              <input type="password" value="{% if Config.aria2 %}{{ Config.aria2.secret or '' }}{% endif %}"
+                id="aria2.secret" class="form-control">
             </div>
           </div>
         </div>
@@ -272,108 +294,122 @@
         <a href="javascript:test_downloader_config('aria2')" id="aria2_test_btn" class="btn me-auto">
           测试
         </a>
-        <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn"
-          class="btn btn-primary">确定</a>
+        <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-downloaddir" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-downloaddir" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">下载目录配置</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3" id="dirdiv_container">
-              <label class="form-label required">目录信息 <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类" data-bs-toggle="tooltip">?</span></label>
-              {% if Config.downloaddir %}
-              {% for attr in Config.downloaddir %}
-              <div class="row" id="dirdiv_{{loop.index0}}">
-                <div class="col-12 col-lg-2 mb-1">
-                  <select class="form-select" name="dir_type" id="dir_type_{{loop.index0}}" onchange="get_categories(this)">
-                    <option value="" {% if not attr.type %}selected{% endif %}>全部</option>
-                    <option value="电影" {% if attr.type == '电影' %}selected{% endif %}>电影</option>
-                    <option value="电视剧" {% if attr.type == '电视剧' %}selected{% endif %}>电视剧</option>
-                    <option value="动漫" {% if attr.type == '动漫' %}selected{% endif %}>动漫</option>
-                  </select>
-                </div>
-                <div class="col-12 col-lg-2 mb-1">
-                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ attr['category'] or '' }}">
-                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{loop.index0}}">
-                    <option value="" selected>全部</option>
-                  </select>
-                </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ attr.save_path or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ attr.container_path or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg mb-1" style="{% if Config.pt.pt_client !='qbittorrent' or not Config.qbittorrent.auto_management %}display:none{% endif %}">
-                  <input type="text" value="{{ attr.label or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-1 mb-1 mt-2">
-                  <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <circle cx="12" cy="12" r="9"></circle>
-                       <line x1="9" y1="12" x2="15" y2="12"></line>
-                    </svg>
-                  </a>
-                </div>
+      <div class="modal-header">
+        <h5 class="modal-title">下载目录配置</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="mb-3" id="dirdiv_container">
+            <label class="form-label required">目录信息 <span class="form-help"
+                title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类"
+                data-bs-toggle="tooltip">?</span></label>
+            {% if Config.downloaddir %}
+            {% for attr in Config.downloaddir %}
+            <div class="row" id="dirdiv_{{loop.index0}}">
+              <div class="col-12 col-lg-2 mb-1">
+                <select class="form-select" name="dir_type" id="dir_type_{{loop.index0}}"
+                  onchange="get_categories(this)">
+                  <option value="" {% if not attr.type %}selected{% endif %}>全部</option>
+                  <option value="电影" {% if attr.type=='电影' %}selected{% endif %}>电影</option>
+                  <option value="电视剧" {% if attr.type=='电视剧' %}selected{% endif %}>电视剧</option>
+                  <option value="动漫" {% if attr.type=='动漫' %}selected{% endif %}>动漫</option>
+                </select>
               </div>
-              {% endfor %}
-              {% else %}
-              <div class="row" id="dirdiv_0">
-                <div class="col-12 col-lg-2 mb-1">
-                  <select class="form-select" name="dir_type" id="dir_type_0" onchange="get_categories(this)">
-                    <option value="" selected>全部</option>
-                    <option value="电影">电影</option>
-                    <option value="电视剧">电视剧</option>
-                    <option value="动漫">动漫</option>
-                  </select>
-                </div>
-                <div class="col-12 col-lg-2 mb-1">
-                  <input type="hidden" id="dir_subtype_0" value="">
-                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_0">
-                    <option value="" selected>全部</option>
-                  </select>
-                </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg mb-1">
-                  <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-1 mb-1 mt-2">
-                  <a href="javascript:del_downloaddir('0')" class="btn-icon" title="删除目录">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <circle cx="12" cy="12" r="9"></circle>
-                       <line x1="9" y1="12" x2="15" y2="12"></line>
-                    </svg>
-                  </a>
-                </div>
+              <div class="col-12 col-lg-2 mb-1">
+                <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ attr['category'] or '' }}">
+                <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{loop.index0}}">
+                  <option value="" selected>全部</option>
+                </select>
               </div>
-              {% endif %}
-              <div class="row" id="dirdiv_add">
-                <div class="mt-2">
-                  <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                       <line x1="12" y1="10" x2="12" y2="16"></line>
-                       <line x1="9" y1="13" x2="15" y2="13"></line>
-                    </svg>
-                  </a>
-                </div>
+              <div class="col-12 col-lg mb-1">
+                <input type="text" value="{{ attr.save_path or '' }}" name="save_path" class="form-control"
+                  placeholder="下载保存目录" autocomplete="off">
+              </div>
+              <div class="col-12 col-lg mb-1">
+                <input type="text" value="{{ attr.container_path or '' }}" name="container_path"
+                  class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+              </div>
+              <div class="col-12 col-lg mb-1"
+                style="{% if Config.pt.pt_client !='qbittorrent' or not Config.qbittorrent.auto_management %}display:none{% endif %}">
+                <input type="text" value="{{ attr.label or '' }}" name="path_label" class="form-control"
+                  placeholder="分类标签" autocomplete="off">
+              </div>
+              <div class="col-12 col-lg-1 mb-1 mt-2">
+                <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red"
+                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <line x1="9" y1="12" x2="15" y2="12"></line>
+                  </svg>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="row" id="dirdiv_0">
+              <div class="col-12 col-lg-2 mb-1">
+                <select class="form-select" name="dir_type" id="dir_type_0" onchange="get_categories(this)">
+                  <option value="" selected>全部</option>
+                  <option value="电影">电影</option>
+                  <option value="电视剧">电视剧</option>
+                  <option value="动漫">动漫</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-2 mb-1">
+                <input type="hidden" id="dir_subtype_0" value="">
+                <select class="form-select" name="dir_subtype" id="dir_subtype_value_0">
+                  <option value="" selected>全部</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg mb-1">
+                <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录"
+                  autocomplete="off">
+              </div>
+              <div class="col-12 col-lg mb-1">
+                <input type="text" value="" name="container_path" class="form-control filetree-folders-only"
+                  placeholder="访问目录" autocomplete="off">
+              </div>
+              <div class="col-12 col-lg mb-1">
+                <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签"
+                  autocomplete="off">
+              </div>
+              <div class="col-12 col-lg-1 mb-1 mt-2">
+                <a href="javascript:del_downloaddir('0')" class="btn-icon" title="删除目录">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red"
+                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <line x1="9" y1="12" x2="15" y2="12"></line>
+                  </svg>
+                </a>
+              </div>
+            </div>
+            {% endif %}
+            <div class="row" id="dirdiv_add">
+              <div class="mt-2">
+                <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+                    <line x1="12" y1="10" x2="12" y2="16"></line>
+                    <line x1="9" y1="13" x2="15" y2="13"></line>
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
@@ -391,9 +427,9 @@
   var currType = "";
 
   // 保存配置
-  function save_config(type, func, test){
+  function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test||false};
+    var params = { "test": test || false };
     $("#modal-" + type + " input").each(function () {
       var key = $(this).attr("id");
       if ($(this).attr("type") == "checkbox") {
@@ -416,23 +452,23 @@
   }
 
   //保存配置和测试配置
-  function test_downloader_config(type){
+  function test_downloader_config(type) {
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
-      if(currType == "qbittorrent"){
+      if (currType == "qbittorrent") {
         command = ["Qbittorrent().get_status()"];
-      }else if(currType == "transmission"){
+      } else if (currType == "transmission") {
         command = ["Transmission().get_status()"];
-      }else if(currType == "client115"){
+      } else if (currType == "client115") {
         command = "app.downloader.client.client115|Client115";
-      }else if(currType == "aria2"){
+      } else if (currType == "aria2") {
         command = "app.downloader.client.aria2|Aria2";
       }
-      
-      ajax_post("test_connection", {"command": command}, function(ret){
-        if(ret.code == 0){
+
+      ajax_post("test_connection", { "command": command }, function (ret) {
+        if (ret.code == 0) {
           $("#" + currType + "_test_btn").text("测试成功");
-        }else{
+        } else {
           $("#" + currType + "_test_btn").text("测试失败！");
         }
       });
@@ -440,84 +476,84 @@
   }
 
   //显示下载目录配置
-  function show_downloaddir_modal(){
+  function show_downloaddir_modal() {
     $('#modal-downloaddir').modal('show');
   }
 
   //获取同一行其它输入框的值
-  function get_dir_item_value(obj, name){
-    item = $(obj).parent().parent().find("[name='"+name+"']")[0];
-    if(item){
+  function get_dir_item_value(obj, name) {
+    item = $(obj).parent().parent().find("[name='" + name + "']")[0];
+    if (item) {
       return $(item).val();
-    }else{
+    } else {
       return '';
     }
   }
 
   //保存下载目录配置
-  function save_downloaddir_config(){
+  function save_downloaddir_config() {
     $("#modal-downloaddir").modal('hide');
     var download_dir = [];
-    $("[name='save_path']").each(function(){
+    $("[name='save_path']").each(function () {
       save_path = $(this).val();
       type = get_dir_item_value(this, 'dir_type');
       category = get_dir_item_value(this, 'dir_subtype');
       container_path = get_dir_item_value(this, 'container_path');
       label = get_dir_item_value(this, 'path_label');
-      download_dir.push({"save_path": save_path, "type": type, "category": category, "container_path": container_path, "label": label});
+      download_dir.push({ "save_path": save_path, "type": type, "category": category, "container_path": container_path, "label": label });
     });
-    ajax_post("update_config", {downloaddir: download_dir}, function(){
+    ajax_post("update_config", { downloaddir: download_dir }, function () {
       navmenu('downloader');
     });
 
   }
 
   //删除下载目录
-  function del_downloaddir(id){
-    if(id){
-      $("#dirdiv_"+id).remove();
+  function del_downloaddir(id) {
+    if (id) {
+      $("#dirdiv_" + id).remove();
     }
   }
 
   //获取二级分类
-  function get_categories(obj){
+  function get_categories(obj) {
     obj_id = $(obj).attr("id");
-    if(!obj_id){
+    if (!obj_id) {
       return;
     }
     id = obj_id.replace("dir_type_", "");
-    value = $("#dir_subtype_"+id).val();
-    if(!id){
+    value = $("#dir_subtype_" + id).val();
+    if (!id) {
       return;
     }
-    if(!$(obj).val()){
-      $("#dir_subtype_value_"+id).empty();
-      $("#dir_subtype_value_"+id).append('<option value="" selected>全部</option>');
+    if (!$(obj).val()) {
+      $("#dir_subtype_value_" + id).empty();
+      $("#dir_subtype_value_" + id).append('<option value="" selected>全部</option>');
       return;
     }
-    ajax_post("get_categories", {"type": $(obj).val(), "id": id, "value": value}, function(ret){
-      $("#dir_subtype_value_"+ret.id).empty();
-      $("#dir_subtype_value_"+ret.id).append('<option value="" selected>全部</option>');
-      if(ret.category){
-        for(var i=0; i<ret.category.length; i++){
-          $("#dir_subtype_value_"+ret.id).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
+    ajax_post("get_categories", { "type": $(obj).val(), "id": id, "value": value }, function (ret) {
+      $("#dir_subtype_value_" + ret.id).empty();
+      $("#dir_subtype_value_" + ret.id).append('<option value="" selected>全部</option>');
+      if (ret.category) {
+        for (var i = 0; i < ret.category.length; i++) {
+          $("#dir_subtype_value_" + ret.id).append('<option value="' + ret.category[i] + '">' + ret.category[i] + '</option>');
         }
       }
-      if(ret.value){
-        $("#dir_subtype_value_"+ret.id).val(ret.value);
+      if (ret.value) {
+        $("#dir_subtype_value_" + ret.id).val(ret.value);
       }
     });
   }
 
   //获取所有二级分类
   var CURRENT_DIRDIV_LEVEL = 0;
-  $("[name='dir_type']").each(function(){
+  $("[name='dir_type']").each(function () {
     get_categories(this);
     CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
   });
 
   //添加下载目录
-  function add_downloaddir(){
+  function add_downloaddir() {
     html = $("#dirdiv_template").text();
     $("#dirdiv_add").before(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
     CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;

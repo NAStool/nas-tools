@@ -17,63 +17,72 @@
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-emby">
           <div class="card-cover card-cover-blurred text-center bg-green">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/emby.png)">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/emby.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Emby</div>
-            <div class="text-muted">{% if Config.media.media_server == "emby" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.media.media_server == "emby" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-jellyfin">
           <div class="card-cover card-cover-blurred text-center bg-purple">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/jellyfin.jpg)">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/jellyfin.jpg)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Jellyfin</div>
-            <div class="text-muted">{% if Config.media.media_server == "jellyfin" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.media.media_server == "jellyfin" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-plex">
           <div class="card-cover card-cover-blurred text-center bg-yellow">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/plex.png)">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/plex.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Plex</div>
-            <div class="text-muted">{% if Config.media.media_server == "plex" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.media.media_server == "plex" %}<span class="badge bg-green"
+                title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-emby" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-emby" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Emby</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.emby %}{{ Config.emby.host or '' }}{% endif %}" id="emby.host" class="form-control" placeholder="http://127.0.0.1:8096">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Emby</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.emby %}{{ Config.emby.host or '' }}{% endif %}" id="emby.host"
+                class="form-control" placeholder="http://127.0.0.1:8096">
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">Api Key <span class="form-help" title="在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.emby %}{{ Config.emby.api_key or '' }}{% endif %}" id="emby.api_key" class="form-control">
-              </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">Api Key <span class="form-help"
+                  title="在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.emby %}{{ Config.emby.api_key or '' }}{% endif %}"
+                id="emby.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -87,27 +96,30 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-jellyfin" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-jellyfin" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Jellyfin</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.host or '' }}{% endif %}" id="jellyfin.host" class="form-control" placeholder="http://127.0.0.1:8096">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Jellyfin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.host or '' }}{% endif %}"
+                id="jellyfin.host" class="form-control" placeholder="http://127.0.0.1:8096">
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">Api Key <span class="form-help" title="在Jellyfin设置->高级->API密钥处生成" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.api_key or '' }}{% endif %}" id="jellyfin.api_key" class="form-control">
-              </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">Api Key <span class="form-help" title="在Jellyfin设置->高级->API密钥处生成"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.api_key or '' }}{% endif %}"
+                id="jellyfin.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -121,47 +133,55 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-plex" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-plex" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">Plex</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.plex %}{{ Config.plex.host or '' }}{% endif %}" id="plex.host" class="form-control" placeholder="http://127.0.0.1:32400">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">X-Plex-Token <span class="form-help" title="Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.plex %}{{ Config.plex.token or '' }}{% endif %}" id="plex.token" class="form-control" placeholder="X-Plex-Token与其它认证信息二选一">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">Plex</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.host or '' }}{% endif %}" id="plex.host"
+                class="form-control" placeholder="http://127.0.0.1:32400">
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">服务器名称 <span class="form-help" title="配置Plex设置->左侧下拉框中看到的服务器名称；如填写了Token则无需填写服务器名称、用户名及密码" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
-              </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">X-Plex-Token <span class="form-help"
+                  title="Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.token or '' }}{% endif %}" id="plex.token"
+                class="form-control" placeholder="X-Plex-Token与其它认证信息二选一">
             </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">用户名</label>
-                <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}" id="plex.username" class="form-control" placeholder="">
-              </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">服务器名称 <span class="form-help"
+                  title="配置Plex设置->左侧下拉框中看到的服务器名称；如填写了Token则无需填写服务器名称、用户名及密码" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}"
+                id="plex.servername" class="form-control">
             </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">密码</label>
-                <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}" id="plex.password" class="form-control">
-              </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">用户名</label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}"
+                id="plex.username" class="form-control" placeholder="">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">密码</label>
+              <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}"
+                id="plex.password" class="form-control">
             </div>
           </div>
         </div>
@@ -180,14 +200,14 @@
   var currType = "";
 
   // 保存配置
-  function save_config(type, func, test){
+  function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test||false};
-    $("#modal-"+ type +" input").each(function(){
+    var params = { "test": test || false };
+    $("#modal-" + type + " input").each(function () {
       var key = $(this).attr("id");
-      if($(this).attr("type")=="checkbox"){
-        var value = $(this).prop("checked") ? true:false;
-      }else{
+      if ($(this).attr("type") == "checkbox") {
+        var value = $(this).prop("checked") ? true : false;
+      } else {
         var value = $(this).val();
       }
       params[key] = value;
@@ -197,28 +217,28 @@
   }
 
   //保存配置、关闭和刷新页面
-  function save_mediaserver_config(type){
-    $("#modal-"+type).modal('hide');
+  function save_mediaserver_config(type) {
+    $("#modal-" + type).modal('hide');
     save_config(type, function (ret) {
       navmenu('mediaserver');
     });
   }
 
   //保存配置和测试配置
-  function test_mediaserver_config(type){
+  function test_mediaserver_config(type) {
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
-      if(currType == "emby"){
+      if (currType == "emby") {
         command = "app.mediaserver.server.emby|Emby";
-      }else if(currType == "jellyfin"){
+      } else if (currType == "jellyfin") {
         command = ["Jellyfin().get_status()"];
-      }else if(currType == "plex"){
+      } else if (currType == "plex") {
         command = ["Plex().get_status()"];
       }
-      ajax_post("test_connection", {"command": command}, function(ret){
-        if(ret.code == 0){
+      ajax_post("test_connection", { "command": command }, function (ret) {
+        if (ret.code == 0) {
           $("#" + currType + "_test_btn").text("测试成功");
-        }else{
+        } else {
           $("#" + currType + "_test_btn").text("测试失败！");
         }
       });
