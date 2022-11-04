@@ -836,7 +836,8 @@ class WebAction:
                                                    rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
-
+        # 初始化刷流任务
+        BrushTask().init_config()
         return {"code": ret}
 
     @staticmethod
@@ -870,6 +871,7 @@ class WebAction:
         if tid:
             ret = self.dbhelper.delete_config_site(tid)
             Sites().init_config()
+            BrushTask().init_config()
             return {"code": ret}
         else:
             return {"code": 0}
@@ -998,8 +1000,8 @@ class WebAction:
         dest = data.get("to")
         unknown = data.get("unknown")
         mode = data.get("syncmod")
-        rename = 1 if data.get("rename") else 0
-        enabled = 1 if data.get("enabled") else 0
+        rename = 1 if StringUtils.to_bool(data.get("rename"), False) else 0
+        enabled = 1 if StringUtils.to_bool(data.get("enabled"), False) else 0
         # 源目录检查
         if not source:
             return {"code": 1, "msg": f'源目录不能为空'}

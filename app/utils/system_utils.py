@@ -95,7 +95,10 @@ class SystemUtils:
         移动
         """
         try:
-            shutil.move(os.path.normpath(src), os.path.normpath(dest))
+            tmp_file = os.path.normpath(os.path.join(os.path.dirname(src),
+                                                     os.path.basename(dest)))
+            os.rename(os.path.normpath(src), tmp_file)
+            shutil.move(tmp_file, os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)

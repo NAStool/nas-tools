@@ -8,7 +8,7 @@ from app.brushtask import BrushTask
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
-from app.utils import TokenCache, SystemUtils
+from app.utils import TokenCache, SystemUtils, StringUtils
 from app.utils.types import OsType
 from config import Config
 from web.action import WebAction
@@ -774,7 +774,7 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=bool, help='仅目录', location='form', required=True)
+    parser.add_argument('filter', type=str, help='仅目录', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
@@ -783,13 +783,13 @@ class SystemPath(ClientResource):
         """
         r = []
         try:
-            ft = True if self.parser.parse_args().get("filter") else False
+            ft = StringUtils.to_bool(self.parser.parse_args().get("filter"), False)
             d = self.parser.parse_args().get("dir")
             if not d or d == "/":
                 if SystemUtils.get_system() == OsType.WINDOWS:
                     partitions = SystemUtils.get_windows_drives()
                     if partitions:
-                        dirs = partitions
+                        dirs = [os.path.join(partition, "/") for partition in partitions]
                     else:
                         dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
                 else:
@@ -1871,8 +1871,8 @@ class SyncDirectoryUpdate(ClientResource):
     parser.add_argument('to', type=str, help='目的目录', location='form')
     parser.add_argument('unknown', type=str, help='未知目录', location='form')
     parser.add_argument('syncmod', type=str, help='同步模式', location='form')
-    parser.add_argument('rename', type=bool, help='重命名', location='form')
-    parser.add_argument('enabled', type=bool, help='开启', location='form')
+    parser.add_argument('rename', type=str, help='重命名', location='form')
+    parser.add_argument('enabled', type=str, help='开启', location='form')
 
     @sync.doc(parser=parser)
     def post(self):

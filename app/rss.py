@@ -133,10 +133,6 @@ class Rss:
                         enclosure = res.get('enclosure')
                         # 种子页面
                         page_url = res.get('link')
-                        # rarbg的rss只有link
-                        if not enclosure and page_url:
-                            enclosure = page_url
-                            page_url = None
                         # 副标题
                         description = res.get('description')
                         # 种子大小
@@ -612,8 +608,12 @@ class Rss:
                         link = DomUtils.tag_value(item, "link", default="")
                         # 种子链接
                         enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
-                        if not enclosure:
+                        if not enclosure and not link:
                             continue
+                        # 部分RSS只有link没有enclosure
+                        if not enclosure and link:
+                            enclosure = link
+                            link = None
                         # 大小
                         size = DomUtils.tag_value(item, "enclosure", "length", default=0)
                         if size and str(size).isdigit():
