@@ -4,10 +4,18 @@ import platform
 import shutil
 import subprocess
 
+from app.utils import PathUtils
 from app.utils.types import OsType
 
 
 class SystemUtils:
+
+    @staticmethod
+    def __get_hidden_shell():
+        st = subprocess.STARTUPINFO()
+        st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+        st.wShowWindow = subprocess.SW_HIDE
+        return st
 
     @staticmethod
     def get_used_of_partition(path):
@@ -109,7 +117,14 @@ class SystemUtils:
         硬链接
         """
         try:
-            os.link(os.path.normpath(src), os.path.normpath(dest))
+            if platform.release().find("-z4-") >= 0:
+                # 兼容极空间Z4
+                tmp = os.path.normpath(os.path.join(PathUtils.get_parent_paths(dest, 2),
+                                                    os.path.basename(dest)))
+                os.link(os.path.normpath(src), tmp)
+                shutil.move(tmp, os.path.normpath(dest))
+            else:
+                os.link(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
             return -1, str(err)
@@ -133,12 +148,10 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            st = subprocess.STARTUPINFO()
-            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-            st.wShowWindow = subprocess.SW_HIDE
             retcode = subprocess.run(['rclone', 'moveto',
                                       src,
-                                      f'NASTOOL:{dest}'], startupinfo=st).returncode
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -151,12 +164,10 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            st = subprocess.STARTUPINFO()
-            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-            st.wShowWindow = subprocess.SW_HIDE
             retcode = subprocess.run(['rclone', 'copyto',
                                       src,
-                                      f'NASTOOL:{dest}'], startupinfo=st).returncode
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -171,13 +182,11 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            st = subprocess.STARTUPINFO()
-            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-            st.wShowWindow = subprocess.SW_HIDE
             retcode = subprocess.run(['mc', 'mv',
                                       '--recursive',
                                       src,
-                                      f'NASTOOL/{dest}'], startupinfo=st).returncode
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -192,13 +201,11 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            st = subprocess.STARTUPINFO()
-            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-            st.wShowWindow = subprocess.SW_HIDE
             retcode = subprocess.run(['mc', 'cp',
                                       '--recursive',
                                       src,
-                                      f'NASTOOL/{dest}'], startupinfo=st).returncode
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)

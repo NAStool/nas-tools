@@ -14,6 +14,7 @@ RUN apk add --no-cache \
        bash \
        fuse \
        xvfb \
+       inotify-tools \
        chromium-chromedriver --repository https://pkgs.alpinelinux.org/package/edge/community \
        libffi-dev --repository https://pkgs.alpinelinux.org/package/edge/main \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \

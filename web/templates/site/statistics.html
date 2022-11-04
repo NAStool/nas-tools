@@ -190,7 +190,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="icon icon-tabler icon-tabler-refresh" style="vertical-align: middle" viewBox="0 0 16 16">
                     <path
-                      d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z" />
+                      d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
                   </svg>
                 </a>
               </div>
@@ -219,7 +219,7 @@
               <thead>
                 <tr>
                   <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
-                  <th><span class="d-none d-lg-block">等级</span></th>
+                    <th><span class="d-none d-lg-block">等级</span></th>
                   <th><button class="table-sort" data-sort="sort-data">数据量</button></th>
                   <th><button class="table-sort" data-sort="sort-ratio">分享率</button></th>
                   <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
@@ -229,7 +229,7 @@
                         data-sort="sort-jtime">加入时间</button></span></th>
                   <th><span class="d-none d-lg-block"><button class="table-sort"
                         data-sort="sort-rtime">更新时间</button></span></th>
-                  <th><span class="d-none d-lg-block"></span></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody class="table-tbody">
@@ -244,7 +244,7 @@
                       <span class="badge bg-success me-1"></span>
                       {% endif %}
                       <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
-                        class="rounded me-2 d-none d-md-block" src="data:image/ico;base64,{{ item.favicon }}" width="24"
+                        class="rounded me-2" src="data:image/ico;base64,{{ item.favicon }}" width="24"
                         height="24" alt="" onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer" />
                       <div class="flex-fill">
                         <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
@@ -259,12 +259,12 @@
                           </svg>
                           {% endif %}
                         </div>
-                        <div class="text-muted d-none d-md-block">{{ item.username }}</div>
+                        <div class="text-muted">{{ item.username }}</div>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <span class="d-none d-lg-block">{{ item.user_level }}</span>
+                      <span class="d-none d-lg-block">{{ item.user_level }}</span>
                   </td>
                   <td class="sort-data" data-data="{{ item.upload }}">
                     <div class="flex-fill">
@@ -307,7 +307,7 @@
                     <span class="d-none d-lg-block">{{ item.update_at }}</span>
                   </td>
                   <td class="activity">
-                    <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon d-none d-md-block"
+                    <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon"
                       aria-label="activity">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity" width="40"
                         height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
