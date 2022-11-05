@@ -1977,34 +1977,6 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-
-    @DbPersist(_db)
-    def insert_download_setting(self, 
-                                name,
-                                category, 
-                                tags, 
-                                content_layout, 
-                                is_paused, 
-                                upload_limit, 
-                                download_limit, 
-                                ratio_limit, 
-                                seeding_time_limit,
-                                note=None):
-        """
-        增加下载设置
-        """
-        self._db.insert(DOWNLOADSETTING(
-            NAME = name,
-            CATEGORY = category,
-            TAGS = tags,
-            CONTENT_LAYOUT = int(content_layout),
-            IS_PAUSED = int(is_paused),
-            UPLOAD_LIMIT = int(upload_limit),
-            DOWNLOAD_LIMIT = int(download_limit),
-            RATIO_LIMIT = int(ratio_limit),
-            SEEDING_TIME_LIMIT = int(seeding_time_limit),
-            NOTE = note
-        ))
     
     @DbPersist(_db)
     def delete_download_setting(self, sid):
@@ -2054,4 +2026,16 @@ class DbHelper:
                     "NOTE": note
                 }
             )
-    
+        else:
+            self._db.insert(DOWNLOADSETTING(
+            NAME = name,
+            CATEGORY = category,
+            TAGS = tags,
+            CONTENT_LAYOUT = int(content_layout),
+            IS_PAUSED = int(is_paused),
+            UPLOAD_LIMIT = int(upload_limit),
+            DOWNLOAD_LIMIT = int(download_limit),
+            RATIO_LIMIT = int(ratio_limit),
+            SEEDING_TIME_LIMIT = int(seeding_time_limit),
+            NOTE = note
+        ))

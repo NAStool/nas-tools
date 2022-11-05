@@ -3669,27 +3669,16 @@ class WebAction:
         download_limit = data.get("download_limit")
         ratio_limit = data.get("ratio_limit")
         seeding_time_limit = data.get("seeding_time_limit")
-        if sid is None:
-            self.dbhelper.insert_download_setting(name=name,
-                                                  category=category,
-                                                  tags=tags,
-                                                  content_layout=content_layout,
-                                                  is_paused=is_paused,
-                                                  upload_limit=upload_limit or 0,
-                                                  download_limit=download_limit or 0,
-                                                  ratio_limit=ratio_limit or 0,
-                                                  seeding_time_limit=seeding_time_limit or 0)
-        else:
-            self.dbhelper.update_download_setting(sid=sid,
-                                                  name=name,
-                                                  category=category,
-                                                  tags=tags,
-                                                  content_layout=content_layout,
-                                                  is_paused=is_paused,
-                                                  upload_limit=upload_limit or 0,
-                                                  download_limit=download_limit or 0,
-                                                  ratio_limit=ratio_limit or 0,
-                                                  seeding_time_limit=seeding_time_limit or 0)
+        self.dbhelper.update_download_setting(sid=sid,
+                                              name=name,
+                                              category=category,
+                                              tags=tags,
+                                              content_layout=content_layout,
+                                              is_paused=is_paused,
+                                              upload_limit=upload_limit or 0,
+                                              download_limit=download_limit or 0,
+                                              ratio_limit=ratio_limit or 0,
+                                              seeding_time_limit=seeding_time_limit or 0)
         Downloader().init_config()
         return {"code": 0}
 

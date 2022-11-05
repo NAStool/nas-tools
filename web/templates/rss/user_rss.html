@@ -575,7 +575,6 @@
 
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
-    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     id = $("#userrss_id").val();
     name = $("#userrss_name").val();
     if (!name) {
@@ -619,6 +618,7 @@
       save_path: $("#userrss_save_path").val(),
       download_setting: $("#userrss_download_setting").val(),
     };
+    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
       $("#add_or_edit_userrss_btn").attr("disabled", false);

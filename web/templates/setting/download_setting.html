@@ -284,6 +284,7 @@
 
   // 显示新增下载设置
   function  show_add_download_setting_modal(){
+    $("#download_setting_id").val('');
     $("#modal-download-setting-title").val('新增下载设置');
     $("#name").val('');
     $("#category").val('');
@@ -319,9 +320,14 @@
 
   // 保存新建/编辑下载设置
   function add_or_edit_download_setting(){
-    $("#add_or_edit_download_setting_btn").text("保存中").attr("disabled", true);
     sid = $("#download_setting_id").val();
-    ds_name = $("#name").val();
+    name = $("#name").val();
+    if (!name) {
+      $("#name").addClass("is-invalid");
+      return;
+    } else {
+      $("#name").removeClass("is-invalid");
+    }
     category = $("#category").val();
     tags = $("#tags").val();
     content_layout = $("#content_layout").val();
@@ -356,7 +362,7 @@
     }
     var params = {
       sid: sid,
-      name: ds_name,
+      name: name,
       category: category,
       tags: tags,
       content_layout: content_layout,
@@ -366,9 +372,10 @@
       ratio_limit: ratio_limit,
       seeding_time_limit: seeding_time_limit
     };
+    $("#add_or_edit_download_setting_btn").text("保存中").attr("disabled", true);
     ajax_post("update_download_setting", params, function (ret) {
       $("#modal-download-setting").modal('hide');
-      $("#add_or_edit_download-setting_btn").attr("disabled", false);
+      $("#add_or_edit_download_setting_btn").attr("disabled", false);
       navmenu('download_setting');
     });
   }
