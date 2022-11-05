@@ -887,6 +887,22 @@ def create_flask_app():
                                Items=Items,
                                SyncMod=SyncMod)
 
+    # 文件管理页面
+    @App.route('/mediafile', methods=['POST', 'GET'])
+    @login_required
+    def mediafile():
+        download_dirs = Downloader().get_download_visit_dirs()
+        if download_dirs:
+            try:
+                Dir = os.path.commonpath(download_dirs)
+            except Exception as err:
+                print(str(err))
+                Dir = "/"
+        else:
+            Dir = "/"
+        return render_template("rename/mediafile.html",
+                               Dir=Dir)
+
     # 基础设置页面
     @App.route('/basic', methods=['POST', 'GET'])
     @login_required

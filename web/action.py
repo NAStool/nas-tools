@@ -7,6 +7,7 @@ import re
 import shutil
 import signal
 from math import floor
+from urllib.parse import unquote
 
 import cn2an
 from flask_login import logout_user
@@ -39,9 +40,9 @@ from app.subtitle import Subtitle
 from app.sync import Sync
 from app.sync import stop_monitor
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.utils.types import RMT_MODES, RmtMode
+from app.utils.types import RMT_MODES, RmtMode, OsType
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
-from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
+from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
 
@@ -167,7 +168,8 @@ class WebAction:
             "get_users": self.get_users,
             "get_filterrules": self.get_filterrules,
             "get_downloading": self.get_downloading,
-            "test_site": self.__test_site
+            "test_site": self.__test_site,
+            "get_sub_path": self.__get_sub_path
         }
 
     def action(self, cmd, data=None):
@@ -247,7 +249,8 @@ class WebAction:
             if in_from == SearchType.TG and user_id:
                 if not str(user_id) in Telegram().get_users() \
                         and str(user_id) != Telegram().get_admin_user():
-                    Message().send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人", user_id=user_id)
+                    Message().send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
+                                               user_id=user_id)
                     return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
@@ -2398,9 +2401,10 @@ class WebAction:
         if not status:
             return {"code": 0, "text": "未同步"}
         else:
-            return {"code": 0, "text": "电影：%s，电视剧：%s，同步时间：%s" % (status.get("movie_count"),
-                                                                 status.get("tv_count"),
-                                                                 status.get("time"))}
+            return {"code": 0, "text": "电影：%s，电视剧：%s，同步时间：%s" %
+                                       (status.get("movie_count"),
+                                        status.get("tv_count"),
+                                        status.get("time"))}
 
     @staticmethod
     def __get_tvseason_list(data):
@@ -2409,7 +2413,8 @@ class WebAction:
         """
         tmdbid = data.get("tmdbid")
         seasons = [
-            {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'), "num": season.get("season_number")}
+            {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
+             "num": season.get("season_number")}
             for season in Media().get_tmdb_seasons_list(tmdbid=tmdbid)]
         return {"code": 0, "seasons": seasons}
 
@@ -3513,3 +3518,65 @@ class WebAction:
         flag, msg, times = Sites().test_connection(data.get("id"))
         code = 0 if flag else -1
         return {"code": code, "msg": msg, "time": times}
+
+    @staticmethod
+    def __get_sub_path(data):
+        """
+        查询下级子目录
+        """
+        r = []
+        try:
+            ft = data.get("filter") or "ALL"
+            d = data.get("dir")
+            if not d or d == "/":
+                if SystemUtils.get_system() == OsType.WINDOWS:
+                    partitions = SystemUtils.get_windows_drives()
+                    if partitions:
+                        dirs = [os.path.join(partition, "/") for partition in partitions]
+                    else:
+                        dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
+                else:
+                    dirs = [os.path.join("/", f) for f in os.listdir("/")]
+            else:
+                d = os.path.normpath(unquote(d))
+                if not os.path.isdir(d):
+                    d = os.path.dirname(d)
+                dirs = [os.path.join(d, f) for f in os.listdir(d)]
+            for ff in dirs:
+                if os.path.isdir(ff):
+                    if 'ONLYDIR' in ft or 'ALL' in ft:
+                        r.append({
+                            "path": ff.replace("\\", "/"),
+                            "name": os.path.basename(ff),
+                            "type": "dir",
+                            "rel": os.path.dirname(ff).replace("\\", "/")
+                        })
+                else:
+                    ext = os.path.splitext(ff)[-1][1:]
+                    flag = False
+                    if 'ONLYFILE' in ft or 'ALL' in ft:
+                        flag = True
+                    elif "MEDIAFILE" in ft and f".{str(ext).lower()}" in RMT_MEDIAEXT:
+                        flag = True
+                    elif "SUBFILE" in ft and f".{str(ext).lower()}" in RMT_SUBEXT:
+                        flag = True
+                    if flag:
+                        r.append({
+                            "path": ff.replace("\\", "/"),
+                            "name": os.path.basename(ff),
+                            "type": "file",
+                            "rel": os.path.dirname(ff).replace("\\", "/"),
+                            "ext": ext,
+                            "size": StringUtils.str_filesize(os.path.getsize(ff))
+                        })
+
+        except Exception as e:
+            return {
+                "code": -1,
+                "message": '加载路径失败: %s' % str(e)
+            }
+        return {
+            "code": 0,
+            "count": len(r),
+            "data": r
+        }

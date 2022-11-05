@@ -800,6 +800,16 @@ class Downloader:
         save_path_list.sort()
         return list(set(save_path_list))
 
+    def get_download_visit_dirs(self):
+        """
+        返回下载器中设置的访问目录
+        """
+        if not self._downloaddir:
+            return []
+        visit_path_list = [attr.get("container_path") or attr.get("save_path") for attr in self._downloaddir if attr.get("save_path")]
+        visit_path_list.sort()
+        return list(set(visit_path_list))
+
     def __get_download_dir_info(self, media):
         """
         根据媒体信息读取一个下载目录的信息

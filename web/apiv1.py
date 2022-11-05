@@ -774,48 +774,14 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=str, help='仅目录', location='form', required=True)
+    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/ALL）', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
         """
         查询目录的子目录/文件
         """
-        r = []
-        try:
-            ft = StringUtils.to_bool(self.parser.parse_args().get("filter"), False)
-            d = self.parser.parse_args().get("dir")
-            if not d or d == "/":
-                if SystemUtils.get_system() == OsType.WINDOWS:
-                    partitions = SystemUtils.get_windows_drives()
-                    if partitions:
-                        dirs = [os.path.join(partition, "/") for partition in partitions]
-                    else:
-                        dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
-                else:
-                    dirs = [os.path.join("/", f) for f in os.listdir("/")]
-            else:
-                d = os.path.normpath(unquote(d))
-                if not os.path.isdir(d):
-                    d = os.path.dirname(d)
-                dirs = [os.path.join(d, f) for f in os.listdir(d)]
-            for ff in dirs:
-                if os.path.isdir(ff):
-                    r.append({"path": ff.replace("\\", "/"), "type": "dir"})
-                else:
-                    if not ft:
-                        r.append({"path": ff.replace("\\", "/"), "type": "file"})
-        except Exception as e:
-            return {
-                "code": -1,
-                "success": False,
-                "message": '加载路径失败: %s' % str(e)
-            }
-        return {
-            "code": 0,
-            "success": True,
-            "data": r
-        }
+        return WebAction().api_action(cmd='get_sub_path', data=self.parser.parse_args())
 
 
 @system.route('/restart')

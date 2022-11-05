@@ -1,0 +1,152 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          文件管理
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="row g-0">
+        <div class="col-3 d-none d-md-block border-end">
+          <div class="card-body">
+            <h4 class="subheader">目录</h4>
+            <div class="input-icon mb-2">
+              <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24"
+                  height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+                  <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+                </svg>
+              </span>
+              <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
+                aria-label="Search in website">
+            </div>
+            <div id="mediafile_tree" style="overflow: auto"></div>
+          </div>
+        </div>
+        <div class="col d-flex flex-column">
+          <div class="card-body">
+            <h2 class="mb-1">共 <span id="mediafile_num">0</span> 个文件</h2>
+            <div class="row row-cards">
+              <div class="space-y" id="mediafile_file_container">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //排序表单
+  tableDataList = new List('mediafile-table', {
+    sortClass: 'table-sort',
+    listClass: 'table-tbody',
+    valueNames: ['sort-size']
+  });
+
+  //刷新文件列表
+  function refresh_files(folder) {
+    debugger;
+    ajax_post("get_sub_path", { "dir": folder, "filter": "MEDIAFILE|SUBFILE" }, function (ret) {
+      $("#mediafile_file_container").empty();
+      if (ret.data) {
+        $("#mediafile_num").text(ret.count);
+        for (let i = 0; i < ret.data.length; i++) {
+          let fileext = ret.data[i].ext;
+          let filename = ret.data[i].name;
+          let filesize = ret.data[i].size;
+          let template_html = $("#mediafile_item_template").text();
+          $("#mediafile_file_container").append(template_html.replace("{FILEEXT}", fileext).replace("{FILENAME}", filename).replace("{FILESIZE}", filesize+"B"));
+        }
+      }
+    });
+  }
+
+  // 初始化文件树
+  function init_mediafile_tree() {
+    let ft = $('#mediafile_tree');
+    ft.empty();
+    ft.fileTree(
+      {
+        script: 'dirlist',
+        root: $("#mediafile_path").val(),
+        filter: 'HIDE_FILES_FILTER',
+        allowBrowsing: true
+      },
+      function (file) {
+      },
+      function (folder) {
+        refresh_files(folder);
+      });
+    refresh_files($("#mediafile_path").val());
+  }
+
+  // 回车响应
+  $('#mediafile_path').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      if (!$(this).val()) {
+        return;
+      }
+      init_mediafile_tree();
+    }
+  });
+
+  // 初始列表
+  init_mediafile_tree();
+
+
+</script>
+<script type="text" id="mediafile_item_template">
+    <div class="card">
+      <div class="row g-0">
+        <div class="col-auto">
+          <div class="card-body">
+            <div class="avatar avatar-md">{FILEEXT}</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card-body ps-0">
+            <div class="row">
+              <div class="col">
+                <h3 class="mb-0"><a href="#">{FILENAME}</a></h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="mt-3 list-inline list-inline-dots mb-0 text-muted">
+                  <div class="list-inline-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                          <path d="M11 14h1v4h1"></path>
+                          <path d="M12 11h.01"></path>
+                      </svg>
+                      {FILESIZE}
+                  </div>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="mt-3 badges">
+                  <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">识别</a>
+                  <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">转移</a>
+                  <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">重命名</a>
+                  <a href="#" class="badge badge-outline text-muted border fw-normal badge-pill">删除</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
