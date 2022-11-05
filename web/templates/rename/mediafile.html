@@ -40,7 +40,7 @@
   <div class="container-xl">
     <div class="card">
       <div class="row g-0">
-        <div class="col-md-3 col-lg-4 d-none d-md-block border-end">
+        <div class="col-md-3 col-lg-4 border-end">
           <div class="card-body">
             <h4 class="subheader">目录</h4>
             <div class="input-icon mb-2">
@@ -59,12 +59,12 @@
             <div id="mediafile_tree" style="overflow: auto;"></div>
           </div>
         </div>
-        <div class="col d-flex flex-column">
+        <div class="col d-flex flex-column d-none d-md-block">
           <div class="card-body">
             <h4 class="subheader">共 <span id="mediafile_num">0</span> 个文件</h4>
             <input type="hidden" id="mediafile_current_dir">
             <div class="row row-cards">
-              <div class="space-y" id="mediafile_file_container"></div>
+              <div class="space-y" id="mediafile_file_container" style="overflow-y: auto;"></div>
             </div>
           </div>
         </div>
@@ -224,8 +224,21 @@
     });
   }
 
+  // 设置高度
+  function set_mediafile_height(){
+    let height = $(window).height();
+    $("#mediafile_tree").css("height", (height - 340) + "px");
+    $("#mediafile_file_container").css("height", (height - 300) + "px");
+  }
+
   // 初始列表
   init_mediafile_tree();
+
+  // 初始化高度
+  set_mediafile_height();
+  $(window).bind('resize', function (){
+    set_mediafile_height();
+  });
 
 </script>
 <script type="text" id="mediafile_item_template">
