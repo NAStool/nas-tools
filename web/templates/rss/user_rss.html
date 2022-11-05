@@ -456,8 +456,7 @@
             <div class="form-selectgroup">
               {% for Task in Tasks %}
               <label class="form-selectgroup-item">
-                <input type="button" class="form-selectgroup-input"
-                  onclick="javascript:apply_templated('{{ Task.id }}')">
+                <input type="button" class="form-selectgroup-input" onclick="apply_templated('{{ Task.id }}')">
                 <span class="form-selectgroup-label">{{ Task.name }}</span>
               </label>
               {% endfor %}
@@ -480,12 +479,77 @@
         <div class="ms-2">
           <h5 class="modal-title">订阅预览</h5>
         </div>
-        <div class="ms-auto" id="articles-check"></div>
         <div class="ms-5">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
+      </div>      
       <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+        <div class="ms-auto" id="articles-check" style="position: absolute; top: 60px; right: 50%;">
+          <div class="btn-list" id="batch_articles_action_div" style="display: none;">
+            <input type="hidden" id="article_check_id" value="" >
+            <a href="javascript:batch_articles_action('download')" 
+              class="btn btn-primary ms-auto d-none d-sm-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                <polyline points="7 11 12 16 17 11"></polyline>
+                <line x1="12" y1="4" x2="12" y2="16"></line>
+              </svg>
+              批量下载
+            </a>
+            <a href="javascript:batch_articles_action('download')" class="btn btn-primary d-sm-none btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                <polyline points="7 11 12 16 17 11"></polyline>
+                <line x1="12" y1="4" x2="12" y2="16"></line>
+              </svg>
+            </a>
+            <a href="javascript:batch_articles_action('set_finished')"
+              class="btn btn-twitter ms-auto d-none d-sm-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M9 12l2 2l4 -4"></path>
+              </svg>
+              已处理</a>
+            <a href="javascript:batch_articles_action('set_finished')"
+              class="btn btn-twitter d-sm-none btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M9 12l2 2l4 -4"></path>
+              </svg>
+            </a>
+            <a href="javascript:batch_articles_action('set_unfinish')"
+              class="btn btn-vk ms-auto d-none d-sm-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M10 10l4 4m0 -4l-4 4"></path>
+              </svg>
+              未处理</a>
+            <a href="javascript:batch_articles_action('set_unfinish')" class="btn btn-vk d-sm-none btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M10 10l4 4m0 -4l-4 4"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
         <table id="table-rss-articles" class="table table-vcenter card-table">
         </table>
       </div>
@@ -693,7 +757,6 @@
     ajax_post("list_rss_articles", { "id": id }, function (ret) {
       hide_wait_process();
       $("#table-rss-articles").empty();
-      $("#articles-check").empty();
       if (ret.code == 0) {
         articles = ret.data;
         var content_th = `<thead><tr>
@@ -713,7 +776,7 @@
           var finish_flag = '';
           if (article.title) {
             title_param = article.title.replace(/\'/g, "&#39;");
-            input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox">
+            input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox" onchange="show_article_batch_buttons()">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
             title = `<span>${article.title}</span> 
@@ -729,20 +792,20 @@
                       </a>`;
             if (article.link) {
               title = `<a href="${article.link}" target="_blank">${title}</a>`;
-            };
-          };
+            }
+          }
           if (article.date) {
             date = article.date.split(" ");
             date = `<small>${date[0]}<br>${date[1]}</small>`;
-          };
+          }
           if (article.size) {
             size = `<span class="badge badge-outline text-green me-1 mb-1" title="大小">${article.size}</span>`;
-          };
+          }
           if (article.finish_flag) {
             finish_flag = `<span class="badge badge-outline text-blue me-1 mb-1">已处理</span>`;
           } else {
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
-          };
+          }
           download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -754,68 +817,36 @@
           var content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
-        };
-        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto d-none d-sm-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                   <polyline points="7 11 12 16 17 11"></polyline>
-                                   <line x1="12" y1="4" x2="12" y2="16"></line>
-                                </svg>
-                              下载</a>`;
-        batch_download_btn += `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary d-sm-none btn-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                   <polyline points="7 11 12 16 17 11"></polyline>
-                                   <line x1="12" y1="4" x2="12" y2="16"></line>
-                                </svg>
-                               </a>`;
-        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-twitter ms-auto d-none d-sm-inline-block">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <circle cx="12" cy="12" r="9"></circle>
-                             <path d="M9 12l2 2l4 -4"></path>
-                          </svg>
-                        已处理</a>`;
-        unfinish_btn += `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-twitter d-sm-none btn-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <circle cx="12" cy="12" r="9"></circle>
-                             <path d="M9 12l2 2l4 -4"></path>
-                          </svg>
-                         </a>`;
-        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-vk ms-auto d-none d-sm-inline-block">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <circle cx="12" cy="12" r="9"></circle>
-                             <path d="M10 10l4 4m0 -4l-4 4"></path>
-                          </svg>
-                        未处理</a>`;
-        finished_btn += `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-vk d-sm-none btn-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <circle cx="12" cy="12" r="9"></circle>
-                             <path d="M10 10l4 4m0 -4l-4 4"></path>
-                          </svg>
-                         </a>`;
-        $("#articles-check").append(`<div class="btn-list">${batch_download_btn}${unfinish_btn}${finished_btn}</div>`);
+        }
+
         $("#table-rss-articles").append(content);
         // 绑定全选事件
         $("#articles_check_all_btn").bind("change", function () {
           $(".table-responsive input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
+          show_article_batch_buttons();
         });
       } else {
         var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
       };
+      $("#article_check_id").val(id);
+      show_article_batch_buttons();
       $("#modal-rss-articles").modal('show');
     });
   }
 
+  // 显示批量处理按钮
+  function show_article_batch_buttons(){
+    var articles = get_article_checked();
+    if(articles.length > 0){
+      $("#batch_articles_action_div").show();
+    }else{
+      $("#batch_articles_action_div").hide();
+    }
+  }
 
-  // 批量处理
-  function batch_articles_action(id, flag) {
+  // 获取选中按钮
+  function get_article_checked(){
     var articles = [];
     var i = 0;
     $(".table-responsive input[type=checkbox]").each(function () {
@@ -831,6 +862,15 @@
         }
       }
     });
+    return articles;
+  }
+
+
+  // 批量处理
+  function batch_articles_action(flag) {
+    var articles = get_article_checked();
+    var id = $("#article_check_id").val();
+    
     if (articles.length == 0) {
       return;
     }
@@ -850,13 +890,6 @@
     show_wait_process();
     ajax_post("rss_articles_check", { "articles": articles, "flag": flag }, function (ret) {
       hide_wait_process();
-      if (ret.code == 0) {
-        show_success_modal("设置成功！");
-      } else if (ret.code == 1) {
-        show_success_modal("设置失败！");
-      } else {
-        return
-      }
       show_rss_articles_modal(id);
     });
   }
@@ -871,8 +904,6 @@
         show_success_modal("添加下载成功！");
       } else if (ret.code == 1) {
         show_fail_modal(" 添加下载失败！");
-      } else {
-        return
       }
       show_rss_articles_modal(id);
     });
