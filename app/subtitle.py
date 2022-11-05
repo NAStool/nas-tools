@@ -54,12 +54,12 @@ class Subtitle:
         :param server: 字幕下载服务器
         :return: 是否成功，消息内容
         """
-        if not self.__server:
-            return
         if not items:
-            return
+            return False, "参数有误"
         if not server:
             server = self.__server
+        if not server:
+            return False, "未配置字幕下载器"
         if server == "opensubtitles":
             if self.__opensubtitles_enable:
                 return self.__download_opensubtitles(items)
@@ -95,7 +95,7 @@ class Subtitle:
                 continue
             subtitles = subtitles_cache.get(item.get("name"))
             if subtitles is None:
-                log.info("【Subtitle】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
+                log.info("【Subtitle】开始从Opensubtitle.org检索字幕: %s，imdbid=%s" % (item.get("name"), item.get("imdbid")))
                 subtitles = self.search_opensubtitles(item)
                 if not subtitles:
                     subtitles_cache[item.get("name")] = []
@@ -136,7 +136,10 @@ class Subtitle:
                     file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
                     if not file_name:
                         continue
-                    zip_file = os.path.join(self.__save_tmp_path, file_name[0])
+                    file_name = file_name[0]
+                    if file_name.endswith('"'):
+                        file_name = file_name[:-1]
+                    zip_file = os.path.join(self.__save_tmp_path, file_name)
                     zip_path = os.path.splitext(zip_file)[0]
                     with open(zip_file, 'wb') as f:
                         f.write(ret.content)
@@ -161,9 +164,9 @@ class Subtitle:
                     break
             if not subtitle_count:
                 if item.get('episode'):
-                    log.info("【Subtitle】%s 季：%s 集：%s 未找到符合条件的字幕" % (
+                    log.info("【Subtitle】%s 第%s季 第%s集 未找到符合条件的字幕" % (
                         item.get("name"), item.get("season"), item.get("episode")))
-                    ret_msg = "%s 季：%s 集：%s 未找到符合条件的字幕" % (
+                    ret_msg = "%s 第%s季 第%s集 未找到符合条件的字幕" % (
                         item.get("name"), item.get("season"), item.get("episode"))
                 else:
                     log.info("【Subtitle】%s 未找到符合条件的字幕" % item.get("name"))

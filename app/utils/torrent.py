@@ -105,7 +105,10 @@ class Torrent:
                 file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
                 if not file_name:
                     return None
-                file_path = os.path.join(path, file_name[0])
+                file_name = file_name[0]
+                if file_name.endswith('"'):
+                    file_name = file_name[:-1]
+                file_path = os.path.join(path, file_name)
                 with open(file_path, 'wb') as f:
                     f.write(ret.content)
             elif not ret:

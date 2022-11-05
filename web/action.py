@@ -3626,6 +3626,9 @@ class WebAction:
         media = Media().get_media_info(title=name)
         if not media or not media.tmdb_info:
             return {"code": -1, "msg": f"{name} 无法从TMDB查询到媒体信息"}
+        if not media.imdb_id:
+            media.set_tmdb_info(Media().get_tmdb_info(mtype=media.type,
+                                                      tmdbid=media.tmdb_id))
         subtitle_item = [{"type": media.type,
                           "file": os.path.splitext(path)[0],
                           "file_ext": os.path.splitext(name)[-1],
@@ -3636,7 +3639,7 @@ class WebAction:
                           "episode": media.begin_episode,
                           "bluray": False,
                           "imdbid": media.imdb_id}]
-        success, retmsg = Subtitle().download_subtitle(subtitle_item, server="opensubtitles")
+        success, retmsg = Subtitle().download_subtitle(items=subtitle_item, server="opensubtitles")
         if success:
             return {"code": 0, "msg": retmsg}
         else:
