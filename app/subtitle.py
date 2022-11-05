@@ -24,6 +24,7 @@ class Subtitle:
     __opensubtitles_enable = False
 
     def __init__(self):
+        self.subhelper = SubHelper()
         self.init_config()
 
     def init_config(self):
@@ -45,7 +46,6 @@ class Subtitle:
                 self.__remote_path = subtitle.get("chinesesubfinder", {}).get("remote_path")
             else:
                 self.__opensubtitles_enable = subtitle.get("opensubtitles", {}).get("enable")
-                self.subhelper = SubHelper()
 
     def download_subtitle(self, items, server=None):
         """
