@@ -172,7 +172,10 @@ class WebAction:
             "get_sub_path": self.__get_sub_path,
             "rename_file": self.__rename_file,
             "delete_file": self.__delete_file,
-            "download_subtitle": self.__download_subtitle
+            "download_subtitle": self.__download_subtitle,
+            "get_download_setting": self.__get_download_setting,
+            "update_download_setting": self.__update_download_setting,
+            "delete_download_setting": self.__delete_download_setting
         }
 
     def action(self, cmd, data=None):
@@ -2462,7 +2465,8 @@ class WebAction:
             "exclude": data.get("exclude"),
             "filterrule": data.get("filterrule"),
             "state": data.get("state"),
-            "note": data.get("note")
+            "save_path": data.get("save_path"),
+            "download_setting": data.get("download_setting")
         }
         if self.dbhelper.update_userrss_task(params):
             RssChecker().init_config()
@@ -3647,3 +3651,50 @@ class WebAction:
             return {"code": 0, "msg": retmsg}
         else:
             return {"code": -1, "msg": retmsg}
+
+    @staticmethod
+    def __get_download_setting(data):
+        sid = data.get("sid")
+        download_setting = Downloader().get_download_setting(sid=sid)
+        return {"code": 0, "data": download_setting}
+    
+    def __update_download_setting(self, data):
+        sid = data.get("sid")
+        name = data.get("name")
+        category = data.get("category")
+        tags = data.get("tags")
+        content_layout = data.get("content_layout")
+        is_paused = data.get("is_paused")
+        upload_limit = data.get("upload_limit")
+        download_limit = data.get("download_limit")
+        ratio_limit = data.get("ratio_limit")
+        seeding_time_limit = data.get("seeding_time_limit")
+        if sid is None:
+            self.dbhelper.insert_download_setting(name=name,
+                                                  category=category,
+                                                  tags=tags,
+                                                  content_layout=content_layout,
+                                                  is_paused=is_paused,
+                                                  upload_limit=upload_limit or 0,
+                                                  download_limit=download_limit or 0,
+                                                  ratio_limit=ratio_limit or 0,
+                                                  seeding_time_limit=seeding_time_limit or 0)
+        else:
+            self.dbhelper.update_download_setting(sid=sid,
+                                                  name=name,
+                                                  category=category,
+                                                  tags=tags,
+                                                  content_layout=content_layout,
+                                                  is_paused=is_paused,
+                                                  upload_limit=upload_limit or 0,
+                                                  download_limit=download_limit or 0,
+                                                  ratio_limit=ratio_limit or 0,
+                                                  seeding_time_limit=seeding_time_limit or 0)
+        Downloader().init_config()
+        return {"code": 0}
+
+    def __delete_download_setting(self, data):
+        sid = data.get("sid")
+        self.dbhelper.delete_download_setting(sid=sid)
+        Downloader().init_config()
+        return {"code": 0}

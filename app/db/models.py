@@ -92,6 +92,8 @@ class CONFIGUSERRSS(Base):
     UPDATE_TIME = Column(Text)
     PROCESS_COUNT = Column(Text)
     STATE = Column(Text)
+    SAVE_PATH = Column(Text)
+    DOWNLOAD_SETTING = Column(Integer)
     NOTE = Column(Text)
 
 
@@ -159,6 +161,22 @@ class DOWNLOADHISTORY(Base):
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class DOWNLOADSETTING(Base):
+    __tablename__ = 'DOWNLOAD_SETTING'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    NAME = Column(Text)
+    CATEGORY = Column(Text)
+    TAGS = Column(Text)
+    CONTENT_LAYOUT = Column(Integer)
+    IS_PAUSED = Column(Integer)
+    UPLOAD_LIMIT = Column(Integer)
+    DOWNLOAD_LIMIT = Column(Integer)
+    RATIO_LIMIT = Column(Integer)
+    SEEDING_TIME_LIMIT = Column(Integer)
+    NOTE = Column(Text)
 
 
 class RSSHISTORY(Base):
