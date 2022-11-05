@@ -372,6 +372,12 @@ class SiteConf:
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': [],
+        },
+        'leaves.red': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
         }
     }
     # 公共BT站点
