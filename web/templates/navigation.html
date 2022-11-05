@@ -1060,7 +1060,7 @@
           <div class="row" id="rename_path_div">
             <div class="col-lg-9">
               <div class="mb-3">
-                <label class="form-label">路径</label>
+                <label class="form-label required">路径</label>
                 <input type="text" id="rename_path" class="form-control" readonly>
                 <input type="hidden" id="rename_manual_type">
                 <input type="hidden" id="unknown_id">
@@ -1070,7 +1070,7 @@
             </div>
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label">转移方式</label>
+                <label class="form-label required">转移方式</label>
                 <select id="rename_syncmod_manual" class="form-select">
                   <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
                   <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
@@ -1086,8 +1086,8 @@
             </div>
           </div>
           <div class="mb-3" id="rename_inpath_div">
-            <label class="form-label">输入路径</label>
-            <input type="text" id="rename_inpath" class="form-control filetree-folders-only" placeholder="需要识别的目录或文件"
+            <label class="form-label required">输入路径</label>
+            <input type="text" id="rename_inpath" class="form-control filetree-folders-only" placeholder="需要转移的目录或文件"
               autocomplete="off">
             <div class="invalid-feedback" id="rename_udf_retmsg"></div>
           </div>
@@ -1095,13 +1095,13 @@
             <div class="col-lg-9">
               <div class="mb-3">
                 <label class="form-label">输出路径</label>
-                <input type="text" id="rename_outpath" class="form-control filetree-folders-only" placeholder="识别后文件存储路径"
+                <input type="text" id="rename_outpath" class="form-control filetree-folders-only" placeholder="转移后文件存储路径，留空则转移至媒体库"
                   autocomplete="off">
               </div>
             </div>
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label">转移方式</label>
+                <label class="form-label required">转移方式</label>
                 <select id="rename_syncmod_customize" class="form-select">
                   <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
                   <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
@@ -1169,7 +1169,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">TMDB ID</label>
+                <label class="form-label required">TMDB ID</label>
                 <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB的编号">
               </div>
             </div>
@@ -2109,14 +2109,6 @@
         } else {
           $("#rename_inpath").removeClass("is-invalid");
         }
-
-        if (!outpath) {
-          $("#rename_outpath").addClass("is-invalid");
-          return;
-        } else {
-          $("#rename_outpath").removeClass("is-invalid");
-        }
-
       }else{
         if (!path) {
           $("#rename_path").addClass("is-invalid");
@@ -2410,6 +2402,19 @@
         })
       }
       updateMenuListHeight()
+
+      //单选框事件
+      $('input[type=radio][name=rename_type]').change(function () {
+        if (this.value == 'MOV') {
+          $("#rename_season_div").hide();
+          $("#rename_episode_div").hide();
+          $("#rename_season").val('');
+        }
+        else {
+          $("#rename_season_div").show();
+          $("#rename_episode_div").show();
+        }
+      });
 
       //加载页面
       var go_page = "{{ GoPage }}";

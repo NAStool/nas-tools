@@ -9,25 +9,27 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-a-b" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M3 16v-5.5a2.5 2.5 0 0 1 5 0v5.5m0 -4h-5"></path>
-              <line x1="12" y1="6" x2="12" y2="18"></line>
-              <path d="M16 16v-8h3a2 2 0 0 1 0 4h-3m3 0a2 2 0 0 1 0 4h-3"></path>
-            </svg>
+              <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="18" cy="18" r="3"></circle>
+              <path d="M16 9l2 2l2 -2"></path>
+              <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+              <path d="M3 15l2 -2l2 2"></path>
+           </svg>
             自定义识别
           </a>
           <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-a-b" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M3 16v-5.5a2.5 2.5 0 0 1 5 0v5.5m0 -4h-5"></path>
-              <line x1="12" y1="6" x2="12" y2="18"></line>
-              <path d="M16 16v-8h3a2 2 0 0 1 0 4h-3m3 0a2 2 0 0 1 0 4h-3"></path>
-            </svg>
+              <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="18" cy="18" r="3"></circle>
+              <path d="M16 9l2 2l2 -2"></path>
+              <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+              <path d="M3 15l2 -2l2 2"></path>
+           </svg>
           </a>
         </div>
       </div>
@@ -200,21 +202,6 @@
       });
     })
   }
-
-  //单选框事件
-  $('input[type=radio][name=rename_type]').change(function () {
-    if (this.value == 'MOV') {
-      $("#rename_season_div").hide();
-      $("#rename_episode_div").hide();
-      $("#rename_min_filesize_div").hide();
-      $("#rename_season").val('');
-    }
-    else {
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-      $("#rename_min_filesize_div").show();
-    }
-  });
 
   //批量重新识别
   function reidentification_all() {

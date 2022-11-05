@@ -6,6 +6,33 @@
           文件管理
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:mediafile_transfer_all()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="18" cy="18" r="3"></circle>
+              <path d="M16 9l2 2l2 -2"></path>
+              <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+              <path d="M3 15l2 -2l2 2"></path>
+           </svg>
+            全部转移
+          </a>
+          <a href="javascript:mediafile_transfer_all()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+              <circle cx="6" cy="6" r="3"></circle>
+              <circle cx="18" cy="18" r="3"></circle>
+              <path d="M16 9l2 2l2 -2"></path>
+              <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+              <path d="M3 15l2 -2l2 2"></path>
+           </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -143,6 +170,11 @@
   // 文件转移
   function mediafile_transfer(name, id){
     path = $("#mediafilepath_" + id).val();
+    show_manual_transfer_modal(3, path, '', '', '', '');
+  }
+
+  function mediafile_transfer_all(){
+    path = $("#mediafile_current_dir").val();
     show_manual_transfer_modal(3, path, '', '', '', '');
   }
 
