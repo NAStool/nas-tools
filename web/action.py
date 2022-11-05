@@ -3619,13 +3619,13 @@ class WebAction:
     @staticmethod
     def __download_subtitle(data):
         """
-        下载单个文件的字幕
+        从Opensubtitles下载单个文件的字幕
         """
         path = data.get("path")
         name = data.get("name")
         media = Media().get_media_info(title=name)
         if not media or not media.tmdb_info:
-            return {"code": -1, "msg": "无法从TMDB查询到媒体信息"}
+            return {"code": -1, "msg": f"{name} 无法从TMDB查询到媒体信息"}
         subtitle_item = [{"type": media.type,
                           "file": os.path.splitext(path)[0],
                           "file_ext": os.path.splitext(name)[-1],
@@ -3636,7 +3636,7 @@ class WebAction:
                           "episode": media.begin_episode,
                           "bluray": False,
                           "imdbid": media.imdb_id}]
-        success, retmsg = Subtitle().download_subtitle(subtitle_item)
+        success, retmsg = Subtitle().download_subtitle(subtitle_item, server="opensubtitles")
         if success:
             return {"code": 0, "msg": retmsg}
         else:

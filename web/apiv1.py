@@ -1394,6 +1394,20 @@ class MediaInfo(ClientResource):
         return WebAction().api_action(cmd='media_info', data=self.parser.parse_args())
 
 
+@media.route('/subtitle/download')
+class MediaSubtitleDownload(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('path', type=str, help='文件路径（含文件名）', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称（用于识别）', location='form', required=True)
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        下载单个文件字幕
+        """
+        return WebAction().api_action(cmd='download_subtitle', data=self.parser.parse_args())
+
+
 @brushtask.route('/update')
 class BrushTaskUpdate(ClientResource):
     parser = reqparse.RequestParser()

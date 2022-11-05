@@ -184,9 +184,11 @@
     ajax_post("download_subtitle", {path: path, name: name}, function(ret){
       hide_wait_process();
       if (ret.code == 0){
-        refresh_files();
+        show_success_modal(ret.msg, function(){
+          refresh_files();
+        });
       } else {
-        show_fail_modal(name + " 字幕下载失败！");
+        show_fail_modal(ret.msg);
       }
     });
   }
