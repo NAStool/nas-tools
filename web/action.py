@@ -169,7 +169,10 @@ class WebAction:
             "get_filterrules": self.get_filterrules,
             "get_downloading": self.get_downloading,
             "test_site": self.__test_site,
-            "get_sub_path": self.__get_sub_path
+            "get_sub_path": self.__get_sub_path,
+            "rename_file": self.__rename_file,
+            "delete_file": self.__delete_file,
+            "download_subtitle": self.__download_subtitle
         }
 
     def action(self, cmd, data=None):
@@ -605,11 +608,11 @@ class WebAction:
         if not path:
             return {"retcode": -1, "retmsg": "输入路径有误"}
         tmdbid = data.get("tmdb")
-        title = data.get("title")
-        year = data.get("year")
         mtype = data.get("type")
         season = data.get("season")
         episode_format = data.get("episode_format")
+        episode_details = data.get("episode_details")
+        episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
         if mtype == "TV":
             media_type = MediaType.TV
@@ -617,7 +620,7 @@ class WebAction:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.ANIME
-        tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
+        tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
         # 如果改次手动修复时一个单文件，自动修复改目录下同名文件，需要配合episode_format生效
@@ -635,7 +638,10 @@ class WebAction:
                                                            tmdb_info=tmdb_info,
                                                            media_type=media_type,
                                                            season=season,
-                                                           episode=(EpisodeFormat(episode_format), need_fix_all),
+                                                           episode=(EpisodeFormat(episode_format,
+                                                                                  episode_details,
+                                                                                  episode_offset),
+                                                                    need_fix_all),
                                                            min_filesize=min_filesize)
         if succ_flag:
             if not need_fix_all and not logid:
@@ -649,8 +655,8 @@ class WebAction:
         """
         自定义识别
         """
-        inpath = data.get("inpath")
-        outpath = data.get("outpath")
+        inpath = os.path.normpath(data.get("inpath"))
+        outpath = os.path.normpath(data.get("outpath"))
         syncmod = RMT_MODES.get(data.get("syncmod"))
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
@@ -683,8 +689,10 @@ class WebAction:
                                                            media_type=media_type,
                                                            season=season,
                                                            episode=(
-                                                               EpisodeFormat(episode_format, episode_details,
-                                                                             episode_offset), False),
+                                                               EpisodeFormat(episode_format,
+                                                                             episode_details,
+                                                                             episode_offset),
+                                                               False),
                                                            min_filesize=min_filesize,
                                                            udf_flag=True)
         if succ_flag:
@@ -3580,3 +3588,56 @@ class WebAction:
             "count": len(r),
             "data": r
         }
+
+    @staticmethod
+    def __rename_file(data):
+        """
+        文件重命名
+        """
+        path = data.get("path")
+        name = data.get("name")
+        if path and name:
+            try:
+                os.rename(path, os.path.join(os.path.dirname(path), name))
+            except Exception as e:
+                return {"code": -1, "msg": str(e)}
+        return {"code": 0}
+
+    @staticmethod
+    def __delete_file(data):
+        """
+        删除文件
+        """
+        path = data.get("path")
+        if path:
+            try:
+                os.remove(path)
+            except Exception as e:
+                return {"code": -1, "msg": str(e)}
+        return {"code": 0}
+
+    @staticmethod
+    def __download_subtitle(data):
+        """
+        下载单个文件的字幕
+        """
+        path = data.get("path")
+        name = data.get("name")
+        media = Media().get_media_info(title=name)
+        if not media or not media.tmdb_info:
+            return {"code": -1, "msg": "无法从TMDB查询到媒体信息"}
+        subtitle_item = [{"type": media.type,
+                          "file": os.path.splitext(path)[0],
+                          "file_ext": os.path.splitext(name)[-1],
+                          "name": media.en_name if media.en_name else media.cn_name,
+                          "title": media.title,
+                          "year": media.year,
+                          "season": media.begin_season,
+                          "episode": media.begin_episode,
+                          "bluray": False,
+                          "imdbid": media.imdb_id}]
+        success, retmsg = Subtitle().download_subtitle(subtitle_item)
+        if success:
+            return {"code": 0, "msg": retmsg}
+        else:
+            return {"code": -1, "msg": retmsg}

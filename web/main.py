@@ -91,6 +91,9 @@ def create_flask_app():
     def login():
         # 判断当前的运营环境
         SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
+        SyncMod = Config().get_config('pt').get('rmt_mode')
+        if not SyncMod:
+            SyncMod = "link"
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
             if GoPage.startswith('/'):
@@ -119,7 +122,8 @@ def create_flask_app():
                                            SearchSites=SearchSites,
                                            RuleGroups=RuleGroups,
                                            RestypeDict=RestypeDict,
-                                           PixDict=PixDict)
+                                           PixDict=PixDict,
+                                           SyncMod=SyncMod)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -163,7 +167,8 @@ def create_flask_app():
                                        SearchSites=SearchSites,
                                        RuleGroups=RuleGroups,
                                        RestypeDict=RestypeDict,
-                                       PixDict=PixDict)
+                                       PixDict=PixDict,
+                                       SyncMod=SyncMod)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -878,14 +883,10 @@ def create_flask_app():
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        SyncMod = Config().get_config('pt').get('rmt_mode')
-        if not SyncMod:
-            SyncMod = "link"
         Items = WebAction().get_unknown_list().get("items")
         return render_template("rename/unidentification.html",
                                TotalCount=len(Items),
-                               Items=Items,
-                               SyncMod=SyncMod)
+                               Items=Items)
 
     # 文件管理页面
     @App.route('/mediafile', methods=['POST', 'GET'])

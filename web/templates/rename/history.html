@@ -216,122 +216,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">手动识别</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">路径</label>
-          <input type="text" id="rename_path" class="form-control" readonly>
-          <input type="hidden" id="rename_logid" class="form-control">
-          <div class="invalid-feedback" id="rename_retmsg"></div>
-        </div>
-        <label class="form-label">类型</label>
-        <div class="form-selectgroup-boxes row mb-3">
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="rename_type_mov">
-                <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input"
-                  checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">电影</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="rename_type_tv">
-                <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">电视剧</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="rename_type_anime">
-                <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME"
-                  class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">动漫</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">标题</label>
-              <input type="text" id="rename_title" class="form-control" placeholder="TMDB中的名称">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">年份</label>
-              <input type="text" id="rename_year" class="form-control" placeholder="首播年份">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB中的编号">
-            </div>
-          </div>
-          <div class="col-lg-6" id="rename_season_div">
-            <div class="mb-3">
-              <label class="form-label">季</label>
-              <select class="form-select" id="rename_season">
-                <option value="" selected>请选择</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-lg-6" id="rename_episode_div">
-            <div class="mb-3">
-              <label class="form-label">自定义集数位置 <span class="form-help" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">最小文件大小</label>
-              <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   // 上一页
   function go_pre_page(search, page) {
@@ -345,99 +229,9 @@
 
   //手动重新识别
   function rename_history(type, path, id) {
-    if (type == "电视剧") {
-      $("#rename_type_tv").prop("checked", true);
-      $("#rename_type_mov").removeProp("checked");
-      $("#rename_type_anime").removeProp("checked");
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-    } else if (type == "电影") {
-      $("#rename_type_mov").prop("checked", true);
-      $("#rename_type_tv").removeProp("checked");
-      $("#rename_type_anime").removeProp("checked");
-      $("#rename_season_div").hide();
-      $("#rename_episode_div").hide();
-      $("#rename_season").val("");
-    } else {
-      $("#rename_type_anime").prop("checked", true);
-      $("#rename_type_tv").removeProp("checked");
-      $("#rename_type_mov").removeProp("checked");
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-    }
-    $("#rename_path").val(path);
-    $("#rename_logid").val(id);
-    $('#modal-rename').modal('show');
-    $("#rename_season").empty();
-    $("#rename_season").append('<option value="" selected>请选择</option>');
-    for (var i = 0; i <= 50; i++) {
-      $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
-    }
+    show_manual_transfer_modal(2, path, '', type, '', id);
   }
 
-  //手动识别
-  function manual_rename() {
-    var type = $('input:radio[name=rename_type]:checked').val();
-    var logid = $("#rename_logid").val();
-    var tmdb = $("#rename_tmdb").val();
-    var title = $("#rename_title").val();
-    var year = $("#rename_year").val();
-    var episode_format = $("#rename_episode").val();
-    var min_filesize = $("#rename_min_filesize").val();
-    var season = $("#rename_season").val();
-
-    if (tmdb == "") {
-      if (title == "") {
-        $("#rename_title").addClass("is-invalid");
-        return;
-      } else {
-        $("#rename_title").removeClass("is-invalid");
-      }
-
-      if (year == "" || isNaN(year)) {
-        $("#rename_year").addClass("is-invalid");
-        return;
-      } else {
-        $("#rename_year").removeClass("is-invalid");
-      }
-    } else {
-      if (isNaN(tmdb)) {
-        $("#rename_tmdb").addClass("is-invalid");
-        return;
-      } else {
-        $("#rename_tmdb").removeClass("is-invalid");
-      }
-    }
-    if (min_filesize !== "" && isNaN(min_filesize)) {
-      $("#rename_min_filesize").addClass("is-invalid");
-      return;
-    } else {
-      $("#rename_min_filesize").removeClass("is-invalid");
-    }
-
-    // 开始处理
-    var data = {
-      "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season
-      , "episode_format": episode_format, "min_filesize": min_filesize
-    };
-    $("#rename_btn").attr("disabled", true);
-    $("#rename_btn").text("处理中...");
-    $("#rename_retmsg").hide();
-    ajax_post("rename", data, function (ret) {
-      $("#rename_btn").attr("disabled", false);
-      $("#rename_btn").text("转移");
-      if (ret.retcode == 0) {
-        //处理成功
-        setTimeout("navmenu('history')", 1000);
-        $('#modal-rename').modal('hide');
-      } else {
-        //处理失败
-        regmsg = ret.retmsg;
-        $("#rename_retmsg").show();
-        $("#rename_retmsg").text(regmsg);
-      }
-    });
-  }
   //删除
   function delete_history(logids, name) {
     show_confirm_modal(name + " 对应已重命名的文件将被同步删除，是否确认？", function () {
@@ -449,6 +243,7 @@
       });
     });
   }
+
   //重新识别
   function re_identification(logids) {
     show_wait_process();
@@ -461,6 +256,7 @@
       }
     });
   }
+
   // 搜索按钮
   $('#search_word').bind('keypress', function (event) {
     if (event.keyCode == "13") {
@@ -468,6 +264,7 @@
       navmenu("history?s=" + keyword);
     }
   });
+
   //单选框事件
   $('input[type=radio][name=rename_type]').change(function () {
     if (this.value == 'MOV') {
@@ -480,14 +277,12 @@
       $("#rename_episode_div").show();
     }
   });
-  //识别按钮
-  $("#rename_btn").click(function () {
-    manual_rename();
-  });
+
   //全选事件
   $("#history_check_all_btn").change(function () {
     $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
+
   // 批量删除/重新识别
   function batch_check_action(flag) {
     var logids = [];
@@ -507,14 +302,17 @@
       return;
     }
   }
+
   //单条记录删除
   function single_delete_history(logid, name) {
     var logids = [logid];
     delete_history(logids, name);
   }
+
   //单条记录重新识别
   function single_re_identification_history(logid) {
     var logids = [logid];
     re_identification(logids);
   }
+  
 </script>

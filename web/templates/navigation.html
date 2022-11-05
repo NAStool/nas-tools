@@ -1047,6 +1047,174 @@
       </div>
     </div>
   </div>
+  <!-- 手动识别 -->
+  <div class="modal modal-blur fade" id="modal-media-identification" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rename_header">手动识别</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row" id="rename_path_div">
+            <div class="col-lg-9">
+              <div class="mb-3">
+                <label class="form-label">路径</label>
+                <input type="text" id="rename_path" class="form-control" readonly>
+                <input type="hidden" id="rename_manual_type">
+                <input type="hidden" id="unknown_id">
+                <input type="hidden" id="transferlog_id" class="form-control">
+                <div class="invalid-feedback" id="rename_retmsg"></div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">转移方式</label>
+                <select id="rename_syncmod_manual" class="form-select">
+                  <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
+                  <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
+                  <option value="copy" {% if SyncMod=="copy" %} selected="selected" {% endif %}>复制</option>
+                  <option value="move" {% if SyncMod=="move" %} selected="selected" {% endif %}>移动</option>
+                  <option value="rclonecopy" {% if SyncMod=="rclonecopy" %} selected="selected" {% endif %}>Rclone复制
+                  </option>
+                  <option value="rclone" {% if SyncMod=="rclone" %} selected="selected" {% endif %}>Rclone移动</option>
+                  <option value="miniocopy" {% if SyncMod=="miniocopy" %} selected="selected" {% endif %}>Minio复制</option>
+                  <option value="minio" {% if SyncMod=="minio" %} selected="selected" {% endif %}>Minio移动</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3" id="rename_inpath_div">
+            <label class="form-label">输入路径</label>
+            <input type="text" id="rename_inpath" class="form-control filetree-folders-only" placeholder="需要识别的目录或文件"
+              autocomplete="off">
+            <div class="invalid-feedback" id="rename_udf_retmsg"></div>
+          </div>
+          <div class="row" id="rename_outpath_div">
+            <div class="col-lg-9">
+              <div class="mb-3">
+                <label class="form-label">输出路径</label>
+                <input type="text" id="rename_outpath" class="form-control filetree-folders-only" placeholder="识别后文件存储路径"
+                  autocomplete="off">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">转移方式</label>
+                <select id="rename_syncmod_customize" class="form-select">
+                  <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
+                  <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
+                  <option value="copy" {% if SyncMod=="copy" %} selected="selected" {% endif %}>复制</option>
+                  <option value="move" {% if SyncMod=="move" %} selected="selected" {% endif %}>移动</option>
+                  <option value="rclonecopy" {% if SyncMod=="rclonecopy" %} selected="selected" {% endif %}>Rclone复制
+                  </option>
+                  <option value="rclone" {% if SyncMod=="rclone" %} selected="selected" {% endif %}>Rclone移动</option>
+                  <option value="miniocopy" {% if SyncMod=="miniocopy" %} selected="selected" {% endif %}>Minio复制</option>
+                  <option value="minio" {% if SyncMod=="minio" %} selected="selected" {% endif %}>Minio移动</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <label class="form-label">类型</label>
+          <div class="form-selectgroup-boxes row mb-3">
+            <div class="col-lg-4">
+              <div class="mb-1">
+                <label class="form-selectgroup-item">
+                  <input type="radio" id="rename_type_mov" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电影</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-1">
+                <label class="form-selectgroup-item">
+                  <input type="radio" id="rename_type_tv" name="rename_type" value="TV" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-1">
+                <label class="form-selectgroup-item">
+                  <input type="radio" id="rename_type_anime" name="rename_type" value="ANIME" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">动漫</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">TMDB ID</label>
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB的编号">
+              </div>
+            </div>
+            <div class="col-lg-4" id="rename_season_div">
+              <div class="mb-3">
+                <label class="form-label">季</label>
+                <select class="form-select" id="rename_season">
+                  <option value="" selected>请选择</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4" id="rename_min_filesize_div">
+              <div class="mb-3">
+                <label class="form-label">最小文件大小</label>
+                <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+              </div>
+            </div>
+            <div class="col-lg-12" id="rename_episode_div">
+              <div class="mb-3">
+                <label class="form-label">集数定位 <span class="form-help"
+                    title="3个都不填，用默认识别<br>{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv<br>&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行<br>start_ep[, end_ep], 裁定范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高<br>offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 "
+                    data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
+                <div class="row">
+                  <div class="col-4">
+                    <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                  </div>
+                  <div class="col-4">
+                    <input type="text" id="rename_episode_details" class="form-control"
+                      placeholder="start_ep[, end_ep] 可选">
+                  </div>
+                  <div class="col-4">
+                    <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+          <button type="button" id="identification_action_btn" class="btn btn-primary" onclick="manual_media_transfer()">转移</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="../static/js/libs/list.min.js"></script>
   <script src="../static/js/jquery-3.3.1.min.js"></script>
   <script src="../static/js/tabler.min.js"></script>
@@ -1733,6 +1901,295 @@
     function cancel_cursor_busy() {
       var body = document.querySelector("body");
       body.style.cursor = "default";
+    }
+
+    // 名称识别测试
+    function media_name_test(name, result_div, func) {
+      if (!name) {
+        return;
+      }
+      ajax_post("name_test", { "name": name }, function (ret) {
+        if (func) {
+          func();
+        }
+        if (ret.code == 0) {
+          $("#" + result_div).empty();
+          var ignored_words = [];
+          var replaced_words = [];
+          var offset_words = [];
+          if (ret.data.ignored_words) {
+            ignored_words = ret.data.ignored_words;
+          }
+          if (ret.data.replaced_words) {
+            replaced_words = ret.data.replaced_words;
+          }
+          if (ret.data.offset_words) {
+            offset_words = ret.data.offset_words;
+          }
+          var words = ignored_words + replaced_words + offset_words;
+          if (words.length != 0) {
+            if (ret.data.org_string) {
+              $("#" + result_div).append(`<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`);
+            }
+            if (ignored_words.length != 0) {
+              var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
+              for (ignored_word of ignored_words) {
+                ignored_word_content = ignored_word_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
+              };
+              $("#" + result_div).append(ignored_word_content + '</label></div>');
+            }
+            if (replaced_words.length != 0) {
+              var replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
+              for (replaced_word of replaced_words) {
+                replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
+              };
+              $("#" + result_div).append(replaced_words_content + '</label></div>');
+            }
+            if (offset_words.length != 0) {
+              var offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
+              for (offset_word of offset_words) {
+                offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
+              };
+              $("#" + result_div).append(offset_words_content + '</label></div>');
+            }
+          }
+          if (ret.data.type) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`);
+          }
+          if (ret.data.category) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
+          }
+          if (ret.data.name) {
+            var name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(ret.data.name)}`;
+            $("#" + result_div).append(`<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${ret.data.name}</a></span>`);
+          }
+          if (ret.data.title) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
+          }
+          if (ret.data.year) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
+          }
+          if (ret.data.season_episode) {
+            $("#" + result_div).append(`<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`);
+          }
+          if (ret.data.part) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`);
+          }
+          if (ret.data.tmdbid) {
+            $("#" + result_div).append(`<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`);
+          }
+          if (ret.data.restype) {
+            $("#" + result_div).append(`<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`);
+          }
+          if (ret.data.pix) {
+            $("#" + result_div).append(`<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`);
+          }
+          if (ret.data.video_codec) {
+            $("#" + result_div).append(`<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`);
+          }
+          if (ret.data.audio_codec) {
+            $("#" + result_div).append(`<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`);
+          }
+          if (ret.data.team) {
+            $("#" + result_div).append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
+          }
+        }
+      });
+    }
+
+    // 显示手动识别转移框
+    // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
+    // media_type: 电影，电视剧，动漫
+    function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id){
+      debugger;
+      // 初始化类型
+      if(!syncmod){
+        syncmod = '{{ SyncMod }}';
+      }
+      $("#rename_manual_type").val(manual_type);
+      if(manual_type == 3){
+        $('#rename_header').text("自定义识别");
+        $('#rename_path_div').hide();
+        $('#rename_inpath_div').show();
+        $('#rename_outpath_div').show();
+        $("#rename_inpath").val(inpath);
+        $("#rename_outpath").val('');
+        $("#rename_syncmod_customize").val(syncmod);
+        $("#unknown_id").val("");
+        $("#transferlog_id").val("");
+      }else{
+        $('#rename_header').text("手动识别");
+        $('#rename_path_div').show();
+        $('#rename_inpath_div').hide();
+        $('#rename_outpath_div').hide();
+        $("#rename_path").val(inpath);
+        $("#rename_syncmod_manual").val(syncmod);
+        $("#unknown_id").val(unknown_id);
+        $("#transferlog_id").val(transferlog_id);
+      }
+      // 初始化季列表
+      $("#rename_season").empty();
+      $("#rename_season").append('<option value="" selected>请选择</option>');
+      for (var i = 0; i <= 50; i++) {
+        $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
+      }
+      // 初始化媒体类型
+      if (media_type == "电视剧") {
+        $("#rename_type_tv").prop("checked", true);
+        $("#rename_type_mov").removeProp("checked");
+        $("#rename_type_anime").removeProp("checked");
+        $("#rename_season_div").show();
+        $("#rename_episode_div").show();
+        $("#rename_episode_details").show();
+        $("#rename_episode_offset").show();
+      } else if (media_type == "动漫") {
+        $("#rename_type_anime").prop("checked", true);
+        $("#rename_type_tv").removeProp("checked");
+        $("#rename_type_mov").removeProp("checked");
+        $("#rename_season_div").show();
+        $("#rename_episode_div").show();
+        $("#rename_episode_details").show();
+        $("#rename_episode_offset").show();
+      } else {
+        $("#rename_type_mov").prop("checked", true);
+        $("#rename_type_tv").removeProp("checked");
+        $("#rename_type_anime").removeProp("checked");
+        $("#rename_season_div").hide();
+        $("#rename_episode_div").hide();
+        $("#rename_season").val("");
+        $("#rename_episode_details").hide();
+        $("#rename_episode_offset").hide();
+      }
+
+      // 显示窗口
+      $("#modal-media-identification").modal("show");
+
+    }
+
+    // 执行手动识别转移
+    function manual_media_transfer(){
+      var manual_type = $("#rename_manual_type").val();
+      var type = $('input:radio[name=rename_type]:checked').val();
+      var path = $("#rename_path").val();
+      var inpath = $("#rename_inpath").val();
+      var outpath = $("#rename_outpath").val();
+      if(manual_type == '3'){
+        var syncmod = $("#rename_syncmod_customize").val();
+      }else{
+        var syncmod = $("#rename_syncmod_manual").val();
+      }
+      var tmdb = $("#rename_tmdb").val();
+      var season = $("#rename_season").val();
+      var episode_format = $("#rename_episode").val();
+      var episode_details = $("#rename_episode_details").val();
+      var episode_offset = $("#rename_episode_offset").val();
+      var min_filesize = $("#rename_min_filesize").val();
+      var logid = $("#transferlog_id").val();
+      var unknown_id = $('#unknown_id').val();
+
+      if (manual_type == '1' && !unknown_id) {
+        return;
+      }
+
+      if (manual_type == '2' && !logid) {
+        return;
+      }
+
+      if (!tmdb || isNaN(tmdb)) {
+        $("#rename_tmdb").addClass("is-invalid");
+        return;
+      }else{
+        $("#rename_tmdb").removeClass("is-invalid");
+      }
+
+      if (manual_type == '3'){
+        if (!inpath) {
+          $("#rename_inpath").addClass("is-invalid");
+          return;
+        } else {
+          $("#rename_inpath").removeClass("is-invalid");
+        }
+
+        if (!outpath) {
+          $("#rename_outpath").addClass("is-invalid");
+          return;
+        } else {
+          $("#rename_outpath").removeClass("is-invalid");
+        }
+
+      }else{
+        if (!path) {
+          $("#rename_path").addClass("is-invalid");
+          return;
+        } else {
+          $("#rename_path").removeClass("is-invalid");
+        }
+      }
+
+      if (min_filesize && isNaN(min_filesize)) {
+        $("#rename_min_filesize").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_min_filesize").removeClass("is-invalid");
+      }
+
+      if (episode_details && !/^\d{1,5}([,-]\d{1,5})?$/.test(episode_details)) {
+        $("#rename_episode_details").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_episode_details").removeClass("is-invalid");
+      }
+      if (episode_offset && !/^-?\d{1,5}$/.test(episode_offset)) {
+        $("#rename_episode_offset").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_episode_offset").removeClass("is-invalid");
+      }
+
+      // 开始处理
+      var data = {
+        "inpath": inpath, 
+        "outpath": outpath, 
+        "syncmod": syncmod, 
+        "type": type, 
+        "tmdb": tmdb, 
+        "season": season, 
+        "episode_format": episode_format, 
+        "episode_details": episode_details, 
+        "episode_offset": episode_offset, 
+        "min_filesize": min_filesize,
+        "unknown_id": unknown_id, 
+        "path": path,
+        "logid": logid
+      };
+      $("#identification_action_btn").attr("disabled", true);
+      $("#identification_action_btn").text("处理中...");
+      $("#rename_udf_retmsg").hide()
+      $("#rename_retmsg").hide()
+      if (manual_type == '3') {
+        cmd = "rename_udf"
+      } else {
+        cmd = "rename"
+      }
+      ajax_post(cmd, data, function (ret) {
+        $("#identification_action_btn").attr("disabled", false);
+        $("#identification_action_btn").text("转移");
+        if (ret.retcode == 0) {
+          $('#modal-media-identification').modal('hide');
+          show_success_modal("处理成功！");
+        } else {
+          //处理失败
+          regmsg = ret.retmsg;
+          if (manual_type == '3') {
+            $("#rename_udf_retmsg").show()
+            $("#rename_udf_retmsg").text(regmsg)
+          } else {
+            $("#rename_retmsg").show()
+            $("#rename_retmsg").text(regmsg)
+          }
+        }
+      });
+
     }
 
   </script>

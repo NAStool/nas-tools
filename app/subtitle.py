@@ -51,6 +51,7 @@ class Subtitle:
         """
         字幕下载入口
         :param items: {"type":, "file", "file_ext":, "name":, "title", "year":, "season":, "episode":, "bluray":}
+        :return: 是否成功，消息内容
         """
         if not self.__server:
             return
@@ -58,9 +59,10 @@ class Subtitle:
             return
         if self.__server == "opensubtitles":
             if self.__opensubtitles_enable:
-                self.__download_opensubtitles(items)
+                return self.__download_opensubtitles(items)
         elif self.__server == "chinesesubfinder":
-            self.__download_chinesesubfinder(items)
+            return self.__download_chinesesubfinder(items)
+        return False, "未配置字幕下载器"
 
     def search_opensubtitles(self, item):
         """
@@ -75,8 +77,9 @@ class Subtitle:
         调用OpenSubtitles Api下载字幕
         """
         if not self.subhelper:
-            return
+            return False, "未配置OpenSubtitles"
         subtitles_cache = {}
+        success = False
         for item in items:
             if not item:
                 continue
@@ -156,16 +159,22 @@ class Subtitle:
                 else:
                     log.info("【Subtitle】%s 未找到符合条件的字幕" % item.get("name"))
             else:
-                log.info("【Subtitle】%s 共下载 %s 个字幕" % (item.get("name"), subtitle_count))
+                log.info("【Subtitle】%s 共下载了 %s 个字幕" % (item.get("name"), subtitle_count))
+                success = True
+        if success:
+            return True, "字幕下载成功"
+        else:
+            return False, "未找到符合条件的字幕"
 
     def __download_chinesesubfinder(self, items):
         """
         调用ChineseSubFinder下载字幕
         """
         if not self.__host or not self.__api_key:
-            return
+            return False, "未配置ChineseSubFinder"
         req_url = "%sapi/v1/add-job" % self.__host
         notify_items = []
+        success = False
         for item in items:
             if not item:
                 continue
@@ -213,6 +222,10 @@ class Subtitle:
                             log.error("【Subtitle】%s 当前目录缺失nfo元数据：" % file_path)
                 except Exception as e:
                     log.error("【Subtitle】连接ChineseSubFinder出错：" + str(e))
+        if success:
+            return True, "ChineseSubFinder任务添加成功"
+        else:
+            return False, "ChineseSubFinder任务添加失败"
 
     @staticmethod
     def __transfer_subtitle(sub_file, media_file):
