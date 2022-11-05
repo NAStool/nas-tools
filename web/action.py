@@ -656,7 +656,10 @@ class WebAction:
         自定义识别
         """
         inpath = os.path.normpath(data.get("inpath"))
-        outpath = os.path.normpath(data.get("outpath"))
+        if data.get("outpath"):
+            outpath = os.path.normpath(data.get("outpath"))
+        else:
+            outpath = None
         syncmod = RMT_MODES.get(data.get("syncmod"))
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
