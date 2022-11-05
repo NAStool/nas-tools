@@ -187,7 +187,9 @@ class Downloader:
             else:
                 download_setting = self.get_download_setting(-1)
             category = download_setting.get("category")
-            tag = download_setting.get("tags").split(";")
+            tag = download_setting.get("tags")
+            if tag:
+                tag = tag.split(";")
             content_layout = download_setting.get("content_layout")
             if content_layout == 1:
                 content_layout = "Original"
@@ -202,13 +204,6 @@ class Downloader:
             download_limit = download_setting.get("download_limit")
             ratio_limit = download_setting.get("ratio_limit")
             seeding_time_limit = download_setting.get("seeding_time_limit")
-            if self._pt_monitor_only:
-                if not tag:
-                    tag = [PT_TAG]
-                elif isinstance(tag, list):
-                    tag += [PT_TAG]
-                else:
-                    tag = [PT_TAG, tag]
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info)
                 download_dir = download_info.get('path')
