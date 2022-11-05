@@ -306,15 +306,19 @@ class StringUtils:
             return datetime_str
 
     @staticmethod
-    def to_bool(text: str, default_val: bool = False) -> bool:
+    def to_bool(text, default_val: bool = False) -> bool:
         """
         字符串转bool
         :param text: 要转换的值
         :param default_val: 默认值
         :return:
         """
-        if text is None or text == '':
+        if isinstance(text, str) and not text:
             return default_val
-        if text.lower() in ['y', 'true', '1']:
+        if isinstance(text, bool):
+            return text
+        if isinstance(text, int) or isinstance(text, float):
+            return True if text > 0 else False
+        if isinstance(text, str) and text.lower() in ['y', 'true', '1']:
             return True
         return False
