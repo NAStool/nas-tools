@@ -118,10 +118,10 @@
           debugger;
           $("#mediafile_file_container").append(
             template_html.replaceAll("{FILEEXT}", fileext)
-              .replaceAll("{FILENAME}", filename)
+              .replaceAll("{FILENAME}", filename.replace("'", "&apos;"))
               .replaceAll("{FILESIZE}", filesize + "B")
               .replaceAll("{FILEPOS}", i)
-              .replaceAll("{FILEPATH}", filepath)
+              .replaceAll("{FILEPATH}", filepath.replace("'", "&apos;"))
           );
         }
       }
