@@ -12,10 +12,13 @@ class SystemUtils:
 
     @staticmethod
     def __get_hidden_shell():
-        st = subprocess.STARTUPINFO()
-        st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-        st.wShowWindow = subprocess.SW_HIDE
-        return st
+        if os.name == "nt":
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            return st
+        else:
+            return None
 
     @staticmethod
     def get_used_of_partition(path):
