@@ -93,7 +93,7 @@ class Downloader:
                         "is_paused": download_setting.IS_PAUSED,
                         "upload_limit": download_setting.UPLOAD_LIMIT,
                         "download_limit": download_setting.DOWNLOAD_LIMIT,
-                        "ratio_limit": download_setting.RATIO_LIMIT,
+                        "ratio_limit": download_setting.RATIO_LIMIT/100,
                         "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT}
 
     @property
