@@ -208,8 +208,8 @@ class DbHelper:
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self._db.insert(
             TRANSFERHISTORY(
-                SOURCE=in_from.value,
-                MODE=rmt_mode.value,
+                SOURCE=str(in_from.value),
+                MODE=str(rmt_mode.value),
                 TYPE=media_info.type.value,
                 FILE_PATH=file_path,
                 FILE_NAME=file_name,
@@ -878,7 +878,7 @@ class DbHelper:
             self._db.insert(SYNCHISTORY(
                 PATH=os.path.normpath(path),
                 SRC=os.path.normpath(src),
-                dest=os.path.normpath(dest)
+                DEST=os.path.normpath(dest)
             ))
 
     def get_users(self, ):
@@ -1338,10 +1338,10 @@ class DbHelper:
                 INTEVAL=item.get('interval'),
                 DOWNLOADER=item.get('downloader'),
                 TRANSFER=item.get('transfer'),
-                DOWNLOAD_COUNT=0,
-                REMOVE_COUNT=0,
-                DOWNLOAD_SIZE=0,
-                UPLOAD_SIZE=0,
+                DOWNLOAD_COUNT='0',
+                REMOVE_COUNT='0',
+                DOWNLOAD_SIZE='0',
+                UPLOAD_SIZE='0',
                 STATE=item.get('state'),
                 LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             ))
@@ -2021,7 +2021,7 @@ class DbHelper:
                     "IS_PAUSED": int(is_paused),
                     "UPLOAD_LIMIT": int(float(upload_limit)),
                     "DOWNLOAD_LIMIT": int(float(download_limit)),
-                    "RATIO_LIMIT": int(round(float(ratio_limit),2)*100),
+                    "RATIO_LIMIT": int(round(float(ratio_limit), 2) * 100),
                     "SEEDING_TIME_LIMIT": int(float(seeding_time_limit)),
                     "NOTE": note
                 }
@@ -2035,7 +2035,7 @@ class DbHelper:
                 IS_PAUSED=int(is_paused),
                 UPLOAD_LIMIT=int(float(upload_limit)),
                 DOWNLOAD_LIMIT=int(float(download_limit)),
-                RATIO_LIMIT=int(round(float(ratio_limit),2)*100),
+                RATIO_LIMIT=int(round(float(ratio_limit), 2) * 100),
                 SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
                 NOTE=note
             ))
