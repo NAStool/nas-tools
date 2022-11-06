@@ -202,7 +202,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         log.info("【Searcher】检索关键字有误！")
         return
     # 如果是数字，表示选择项
-    if input_str.isdigit():
+    if input_str.isdigit() and int(input_str) < 10:
         # 获取之前保存的可选项
         choose = int(input_str) - 1
         if choose < 0 or choose >= len(SEARCH_MEDIA_CACHE):
