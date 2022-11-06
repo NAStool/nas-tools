@@ -300,7 +300,7 @@ class StringUtils:
             return datetime_str
 
         try:
-            return delorean_parse(datetime_str, dayfirst=False).format_datetime('Y-MM-dd HH:mm:ss')
+            return delorean_parse(datetime_str, dayfirst=False).format_datetime('yyyy-MM-dd HH:mm:ss')
         except Exception as e:
             print(e)
             return datetime_str
