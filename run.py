@@ -104,7 +104,7 @@ def update_db(cfg):
     更新数据库
     """
     db_location = os.path.normpath(os.path.join(cfg.get_config_path(), 'user.db'))
-    script_location = os.path.normpath(os.path.join(os.path.dirname(__file__), 'alembic'))
+    script_location = os.path.normpath(os.path.join(os.path.dirname(__file__), 'db_scripts'))
     log.console('数据库更新...')
     try:
         alembic_cfg = AlembicConfig()

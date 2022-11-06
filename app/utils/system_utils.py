@@ -148,10 +148,15 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            retcode = subprocess.run(['rclone', 'moveto',
-                                      src,
-                                      f'NASTOOL:{dest}'],
-                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            if os.name == "nt":
+                retcode = subprocess.run(['rclone', 'moveto',
+                                          src,
+                                          f'NASTOOL:{dest}'],
+                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            else:
+                retcode = subprocess.run(['rclone', 'moveto',
+                                          src,
+                                          f'NASTOOL:{dest}']).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -164,10 +169,15 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            retcode = subprocess.run(['rclone', 'copyto',
-                                      src,
-                                      f'NASTOOL:{dest}'],
-                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            if os.name == "nt":
+                retcode = subprocess.run(['rclone', 'copyto',
+                                          src,
+                                          f'NASTOOL:{dest}'],
+                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            else:
+                retcode = subprocess.run(['rclone', 'copyto',
+                                          src,
+                                          f'NASTOOL:{dest}']).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -182,11 +192,17 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            retcode = subprocess.run(['mc', 'mv',
-                                      '--recursive',
-                                      src,
-                                      f'NASTOOL/{dest}'],
-                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            if os.name == "nt":
+                retcode = subprocess.run(['mc', 'mv',
+                                          '--recursive',
+                                          src,
+                                          f'NASTOOL/{dest}'],
+                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            else:
+                retcode = subprocess.run(['mc', 'mv',
+                                          '--recursive',
+                                          src,
+                                          f'NASTOOL/{dest}']).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -201,11 +217,17 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            retcode = subprocess.run(['mc', 'cp',
-                                      '--recursive',
-                                      src,
-                                      f'NASTOOL/{dest}'],
-                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            if os.name == "nt":
+                retcode = subprocess.run(['mc', 'cp',
+                                          '--recursive',
+                                          src,
+                                          f'NASTOOL/{dest}'],
+                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            else:
+                retcode = subprocess.run(['mc', 'cp',
+                                          '--recursive',
+                                          src,
+                                          f'NASTOOL/{dest}']).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)

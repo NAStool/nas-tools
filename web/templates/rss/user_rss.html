@@ -131,7 +131,7 @@
             <div class="datagrid-item">
               <div class="datagrid-title">地址</div>
               <div class="datagrid-content">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center" style="word-break: break-all;">
                   {{ Task.address|split('?', 0) }}
                 </div>
               </div>
@@ -154,7 +154,7 @@
                 <span class="badge me-2 bg-blue">{{ Task.uses_text }}</span>
               </div>
             </div>
-            <div class="datagrid-item">
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
               <div class="datagrid-title">包含</div>
               <div class="datagrid-content">
                 {% if Task.include %}
@@ -162,7 +162,7 @@
                 {% endif %}
               </div>
             </div>
-            <div class="datagrid-item">
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
               <div class="datagrid-title">排除</div>
               <div class="datagrid-content">
                 {% if Task.exclude %}
@@ -170,7 +170,7 @@
                 {% endif %}
               </div>
             </div>
-            <div class="datagrid-item">
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
               <div class="datagrid-title">过滤规则</div>
               <div class="datagrid-content">
                 {% if Task.filter_name %}
@@ -178,7 +178,7 @@
                 {% endif %}
               </div>
             </div>
-            <div class="datagrid-item">
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
               <div class="datagrid-title">保存路径</div>
               <div class="datagrid-content">{{ Task.save_path or '自动' }}</div>
             </div>
