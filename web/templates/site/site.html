@@ -11,11 +11,38 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_site_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             新增站点
           </a>
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </a>
+          <a href="javascript:show_sitetest_modal()" class="btn d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24"
+              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
+            </svg>
+            站点测试
+          </a>
+          <a href="javascript:show_sitetest_modal()" class="btn d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24"
+              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
+            </svg>
           </a>
         </div>
       </div>
@@ -31,14 +58,28 @@
         <div class="card card-link-pop">
           <div class="card-header">
             <h3 class="card-title">
-             <span class="badge badge-pill"><small>{{ Site.pri }}</small></span> <a href="{% if Site.signurl %}{{ Site.signurl }}{% else %}javascript:void(0){% endif %}" {% if Site.signurl %}target="_blank"{% endif %}><strong>{{ Site.name }}</strong></a>
+              <span class="badge badge-pill"><small>{{ Site.pri }}</small></span> <a
+                href="{% if Site.signurl %}{{ Site.signurl }}{% else %}javascript:void(0){% endif %}" {% if Site.signurl
+                %}target="_blank" {% endif %}><strong>{{ Site.name }}</strong></a>
             </h3>
             <div class="card-actions btn-actions">
               <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action" title="编辑站点">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                  <line x1="16" y1="5" x2="19" y2="8" />
+                </svg>
               </a>
               <a href="javascript:remove_site('{{ Site.name }}', '{{ Site.id }}')" class="btn-action" title="删除站点">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </a>
             </div>
           </div>
@@ -100,7 +141,7 @@
 <div class="page-body">
   <div class="container-xl d-flex flex-column justify-content-center">
     <div class="empty">
-      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
       </div>
       <p class="empty-title">没有站点</p>
       <p class="empty-subtitle text-muted">
@@ -110,133 +151,146 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="modal-site" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-site" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title" id="modal-site-title">新增站点</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-site-title">新增站点</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="hidden" id="site_id" />
+              <input type="text" class="form-control" id="site_name" placeholder="自定义站点名称">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">优先级 <span class="form-help" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_pri">
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">名称</label>
-                <input type="hidden" id="site_id" />
-                <input type="text" class="form-control" id="site_name" placeholder="自定义站点名称">
-              </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">站点地址 <span class="form-help"
+                  title="站点访问地址，自动签到、站点数据统计、刷流、内置索引器等将使用，有独立签到页面的站点可以配置为签到页面，否则可以配置为首页"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点http地址">
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">优先级 <span class="form-help" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_pri">
-                </select>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">站点用途 <span class="form-help" title="设置站点使用场景，选中的场景才会使用该站点"
+                  data-bs-toggle="tooltip">?</span></label>
+              <div class="form-selectgroup">
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="site_uses" value="Q" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">签到</span>
+                </label>
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="site_uses" value="D" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">订阅</span>
+                </label>
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="site_uses" value="S" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">刷流</span>
+                </label>
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="site_uses" value="T" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">数据统计</span>
+                </label>
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">站点地址 <span class="form-help" title="站点访问地址，自动签到、站点数据统计、刷流、内置索引器等将使用，有独立签到页面的站点可以配置为签到页面，否则可以配置为首页" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点http地址">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">站点用途 <span class="form-help" title="设置站点使用场景，选中的场景才会使用该站点" data-bs-toggle="tooltip">?</span></label>
-                <div class="form-selectgroup">
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="site_uses" value="Q" class="form-selectgroup-input" checked>
-                    <span class="form-selectgroup-label">签到</span>
-                  </label>
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="site_uses" value="D" class="form-selectgroup-input" checked>
-                    <span class="form-selectgroup-label">订阅</span>
-                  </label>
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="site_uses" value="S" class="form-selectgroup-input" checked>
-                    <span class="form-selectgroup-label">刷流</span>
-                  </label>
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="site_uses" value="T" class="form-selectgroup-input" checked>
-                    <span class="form-selectgroup-label">数据统计</span>
-                  </label>
-                </div>
-              </div>
-            </div>
+        </div>
+        <div class="col-lg-12">
+          <div class="mb-3">
+            <label class="form-label">COOKIE <span class="form-help"
+                title="站点的Cookie，用于站点自动签到、站点数据统计、刷流、内置索引器等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
+            <textarea class="form-control" id="site_cookie" rows="2" placeholder="站点COOKIE"></textarea>
           </div>
+        </div>
+        <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">COOKIE <span class="form-help" title="站点的Cookie，用于站点自动签到、站点数据统计、刷流、内置索引器等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
-              <textarea class="form-control" id="site_cookie" rows="2" placeholder="站点COOKIE"></textarea>
+              <label class="form-label">RSS订阅地址 <span class="form-help" title="站点订阅源URL地址，用于电影、电视剧订阅、刷流，点击站点RSS图标获取"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" class="form-control" id="site_rssurl" value="" placeholder="站点RSS订阅URL">
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label">RSS订阅地址 <span class="form-help" title="站点订阅源URL地址，用于电影、电视剧订阅、刷流，点击站点RSS图标获取" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="site_rssurl" value="" placeholder="站点RSS订阅URL">
-              </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">RSS解析种子详情 <span class="form-help"
+                  title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_parse">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">RSS解析种子详情 <span class="form-help" title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_parse">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">过滤规则 <span class="form-help" title="选择该站点使用的过滤规则组，在设置->过滤规则中设置规则，选择了过滤规则后该站点只有符合规则的种子才会被命中下载；仅作用于RSS、内建索引自动搜索，刷流等不受此限制" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_rule">
-                  <option value="" selected>请选择</option>
-                  {% for RuleGroup in RuleGroups %}
-                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">发送站点未读消息通知 <span class="form-help" title="选择是时检测到站点有未读消息会通过消息推送通知" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_unread_msg_notify">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
-                </select>
-              </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">过滤规则 <span class="form-help"
+                  title="选择该站点使用的过滤规则组，在设置->过滤规则中设置规则，选择了过滤规则后该站点只有符合规则的种子才会被命中下载；仅作用于RSS、内建索引自动搜索，刷流等不受此限制"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_rule">
+                <option value="" selected>请选择</option>
+                {% for RuleGroup in RuleGroups %}
+                <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">开启浏览器仿真 <span class="form-help" title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_chrome">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">使用代理服务器 <span class="form-help" title="开启后该站点的访问将使用代理服务器，代理需在基础设置->系统->代理服务器中设置" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_proxy">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
-                </select>
-              </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">发送站点未读消息通知 <span class="form-help" title="选择是时检测到站点有未读消息会通过消息推送通知"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_unread_msg_notify">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label">User-Agent <span class="form-help" title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
-              </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">开启浏览器仿真 <span class="form-help"
+                  title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_chrome">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">使用代理服务器 <span class="form-help"
+                  title="开启后该站点的访问将使用代理服务器，代理需在基础设置->系统->代理服务器中设置" data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_proxy">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">User-Agent <span class="form-help"
+                  title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
             </div>
           </div>
         </div>
@@ -252,40 +306,50 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-rss-rule" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal modal-blur fade" id="modal-sitetest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title" id="modal-rss-rule-title">全局规则</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label">优先规则 <span class="form-help" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高" data-bs-toggle="tooltip">?</span></label>
-                <pre id="rss_note_pre"></pre>
-                <textarea class="form-control" id="rss_note" rows="2" placeholder="优先选择的关键字或正则表达式"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="modal-header">
+        <h5 class="modal-title">站点连通性测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th class="w-1"><input class="form-check-input m-0 align-middle" id="sitetest_check_all_btn"
+                  type="checkbox" aria-label="全选"></th>
+              <th>站点</th>
+              <th>连通性</th>
+              <th>耗时</th>
+              <th>错误信息</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for Site in Sites %}
+            <tr>
+              <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ Site.id }}" type="checkbox">
+              </td>
+              <td><span>{{ Site.name }}</span></td>
+              <td id="sitetest_item{{ Site.id }}"></td>
+              <td id="sitetest_item{{ Site.id }}_time"></td>
+              <td id="sitetest_item{{ Site.id }}_msg"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       <div class="modal-footer">
-        <button id="rule_close_btn" class="btn btn-link" data-bs-dismiss="modal">
-          关闭
-        </button>
-        <button id="save_or_edit_rule_btn" class="btn btn-primary ms-auto">
-          编辑/保存
-        </button>
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="sitetest_btn" class="btn btn-primary">测试</button>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
   //打开新增站点框
-  function show_site_modal(){
+  function show_site_modal() {
     $("#site_id").val('');
     $("#site_name").val('');
     $("#site_pri").val('1');
@@ -304,12 +368,12 @@
     $("#modal-site").modal("show");
   }
   //编辑站点
-  function edit_site(tid){
+  function edit_site(tid) {
     $("#site_id").val(tid);
     $("#site_close_btn").text("删除");
     //根据ID查询详细信息
-    ajax_post("get_site", {"id": tid}, function(ret){
-      if(ret.site){
+    ajax_post("get_site", { "id": tid }, function (ret) {
+      if (ret.site) {
         $("#site_id").val(ret.site.id);
         $("#site_name").val(ret.site.name);
         $("#site_pri").val(ret.site.pri);
@@ -321,21 +385,21 @@
         $("#site_chrome").val(ret.site.chrome);
         $("#site_proxy").val(ret.site.proxy);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
-        $("input[name=site_uses]").each(function(){
-          $(this).prop("checked",false);
+        $("input[name=site_uses]").each(function () {
+          $(this).prop("checked", false);
         });
-        $("input[name=site_uses]").each(function(){
-          if($(this).val() == "Q" && ret.site.signin_enable){
-            $(this).prop("checked",true);
+        $("input[name=site_uses]").each(function () {
+          if ($(this).val() == "Q" && ret.site.signin_enable) {
+            $(this).prop("checked", true);
           }
-          if($(this).val() == "D" && ret.site.rss_enable){
-            $(this).prop("checked",true);
+          if ($(this).val() == "D" && ret.site.rss_enable) {
+            $(this).prop("checked", true);
           }
-          if($(this).val() == "S" && ret.site.brush_enable){
-            $(this).prop("checked",true);
+          if ($(this).val() == "S" && ret.site.brush_enable) {
+            $(this).prop("checked", true);
           }
-          if($(this).val() == "T" && ret.site.statistic_enable){
-            $(this).prop("checked",true);
+          if ($(this).val() == "T" && ret.site.statistic_enable) {
+            $(this).prop("checked", true);
           }
         });
         $("#modal-site-title").text("编辑站点");
@@ -347,37 +411,37 @@
   }
 
   //删除站点
-  function del_site(tid){
-    ajax_post("del_site", {"id":tid}, function(ret){
+  function del_site(tid) {
+    ajax_post("del_site", { "id": tid }, function (ret) {
       navmenu('site');
     });
   }
 
   //新增站点
-  function add_or_edit_site(){
+  function add_or_edit_site() {
     //id
     var site_id = $("#site_id").val();
     //名称
     var site_name = $("#site_name").val();
-    if(site_name == ""){
+    if (site_name == "") {
       $("#site_name").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#site_name").removeClass("is-invalid");
     }
     //优先级
     var site_pri = $("#site_pri").val();
-    if(site_pri){
+    if (site_pri) {
       $("#site_pri").removeClass("is-invalid");
-    }else{
+    } else {
       $("#site_pri").addClass("is-invalid");
       return;
     }
     //签到URL
     var site_signurl = $("#site_signurl").val();
-    if(!site_signurl || site_signurl.startsWith('http')){
+    if (!site_signurl || site_signurl.startsWith('http')) {
       $("#site_signurl").removeClass("is-invalid");
-    }else{
+    } else {
       $("#site_signurl").addClass("is-invalid");
       return;
     }
@@ -385,10 +449,10 @@
     var site_cookie = $("#site_cookie").val();
     //RSS URL
     var site_rssurl = $("#site_rssurl").val();
-    if(site_rssurl){
-      if(site_rssurl.startsWith('http')){
+    if (site_rssurl) {
+      if (site_rssurl.startsWith('http')) {
         $("#site_rssurl").removeClass("is-invalid");
-      }else{
+      } else {
         $("#site_rssurl").addClass("is-invalid");
         return;
       }
@@ -397,27 +461,29 @@
     var site_parse = $("#site_parse").val();
     var site_unread_msg_notify = $("#site_unread_msg_notify").val();
     var site_uses = "";
-    $("input[name=site_uses]").each(function(){
-      if($(this).prop("checked")){
+    $("input[name=site_uses]").each(function () {
+      if ($(this).prop("checked")) {
         site_uses = site_uses + $(this).val();
       }
     });
     var ua = $("#site_ua").val();
     var chrome = $("#site_chrome").val();
     var proxy = $("#site_proxy").val();
-    var data = {"site_id":site_id,
-          "site_name":site_name,
-          "site_pri":site_pri,
-          "site_rssurl":site_rssurl,
-          "site_signurl":site_signurl,
-          "site_cookie":site_cookie,
-          "site_include": site_uses,
-          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome + "|" + proxy}
+    var data = {
+      "site_id": site_id,
+      "site_name": site_name,
+      "site_pri": site_pri,
+      "site_rssurl": site_rssurl,
+      "site_signurl": site_signurl,
+      "site_cookie": site_cookie,
+      "site_include": site_uses,
+      "site_note": site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome + "|" + proxy
+    }
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");
     // 发送请求
-    ajax_post("update_site", data, function(ret){
+    ajax_post("update_site", data, function (ret) {
       $("#add_or_edit_site_btn").attr("disabled", false);
       $("#modal-site").modal("hide");
       $("#add_or_edit_site_btn").text("新增");
@@ -427,25 +493,25 @@
   }
 
   //关闭或者删除
-  function close_or_del(){
+  function close_or_del() {
     $("#modal-site").modal("hide");
     tid = $("#site_id").val();
-    if(tid){
+    if (tid) {
       del_site(tid);
     }
   }
 
   //绑定事件
-  $("#add_or_edit_site_btn").click(function(){
-      add_or_edit_site();
+  $("#add_or_edit_site_btn").click(function () {
+    add_or_edit_site();
   });
-  $("#site_close_btn").click(function(){
-      close_or_del();
+  $("#site_close_btn").click(function () {
+    close_or_del();
   });
 
   //删除站点
-  function remove_site(name, siteid){
-    show_ask_modal("是否确认删除站点 " + name + "？", function(){
+  function remove_site(name, siteid) {
+    show_ask_modal("是否确认删除站点 " + name + "？", function () {
       hide_ask_modal();
       del_site(siteid);
     });
@@ -455,5 +521,55 @@
   for (var i = 1; i <= 50; i++) {
     $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
+
+  //全选事件
+  $("#sitetest_check_all_btn").change(function () {
+    $("#modal-sitetest input[type=checkbox]").prop("checked", $(this).prop("checked"));
+  });
+
+  //显示测试站点
+  function show_sitetest_modal() {
+    $("#modal-sitetest").modal("show");
+  }
+
+  //测试一个站点
+  var total_test_sites = 0
+  var finished_test_sites = 0
+  function test_one_site(siteid) {
+    if (!siteid) {
+      return;
+    }
+    $("#sitetest_btn").attr("disabled", true);
+    $("#sitetest_btn").text("测试中...");
+    total_test_sites = total_test_sites + 1;
+    ajax_post("test_site", { id: siteid }, function (ret) {
+      finished_test_sites = finished_test_sites + 1;
+      if (finished_test_sites >= total_test_sites) {
+        $("#sitetest_btn").attr("disabled", false);
+        $("#sitetest_btn").text("测试");
+        total_test_sites = 0
+        finished_test_sites = 0
+      }
+      if (ret.code == 0) {
+        $(`#sitetest_item${siteid}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
+        $(`#sitetest_item${siteid}_time`).html(`<span class="text-green">${ret.time} 毫秒</span>`);
+        $(`#sitetest_item${siteid}_msg`).html('');
+      } else {
+        $(`#sitetest_item${siteid}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
+        $(`#sitetest_item${siteid}_time`).html(`<span class="text-red">${ret.time} 毫秒</span>`);
+        $(`#sitetest_item${siteid}_msg`).html(`<span class="text-muted">${ret.msg}</span>`);
+      }
+    });
+  }
+
+  // 站点测试按钮
+  $("#sitetest_btn").click(function () {
+    $("#modal-sitetest input[type=checkbox]").each(function () {
+      if ($(this).attr("id").startsWith("check_") && $(this).prop("checked")) {
+        var siteid = $(this).attr("id").replace("check_", "");
+        test_one_site(siteid);
+      }
+    });
+  });
 
 </script>

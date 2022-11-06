@@ -58,7 +58,7 @@ class Unit3dSiteUserInfo(ISiteUserInfo):
                                   'or contains(text(), "註冊日期") '
                                   'or contains(text(), "Registration date")]/text()')
         if join_at_text:
-            self.join_at = join_at_text[0].replace('注册日期', '').replace('註冊日期', '').replace('Registration date', '')
+            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].replace('注册日期', '').replace('註冊日期', '').replace('Registration date', ''))
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """

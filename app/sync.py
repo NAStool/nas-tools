@@ -45,7 +45,7 @@ class Sync(object):
     filetransfer = None
     sync_dir_config = {}
     __observer = []
-    __sync_path = None
+    __sync_paths = []
     __sync_sys = OsType.LINUX
     __synced_files = []
     __need_sync_paths = {}

@@ -10,11 +10,21 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_user_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             新增用户
           </a>
           <a href="javascript:show_user_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
           </a>
         </div>
       </div>
@@ -44,31 +54,35 @@
                 </tr>
               </thead>
               <tbody>
-              {% if Users %}
+                {% if Users %}
                 {% for User in Users %}
                 <tr>
                   <td>{{ User.name or '' }}</td>
                   <td>
                     <div class="form-selectgroup">
-                    {% for pri in User.pris %}
+                      {% for pri in User.pris %}
                       <span class="form-selectgroup-label form-selectgroup-item">{{ pri }}</span>
-                    {% endfor %}
+                      {% endfor %}
                     </div>
                   </td>
                   <td>
                     <a href="javascript:delete_user('{{ User.name }}')" title="删除用户">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                         <line x1="18" y1="6" x2="6" y2="18"></line>
-                         <line x1="6" y1="6" x2="18" y2="18"></line>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                       </svg>
                     </a>
                   </td>
                 </tr>
                 {% endfor %}
-              {% else %}
-                <tr><td colspan="3" align="center">没有数据</td></tr>
-              {% endif %}
+                {% else %}
+                <tr>
+                  <td colspan="3" align="center">没有数据</td>
+                </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>
@@ -77,70 +91,69 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-user" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-user" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">新增用户</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">用户名</label>
-                <input type="text" value="" id="user_name" class="form-control">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">密码</label>
-                <input type="password" value="" id="user_password" class="form-control">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">新增用户</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名</label>
+              <input type="text" value="" id="user_name" class="form-control">
             </div>
           </div>
-          <div class="row">
+          <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">权限</label>
-              <div class="form-selectgroup">
-                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="我的媒体库" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">我的媒体库</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="资源搜索" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">资源搜索</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="推荐" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">推荐</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="站点管理" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">站点管理</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="订阅管理" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">订阅管理</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="下载管理" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">下载管理</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="媒体整理" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">媒体整理</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="服务" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">服务</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="user_pris" value="系统设置" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label">系统设置</span>
-                </label>
-              </div>
+              <label class="form-label required">密码</label>
+              <input type="password" value="" id="user_password" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="mb-3">
+            <label class="form-label required">权限</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="我的媒体库" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">我的媒体库</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="资源搜索" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label">资源搜索</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="推荐" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label">推荐</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="站点管理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">站点管理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="订阅管理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">订阅管理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="下载管理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">下载管理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="媒体整理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">媒体整理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="服务" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">服务</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="系统设置" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">系统设置</span>
+              </label>
             </div>
           </div>
         </div>
@@ -154,18 +167,18 @@
 </div>
 <script type="text/javascript">
   // 打开新增窗口
-  function show_user_modal(){
+  function show_user_modal() {
     $("#modal-user").modal('show');
   }
 
   // 新增用户
-  function add_user(){
+  function add_user() {
     var name = $("#user_name").val();
     var password = $("#user_password").val();
     var pris = [];
     var i = 0;
-    $("input[name=user_pris]").each(function(){
-      if($(this).prop("checked")){
+    $("input[name=user_pris]").each(function () {
+      if ($(this).prop("checked")) {
         pris[i] = $(this).val();
         i = i + 1;
       }
@@ -182,19 +195,19 @@
     } else {
       $("#user_password").removeClass("is-invalid");
     }
-    if (pris.length == 0){
+    if (pris.length == 0) {
       return;
     }
     $("#modal-user").modal('hide');
-    var params = {"oper": "add", "name":name, "password": password, "pris": pris};
+    var params = { "oper": "add", "name": name, "password": password, "pris": pris };
     ajax_post("user_manager", params, function (ret) {
       navmenu('users');
     });
   }
 
   // 删除用户
-  function delete_user(name){
-    var params = {"oper": "del", "name": name};
+  function delete_user(name) {
+    var params = { "oper": "del", "name": name };
     ajax_post("user_manager", params, function (ret) {
       navmenu('users');
     });

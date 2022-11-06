@@ -65,27 +65,27 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="modal-nametest" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-nametest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">名称识别测试</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label">资源名称 <span class="form-help" title="用于测试名称识别情况，如命名太离谱实在难于兼容，合理范围内无法识别的可在Github反馈" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="" id="test_name" class="form-control" placeholder="种子名/文件名等">
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title">名称识别测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">资源名称 <span class="form-help"
+                  title="用于测试名称识别情况，如命名太离谱实在难于兼容，合理范围内无法识别的可在Github反馈" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="test_name" class="form-control" placeholder="种子名/文件名等">
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-1" id="test_result">
-              </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-1" id="test_result">
             </div>
           </div>
         </div>
@@ -97,41 +97,40 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-ruletest" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-ruletest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">过滤规则测试</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title">过滤规则测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="mb-3">
+              <label class="form-label required">标题</label>
+              <input type="text" value="" id="test_title" class="form-control" placeholder="种子名称">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">大小(GB)</label>
+              <input type="text" value="" id="test_size" class="form-control" placeholder="种子大小">
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-8">
-              <div class="mb-3">
-                <label class="form-label required">标题</label>
-                <input type="text" value="" id="test_title" class="form-control" placeholder="种子名称">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">大小(GB)</label>
-                <input type="text" value="" id="test_size" class="form-control" placeholder="种子大小">
-              </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">副标题</label>
+              <textarea rows="3" id="test_subtitle" class="form-control" placeholder="种子描述"></textarea>
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label">副标题</label>
-                <textarea rows="3" id="test_subtitle" class="form-control" placeholder="种子描述"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3" id="testrule_result">
-              </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3" id="testrule_result">
             </div>
           </div>
         </div>
@@ -143,34 +142,33 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-nettest" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-nettest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">网络连通性测试</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-vcenter card-table">
-            <thead>
-              <tr>
-                <th>测试对象</th>
-                <th>连通性</th>
-                <th>耗时</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for target in SchedulerTasks[-2].targets %}
-              <tr>
-                <td><span>{{ target }}</span></td>
-                <td id="nettest_item{{ loop.index0 }}"></td>
-                <td id="nettest_item{{ loop.index0 }}_time"></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <div class="modal-header">
+        <h5 class="modal-title">网络连通性测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>测试对象</th>
+              <th>连通性</th>
+              <th>耗时</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for target in SchedulerTasks[-2].targets %}
+            <tr>
+              <td><span>{{ target }}</span></td>
+              <td id="nettest_item{{ loop.index0 }}"></td>
+              <td id="nettest_item{{ loop.index0 }}_time"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
@@ -179,25 +177,24 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-backup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-backup" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title">备份&恢复</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <form class="dropzone" id="back_file" action="/upload">
-            <div class="fallback">
-              <input name="file" type="file" accept="*.zip"/>
-            </div>
-            <div class="dz-message">
-              <h3 class="dropzone-msg-title">上传备份文件</h3>
-              <span class="dropzone-msg-desc">点击或者拖动备份文件到此处</span>
-            </div>
-          </form>
-        </div>
+      <div class="modal-header">
+        <h5 class="modal-title">备份&恢复</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="dropzone" id="back_file" action="/upload">
+          <div class="fallback">
+            <input name="file" type="file" accept="*.zip" />
+          </div>
+          <div class="dz-message">
+            <h3 class="dropzone-msg-title">上传备份文件</h3>
+            <span class="dropzone-msg-desc">点击或者拖动备份文件到此处</span>
+          </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button id="backup_btn" class="btn btn-primary">备份当前配置</button>
@@ -215,22 +212,22 @@
       $('#modal-ruletest').modal('show');
     } else if (id == "nettest") {
       $('#modal-nettest').modal('show');
-    } else if (id == "blacklist"){
-      show_confirm_modal("清理文件整理缓存后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function(){
+    } else if (id == "blacklist") {
+      show_confirm_modal("清理文件整理缓存后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function () {
         hide_confirm_modal();
         ajax_post("truncate_blacklist", {}, function (ret) {
           show_success_modal("文件缓存清理完成！");
         });
       });
-    }  else if (id == "rsshistory"){
-      show_confirm_modal("清理RSS缓存后，已订阅下载但未入库的资源可能会被重新下载，是否确认？", function(){
+    } else if (id == "rsshistory") {
+      show_confirm_modal("清理RSS缓存后，已订阅下载但未入库的资源可能会被重新下载，是否确认？", function () {
         hide_confirm_modal();
         ajax_post("truncate_rsshistory", {}, function (ret) {
           show_success_modal("RSS缓存清理完成！");
         });
       });
     } else if (id == "backup") {
-        $('#modal-backup').modal('show');
+      $('#modal-backup').modal('show');
     } else {
       show_ask_modal("是否立即运行 " + name + "？", function () {
         hide_ask_modal();
@@ -265,24 +262,24 @@
   // 备份
   $("#backup_btn").click(function () {
     $("#backup_btn").text("备份中...").attr("disabled", true);
-    ajax_backup(function(){
+    ajax_backup(function () {
       $("#backup_btn").attr("disabled", false).text("备份当前配置");
     });
   });
 
   // 恢复备份
   $("#restore_btn").click(function () {
-    if(!dropzone || !dropzone.files || !dropzone.files[0]){
+    if (!dropzone || !dropzone.files || !dropzone.files[0]) {
       return;
     }
     $("#restore_btn").text("恢复中...").attr("disabled", true);
-    ajax_post( "restory_backup", {file_name: dropzone.files[dropzone.files.length-1].name}, function (ret) {
+    ajax_post("restory_backup", { file_name: dropzone.files[dropzone.files.length - 1].name }, function (ret) {
       $("#restore_btn").attr("disabled", false).text("恢复配置");
       $("#modal-backup").modal('hide');
       if (ret.code == 0) {
         show_confirm_modal("备份恢复成功，立即重启系统？", function () {
           $("#system_confirm_btn").attr("disabled", true).text("重启中...");
-            ajax_post("restart", {}, function (ret) {
+          ajax_post("restart", {}, function (ret) {
           });
           setTimeout("window.location.reload()", 10000);
         });
@@ -293,151 +290,70 @@
   });
 
   //名称识别测试
-  function name_test(){
+  function name_test() {
     var name = $("#test_name").val();
-    if(!name){
+    if (!name) {
       $("#test_name").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#test_name").removeClass("is-invalid");
     }
-    $("#nametest_btn").text("识别中");
+    $("#nametest_btn").text("识别中...");
     $("#nametest_btn").attr("disabled", true);
-    ajax_post("name_test", {"name": name}, function (ret) {
+    media_name_test(name, "test_result", function () {
       $("#nametest_btn").text("识别");
       $("#nametest_btn").attr("disabled", false);
-      if(ret.code == 0){
-        $("#test_result").empty();
-        var ignored_words = [];
-        var replaced_words = [];
-        var offset_words = [];
-        if(ret.data.ignored_words){
-          ignored_words = ret.data.ignored_words;
-        } 
-        if(ret.data.replaced_words){
-          replaced_words = ret.data.replaced_words;
-        }
-        if(ret.data.offset_words){
-          offset_words = ret.data.offset_words;
-        }
-        var words = ignored_words + replaced_words + offset_words;
-        if(words.length != 0){
-          if(ret.data.org_string){
-            $("#test_result").append(`<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`);
-          }
-          if(ignored_words.length != 0){
-            var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
-            for(ignored_word of ignored_words){
-              ignored_word_content = ignored_word_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
-            };  
-            $("#test_result").append(ignored_word_content + '</label></div>');
-          }
-          if(replaced_words.length != 0){
-            var replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
-            for(replaced_word of replaced_words){
-              replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
-            };
-            $("#test_result").append(replaced_words_content + '</label></div>');
-          }
-          if(offset_words.length != 0){
-            var offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
-            for(offset_word of offset_words){
-              offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
-            };
-            $("#test_result").append(offset_words_content + '</label></div>');
-          }
-        }
-        if(ret.data.type){
-          $("#test_result").append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`);
-        }
-        if(ret.data.category){
-          $("#test_result").append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
-        }
-        if(ret.data.name){
-          var name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(ret.data.name)}`;
-          $("#test_result").append(`<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${ret.data.name}</a></span>`);
-        }
-        if(ret.data.title){
-          $("#test_result").append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
-        }
-        if(ret.data.year){
-          $("#test_result").append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
-        }
-        if(ret.data.season_episode){
-          $("#test_result").append(`<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`);
-        }
-        if(ret.data.part){
-          $("#test_result").append(`<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`);
-        }
-        if(ret.data.tmdbid){
-          $("#test_result").append(`<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`);
-        }
-        if(ret.data.restype){
-          $("#test_result").append(`<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`);
-        }
-        if(ret.data.pix){
-          $("#test_result").append(`<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`);
-        }
-        if(ret.data.video_codec){
-          $("#test_result").append(`<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`);
-        }
-        if(ret.data.audio_codec){
-          $("#test_result").append(`<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`);
-        }
-        if(ret.data.team){
-          $("#test_result").append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
-        }
-      }
     });
   }
 
   //过滤规则测试
-  function rule_test(){
+  function rule_test() {
     var title = $("#test_title").val();
-    if(!title){
+    if (!title) {
       $("#test_title").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#test_title").removeClass("is-invalid");
     }
     var size = $("#test_size").val();
-    if(!size || isNaN(size)){
+    if (!size || isNaN(size)) {
       $("#test_size").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#test_size").removeClass("is-invalid");
     }
     var subtitle = $("#test_subtitle").val();
-    $("#ruletest_btn").text("测试中");
+    $("#ruletest_btn").text("测试中...");
     $("#ruletest_btn").attr("disabled", true);
-    ajax_post("rule_test", {"title": title, "subtitle": subtitle, "size": size}, function (ret) {
+    ajax_post("rule_test", { "title": title, "subtitle": subtitle, "size": size }, function (ret) {
       $("#ruletest_btn").text("测试");
       $("#ruletest_btn").attr("disabled", false);
-      if(ret.code == 0){
+      if (ret.code == 0) {
         $("#testrule_result").empty();
-        if(ret.flag){
+        if (ret.flag) {
           $("#testrule_result").append(`<span class="badge bg-green me-1 mb-1">${ret.text}</span>`);
           $("#testrule_result").append(`<span class="badge badge-outline text-orange me-1 mb-1" title="命中规则组">${ret.name}</span>`);
           $("#testrule_result").append(`<span class="badge badge-outline text-blue me-1 mb-1" title="命中规则在规则组内的序号">优先级：${ret.order}</span>`);
-        }else{
+        } else {
           $("#testrule_result").append(`<span class="badge bg-red me-1 mb-1">${ret.text}</span>`);
         }
       }
     });
   }
   //网络连通性测试
-  function net_test(){
-    var targets = {{ SchedulerTasks[-2].targets | safe }};
-    var currentIndex = 0;
-    var stopindex = targets.length;
-    $("#nettest_btn").text("测试中");
-    $("#nettest_btn").attr("disabled", true);
-    net_test_ajax(targets,currentIndex,stopindex);
+  function net_test() {
+    var targets = {{ SchedulerTasks[-2].targets | safe
+  }};
+  var currentIndex = 0;
+  var stopindex = targets.length;
+  $("#nettest_btn").text("测试中...");
+  $("#nettest_btn").attr("disabled", true);
+  net_test_ajax(targets, currentIndex, stopindex);
   }
 
   //递归轮询测试结果
-  function net_test_ajax(targets,currentIndex,stopindex){
-    if(currentIndex >= stopindex){
+  function net_test_ajax(targets, currentIndex, stopindex) {
+    if (currentIndex >= stopindex) {
       $("#nettest_btn").text("测试");
       $("#nettest_btn").attr("disabled", false);
       return;
@@ -445,15 +361,15 @@
     var target = '';
     target = targets[currentIndex];
     ajax_post("net_test", target, function (ret) {
-      if(ret.res){
-        $(`#nettest_item${currentIndex}`).html('<span class="badge badge-outline text-green me-1 mb-1">是</span>');
+      if (ret.res) {
+        $(`#nettest_item${currentIndex}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
         $(`#nettest_item${currentIndex}_time`).html(`<span class="text-green">${ret.time}</span>`);
-      }else{
-        $(`#nettest_item${currentIndex}`).html('<span class="badge badge-outline text-red me-1 mb-1">否</span>');
+      } else {
+        $(`#nettest_item${currentIndex}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
         $(`#nettest_item${currentIndex}_time`).html(`<span class="text-red">${ret.time}</span>`);
       }
       currentIndex++;
-      net_test_ajax(targets,currentIndex,stopindex)
+      net_test_ajax(targets, currentIndex, stopindex)
     });
   }
 

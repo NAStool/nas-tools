@@ -13,6 +13,7 @@ from app.sites import Sites
 from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
 from app.helper import MetaHelper
 from app.media import MetaInfo, Media
+from app.utils.rsstitle_utils import RssTitleUtils
 from app.utils.types import MediaType, SearchType
 from app.subscribe import Subscribe
 
@@ -132,10 +133,6 @@ class Rss:
                         enclosure = res.get('enclosure')
                         # 种子页面
                         page_url = res.get('link')
-                        # rarbg的rss只有link
-                        if not enclosure and page_url:
-                            enclosure = page_url
-                            page_url = None
                         # 副标题
                         description = res.get('description')
                         # 种子大小
@@ -572,10 +569,15 @@ class Rss:
         :param url: RSS地址
         :return: 种子信息列表
         """
+        _special_title_sites = {
+            'pt.keepfrds.com': RssTitleUtils.keepfriends_title
+        }
+
         # 开始处理
         ret_array = []
         if not url:
             return []
+        _, netloc = StringUtils.get_url_netloc(url)
         try:
             ret = RequestUtils().get_res(url)
             if not ret:
@@ -597,14 +599,21 @@ class Rss:
                         title = DomUtils.tag_value(item, "title", default="")
                         if not title:
                             continue
+                        # 标题特殊处理
+                        if netloc and netloc in _special_title_sites:
+                            title = _special_title_sites.get(netloc)(title)
                         # 描述
                         description = DomUtils.tag_value(item, "description", default="")
                         # 种子页面
                         link = DomUtils.tag_value(item, "link", default="")
                         # 种子链接
                         enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
-                        if not enclosure:
+                        if not enclosure and not link:
                             continue
+                        # 部分RSS只有link没有enclosure
+                        if not enclosure and link:
+                            enclosure = link
+                            link = None
                         # 大小
                         size = DomUtils.tag_value(item, "enclosure", "length", default=0)
                         if size and str(size).isdigit():

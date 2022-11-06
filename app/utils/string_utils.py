@@ -1,9 +1,11 @@
 import bisect
+import datetime
 import random
 import re
 import time
-import datetime
 from urllib import parse
+
+from delorean import parse as delorean_parse
 
 import cn2an
 from app.utils.types import MediaType
@@ -287,53 +289,36 @@ class StringUtils:
         return tempsTime
 
     @staticmethod
-    def unify_datetime_str(date_str):
+    def unify_datetime_str(datetime_str):
         """
         日期时间格式化 统一转成 2020-10-14 07:48:04 这种格式
+        :param datetime_str:
+        :return:
         """
         # 传入的参数如果是None 或者空字符串 直接返回
-        if not date_str:
-            return date_str
-        # 判断日期时间是否满足 yyyy-MM-dd hh:MM:ss 格式
-        if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", date_str):
-            # 如果满足则直接返回
-            return date_str
+        if not datetime_str:
+            return datetime_str
 
-        # 场景1: 带有时区的日期字符串 eg: Sat, 15 Oct 2022 14:02:54 +0800
         try:
-            return datetime.datetime.strftime(
-                datetime.datetime.strptime(date_str,
-                                           '%a, %d %b %Y %H:%M:%S %z'),
-                '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            pass
+            return delorean_parse(datetime_str, dayfirst=False).format_datetime('Y-MM-dd HH:mm:ss')
+        except Exception as e:
+            print(e)
+            return datetime_str
 
-        # 场景2: 中间带T的日期字符串 eg: 2020-10-14T07:48:04
-        try:
-            return datetime.datetime.strftime(
-                datetime.datetime.strptime(date_str,
-                                           '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            pass
-
-        # 场景3: 中间带T的日期字符串 eg: 2020-10-14T07:48:04.208
-        try:
-            return datetime.datetime.strftime(
-                datetime.datetime.strptime(date_str.split(".")[0],
-                                           '%Y-%m-%dT%H:%M:%S'),
-                '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            pass
-
-        # 场景4: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
-        if date_str.endswith('GMT'):
-            try:
-                return datetime.datetime.strftime(
-                    datetime.datetime.strptime(date_str,
-                                               '%a, %d %b %Y %H:%M:%S GMT'),
-                    '%Y-%m-%d %H:%M:%S')
-            except ValueError:
-                pass
-        # 其他情况直接返回
-        return date_str
+    @staticmethod
+    def to_bool(text, default_val: bool = False) -> bool:
+        """
+        字符串转bool
+        :param text: 要转换的值
+        :param default_val: 默认值
+        :return:
+        """
+        if isinstance(text, str) and not text:
+            return default_val
+        if isinstance(text, bool):
+            return text
+        if isinstance(text, int) or isinstance(text, float):
+            return True if text > 0 else False
+        if isinstance(text, str) and text.lower() in ['y', 'true', '1']:
+            return True
+        return False

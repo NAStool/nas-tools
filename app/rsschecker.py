@@ -84,16 +84,11 @@ class RssChecker(object):
             note = task.NOTE
             if str(note).find('seeding_time_limit') != -1:
                 note = json.loads(task.NOTE)
+                save_path = note.get("save_path")
+                download_setting = -1
             else:
-                note = {"save_path": note,
-                        "category": '',
-                        "tags": '',
-                        "content_layout": '',
-                        "is_paused": '',
-                        "upload_limit": '',
-                        "download_limit": '',
-                        "ratio_limit": '',
-                        "seeding_time_limit": ''}
+                save_path = note
+                download_setting = -1
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -110,7 +105,8 @@ class RssChecker(object):
                 "update_time": task.UPDATE_TIME,
                 "counter": task.PROCESS_COUNT,
                 "state": task.STATE,
-                "note": note
+                "save_path": task.SAVE_PATH or save_path,
+                "download_setting": task.DOWNLOAD_SETTING or download_setting
             })
         if not self._rss_tasks:
             return
@@ -204,55 +200,54 @@ class RssChecker(object):
                 if not media_info:
                     log_warn("【RSSCHECKER】%s 识别媒体信息出错！" % title)
                     continue
-                # 大小及种子页面
-                media_info.set_torrent_info(size=size,
-                                            page_url=page_url,
-                                            site=taskinfo.get("name"),
-                                            enclosure=enclosure,
-                                            download_volume_factor=0.0,
-                                            upload_volume_factor=1.0)
-                # 检查种子是否匹配过滤条件
-                match_flag, res_order = self.__is_match_rss(
-                    media_info=media_info,
-                    taskinfo=taskinfo)
-                # 未匹配
-                if not match_flag:
-                    log_info("【RSSCHECKER】%s 不匹配" % title)
-                    continue
-                else:
-                    log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
-                        title,
-                        media_info.get_title_string(),
-                        media_info.get_season_episode_string()))
-                media_info.set_torrent_info(res_order=res_order)
                 # 检查是否已存在
-                if taskinfo.get("uses") != "D":
-                    if not media_info.tmdb_info:
-                        log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                        continue
-                    if media_info.type == MediaType.MOVIE:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        if exist_flag:
-                            log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
-                            continue
-                    else:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        # 当前剧集已存在，跳过
-                        if exist_flag:
-                            # 已全部存在
-                            if not no_exists or not no_exists.get(
-                                    media_info.tmdb_id):
-                                log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
-                                    media_info.get_title_string(), media_info.get_season_episode_string()))
-                            continue
-                        if no_exists.get(media_info.tmdb_id):
-                            log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                 no_exists.get(media_info.tmdb_id)))
-                elif not enclosure:
-                    log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                if not media_info.tmdb_info:
+                    log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
                     continue
+                if media_info.type == MediaType.MOVIE:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    if exist_flag:
+                        log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
+                        continue
+                else:
+                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                   no_exists=no_exists)
+                    # 当前剧集已存在，跳过
+                    if exist_flag:
+                        # 已全部存在
+                        if not no_exists or not no_exists.get(
+                                media_info.tmdb_id):
+                            log_info("【RSSCHECKER】电视剧 %s %s 已存在" % (
+                                media_info.get_title_string(), media_info.get_season_episode_string()))
+                        continue
+                    if no_exists.get(media_info.tmdb_id):
+                        log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                             no_exists.get(media_info.tmdb_id)))
+                if taskinfo.get("uses") == "D":
+                    if not enclosure:
+                        log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
+                        continue
+                    # 大小及种子页面
+                    media_info.set_torrent_info(size=size,
+                                                page_url=page_url,
+                                                site=taskinfo.get("name"),
+                                                enclosure=enclosure,
+                                                download_volume_factor=0.0,
+                                                upload_volume_factor=1.0)
+                    # 检查种子是否匹配过滤条件
+                    match_flag, res_order = self.__is_match_rss(media_info=media_info,
+                                                                taskinfo=taskinfo)
+                    # 未匹配
+                    if not match_flag:
+                        log_info("【RSSCHECKER】%s 不匹配" % title)
+                        continue
+                    else:
+                        log_info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
+                            title,
+                            media_info.get_title_string(),
+                            media_info.get_season_episode_string()))
+                    media_info.set_torrent_info(res_order=res_order)
                 # 插入数据库
                 # FIXME: 这里不能所有的种子都直接插入数据库
                 """
@@ -267,7 +262,8 @@ class RssChecker(object):
                 if taskinfo.get("uses") == "D":
                     # 下载
                     if media_info not in rss_download_torrents:
-                        media_info.note = taskinfo.get("note")
+                        media_info.save_path = taskinfo.get("save_path")
+                        media_info.download_setting = taskinfo.get("download_setting")
                         rss_download_torrents.append(media_info)
                 elif taskinfo.get("uses") == "R":
                     # 订阅
@@ -289,15 +285,8 @@ class RssChecker(object):
         if rss_download_torrents:
             for media in rss_download_torrents:
                 ret, ret_msg = self.downloader.download(media_info=media,
-                                                        is_paused=media.note.get("is_paused"),
-                                                        tag=media.note.get("tags"),
-                                                        download_dir=media.note.get("save_path"),
-                                                        category=media.note.get("category"),
-                                                        content_layout=media.note.get("content_layout"),
-                                                        upload_limit=media.note.get("upload_limit"),
-                                                        download_limit=media.note.get("download_limit"),
-                                                        ratio_limit=media.note.get("ratio_limit"),
-                                                        seeding_time_limit=media.note.get("seeding_time_limit"))
+                                                        download_dir=media.save_path,
+                                                        download_setting=media.download_setting)
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
@@ -602,15 +591,8 @@ class RssChecker(object):
             media = self.media.get_media_info(title=article.get("title"))
             media.set_torrent_info(enclosure=article.get("enclosure"))
             ret, ret_msg = self.downloader.download(media_info=media,
-                                                    is_paused=taskinfo["note"].get("is_paused"),
-                                                    tag=taskinfo["note"].get("tags"),
-                                                    download_dir=taskinfo["note"].get("save_path"),
-                                                    category=taskinfo["note"].get("category"),
-                                                    content_layout=taskinfo["note"].get("content_layout"),
-                                                    upload_limit=taskinfo["note"].get("upload_limit"),
-                                                    download_limit=taskinfo["note"].get("download_limit"),
-                                                    ratio_limit=taskinfo["note"].get("ratio_limit"),
-                                                    seeding_time_limit=taskinfo["note"].get("seeding_time_limit"))
+                                                    download_dir=taskinfo.get("save_path"),
+                                                    download_setting=taskinfo.get("download_setting"))
             if ret:
                 self.message.send_download_message(in_from=SearchType.RSS,
                                                    can_item=media)

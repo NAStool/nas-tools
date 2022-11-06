@@ -1,30 +1,36 @@
 <div class="container-xl">
-  <!-- Page title -->
-  <div class="page-header d-print-none">
-    <div class="row align-items-center">
-      <div class="col">
-        <h2 class="page-title">
-          订阅历史
-        </h2>
-      </div>
-      <div class="col-auto ms-auto d-print-none">
-          <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')" class="btn d-none d-sm-inline-block" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-            </svg>
-            返回
-          </a>
-          <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')" class="btn btn-secondary d-sm-none btn-icon" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-            </svg>
-          </a>
-      </div>
-      <!-- Page title actions -->
+    <!-- Page title -->
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    订阅历史
+                </h2>
+            </div>
+            <div class="col-auto ms-auto d-print-none">
+                <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')"
+                    class="btn d-none d-sm-inline-block" title="返回">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
+                        width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+                    </svg>
+                    返回
+                </a>
+                <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')"
+                    class="btn d-sm-none btn-icon" title="返回">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
+                        width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+                    </svg>
+                </a>
+            </div>
+            <!-- Page title actions -->
+        </div>
     </div>
-  </div>
 </div>
 <!-- 业务页面代码 -->
 <!-- 业务页面代码 -->
@@ -57,16 +63,18 @@
                                 <tr>
                                     <td>
                                         <span class="d-none d-md-block" style="width: 60px">
-                                            <img class="rounded"
-                                                src="{{ Item.IMAGE }}"
+                                            <img class="rounded" src="{{ Item.IMAGE }}"
                                                 onerror="this.src='../static/img/no-image.png'" />
                                         </span>
                                     </td>
                                     <td>
                                         <div>{{ Item.NAME }} ({{ Item.YEAR }}) {{ Item.SEASON or '' }}</div>
-                                        <span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="https://www.themoviedb.org/{% if Item.TYPE == 'MOV' %}movie{% else %}tv{% endif %}/{{ Item.TMDBID }}" target="_blank">{{ Item.TMDBID }}</a></span>
+                                        <span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1"
+                                                href="https://www.themoviedb.org/{% if Item.TYPE == 'MOV' %}movie{% else %}tv{% endif %}/{{ Item.TMDBID }}"
+                                                target="_blank">{{ Item.TMDBID }}</a></span>
                                         {% if Item.TOTAL %}
-                                        <div class="text-muted text-nowrap"><small>共 {{ Item.TOTAL - (Item.START or 0) }} 集</small></div>
+                                        <div class="text-muted text-nowrap"><small>共 {{ Item.TOTAL - (Item.START or 0)
+                                                }} 集</small></div>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -118,24 +126,24 @@
 </div>
 <script type="text/javascript">
     //重新订阅
-    function re_rss_history(rssid){
+    function re_rss_history(rssid) {
         show_wait_process();
-        ajax_post("re_rss_history", {"rssid": rssid, "type": "{{ Type }}"}, function(ret){
-          hide_wait_process();
-          if(ret.code == 0){
-            show_success_modal("重新订阅成功！");
-          }else{
-            show_fail_modal("重新订阅失败：" + ret.msg);
-          }
+        ajax_post("re_rss_history", { "rssid": rssid, "type": "{{ Type }}" }, function (ret) {
+            hide_wait_process();
+            if (ret.code == 0) {
+                show_success_modal("重新订阅成功！");
+            } else {
+                show_fail_modal("重新订阅失败：" + ret.msg);
+            }
         });
     }
 
     //删除订阅历史
-    function delete_rss_history(rssid){
+    function delete_rss_history(rssid) {
         show_wait_process();
-        ajax_post("delete_rss_history", {"rssid": rssid}, function(ret){
-          hide_wait_process();
-          navmenu('rss_history?t={{ Type }}');
+        ajax_post("delete_rss_history", { "rssid": rssid }, function (ret) {
+            hide_wait_process();
+            navmenu('rss_history?t={{ Type }}');
         });
     }
 </script>

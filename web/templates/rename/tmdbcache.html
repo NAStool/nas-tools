@@ -242,11 +242,12 @@
     data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
-            <div class="modal-header border-bottom-0">
+            <div class="modal-header">
                 <h5 class="modal-title" id="tmdb_cache_title">缓存条目</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <pre class="modal-body" id="tmdb_cache_content">
+            <pre class="modal-body" id="tmdb_cache_content"
+                style="display:flex; flex-direction:column-reverse;font-size:12px;">
             </pre>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">取消</button>
@@ -258,18 +259,16 @@
     data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="card border-top-0">
-                <div class="card-header">
-                    <h5 class="modal-title">修改TMDB缓存</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <label class="form-label required">标题</label>
-                        <div class="row mb-3">
-                            <input type="hidden" id="tmdbcache_key">
-                            <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
-                        </div>
+            <div class="modal-header">
+                <h5 class="modal-title">修改TMDB缓存</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <label class="form-label required">标题</label>
+                    <div class="row mb-3">
+                        <input type="hidden" id="tmdbcache_key">
+                        <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
                     </div>
                 </div>
             </div>
@@ -325,14 +324,14 @@
     }
 
     //清空TMDB缓存
-    function clear_tmdb_cache(){
-        show_confirm_modal("清空TMDB缓存后，将会增加TMDB API的请求次数，增加搜索响应时间，但是可以一次性解决TMDB改名后本地缓存未更新的问题，是否确认？", function(){
-        hide_confirm_modal();
-        ajax_post("clear_tmdb_cache", {}, function (ret) {
-          show_success_modal("TMDB缓存清理完成！");
-          navmenu('tmdbcache');
+    function clear_tmdb_cache() {
+        show_confirm_modal("清空TMDB缓存后，将会增加TMDB API的请求次数，增加搜索响应时间，但是可以一次性解决TMDB改名后本地缓存未更新的问题，是否确认？", function () {
+            hide_confirm_modal();
+            ajax_post("clear_tmdb_cache", {}, function (ret) {
+                show_success_modal("TMDB缓存清理完成！");
+                navmenu('tmdbcache');
+            });
         });
-      });
     }
 
     //删除提示

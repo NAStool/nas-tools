@@ -5,6 +5,7 @@ UL.jqueryFileTree A:hover{background:#90b5e2;}
 /* Core Styles */
 .jqueryFileTree LI.directory{background:url(../img/filetree/directory.png) left top no-repeat;}
 .jqueryFileTree LI.expanded{background:url(../img/filetree/folder_open.png) left top no-repeat;}
+.jqueryFileTree LI.expanded > a{font-weight: bold;}
 .jqueryFileTree LI.file{background:url(../img/filetree/file.png) left top no-repeat;}
 .jqueryFileTree LI.wait{background:url(../img/filetree/spinner.gif) left top no-repeat;}
 /* File Extensions*/

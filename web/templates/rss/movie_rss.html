@@ -9,25 +9,39 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_movierss_media_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             新增订阅
           </a>
           <a href="javascript:show_add_movierss_media_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
           </a>
           <a href="javascript:navmenu('rss_history?t=MOV')" class="btn d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <polyline points="12 8 12 12 14 14"></polyline>
-               <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24"
+              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <polyline points="12 8 12 12 14 14"></polyline>
+              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
             </svg>
             订阅历史
           </a>
-          <a href="javascript:navmenu('rss_history?t=MOV')" class="btn btn-secondary d-sm-none btn-icon" title="RSS解析器">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <polyline points="12 8 12 12 14 14"></polyline>
-               <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+          <a href="javascript:navmenu('rss_history?t=MOV')" class="btn d-sm-none btn-icon" title="RSS解析器">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24"
+              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <polyline points="12 8 12 12 14 14"></polyline>
+              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
             </svg>
           </a>
         </div>
@@ -41,9 +55,11 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("MOV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "movie_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "MOV"){% endif %}'>
+        <a class="card card-link card-link-pop rounded-3"
+          href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("MOV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "movie_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "MOV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Item.IMAGE }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+            <img class="rounded-top w-100" src="{{ Item.IMAGE }}"
+              style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
@@ -96,7 +112,7 @@
 <div class="page-body">
   <div class="container-xl d-flex flex-column justify-content-center">
     <div class="empty">
-      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
       </div>
       <p class="empty-title">没有记录</p>
       <p class="empty-subtitle text-muted">
@@ -108,7 +124,7 @@
 {% endif %}
 <script type="text/javascript">
   // 显示新增订阅
-  function show_add_movierss_media_modal(){
+  function show_add_movierss_media_modal() {
     $("#rss_id").val("");
     $("#rss_type").val("MOV");
     $("#rss_tmdbid").val("");

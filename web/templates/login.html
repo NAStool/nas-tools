@@ -1,83 +1,98 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=0">
-    <meta name="Robots" content="noindex,nofollow,noarchive">
-    <link rel="icon" type="image/png" href="../static/img/logo.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../static/img/logo-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/img/logo-16x16.png">
-    <link rel="apple-touch-icon" sizes="256x256"  href="../static/img/logo.png">
-    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-startup-image" href="../static/img/startup.jpg">
-    <link rel="manifest" href="../static/site.webmanifest" crossorigin="use-credentials">
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NASTool">
-    <meta name="description" content="NAS媒体库资源归集整理自动化工具">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="referrer" content="never">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="msapplication-TileColor" content="#1e293b" />
-    <meta name="theme-color" content="#1e293b" />
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="MobileOptimized" content="320" />
-    <title>登录 - NASTool</title>
-    <!-- CSS files -->
-    <link href="../static/css/tabler.min.css" rel="stylesheet"/>
-  </head>
-  <body  class="d-flex flex-column" style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
-    <div class="page page-center">
-      <div class="container-tight py-4">
-        <form class="card card-md" action="/" method="post" autocomplete="off" style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
-          <input type="hidden" name="next" value="{{ GoPage }}" />
-          <div class="card-body">
-            <div class="text-center mb-4">
-              <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo-blue.png" height="48" alt=""></a>
-            </div>
-            <label class="form-label">用户名</label>
-            <div class="input-icon mb-3">
-              <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/user</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-              </span>
-              <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
-                     placeholder="用户名" value="" autocomplete="off">
-            </div>
-            <label class="form-label">密码</label>
-            <div class="input-icon">
-              <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <desc>Download more icon variants from https://tabler-icons.io/i/keyboard</desc>
-                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                   <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                   <line x1="6" y1="10" x2="6" y2="10"></line>
-                   <line x1="10" y1="10" x2="10" y2="10"></line>
-                   <line x1="14" y1="10" x2="14" y2="10"></line>
-                   <line x1="18" y1="10" x2="18" y2="10"></line>
-                   <line x1="6" y1="14" x2="6" y2="14.01"></line>
-                   <line x1="18" y1="14" x2="18" y2="14.01"></line>
-                   <line x1="10" y1="14" x2="14" y2="14"></line>
-                </svg>
-              </span>
-              <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
-                     placeholder="密码" autocomplete="off">
-            </div>
-            <div class="invalid-feedback mb-3" id="login_retmsg" style="display:block">{{ err_msg }}</div>
-            <div class="mb-3">
-              <label class="form-check">
-                <input type="checkbox" name="remember" class="form-check-input" checked/>
-                <span class="form-check-label">保持登录</span>
-              </label>
-            </div>
-            <div class="form-footer">
-              <button type="submit" class="btn btn-primary w-100">登录</button>
-            </div>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=0">
+  <meta name="Robots" content="noindex,nofollow,noarchive">
+  <link rel="icon" type="image/png" href="../static/img/logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../static/img/logo-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../static/img/logo-16x16.png">
+  <link rel="apple-touch-icon" sizes="256x256" href="../static/img/logo-black.png">
+  <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-startup-image" href="../static/img/startup.jpg">
+  <link rel="manifest" href="../static/site.webmanifest" crossorigin="use-credentials">
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NASTool">
+  <meta name="description" content="NAS媒体库资源归集整理自动化工具">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="referrer" content="never">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#1e293b" />
+  <meta name="theme-color" content="#1e293b" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <title>登录 - NASTool</title>
+  <!-- CSS files -->
+  <link href="../static/css/tabler.min.css" rel="stylesheet" />
+</head>
+
+<body class="d-flex flex-column"
+  style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
+  <div class="page page-center">
+    <div class="container-tight py-4">
+      <form class="card card-md" action="/" method="post" autocomplete="off"
+        style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
+        <input type="hidden" name="next" value="{{ GoPage }}" />
+        <div class="card-body">
+          <div class="text-center mb-4">
+            <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo-blue.png" height="48"
+                alt=""></a>
           </div>
-        </form>
-      </div>
+          <label class="form-label">用户名</label>
+          <div class="input-icon mb-3">
+            <span class="input-icon-addon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <desc>Download more icon variants from https://tabler-icons.io/i/user</desc>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <circle cx="12" cy="7" r="4" />
+                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+              </svg>
+            </span>
+            <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
+              placeholder="用户名" value="" autocomplete="off">
+          </div>
+          <label class="form-label">密码</label>
+          <div class="input-icon">
+            <span class="input-icon-addon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard" width="24"
+                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <desc>Download more icon variants from https://tabler-icons.io/i/keyboard</desc>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                <line x1="6" y1="10" x2="6" y2="10"></line>
+                <line x1="10" y1="10" x2="10" y2="10"></line>
+                <line x1="14" y1="10" x2="14" y2="10"></line>
+                <line x1="18" y1="10" x2="18" y2="10"></line>
+                <line x1="6" y1="14" x2="6" y2="14.01"></line>
+                <line x1="18" y1="14" x2="18" y2="14.01"></line>
+                <line x1="10" y1="14" x2="14" y2="14"></line>
+              </svg>
+            </span>
+            <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
+              placeholder="密码" autocomplete="off">
+          </div>
+          <div class="invalid-feedback mb-3" id="login_retmsg" style="display:block">{{ err_msg }}</div>
+          <div class="mb-3">
+            <label class="form-check">
+              <input type="checkbox" name="remember" class="form-check-input" checked />
+              <span class="form-check-label">保持登录</span>
+            </label>
+          </div>
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary w-100">登录</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <script src="../static/js/tabler.min.js"></script>
-    <script src="../static/js/demo.min.js"></script>
-  </body>
+  </div>
+  <script src="../static/js/tabler.min.js"></script>
+  <script src="../static/js/demo.min.js"></script>
+</body>
+
 </html>

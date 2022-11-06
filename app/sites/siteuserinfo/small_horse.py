@@ -44,7 +44,10 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
             self.upload = StringUtils.num_filesize(str(tmps[1].xpath("li")[2].xpath("text()")[0]).split(":")[1].strip())
             self.download = StringUtils.num_filesize(
                 str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())
-            self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]))
+            if tmps[1].xpath("li")[4].xpath("span//text()"):
+                self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]))
+            else:
+                self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])
             self.bonus = StringUtils.str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])
             self.user_level = str(tmps[3].xpath("li")[0].xpath("text()")[0]).split(":")[1].strip()
             self.seeding = StringUtils.str_int(

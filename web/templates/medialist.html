@@ -5,54 +5,67 @@
       {% for Media in Medias %}
       <div class="col-12 col-xl-6">
         {% if OperType == 'search' %}
-        <a class="card card-link card-link-pop rounded-3" href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')" style="padding:0px 0px; overflow:hidden">
-        {% else %}
-        <div class="card card-link-pop rounded-3" style="padding:0px 0px; overflow:hidden">
-        {% endif %}
-          {% if Media.vote_average %}
-          <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
-          {% endif %}
-          <div class="row" style="max-height:240px; overflow:hidden">
-            <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
-              <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
-              <img src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}" class="w-100 h-100 object-cover">
-            </div>
-            <div class="col">
-              <div class="card-body">
-                <h2>
-                  {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
-                </h2>
-                <div class="badge badge-outline text-orange mb-1">{% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}</div>
-                <div class="text-muted mb-3 pb-3">
-                  {{ Media.overview|truncate(100, True) }}
+        <a class="card card-link card-link-pop rounded-3"
+          href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
+          style="padding:0px 0px; overflow:hidden">
+          {% else %}
+          <div class="card card-link-pop rounded-3" style="padding:0px 0px; overflow:hidden">
+            {% endif %}
+            {% if Media.vote_average %}
+            <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
+            {% endif %}
+            <div class="row" style="max-height:240px; overflow:hidden">
+              <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
+                <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}"
+                  style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
+                <img
+                  src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
+                  class="w-100 h-100 object-cover">
+              </div>
+              <div class="col">
+                <div class="card-body">
+                  <h2>
+                    {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
+                  </h2>
+                  <div class="badge badge-outline text-orange mb-1">{% if Media.tmdb_id is string and
+                    Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                  </div>
+                  <div class="text-muted mb-3 pb-3">
+                    {{ Media.overview|truncate(50, True) }}
+                  </div>
                 </div>
               </div>
             </div>
+            {% if OperType != 'search' %}
+            <div class="d-flex">
+              <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type.value }}','{{ Media.tmdb_id }}')"
+                class="card-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss me-2 text-muted"
+                  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="5" cy="19" r="1"></circle>
+                  <path d="M4 4a16 16 0 0 1 16 16"></path>
+                  <path d="M4 11a9 9 0 0 1 9 9"></path>
+                </svg>
+                订阅
+              </a>
+              <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
+                class="card-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-2 text-muted"
+                  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="10" cy="10" r="7"></circle>
+                  <line x1="21" y1="21" x2="15" y2="15"></line>
+                </svg>
+                搜索
+              </a>
+            </div>
+            {% endif %}
+            {% if OperType != 'search' %}
           </div>
-          {% if OperType != 'search' %}
-          <div class="d-flex">
-            <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type.value }}','{{ Media.tmdb_id }}')" class="card-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss me-2 text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <circle cx="5" cy="19" r="1"></circle>
-                 <path d="M4 4a16 16 0 0 1 16 16"></path>
-                 <path d="M4 11a9 9 0 0 1 9 9"></path>
-              </svg>
-              订阅
-            </a>
-            <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')" class="card-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-2 text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <circle cx="10" cy="10" r="7"></circle>
-                 <line x1="21" y1="21" x2="15" y2="15"></line>
-              </svg>
-              搜索
-            </a>
-          </div>
-          {% endif %}
-        {% if OperType != 'search' %}
-        </div>
-        {% else %}
+          {% else %}
         </a>
         {% endif %}
       </div>
@@ -73,7 +86,13 @@
       {% if OperType == 'search' %}
       <div class="empty-action">
         <a href="javascript:navmenu('search?s={{ SearchWord }}')" class="btn btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="5" y1="12" x2="19" y2="12" /><line x1="5" y1="12" x2="11" y2="18" /><line x1="5" y1="12" x2="11" y2="6" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <line x1="5" y1="12" x2="11" y2="18" />
+            <line x1="5" y1="12" x2="11" y2="6" />
+          </svg>
           返回
         </a>
       </div>
@@ -84,42 +103,42 @@
 {% endif %}
 <script type="text/javascript">
   //搜索
-  function medialist_search(tmdbid, title, type){
+  function medialist_search(tmdbid, title, type) {
     var param = { "tmdbid": tmdbid, "search_word": title, "media_type": type };
     show_refresh_process("正在搜索 " + title + " ...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if(ret.code == 0){
+      if (ret.code == 0) {
         navmenu('search?s=' + title)
-      }else{
+      } else {
         show_fail_modal(ret.msg);
       }
     });
   }
   //点击订阅按钮
-  function add_medialist_rss_media(name, year, type, tmdbid){
-    if(type == "电影"){
+  function add_medialist_rss_media(name, year, type, tmdbid) {
+    if (type == "电影") {
       type = "MOV";
-    }else{
+    } else {
       type = "TV";
     }
-    if(tmdbid && tmdbid.startsWith("DB:")){
+    if (tmdbid && tmdbid.startsWith("DB:")) {
       var doubanid = tmdbid.replace("DB:", "");
       tmdbid = "";
-    }else{
+    } else {
       var doubanid = "";
     }
-    if(!tmdbid || type == "MOV"){
+    if (!tmdbid || type == "MOV") {
       add_rss_media(name, year, type, tmdbid, doubanid);
-    }else{
+    } else {
       show_wait_process();
-      ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function(ret){
+      ajax_post("get_tvseason_list", { tmdbid: tmdbid }, function (ret) {
         hide_wait_process();
-        if(ret.seasons.length == 1){
+        if (ret.seasons.length == 1) {
           add_rss_media(name, year, type, tmdbid, doubanid);
-        }else if(ret.seasons.length > 1){
+        } else if (ret.seasons.length > 1) {
           show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons);
-        }else{
+        } else {
           show_fail_modal(name + " 添加RSS订阅失败：未查询到季信息！");
         }
       });

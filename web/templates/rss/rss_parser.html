@@ -10,23 +10,37 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_rssparser_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             新增解析器
           </a>
           <a href="javascript:show_add_rssparser_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
           </a>
           <a href="javascript:navmenu('user_rss')" class="btn d-none d-sm-inline-block" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
+              height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
             </svg>
             返回
           </a>
-          <a href="javascript:navmenu('user_rss')" class="btn btn-secondary d-sm-none btn-icon" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+          <a href="javascript:navmenu('user_rss')" class="btn d-sm-none btn-icon" title="返回">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
+              height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
             </svg>
           </a>
         </div>
@@ -58,7 +72,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% if RssParsers %}
+                {% if RssParsers %}
                 {% for RssParser in RssParsers %}
                 <tr>
                   <td>{{ RssParser.name or '' }}</td>
@@ -66,23 +80,35 @@
                   <td>{{ RssParser.params or '' }}</td>
                   <td>
                     <div class="d-flex">
-                      <a href="javascript:show_edit_rssparser_modal('{{ RssParser.id }}')" class="btn-action" title="编辑">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+                      <a href="javascript:show_edit_rssparser_modal('{{ RssParser.id }}')" class="btn-action"
+                        title="编辑">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler" width="24" height="24"
+                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                          <line x1="16" y1="5" x2="19" y2="8" />
+                        </svg>
                       </a>
                       <a href="javascript:delete_rssparser('{{ RssParser.id }}')" class="btn-action" title="删除">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <line x1="18" y1="6" x2="6" y2="18"></line>
-                           <line x1="6" y1="6" x2="18" y2="18"></line>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                       </a>
                     </div>
                   </td>
                 </tr>
                 {% endfor %}
-              {% else %}
-                <tr><td colspan="4" align="center">没有数据</td></tr>
-              {% endif %}
+                {% else %}
+                <tr>
+                  <td colspan="4" align="center">没有数据</td>
+                </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>
@@ -91,38 +117,41 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-userrss-parser" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-userrss-parser" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title" id="modal-filterrule-title">新增解析器</h5>
-          <input type="hidden" id="rssparser_id" />
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">名称</label>
-                <input type="text" class="form-control" id="rssparser_name" placeholder="自定义名称">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">类型 <span class="form-help" title="支持XML及JSON，需要分别按XPath及JsonPath的语法维护解析格式" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="rssparser_type">
-                  <option value="XML" selected>XML</option>
-                  <option value="JSON">JSON</option>
-                </select>
-              </div>
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-filterrule-title">新增解析器</h5>
+        <input type="hidden" id="rssparser_id" />
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="text" class="form-control" id="rssparser_name" placeholder="自定义名称">
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label">解析格式 <span class="form-help" title="根据RSS报文的内容，编辑Json格式解析配置，以获取报文中的数据以供订阅程序处理；如类型为XML则需要是XPath语法，如类型为JSON则需要是JsonPath语法；支持的解析内容包括：list(获取列表) title(标题) enclosure(种子下载链接) description(种子描述) size(种子大小) type(类型：movie/tv) year(发行年份)，没有或不需要的可不配置或配置为空，具体参考现有示例；解析器可以尽可能解析更多的信息，由订阅程序将按需使用" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="rssparser_format" rows="10">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">类型 <span class="form-help" title="支持XML及JSON，需要分别按XPath及JsonPath的语法维护解析格式"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="rssparser_type">
+                <option value="XML" selected>XML</option>
+                <option value="JSON">JSON</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">解析格式 <span class="form-help"
+                  title="根据RSS报文的内容，编辑Json格式解析配置，以获取报文中的数据以供订阅程序处理；如类型为XML则需要是XPath语法，如类型为JSON则需要是JsonPath语法；支持的解析内容包括：list(获取列表) title(标题) enclosure(种子下载链接) description(种子描述) size(种子大小) type(类型：movie/tv) year(发行年份)，没有或不需要的可不配置或配置为空，具体参考现有示例；解析器可以尽可能解析更多的信息，由订阅程序将按需使用"
+                  data-bs-toggle="tooltip">?</span></label>
+              <textarea class="form-control" id="rssparser_format" rows="10">
 {
     "list": "",
     "item": {
@@ -147,15 +176,15 @@
     }
 }
                 </textarea>
-              </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <div class="mb-3">
-                <label class="form-label">附加参数 <span class="form-help" title="需要附加到RSS链接中的参数" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="rssparser_params" value="" placeholder="">
-              </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">附加参数 <span class="form-help" title="需要附加到RSS链接中的参数"
+                  data-bs-toggle="tooltip">?</span></label>
+              <input type="text" class="form-control" id="rssparser_params" value="" placeholder="">
             </div>
           </div>
         </div>
@@ -164,7 +193,8 @@
         <button id="rssparser_close_btn" class="btn btn-link" data-bs-dismiss="modal">
           取消
         </button>
-        <button id="add_or_edit_rssparser_btn" class="btn btn-primary ms-auto" onclick="javascript:add_or_edit_rssparser()">
+        <button id="add_or_edit_rssparser_btn" class="btn btn-primary ms-auto"
+          onclick="javascript:add_or_edit_rssparser()">
           新增
         </button>
       </div>
@@ -173,25 +203,27 @@
 </div>
 <script type="text/javascript">
   // 打开新增窗口
-  function show_add_rssparser_modal(){
+  function show_add_rssparser_modal() {
     $("#rssparser_id").val('');
     $("#add_or_edit_rssparser_btn").text('新增');
     $("#modal-userrss-parser").modal('show');
   }
 
   // 新增下载器
-  function add_or_edit_rssparser(){
-    if(!$("#rssparser_name").val()){
+  function add_or_edit_rssparser() {
+    if (!$("#rssparser_name").val()) {
       $("#rssparser_name").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#rssparser_name").removeClass("is-invalid");
     }
-    var params = {id: $("#rssparser_id").val(),
-                  name: $("#rssparser_name").val(),
-                  type: $("#rssparser_type").val(),
-                  format: $("#rssparser_format").val(),
-                  params: $("#rssparser_params").val()};
+    var params = {
+      id: $("#rssparser_id").val(),
+      name: $("#rssparser_name").val(),
+      type: $("#rssparser_type").val(),
+      format: $("#rssparser_format").val(),
+      params: $("#rssparser_params").val()
+    };
     ajax_post("update_rssparser", params, function (ret) {
       $("#modal-userrss-parser").modal('hide');
       navmenu('rss_parser');
@@ -199,10 +231,10 @@
   }
 
   // 删除下载器
-  function delete_rssparser(id){
-    show_ask_modal("是否确认删除该解析器？ ", function(){
+  function delete_rssparser(id) {
+    show_ask_modal("是否确认删除该解析器？ ", function () {
       hide_ask_modal();
-      var params = {"id": id};
+      var params = { "id": id };
       ajax_post("delete_rssparser", params, function (ret) {
         navmenu('rss_parser');
       });
@@ -210,10 +242,10 @@
   }
 
   // 编辑下载器
-  function show_edit_rssparser_modal(id){
+  function show_edit_rssparser_modal(id) {
     $("#rssparser_id").val(id);
-    ajax_post("get_rssparser", {id:id}, function (ret) {
-      if(ret.code == 0){
+    ajax_post("get_rssparser", { id: id }, function (ret) {
+      if (ret.code == 0) {
         $("#rssparser_name").val(ret.detail.name);
         $("#rssparser_type").val(ret.detail.type);
         $("#rssparser_format").val(ret.detail.format);

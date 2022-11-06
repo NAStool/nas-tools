@@ -1,9 +1,8 @@
-import os
-
 from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
 from app.brushtask import BrushTask
+from app.downloader import Downloader
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
@@ -295,6 +294,19 @@ class SiteInfo(ClientResource):
         return WebAction().api_action(cmd='get_site', data=self.parser.parse_args())
 
 
+@site.route('/test')
+class SiteTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='站点ID', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        测试站点连通性
+        """
+        return WebAction().api_action(cmd='test_site', data=self.parser.parse_args())
+
+
 @site.route('/delete')
 class SiteDelete(ClientResource):
     parser = reqparse.RequestParser()
@@ -545,6 +557,70 @@ class DownloadNow(ClientResource):
         return WebAction().api_action(cmd='get_downloading')
 
 
+@download.route('/config/info')
+class DownloadConfigInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        查询下载设置
+        """
+        return WebAction().api_action(cmd='get_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/update')
+class DownloadConfigUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('category', type=str, help='分类', location='form')
+    parser.add_argument('tags', type=str, help='标签', location='form')
+    parser.add_argument('content_layout', type=int, help='布局', location='form')
+    parser.add_argument('is_paused', type=int, help='动作', location='form')
+    parser.add_argument('upload_limit', type=int, help='上传速度限制', location='form')
+    parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
+    parser.add_argument('ratio_limit', type=int, help='分享率限制', location='form')
+    parser.add_argument('seeding_time_limit', type=int, help='做种时间限制', location='form')
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改下载设置
+        """
+        return WebAction().api_action(cmd='update_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/delete')
+class DownloadConfigDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        删除下载设置
+        """
+        return WebAction().api_action(cmd='delete_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/list')
+class DownloadConfigList(ClientResource):
+    @staticmethod
+    def post():
+        """
+        查询所有下载设置
+        """
+        return {
+            "code": 0,
+            "success": True,
+            "data": {
+                "result": Downloader().get_download_setting()
+            }
+        }
+
+
 @organization.route('/unknown/delete')
 class UnknownDelete(ClientResource):
     parser = reqparse.RequestParser()
@@ -759,37 +835,14 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=bool, help='仅目录', location='form', required=True)
+    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/ALL）', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
         """
         查询目录的子目录/文件
         """
-        r = []
-        try:
-            d = self.parser.parse_args().get("dir") or "/"
-            ft = request.form.get("filter")
-            if not os.path.isdir(d):
-                d = os.path.dirname(d)
-            for f in os.listdir(d):
-                ff = os.path.join(d, f)
-                if os.path.isdir(ff):
-                    r.append({"path": ff.replace("\\", "/"), "type": "dir"})
-                else:
-                    if not ft:
-                        r.append({"path": ff.replace("\\", "/"), "type": "file"})
-        except Exception as e:
-            return {
-                "code": -1,
-                "success": False,
-                "message": '加载路径失败: %s' % str(e)
-            }
-        return {
-            "code": 0,
-            "success": True,
-            "data": r
-        }
+        return WebAction().api_action(cmd='get_sub_path', data=self.parser.parse_args())
 
 
 @system.route('/restart')
@@ -1402,6 +1455,20 @@ class MediaInfo(ClientResource):
         return WebAction().api_action(cmd='media_info', data=self.parser.parse_args())
 
 
+@media.route('/subtitle/download')
+class MediaSubtitleDownload(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('path', type=str, help='文件路径（含文件名）', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称（用于识别）', location='form', required=True)
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        下载单个文件字幕
+        """
+        return WebAction().api_action(cmd='download_subtitle', data=self.parser.parse_args())
+
+
 @brushtask.route('/update')
 class BrushTaskUpdate(ClientResource):
     parser = reqparse.RequestParser()
@@ -1845,8 +1912,8 @@ class SyncDirectoryUpdate(ClientResource):
     parser.add_argument('to', type=str, help='目的目录', location='form')
     parser.add_argument('unknown', type=str, help='未知目录', location='form')
     parser.add_argument('syncmod', type=str, help='同步模式', location='form')
-    parser.add_argument('rename', type=bool, help='重命名', location='form')
-    parser.add_argument('enabled', type=bool, help='开启', location='form')
+    parser.add_argument('rename', type=str, help='重命名', location='form')
+    parser.add_argument('enabled', type=str, help='开启', location='form')
 
     @sync.doc(parser=parser)
     def post(self):

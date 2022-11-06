@@ -91,6 +91,9 @@ def create_flask_app():
     def login():
         # 判断当前的运营环境
         SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
+        SyncMod = Config().get_config('pt').get('rmt_mode')
+        if not SyncMod:
+            SyncMod = "link"
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
             if GoPage.startswith('/'):
@@ -119,7 +122,8 @@ def create_flask_app():
                                            SearchSites=SearchSites,
                                            RuleGroups=RuleGroups,
                                            RestypeDict=RestypeDict,
-                                           PixDict=PixDict)
+                                           PixDict=PixDict,
+                                           SyncMod=SyncMod)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -163,7 +167,8 @@ def create_flask_app():
                                        SearchSites=SearchSites,
                                        RuleGroups=RuleGroups,
                                        RestypeDict=RestypeDict,
-                                       PixDict=PixDict)
+                                       PixDict=PixDict,
+                                       SyncMod=SyncMod)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -878,14 +883,26 @@ def create_flask_app():
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        SyncMod = Config().get_config('pt').get('rmt_mode')
-        if not SyncMod:
-            SyncMod = "link"
         Items = WebAction().get_unknown_list().get("items")
         return render_template("rename/unidentification.html",
                                TotalCount=len(Items),
-                               Items=Items,
-                               SyncMod=SyncMod)
+                               Items=Items)
+
+    # 文件管理页面
+    @App.route('/mediafile', methods=['POST', 'GET'])
+    @login_required
+    def mediafile():
+        download_dirs = Downloader().get_download_visit_dirs()
+        if download_dirs:
+            try:
+                Dir = os.path.commonpath(download_dirs)
+            except Exception as err:
+                print(str(err))
+                Dir = "/"
+        else:
+            Dir = "/"
+        return render_template("rename/mediafile.html",
+                               Dir=Dir)
 
     # 基础设置页面
     @App.route('/basic', methods=['POST', 'GET'])
@@ -928,6 +945,16 @@ def create_flask_app():
     def downloader():
         return render_template("setting/downloader.html",
                                Config=Config().get_config())
+
+    # 下载设置页面
+    @App.route('/download_setting', methods=['POST', 'GET'])
+    @login_required
+    def download_setting():
+        DownloadSetting = Downloader().get_download_setting()
+        Count = len(DownloadSetting)
+        return render_template("setting/download_setting.html",
+                               DownloadSetting=DownloadSetting,
+                               Count=Count)
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
@@ -990,11 +1017,13 @@ def create_flask_app():
         Tasks = RssChecker().get_rsstask_info()
         RssParsers = RssChecker().get_userrss_parser()
         FilterRules = FilterRule().get_rule_groups()
+        DownloadSettings = Downloader().get_download_setting()
         return render_template("rss/user_rss.html",
                                Tasks=Tasks,
                                Count=len(Tasks),
                                RssParsers=RssParsers,
-                               FilterRules=FilterRules)
+                               FilterRules=FilterRules,
+                               DownloadSettings=DownloadSettings)
 
     # RSS解析器页面
     @App.route('/rss_parser', methods=['POST', 'GET'])
@@ -1025,12 +1054,26 @@ def create_flask_app():
         r = ['<ul class="jqueryFileTree" style="display: none;">']
         try:
             r = ['<ul class="jqueryFileTree" style="display: none;">']
-            d = os.path.normpath(urllib.parse.unquote(request.form.get('dir', '/')))
+            in_dir = request.form.get('dir')
             ft = request.form.get("filter")
-            if not os.path.isdir(d):
-                d = os.path.dirname(d)
-            for f in os.listdir(d):
-                ff = os.path.join(d, f)
+            if not in_dir or in_dir == "/":
+                if SystemUtils.get_system() == OsType.WINDOWS:
+                    partitions = SystemUtils.get_windows_drives()
+                    if partitions:
+                        dirs = partitions
+                    else:
+                        dirs = [os.path.join("C:/", f) for f in os.listdir("C:/")]
+                else:
+                    dirs = [os.path.join("/", f) for f in os.listdir("/")]
+            else:
+                d = os.path.normpath(urllib.parse.unquote(in_dir))
+                if not os.path.isdir(d):
+                    d = os.path.dirname(d)
+                dirs = [os.path.join(d, f) for f in os.listdir(d)]
+            for ff in dirs:
+                f = os.path.basename(ff)
+                if not f:
+                    f = ff
                 if os.path.isdir(ff):
                     r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (
                         ff.replace("\\", "/"), f.replace("\\", "/")))

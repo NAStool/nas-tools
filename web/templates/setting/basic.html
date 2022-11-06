@@ -32,14 +32,19 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">日志文件路径 <span class="form-help" title="日志输出类型为文件时需要配置该项" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control filetree-folders-only" id="app.logpath" placeholder="/config/logs" autocomplete="off">
+                  <label class="form-label">日志文件路径 <span class="form-help" title="日志输出类型为文件时需要配置该项"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control filetree-folders-only"
+                    id="app.logpath" placeholder="/config/logs" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">日志中心地址 <span class="form-help" title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver" placeholder="127.0.0.1:514" autocomplete="off">
+                  <label class="form-label">日志中心地址 <span class="form-help"
+                      title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver"
+                    placeholder="127.0.0.1:514" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -47,53 +52,68 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB服务端口</label>
-                  <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port" placeholder="3000" autocomplete="off">
+                  <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port"
+                    placeholder="3000" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理用户</label>
-                  <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user" placeholder="admin" autocomplete="off">
+                  <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user"
+                    placeholder="admin" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理密码</label>
-                  <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control" id="app.login_password" placeholder="password" autocomplete="off">
+                  <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control"
+                    id="app.login_password" placeholder="password" autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">HTTPS证书文件路径 <span class="form-help" title="需要是pem格式的证书文件" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control filetree-files-only" id="app.ssl_cert" placeholder="" autocomplete="off">
+                  <label class="form-label">HTTPS证书文件路径 <span class="form-help" title="需要是pem格式的证书文件"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control filetree-files-only"
+                    id="app.ssl_cert" placeholder="" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">HTTPS证书密钥文件路径</label>
-                  <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control filetree-files-only" id="app.ssl_key" placeholder="" autocomplete="off">
+                  <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control filetree-files-only"
+                    id="app.ssl_key" placeholder="" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">代理服务器 <span class="form-help" title="将使用代理访服务器访问themoviedb、telegram、公开bt站等境外网站，站点默认不使用代理，如需使用需在站点维护中开启；配置格式示例：127.0.0.1:7890（Http协议）、socks5://127.0.0.1:8018" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="127.0.0.1:7890" autocomplete="off">
+                  <label class="form-label">代理服务器 <span class="form-help"
+                      title="将使用代理访服务器访问themoviedb、telegram、公开bt站等境外网站，站点默认不使用代理，如需使用需在站点维护中开启；配置格式示例：127.0.0.1:7890（Http协议）、socks5://127.0.0.1:8018"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies"
+                    placeholder="127.0.0.1:7890" autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-lg-4">
                 <div class="mb-3">
-                  <label class="form-label">外网访问地址 <span class="form-help" title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="off">
+                  <label class="form-label">外网访问地址 <span class="form-help"
+                      title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain"
+                    placeholder="http://IP:PORT" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg-8">
                 <div class="mb-3">
-                  <label class="form-label">User-Agent <span class="form-help" title="如发现被豆瓣、PT站等封堵，请适当修改此项" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36" autocomplete="off">
+                  <label class="form-label">User-Agent <span class="form-help" title="如发现被豆瓣、PT站等封堵，请适当修改此项"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent"
+                    placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+                    autocomplete="off">
                 </div>
               </div>
             </div>
@@ -119,25 +139,33 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB API Key <span class="form-help" title="在themoviedb.org网站申请API Key，该项必须配置，否则所有功能无法正常运行" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="app.rmt_tmdbkey" placeholder="" autocomplete="off">
+                  <label class="form-label required">TMDB API Key <span class="form-help"
+                      title="在themoviedb.org网站申请API Key，该项必须配置，否则所有功能无法正常运行" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control"
+                    id="app.rmt_tmdbkey" placeholder="" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB域名 <span class="form-help" title="如api.themoviedb.org无法访问可偿试使用api.tmdb.org，如均无法访问，则需要修改host或者使用网络代理" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">TMDB域名 <span class="form-help"
+                      title="如api.themoviedb.org无法访问可偿试使用api.tmdb.org，如均无法访问，则需要修改host或者使用网络代理"
+                      data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="app.tmdb_domain">
-                    <option value="api.themoviedb.org" {% if not Config.app.tmdb_domain or Config.app.tmdb_domain=='api.themoviedb.org' %}selected{% endif %}>api.themoviedb.org</option>
-                    <option value="api.tmdb.org"{% if Config.app.tmdb_domain=='api.tmdb.org' %}selected{% endif %}>api.tmdb.org</option>
+                    <option value="api.themoviedb.org" {% if not Config.app.tmdb_domain or
+                      Config.app.tmdb_domain=='api.themoviedb.org' %}selected{% endif %}>api.themoviedb.org</option>
+                    <option value="api.tmdb.org" {% if Config.app.tmdb_domain=='api.tmdb.org' %}selected{% endif %}>
+                      api.tmdb.org</option>
                   </select>
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB匹配模式 <span class="form-help" title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">TMDB匹配模式 <span class="form-help"
+                      title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）"
+                      data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="app.rmt_match_mode">
                     <option value="normal" {% if Config.app.rmt_match_mode=='normal' %}selected{% endif %}>正常模式</option>
-                    <option value="strict"{% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
+                    <option value="strict" {% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
                   </select>
                 </div>
               </div>
@@ -145,48 +173,63 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">二级分类策略 <span class="form-help" title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="off">
+                  <label class="form-label">二级分类策略 <span class="form-help"
+                      title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category"
+                    placeholder="default-category" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">默认文件转移方式 <span class="form-help" title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">默认文件转移方式 <span class="form-help"
+                      title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
+                      data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.rmt_mode">
                     <option value="link" {% if Config.pt.rmt_mode=='link' %}selected{% endif %}>硬链接</option>
                     <option value="softlink" {% if Config.pt.rmt_mode=='softlink' %}selected{% endif %}>软链接</option>
                     <option value="copy" {% if Config.pt.rmt_mode=='copy' %}selected{% endif %}>复制</option>
                     <option value="move" {% if Config.pt.rmt_mode=='move' %}selected{% endif %}>移动</option>
-                    <option value="rclonecopy" {% if Config.pt.rmt_mode=='rclonecopy' %}selected{% endif %}>Rclone复制</option>
+                    <option value="rclonecopy" {% if Config.pt.rmt_mode=='rclonecopy' %}selected{% endif %}>Rclone复制
+                    </option>
                     <option value="rclone" {% if Config.pt.rmt_mode=='rclone' %}selected{% endif %}>Rclone移动</option>
-                    <option value="miniocopy" {% if Config.pt.rmt_mode=='miniocopy' %}selected{% endif %}>Minio复制</option>
+                    <option value="miniocopy" {% if Config.pt.rmt_mode=='miniocopy' %}selected{% endif %}>Minio复制
+                    </option>
                     <option value="minio" {% if Config.pt.rmt_mode=='minio' %}selected{% endif %}>Minio移动</option>
                   </select>
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">转移最小文件大小(MB) <span class="form-help" title="小于该大小的文件将会忽略，不进行转移重命名" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="media.min_filesize" placeholder="200" autocomplete="off">
+                  <label class="form-label required">转移最小文件大小(MB) <span class="form-help" title="小于该大小的文件将会忽略，不进行转移重命名"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control"
+                    id="media.min_filesize" placeholder="200" autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">转移文件夹黑名单 <span class="form-help" title="文件所在上级文件夹名称在黑名单中的，忽略转移" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.ignored_paths or '' }}" class="form-control" id="media.ignored_paths" placeholder="使用;分隔" autocomplete="off">
+                  <label class="form-label">转移文件夹黑名单 <span class="form-help" title="文件所在上级文件夹名称在黑名单中的，忽略转移"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.ignored_paths or '' }}" class="form-control"
+                    id="media.ignored_paths" placeholder="使用;分隔" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">文件转移忽略词 <span class="form-help" title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.ignored_files or '' }}" class="form-control" id="media.ignored_files" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
+                  <label class="form-label">文件转移忽略词 <span class="form-help"
+                      title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.ignored_files or '' }}" class="form-control"
+                    id="media.ignored_files" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">下载优先规则 <span class="form-help" title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">下载优先规则 <span class="form-help"
+                      title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先"
+                      data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.download_order">
                     <option value="" {% if not Config.pt.download_order %}selected{% endif %}>默认</option>
                     <option value="site" {% if Config.pt.download_order=='site' %}selected{% endif %}>站点优先</option>
@@ -198,16 +241,25 @@
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电影重命名格式 <span class="form-help" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上。<br>电影占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组" data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
-                  <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control" id="media.movie_name_format" placeholder="{title} ({year})/{title}-{part} ({year}) - {videoFormat}" autocomplete="off">
+                  <label class="form-label required">电影重命名格式 <span class="form-help"
+                      title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上。<br>电影占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组"
+                      data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
+                  <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control"
+                    id="media.movie_name_format" placeholder="{title} ({year})/{title}-{part} ({year}) - {videoFormat}"
+                    autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电视剧重命名格式 <span class="form-help" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上。<br>电视剧占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{season}：季数<br>{episode}：集数<br>{season_episode}：剧集SxxExx<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组" data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
-                  <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control" id="media.tv_name_format" placeholder="{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第 {episode} 集" autocomplete="off">
+                  <label class="form-label required">电视剧重命名格式 <span class="form-help"
+                      title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上。<br>电视剧占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{season}：季数<br>{episode}：集数<br>{season_episode}：剧集SxxExx<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组"
+                      data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
+                  <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control"
+                    id="media.tv_name_format"
+                    placeholder="{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第 {episode} 集"
+                    autocomplete="off">
                 </div>
               </div>
             </div>
@@ -215,24 +267,30 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="media.filesize_cover" {% if Config.media.filesize_cover %}checked{% endif %}>
-                    <span class="form-check-label">高质量文件覆盖 <span class="form-help" title="开启后，如下载了更高质量的同名文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="media.filesize_cover" {% if
+                      Config.media.filesize_cover %}checked{% endif %}>
+                    <span class="form-check-label">高质量文件覆盖 <span class="form-help"
+                        title="开启后，如下载了更高质量的同名文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="media.refresh_mediaserver" {% if Config.media.refresh_mediaserver %}checked{% endif %}>
-                    <span class="form-check-label">实时刷新媒体库 <span class="form-help" title="开启后，文件转移完成时会实时刷新媒体服务器（Emby/Jellyfin/Plex）的媒体库" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="media.refresh_mediaserver" {% if
+                      Config.media.refresh_mediaserver %}checked{% endif %}>
+                    <span class="form-check-label">实时刷新媒体库 <span class="form-help"
+                        title="开启后，文件转移完成时会实时刷新媒体服务器（Emby/Jellyfin/Plex）的媒体库" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="media.nfo_poster" {% if Config.media.nfo_poster %}checked{% endif %}>
-                    <span class="form-check-label">刮削元数据及图片 <span class="form-help" title="开启后会自动生成nfo描述文件及图片，协助媒体服务器识别和刮削，在刮削设置中自定义刮削内容" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="media.nfo_poster" {% if Config.media.nfo_poster
+                      %}checked{% endif %}>
+                    <span class="form-check-label">刮削元数据及图片 <span class="form-help"
+                        title="开启后会自动生成nfo描述文件及图片，协助媒体服务器识别和刮削，在刮削设置中自定义刮削内容" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
@@ -241,7 +299,7 @@
           <div class="card-footer">
             <div class="row align-items-center">
               <div class="col-auto">
-                <a href="javascript:void(0)" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-scraper">
+                <a href="javascript:void(0)" class="btn" data-bs-toggle="modal" data-bs-target="#modal-scraper">
                   刮削设置
                 </a>
               </div>
@@ -264,32 +322,45 @@
             <div class="row">
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">站点签到时间 <span class="form-help" title="站点自动签到时间，三种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；配置为空则不启用自动站点签到功能（有的站点不支持签到，仅登录一次网站保号）" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="留空关闭自动签到" autocomplete="off">
+                  <label class="form-label">站点签到时间 <span class="form-help"
+                      title="站点自动签到时间，三种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；配置为空则不启用自动站点签到功能（有的站点不支持签到，仅登录一次网站保号）"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control"
+                    id="pt.ptsignin_cron" placeholder="留空关闭自动签到" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">订阅RSS周期(秒) <span class="form-help" title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="留空关闭RSS订阅" autocomplete="off">
+                  <label class="form-label">订阅RSS周期(秒) <span class="form-help"
+                      title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control"
+                    id="pt.pt_check_interval" placeholder="留空关闭RSS订阅" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">订阅搜索周期(天) <span class="form-help" title="定时对订阅内容进行存量资源搜索，以天为单位，最小间隔为1天，该项会对站点造成搜索压力，如非必要请不要开启" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.search_rss_interval or '' }}" class="form-control" id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="off">
+                  <label class="form-label">订阅搜索周期(天) <span class="form-help"
+                      title="定时对订阅内容进行存量资源搜索，以天为单位，最小间隔为1天，该项会对站点造成搜索压力，如非必要请不要开启"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.pt.search_rss_interval or '' }}" class="form-control"
+                    id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">保种时间(天) <span class="form-help" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能；仅支持Qbittorrent、Transmission下载器" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="off">
+                  <label class="form-label">保种时间(天) <span class="form-help"
+                      title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能；仅支持Qbittorrent、Transmission下载器"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control"
+                    id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">媒体库同步周期(小时) <span class="form-help" title="定时同步媒体服务器数据到本地，用于展示媒体是否存在，留空则不启用同步服务" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.mediasync_interval or '' }}" class="form-control" id="media.mediasync_interval" placeholder="留空关闭媒体库同步" autocomplete="off">
+                  <label class="form-label">媒体库同步周期(小时) <span class="form-help"
+                      title="定时同步媒体服务器数据到本地，用于展示媒体是否存在，留空则不启用同步服务" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.mediasync_interval or '' }}" class="form-control"
+                    id="media.mediasync_interval" placeholder="留空关闭媒体库同步" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -297,32 +368,41 @@
               <div class="col-xl">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
-                    <span class="form-check-label">下载软件监控 <span class="form-help" title="监控下载软件，下载完成后自动进行文件转移，与目录同步监控下载目录二选一开启" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor
+                      %}checked{% endif %}>
+                    <span class="form-check-label">下载软件监控 <span class="form-help"
+                        title="监控下载软件，下载完成后自动进行文件转移，与目录同步监控下载目录二选一开启" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pt.pt_monitor_only" {% if Config.pt.pt_monitor_only %}checked{% endif %}>
-                    <span class="form-check-label">只管理NASTool添加的下载 <span class="form-help" title="启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示；仅支持Qbittorrent、Transmission下载器" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="pt.pt_monitor_only" {% if
+                      Config.pt.pt_monitor_only %}checked{% endif %}>
+                    <span class="form-check-label">只管理NASTool添加的下载 <span class="form-help"
+                        title="启用后只有含NASTOOL标签的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示；仅支持Qbittorrent、Transmission下载器"
+                        data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
-                    <span class="form-check-label">远程搜索自动择优下载 <span class="form-help" title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto
+                      %}checked{% endif %}>
+                    <span class="form-check-label">远程搜索自动择优下载 <span class="form-help"
+                        title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-xl">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pt.search_no_result_rss" {% if Config.pt.search_no_result_rss %}checked{% endif %}>
-                    <span class="form-check-label">远程下载不完整自动订阅 <span class="form-help" title="启用后在微信、Telegram发送名称搜索下载不完整时将自动添加订阅" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="pt.search_no_result_rss" {% if
+                      Config.pt.search_no_result_rss %}checked{% endif %}>
+                    <span class="form-check-label">远程下载不完整自动订阅 <span class="form-help"
+                        title="启用后在微信、Telegram发送名称搜索下载不完整时将自动添加订阅" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
@@ -349,26 +429,43 @@
             <div class="row">
               <div class="col-12 col-lg">
                 <div class="mb-1">
-                  <label class="form-label">媒体服务器Webhook源地址 <span class="form-help" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，默认为0.0.0.0/0,::/0即不做限制" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv4 or '' }}" class="form-control" id="security.media_server_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="off">
+                  <label class="form-label">媒体服务器Webhook源地址 <span class="form-help"
+                      title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，默认为0.0.0.0/0,::/0即不做限制"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv4 or '' }}"
+                    class="form-control" id="security.media_server_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR"
+                    autocomplete="off">
                 </div>
                 <div class="mb-3">
-                  <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv6 or '' }}" class="form-control" id="security.media_server_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR" autocomplete="off">
+                  <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv6 or '' }}"
+                    class="form-control" id="security.media_server_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR"
+                    autocomplete="off">
                 </div>
               </div>
               <div class="col-12 col-lg">
                 <div class="mb-1">
-                  <label class="form-label">Telegram源地址 <span class="form-help" title="仅接收配置的地址范围内发送的Telegram消息，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制；使用Telegram WebHook且未做代理转发时推荐IPv4地址设置为：149.154.160.0/20,91.108.4.0/22，关闭Telegram WebHook时推荐IPv4地址设置为：127.0.0.1" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv4 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="off">
+                  <label class="form-label">Telegram源地址 <span class="form-help"
+                      title="仅接收配置的地址范围内发送的Telegram消息，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制；使用Telegram WebHook且未做代理转发时推荐IPv4地址设置为：149.154.160.0/20,91.108.4.0/22，关闭Telegram WebHook时推荐IPv4地址设置为：127.0.0.1"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text"
+                    value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv4 or '' }}{% endif %}"
+                    class="form-control" id="security.telegram_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR"
+                    autocomplete="off">
                 </div>
                 <div class="mb-3">
-                  <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv6 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR" autocomplete="off">
+                  <input type="text"
+                    value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv6 or '' }}{% endif %}"
+                    class="form-control" id="security.telegram_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR"
+                    autocomplete="off">
                 </div>
               </div>
               <div class="col-12 col-lg">
                 <div class="mb-3">
-                  <label class="form-label">API密钥 <span class="form-help" title="使用Jellyseerr、Overseerr等调用本程序订阅接口时，需要在Authorization中填入该密钥" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" id="security.api_key" class="form-control" value="{% if Config.security %}{{ Config.security.api_key }}{% endif %}">
+                  <label class="form-label">API密钥 <span class="form-help"
+                      title="使用Jellyseerr、Overseerr等调用本程序订阅接口时，需要在Authorization中填入该密钥"
+                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" id="security.api_key" class="form-control"
+                    value="{% if Config.security %}{{ Config.security.api_key }}{% endif %}">
                 </div>
               </div>
             </div>
@@ -395,40 +492,53 @@
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.search_keyword" {% if Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
-                    <span class="form-check-label">辅助识别 <span class="form-help" title="开启后，无法识别到媒体信息时会尝试猜测和纠正关键词并再次匹配，会大大增加识别耗时，一般情况下不建议开启" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="laboratory.search_keyword" {% if
+                      Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
+                    <span class="form-check-label">辅助识别 <span class="form-help"
+                        title="开启后，无法识别到媒体信息时会尝试猜测和纠正关键词并再次匹配，会大大增加识别耗时，一般情况下不建议开启"
+                        data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.tmdb_cache_expire" {% if Config.laboratory and Config.laboratory.tmdb_cache_expire %}checked{% endif %}>
-                    <span class="form-check-label">TMDB缓存过期策略 <span class="form-help" title="开启TMDB缓存过期策略后，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新，建议开启" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="laboratory.tmdb_cache_expire" {% if
+                      Config.laboratory and Config.laboratory.tmdb_cache_expire %}checked{% endif %}>
+                    <span class="form-check-label">TMDB缓存过期策略 <span class="form-help"
+                        title="开启TMDB缓存过期策略后，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新，建议开启"
+                        data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.use_douban_titles" {% if Config.laboratory and Config.laboratory.use_douban_titles %}checked{% endif %}>
-                    <span class="form-check-label">使用豆瓣名称联想 <span class="form-help" title="开启将使用豆瓣进行电影电视剧的名称联想，允许中文名不完整时自动联想，但如豆瓣数据与TMDB不一致时可能会无法搜索；关闭后使用TMDB的数据，对中文支持不友好，但不会有无法搜索的问题" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="laboratory.use_douban_titles" {% if
+                      Config.laboratory and Config.laboratory.use_douban_titles %}checked{% endif %}>
+                    <span class="form-check-label">使用豆瓣名称联想 <span class="form-help"
+                        title="开启将使用豆瓣进行电影电视剧的名称联想，允许中文名不完整时自动联想，但如豆瓣数据与TMDB不一致时可能会无法搜索；关闭后使用TMDB的数据，对中文支持不友好，但不会有无法搜索的问题"
+                        data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.search_en_title" {% if Config.laboratory and Config.laboratory.search_en_title %}checked{% endif %}>
-                    <span class="form-check-label">搜索优先使用英文名 <span class="form-help" title="开启后对于精确搜索场景将会优先使用英文名搜索，否则优先使用中文名搜索" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="laboratory.search_en_title" {% if
+                      Config.laboratory and Config.laboratory.search_en_title %}checked{% endif %}>
+                    <span class="form-check-label">搜索优先使用英文名 <span class="form-help"
+                        title="开启后对于精确搜索场景将会优先使用英文名搜索，否则优先使用中文名搜索" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.tmdb_proxy" {% if Config.laboratory and Config.laboratory.tmdb_proxy %}checked{% endif %}>
-                    <span class="form-check-label">使用TMDB代理服务 <span class="form-help" title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启" data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="laboratory.tmdb_proxy" {% if Config.laboratory
+                      and Config.laboratory.tmdb_proxy %}checked{% endif %}>
+                    <span class="form-check-label">使用TMDB代理服务 <span class="form-help"
+                        title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
@@ -449,16 +559,20 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-scraper" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-scraper" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content border-0">
       <div class="card">
-        <ul class="nav nav-fill nav-tabs" style="--tblr-nav-link-padding-y:0.75rem" data-bs-toggle="tabs" role="tablist">
+        <ul class="nav nav-fill nav-tabs" style="--tblr-nav-link-padding-y:0.75rem" data-bs-toggle="tabs"
+          role="tablist">
           <li class="nav-item" role="presentation">
-            <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab" aria-selected="true" role="tab">NFO</a>
+            <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
+              aria-selected="true" role="tab">NFO</a>
           </li>
           <li class="nav-item" role="presentation">
-            <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">图片</a>
+            <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
+              aria-selected="false" role="tab" tabindex="-1">图片</a>
           </li>
         </ul>
         <div class="card-body">
@@ -476,7 +590,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.basic" {% if Config.scraper_nfo and Config.scraper_nfo.movie.basic %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.basic" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.movie.basic %}checked{% endif %}>
                         <span class="form-check-label">基础信息 </span>
                       </label>
                     </div>
@@ -484,7 +599,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits" {% if Config.scraper_nfo and Config.scraper_nfo.movie.credits %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.movie.credits %}checked{% endif %}>
                         <span class="form-check-label">演职人员 </span>
                       </label>
                     </div>
@@ -492,7 +608,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits_chinese" {% if Config.scraper_nfo and Config.scraper_nfo.movie.credits_chinese %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits_chinese" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.movie.credits_chinese %}checked{% endif %}>
                         <span class="form-check-label">演职人员中文 </span>
                       </label>
                     </div>
@@ -509,7 +626,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.basic" {% if Config.scraper_nfo and Config.scraper_nfo.tv.basic %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.basic" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.basic %}checked{% endif %}>
                         <span class="form-check-label">基础信息 </span>
                       </label>
                     </div>
@@ -517,7 +635,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits" {% if Config.scraper_nfo and Config.scraper_nfo.tv.credits %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.credits %}checked{% endif %}>
                         <span class="form-check-label">演职人员 </span>
                       </label>
                     </div>
@@ -525,7 +644,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits_chinese" {% if Config.scraper_nfo and Config.scraper_nfo.tv.credits_chinese %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits_chinese" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.credits_chinese %}checked{% endif %}>
                         <span class="form-check-label">演职人员中文 </span>
                       </label>
                     </div>
@@ -542,7 +662,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.season_basic" {% if Config.scraper_nfo and Config.scraper_nfo.tv.season_basic %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.season_basic" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.season_basic %}checked{% endif %}>
                         <span class="form-check-label">季-基础信息 </span>
                       </label>
                     </div>
@@ -550,7 +671,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_basic" {% if Config.scraper_nfo and Config.scraper_nfo.tv.episode_basic %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_basic" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.episode_basic %}checked{% endif %}>
                         <span class="form-check-label">集-基础信息 </span>
                       </label>
                     </div>
@@ -558,7 +680,8 @@
                   <div class="col-12 col-lg-4">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_credits" {% if Config.scraper_nfo and Config.scraper_nfo.tv.episode_credits %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_credits" {% if
+                          Config.scraper_nfo and Config.scraper_nfo.tv.episode_credits %}checked{% endif %}>
                         <span class="form-check-label">集-演职人员 </span>
                       </label>
                     </div>
@@ -579,7 +702,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.poster" {% if Config.scraper_pic and Config.scraper_pic.movie.poster %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.poster" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.poster %}checked{% endif %}>
                         <span class="form-check-label">poster </span>
                       </label>
                     </div>
@@ -587,7 +711,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.backdrop" {% if Config.scraper_pic and Config.scraper_pic.movie.backdrop %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.backdrop" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.backdrop %}checked{% endif %}>
                         <span class="form-check-label">fanart </span>
                       </label>
                     </div>
@@ -595,7 +720,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.background" {% if Config.scraper_pic and Config.scraper_pic.movie.background %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.background" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.background %}checked{% endif %}>
                         <span class="form-check-label">background </span>
                       </label>
                     </div>
@@ -603,7 +729,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.logo" {% if Config.scraper_pic and Config.scraper_pic.movie.logo %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.logo" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.logo %}checked{% endif %}>
                         <span class="form-check-label">logo </span>
                       </label>
                     </div>
@@ -613,7 +740,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.disc" {% if Config.scraper_pic and Config.scraper_pic.movie.disc %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.disc" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.disc %}checked{% endif %}>
                         <span class="form-check-label">disc </span>
                       </label>
                     </div>
@@ -621,7 +749,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.banner" {% if Config.scraper_pic and Config.scraper_pic.movie.banner %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.banner" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.banner %}checked{% endif %}>
                         <span class="form-check-label">banner </span>
                       </label>
                     </div>
@@ -629,7 +758,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.thumb" {% if Config.scraper_pic and Config.scraper_pic.movie.thumb %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.thumb" {% if
+                          Config.scraper_pic and Config.scraper_pic.movie.thumb %}checked{% endif %}>
                         <span class="form-check-label">thumb </span>
                       </label>
                     </div>
@@ -646,7 +776,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.poster" {% if Config.scraper_pic and Config.scraper_pic.tv.poster %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.poster" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.poster %}checked{% endif %}>
                         <span class="form-check-label">poster </span>
                       </label>
                     </div>
@@ -654,7 +785,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.backdrop" {% if Config.scraper_pic and Config.scraper_pic.tv.backdrop %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.backdrop" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.backdrop %}checked{% endif %}>
                         <span class="form-check-label">fanart </span>
                       </label>
                     </div>
@@ -662,7 +794,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.background" {% if Config.scraper_pic and Config.scraper_pic.tv.background %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.background" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.background %}checked{% endif %}>
                         <span class="form-check-label">show </span>
                       </label>
                     </div>
@@ -670,7 +803,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.logo" {% if Config.scraper_pic and Config.scraper_pic.tv.logo %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.logo" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.logo %}checked{% endif %}>
                         <span class="form-check-label">logo </span>
                       </label>
                     </div>
@@ -680,7 +814,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.clearart" {% if Config.scraper_pic and Config.scraper_pic.tv.clearart %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.clearart" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.clearart %}checked{% endif %}>
                         <span class="form-check-label">clearart </span>
                       </label>
                     </div>
@@ -688,7 +823,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.banner" {% if Config.scraper_pic and Config.scraper_pic.tv.banner %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.banner" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.banner %}checked{% endif %}>
                         <span class="form-check-label">banner </span>
                       </label>
                     </div>
@@ -696,7 +832,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.thumb" {% if Config.scraper_pic and Config.scraper_pic.tv.thumb %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.thumb" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.thumb %}checked{% endif %}>
                         <span class="form-check-label">thumb </span>
                       </label>
                     </div>
@@ -713,7 +850,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_poster" {% if Config.scraper_pic and Config.scraper_pic.tv.season_poster %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_poster" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.season_poster %}checked{% endif %}>
                         <span class="form-check-label">poster </span>
                       </label>
                     </div>
@@ -721,7 +859,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_banner" {% if Config.scraper_pic and Config.scraper_pic.tv.season_banner %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_banner" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.season_banner %}checked{% endif %}>
                         <span class="form-check-label">banner </span>
                       </label>
                     </div>
@@ -729,7 +868,8 @@
                   <div class="col-12 col-lg-3">
                     <div class="mb-3">
                       <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_thumb" {% if Config.scraper_pic and Config.scraper_pic.tv.season_thumb %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_thumb" {% if
+                          Config.scraper_pic and Config.scraper_pic.tv.season_thumb %}checked{% endif %}>
                         <span class="form-check-label">thumb </span>
                       </label>
                     </div>
@@ -751,36 +891,36 @@
 </div>
 <script type="text/javascript">
   // 保存基础设置
-  function save_basic_config(type){
+  function save_basic_config(type) {
     var params = {};
-    $("#"+ type +" input").each(function(){
+    $("#" + type + " input").each(function () {
       var key = $(this).attr("id");
-      if($(this).attr("type")=="checkbox"){
-        var value = $(this).prop("checked") ? true:false;
-      }else{
+      if ($(this).attr("type") == "checkbox") {
+        var value = $(this).prop("checked") ? true : false;
+      } else {
         var value = $(this).val();
       }
       params[key] = value;
     });
-    $("#"+ type +" select").each(function(){
+    $("#" + type + " select").each(function () {
       var key = $(this).attr("id");
       var value = $(this).val();
       params[key] = value;
     });
-    if(type != "modal-scraper"){
-      $("#"+ type +"_btn").attr("disabled", true);
-      $("#"+ type +"_btn").text("保存中...");
+    if (type != "modal-scraper") {
+      $("#" + type + "_btn").attr("disabled", true);
+      $("#" + type + "_btn").text("保存中...");
     }
     ajax_post("update_config", params, function (ret) {
-      if(type != "modal-scraper"){
-        $("#"+ type +"_btn").attr("disabled", false);
-        $("#"+ type +"_btn").text("保存");
+      if (type != "modal-scraper") {
+        $("#" + type + "_btn").attr("disabled", false);
+        $("#" + type + "_btn").text("保存");
       }
     });
   }
 
   // 保存搜刮配置
-  function save_scraper_config(){
+  function save_scraper_config() {
     save_basic_config('modal-scraper');
     $("#modal-scraper").modal("hide");
   }

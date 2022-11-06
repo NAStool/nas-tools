@@ -38,7 +38,9 @@
                     </div>
                     <div class="col">
                       <div class="progress progress-sm">
-                        <div class="progress-bar" id="progress_{{ Torrent.id }}" style="width: {{ Torrent.progress }}%" role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" id="progress_{{ Torrent.id }}" style="width: {{ Torrent.progress }}%"
+                          role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0"
+                          aria-valuemax="100">
                           <span class="visually-hidden"></span>
                         </div>
                       </div>
@@ -49,12 +51,21 @@
               <div class="col-auto">
                 <div class="dropdown">
                   <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <circle cx="12" cy="12" r="1" />
+                      <circle cx="12" cy="19" r="1" />
+                      <circle cx="12" cy="5" r="1" />
+                    </svg>
                   </a>
                   <div class="dropdown-menu dropdown-menu-end">
                     {% if Client != 'client115' %}
-                    <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}" class="dropdown-item" style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
-                    <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}" class="dropdown-item" style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
+                    <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
+                      class="dropdown-item"
+                      style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
+                    <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
+                      class="dropdown-item" style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
                     {% endif %}
                     <a href="javascript:remove_pt_download('{{ Torrent.id }}')" class="dropdown-item text-danger">删除</a>
                   </div>
@@ -73,7 +84,7 @@
 <div class="page-body">
   <div class="container-xl d-flex flex-column justify-content-center">
     <div class="empty">
-      <div class="empty-img"><img src="./static/img/quitting_time.svg" height="128"  alt="">
+      <div class="empty-img"><img src="./static/img/quitting_time.svg" height="128" alt="">
       </div>
       <p class="empty-title">没有记录</p>
       <p class="empty-subtitle text-muted">
@@ -85,60 +96,58 @@
 {% endif %}
 <script type="text/javascript">
   // 下载控制
-  function start_pt_download(id){
-      var cmd = "pt_start";
-      var param = {"id": id};
-      ajax_post(cmd, param, function(ret){
-        get_torrent_info(ret.id)
-      });
+  function start_pt_download(id) {
+    var cmd = "pt_start";
+    var param = { "id": id };
+    ajax_post(cmd, param, function (ret) {
+      get_torrent_info(ret.id)
+    });
   }
-  function stop_pt_download(id){
-      var cmd = "pt_stop";
-      var param = {"id": id};
-      ajax_post(cmd, param, function(ret){
-        get_torrent_info(ret.id)
-      });
+  function stop_pt_download(id) {
+    var cmd = "pt_stop";
+    var param = { "id": id };
+    ajax_post(cmd, param, function (ret) {
+      get_torrent_info(ret.id)
+    });
   }
-  function remove_pt_download(id){
-      var cmd = "pt_remove";
-      var param = {"id": id};
-      ajax_post(cmd, param, function(ret){
-        navmenu('downloading');
-      });
+  function remove_pt_download(id) {
+    var cmd = "pt_remove";
+    var param = { "id": id };
+    ajax_post(cmd, param, function (ret) {
+      navmenu('downloading');
+    });
   }
 
   //更新所有种子页面信息
-  function get_all_torrents_info(){
-      var cmd = "pt_info";
-      var ids = [];
-      var i = 0;
-      $(".download_ids").each(function(){
-        ids[i] = $(this).val();
-        i++;
-      });
-      if(ids.length == 0){
-        return;
-      }
-      var param = {"ids": ids};
-      ajax_post(cmd, param, function(ret){
-        if(ret.retcode == "0"){
-          for (var i=0;i<ret.torrents.length;i++)
-          {
-            update_torrent_ui(ret.torrents[i]);
-          }
-          setTimeout("get_all_torrents_info()", 2000);
+  function get_all_torrents_info() {
+    var cmd = "pt_info";
+    var ids = [];
+    var i = 0;
+    $(".download_ids").each(function () {
+      ids[i] = $(this).val();
+      i++;
+    });
+    if (ids.length == 0) {
+      return;
+    }
+    var param = { "ids": ids };
+    ajax_post(cmd, param, function (ret) {
+      if (ret.retcode == "0") {
+        for (var i = 0; i < ret.torrents.length; i++) {
+          update_torrent_ui(ret.torrents[i]);
         }
-      });
+        setTimeout("get_all_torrents_info()", 2000);
+      }
+    });
   }
 
   //更新一个种子页面信息
-  function get_torrent_info(id){
+  function get_torrent_info(id) {
     var cmd = "pt_info";
-    var param = {"ids": id};
-    ajax_post(cmd, param, function(ret){
-      if(ret.retcode == "0"){
-        for (var i=0;i<ret.torrents.length;i++)
-        {
+    var param = { "ids": id };
+    ajax_post(cmd, param, function (ret) {
+      if (ret.retcode == "0") {
+        for (var i = 0; i < ret.torrents.length; i++) {
           update_torrent_ui(ret.torrents[i]);
         }
       }
@@ -147,18 +156,18 @@
 
 
   //更新单个种子的页面信息
-  function update_torrent_ui(info){
-      $("#speed_text_" + info.id).text(info.speed);
-      $("#progress_text_" + info.id).text(info.progress + "%");
-      $("#progress_" + info.id).attr("style", "width: " + info.progress + "%");
-      $("#progress_" + info.id).attr("aria-valuenow", info.progress);
-      if(info.state == "Stoped"){
-        $("#start_btn_" + info.id).show()
-        $("#stop_btn_" + info.id).hide()
-      }else{
-        $("#start_btn_" + info.id).hide()
-        $("#stop_btn_" + info.id).show()
-      }
+  function update_torrent_ui(info) {
+    $("#speed_text_" + info.id).text(info.speed);
+    $("#progress_text_" + info.id).text(info.progress + "%");
+    $("#progress_" + info.id).attr("style", "width: " + info.progress + "%");
+    $("#progress_" + info.id).attr("aria-valuenow", info.progress);
+    if (info.state == "Stoped") {
+      $("#start_btn_" + info.id).show()
+      $("#stop_btn_" + info.id).hide()
+    } else {
+      $("#start_btn_" + info.id).hide()
+      $("#stop_btn_" + info.id).show()
+    }
   }
 
   //事件

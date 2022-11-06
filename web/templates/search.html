@@ -16,7 +16,8 @@
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
               onclick="javascript:search_media_list()">搜索</button>
-            <button id="search_icon" onclick="javascript:search_media_list()" class="btn btn-primary d-sm-none btn-icon">
+            <button id="search_icon" onclick="javascript:search_media_list()"
+              class="btn btn-primary d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                 stroke-linejoin="round">
@@ -50,7 +51,7 @@
       {% if Count > 8 %}
       <div class="col-md-3 col-lg-2 d-none d-md-block">
         <div class="accordion" id="filter_form_accordion"
-          style="position:-webkit-sticky;position:sticky;top:1rem;z-index:1;max-height: 35rem; overflow-y:auto;">
+          style="position:-webkit-sticky;position:sticky;top:1rem;z-index:1;max-height: 35rem; overflow-y:auto; overflow-x:hidden;">
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_type">
               <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#filter_type"
@@ -74,8 +75,8 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_title">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_title"
-                aria-expanded="true">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filter_title" aria-expanded="true">
                 标题
               </button>
             </h2>
@@ -201,7 +202,8 @@
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
           {% for Item in Items %}
-          <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item.id }}">
+          <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card"
+            id="media_card_{{ Item.id }}">
             <div class="card card-sm card-link-pop rounded-3">
               {% if Item.vote|int > 0 %}
               <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">
@@ -209,7 +211,12 @@
               {% endif %}
               {% if Item.exist %}
               <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                  class="h-3 w-3 sm:h-4 sm:w-4">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
               </div>
               {% endif %}
               {% if Item.image %}
@@ -221,14 +228,15 @@
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
                   <input type="hidden" name="media_card_type" value="{{ Item.type }}">
-                  <input type="hidden" name="media_card_spstate" value="{{ Item.uploadvalue }} {{ Item.downloadvalue }}">
+                  <input type="hidden" name="media_card_spstate"
+                    value="{{ Item.uploadvalue }} {{ Item.downloadvalue }}">
                   <input type="hidden" name="media_card_title" value="{{ Item.title_string }}">
                   <div>
                     <div>
-                      <a
-                        href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
+                      <a href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
                         title="点击添加下载">
-                      <strong>{% if Item.tmdbid or not Item.description %}{{ Item.title_string|replace("()", "") }}{% else %} {{ Item.description }} {% endif %}</strong></a>
+                        <strong>{% if Item.tmdbid or not Item.description %}{{ Item.title_string|replace("()", "") }}{%
+                          else %} {{ Item.description }} {% endif %}</strong></a>
                       {% if Item.seeders %}
                       <span class="badge ms-2">{{ Item.seeders }}{{ UPCHAR }}</span>
                       {% endif %}
@@ -236,15 +244,17 @@
                       <span class="badge text-white bg-azure">{{ (Item.uploadvalue * 100) | int }}%UL</span>
                       {% endif %}
                       {% if Item.downloadvalue != 1.0 %}
-                          {% if Item.downloadvalue == 0.0 %}
-                          <span class="badge text-white bg-lime">FREE</span>
-                          {% else %}
-                          <span class="badge text-white bg-blue">{{ (Item.downloadvalue * 100) | int }}%DL</span>
-                          {% endif %}
+                      {% if Item.downloadvalue == 0.0 %}
+                      <span class="badge text-white bg-lime">FREE</span>
+                      {% else %}
+                      <span class="badge text-white bg-blue">{{ (Item.downloadvalue * 100) | int }}%DL</span>
+                      {% endif %}
                       {% endif %}
                     </div>
                     <div class="text-muted mt-1" style="line-height: 1.6em;">
-                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item.site}}</span>{% if Item.restype %} <span class="badge badge-outline text-orange">{{ Item.restype }}{% endif %}</span>
+                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{
+                          Item.site}}</span>{% if Item.restype %} <span class="badge badge-outline text-orange">{{
+                          Item.restype }}{% endif %}</span>
                         {% if Item.size %}
                         <span class="badge badge-outline text-yellow">{{ Item.size }}</span>
                         {% endif %}
@@ -281,9 +291,9 @@
                   </svg>
                   {% endif %}
                   {% if Item.pageurl %}
-                    <small><a href="{{ Item.pageurl }}" target="_blank">{{ Item.torrent_name }}</a></small>
+                  <small><a href="{{ Item.pageurl }}" target="_blank">{{ Item.torrent_name }}</a></small>
                   {% else %}
-                    <small>{{ Item.torrent_name }}</small>
+                  <small>{{ Item.torrent_name }}</small>
                   {% endif %}
                 </div>
                 {% endif %}
@@ -315,7 +325,8 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -414,7 +425,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button onclick="javascript:search_media_advanced()" id="search_advanced_btn" class="btn btn-primary">开始搜索</button>
+        <button onclick="javascript:search_media_advanced()" id="search_advanced_btn"
+          class="btn btn-primary">开始搜索</button>
       </div>
     </div>
   </div>
@@ -433,10 +445,9 @@
         <div class="d-flex">
           {% if SaveDirs %}
           <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载"
-                  style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
-          <button data-bs-toggle="dropdown" type="button"
-              class="btn btn-danger dropdown-toggle dropdown-toggle-split" title="手动选择下载目录"
-            style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
+            style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
+          <button data-bs-toggle="dropdown" type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split"
+            title="手动选择下载目录" style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
           <div class="dropdown-menu dropdown-menu-end">
             {% for SaveDir in SaveDirs %}
             <a class="dropdown-item" href="javascript:download_link('{{ SaveDir|safe }}')">
@@ -445,7 +456,8 @@
             {% endfor %}
           </div>
           {% else %}
-           <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载">确认下载</button>
+          <button type="button" class="btn btn-danger" onclick="javascript:download_link()"
+            title="自动选择目录下载">确认下载</button>
           {% endif %}
         </div>
       </div>
@@ -495,9 +507,9 @@
     show_refresh_process("正在搜索 " + keyword + "...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if(ret.code == 0){
+      if (ret.code == 0) {
         navmenu('search?s=' + keyword);
-      }else{
+      } else {
         $("#search_btn").text("搜索");
         $("#search_btn").attr("disabled", false);
         $("#quick_search_btn").attr("disabled", false);
@@ -510,12 +522,12 @@
   }
 
   //搜索联想
-  function search_media_list(){
+  function search_media_list() {
     var keyword = $("#search_word").val();
     if (keyword == "") {
       return;
     }
-    navmenu('medialist?s='+keyword+'&f=1&t=search');
+    navmenu('medialist?s=' + keyword + '&f=1&t=search');
   }
 
   //点击链接下载
@@ -523,10 +535,10 @@
     var id = $("#search_download_id").val();
     var name = $("#search_download_name").val();
     $("#modal-search-download").modal('hide');
-    ajax_post("download", { "id": id, "dir": dir}, function (ret) {
-      if(ret.retcode == 0){
+    ajax_post("download", { "id": id, "dir": dir }, function (ret) {
+      if (ret.retcode == 0) {
         show_success_modal(name + " 添加下载成功！");
-      }else{
+      } else {
         show_fail_modal(name + " 添加下载失败 " + ret.retmsg + "！");
       }
     });
@@ -573,26 +585,26 @@
             break;
           }
           const sp_name_map = new Map([
-              ["普通", '1.0 1.0'],
-              ["免费", '1.0 0.0'],
-              ["2X", '2.0 1.0'],
-              ["2X免费", '2.0 0.0'],
-              ["50%", '1.0 0.5'],
-              ["2X 50%", '2.0 0.5'],
-              ["70%", '1.0 0.7'],
-              ["30%", '1.0 0.3']
+            ["普通", '1.0 1.0'],
+            ["免费", '1.0 0.0'],
+            ["2X", '2.0 1.0'],
+            ["2X免费", '2.0 0.0'],
+            ["50%", '1.0 0.5'],
+            ["2X 50%", '2.0 0.5'],
+            ["70%", '1.0 0.7'],
+            ["30%", '1.0 0.3']
           ]);
           if (Array.from(sp_name_map.keys()).includes(strings[i])) {
-              let sp_state = sp_name_map.get(strings[i]);
-              if (sp_state != spstate_string) {
-                  show_flag = false;
-                  break;
-              }
+            let sp_state = sp_name_map.get(strings[i]);
+            if (sp_state != spstate_string) {
+              show_flag = false;
+              break;
+            }
           }
           if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"
-              && !Array.from(sp_name_map.keys()).includes(strings[i])
-              && media_string.search(strings[i]) == -1
-              && title_string.search(strings[i]) == -1) {
+            && !Array.from(sp_name_map.keys()).includes(strings[i])
+            && media_string.search(strings[i]) == -1
+            && title_string.search(strings[i]) == -1) {
             show_flag = false;
             break;
           }
@@ -668,8 +680,8 @@
     if (search_season) {
       keyword = keyword + " " + search_season;
     }
-    var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "sp_state": sp_state, "key": search_key};
-    var param = { "search_word": keyword, "filters": filters, "unident": true};
+    var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "sp_state": sp_state, "key": search_key };
+    var param = { "search_word": keyword, "filters": filters, "unident": true };
     $("#modal-search-advanced").modal("hide");
     show_refresh_process("正在搜索 " + keyword + " ...");
     ajax_post("search", param, function (ret) {

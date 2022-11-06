@@ -19,8 +19,8 @@
             <div class="row align-items-center">
               <div class="col-auto">
                 <span class="bg-blue avatar">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload text-white" width="24"
-                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload text-white"
+                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                     stroke-linecap="round" stroke-linejoin="round">
                     <desc>Download more icon variants from https://tabler-icons.io/i/world-upload</desc>
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -51,8 +51,8 @@
             <div class="row align-items-center">
               <div class="col-auto">
                 <span class="bg-red avatar">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-download text-white" width="24"
-                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-download text-white"
+                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                     stroke-linecap="round" stroke-linejoin="round">
                     <desc>Download more icon variants from https://tabler-icons.io/i/world-download</desc>
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -83,12 +83,17 @@
             <div class="row align-items-center">
               <div class="col-auto">
                 <span class="bg-green avatar">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines text-white" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z"></path>
-                       <path d="M9 21h6"></path>
-                       <path d="M9 18h6"></path>
-                    </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                    class="icon icon-tabler icon-tabler-arrow-big-up-lines text-white" width="40" height="40"
+                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path
+                      d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z">
+                    </path>
+                    <path d="M9 21h6"></path>
+                    <path d="M9 18h6"></path>
+                  </svg>
                 </span>
               </div>
               <div class="col">
@@ -109,12 +114,14 @@
             <div class="row align-items-center">
               <div class="col-auto">
                 <span class="bg-green avatar">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-upload text-white" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"></path>
-                       <polyline points="9 15 12 12 15 15"></polyline>
-                       <line x1="12" y1="12" x2="12" y2="21"></line>
-                    </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-upload text-white"
+                    width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"></path>
+                    <polyline points="9 15 12 12 15 15"></polyline>
+                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                  </svg>
                 </span>
               </div>
               <div class="col">
@@ -151,25 +158,28 @@
           </div>
         </div>
       </div>
-    <div class="d-none d-lg-block col-lg-12">
+      <div class="d-none d-lg-block col-lg-12">
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
               <h3 class="card-title" id="site-history-title">历史数据</h3>
             </div>
             <div class="row align-items-center">
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <button id="btn-history-one-week" class="btn btn-ghost-info active btn-site-history" onclick="show_site_history(this, 7)">最近一周</button>
-                        <button id="btn-history-one-month" class="btn btn-ghost-info btn-site-history" onclick="show_site_history(this, 30)">最近一月</button>
-                        <button id="btn-history-one-year" class="btn btn-ghost-info btn-site-history" onclick="show_site_history(this, 365)">最近一年</button>
-                    </div>
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <button id="btn-history-one-week" class="btn btn-ghost-info active btn-site-history"
+                    onclick="show_site_history(this, 7)">最近一周</button>
+                  <button id="btn-history-one-month" class="btn btn-ghost-info btn-site-history"
+                    onclick="show_site_history(this, 30)">最近一月</button>
+                  <button id="btn-history-one-year" class="btn btn-ghost-info btn-site-history"
+                    onclick="show_site_history(this, 365)">最近一年</button>
                 </div>
+              </div>
             </div>
             <div id="chart-site-history"></div>
           </div>
         </div>
-    </div>
+      </div>
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
@@ -177,17 +187,22 @@
               <h3 class="card-title">站点数据</h3>
               <div class="ms-2">
                 <a href="javascript:save_statistics_pic()" class="btn-icon" title="请在明亮模式（右上角切换）下生成数据图">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="icon icon-tabler icon-tabler-refresh" style="vertical-align: middle" viewBox="0 0 16 16">
-                    <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="icon icon-tabler icon-tabler-refresh" style="vertical-align: middle" viewBox="0 0 16 16">
+                    <path
+                      d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
                   </svg>
                 </a>
               </div>
               <div class="ms-auto">
-                <a href="javascript:void(0)" class="btn-icon"
-                  {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item.site }}{% endfor %}')"
-                  {%  endif %}
+                <a href="javascript:void(0)" class="btn-icon" {% if SiteUserStatistics | count> 0 %}
+                  onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item.site }}{%
+                  endfor %}')"
+                  {% endif %}
                   >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -203,15 +218,18 @@
             <table id="table-site-user-data-table" class="table table-vcenter card-table table-hover table-striped">
               <thead>
                 <tr>
-                    <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
+                  <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
                     <th><span class="d-none d-lg-block">等级</span></th>
-                    <th><button class="table-sort" data-sort="sort-data">数据量</button></th>
-                    <th><button class="table-sort" data-sort="sort-ratio">分享率</button></th>
-                    <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
-                    <th><button class="table-sort" data-sort="sort-size">做种体积</button></th>
-                    <th><button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button></th>
-                    <th><span class="d-none d-lg-block"><button class="table-sort" data-sort="sort-rtime">更新时间</button></span></th>
-                    <th><span class="d-none d-lg-block"></span></th>
+                  <th><button class="table-sort" data-sort="sort-data">数据量</button></th>
+                  <th><button class="table-sort" data-sort="sort-ratio">分享率</button></th>
+                  <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
+                  <th><button class="table-sort" data-sort="sort-size">做种体积</button></th>
+                  <th><button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button></th>
+                  <th><span class="d-none d-lg-block"><button class="table-sort"
+                        data-sort="sort-jtime">加入时间</button></span></th>
+                  <th><span class="d-none d-lg-block"><button class="table-sort"
+                        data-sort="sort-rtime">更新时间</button></span></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody class="table-tbody">
@@ -220,72 +238,85 @@
                 <tr>
                   <td class="sort-name">
                     <div class="d-flex py-1 align-items-center">
-                        {% if SiteErr.get(item.site) %}
-                            <span class="badge bg-warning me-1" title="{{ SiteErr.get(item.site) }}"></span>
-                        {% else %}
-                            <span class="badge bg-success me-1"></span>
-                        {% endif %}
-                      <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据" class="rounded me-2 d-none d-md-block" src="data:image/ico;base64,{{ item.favicon }}" width="24" height="24" alt=""
-                        onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
+                      {% if SiteErr.get(item.site) %}
+                      <span class="badge bg-warning me-1" title="{{ SiteErr.get(item.site) }}"></span>
+                      {% else %}
+                      <span class="badge bg-success me-1"></span>
+                      {% endif %}
+                      <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
+                        class="rounded me-2" src="data:image/ico;base64,{{ item.favicon }}" width="24"
+                        height="24" alt="" onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer" />
                       <div class="flex-fill">
                         <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
-                            {% if item.msg_unread > 0 %}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="gray" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                   <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
-                                   <line x1="8" y1="9" x2="16" y2="9"></line>
-                                   <line x1="8" y1="13" x2="14" y2="13"></line>
-                                </svg>
-                            {% endif %}
+                          {% if item.msg_unread > 0 %}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message"
+                            width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="gray" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
+                            <line x1="8" y1="9" x2="16" y2="9"></line>
+                            <line x1="8" y1="13" x2="14" y2="13"></line>
+                          </svg>
+                          {% endif %}
                         </div>
-                        <div class="text-muted d-none d-md-block">{{ item.username }}</div>
+                        <div class="text-muted">{{ item.username }}</div>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <span class="d-none d-lg-block">{{ item.user_level }}</span>
+                      <span class="d-none d-lg-block">{{ item.user_level }}</span>
                   </td>
                   <td class="sort-data" data-data="{{ item.upload }}">
-                      <div class="flex-fill">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                          stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="12" y1="5" x2="12" y2="19"></line>
-                          <line x1="18" y1="11" x2="12" y2="5"></line>
-                          <line x1="6" y1="11" x2="12" y2="5"></line>
-                        </svg>
-                        <small>{{ item.upload | filesizeformat(true) }}</small>
-                      </div>
-                      <div class="flex-fill">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                          stroke-width="2" stroke="red" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="12" y1="5" x2="12" y2="19"></line>
-                          <line x1="18" y1="13" x2="12" y2="19"></line>
-                          <line x1="6" y1="13" x2="12" y2="19"></line>
-                        </svg>
-                        <small>{{ item.download | filesizeformat(true) }}</small>
-                      </div>
+                    <div class="flex-fill">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="18" y1="11" x2="12" y2="5"></line>
+                        <line x1="6" y1="11" x2="12" y2="5"></line>
+                      </svg>
+                      <small>{{ item.upload | filesizeformat(true) }}</small>
+                    </div>
+                    <div class="flex-fill">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="red" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="18" y1="13" x2="12" y2="19"></line>
+                        <line x1="6" y1="13" x2="12" y2="19"></line>
+                      </svg>
+                      <small>{{ item.download | filesizeformat(true) }}</small>
+                    </div>
                   </td>
-                    <td class="sort-ratio">{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}</td>
-                    <td class="sort-seeding" data-seeding="{{ item.seeding }}"><a
-                            href="javascript:show_site_seeding_info('{{ item.site }}')"
-                            aria-label="seeding_info">{{ item.seeding }}</a></td>
-                    <td class="sort-size" data-size="{{ item.seeding_size }}"><a
-                            href="javascript:show_site_seeding_info('{{ item.site }}')"
-                            aria-label="seeding_info">{{ item.seeding_size | filesizeformat(true) }}</a></td>
-                    <td class="sort-bonus">{{ item.bonus }}</td>
+                  <td class="sort-ratio"
+                    data-ratio="{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}">
+                    {% if item.ratio == 0.0 or item.ratio > 10000 %}Infinity{% else %}{{ '%.2f' | format(item.ratio)
+                    }}{% endif %}
+                  </td>
+                  <td class="sort-seeding" data-seeding="{{ item.seeding }}"><a
+                      href="javascript:show_site_seeding_info('{{ item.site }}')" aria-label="seeding_info">{{
+                      item.seeding }}</a></td>
+                  <td class="sort-size" data-size="{{ item.seeding_size }}"><a
+                      href="javascript:show_site_seeding_info('{{ item.site }}')" aria-label="seeding_info">{{
+                      item.seeding_size | filesizeformat(true) }}</a></td>
+                  <td class="sort-bonus" data-bouns="{{ item.bonus }}">{{ item.bonus }}</td>
+                  <td class="sort-jtime">
+                    <span class="d-none d-lg-block">{{ item.join_at | string | truncate(10, True, '') }}</span>
+                  </td>
                   <td class="sort-rtime">
                     <span class="d-none d-lg-block">{{ item.update_at }}</span>
                   </td>
-                <td class="activity">
-                    <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon d-none d-md-block" aria-label="activity">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <path d="M3 12h4l3 8l4 -16l3 8h4"></path>
-                        </svg>
+                  <td class="activity">
+                    <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon"
+                      aria-label="activity">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity" width="40"
+                        height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M3 12h4l3 8l4 -16l3 8h4"></path>
+                      </svg>
                     </a>
-                </td>
+                  </td>
                 </tr>
                 {% endfor %}
                 {% else %}
@@ -301,546 +332,553 @@
     </div>
   </div>
 </div>
-    <div class="modal modal-blur fade" id="site-activity" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="site-activity-title">站点信息</h5>
-                    <input type="hidden" id="site-activity-name" name="site-name" value="">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="site-activity-chart"></div>
-                </div>
-                <div class="modal-footer">
-                </div>
-            </div>
-        </div>
+<div class="modal modal-blur fade" id="site-activity" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="site-activity-title">站点信息</h5>
+        <input type="hidden" id="site-activity-name" name="site-name" value="">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="site-activity-chart"></div>
+      </div>
+      <div class="modal-footer">
+      </div>
     </div>
-    <div class="modal modal-blur fade" id="site-seeding-info" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="site-seeding-info-title">站点信息</h5>
-                    <input type="hidden" id="site-seeding-info-name" name="site-name" value="">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="site-seeding-info-chart"></div>
-                </div>
-                <div class="modal-footer">
-                </div>
-            </div>
-        </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="site-seeding-info" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="site-seeding-info-title">站点信息</h5>
+        <input type="hidden" id="site-seeding-info-name" name="site-name" value="">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="site-seeding-info-chart"></div>
+      </div>
+      <div class="modal-footer">
+      </div>
     </div>
-    <script type="text/javascript">
-        $('#site-activity').off('shown.bs.modal');
-        $('#site-activity').on('shown.bs.modal', function (e) {
-            site_name = $('#site-activity-name').val();
+  </div>
+</div>
+<script type="text/javascript">
+  $('#site-activity').off('shown.bs.modal');
+  $('#site-activity').on('shown.bs.modal', function (e) {
+    site_name = $('#site-activity-name').val();
 
-            // 单站点历史数据图
-            if (typeof (chart_site_activity) != 'undefined') {
-                chart_site_activity.dispose();
+    // 单站点历史数据图
+    if (typeof (chart_site_activity) != 'undefined') {
+      chart_site_activity.dispose();
+    }
+    chart_site_activity = echarts.init($('#site-activity-chart')[0], null, {
+      height: 350
+    });
+    chart_site_activity.showLoading();
+
+    ajax_post("get_site_activity", { "name": site_name }, function (ret) {
+      chart_site_activity.hideLoading();
+      if (ret.code == 0) {
+        const colors = ['#206bc4', '#d63939', '#2fb344', '#d6b344'];
+        options_site_activity = {
+          animation: false,
+          color: colors,
+          dataset: {
+            source: ret.dataset
+          },
+          dataZoom: [
+            {
+              type: 'inside'
+            },
+            {
+              type: 'slider'
             }
-            chart_site_activity = echarts.init($('#site-activity-chart')[0], null, {
-                height: 350
-            });
-            chart_site_activity.showLoading();
-
-            ajax_post("get_site_activity", {"name": site_name}, function (ret) {
-                    chart_site_activity.hideLoading();
-                    if (ret.code == 0) {
-                        const colors = ['#206bc4', '#d63939', '#2fb344', '#d6b344'];
-                        options_site_activity = {
-                            animation: false,
-                            color: colors,
-                            dataset: {
-                                source: ret.dataset
-                            },
-                            dataZoom: [
-                                {
-                                    type: 'inside'
-                                },
-                                {
-                                    type: 'slider'
-                                }
-                            ],
-                            tooltip: {
-                                trigger: 'axis',
-                                axisPointer: {
-                                    type: 'cross'
-                                },
-                                formatter: function (params) {
-                                    let up = params[0].data[params[0].encode.y[0]];
-                                    let dl = params[1].data[params[1].encode.y[0]];
-                                    let size = params[2].data[params[2].encode.y[0]];
-                                    let bouns = params[3].data[params[3].encode.y[0]];
-                                    return params[0].axisValueLabel +
-                                        '</br>' +
-                                        params[0].marker + ' ' + params[0].seriesName + ' ：' + numeral(up).format('0.0 ib') +
-                                        '</br>' +
-                                        params[1].marker + ' ' + params[1].seriesName + ' ：' + numeral(dl).format('0.0 ib') +
-                                        '</br>' +
-                                        params[2].marker + ' ' + params[2].seriesName + ' ：' + numeral(size).format('0.0 ib') +
-                                        '</br>' +
-                                        params[3].marker + ' ' + params[3].seriesName + ' ：' + bouns + ' ('+ numeral(bouns).format('0.0 a') +')';
-                                }
-                            },
-                            grid: {
-                                right: '30%'
-                            },
-                            toolbox: {
-                                feature: {
-                                    restore: {show: true},
-                                }
-                            },
-                            legend: {
-                                data: ['总上传量', '总下载量', '做种体积', '积分']
-                            },
-                            xAxis: [
-                                {
-                                    type: 'time',
-                                    axisTick: {
-                                        alignWithLabel: true
-                                    },
-                                }
-                            ],
-                            yAxis: [
-                                {
-                                    type: 'value',
-                                    name: '总上传量',
-                                    position: 'left',
-                                    alignTicks: true,
-                                    axisLine: {
-                                        show: true,
-                                        lineStyle: {
-                                            color: colors[0]
-                                        }
-                                    },
-                                    axisLabel: {
-                                        formatter: function (value, index) {
-                                            return numeral(value).format('0.0 ib');
-                                        }
-                                    },
-                                    axisPointer: {
-                                        label: {
-                                            formatter: function (params) {
-                                                return numeral(params.value).format('0.0 ib');
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'value',
-                                    name: '总下载量',
-                                    position: 'right',
-                                    alignTicks: true,
-                                    offset: 70,
-                                    axisLine: {
-                                        show: true,
-                                        lineStyle: {
-                                            color: colors[1]
-                                        }
-                                    },
-                                    axisLabel: {
-                                        formatter: function (value, index) {
-                                            return numeral(value).format('0.0 ib');
-                                        }
-                                    },
-                                    axisPointer: {
-                                        label: {
-                                            formatter: function (params) {
-                                                return numeral(params.value).format('0.0 ib');
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'value',
-                                    name: '做种体积',
-                                    position: 'right',
-                                    alignTicks: true,
-                                    axisLine: {
-                                        show: true,
-                                        lineStyle: {
-                                            color: colors[2]
-                                        }
-                                    },
-                                    axisLabel: {
-                                        formatter: function (value, index) {
-                                            return numeral(value).format('0.0 ib');
-                                        }
-                                    },
-                                    axisPointer: {
-                                        label: {
-                                            formatter: function (params) {
-                                                return numeral(params.value).format('0.0 ib');
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'value',
-                                    name: '积分',
-                                    position: 'right',
-                                    alignTicks: true,
-                                    offset: 140,
-                                    axisLine: {
-                                        show: true,
-                                        lineStyle: {
-                                            color: colors[3]
-                                        }
-                                    },
-                                    axisLabel: {
-                                        formatter: function (value, index) {
-                                            return numeral(value).format('0.0 a')
-                                        }
-                                    },
-                                    axisPointer: {
-                                        label: {
-                                            formatter: function (params) {
-                                                return numeral(params.value).format('0.0 a');
-                                            }
-                                        }
-                                    }
-                                },
-                            ],
-                            series: [
-                                {
-                                    name: '总上传量',
-                                    type: 'line',
-                                    large: true, smooth: true, symbol: 'none',
-                                    yAxisIndex: '0',
-                                    encode: {
-                                        x: "time",
-                                        y: "upload"
-                                    }
-                                },
-                                {
-                                    name: '总下载量',
-                                    type: 'line',
-                                    large: true, smooth: true, symbol: 'none',
-                                    yAxisIndex: '1',
-                                    encode: {
-                                        x: "time",
-                                        y: "download"
-                                    }
-                                },
-                                {
-                                    name: '做种体积',
-                                    type: 'line',
-                                    large: true, smooth: true, symbol: 'none',
-                                    yAxisIndex: '2',
-                                    encode: {
-                                        x: "time",
-                                        y: "seeding_size"
-                                    }
-                                },
-                                {
-                                    name: '积分',
-                                    type: 'line',
-                                    large: true, smooth: true, symbol: 'none',
-                                    yAxisIndex: '3',
-                                    encode: {
-                                        x: "time",
-                                        y: "bonus"
-                                    }
-                                }
-                            ]
-                        };
-                        chart_site_activity.setOption(options_site_activity);
-                    } else {
-                        show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
-                    }
-                }
-            );
-        });
-
-        function show_site_activity(site_name) {
-            $('#site-activity-title').text(site_name + " 历史数据");
-            $('#site-activity-name').val(site_name);
-            $('#site-activity').modal("show");
-        }
-
-        function show_site_seeding_info(site_name) {
-            $('#site-seeding-info-name').val(site_name);
-            $('#site-seeding-info-title').text(site_name + " 做种分布");
-            $('#site-seeding-info').modal("show");
-        }
-
-        $('#site-seeding-info').off('shown.bs.modal');
-        $('#site-seeding-info').on('shown.bs.modal', function (e) {
-            site_name = $('#site-seeding-info-name').val();
-            // 做种散点图
-            if (typeof (chart_seeding_info) != 'undefined') {
-                chart_seeding_info.dispose();
+          ],
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'cross'
+            },
+            formatter: function (params) {
+              let up = params[0].data[params[0].encode.y[0]];
+              let dl = params[1].data[params[1].encode.y[0]];
+              let size = params[2].data[params[2].encode.y[0]];
+              let bouns = params[3].data[params[3].encode.y[0]];
+              return params[0].axisValueLabel +
+                '</br>' +
+                params[0].marker + ' ' + params[0].seriesName + ' ：' + numeral(up).format('0.0 ib') +
+                '</br>' +
+                params[1].marker + ' ' + params[1].seriesName + ' ：' + numeral(dl).format('0.0 ib') +
+                '</br>' +
+                params[2].marker + ' ' + params[2].seriesName + ' ：' + numeral(size).format('0.0 ib') +
+                '</br>' +
+                params[3].marker + ' ' + params[3].seriesName + ' ：' + bouns + ' (' + numeral(bouns).format('0.0 a') + ')';
             }
-            chart_seeding_info = echarts.init($('#site-seeding-info-chart')[0], null, {
-                height: 350
-            });
-            chart_seeding_info.showLoading();
-
-            ajax_post("get_site_seeding_info", {"name": site_name}, function (ret) {
-                    chart_seeding_info.hideLoading();
-                    if (ret.code == 0) {
-                        options_seeding_info = {
-                            large: true,
-                            animation: false,
-                            dataset:
-                                {
-                                    source: ret.dataset
-                                }
-                            ,
-                            tooltip: {
-                                position: 'top',
-                                showDelay: 0,
-                                trigger: 'item', formatter: function (params) {
-                                    return (
-                                        '人数 : ' + params.value[0] +
-                                        '<br/>' + '体积 : ' +
-                                        numeral(params.value[1]).format('0.0 ib')
-                                    );
-                                }
-                            },
-                            xAxis: {
-                                scale: true,
-                                type: 'value',
-                                name: '做种人数'
-                            },
-                            yAxis: {
-                                scale: true,
-                                type: 'value',
-                                axisLabel: {
-                                    formatter: function (value, index) {
-                                        return numeral(value).format('0.0 ib');
-                                    }
-                                }
-                            },
-                            series: {
-                                type: 'scatter',
-                                name: '做种人数',
-                                encode: {tooltip: [1]}
-                            }
-                        };
-                        chart_seeding_info.setOption(options_seeding_info);
-                    } else {
-                        show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
-                    }
-                }
-            );
-
-        });
-
-        // 今日上传饼图
-        if (typeof (pie_ul) != 'undefined')
-            pie_ul.dispose();
-        pie_ul = echarts.init($('#chart-recent-upload')[0], null, {
-            height: 300
-        });
-        // 今日下载饼图
-        if (typeof (pie_dl) != 'undefined')
-            pie_dl.dispose();
-        pie_dl = echarts.init($('#chart-recent-download')[0], null, {
-            height: 300
-        });
-        // 站点历史柱状图
-        if (typeof (chart_history) != 'undefined')
-            chart_history.dispose();
-        chart_history = echarts.init($('#chart-site-history')[0], null, {
-            height: 350
-        });
-
-        function show_site_history(obj, days) {
-            $('.btn-site-history').removeClass('active');
-            $(obj).addClass('active');
-            chart_history.showLoading();
-
-            ajax_post("get_site_history", {"days": days}, function (ret) {
-                    chart_history.hideLoading();
-                    if (ret.code == 0) {
-                        rotate = ret.dataset.length > 15 ? 40 : 0;
-                        option_history = {
-                            animation: false,
-                            color: ['#206bc4', '#d63939'],
-                            tooltip: {
-                                trigger: 'axis',
-                                axisPointer: {
-                                    type: 'shadow'
-                                }, valueFormatter: value => numeral(value).format('0.0 ib')
-                            },
-                            dataset: {
-                                source: ret.dataset
-                            },
-                            toolbox: {
-                                show: true,
-                                orient: 'vertical',
-                                left: 'right',
-                                top: 'center'
-                            },
-                            xAxis: [
-                                {
-                                    type: 'category',
-                                    axisTick: {show: false},
-                                    axisLabel: {
-                                        rotate: rotate,
-                                    },
-                                }
-                            ],
-                            yAxis: [
-                                {
-                                    type: 'value',
-                                    axisLabel: {
-                                        formatter: function (value, index) {
-                                            return numeral(value).format('0.0 ib');
-                                        }
-                                    }
-                                }
-                            ],
-                            series: [
-                                {name: "上传量", type: 'bar'}, {name: "下载量", type: 'bar'}
-                            ]
-                        };
-                        chart_history.setOption(option_history);
-                        let up_all = 0;
-                        let dl_all = 0;
-                        let len = ret.dataset.length;
-                        for (let i = 1; i < len; i++) {
-                            up_all += ret.dataset[i][1];
-                        }
-                        for (let i = 1; i < len; i++) {
-                            dl_all += ret.dataset[i][2];
-                        }
-                        up_all = numeral(up_all).format('0.0 ib')
-                        dl_all = numeral(dl_all).format('0.0 ib')
-                        $('#site-history-title').text("历史数据 (上传量 " + up_all + " / 下载量 " + dl_all + ")")
-                    } else {
-                        show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
-                    }
-                }
-            );
-        }
-
-        // 当前一周数据
-        $('#btn-history-one-week').trigger('click');
-
-        pie_dl.showLoading();
-        pie_ul.showLoading();
-        ajax_post("get_site_history", {"days": 1}, function (ret) {
-                pie_dl.hideLoading();
-                pie_ul.hideLoading();
-                if (ret.code == 0) {
-                    option_ul = {
-                        tooltip: {
-                            trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
-                        },
-                        dataset: {
-                            source: ret.dataset.filter(item => {
-                                return (item[1] > 0 || item[1] === 'upload')
-                            })
-                        },
-                        series: [
-                            {
-                                type: 'pie',
-                                encode: {
-                                    itemName: 'site',
-                                    value: 'upload'
-                                },
-                                label: {
-                                    formatter: function (params) {
-                                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
-                                        return params.name + ': ' + value;
-                                    }
-                                },
-                                emptyCircleStyle: {
-                                    color: 'transparent',
-                                    borderColor: '#ddd',
-                                    borderWidth: 1
-                                }
-                            },
-                        ]
-                    };
-                    pie_ul.setOption(option_ul)
-                    option_dl = {
-                        tooltip: {
-                            trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
-                        },
-                        dataset: {
-                            source: ret.dataset.filter(item => {
-                                return (item[2] > 0 || item[2] === 'download')
-                            })
-                        },
-                        series: [
-                            {
-                                type: 'pie',
-                                encode: {
-                                    itemName: 'site',
-                                    value: 'download'
-                                },
-                                label: {
-                                    formatter: function (params) {
-                                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
-                                        return params.name + ': ' + value;
-                                    }
-                                }, emptyCircleStyle: {
-                                    color: 'transparent',
-                                    borderColor: '#ddd',
-                                    borderWidth: 1
-                                }
-                            }
-                        ]
-                    };
-                    pie_dl.setOption(option_dl)
-                } else {
-                    show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
-                }
+          },
+          grid: {
+            right: '30%'
+          },
+          toolbox: {
+            feature: {
+              restore: { show: true },
             }
-        );
+          },
+          legend: {
+            data: ['总上传量', '总下载量', '做种体积', '积分']
+          },
+          xAxis: [
+            {
+              type: 'time',
+              axisTick: {
+                alignWithLabel: true
+              },
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              name: '总上传量',
+              position: 'left',
+              alignTicks: true,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: colors[0]
+                }
+              },
+              axisLabel: {
+                formatter: function (value, index) {
+                  return numeral(value).format('0.0 ib');
+                }
+              },
+              axisPointer: {
+                label: {
+                  formatter: function (params) {
+                    return numeral(params.value).format('0.0 ib');
+                  }
+                }
+              }
+            },
+            {
+              type: 'value',
+              name: '总下载量',
+              position: 'right',
+              alignTicks: true,
+              offset: 70,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: colors[1]
+                }
+              },
+              axisLabel: {
+                formatter: function (value, index) {
+                  return numeral(value).format('0.0 ib');
+                }
+              },
+              axisPointer: {
+                label: {
+                  formatter: function (params) {
+                    return numeral(params.value).format('0.0 ib');
+                  }
+                }
+              }
+            },
+            {
+              type: 'value',
+              name: '做种体积',
+              position: 'right',
+              alignTicks: true,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: colors[2]
+                }
+              },
+              axisLabel: {
+                formatter: function (value, index) {
+                  return numeral(value).format('0.0 ib');
+                }
+              },
+              axisPointer: {
+                label: {
+                  formatter: function (params) {
+                    return numeral(params.value).format('0.0 ib');
+                  }
+                }
+              }
+            },
+            {
+              type: 'value',
+              name: '积分',
+              position: 'right',
+              alignTicks: true,
+              offset: 140,
+              axisLine: {
+                show: true,
+                lineStyle: {
+                  color: colors[3]
+                }
+              },
+              axisLabel: {
+                formatter: function (value, index) {
+                  return numeral(value).format('0.0 a')
+                }
+              },
+              axisPointer: {
+                label: {
+                  formatter: function (params) {
+                    return numeral(params.value).format('0.0 a');
+                  }
+                }
+              }
+            },
+          ],
+          series: [
+            {
+              name: '总上传量',
+              type: 'line',
+              large: true, smooth: true, symbol: 'none',
+              yAxisIndex: '0',
+              encode: {
+                x: "time",
+                y: "upload"
+              }
+            },
+            {
+              name: '总下载量',
+              type: 'line',
+              large: true, smooth: true, symbol: 'none',
+              yAxisIndex: '1',
+              encode: {
+                x: "time",
+                y: "download"
+              }
+            },
+            {
+              name: '做种体积',
+              type: 'line',
+              large: true, smooth: true, symbol: 'none',
+              yAxisIndex: '2',
+              encode: {
+                x: "time",
+                y: "seeding_size"
+              }
+            },
+            {
+              name: '积分',
+              type: 'line',
+              large: true, smooth: true, symbol: 'none',
+              yAxisIndex: '3',
+              encode: {
+                x: "time",
+                y: "bonus"
+              }
+            }
+          ]
+        };
+        chart_site_activity.setOption(options_site_activity);
+      } else {
+        show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
+      }
+    }
+    );
+  });
 
-        tableDataList = new List('table-site-user-data', {
-            sortClass: 'table-sort',
-            listClass: 'table-tbody',
-            valueNames: ['sort-name', 'sort-ratio', 'sort-bonus', 'sort-rtime',
-                {attr: 'data-size', name: 'sort-size'},
-                {attr: 'data-seeding', name: 'sort-seeding'},
-                {attr: 'data-data', name: 'sort-data'}
-            ]
-        });
+  function show_site_activity(site_name) {
+    $('#site-activity-title').text(site_name + " 历史数据");
+    $('#site-activity-name').val(site_name);
+    $('#site-activity').modal("show");
+  }
 
-        // 生成统计数据图片并下载
-        function save_statistics_pic() {
-            var table =  $('#table-site-user-data-table').clone(true)[0];
-            table.setAttribute("style", "width:500px; min-height: 300px;");
-            var thead = table.childNodes[1];
-            var tbody = table.childNodes[3];
-            var thead_tr = thead.childNodes[1];
-            thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
-            thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
-            thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
-            thead_tr.removeChild(thead_tr.childNodes[3]);//等级
-            for (tbody_tr of tbody.childNodes){
-                var td_name = tbody_tr.childNodes[1];
-                var div_name = td_name.childNodes[1];
-                var img = div_name.childNodes[3];
-                var div_name_text = div_name.childNodes[5];
-                var id = div_name_text.childNodes[3];
-                img.setAttribute("style", "filter:blur(3px)");//站点图标模糊
-                id.setAttribute("style", "filter:blur(3px)");//站点id模糊
-                div_name.removeChild(div_name.childNodes[1]);
-                tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
-                tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
-                tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
-                tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
-            };
-            // 生成图片（素色背景）并下载
-            $('body').append(table);
-            domtoimage.toBlob(table, { bgcolor: '#E9F1F6' }).then(function (blob) {
-                saveAs(blob, 'nastool_statistics.png');
-            });
+  function show_site_seeding_info(site_name) {
+    $('#site-seeding-info-name').val(site_name);
+    $('#site-seeding-info-title').text(site_name + " 做种分布");
+    $('#site-seeding-info').modal("show");
+  }
+
+  $('#site-seeding-info').off('shown.bs.modal');
+  $('#site-seeding-info').on('shown.bs.modal', function (e) {
+    site_name = $('#site-seeding-info-name').val();
+    // 做种散点图
+    if (typeof (chart_seeding_info) != 'undefined') {
+      chart_seeding_info.dispose();
+    }
+    chart_seeding_info = echarts.init($('#site-seeding-info-chart')[0], null, {
+      height: 350
+    });
+    chart_seeding_info.showLoading();
+
+    ajax_post("get_site_seeding_info", { "name": site_name }, function (ret) {
+      chart_seeding_info.hideLoading();
+      if (ret.code == 0) {
+        options_seeding_info = {
+          large: true,
+          animation: false,
+          dataset:
+          {
+            source: ret.dataset
+          }
+          ,
+          tooltip: {
+            position: 'top',
+            showDelay: 0,
+            trigger: 'item', formatter: function (params) {
+              return (
+                '人数 : ' + params.value[0] +
+                '<br/>' + '体积 : ' +
+                numeral(params.value[1]).format('0.0 ib')
+              );
+            }
+          },
+          xAxis: {
+            scale: true,
+            type: 'value',
+            name: '做种人数'
+          },
+          yAxis: {
+            scale: true,
+            type: 'value',
+            axisLabel: {
+              formatter: function (value, index) {
+                return numeral(value).format('0.0 ib');
+              }
+            }
+          },
+          series: {
+            type: 'scatter',
+            name: '做种人数',
+            encode: { tooltip: [1] }
+          }
+        };
+        chart_seeding_info.setOption(options_seeding_info);
+      } else {
+        show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
+      }
+    }
+    );
+
+  });
+
+  // 今日上传饼图
+  if (typeof (pie_ul) != 'undefined')
+    pie_ul.dispose();
+  pie_ul = echarts.init($('#chart-recent-upload')[0], null, {
+    height: 300
+  });
+  // 今日下载饼图
+  if (typeof (pie_dl) != 'undefined')
+    pie_dl.dispose();
+  pie_dl = echarts.init($('#chart-recent-download')[0], null, {
+    height: 300
+  });
+  // 站点历史柱状图
+  if (typeof (chart_history) != 'undefined')
+    chart_history.dispose();
+  chart_history = echarts.init($('#chart-site-history')[0], null, {
+    height: 350
+  });
+
+  // 响应大小调整
+  window.onresize = function() {
+    pie_ul.resize();
+    pie_dl.resize();
+    chart_history.resize();
+  };
+
+  function show_site_history(obj, days) {
+    $('.btn-site-history').removeClass('active');
+    $(obj).addClass('active');
+    chart_history.showLoading();
+
+    ajax_post("get_site_history", { "days": days }, function (ret) {
+      chart_history.hideLoading();
+      if (ret.code == 0) {
+        rotate = ret.dataset.length > 15 ? 40 : 0;
+        option_history = {
+          animation: false,
+          color: ['#206bc4', '#d63939'],
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }, valueFormatter: value => numeral(value).format('0.0 ib')
+          },
+          dataset: {
+            source: ret.dataset
+          },
+          toolbox: {
+            show: true,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center'
+          },
+          xAxis: [
+            {
+              type: 'category',
+              axisTick: { show: false },
+              axisLabel: {
+                rotate: rotate,
+              },
+            }
+          ],
+          yAxis: [
+            {
+              type: 'value',
+              axisLabel: {
+                formatter: function (value, index) {
+                  return numeral(value).format('0.0 ib');
+                }
+              }
+            }
+          ],
+          series: [
+            { name: "上传量", type: 'bar' }, { name: "下载量", type: 'bar' }
+          ]
+        };
+        chart_history.setOption(option_history);
+        let up_all = 0;
+        let dl_all = 0;
+        let len = ret.dataset.length;
+        for (let i = 1; i < len; i++) {
+          up_all += ret.dataset[i][1];
         }
+        for (let i = 1; i < len; i++) {
+          dl_all += ret.dataset[i][2];
+        }
+        up_all = numeral(up_all).format('0.0 ib')
+        dl_all = numeral(dl_all).format('0.0 ib')
+        $('#site-history-title').text("历史数据 (上传量 " + up_all + " / 下载量 " + dl_all + ")")
+      } else {
+        show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
+      }
+    }
+    );
+  }
 
-    </script>
+  // 当前一周数据
+  $('#btn-history-one-week').trigger('click');
+
+  pie_dl.showLoading();
+  pie_ul.showLoading();
+  ajax_post("get_site_history", { "days": 1 }, function (ret) {
+    pie_dl.hideLoading();
+    pie_ul.hideLoading();
+    if (ret.code == 0) {
+      option_ul = {
+        tooltip: {
+          trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+        },
+        dataset: {
+          source: ret.dataset.filter(item => {
+            return (item[1] > 0 || item[1] === 'upload')
+          })
+        },
+        series: [
+          {
+            type: 'pie',
+            encode: {
+              itemName: 'site',
+              value: 'upload'
+            },
+            label: {
+              formatter: function (params) {
+                value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                return params.name + ': ' + value;
+              }
+            },
+            emptyCircleStyle: {
+              color: 'transparent',
+              borderColor: '#ddd',
+              borderWidth: 1
+            }
+          },
+        ]
+      };
+      pie_ul.setOption(option_ul)
+      option_dl = {
+        tooltip: {
+          trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+        },
+        dataset: {
+          source: ret.dataset.filter(item => {
+            return (item[2] > 0 || item[2] === 'download')
+          })
+        },
+        series: [
+          {
+            type: 'pie',
+            encode: {
+              itemName: 'site',
+              value: 'download'
+            },
+            label: {
+              formatter: function (params) {
+                value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                return params.name + ': ' + value;
+              }
+            }, emptyCircleStyle: {
+              color: 'transparent',
+              borderColor: '#ddd',
+              borderWidth: 1
+            }
+          }
+        ]
+      };
+      pie_dl.setOption(option_dl)
+    } else {
+      show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
+    }
+  }
+  );
+
+  tableDataList = new List('table-site-user-data', {
+    sortClass: 'table-sort',
+    listClass: 'table-tbody',
+    valueNames: ['sort-name', 'sort-bonus', 'sort-jtime', 'sort-rtime',
+      { attr: 'data-size', name: 'sort-size' },
+      { attr: 'data-seeding', name: 'sort-seeding' },
+      { attr: 'data-data', name: 'sort-data' },
+      { attr: 'data-ratio', name: 'sort-ratio' }
+    ]
+  });
+  // 生成统计数据图片并下载
+  function save_statistics_pic() {
+    var table = $('#table-site-user-data-table').clone(true)[0];
+    table.setAttribute("style", "width:500px; min-height: 300px;");
+    var thead = table.childNodes[1];
+    var tbody = table.childNodes[3];
+    var thead_tr = thead.childNodes[1];
+    thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
+    thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
+    thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
+    thead_tr.removeChild(thead_tr.childNodes[3]);//等级
+    for (tbody_tr of tbody.childNodes) {
+      var td_name = tbody_tr.childNodes[1];
+      var div_name = td_name.childNodes[1];
+      var img = div_name.childNodes[3];
+      var div_name_text = div_name.childNodes[5];
+      var id = div_name_text.childNodes[3];
+      img.setAttribute("style", "filter:blur(3px)");//站点图标模糊
+      id.setAttribute("style", "filter:blur(3px)");//站点id模糊
+      div_name.removeChild(div_name.childNodes[1]);
+      tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
+      tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
+      tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
+      tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
+    };
+    // 生成图片（素色背景）并下载
+    $('body').append(table);
+    domtoimage.toBlob(table, { bgcolor: '#E9F1F6' }).then(function (blob) {
+      saveAs(blob, 'nastool_statistics.png');
+    });
+  }
+
+</script>
 {% else %}
-    <div class="page-body">
+<div class="page-body">
   <div class="container-xl d-flex flex-column justify-content-center">
     <div class="empty">
       <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">

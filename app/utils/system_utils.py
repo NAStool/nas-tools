@@ -4,10 +4,18 @@ import platform
 import shutil
 import subprocess
 
+from app.utils import PathUtils
 from app.utils.types import OsType
 
 
 class SystemUtils:
+
+    @staticmethod
+    def __get_hidden_shell():
+        st = subprocess.STARTUPINFO()
+        st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+        st.wShowWindow = subprocess.SW_HIDE
+        return st
 
     @staticmethod
     def get_used_of_partition(path):
@@ -77,3 +85,139 @@ class SystemUtils:
     @staticmethod
     def is_docker():
         return os.path.exists('/.dockerenv')
+
+    @staticmethod
+    def copy(src, dest):
+        """
+        复制
+        """
+        try:
+            shutil.copy2(os.path.normpath(src), os.path.normpath(dest))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def move(src, dest):
+        """
+        移动
+        """
+        try:
+            tmp_file = os.path.normpath(os.path.join(os.path.dirname(src),
+                                                     os.path.basename(dest)))
+            os.rename(os.path.normpath(src), tmp_file)
+            shutil.move(tmp_file, os.path.normpath(dest))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def link(src, dest):
+        """
+        硬链接
+        """
+        try:
+            if platform.release().find("-z4-") >= 0:
+                # 兼容极空间Z4
+                tmp = os.path.normpath(os.path.join(PathUtils.get_parent_paths(dest, 2),
+                                                    os.path.basename(dest)))
+                os.link(os.path.normpath(src), tmp)
+                shutil.move(tmp, os.path.normpath(dest))
+            else:
+                os.link(os.path.normpath(src), os.path.normpath(dest))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def softlink(src, dest):
+        """
+        软链接
+        """
+        try:
+            os.symlink(os.path.normpath(src), os.path.normpath(dest))
+            return 0, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def rclone_move(src, dest):
+        """
+        Rclone移动
+        """
+        try:
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            retcode = subprocess.run(['rclone', 'moveto',
+                                      src,
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def rclone_copy(src, dest):
+        """
+        Rclone复制
+        """
+        try:
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            retcode = subprocess.run(['rclone', 'copyto',
+                                      src,
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def minio_move(src, dest):
+        """
+        Minio移动
+        """
+        try:
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            if dest.startswith("/"):
+                dest = dest[1:]
+            retcode = subprocess.run(['mc', 'mv',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def minio_copy(src, dest):
+        """
+        Minio复制
+        """
+        try:
+            src = os.path.normpath(src)
+            dest = dest.replace("\\", "/")
+            if dest.startswith("/"):
+                dest = dest[1:]
+            retcode = subprocess.run(['mc', 'cp',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
+            return retcode, ""
+        except Exception as err:
+            return -1, str(err)
+
+    @staticmethod
+    def get_windows_drives():
+        """
+        获取Windows所有盘符
+        """
+        vols = []
+        for i in range(65, 91):
+            vol = chr(i) + ':'
+            if os.path.isdir(vol):
+                vols.append(vol)
+        return vols

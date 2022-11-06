@@ -19,15 +19,17 @@
         <div class="row row-cards">
           {% for Site in Sites %}
           <div class="col-md-6 col-xl-3">
-              <a class="card card-link" href='javascript:navmenu("resources?site={{ Site.id }}&title={{ Site.name }}")'>
+            <a class="card card-link" href='javascript:navmenu("resources?site={{ Site.id }}&title={{ Site.name }}")'>
               <div class="card-body">
                 <div class="row">
-                    <div class="col-auto">
-                        {% if Site.favicon %}
-                            <span class="avatar rounded" style="background-image: url(data:image/ico;base64,{{ Site.favicon }});"></span>
-                        {% else %}
-                            <span class="avatar rounded" style="background-image: url({{ Site.domain + 'favicon.ico' }});"></span>
-                        {% endif %}
+                  <div class="col-auto">
+                    {% if Site.favicon %}
+                    <span class="avatar rounded"
+                      style="background-image: url(data:image/ico;base64,{{ Site.favicon }});"></span>
+                    {% else %}
+                    <span class="avatar rounded"
+                      style="background-image: url({{ Site.domain + 'favicon.ico' }});"></span>
+                    {% endif %}
                   </div>
                   <div class="col">
                     <div class="font-weight-medium">{{ Site.name }}</div>
