@@ -212,11 +212,9 @@
             </div>
             {% if Task.uses == 'D' %}
             <div class="datagrid-item">
+              <div class="datagrid-title">下载设置</div>
               <div class="datagrid-content">
-                <a id="rss_articlesbtn" href="javascript:show_rss_articles_modal('{{ Task.id }}')"
-                  class="btn btn-twitter">
-                  预览
-                </a>
+                <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string].name }}</span>
               </div>
             </div>
             {% endif %}
