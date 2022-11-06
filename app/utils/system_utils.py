@@ -12,10 +12,13 @@ class SystemUtils:
 
     @staticmethod
     def __get_hidden_shell():
-        st = subprocess.STARTUPINFO()
-        st.dwFlags = subprocess.STARTF_USESHOWWINDOW
-        st.wShowWindow = subprocess.SW_HIDE
-        return st
+        if os.name == "nt":
+            st = subprocess.STARTUPINFO()
+            st.dwFlags = subprocess.STARTF_USESHOWWINDOW
+            st.wShowWindow = subprocess.SW_HIDE
+            return st
+        else:
+            return None
 
     @staticmethod
     def get_used_of_partition(path):
@@ -148,15 +151,10 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            if os.name == "nt":
-                retcode = subprocess.run(['rclone', 'moveto',
-                                          src,
-                                          f'NASTOOL:{dest}'],
-                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
-            else:
-                retcode = subprocess.run(['rclone', 'moveto',
-                                          src,
-                                          f'NASTOOL:{dest}']).returncode
+            retcode = subprocess.run(['rclone', 'moveto',
+                                      src,
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -169,15 +167,10 @@ class SystemUtils:
         try:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
-            if os.name == "nt":
-                retcode = subprocess.run(['rclone', 'copyto',
-                                          src,
-                                          f'NASTOOL:{dest}'],
-                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
-            else:
-                retcode = subprocess.run(['rclone', 'copyto',
-                                          src,
-                                          f'NASTOOL:{dest}']).returncode
+            retcode = subprocess.run(['rclone', 'copyto',
+                                      src,
+                                      f'NASTOOL:{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -192,17 +185,11 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            if os.name == "nt":
-                retcode = subprocess.run(['mc', 'mv',
-                                          '--recursive',
-                                          src,
-                                          f'NASTOOL/{dest}'],
-                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
-            else:
-                retcode = subprocess.run(['mc', 'mv',
-                                          '--recursive',
-                                          src,
-                                          f'NASTOOL/{dest}']).returncode
+            retcode = subprocess.run(['mc', 'mv',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
@@ -217,17 +204,11 @@ class SystemUtils:
             dest = dest.replace("\\", "/")
             if dest.startswith("/"):
                 dest = dest[1:]
-            if os.name == "nt":
-                retcode = subprocess.run(['mc', 'cp',
-                                          '--recursive',
-                                          src,
-                                          f'NASTOOL/{dest}'],
-                                         startupinfo=SystemUtils.__get_hidden_shell()).returncode
-            else:
-                retcode = subprocess.run(['mc', 'cp',
-                                          '--recursive',
-                                          src,
-                                          f'NASTOOL/{dest}']).returncode
+            retcode = subprocess.run(['mc', 'cp',
+                                      '--recursive',
+                                      src,
+                                      f'NASTOOL/{dest}'],
+                                     startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
             return -1, str(err)
