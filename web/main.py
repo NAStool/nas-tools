@@ -946,6 +946,16 @@ def create_flask_app():
         return render_template("setting/downloader.html",
                                Config=Config().get_config())
 
+    # 下载设置页面
+    @App.route('/download_setting', methods=['POST', 'GET'])
+    @login_required
+    def download_setting():
+        DownloadSetting = Downloader().get_download_setting()
+        Count = len(DownloadSetting)
+        return render_template("setting/download_setting.html",
+                               DownloadSetting=DownloadSetting,
+                               Count=Count)
+
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
     @login_required
@@ -1007,11 +1017,13 @@ def create_flask_app():
         Tasks = RssChecker().get_rsstask_info()
         RssParsers = RssChecker().get_userrss_parser()
         FilterRules = FilterRule().get_rule_groups()
+        DownloadSettings = Downloader().get_download_setting()
         return render_template("rss/user_rss.html",
                                Tasks=Tasks,
                                Count=len(Tasks),
                                RssParsers=RssParsers,
-                               FilterRules=FilterRules)
+                               FilterRules=FilterRules,
+                               DownloadSettings=DownloadSettings)
 
     # RSS解析器页面
     @App.route('/rss_parser', methods=['POST', 'GET'])

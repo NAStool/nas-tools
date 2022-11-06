@@ -26,6 +26,7 @@ class Downloader:
     _download_order = None
     _pt_rmt_mode = None
     _downloaddir = []
+    _download_setting = {}
 
     message = None
     mediaserver = None
@@ -69,6 +70,32 @@ class Downloader:
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
         # 下载目录配置
         self._downloaddir = config.get_config('downloaddir') or []
+        # 下载设置
+        self._download_setting = {}
+        self._download_setting["-1"] = {
+                        "id": -1,
+                        "name": "默认",
+                        "category": '',
+                        "tags": 'NASTOOL',
+                        "content_layout": 0,
+                        "is_paused": 0,
+                        "upload_limit": 0,
+                        "download_limit": 0,
+                        "ratio_limit": 0,
+                        "seeding_time_limit": 0}
+        download_settings = self.dbhelper.get_download_setting()
+        for download_setting in download_settings:
+            self._download_setting[str(download_setting.ID)] = {
+                        "id": download_setting.ID,
+                        "name": download_setting.NAME,
+                        "category": download_setting.CATEGORY,
+                        "tags": download_setting.TAGS,
+                        "content_layout": download_setting.CONTENT_LAYOUT,
+                        "is_paused": download_setting.IS_PAUSED,
+                        "upload_limit": download_setting.UPLOAD_LIMIT,
+                        "download_limit": download_setting.DOWNLOAD_LIMIT,
+                        "ratio_limit": download_setting.RATIO_LIMIT,
+                        "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT}
 
     @property
     def client(self):
@@ -89,27 +116,13 @@ class Downloader:
 
     def download(self,
                  media_info,
-                 is_paused=False,
-                 tag=None,
                  download_dir=None,
-                 category=None,
-                 content_layout=None,
-                 upload_limit=None,
-                 download_limit=None,
-                 ratio_limit=None,
-                 seeding_time_limit=None):
+                 download_setting=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
-        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
-        :param tag: 下载时对种子的标记
         :param download_dir: 指定下载目录
-        :param category: 分类
-        :param content_layout: 布局
-        :param upload_limit: 上传限速 Kb/s
-        :param download_limit: 下载限速 Kb/s
-        :param ratio_limit: 分享率限制
-        :param seeding_time_limit: 做种时间限制 分钟
+        :param download_setting: 下载设置id
         """
         if not self.client:
             return None, "下载器初始化失败"
@@ -169,13 +182,28 @@ class Downloader:
         # 开始添加下载
         try:
             # 合并TAG
-            if self._pt_monitor_only:
-                if not tag:
-                    tag = [PT_TAG]
-                elif isinstance(tag, list):
-                    tag += [PT_TAG]
-                else:
-                    tag = [PT_TAG, tag]
+            if download_setting:
+                download_setting = self.get_download_setting(download_setting)
+            else:
+                download_setting = self.get_download_setting(-1)
+            category = download_setting.get("category")
+            tag = download_setting.get("tags")
+            if tag:
+                tag = tag.split(";")
+            content_layout = download_setting.get("content_layout")
+            if content_layout == 1:
+                content_layout = "Original"
+            elif content_layout == 2:
+                content_layout = "Subfolder"
+            elif content_layout == 3:
+                content_layout = "NoSubfolder"
+            else:
+                content_layout = ""
+            is_paused = StringUtils.to_bool(download_setting.get("is_paused"))
+            upload_limit = download_setting.get("upload_limit")
+            download_limit = download_setting.get("download_limit")
+            ratio_limit = download_setting.get("ratio_limit")
+            seeding_time_limit = download_setting.get("seeding_time_limit")
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info)
                 download_dir = download_info.get('path')
@@ -869,3 +897,9 @@ class Downloader:
                 continue
             episodes = list(set(episodes).union(set(meta.get_episode_list())))
         return episodes
+
+    def get_download_setting(self, sid=None):
+        if sid:
+            return self._download_setting.get(str(sid))
+        else:
+            return self._download_setting

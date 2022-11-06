@@ -180,7 +180,7 @@
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">保存路径</div>
-              <div class="datagrid-content">{{ Task.note.save_path or '自动' }}</div>
+              <div class="datagrid-content">{{ Task.save_path or '自动' }}</div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">状态</div>
@@ -371,82 +371,25 @@
             </div>
           </div>
         </div>
-        <div class="row" id="save_path_div">
-          <div class="col-lg-12">
+        <div class="row" id="downloader_setting_div">
+          <div class="col-lg-8">
             <div class="mb-3">
               <label class="form-label">保存路径</label>
-              <input type="text" id="userrss_note_path" class="form-control" placeholder="留空自动选择保存路径">
+              <input type="text" id="userrss_save_path" class="form-control" placeholder="留空自动选择保存路径">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="userrss_download_setting">
+                {% for Id in DownloadSettings %}
+                <option value="{{ DownloadSettings[Id].id }}">{{ DownloadSettings[Id].name }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
         </div>
-        <details id="downloader_setting_div">
-          <summary class="summary mb-2">
-            下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent"
-              data-bs-toggle="tooltip">?</span>
-          </summary>
-          <div class="row">
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">分类 </label>
-                <input type="text" id="userrss_note_category" class="form-control" placeholder="只能设置一个">
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">标签 </label>
-                <input type="text" id="userrss_note_tags" class="form-control" placeholder="多个标签用|分隔">
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">布局 </label>
-                <select class="form-select" id="userrss_note_layout">
-                  <option value="" selected>全局</option>
-                  <option value="Original">原始</option>
-                  <option value="Subfolder">创建子文件夹</option>
-                  <option value="NoSubfolder">不建子文件夹</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">动作 </label>
-                <select class="form-select" id="userrss_note_paused">
-                  <option value="" selected>添加后开始</option>
-                  <option value="Y">添加后暂停</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">上传速度限制 </label>
-                <input type="text" id="userrss_note_upload" class="form-control" placeholder="KB/s，不启用则留空">
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">下载速度限制 </label>
-                <input type="text" id="userrss_note_download" class="form-control" placeholder="KB/s，不启用则留空">
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">分享率限制 </label>
-                <input type="text" id="userrss_note_ratio" class="form-control" placeholder="不启用则留空">
-              </div>
-            </div>
-            <div class="col-lg-3">
-              <div class="mb-3">
-                <label class="form-label">做种时间限制 </label>
-                <input type="text" id="userrss_note_seeding_time" class="form-control" placeholder="分钟，不启用则留空">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-          </div>
-        </details>
         {% if Count > 0 %}
         <details>
           <summary class="summary">
@@ -584,19 +527,12 @@
     $("#userrss_parser").val('1');
     $("#userrss_state").val('N');
     show_userrss_uses('D');
-    $("#userrss_note_path").val('');
-    $("#userrss_note_category").val('');
-    $("#userrss_note_tags").val('');
-    $("#userrss_note_layout").val('');
-    $("#userrss_note_paused").val('');
-    $("#userrss_note_upload").val('');
-    $("#userrss_note_download").val('');
-    $("#userrss_note_ratio").val('');
-    $("#userrss_note_seeding_time").val('');
+    $("#userrss_save_path").val('');
+    $("#userrss_download_setting").val('-1');
     $("#modal-userrss").modal('show');
   }
 
-  // 显示编辑刷流任务
+  // 显示编辑任务
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
     ajax_post("get_userrss_task", { id: id }, function (ret) {
@@ -611,21 +547,14 @@
         $("#userrss_parser").val(ret.detail.parser);
         $("#userrss_state").val(ret.detail.state);
         show_userrss_uses(ret.detail.uses);
-        $("#userrss_note_path").val(ret.detail.note.save_path);
-        $("#userrss_note_category").val(ret.detail.note.category);
-        $("#userrss_note_tags").val(ret.detail.note.tags);
-        $("#userrss_note_layout").val(ret.detail.note.content_layout);
-        $("#userrss_note_paused").val(ret.detail.note.is_paused);
-        $("#userrss_note_upload").val(ret.detail.note.upload_limit);
-        $("#userrss_note_download").val(ret.detail.note.download_limit);
-        $("#userrss_note_ratio").val(ret.detail.note.ratio_limit);
-        $("#userrss_note_seeding_time").val(ret.detail.note.seeding_time_limit);
+        $("#userrss_save_path").val(ret.detail.save_path);
+        $("#userrss_download_setting").val(ret.detail.download_setting);
         $("#modal-userrss").modal('show');
       }
     });
   }
 
-  // 显示删除刷流任务
+  // 显示删除任务
   function del_userrss_modal(taskid, name) {
     show_confirm_modal("删除订阅任务 " + name + " ？", function () {
       hide_confirm_modal();
@@ -646,7 +575,6 @@
 
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
-    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     id = $("#userrss_id").val();
     name = $("#userrss_name").val();
     if (!name) {
@@ -676,50 +604,6 @@
     } else {
       $("#userrss_parser").removeClass("is-invalid");
     }
-    save_path = $("#userrss_note_path").val();
-    category = $("#userrss_note_category").val();
-    tags = $("#userrss_note_tags").val();
-    content_layout = $("#userrss_note_layout").val();
-    is_paused = $("#userrss_note_paused").val();
-    upload_limit = $("#userrss_note_upload").val();
-    if (upload_limit && isNaN(upload_limit)) {
-      $("#userrss_note_upload").addClass("is-invalid");
-      return;
-    } else {
-      $("#userrss_note_upload").removeClass("is-invalid");
-    }
-    download_limit = $("#userrss_note_download").val();
-    if (download_limit && isNaN(download_limit)) {
-      $("#userrss_note_download").addClass("is-invalid");
-      return;
-    } else {
-      $("#userrss_note_download").removeClass("is-invalid");
-    }
-    ratio_limit = $("#userrss_note_ratio").val();
-    if (ratio_limit && isNaN(ratio_limit)) {
-      $("#userrss_note_ratio").addClass("is-invalid");
-      return;
-    } else {
-      $("#userrss_note_ratio").removeClass("is-invalid");
-    }
-    seeding_time_limit = $("#userrss_note_seeding_time").val();
-    if (seeding_time_limit && isNaN(seeding_time_limit)) {
-      $("#userrss_note_seeding_time").addClass("is-invalid");
-      return;
-    } else {
-      $("#userrss_note_seeding_time").removeClass("is-invalid");
-    }
-    note = {
-      save_path: save_path,
-      category: category,
-      tags: tags,
-      content_layout: content_layout,
-      is_paused: is_paused,
-      upload_limit: upload_limit,
-      download_limit: download_limit,
-      ratio_limit: ratio_limit,
-      seeding_time_limit: seeding_time_limit
-    };
     var params = {
       id: id,
       name: name,
@@ -731,8 +615,10 @@
       exclude: $("#userrss_exclude").val(),
       filterrule: $("#userrss_filterrule").val(),
       state: $("#userrss_state").val(),
-      note: JSON.stringify(note)
+      save_path: $("#userrss_save_path").val(),
+      download_setting: $("#userrss_download_setting").val(),
     };
+    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
       $("#add_or_edit_userrss_btn").attr("disabled", false);
@@ -1070,15 +956,8 @@
         $("#userrss_parser").val(ret.detail.parser);
         $("#userrss_state").val(ret.detail.state);
         show_userrss_uses(ret.detail.uses);
-        $("#userrss_note_path").val(ret.detail.note.save_path);
-        $("#userrss_note_category").val(ret.detail.note.category);
-        $("#userrss_note_tags").val(ret.detail.note.tags);
-        $("#userrss_note_layout").val(ret.detail.note.content_layout);
-        $("#userrss_note_paused").val(ret.detail.note.is_paused);
-        $("#userrss_note_upload").val(ret.detail.note.upload_limit);
-        $("#userrss_note_download").val(ret.detail.note.download_limit);
-        $("#userrss_note_ratio").val(ret.detail.note.ratio_limit);
-        $("#userrss_note_seeding_time").val(ret.detail.note.seeding_time_limit);
+        $("#userrss_save_path").val(ret.detail.save_path);
+        $("#userrss_download_setting").val(ret.detail.download_setting);
       }
     });
   }
@@ -1092,19 +971,16 @@
   // 自定义订阅动作 D:下载 R:订阅 S:搜索
   function show_userrss_uses(use) {
     if (use == 'D') {
-      $("#save_path_div").show();
       $("#downloader_setting_div").show();
       $("#filter_div").show();
       $("#use_D").prop("checked", true);
     }
     else if (use == 'R') {
-      $("#save_path_div").hide();
       $("#downloader_setting_div").hide();
       $("#filter_div").hide();
       $("#use_R").prop("checked", true);
     }
     else if (use == 'S') {
-      $("#save_path_div").hide();
       $("#downloader_setting_div").hide();
       $("#filter_div").hide();
       $("#use_S").prop("checked", true);
