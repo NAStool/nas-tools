@@ -91,7 +91,7 @@
           <div class="datagrid">
             <div class="datagrid-item">
               <div class="datagrid-title">分类</div>
-              <div class="datagrid-content" style="line-height: 1.6em;">
+              <div class="datagrid-content">
                 {% if DownloadSetting[Id].category %}
                 <span class="badge me-2 bg-yellow">{{ DownloadSetting[Id].category }}</span>
                 {% endif %}
@@ -99,7 +99,7 @@
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">标签</div>
-              <div class="datagrid-content" style="line-height: 1.6em;">
+              <div class="datagrid-content">
                 {% if DownloadSetting[Id].tags %}
                 {% for Tag in DownloadSetting[Id].tags.split(";") %}
                 <span class="badge me-2 bg-blue">{{ Tag }}</span>
@@ -139,8 +139,6 @@
               <div class="datagrid-content">
                 {% if DownloadSetting[Id].upload_limit %}
                 <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].upload_limit }} KB/s</span>
-                {% else %}
-                <span class="badge badge-outline text-blue me-2">不限速</span>
                 {% endif %}
               </div>
             </div>
@@ -149,8 +147,6 @@
               <div class="datagrid-content">
                 {% if DownloadSetting[Id].download_limit %}
                 <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].download_limit }} KB/s</span>
-                {% else %}
-                <span class="badge badge-outline text-blue me-2">不限速</span>
                 {% endif %}
               </div>
             </div>
@@ -159,8 +155,6 @@
               <div class="datagrid-content">
                 {% if DownloadSetting[Id].ratio_limit %}
                 <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].ratio_limit }}</span>
-                {% else %}
-                <span class="badge badge-outline text-blue me-2">不限制</span>
                 {% endif %}
               </div>
             </div>
@@ -169,8 +163,6 @@
               <div class="datagrid-content">
                 {% if DownloadSetting[Id].seeding_time_limit %}
                 <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].seeding_time_limit }} 分钟</span>
-                {% else %}
-                <span class="badge badge-outline text-blue me-2">不限制</span>
                 {% endif %}
               </div>
             </div>
@@ -200,8 +192,8 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">分类 </label>
-              <input type="text" id="category" class="form-control" placeholder="只能设置一个">
+              <label class="form-label">分类 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" id="category" class="form-control" placeholder="下载器分类名称">
             </div>
           </div>
           <div class="col-lg-4">
@@ -227,7 +219,7 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">布局 </label>
+              <label class="form-label">布局 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="content_layout">
                 <option value="0" selected>全局</option>
                 <option value="1">原始</option>
@@ -240,13 +232,13 @@
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">分享率限制 </label>
+              <label class="form-label">分享率限制 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="ratio_limit" class="form-control" placeholder="留空或0为无限制">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">做种时间限制 </label>
+              <label class="form-label">做种时间限制 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="seeding_time_limit" class="form-control" placeholder="分钟，留空或0为无限制">
             </div>
           </div>
@@ -266,7 +258,7 @@
           取消
         </button>
         <button id="add_or_edit_download_setting_btn" class="btn btn-primary ms-auto"
-          onclick="javascript:add_or_edit_download_setting()">
+          onclick="add_or_edit_download_setting()">
           保存
         </button>
       </div>
