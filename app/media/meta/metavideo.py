@@ -194,8 +194,6 @@ class MetaVideo(MetaBase):
                         self._continue_flag = False
                     elif token.isdigit() and len(token) == 4:
                         # 4位数字，可能是年份，也可能真的是标题的一部分，也有可能是集
-                        if not 1900 < int(token) < 2050:
-                            return
                         if not self._unknown_name_str:
                             self._unknown_name_str = token
                 else:
@@ -397,7 +395,7 @@ class MetaVideo(MetaBase):
                 self._continue_flag = False
                 self.type = MediaType.TV
             elif self.begin_episode is None \
-                    and 1 < len(token) < 5 \
+                    and 1 < len(token) < 4 \
                     and self._last_token_type != "year" \
                     and self._last_token_type != "videoencode" \
                     and token != self._unknown_name_str:

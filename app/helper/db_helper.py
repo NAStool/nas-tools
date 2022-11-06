@@ -2019,10 +2019,10 @@ class DbHelper:
                     "TAGS": tags,
                     "CONTENT_LAYOUT": int(content_layout),
                     "IS_PAUSED": int(is_paused),
-                    "UPLOAD_LIMIT": int(upload_limit),
-                    "DOWNLOAD_LIMIT": int(download_limit),
-                    "RATIO_LIMIT": int(ratio_limit),
-                    "SEEDING_TIME_LIMIT": int(seeding_time_limit),
+                    "UPLOAD_LIMIT": int(float(upload_limit)),
+                    "DOWNLOAD_LIMIT": int(float(download_limit)),
+                    "RATIO_LIMIT": int(round(float(ratio_limit),2)*100),
+                    "SEEDING_TIME_LIMIT": int(float(seeding_time_limit)),
                     "NOTE": note
                 }
             )
@@ -2033,9 +2033,9 @@ class DbHelper:
                 TAGS=tags,
                 CONTENT_LAYOUT=int(content_layout),
                 IS_PAUSED=int(is_paused),
-                UPLOAD_LIMIT=int(upload_limit),
-                DOWNLOAD_LIMIT=int(download_limit),
-                RATIO_LIMIT=int(ratio_limit),
-                SEEDING_TIME_LIMIT=int(seeding_time_limit),
+                UPLOAD_LIMIT=int(float(upload_limit)),
+                DOWNLOAD_LIMIT=int(float(download_limit)),
+                RATIO_LIMIT=int(round(float(ratio_limit),2)*100),
+                SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
                 NOTE=note
             ))

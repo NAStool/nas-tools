@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "Qi Refining for 3000 Years S01E06 2022 1080p B-Blobal WEB-DL x264 AAC-AnimeS@AdWeb",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Qi Refining for 3000 Years",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E06",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "x264",
+        "audio_codec": "AAC"
+    }
+}, {
     "title": "Noumin Kanren no Skill Bakka Agetetara Naze ka Tsuyoku Natta S01E02 2022 1080p B-Global WEB-DL x264 AAC-AnimeS@ADWeb[2022年10月新番]",
     "subtitle": "",
     "target": {
