@@ -62,10 +62,10 @@ class Scheduler:
                         end_time_range_str = time_range[1]
                         start_time_range_array = start_time_range_str.split(":")
                         end_time_range_array = end_time_range_str.split(":")
-                        start_hour = int(start_time_range_array[0]) or 1
-                        start_minute = int(start_time_range_array[1]) or 1
-                        end_hour = int(end_time_range_array[0]) or 1
-                        end_minute = int(end_time_range_array[1]) or 1
+                        start_hour = int(start_time_range_array[0])
+                        start_minute = int(start_time_range_array[1])
+                        end_hour = int(end_time_range_array[0])
+                        end_minute = int(end_time_range_array[1])
 
                         def start_random_job():
                             task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
@@ -81,17 +81,16 @@ class Scheduler:
                         log.info("站点自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
                 elif ptsignin_cron.find(':') != -1:
                     try:
-                        hour = int(ptsignin_cron.split(":")[0]) or 1
-                        minute = int(ptsignin_cron.split(":")[1]) or 1
+                        hour = int(ptsignin_cron.split(":")[0])
+                        minute = int(ptsignin_cron.split(":")[1])
                     except Exception as e:
                         log.info("站点自动签到时间 配置格式错误：%s" % str(e))
                         hour = minute = 0
-                    if hour and minute:
-                        self.SCHEDULER.add_job(Sites().signin,
-                                               "cron",
-                                               hour=hour,
-                                               minute=minute)
-                        log.info("站点自动签到服务启动")
+                    self.SCHEDULER.add_job(Sites().signin,
+                                           "cron",
+                                           hour=hour,
+                                           minute=minute)
+                    log.info("站点自动签到服务启动")
                 else:
                     try:
                         hours = float(ptsignin_cron)
