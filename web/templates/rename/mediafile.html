@@ -56,7 +56,7 @@
               <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
                 aria-label="Search in website">
             </div>
-            <div id="mediafile_tree" style="overflow: auto;"></div>
+            <div id="mediafile_tree" style="overflow-y: auto;"></div>
           </div>
         </div>
         <div class="col d-flex flex-column d-none d-md-block">
@@ -245,12 +245,12 @@
     <div class="card card-link-pop">
       <div class="row g-0">
         <div class="col-auto">
-          <div class="card-body">
+          <div class="p-2">
             <div class="avatar avatar-md">{FILEEXT}</div>
           </div>
         </div>
         <div class="col">
-          <div class="card-body ps-0">
+          <div class="p-2 ps-0">
             <div class="row">
               <div class="col">
                 <h3 class="mb-0"><a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")'>{FILENAME}</a></h3>
