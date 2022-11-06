@@ -196,9 +196,11 @@ class Downloader:
             tags = download_setting.get("tags")
             if tags:
                 tags = tags.split(";")
-                tags.append(tag)
+                if tag:
+                    tags.append(tag)
             else:
-                tags = [tag]
+                if tag:
+                    tags = [tag]
             # 布局
             content_layout = download_setting.get("content_layout")
             if content_layout == 1:
