@@ -2,7 +2,7 @@
 movie:
   # 分类名同时也是目录名，会按先后顺序匹配，匹配后程序会按这个名称建立二级目录
   华语电影:
-    # 分类依据，可以是：original_language 语种、production_countries(电影)/origin_country(dianshiju) 国家或地区、genre_ids 内容类型等，只要TMDB API返回的字段中有就行
+    # 分类依据，可以是：original_language 语种、production_countries(电影)/origin_country(电视剧) 国家或地区、genre_ids 内容类型等，只要TMDB API返回的字段中有就行
     # 配置多项条件时，需要同时满足；不需要的匹配项可以删掉或者配置为空
     # 匹配值对应用,号分隔，这里是匹配语种
     original_language: 'zh,cn,bo,za'

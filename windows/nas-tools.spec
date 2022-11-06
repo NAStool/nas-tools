@@ -29,7 +29,8 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
     return data_toc
 
 pkg_data1 = collect_pkg_data('web')
-pkg_data2 = collect_pkg_data('config') # <<< Put the name of your package here
+pkg_data2 = collect_pkg_data('config')
+pkg_data3 = collect_pkg_data('db_scripts', include_py_files=True) # <<< Put the name of your package here
 # <<< END ADDED PART
 
 
@@ -73,6 +74,7 @@ exe = EXE(
           a.datas,
           pkg_data1,
           pkg_data2,
+          pkg_data3,
           [],
           name='nas-tools',
           debug=False,

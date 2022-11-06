@@ -36,6 +36,7 @@ jobs:
         copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
+        xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\db_scripts\ /e
         cd windows
         pyinstaller nas-tools.spec
       shell: pwsh
@@ -94,4 +95,3 @@ jobs:
             *v${{ env.app_version }}*
 
             ${{ github.event.commits[0].message }}
-        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
