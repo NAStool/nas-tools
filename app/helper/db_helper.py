@@ -1945,7 +1945,7 @@ class DbHelper:
         if not sid:
             return
         self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).delete()
-    
+
     def get_config_sync_paths(self, sid=None):
         """
         查询目录同步
@@ -1953,7 +1953,7 @@ class DbHelper:
         if sid:
             return self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).all()
         return self._db.query(CONFIGSYNCPATHS).all()
-    
+
     @DbPersist(_db)
     def check_config_sync_paths(self, sid=None, source=None, rename=None, enabled=None):
         """
@@ -1977,7 +1977,7 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-    
+
     @DbPersist(_db)
     def delete_download_setting(self, sid):
         """
@@ -1986,7 +1986,7 @@ class DbHelper:
         if not sid:
             return
         self._db.query(DOWNLOADSETTING).filter(DOWNLOADSETTING.ID == int(sid)).delete()
-    
+
     def get_download_setting(self, sid=None):
         """
         查询下载设置
@@ -1994,18 +1994,18 @@ class DbHelper:
         if sid:
             return self._db.query(DOWNLOADSETTING).filter(DOWNLOADSETTING.ID == int(sid)).all()
         return self._db.query(DOWNLOADSETTING).all()
-    
+
     @DbPersist(_db)
-    def update_download_setting(self, 
+    def update_download_setting(self,
                                 sid,
                                 name,
-                                category, 
-                                tags, 
-                                content_layout, 
-                                is_paused, 
-                                upload_limit, 
-                                download_limit, 
-                                ratio_limit, 
+                                category,
+                                tags,
+                                content_layout,
+                                is_paused,
+                                upload_limit,
+                                download_limit,
+                                ratio_limit,
                                 seeding_time_limit,
                                 note=None):
         """
@@ -2028,14 +2028,14 @@ class DbHelper:
             )
         else:
             self._db.insert(DOWNLOADSETTING(
-            NAME = name,
-            CATEGORY = category,
-            TAGS = tags,
-            CONTENT_LAYOUT = int(content_layout),
-            IS_PAUSED = int(is_paused),
-            UPLOAD_LIMIT = int(upload_limit),
-            DOWNLOAD_LIMIT = int(download_limit),
-            RATIO_LIMIT = int(ratio_limit),
-            SEEDING_TIME_LIMIT = int(seeding_time_limit),
-            NOTE = note
-        ))
+                NAME=name,
+                CATEGORY=category,
+                TAGS=tags,
+                CONTENT_LAYOUT=int(content_layout),
+                IS_PAUSED=int(is_paused),
+                UPLOAD_LIMIT=int(upload_limit),
+                DOWNLOAD_LIMIT=int(download_limit),
+                RATIO_LIMIT=int(ratio_limit),
+                SEEDING_TIME_LIMIT=int(seeding_time_limit),
+                NOTE=note
+            ))

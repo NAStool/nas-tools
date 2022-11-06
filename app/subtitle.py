@@ -156,7 +156,6 @@ class Subtitle:
                         print(str(err))
                 else:
                     log.error("【Subtitle】下载字幕文件失败：%s" % Download_Link)
-                    ret_msg = "下载字幕文件失败：%s" % Download_Link
                     continue
                 # 最多下载3个字幕
                 subtitle_count += 1

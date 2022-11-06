@@ -1,15 +1,12 @@
-import os
-from urllib.parse import unquote
-
 from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
 from app.brushtask import BrushTask
+from app.downloader import Downloader
 from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
-from app.utils import TokenCache, SystemUtils, StringUtils
-from app.utils.types import OsType
+from app.utils import TokenCache
 from config import Config
 from web.action import WebAction
 from web.backend.user import User
@@ -558,6 +555,70 @@ class DownloadNow(ClientResource):
         查询正在下载的任务
         """
         return WebAction().api_action(cmd='get_downloading')
+
+
+@download.route('/config/info')
+class DownloadConfigInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        查询下载设置
+        """
+        return WebAction().api_action(cmd='get_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/update')
+class DownloadConfigUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('category', type=str, help='分类', location='form')
+    parser.add_argument('tags', type=str, help='标签', location='form')
+    parser.add_argument('content_layout', type=int, help='布局', location='form')
+    parser.add_argument('is_paused', type=int, help='动作', location='form')
+    parser.add_argument('upload_limit', type=int, help='上传速度限制', location='form')
+    parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
+    parser.add_argument('ratio_limit', type=int, help='分享率限制', location='form')
+    parser.add_argument('seeding_time_limit', type=int, help='做种时间限制', location='form')
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改下载设置
+        """
+        return WebAction().api_action(cmd='update_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/delete')
+class DownloadConfigDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        删除下载设置
+        """
+        return WebAction().api_action(cmd='delete_download_setting', data=self.parser.parse_args())
+
+
+@download.route('/config/list')
+class DownloadConfigList(ClientResource):
+    @staticmethod
+    def post():
+        """
+        查询所有下载设置
+        """
+        return {
+            "code": 0,
+            "success": True,
+            "data": {
+                "result": Downloader().get_download_setting()
+            }
+        }
 
 
 @organization.route('/unknown/delete')

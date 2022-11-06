@@ -71,18 +71,17 @@ class Downloader:
         # 下载目录配置
         self._downloaddir = config.get_config('downloaddir') or []
         # 下载设置
-        self._download_setting = {}
-        self._download_setting["-1"] = {
-                        "id": -1,
-                        "name": "默认",
-                        "category": '',
-                        "tags": 'NASTOOL',
-                        "content_layout": 0,
-                        "is_paused": 0,
-                        "upload_limit": 0,
-                        "download_limit": 0,
-                        "ratio_limit": 0,
-                        "seeding_time_limit": 0}
+        self._download_setting = {"-1": {
+            "id": -1,
+            "name": "默认",
+            "category": '',
+            "tags": 'NASTOOL',
+            "content_layout": 0,
+            "is_paused": 0,
+            "upload_limit": 0,
+            "download_limit": 0,
+            "ratio_limit": 0,
+            "seeding_time_limit": 0}}
         download_settings = self.dbhelper.get_download_setting()
         for download_setting in download_settings:
             self._download_setting[str(download_setting.ID)] = {
@@ -116,11 +115,15 @@ class Downloader:
 
     def download(self,
                  media_info,
+                 is_paused=None,
+                 tag=None,
                  download_dir=None,
                  download_setting=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
+        :param is_paused: 是否暂停下载
+        :param tag: 种子标签
         :param download_dir: 指定下载目录
         :param download_setting: 下载设置id
         """
@@ -179,17 +182,24 @@ class Downloader:
                 return None, retmsg
         else:
             content = url
+
         # 开始添加下载
         try:
-            # 合并TAG
+            # 下载设置
             if download_setting:
                 download_setting = self.get_download_setting(download_setting)
             else:
                 download_setting = self.get_download_setting(-1)
+            # 分类
             category = download_setting.get("category")
-            tag = download_setting.get("tags")
-            if tag:
-                tag = tag.split(";")
+            # 合并TAG
+            tags = download_setting.get("tags")
+            if tags:
+                tags = tags.split(";")
+                tags.append(tag)
+            else:
+                tags = [tag]
+            # 布局
             content_layout = download_setting.get("content_layout")
             if content_layout == 1:
                 content_layout = "Original"
@@ -199,21 +209,27 @@ class Downloader:
                 content_layout = "NoSubfolder"
             else:
                 content_layout = ""
-            is_paused = StringUtils.to_bool(download_setting.get("is_paused"))
+            # 暂停
+            if is_paused is None:
+                is_paused = StringUtils.to_bool(download_setting.get("is_paused"))
+            else:
+                is_paused = True if is_paused else False
+            # 上传限速
             upload_limit = download_setting.get("upload_limit")
+            # 下载限速
             download_limit = download_setting.get("download_limit")
+            # 分享率
             ratio_limit = download_setting.get("ratio_limit")
+            # 做种时间
             seeding_time_limit = download_setting.get("seeding_time_limit")
+            # 下载目录
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info)
                 download_dir = download_info.get('path')
                 download_label = download_info.get('label')
                 if not category:
                     category = download_label
-            if is_paused:
-                is_paused = True
-            else:
-                is_paused = False
+            # 添加下载
             log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
             if self._client_type == DownloaderType.TR:
                 ret = self.client.add_torrent(content,
@@ -221,7 +237,7 @@ class Downloader:
                                               download_dir=download_dir)
                 if ret:
                     self.client.change_torrent(tid=ret.id,
-                                               tag=tag,
+                                               tag=tags,
                                                upload_limit=upload_limit,
                                                download_limit=download_limit,
                                                ratio_limit=ratio_limit,
@@ -230,7 +246,7 @@ class Downloader:
                 ret = self.client.add_torrent(content,
                                               is_paused=is_paused,
                                               download_dir=download_dir,
-                                              tag=tag,
+                                              tag=tags,
                                               category=category,
                                               content_layout=content_layout,
                                               upload_limit=upload_limit,
@@ -240,7 +256,7 @@ class Downloader:
             else:
                 ret = self.client.add_torrent(content,
                                               is_paused=is_paused,
-                                              tag=tag,
+                                              tag=tags,
                                               download_dir=download_dir,
                                               category=category)
             if ret:

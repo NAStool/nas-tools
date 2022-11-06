@@ -243,6 +243,15 @@ class BrushTask(object):
         根据条件检查所有任务下载完成的种子，按条件进行删除，并更新任务数据
         由定时服务调用
         """
+
+        def __send_message(_task_name, _delete_type, _torrent):
+            """
+            发送删种消息
+            """
+            _msg_title = "【刷流任务 {} 删除做种】".format(_task_name)
+            _msg_text = "删除原因：{}\n种子名称：{}".format(_delete_type.value, _torrent.get('name'))
+            self.message.sendmsg(title=_msg_title, text=_msg_text)
+
         # 遍历所有任务
         _dbhelper = DbHelper()
         for taskinfo in self._brush_tasks:
@@ -311,9 +320,7 @@ class BrushTask(object):
                         if need_delete:
                             log_info("【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.get('name'), delete_type.value))
                             if sendmessage:
-                                msg_title = "【刷流任务 {} 删除做种】".format(task_name)
-                                msg_text = "删除原因：{}\n种子名称：{}".format(delete_type.value, torrent.get('name'))
-                                self.message.sendmsg(title=msg_title, text=msg_text)
+                                __send_message(task_name, delete_type, torrent)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -345,9 +352,7 @@ class BrushTask(object):
                         if need_delete:
                             log_info("【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.get('name'), delete_type.value))
                             if sendmessage:
-                                msg_title = "【刷流任务 {} 删除做种】".format(task_name)
-                                msg_text = "删除原因：{}\n种子名称：{}".format(delete_type.value, torrent.get('name'))
-                                self.message.sendmsg(title=msg_title, text=msg_text)
+                                __send_message(task_name, delete_type, torrent)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -389,9 +394,7 @@ class BrushTask(object):
                         if need_delete:
                             log_info("【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.name, delete_type.value))
                             if sendmessage:
-                                msg_title = "【刷流任务 {} 删除做种】".format(task_name)
-                                msg_text = "删除原因：{}\n种子名称：{}".format(delete_type.value, torrent.name)
-                                self.message.sendmsg(title=msg_title, text=msg_text)
+                                __send_message(task_name, delete_type, torrent)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -424,9 +427,7 @@ class BrushTask(object):
                         if need_delete:
                             log_info("【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.name, delete_type.value))
                             if sendmessage:
-                                msg_title = "【刷流任务 {} 删除做种】".format(task_name)
-                                msg_text = "删除原因：{}\n种子名称：{}".format(delete_type.value, torrent.name)
-                                self.message.sendmsg(title=msg_title, text=msg_text)
+                                __send_message(task_name, delete_type, torrent)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
