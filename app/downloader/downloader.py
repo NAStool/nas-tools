@@ -186,9 +186,8 @@ class Downloader:
         # 开始添加下载
         try:
             # 下载设置
-            if download_setting:
-                download_setting = self.get_download_setting(download_setting)
-            else:
+            download_setting = self.get_download_setting(download_setting)
+            if not download_setting:
                 download_setting = self.get_download_setting(-1)
             # 分类
             category = download_setting.get("category")
