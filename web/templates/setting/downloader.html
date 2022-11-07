@@ -354,8 +354,7 @@
                 <input type="text" value="{{ attr.container_path or '' }}" name="container_path"
                   class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
               </div>
-              <div class="col-12 col-lg mb-1"
-                style="{% if Config.pt.pt_client !='qbittorrent' or not Config.qbittorrent.auto_management %}display:none{% endif %}">
+              <div class="col-12 col-lg mb-1">
                 <input type="text" value="{{ attr.label or '' }}" name="path_label" class="form-control"
                   placeholder="分类标签" autocomplete="off">
               </div>

@@ -224,3 +224,24 @@ class SystemUtils:
             if os.path.isdir(vol):
                 vols.append(vol)
         return vols
+
+    @staticmethod
+    def find_links(file, fdir=None):
+        """
+        查找文件的所有硬链接
+        """
+        ret_files = []
+        if os.name == "nt":
+            stdout = subprocess.run(['fsutil',
+                                     'hardlink',
+                                     'list',
+                                     file], shell=True, stdout=subprocess.PIPE).stdout
+        else:
+            stdout = subprocess.run(['find',
+                                     '-L',
+                                     fdir,
+                                     '-samefile',
+                                     file], shell=True, stdout=subprocess.PIPE).stdout
+        if stdout:
+            ret_files = stdout.decode('utf-8').split()
+        return ret_files

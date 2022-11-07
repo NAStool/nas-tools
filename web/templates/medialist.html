@@ -7,15 +7,15 @@
         {% if OperType == 'search' %}
         <a class="card card-link card-link-pop rounded-3"
           href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
-          style="padding:0px 0px; overflow:hidden">
+          style="padding:0 0; overflow:hidden">
           {% else %}
-          <div class="card card-link-pop rounded-3" style="padding:0px 0px; overflow:hidden">
+          <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
             {% endif %}
             {% if Media.vote_average %}
             <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
             {% endif %}
             <div class="row" style="max-height:240px; overflow:hidden">
-              <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
+              <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0 0">
                 <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}"
                   style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
                 <img
@@ -27,8 +27,10 @@
                   <h2>
                     {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                   </h2>
-                  <div class="badge badge-outline text-orange mb-1">{% if Media.tmdb_id is string and
-                    Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                  <div>
+                    <span class="badge badge-outline {% if Media.fav == 2 %}text-green{% else %}text-orange{% endif %} mb-1">
+                      {% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                    </span>
                   </div>
                   <div class="text-muted mb-3 pb-3">
                     {{ Media.overview|truncate(50, True) }}

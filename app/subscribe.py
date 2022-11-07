@@ -1,6 +1,6 @@
 from app.media.douban import DouBan
 from app.helper import DbHelper
-from app.media.doubanv2api import DoubanApi
+from app.media.doubanapi import DoubanApi
 from app.media import MetaInfo, Media
 from app.message import Message
 from app.utils import Torrent

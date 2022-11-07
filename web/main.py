@@ -895,7 +895,7 @@ def create_flask_app():
         download_dirs = Downloader().get_download_visit_dirs()
         if download_dirs:
             try:
-                Dir = os.path.commonpath(download_dirs)
+                Dir = os.path.commonpath(download_dirs).replace("\\", "/")
             except Exception as err:
                 print(str(err))
                 Dir = "/"
