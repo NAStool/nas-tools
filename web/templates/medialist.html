@@ -28,8 +28,8 @@
                     {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                   </h2>
                   <div>
-                    <span class="badge badge-outline {% if Media.fav == 2 %}bg-green{% else %}bg-orange{% endif %} mb-1">{% if Media.tmdb_id is string and
-                      Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                    <span class="badge badge-outline {% if Media.fav == 2 %}text-green{% else %}text-orange{% endif %} mb-1">
+                      {% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
                     </span>
                   </div>
                   <div class="text-muted mb-3 pb-3">
