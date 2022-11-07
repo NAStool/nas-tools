@@ -78,6 +78,8 @@ class MetaBase(object):
     overview = None
     # TMDB 的其它信息
     tmdb_info = {}
+    # 本地状态 1-已订阅 2-已存在
+    fav = 0
     # 种子附加信息
     # 站点名称
     site = None

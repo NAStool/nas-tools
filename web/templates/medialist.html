@@ -7,15 +7,25 @@
         {% if OperType == 'search' %}
         <a class="card card-link card-link-pop rounded-3"
           href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
-          style="padding:0px 0px; overflow:hidden">
+          style="padding:0 0; overflow:hidden">
           {% else %}
-          <div class="card card-link-pop rounded-3" style="padding:0px 0px; overflow:hidden">
+          <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
             {% endif %}
             {% if Media.vote_average %}
             <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
             {% endif %}
             <div class="row" style="max-height:240px; overflow:hidden">
-              <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
+              <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0 0">
+                {% if Media.fav == 2 %}
+                <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                    class="h-3 w-3 sm:h-4 sm:w-4">
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                {% endif %}
                 <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}"
                   style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
                 <img
