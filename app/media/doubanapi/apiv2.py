@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+import base64
+import hashlib
+import hmac
 import logging
 from datetime import datetime
 from functools import lru_cache
+from urllib import parse
 
 import requests
 
-from app.utils.commons import singleton
 from app.utils import RequestUtils
+from app.utils.commons import singleton
 
 logger = logging.getLogger(__name__)
 
@@ -111,17 +115,22 @@ class DoubanApi(object):
         "music_recommendations": "/music/%s/recommendations",
     }
 
-    _user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.20(0x18001434) NetType/WIFI Language/en"
-    _headers = {'User-Agent': _user_agent,
-                'Referer': 'https://servicewechat.com/wx2f9b06c1de1ccfca/84/page-frame.html',
-                'Accept-Encoding': 'gzip,compress,deflate',
-                'content-type': 'application/json'}
-    _api_key = "0ac44ae016490db2204ce0a042db2916"
+    _user_agent = "api-client/1 com.douban.frodo/7.3.0(207)"
+    _headers = {'User-Agent': _user_agent}
+    _api_secret_key = "bf7dddc7c9cfe6f7"
+    _api_key = "0dad551ec0f84ed02907ff5c42e8ec70"
     _base_url = "https://frodo.douban.com/api/v2"
     _req = RequestUtils(headers=_headers, session=requests.Session())
 
     def __init__(self):
         pass
+
+    @classmethod
+    def __sign(cls, url: str, ts: int, method='GET') -> str:
+        url_path = parse.urlparse(url).path
+        raw_sign = '&'.join([method.upper(), parse.quote(url_path, safe=''), str(ts)])
+        return base64.b64encode(hmac.new(cls._api_secret_key.encode(), raw_sign.encode(), hashlib.sha1).digest()
+                                ).decode()
 
     @classmethod
     @lru_cache(maxsize=128)
@@ -132,6 +141,8 @@ class DoubanApi(object):
         if kwargs:
             params.update(kwargs)
 
+        ts = params.pop('_ts', int(datetime.strftime(datetime.now(), '%Y%m%d')))
+        params.update({'os_rom': 'android', 'apiKey': cls._api_key, '_ts': ts, '_sig': cls.__sign(url=req_url, ts=ts)})
         resp = cls._req.get_res(url=req_url, params=params)
         return resp.json() if resp else None
 
