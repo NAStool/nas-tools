@@ -112,7 +112,7 @@
 
   $(document).ready(function () {
     $(".page-wrapper").scroll(function () {
-      if ($(window).height() + $(this).scrollTop() >= $("#page_content").height() + 100) {
+      if ($(window).height() + $(this).scrollTop() >= $("#page_content").height() + 50) {
         loading_data();
       }
     });
