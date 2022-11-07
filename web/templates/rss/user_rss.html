@@ -214,7 +214,11 @@
             <div class="datagrid-item">
               <div class="datagrid-title">下载设置</div>
               <div class="datagrid-content">
+                {% if Task.download_setting|string in DownloadSettings %}
                 <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string].name }}</span>
+                {% else %}
+                <span class="badge me-2 bg-red">{{ DownloadSettings["-1"].name }}</span>
+                {% endif %}
               </div>
             </div>
             {% endif %}
