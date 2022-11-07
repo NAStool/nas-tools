@@ -11,7 +11,7 @@ from app.utils.string_utils import StringUtils
 
 import log
 from config import Config
-from app.media.doubanv2api import DoubanApi
+from app.media.doubanapi import DoubanApi
 from app.media import MetaInfo
 from app.utils import RequestUtils
 from app.utils.types import MediaType
@@ -254,14 +254,6 @@ class DouBan:
         if not self.doubanapi:
             return []
         infos = self.doubanapi.movie_top250(start=(page - 1) * self.__movie_num, count=self.__movie_num)
-        if not infos:
-            return []
-        return self.__refresh_movie(infos.get("subject_collection_items"))
-
-    def refresh_online_movie(self, page=1):
-        if not self.doubanapi:
-            return []
-        infos = self.doubanapi.movie_showing(start=(page - 1) * self.__movie_num, count=self.__movie_num)
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))

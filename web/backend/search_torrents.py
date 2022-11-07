@@ -9,7 +9,7 @@ from app.media.douban import DouBan
 from app.downloader import Downloader
 from app.searcher import Searcher
 from app.utils import StringUtils
-from app.media.doubanv2api import DoubanApi
+from app.media.doubanapi import DoubanApi
 from app.media import MetaInfo, Media
 from app.helper import DbHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType

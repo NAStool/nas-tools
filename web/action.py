@@ -26,7 +26,7 @@ from app.indexer import BuiltinIndexer
 from app.media import Category, Media, MetaInfo
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
-from app.media.doubanv2api import DoubanApi
+from app.media.doubanapi import DoubanApi
 from app.mediaserver import Emby, Jellyfin, Plex
 from app.mediaserver import MediaServer
 from app.message import Telegram, WeChat, Message, MessageCenter

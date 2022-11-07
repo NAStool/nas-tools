@@ -17,7 +17,7 @@ from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_S
 from app.helper import MetaHelper
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find
 from app.media.tmdbv3api.exceptions import TMDbException
-from app.media.doubanv2api import DoubanApi
+from app.media.doubanapi import DoubanApi
 from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
 
