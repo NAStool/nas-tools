@@ -65,6 +65,7 @@ class DoubanWeb(object):
         },
         "top250": {
             "list": "//ol[@class='grid_view']/li",
+            "dates": "//div[@class='info']//span[@class='date']/text()",
             "item": {
                 "title": "./div[@class='item']/div[@class='pic']/a/img/@alt",
                 "cover": "./div[@class='item']/div[@class='pic']/a/img/@src",
@@ -73,6 +74,7 @@ class DoubanWeb(object):
         },
         "collect": {
             "list": "//div[@class='grid-view']/div[@class='item']",
+            "dates": "//div[@class='info']//span[@class='date']/text()",
             "item": {
                 "title": "./div[@class='info']/ul/li[@class='title']/a/em/text()",
                 "cover": "./div[@class='pic']/a/img/@src",
@@ -84,7 +86,8 @@ class DoubanWeb(object):
             "item": {
                 "title": "./div[@class='info']/ul/li[@class='title']/a/em/text()",
                 "cover": "./div[@class='pic']/a/img/@src",
-                "url": "./div[@class='info']/ul/li[@class='title']/a/@href"
+                "url": "./div[@class='info']/ul/li[@class='title']/a/@href",
+                "date": "./div[@class='info']//span[@class='date']/text()"
             }
         },
         "do": {
@@ -161,7 +164,9 @@ class DoubanWeb(object):
         for item in items:
             obj = {}
             for key, value in xpaths.get("item").items():
-                obj[key] = item.xpath(value)
+                text = item.xpath(value)
+                if text:
+                    obj[key] = text[0]
             if obj:
                 result.append(obj)
         return result
@@ -175,7 +180,9 @@ class DoubanWeb(object):
             return None
         obj = {}
         for key, value in xpaths.items():
-            obj[key] = etree.HTML(html).xpath(value)
+            text = etree.HTML(html).xpath(value)
+            if text:
+                obj[key] = text[0]
         return obj
 
     @classmethod

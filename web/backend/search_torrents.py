@@ -9,7 +9,6 @@ from app.media.douban import DouBan
 from app.downloader import Downloader
 from app.searcher import Searcher
 from app.utils import StringUtils
-from app.media.doubanapi import DoubanApi
 from app.media import MetaInfo, Media
 from app.helper import DbHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
@@ -47,13 +46,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                 # 以豆瓣ID查询
                 doubanid = tmdbid[3:]
                 # 先从网页抓取（含TMDBID）
-                doubaninfo = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
+                doubaninfo = DouBan().get_media_detail_from_web(doubanid)
                 if not doubaninfo or not doubaninfo.get("imdbid"):
                     # 从API抓取
-                    if media_type == MediaType.MOVIE:
-                        doubaninfo = DoubanApi().movie_detail(doubanid)
-                    else:
-                        doubaninfo = DoubanApi().tv_detail(doubanid)
+                    doubaninfo = DouBan().get_douban_detail(doubanid=doubanid, mtype=media_type)
                     if not doubaninfo:
                         return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
                 if doubaninfo.get("imdbid"):
@@ -217,8 +213,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             if media_info.douban_id:
                 _title = media_info.get_title_string()
                 # 先从网页抓取（含TMDBID）
-                doubaninfo = DouBan().get_media_detail_from_web(
-                    "https://movie.douban.com/subject/%s/" % media_info.douban_id)
+                doubaninfo = DouBan().get_media_detail_from_web(media_info.douban_id)
                 if doubaninfo and doubaninfo.get("imdbid"):
                     tmdbid = Media().get_tmdbid_by_imdbid(doubaninfo.get("imdbid"))
                     if tmdbid:

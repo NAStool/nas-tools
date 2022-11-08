@@ -9,17 +9,16 @@ import zhconv
 from lxml import etree
 
 import log
+from app.helper import MetaHelper
 from app.media import MetaInfo
+from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find
+from app.media.tmdbv3api.exceptions import TMDbException
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
+from app.utils import cacheman
+from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT, \
     DEFAULT_TMDB_PROXY
-from app.helper import MetaHelper
-from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find
-from app.media.tmdbv3api.exceptions import TMDbException
-from app.media.doubanapi import DoubanApi
-from app.utils import cacheman
-from app.utils.types import MediaType, MatchMode
 
 
 class Media:
@@ -36,7 +35,6 @@ class Media:
 
     def __init__(self):
         self.init_config()
-        self.douban = DoubanApi()
 
     def init_config(self):
         config = Config()
@@ -1174,62 +1172,6 @@ class Media:
         except Exception as err:
             log.console(str(err))
             return []
-
-    def __search_douban_id(self, metainfo):
-        """
-        给定名称和年份，查询一条豆瓣信息返回对应ID
-        :param metainfo: 已进行识别过的媒体信息
-        """
-        if metainfo.year:
-            year_range = [int(metainfo.year), int(metainfo.year) + 1, int(metainfo.year) - 1]
-        else:
-            year_range = []
-        if metainfo.type == MediaType.MOVIE:
-            search_res = self.douban.movie_search(metainfo.title).get("items") or []
-            if not search_res:
-                return None
-            for res in search_res:
-                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
-                if metainfo.title == douban_meta.get_name() \
-                        and (int(res.get("target", {}).get("year")) in year_range or not year_range):
-                    return res.get("target_id")
-            return None
-        elif metainfo.type == MediaType.TV:
-            search_res = self.douban.tv_search(metainfo.title).get("items") or []
-            if not search_res:
-                return None
-            for res in search_res:
-                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
-                if metainfo.title == douban_meta.get_name() \
-                        and (str(res.get("target", {}).get("year")) == str(metainfo.year) or not metainfo.year):
-                    return res.get("target_id")
-                if metainfo.title == douban_meta.get_name() \
-                        and metainfo.get_season_string() == douban_meta.get_season_string():
-                    return res.get("target_id")
-            return search_res[0].get("target_id")
-
-    def get_douban_info(self, metainfo):
-        """
-        查询附带演职人员的豆瓣信息
-        :param metainfo: 已进行识别过的媒体信息
-        """
-        doubanid = self.__search_douban_id(metainfo)
-        if not doubanid:
-            return None
-        if metainfo.type == MediaType.MOVIE:
-            douban_info = self.douban.movie_detail(doubanid)
-            celebrities = self.douban.movie_celebrities(doubanid)
-            if douban_info and celebrities:
-                douban_info["directors"] = celebrities.get("directors")
-                douban_info["actors"] = celebrities.get("actors")
-            return douban_info
-        elif metainfo.type == MediaType.TV:
-            douban_info = self.douban.tv_detail(doubanid)
-            celebrities = self.douban.tv_celebrities(doubanid)
-            if douban_info and celebrities:
-                douban_info["directors"] = celebrities.get("directors")
-                douban_info["actors"] = celebrities.get("actors")
-            return douban_info
 
     def get_random_discover_backdrop(self):
         """

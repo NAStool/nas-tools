@@ -545,11 +545,11 @@ class DbHelper:
         新增RSS电影
         """
         if not media_info:
-            return
+            return -1
         if not media_info.title:
-            return
+            return -1
         if self.is_exists_rss_movie(media_info.title, media_info.year):
-            return
+            return 1
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
                          "Y" if over_edition else "N",
@@ -565,6 +565,7 @@ class DbHelper:
             DESC=desc,
             STATE=state
         ))
+        return 0
 
     @DbPersist(_db)
     def delete_rss_movie(self, title=None, year=None, rssid=None, tmdbid=None):
@@ -705,15 +706,15 @@ class DbHelper:
         新增RSS电视剧
         """
         if not media_info:
-            return
+            return -1
         if not media_info.title:
-            return
+            return -1
         if match and media_info.begin_season is None:
             season_str = ""
         else:
             season_str = media_info.get_season_string()
         if self.is_exists_rss_tv(media_info.title, media_info.year, season_str):
-            return
+            return 1
         # 插入订阅数据
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
@@ -735,6 +736,7 @@ class DbHelper:
             LACK=lack,
             STATE=state
         ))
+        return 0
 
     @DbPersist(_db)
     def update_rss_tv_lack(self, title=None, year=None, season=None, rssid=None, lack_episodes: list = None):
