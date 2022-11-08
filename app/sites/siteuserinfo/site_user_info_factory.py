@@ -14,11 +14,12 @@ from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
 from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
 from app.utils import RequestUtils
+from config import Config
 
 
 class SiteUserInfoFactory(object):
     @staticmethod
-    def build(url, site_name, site_cookie=None, ua=None, emulate=None):
+    def build(url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
         if not site_cookie:
             return None
         log.debug(f"【Sites】站点 {site_name} url={url} site_cookie={site_cookie} ua={ua}")
@@ -46,7 +47,12 @@ class SiteUserInfoFactory(object):
                 # 判断是否已签到
                 html_text = chrome.get_html()
         else:
-            res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url)
+            proxies = Config().get_proxies() if proxy else None
+            res = RequestUtils(cookies=site_cookie,
+                               session=session,
+                               headers=ua,
+                               proxies=proxies
+                               ).get_res(url=url)
             if res and res.status_code == 200:
                 if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                     res.encoding = "UTF-8"
@@ -60,7 +66,11 @@ class SiteUserInfoFactory(object):
                         return None
                     tmp_url = url + html_text[i:html_text.find(";")] \
                         .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
-                    res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=tmp_url)
+                    res = RequestUtils(cookies=site_cookie,
+                                       session=session,
+                                       headers=ua,
+                                       proxies=proxies
+                                       ).get_res(url=tmp_url)
                     if res and res.status_code == 200:
                         if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                             res.encoding = "UTF-8"
@@ -75,7 +85,11 @@ class SiteUserInfoFactory(object):
 
                 # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
                 if '"search"' not in html_text and '"csrf-token"' not in html_text:
-                    res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url + "/index.php")
+                    res = RequestUtils(cookies=site_cookie,
+                                       session=session,
+                                       headers=ua,
+                                       proxies=proxies
+                                       ).get_res(url=url + "/index.php")
                     if res and res.status_code == 200:
                         if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                             res.encoding = "UTF-8"
