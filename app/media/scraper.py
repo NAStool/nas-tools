@@ -3,6 +3,7 @@ import time
 from xml.dom import minidom
 
 import log
+from app.media.douban import DouBan
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
@@ -14,6 +15,7 @@ class Scraper:
 
     def __init__(self):
         self.media = Media()
+        self.douban = DouBan()
 
     def __gen_common_nfo(self,
                          tmdbinfo: dict,
@@ -305,7 +307,7 @@ class Scraper:
                 if scraper_movie_nfo.get("basic") or scraper_movie_nfo.get("credits"):
                     # 查询Douban信息
                     if scraper_movie_nfo.get("credits") and scraper_movie_nfo.get("credits_chinese"):
-                        doubaninfo = self.media.get_douban_info(media)
+                        doubaninfo = self.douban.get_douban_info(media)
                     else:
                         doubaninfo = None
                     #  生成电影描述文件
@@ -359,7 +361,7 @@ class Scraper:
                     if scraper_tv_nfo.get("basic") or scraper_tv_nfo.get("credits"):
                         # 查询Douban信息
                         if scraper_tv_nfo.get("credits") and scraper_tv_nfo.get("credits_chinese"):
-                            doubaninfo = self.media.get_douban_info(media)
+                            doubaninfo = self.douban.get_douban_info(media)
                         else:
                             doubaninfo = None
                         # 根目录描述文件

@@ -281,7 +281,7 @@ class DbHelper:
         删除未识别记录
         """
         if not tid:
-            return
+            return []
         self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).delete()
 
     def get_unknown_path_by_id(self, tid):
@@ -289,7 +289,7 @@ class DbHelper:
         查询未识别记录
         """
         if not tid:
-            return False
+            return []
         return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
 
     def is_transfer_unknown_exists(self, path):
