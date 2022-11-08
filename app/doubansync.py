@@ -124,6 +124,9 @@ class DoubanSync:
                                                                             doubanid=media.douban_id)
                             if code != 0:
                                 log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
+                                # 订阅已存在
+                                if code == 9:
+                                    self.dbhelper.insert_douban_media_state(media, "RSS")
                             else:
                                 # 发送订阅消息
                                 self.message.send_rss_success_message(in_from=SearchType.DB, media_info=media)
@@ -145,6 +148,9 @@ class DoubanSync:
                                                                         state="R")
                         if code != 0:
                             log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
+                            # 订阅已存在
+                            if code == 9:
+                                self.dbhelper.insert_douban_media_state(media, "RSS")
                         else:
                             # 发送订阅消息
                             self.message.send_rss_success_message(in_from=SearchType.DB, media_info=media)
