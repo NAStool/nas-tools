@@ -479,7 +479,8 @@ class Downloader:
                                 # 只有一季的可能是命名错误，需要打开种子鉴别，只有实际集数大于等于总集数才下载
                                 torrent_episodes = self.get_torrent_episodes(url=item.enclosure,
                                                                              page_url=item.page_url)
-                                if len(torrent_episodes) >= __get_season_episodes(need_tmdbid, item_season[0]):
+                                if not torrent_episodes \
+                                        or len(torrent_episodes) >= __get_season_episodes(need_tmdbid, item_season[0]):
                                     download_state = __download(item)
                                 else:
                                     log.info(f"【Downloader】种子 {item.org_string} 未含集数信息，解析文件数为 {len(torrent_episodes)}")
