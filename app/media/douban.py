@@ -142,7 +142,7 @@ class DouBan:
             sleep(time)
         if dtype == "do":
             web_infos = self.doubanweb.do(cookie=self.cookie, userid=userid, start=page)
-        elif type == "collect":
+        elif dtype == "collect":
             web_infos = self.doubanweb.collect(cookie=self.cookie, userid=userid, start=page)
         else:
             web_infos = self.doubanweb.wish(cookie=self.cookie, userid=userid, start=page)
