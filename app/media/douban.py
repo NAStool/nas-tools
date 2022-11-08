@@ -68,12 +68,13 @@ class DouBan:
             log.warn("【Douban】%s 未找到豆瓣详细信息" % doubanid)
             return None
         if douban_info.get("localized_message"):
-            log.warn("【Douban】查询豆瓣详情返回：%s" % douban_info.get("localized_message"))
+            log.warn("【Douban】查询豆瓣详情错误：%s" % douban_info.get("localized_message"))
             return None
         if not douban_info.get("title"):
             return None
         if douban_info.get("title") == "未知电影" or douban_info.get("title") == "未知电视剧":
             return None
+        log.info("【Douban】查询到数据：%s" % douban_info.get("title"))
         return douban_info
 
     def __search_douban_id(self, metainfo):
@@ -266,6 +267,10 @@ class DouBan:
                         break
         except Exception as err:
             print(str(err))
+        if ret_media:
+            log.info("【Douban】查询到数据：%s" % ret_media.get("title"))
+        else:
+            log.warn("【Douban】%s 未查询到豆瓣数据：%s" % doubanid)
         return ret_media
 
     def get_douban_online_movie(self, page=1):
