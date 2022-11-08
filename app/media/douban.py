@@ -212,7 +212,7 @@ class DouBan:
             # 标题
             title = web_info.get("title")
             if title:
-                title = title[0]
+                title = title
                 metainfo = MetaInfo(title=title)
                 if metainfo.cn_name:
                     title = metainfo.cn_name
@@ -242,29 +242,30 @@ class DouBan:
             # 年份
             year = web_info.get("year")
             if year:
-                ret_media['year'] = year[0][1:-1]
+                ret_media['year'] = year[1:-1]
             # 简介
             ret_media['intro'] = "".join(
                 [str(x).strip() for x in web_info.get("intro") or []])
             # 封面图
             cover_url = web_info.get("cover")
             if cover_url:
-                ret_media['cover_url'] = cover_url[0].replace("s_ratio_poster", "m_ratio_poster")
+                ret_media['cover_url'] = cover_url.replace("s_ratio_poster", "m_ratio_poster")
             # 评分
             rating = web_info.get("rate")
             if rating:
-                ret_media['rating'] = {"value": float(rating[0])}
-            detail_info = web_info.get("info")
-            if isinstance(detail_info, list):
-                # 集数
-                episodes_info = [str(x).strip() for x in detail_info if str(x).strip().isdigit()]
-                if episodes_info and str(episodes_info[0]).isdigit():
-                    ret_media['episodes_count'] = int(episodes_info[0])
-                # IMDBID
-                for info in detail_info:
-                    if str(info).strip().startswith('tt'):
-                        ret_media['imdbid'] = str(info).strip()
-                        break
+                ret_media['rating'] = {"value": float(rating)}
+            # 季数
+            season_num = web_info.get("season_num")
+            if season_num:
+                ret_media['season'] = int(season_num)
+            # 集数
+            episode_num = web_info.get("episode_num")
+            if episode_num:
+                ret_media['episodes_count'] = int(episode_num)
+            # IMDBID
+            imdbid = web_info.get('imdb')
+            if imdbid:
+                ret_media['imdbid'] = str(imdbid).strip()
         except Exception as err:
             print(str(err))
         if ret_media:

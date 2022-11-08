@@ -109,18 +109,19 @@
 
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id) {
+    debugger;
     let tmdbid;
-      let doubanid;
-      if (id.indexOf("DB:") == 0) {
-        doubanid = id.replace("DB:", "");
-        tmdbid = "";
-      } if (isNaN(id)) {
-        doubanid = "";
-        tmdbid = "";
-      } else {
-        doubanid = "";
-        tmdbid = id;
-      }
+    let doubanid;
+    if (id && id.startsWith("DB:")) {
+      doubanid = id.replace("DB:", "");
+      tmdbid = "";
+    } else if (isNaN(id)) {
+      doubanid = "";
+      tmdbid = "";
+    } else {
+      doubanid = "";
+      tmdbid = id;
+    }
     if (!tmdbid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(type)) {
       add_rss_media(name, year, type, tmdbid, doubanid, "", "", function () {
         add_red_heart(id, type, name, year);
