@@ -2,7 +2,6 @@
 import base64
 import hashlib
 import hmac
-import logging
 from datetime import datetime
 from functools import lru_cache
 from random import choice
@@ -12,8 +11,6 @@ import requests
 
 from app.utils import RequestUtils
 from app.utils.commons import singleton
-
-logger = logging.getLogger(__name__)
 
 
 @singleton
@@ -137,7 +134,7 @@ class DoubanApi(object):
                                 ).decode()
 
     @classmethod
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=256)
     def __invoke(cls, url, **kwargs):
         req_url = cls._base_url + url
 

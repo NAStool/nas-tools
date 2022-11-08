@@ -3,18 +3,16 @@ import random
 from threading import Lock
 from time import sleep
 
-from lxml import etree
-
 import log
-from app.media.douban import DouBan
 from app.downloader import Downloader
 from app.helper import DbHelper
 from app.media import Media, MetaInfo
+from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
+from app.subscribe import Subscribe
 from app.utils.types import SearchType, MediaType
 from config import Config
-from app.subscribe import Subscribe
 
 lock = Lock()
 
@@ -117,7 +115,8 @@ class DoubanSync:
                                 self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
                         else:
                             # 需要加订阅，则由订阅去检索
-                            log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
+                            log.info(
+                                "【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
                             code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                             name=media.get_name(),
                                                                             year=media.year,
@@ -196,39 +195,23 @@ class DoubanSync:
                     continue_next_page = True
                     log.debug(f"【Douban】开始解析第 {page_number} 页数据...")
                     try:
-                        # 解析豆瓣页面
-                        url = f"https://movie.douban.com/people/{user}/{mtype}?start={start_number}&sort=time&rating=all&filter=all&mode=grid"
-                        html_text = self.douban.get_douban_page_html(url=url)
-                        if not html_text:
+                        items = self.douban.get_douban_wish(dtype=mtype, userid=user, page=page_number, wait=True)
+                        if not items:
                             log.warn(f"【Douban】第 {page_number} 页未获取到数据")
                             break
-                        html = etree.HTML(html_text)
-                        # ID列表
-                        items = html.xpath(
-                            "//div[@class='info']//a[contains(@href,'https://movie.douban.com/subject/')]/@href")
-                        if not items:
-                            break
-                        # 时间列表
-                        dates = html.xpath("//div[@class='info']//span[@class='date']/text()")
-                        if not dates:
-                            break
-                        # 计算当前页有效个数
-                        items_count = 0
-                        for date in dates:
-                            mark_date = datetime.datetime.strptime(date, '%Y-%m-%d')
-                            if (datetime.datetime.now() - mark_date).days < int(self.__days):
-                                items_count += 1
-                            else:
-                                break
-                        # 当前页有效个数不足15个时
-                        if items_count < 15:
-                            continue_next_page = False
                         # 解析豆瓣ID
                         for item in items:
-                            items_count -= 1
-                            if items_count < 0:
+                            # 时间范围
+                            date = item.get("date")
+                            if not date:
+                                continue_next_page = False
                                 break
-                            doubanid = item.split("/")[-2]
+                            else:
+                                mark_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+                                if not (datetime.datetime.now() - mark_date).days < int(self.__days):
+                                    continue_next_page = False
+                                    break
+                            doubanid = item.get("id")
                             if str(doubanid).isdigit():
                                 log.info("【Douban】解析到媒体：%s" % doubanid)
                                 douban_ids.append(doubanid)
@@ -242,8 +225,6 @@ class DoubanSync:
                     # 继续下一页
                     if continue_next_page:
                         start_number += perpage_number
-                        # 随机休眠
-                        sleep(round(random.uniform(1, 5), 1))
                     else:
                         break
                 # 当前类型解析结束
@@ -252,11 +233,11 @@ class DoubanSync:
         log.info(f"【Douban】所有用户解析完成，共获取到 {len(douban_ids)} 个媒体")
         # 查询豆瓣详情
         for doubanid in douban_ids:
-            douban_info = self.douban.get_douban_detail(doubanid)
+            douban_info = self.douban.get_douban_detail(doubanid=doubanid, wait=True)
             # 组装媒体信息
             if not douban_info:
                 log.warn("【Douban】%s 未正确获取豆瓣详细信息，尝试使用网页获取" % doubanid)
-                douban_info = self.douban.get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
+                douban_info = self.douban.get_media_detail_from_web(doubanid)
                 if not douban_info:
                     log.warn("【Douban】%s 无权限访问，需要配置豆瓣Cookie" % doubanid)
                     # 随机休眠

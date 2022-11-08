@@ -3,7 +3,6 @@ from threading import Lock
 from time import sleep
 
 import zhconv
-from lxml import etree
 from requests.utils import dict_from_cookiejar
 
 from app.utils.commons import singleton
@@ -11,7 +10,7 @@ from app.utils.string_utils import StringUtils
 
 import log
 from config import Config
-from app.media.doubanapi import DoubanApi
+from app.media.doubanapi import DoubanApi, DoubanWeb
 from app.media import MetaInfo
 from app.utils import RequestUtils
 from app.utils.types import MediaType
@@ -21,14 +20,16 @@ lock = Lock()
 
 @singleton
 class DouBan:
-    req = None
+    cookie = None
     doubanapi = None
+    doubanweb = None
     message = None
     __movie_num = 30
     __tv_num = 30
 
     def __init__(self):
         self.doubanapi = DoubanApi()
+        self.doubanweb = DoubanWeb()
         self.init_config()
 
     def init_config(self):
@@ -36,40 +37,120 @@ class DouBan:
         douban = config.get_config('douban')
         if douban:
             # Cookie
-            cookie = douban.get('cookie')
-            if not cookie:
+            self.cookie = douban.get('cookie')
+            if not self.cookie:
                 try:
                     res = RequestUtils(timeout=5).get_res("https://www.douban.com/")
                     if res:
-                        cookie = dict_from_cookiejar(res.cookies)
+                        self.cookie = dict_from_cookiejar(res.cookies)
                 except Exception as err:
                     log.warn(f"【Douban】获取cookie失败：{format(err)}")
-            self.req = RequestUtils(cookies=cookie, timeout=10)
 
-    def get_douban_detail(self, doubanid):
+    def get_douban_detail(self, doubanid, mtype=None, wait=False):
         """
         根据豆瓣ID返回豆瓣详情，带休眠
         """
         log.info("【Douban】正在通过API查询豆瓣详情：%s" % doubanid)
-        douban_info = self.doubanapi.movie_detail(doubanid)
-        if not douban_info:
+        # 随机休眠
+        if wait:
+            time = round(random.uniform(1, 5), 1)
+            log.info("【Douban】随机休眠：%s 秒" % time)
+            sleep(time)
+        if mtype == MediaType.MOVIE:
+            douban_info = self.doubanapi.movie_detail(doubanid)
+        elif mtype:
             douban_info = self.doubanapi.tv_detail(doubanid)
+        else:
+            douban_info = self.doubanapi.movie_detail(doubanid)
+            if not douban_info:
+                douban_info = self.doubanapi.tv_detail(doubanid)
         if not douban_info:
             log.warn("【Douban】%s 未找到豆瓣详细信息" % doubanid)
-            sleep(round(random.uniform(1, 5), 1))
             return None
         if douban_info.get("localized_message"):
             log.warn("【Douban】查询豆瓣详情返回：%s" % douban_info.get("localized_message"))
-            # 随机休眠
-            sleep(round(random.uniform(1, 5), 1))
             return None
         if not douban_info.get("title"):
-            # 随机休眠
-            sleep(round(random.uniform(1, 5), 1))
             return None
         if douban_info.get("title") == "未知电影" or douban_info.get("title") == "未知电视剧":
             return None
         return douban_info
+
+    def __search_douban_id(self, metainfo):
+        """
+        给定名称和年份，查询一条豆瓣信息返回对应ID
+        :param metainfo: 已进行识别过的媒体信息
+        """
+        if metainfo.year:
+            year_range = [int(metainfo.year), int(metainfo.year) + 1, int(metainfo.year) - 1]
+        else:
+            year_range = []
+        if metainfo.type == MediaType.MOVIE:
+            search_res = self.doubanapi.movie_search(metainfo.title).get("items") or []
+            if not search_res:
+                return None
+            for res in search_res:
+                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
+                if metainfo.title == douban_meta.get_name() \
+                        and (int(res.get("target", {}).get("year")) in year_range or not year_range):
+                    return res.get("target_id")
+            return None
+        elif metainfo.type == MediaType.TV:
+            search_res = self.doubanapi.tv_search(metainfo.title).get("items") or []
+            if not search_res:
+                return None
+            for res in search_res:
+                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
+                if metainfo.title == douban_meta.get_name() \
+                        and (str(res.get("target", {}).get("year")) == str(metainfo.year) or not metainfo.year):
+                    return res.get("target_id")
+                if metainfo.title == douban_meta.get_name() \
+                        and metainfo.get_season_string() == douban_meta.get_season_string():
+                    return res.get("target_id")
+            return search_res[0].get("target_id")
+
+    def get_douban_info(self, metainfo):
+        """
+        查询附带演职人员的豆瓣信息
+        :param metainfo: 已进行识别过的媒体信息
+        """
+        doubanid = self.__search_douban_id(metainfo)
+        if not doubanid:
+            return None
+        if metainfo.type == MediaType.MOVIE:
+            douban_info = self.doubanapi.movie_detail(doubanid)
+            celebrities = self.doubanapi.movie_celebrities(doubanid)
+            if douban_info and celebrities:
+                douban_info["directors"] = celebrities.get("directors")
+                douban_info["actors"] = celebrities.get("actors")
+            return douban_info
+        elif metainfo.type == MediaType.TV:
+            douban_info = self.doubanapi.tv_detail(doubanid)
+            celebrities = self.doubanapi.tv_celebrities(doubanid)
+            if douban_info and celebrities:
+                douban_info["directors"] = celebrities.get("directors")
+                douban_info["actors"] = celebrities.get("actors")
+            return douban_info
+
+    def get_douban_wish(self, dtype, userid, page, wait=False):
+        """
+        获取豆瓣想看列表数据
+        """
+        if wait:
+            time = round(random.uniform(1, 5), 1)
+            log.info("【Douban】随机休眠：%s 秒" % time)
+            sleep(time)
+        if dtype == "do":
+            web_infos = self.doubanweb.do(cookie=self.cookie, userid=userid, start=page)
+        elif type == "collect":
+            web_infos = self.doubanweb.collect(cookie=self.cookie, userid=userid, start=page)
+        else:
+            web_infos = self.doubanweb.wish(cookie=self.cookie, userid=userid, start=page)
+        if not web_infos:
+            return []
+        for web_info in web_infos:
+            web_info["id"] = web_info.get("url").split("/")[-2]
+        return web_infos
 
     def search_douban_medias(self, keyword, mtype: MediaType = None, num=20, season=None, episode=None):
         """
@@ -115,92 +196,77 @@ class DouBan:
 
         return ret_medias[:num]
 
-    def get_media_detail_from_web(self, url):
+    def get_media_detail_from_web(self, doubanid):
         """
         从豆瓣详情页抓紧媒体信息
-        :param url: 豆瓣详情页URL
+        :param doubanid: 豆瓣ID
         :return: {title, year, intro, cover_url, rating{value}, episodes_count}
         """
-        log.info("【Douban】正在通过网页抓取豆瓣详情：%s" % url)
+        log.info("【Douban】正在通过网页查询豆瓣详情：%s" % doubanid)
+        web_info = self.doubanweb.detail(cookie=self.cookie, doubanid=doubanid)
+        if not web_info:
+            return {}
         ret_media = {}
-        res = self.req.get_res(url=url)
-        if res and res.status_code == 200:
-            html_text = res.text
-            if not html_text:
-                return None
-            try:
-                html = etree.HTML(html_text)
-                # 标题
-                title = html.xpath("//span[@property='v:itemreviewed']/text()")
-                if title:
-                    title = title[0]
-                    metainfo = MetaInfo(title=title)
-                    if metainfo.cn_name:
-                        title = metainfo.cn_name
-                        # 有中文的去掉日文和韩文
-                        if title and StringUtils.is_chinese(title) and " " in title:
-                            titles = title.split()
-                            title = titles[0]
-                            for _title in titles[1:]:
-                                # 忽略繁体
-                                if zhconv.convert(_title, 'zh-hans') == title:
-                                    break
-                                # 忽略日韩文
-                                if not StringUtils.is_japanese(_title) \
-                                        and not StringUtils.is_korean(_title):
-                                    title = f"{title} {_title}"
-                                    break
-                                else:
-                                    break
-                    else:
-                        title = metainfo.en_name
-                    if not title:
-                        return None
-                    ret_media['title'] = title
-                    ret_media['season'] = metainfo.begin_season
+        try:
+            # 标题
+            title = web_info.get("title")
+            if title:
+                title = title[0]
+                metainfo = MetaInfo(title=title)
+                if metainfo.cn_name:
+                    title = metainfo.cn_name
+                    # 有中文的去掉日文和韩文
+                    if title and StringUtils.is_chinese(title) and " " in title:
+                        titles = title.split()
+                        title = titles[0]
+                        for _title in titles[1:]:
+                            # 忽略繁体
+                            if zhconv.convert(_title, 'zh-hans') == title:
+                                break
+                            # 忽略日韩文
+                            if not StringUtils.is_japanese(_title) \
+                                    and not StringUtils.is_korean(_title):
+                                title = f"{title} {_title}"
+                                break
+                            else:
+                                break
                 else:
+                    title = metainfo.en_name
+                if not title:
                     return None
-                # 年份
-                year = html.xpath("//div[@id='content']//span[@class='year']/text()")
-                if year:
-                    ret_media['year'] = year[0][1:-1]
-                # 简介
-                ret_media['intro'] = "".join(
-                    [str(x).strip() for x in html.xpath("//span[@property='v:summary']/text()")])
-                # 封面图
-                cover_url = html.xpath("//div[@id='mainpic']/a/img/@src")
-                if cover_url:
-                    ret_media['cover_url'] = cover_url[0].replace("s_ratio_poster", "m_ratio_poster")
-                # 评分
-                rating = html.xpath("//strong[@property='v:average']/text()")
-                if rating:
-                    ret_media['rating'] = {"value": float(rating[0])}
-                detail_info = html.xpath("//div[@id='info']/text()")
-                if isinstance(detail_info, list):
-                    # 集数
-                    episodes_info = [str(x).strip() for x in detail_info if str(x).strip().isdigit()]
-                    if episodes_info and str(episodes_info[0]).isdigit():
-                        ret_media['episodes_count'] = int(episodes_info[0])
-                    # IMDBID
-                    for info in detail_info:
-                        if str(info).strip().startswith('tt'):
-                            ret_media['imdbid'] = str(info).strip()
-                            break
-            except Exception as err:
-                print(str(err))
+                ret_media['title'] = title
+                ret_media['season'] = metainfo.begin_season
+            else:
+                return None
+            # 年份
+            year = web_info.get("year")
+            if year:
+                ret_media['year'] = year[0][1:-1]
+            # 简介
+            ret_media['intro'] = "".join(
+                [str(x).strip() for x in web_info.get("intro") or []])
+            # 封面图
+            cover_url = web_info.get("cover")
+            if cover_url:
+                ret_media['cover_url'] = cover_url[0].replace("s_ratio_poster", "m_ratio_poster")
+            # 评分
+            rating = web_info.get("rate")
+            if rating:
+                ret_media['rating'] = {"value": float(rating[0])}
+            detail_info = web_info.get("info")
+            if isinstance(detail_info, list):
+                # 集数
+                episodes_info = [str(x).strip() for x in detail_info if str(x).strip().isdigit()]
+                if episodes_info and str(episodes_info[0]).isdigit():
+                    ret_media['episodes_count'] = int(episodes_info[0])
+                # IMDBID
+                for info in detail_info:
+                    if str(info).strip().startswith('tt'):
+                        ret_media['imdbid'] = str(info).strip()
+                        break
+        except Exception as err:
+            print(str(err))
         return ret_media
-
-    def get_douban_page_html(self, url):
-        """
-        获取豆瓣页面HTML
-        """
-        res = self.req.get_res(url=url)
-        if not res:
-            return None
-        html_text = res.text
-        if not html_text:
-            return None
-        return html_text
 
     def get_douban_online_movie(self, page=1):
         if not self.doubanapi:

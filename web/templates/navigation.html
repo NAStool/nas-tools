@@ -2044,16 +2044,12 @@
         $("#rename_type_anime").removeProp("checked");
         $("#rename_season_div").show();
         $("#rename_episode_div").show();
-        $("#rename_episode_details").show();
-        $("#rename_episode_offset").show();
       } else if (media_type === "动漫") {
         $("#rename_type_anime").prop("checked", true);
         $("#rename_type_tv").removeProp("checked");
         $("#rename_type_mov").removeProp("checked");
         $("#rename_season_div").show();
         $("#rename_episode_div").show();
-        $("#rename_episode_details").show();
-        $("#rename_episode_offset").show();
       } else {
         $("#rename_type_mov").prop("checked", true);
         $("#rename_type_tv").removeProp("checked");
@@ -2061,8 +2057,6 @@
         $("#rename_season_div").hide();
         $("#rename_episode_div").hide();
         $("#rename_season").val("");
-        $("#rename_episode_details").hide();
-        $("#rename_episode_offset").hide();
       }
 
       // 显示窗口

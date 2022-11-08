@@ -6,7 +6,7 @@ from config import Config, FANART_MOVIE_API_URL, FANART_TV_API_URL
 
 
 class Fanart:
-    _proxies = None
+    _proxies = Config().get_proxies()
     _movie_image_types = ['movieposter',
                           'hdmovielogo',
                           'moviebackground',
@@ -29,7 +29,6 @@ class Fanart:
 
     def init_config(self):
         self._images = {}
-        self._proxies = Config().get_proxies()
 
     def __get_fanart_images(self, media_type, queryid):
         if not media_type or not queryid:

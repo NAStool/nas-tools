@@ -1,6 +1,5 @@
 from app.media.douban import DouBan
 from app.helper import DbHelper
-from app.media.doubanapi import DoubanApi
 from app.media import MetaInfo, Media
 from app.message import Message
 from app.utils import Torrent
@@ -87,12 +86,9 @@ class Subscribe:
                     tmdbid = media_info.tmdb_id
                 elif doubanid:
                     # 先从豆瓣网页抓取（含TMDBID）
-                    douban_info = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
+                    douban_info = DouBan().get_media_detail_from_web(doubanid)
                     if not douban_info:
-                        if mtype == MediaType.MOVIE:
-                            douban_info = DoubanApi().movie_detail(doubanid)
-                        else:
-                            douban_info = DoubanApi().tv_detail(doubanid)
+                        douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=mtype)
                     if not douban_info or douban_info.get("localized_message"):
                         return 1, "无法查询到豆瓣媒体信息", None
                     media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
@@ -146,32 +142,32 @@ class Subscribe:
                     lack = total - int(current_ep) - 1
                 else:
                     lack = total
-                self.dbhelper.insert_rss_tv(media_info=media_info,
-                                            total=total,
-                                            lack=lack,
-                                            sites=sites,
-                                            search_sites=search_sites,
-                                            over_edition=over_edition,
-                                            rss_restype=rss_restype,
-                                            rss_pix=rss_pix,
-                                            rss_team=rss_team,
-                                            rss_rule=rss_rule,
-                                            state=state,
-                                            match=match,
-                                            total_ep=total_ep,
-                                            current_ep=current_ep)
+                code = self.dbhelper.insert_rss_tv(media_info=media_info,
+                                                   total=total,
+                                                   lack=lack,
+                                                   sites=sites,
+                                                   search_sites=search_sites,
+                                                   over_edition=over_edition,
+                                                   rss_restype=rss_restype,
+                                                   rss_pix=rss_pix,
+                                                   rss_team=rss_team,
+                                                   rss_rule=rss_rule,
+                                                   state=state,
+                                                   match=match,
+                                                   total_ep=total_ep,
+                                                   current_ep=current_ep)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
-                self.dbhelper.insert_rss_movie(media_info=media_info,
-                                               sites=sites,
-                                               search_sites=search_sites,
-                                               over_edition=over_edition,
-                                               rss_restype=rss_restype,
-                                               rss_pix=rss_pix,
-                                               rss_team=rss_team,
-                                               rss_rule=rss_rule,
-                                               state=state)
+                code = self.dbhelper.insert_rss_movie(media_info=media_info,
+                                                      sites=sites,
+                                                      search_sites=search_sites,
+                                                      over_edition=over_edition,
+                                                      rss_restype=rss_restype,
+                                                      rss_pix=rss_pix,
+                                                      rss_team=rss_team,
+                                                      rss_rule=rss_rule,
+                                                      state=state)
         else:
             # 模糊匹配
             media_info = MetaInfo(title=name, mtype=mtype)
@@ -182,32 +178,35 @@ class Subscribe:
             if mtype == MediaType.MOVIE:
                 if rssid:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
-                self.dbhelper.insert_rss_movie(media_info=media_info,
-                                               state="R",
-                                               sites=sites,
-                                               search_sites=search_sites,
-                                               over_edition=over_edition,
-                                               rss_restype=rss_restype,
-                                               rss_pix=rss_pix,
-                                               rss_team=rss_team,
-                                               rss_rule=rss_rule)
+                code = self.dbhelper.insert_rss_movie(media_info=media_info,
+                                                      state="R",
+                                                      sites=sites,
+                                                      search_sites=search_sites,
+                                                      over_edition=over_edition,
+                                                      rss_restype=rss_restype,
+                                                      rss_pix=rss_pix,
+                                                      rss_team=rss_team,
+                                                      rss_rule=rss_rule)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_tv(rssid=rssid)
-                self.dbhelper.insert_rss_tv(media_info=media_info,
-                                            total=0,
-                                            lack=0,
-                                            state="R",
-                                            sites=sites,
-                                            search_sites=search_sites,
-                                            over_edition=over_edition,
-                                            rss_restype=rss_restype,
-                                            rss_pix=rss_pix,
-                                            rss_team=rss_team,
-                                            rss_rule=rss_rule,
-                                            match=match)
+                code = self.dbhelper.insert_rss_tv(media_info=media_info,
+                                                   total=0,
+                                                   lack=0,
+                                                   state="R",
+                                                   sites=sites,
+                                                   search_sites=search_sites,
+                                                   over_edition=over_edition,
+                                                   rss_restype=rss_restype,
+                                                   rss_pix=rss_pix,
+                                                   rss_team=rss_team,
+                                                   rss_rule=rss_rule,
+                                                   match=match)
 
-        return 0, "添加订阅成功", media_info
+        if code == 0:
+            return 0, "添加订阅成功", media_info
+        else:
+            return -1, "添加订阅失败，订阅已存在", media_info
 
     def finish_rss_subscribe(self, rtype, rssid, media):
         """
