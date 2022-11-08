@@ -113,9 +113,9 @@ class DbPersist(object):
     def __call__(self, f):
         def persist(*args, **kwargs):
             try:
-                f(*args, **kwargs)
+                ret = f(*args, **kwargs)
                 self.db.commit()
-                return True
+                return True if ret is None else ret
             except Exception as e:
                 print(e.args)
                 self.db.rollback()
