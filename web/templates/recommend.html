@@ -16,11 +16,8 @@
       <div class="col-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
           {% if item.weekday %}
-          <span class="badge badge-pill bg-orange" style="position:absolute;top:10px;left:10px;">{{item.weekday}}</span>
-          {% endif %}
-          {% if item.vote > 0%}
-          <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
-          {% endif %}
+          <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}" style="position:absolute;top:10px;left:10px;">{{item.weekday}}</span>
+          {% else %}
           {% if item.fav == 2 %}
           <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
@@ -30,6 +27,10 @@
                 clip-rule="evenodd"></path>
             </svg>
           </div>
+          {% endif %}
+          {% endif %}
+          {% if item.vote > 0%}
+          <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
           {% endif %}
           <a
             href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
@@ -108,16 +109,18 @@
 
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id) {
-    if (id.indexOf("DB:") == 0) {
-      var doubanid = id.replace("DB:", "");
-      var tmdbid = "";
-    } if (isNaN(id)) {
-      var doubanid = "";
-      var tmdbid = "";
-    } else {
-      var doubanid = "";
-      var tmdbid = id;
-    }
+    let tmdbid;
+      let doubanid;
+      if (id.indexOf("DB:") == 0) {
+        doubanid = id.replace("DB:", "");
+        tmdbid = "";
+      } if (isNaN(id)) {
+        doubanid = "";
+        tmdbid = "";
+      } else {
+        doubanid = "";
+        tmdbid = id;
+      }
     if (!tmdbid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(type)) {
       add_rss_media(name, year, type, tmdbid, doubanid, "", "", function () {
         add_red_heart(id, type, name, year);
@@ -143,17 +146,17 @@
 
   //增加红字标记
   function add_red_heart(id, type, name, year) {
-    orgid = id.replace("DB:", "").replace("BG:", "");
-    $("#recommend_svg_" + orgid).removeClass();
-    $("#recommend_svg_" + orgid).addClass("icon icon-filled text-red");
+    let orgid = id.replace("DB:", "").replace("BG:", "");
+    $("#recommend_svg_" + orgid).removeClass()
+        .addClass("icon icon-filled text-red");
     $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_del_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
   }
 
   //移除红字标记
   function remove_red_heart(id, type, name, year) {
-    orgid = id.replace("DB:", "").replace("BG:", "");
-    $("#recommend_svg_" + orgid).removeClass();
-    $("#recommend_svg_" + orgid).addClass("icon icon-tabler icon-tabler-heart");
+    let orgid = id.replace("DB:", "").replace("BG:", "");
+    $("#recommend_svg_" + orgid).removeClass()
+        .addClass("icon icon-tabler icon-tabler-heart");
     $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_add_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
   }
 
@@ -176,7 +179,7 @@
   }
 
   //状态标记
-  var loading = false;
+  let loading = false;
   function loading_data() {
     if (loading) {
       return;
@@ -193,19 +196,24 @@
       }
       hide_wait_process();
       // 插入HTML
-      for (var i = 0; i < ret.Items.length; i++) {
-        item = ret.Items[i];
-        var html = '';
+      for (let i = 0; i < ret.Items.length; i++) {
+        let item = ret.Items[i];
+        let html = '';
         html += '<div class="col-6 col-md-3 col-xl-2"><div class="card card-sm card-link-pop rounded-3">';
         if (item.weekday) {
-          html += '<span class="badge badge-pill bg-orange" style="position:absolute;top:10px;left:10px;">' + item.weekday + '</span>'
+          let bg_color = "bg-orange";
+          if (item.fav == 2) {
+            bg_color = "bg-green";
+          }
+          html += '<span class="badge badge-pill ' + bg_color + '" style="position:absolute;top:10px;left:10px;">' + item.weekday + '</span>'
+        } else {
+          if (item.fav == 2) {
+            html += '<div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">';
+            html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div>';
+          }
         }
         if (item.vote) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
-        }
-        if (item.fav == 2) {
-          html += '<div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">';
-          html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div>';
         }
         html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\'>';
         if (item.image) {

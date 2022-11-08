@@ -549,7 +549,7 @@ class DbHelper:
         if not media_info.title:
             return -1
         if self.is_exists_rss_movie(media_info.title, media_info.year):
-            return 1
+            return 9
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
                          "Y" if over_edition else "N",
@@ -714,7 +714,7 @@ class DbHelper:
         else:
             season_str = media_info.get_season_string()
         if self.is_exists_rss_tv(media_info.title, media_info.year, season_str):
-            return 1
+            return 9
         # 插入订阅数据
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),

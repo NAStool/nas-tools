@@ -204,9 +204,11 @@ class Subscribe:
                                                    match=match)
 
         if code == 0:
-            return 0, "添加订阅成功", media_info
+            return code, "添加订阅成功", media_info
+        elif code == 9:
+            return code, "订阅已存在", media_info
         else:
-            return -1, "添加订阅失败，订阅已存在", media_info
+            return code, "添加订阅失败", media_info
 
     def finish_rss_subscribe(self, rtype, rssid, media):
         """
