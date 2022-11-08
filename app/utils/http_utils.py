@@ -1,6 +1,9 @@
 import requests
-
+import urllib3
+from urllib3.exceptions import InsecureRequestWarning
 from config import Config
+
+urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class RequestUtils:

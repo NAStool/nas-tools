@@ -43,7 +43,9 @@ class DoubanWeb(object):
             "intro": "//span[@property='v:summary']/text()",
             "cover": "//div[@id='mainpic']//img/@src",
             "rate": "//strong[@property='v:average']/text()",
-            "info": "//div[@id='info']/text()"
+            "imdb": "//div[@id='info']/span[contains(text(), 'IMDb:')]/following-sibling::text()",
+            "season": "//div[@id='info']/span[contains(text(), '季数')]/following-sibling::text()",
+            "episode_num": "//div[@id='info']/span[contains(text(), '集数')]/following-sibling::text()"
         },
         "nowplaying": {
             "list": "//div[@id='nowplaying']//ul[@class='lists']/li",

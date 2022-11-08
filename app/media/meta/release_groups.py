@@ -59,7 +59,8 @@ rg_U2 = []
 rg_ultrahd = []
 
 #  其他常见组
-rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)', 'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )']
+rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)',
+            'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )']
 rg_anime = ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组']
 
 sites = [rg_0ff,
@@ -128,6 +129,7 @@ for site in sites:
         release_groups.append(release_group)
 release_groups = '|'.join(release_groups)
 release_groups = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % release_groups, re.I)
+
 
 #  忽略大小写
 def rg_match(name, groups):
