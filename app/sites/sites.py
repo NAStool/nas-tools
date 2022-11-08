@@ -25,7 +25,7 @@ from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import DbHelper
 from app.utils.torrent import TorrentAttr
-from config import SITE_CHECKIN_XPATH
+from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
 
@@ -177,12 +177,14 @@ class Sites:
         ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
         chrome = True if site_info.get("chrome") == "Y" else False
+        proxy = True if site_info.get("proxy") == "Y" else False
         try:
             site_user_info = SiteUserInfoFactory.build(url=site_url,
                                                        site_name=site_name,
                                                        site_cookie=site_cookie,
                                                        ua=ua,
-                                                       emulate=chrome)
+                                                       emulate=chrome,
+                                                       proxy=proxy)
             if site_user_info:
                 log.debug(f"【Sites】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -283,7 +285,11 @@ class Sites:
         else:
             # 计时
             start_time = datetime.now()
-            res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
+            proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
+            res = RequestUtils(cookies=site_cookie,
+                               headers=ua,
+                               proxies=proxies
+                               ).get_res(url=site_url)
             seconds = int((datetime.now() - start_time).microseconds / 1000)
             if res and res.status_code == 200:
                 if not self.__is_signin_success(res.text):
@@ -376,13 +382,17 @@ class Sites:
                             continue
                 # 模拟登录
                 else:
+                    proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
                     if site_url.find("attendance.php") != -1:
                         checkin_text = "签到"
                     else:
                         checkin_text = "模拟登录"
                     log.info(f"【Sites】开始站点{checkin_text}：{site}")
                     # 访问链接
-                    res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
+                    res = RequestUtils(cookies=site_cookie,
+                                       headers=ua,
+                                       proxies=proxies
+                                       ).get_res(url=site_url)
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
                             log.warn(f"【Sites】{site} {checkin_text}失败，请检查cookie")
