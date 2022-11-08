@@ -186,13 +186,16 @@ class Downloader:
         # 开始添加下载
         try:
             # 下载设置
-            download_setting = self.get_download_setting(download_setting)
-            if not download_setting:
-                download_setting = self.get_download_setting(-1)
+            if download_setting:
+                download_attr = self.get_download_setting(download_setting)
+                if not download_attr:
+                    download_attr = self.get_download_setting(-1)
+            else:
+                download_attr = self.get_download_setting(-1)
             # 分类
-            category = download_setting.get("category")
+            category = download_attr.get("category")
             # 合并TAG
-            tags = download_setting.get("tags")
+            tags = download_attr.get("tags")
             if tags:
                 tags = tags.split(";")
                 if tag:
@@ -201,7 +204,7 @@ class Downloader:
                 if tag:
                     tags = [tag]
             # 布局
-            content_layout = download_setting.get("content_layout")
+            content_layout = download_attr.get("content_layout")
             if content_layout == 1:
                 content_layout = "Original"
             elif content_layout == 2:
@@ -212,17 +215,17 @@ class Downloader:
                 content_layout = ""
             # 暂停
             if is_paused is None:
-                is_paused = StringUtils.to_bool(download_setting.get("is_paused"))
+                is_paused = StringUtils.to_bool(download_attr.get("is_paused"))
             else:
                 is_paused = True if is_paused else False
             # 上传限速
-            upload_limit = download_setting.get("upload_limit")
+            upload_limit = download_attr.get("upload_limit")
             # 下载限速
-            download_limit = download_setting.get("download_limit")
+            download_limit = download_attr.get("download_limit")
             # 分享率
-            ratio_limit = download_setting.get("ratio_limit")
+            ratio_limit = download_attr.get("ratio_limit")
             # 做种时间
-            seeding_time_limit = download_setting.get("seeding_time_limit")
+            seeding_time_limit = download_attr.get("seeding_time_limit")
             # 下载目录
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info)
