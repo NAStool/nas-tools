@@ -220,7 +220,8 @@ class DoubanSync:
                             doubanid = item.get("id")
                             if str(doubanid).isdigit():
                                 log.info("【Douban】解析到媒体：%s" % doubanid)
-                                douban_ids.append(doubanid)
+                                if doubanid not in douban_ids:
+                                    douban_ids.append(doubanid)
                                 sucess_urlnum += 1
                                 user_type_succnum += 1
                                 user_succnum += 1
