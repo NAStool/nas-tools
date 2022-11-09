@@ -186,9 +186,12 @@ class DoubanWeb(object):
             return None
         obj = {}
         for key, value in xpaths.items():
-            text = etree.HTML(html).xpath(value)
-            if text:
-                obj[key] = text[0]
+            try:
+                text = etree.HTML(html).xpath(value)
+                if text:
+                    obj[key] = text[0]
+            except Exception as e:
+                print(e)
         return obj
 
     @classmethod

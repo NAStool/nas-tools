@@ -331,18 +331,18 @@
   function show_mediasync_modal() {
     //获取同步状态
     ajax_post("refresh_process", { type: "mediasync" }, function (ret) {
-      if (ret.code == 0 && ret.value < 100) {
+      if (ret.code === 0 && ret.value < 100) {
         //同步中
         $("#index-mediasync-modal").modal('show');
         start_media_sync(false);
       } else {
         //没有在同步，获取目前同步的数据情况
         ajax_post("mediasync_state", {}, function (ret) {
-          if (ret.code == 0) {
+          if (ret.code === 0) {
             $("#mediasync_status").text(ret.text);
           }
-          $("#mediasync_btn").text("开始同步");
-          $("#mediasync_btn").attr("href", "javascript:start_media_sync(true)");
+          $("#mediasync_btn").text("开始同步")
+              .attr("href", "javascript:start_media_sync(true)");
           $("#index-mediasync-modal").modal('show');
         });
       }
@@ -357,8 +357,8 @@
 
   //开始媒体库同步
   function start_media_sync(flag) {
-    $("#mediasync_btn").text("关闭");
-    $("#mediasync_btn").attr("href", "javascript:close_mediasync_modal()");
+    $("#mediasync_btn").text("关闭")
+        .attr("href", "javascript:close_mediasync_modal()");
     if (flag) {
       ajax_post("start_mediasync", {}, function (ret) {
         refresh_sync_process_flag = true;
@@ -377,9 +377,9 @@
       return;
     }
     ajax_post("refresh_process", { type: "mediasync" }, function (ret) {
-      if (ret.code == 0) {
-        $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%");
-        $("#mediasync_process_bar").attr("aria-valuenow", ret.value);
+      if (ret.code === 0) {
+        $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%")
+            .attr("aria-valuenow", ret.value);
         $("#mediasync_status").text(ret.text);
       }
       if (ret.value < 100) {

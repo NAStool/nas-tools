@@ -118,21 +118,18 @@ lock = Lock()
 
 class Config(object):
     _INSTANSE = None
-    _INSTANSE_FLAG = False
     _config = {}
     _config_path = None
 
     def __new__(cls, *args, **kwargs):
-        with lock:
-            if not cls._INSTANSE:
-                cls._INSTANSE = super().__new__(cls)
+        if cls._INSTANSE:
             return cls._INSTANSE
+        else:
+            with lock:
+                cls._INSTANSE = super().__new__(cls)
+                return cls._INSTANSE
 
     def __init__(self):
-        with lock:
-            if Config._INSTANSE_FLAG:
-                return
-            Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         self.init_config()
 

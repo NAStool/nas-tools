@@ -322,3 +322,12 @@ class StringUtils:
         if isinstance(text, str) and text.lower() in ['y', 'true', '1']:
             return True
         return False
+
+    @staticmethod
+    def str_from_cookiejar(cj):
+        """
+        将cookiejar转换为字符串
+        :param cj:
+        :return:
+        """
+        return '; '.join(['='.join(item) for item in cj.items()])

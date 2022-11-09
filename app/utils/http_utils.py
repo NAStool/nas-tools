@@ -89,7 +89,7 @@ class RequestUtils:
                                  proxies=self.__proxies,
                                  timeout=self.__timeout,
                                  params=params)
-            return str(r.content, 'UTF-8')
+            return str(r.content, 'utf-8')
         except requests.exceptions.RequestException:
             return None
 
