@@ -3,7 +3,6 @@ from threading import Lock
 from time import sleep
 
 import zhconv
-from requests.utils import dict_from_cookiejar
 
 from app.utils.commons import singleton
 from app.utils.string_utils import StringUtils
@@ -42,7 +41,7 @@ class DouBan:
                 try:
                     res = RequestUtils(timeout=5).get_res("https://www.douban.com/")
                     if res:
-                        self.cookie = dict_from_cookiejar(res.cookies)
+                        self.cookie = StringUtils.str_from_cookiejar(res.cookies)
                 except Exception as err:
                     log.warn(f"【Douban】获取cookie失败：{format(err)}")
 
