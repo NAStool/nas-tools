@@ -1,4 +1,3 @@
-import re
 import json
 import traceback
 import xml.dom.minidom
@@ -874,9 +873,11 @@ class Rss:
             if notes[4]:
                 ep_info = notes[4].split('@')
                 if len(ep_info) > 0:
-                    total = int(ep_info[0])
+                    total = ep_info[0]
+                    total = int(total) if total else 0
                 if len(ep_info) > 1:
-                    current = int(ep_info[1])
+                    current = ep_info[1]
+                    current = int(current) if current else 0
         return {
             "rss_sites": rss_sites,
             "search_sites": search_sites,

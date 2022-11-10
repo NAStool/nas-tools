@@ -106,9 +106,11 @@
                 </span>
                 {% endif %}
                 {% if Items[Id].download_setting|string in DownloadSettings %}
+                {% if Items[Id].download_setting != -1 %}
                 <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
                   {{ DownloadSettings[Items[Id].download_setting|string].name }}
                 </span>
+                {% endif %}
                 {% else %}
                 <span class="badge badge-outline bg-red me-1 mb-1" title="下载设置">
                   {{ DownloadSettings["-1"].name }}
