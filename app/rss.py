@@ -716,6 +716,7 @@ class Rss:
             filter_team = rss_movie.FILTER_TEAM
             filter_rule = rss_movie.FILTER_RULE
             download_setting = rss_movie.DOWNLOAD_SETTING
+            save_path = rss_movie.SAVE_PATH
             fuzzy_match = rss_movie.FUZZY_MATCH
             if desc and not download_setting:
                 desc = self.__parse_desc(desc)
@@ -725,7 +726,9 @@ class Rss:
                 filter_restype = desc.get("restype")
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
-                filter_rule = desc.get("filter_rule")
+                filter_rule = desc.get("rule")
+                download_setting = -1
+                save_path = ""
                 fuzzy_match = 0 if tmdbid else 1
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
@@ -740,7 +743,7 @@ class Rss:
                 "filter_pix": filter_pix,
                 "filter_team": filter_team,
                 "filter_rule": filter_rule,
-                "save_path": rss_movie.SAVE_PATH,
+                "save_path": save_path,
                 "download_setting": download_setting,
                 "fuzzy_match": fuzzy_match,
                 "state": rss_movie.STATE
@@ -764,6 +767,7 @@ class Rss:
             filter_team = rss_tv.FILTER_TEAM
             filter_rule = rss_tv.FILTER_RULE
             download_setting = rss_tv.DOWNLOAD_SETTING
+            save_path = rss_tv.SAVE_PATH
             total_ep = rss_tv.TOTAL_EP
             current_ep = rss_tv.CURRENT_EP
             fuzzy_match = rss_tv.FUZZY_MATCH
@@ -775,7 +779,9 @@ class Rss:
                 filter_restype = desc.get("restype")
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
-                filter_rule = desc.get("filter_rule")
+                filter_rule = desc.get("rule")
+                save_path = ""
+                download_setting = -1
                 total_ep = desc.get("total")
                 current_ep = desc.get("current")
                 fuzzy_match = 0 if tmdbid else 1
@@ -793,7 +799,7 @@ class Rss:
                 "filter_pix": filter_pix,
                 "filter_team": filter_team,
                 "filter_rule": filter_rule,
-                "save_path": rss_tv.SAVE_PATH,
+                "save_path": save_path,
                 "download_setting": download_setting,
                 "total": rss_tv.TOTAL,
                 "lack": rss_tv.LACK,
