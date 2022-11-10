@@ -53,54 +53,87 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      {% for Item in Items %}
+      {% for Id in Items %}
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop rounded-3"
-          href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("MOV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "movie_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "MOV"){% endif %}'>
+          href='javascript:{% if Items[Id].tmdbid %}show_mediainfo_modal("MOV", "{{ Items[Id].name }}", "{{ Items[Id].year }}", "{{ Items[Id].tmdbid }}", "movie_rss", "{{ Items[Id].id }}"){% else %}show_edit_rss_media_modal("{{ Items[Id].id }}", "MOV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Item.IMAGE }}"
+            <img class="rounded-top w-100" src="{{ Items[Id].image }}"
               style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
-              {% if Item.YEAR %}
-              {{ Item.NAME }} ({{ Item.YEAR }})
+              {% if Items[Id].year %}
+              {{ Items[Id].name }} ({{ Items[Id].year }})
               {% else %}
-              {{ Item.NAME }}
+              {{ Items[Id].name }}
               {% endif %}
             </div>
             <div class="text-muted">
-              <span class="badge
-              {% if Item.STATE == 'D' %}
-              bg-gray
-              {% elif Item.STATE == 'S' %}
-              bg-orange
-              {% elif Item.STATE == 'R' %}
-              bg-green
+              {% if Items[Id].state == 'D' %}
+              <span class="badge bg-gray"></span>  队列中
+              {% elif Items[Id].state == 'S' %}
+              <span class="badge bg-orange"></span>  正在搜索
+              {% elif Items[Id].state == 'R' %}
+              <span class="badge bg-green"></span>  正在订阅
               {% else %}
-              bg-blue
-              {% endif %}
-              "></span>
-              {% if Item.STATE == "D" %}
-              队列中
-              {% elif Item.STATE == "S" %}
-              正在搜索
-              {% elif Item.STATE == "R" %}
-              正在订阅
-              {% else %}
-              完成
+              <span class="badge bg-blue"></span>  完成
               {% endif %}
             </div>
-            {% if Item.DESC|rss_filter_string %}
             <div class="text-muted border-top pt-2 mt-2">
-              <small>{{ Item.DESC|rss_filter_string|safe }}</small>
+              <small>
+                {% if Items[Id].over_edition %}
+                <span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>
+                {% endif %}
+                {% if Items[Id].filter_restype %}
+                <span class="badge badge-outline text-orange me-1 mb-1" title="质量">
+                  {{ RestypeDict[Items[Id].filter_restype|string].name }}
+                </span>
+                {% endif %}
+                {% if Items[Id].filter_pix %}
+                <span class="badge badge-outline text-orange me-1 mb-1" title="分辨率">
+                  {{ PixDict[Items[Id].filter_pix|string].name }}
+                </span>
+                {% endif %}
+                {% if Items[Id].filter_team %}
+                <span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">
+                  {{ Items[Id].filter_team }}
+                </span>
+                {% endif %}
+                {% if Items[Id].filter_rule|string in RuleGroups%}
+                <span class="badge badge-outline text-orange me-1 mb-1" title="过滤规则">
+                  {{ RuleGroups[Items[Id].filter_rule|string] }}
+                </span>
+                {% endif %}
+                {% if Items[Id].download_setting|string in DownloadSettings %}
+                <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
+                  {{ DownloadSettings[Items[Id].download_setting|string].name }}
+                </span>
+                {% else %}
+                <span class="badge badge-outline bg-red me-1 mb-1" title="下载设置">
+                  {{ DownloadSettings["-1"].name }}
+                </span>
+                {% endif %}
+              </small>
             </div>
-            {% endif %}
-            {% if Item.DESC|rss_sites_string %}
-            <div class="text-muted {% if not Item.DESC|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
-              <small>{{ Item.DESC|rss_sites_string|safe }}</small>
+            <div class="text-muted">
+              <small>
+                {% for Site in Items[Id].rss_sites %}
+                {% if Site|string in RssSites %}
+                <span class="badge bg-lime me-1 mb-1" title="订阅站点">
+                  {{ RssSites[Site|string] }}
+                </span>
+                {% endif %}
+                {% endfor %}
+                {% for Site in Items[Id].search_sites %}
+                {% if Site|string in SearchSites %}
+                <span class="badge bg-yellow me-1 mb-1" title="搜索站点">
+                  {{ SearchSites[Site|string] }}
+                </span>
+                {% endif %}
+                {% endfor %}
+              </small>
             </div>
-            {% endif %}
           </div>
         </a>
       </div>
@@ -126,18 +159,27 @@
   // 显示新增订阅
   function show_add_movierss_media_modal() {
     $("#rss_id").val("");
-    $("#rss_type").val("MOV");
-    $("#rss_tmdbid").val("");
     $("#rss_modal_title").text("新增订阅");
-    $("#key_match").prop("checked", false);
-    $("#rss_search_sites_div").show();
+    $("#rss_type").val("MOV");
+    $("#rss_name").val("").attr("readonly", false);
+    $("#rss_year").val("").attr("readonly", false);
+    $("#rss_tmdbid").val("");
     $("#rss_tv_season_div").hide();
+    $("#fuzzy_match").prop("checked", false);
     $("#over_edition").prop("checked", false);
-    $("#rss_name").attr("readonly", false);
-    $("#rss_year").attr("readonly", false);
+    $("#rss_restype").val('0');
+    $("#rss_pix").val('0');
+    $("#rss_team").val('');
+    $("#rss_rule").val('0');
+    $("#rss_save_path").val('');
+    $("#rss_download_setting").val('-1');
+    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
     $("#rss_delete_btn").hide();
-    $("#rss_name").attr("readonly", false);
-    $("#rss_year").attr("readonly", false);
     $("#modal-manual-rss").modal('show');
   }
 

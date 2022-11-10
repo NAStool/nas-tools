@@ -62,20 +62,20 @@ PT_TAG = "NASTOOL"
 # 搜索种子过滤属性
 TORRENT_SEARCH_PARAMS = {
     "restype": {
-        "BLURAY": r"Blu-?Ray|BD|BDRIP",
-        "REMUX": r"REMUX",
-        "DOLBY": r"DOLBY",
-        "WEB": r"WEB-?DL|WEBRIP",
-        "HDTV": r"U?HDTV",
-        "UHD": r"UHD",
-        "HDR": r"HDR",
-        "3D": r"3D"
+        "1": {"name": "BLURAY", "re": r"Blu-?Ray|BD|BDRIP"},
+        "2": {"name": "REMUX", "re": r"REMUX"},
+        "3": {"name": "DOLBY", "re": r"DOLBY"},
+        "4": {"name": "WEB", "re": r"WEB-?DL|WEBRIP"},
+        "5": {"name": "HDTV", "re": r"U?HDTV"},
+        "6": {"name": "UHD", "re": r"UHD"},
+        "7": {"name": "HDR", "re": r"HDR"},
+        "8": {"name": "3D", "re": r"3D"},
     },
     "pix": {
-        "8k": r"8K",
-        "4k": r"4K|2160P|X2160",
-        "1080p": r"1080[PIX]|X1080",
-        "720p": r"720P"
+        "1": {"name": "8k", "re": r"8K"},
+        "2": {"name": "4k", "re": r"4K|2160P|X2160"},
+        "3": {"name": "1080p", "re": r"1080[PIX]|X1080"},
+        "4": {"name": "720p", "re": r"720P"},
     }
 }
 # 电影默认命名格式

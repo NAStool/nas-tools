@@ -18,7 +18,7 @@ from app.brushtask import BrushTask
 from app.doubansync import DoubanSync
 from app.downloader import Qbittorrent, Transmission, Downloader
 from app.filetransfer import FileTransfer
-from app.filterrules import FilterRule
+from app.filter import Filter
 from app.helper import DbHelper, DictHelper
 from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.helper.words_helper import WordsHelper
@@ -1134,24 +1134,26 @@ class WebAction:
         添加RSS订阅
         """
         _subscribe = Subscribe()
-        doubanid = data.get("doubanid")
-        tmdbid = data.get("tmdbid")
-        name = data.get("name")
         mtype = data.get("type")
+        name = data.get("name")
         year = data.get("year")
         season = data.get("season")
-        match = data.get("match")
-        page = data.get("page")
-        sites = data.get("sites")
+        fuzzy_match = data.get("fuzzy_match")
+        doubanid = data.get("doubanid")
+        tmdbid = data.get("tmdbid")
+        rss_sites = data.get("rss_sites")
         search_sites = data.get("search_sites")
         over_edition = data.get("over_edition")
-        rss_restype = data.get("rss_restype")
-        rss_pix = data.get("rss_pix")
-        rss_team = data.get("rss_team")
-        rss_rule = data.get("rss_rule")
-        rssid = data.get("rssid")
+        filter_restype = data.get("filter_restype")
+        filter_pix = data.get("filter_pix")
+        filter_team = data.get("filter_team")
+        filter_rule = data.get("filter_rule")
+        save_path = data.get("save_path")
+        download_setting = data.get("download_setting")
         total_ep = data.get("total_ep")
         current_ep = data.get("current_ep")
+        rssid = data.get("rssid")
+        page = data.get("page")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
                 mtype = MediaType.MOVIE
@@ -1165,16 +1167,18 @@ class WebAction:
                                                                      name=name,
                                                                      year=year,
                                                                      season=sea,
-                                                                     match=match,
+                                                                     fuzzy_match=fuzzy_match,
                                                                      doubanid=doubanid,
                                                                      tmdbid=tmdbid,
-                                                                     sites=sites,
+                                                                     rss_sites=rss_sites,
                                                                      search_sites=search_sites,
                                                                      over_edition=over_edition,
-                                                                     rss_restype=rss_restype,
-                                                                     rss_pix=rss_pix,
-                                                                     rss_team=rss_team,
-                                                                     rss_rule=rss_rule,
+                                                                     filter_restype=filter_restype,
+                                                                     filter_pix=filter_pix,
+                                                                     filter_team=filter_team,
+                                                                     filter_rule=filter_rule,
+                                                                     save_path=save_path,
+                                                                     download_setting=download_setting,
                                                                      rssid=rssid)
                 if code != 0:
                     break
@@ -1183,19 +1187,21 @@ class WebAction:
                                                                  name=name,
                                                                  year=year,
                                                                  season=season,
-                                                                 match=match,
+                                                                 fuzzy_match=fuzzy_match,
                                                                  doubanid=doubanid,
                                                                  tmdbid=tmdbid,
-                                                                 sites=sites,
+                                                                 rss_sites=rss_sites,
                                                                  search_sites=search_sites,
                                                                  over_edition=over_edition,
-                                                                 rss_restype=rss_restype,
-                                                                 rss_pix=rss_pix,
-                                                                 rss_team=rss_team,
-                                                                 rss_rule=rss_rule,
-                                                                 rssid=rssid,
+                                                                 filter_restype=filter_restype,
+                                                                 filter_pix=filter_pix,
+                                                                 filter_team=filter_team,
+                                                                 filter_rule=filter_rule,
+                                                                 save_path=save_path,
+                                                                 download_setting=download_setting,
                                                                  total_ep=total_ep,
-                                                                 current_ep=current_ep)
+                                                                 current_ep=current_ep,
+                                                                 rssid=rssid)
         if not rssid:
             if mtype == MediaType.MOVIE:
                 rssid = self.dbhelper.get_rss_movie_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
@@ -1631,41 +1637,22 @@ class WebAction:
                 })
             return {"code": 0, "events": episode_events}
 
-    def __rss_detail(self, data):
-        rssid = data.get("rssid")
-        rsstype = data.get("rsstype")
-        if rsstype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
-            rss = self.dbhelper.get_rss_movies(rssid=rssid)
-            if not rss:
+    @staticmethod
+    def __rss_detail(data):
+        rid = data.get("rssid")
+        mtype = data.get("rsstype")
+        if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
+            rssdetail = Rss().get_rss_movies(rid=rid)
+            if not rssdetail:
                 return {"code": 1}
-            rss_info = Torrent.get_rss_note_item(rss[0].DESC)
-            rssdetail = {"rssid": rssid,
-                         "name": rss[0].NAME,
-                         "year": rss[0].YEAR,
-                         "tmdbid": rss[0].TMDBID,
-                         "r_sites": rss_info.get("rss_sites"),
-                         "s_sites": rss_info.get("search_sites"),
-                         "over_edition": rss_info.get("over_edition"),
-                         "filter": rss_info.get("filter_map"),
-                         "type": "MOV"}
+            rssdetail = list(rssdetail.values())[0]
+            rssdetail["type"] = "MOV"
         else:
-            rss = self.dbhelper.get_rss_tvs(rssid=rssid)
-            if not rss:
+            rssdetail = Rss().get_rss_tvs(rid=rid)
+            if not rssdetail:
                 return {"code": 1}
-            rss_info = Torrent.get_rss_note_item(rss[0].DESC)
-            rssdetail = {"rssid": rssid,
-                         "name": rss[0].NAME,
-                         "year": rss[0].YEAR,
-                         "season": rss[0].SEASON,
-                         "tmdbid": rss[0].TMDBID,
-                         "r_sites": rss_info.get("rss_sites"),
-                         "s_sites": rss_info.get("search_sites"),
-                         "over_edition": rss_info.get("over_edition"),
-                         "filter": rss_info.get("filter_map"),
-                         "total_ep": rss_info.get("episode_info", {}).get("total"),
-                         "current_ep": rss_info.get("episode_info", {}).get("current"),
-                         "type": "TV"}
-
+            rssdetail = list(rssdetail.values())[0]
+            rssdetail["type"] = "TV"
         return {"code": 0, "detail": rssdetail}
 
     @staticmethod
@@ -1921,7 +1908,7 @@ class WebAction:
             return {"code": -1}
         meta_info = MetaInfo(title=title, subtitle=subtitle)
         meta_info.size = float(size) * 1024 ** 3 if size else 0
-        match_flag, res_order, rule_name = FilterRule().check_rules(meta_info=meta_info)
+        match_flag, res_order, rule_name = Filter().check_rules(meta_info=meta_info)
         return {
             "code": 0,
             "flag": match_flag,
@@ -2017,7 +2004,7 @@ class WebAction:
         if not name:
             return {"code": -1}
         self.dbhelper.add_filter_group(name, default)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     def __restore_filtergroup(self, data):
@@ -2035,7 +2022,7 @@ class WebAction:
                 if str(init_rulegroup.get("id")) == groupid:
                     for sql in init_rulegroup.get("sql"):
                         self.dbhelper.excute(sql)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     def __set_default_filtergroup(self, data):
@@ -2043,13 +2030,13 @@ class WebAction:
         if not groupid:
             return {"code": -1}
         self.dbhelper.set_default_filtergroup(groupid)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     def __del_filtergroup(self, data):
         groupid = data.get("id")
         self.dbhelper.delete_filtergroup(groupid)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     def __add_filterrule(self, data):
@@ -2064,20 +2051,20 @@ class WebAction:
             "free": data.get("rule_free")
         }
         self.dbhelper.insert_filter_rule(ruleid=rule_id, item=item)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     def __del_filterrule(self, data):
         ruleid = data.get("id")
         self.dbhelper.delete_filterrule(ruleid)
-        FilterRule().init_config()
+        Filter().init_config()
         return {"code": 0}
 
     @staticmethod
     def __filterrule_detail(data):
         rid = data.get("ruleid")
         groupid = data.get("groupid")
-        ruleinfo = FilterRule().get_rules(groupid=groupid, ruleid=rid)
+        ruleinfo = Filter().get_rules(groupid=groupid, ruleid=rid)
         if ruleinfo:
             ruleinfo['include'] = "\n".join(ruleinfo.get("include"))
             ruleinfo['exclude'] = "\n".join(ruleinfo.get("exclude"))
@@ -2205,44 +2192,6 @@ class WebAction:
             return {"code": 0, "Items": [item.as_dict() for item in Items]}
         else:
             return {"code": 0, "Items": []}
-
-    @staticmethod
-    def parse_sites_string(notes):
-        if not notes:
-            return ""
-        rss_info = Torrent.get_rss_note_item(notes)
-        rss_site_htmls = ['<span class="badge bg-lime me-1 mb-1" title="订阅站点">%s</span>' % s for s in
-                          rss_info.get("rss_sites") if s]
-        search_site_htmls = ['<span class="badge bg-yellow me-1 mb-1" title="搜索站点">%s</span>' % s for s in
-                             rss_info.get("search_sites") if s]
-
-        return "".join(rss_site_htmls) + "".join(search_site_htmls)
-
-    @staticmethod
-    def parse_filter_string(notes):
-        if not notes:
-            return ""
-        rss_info = Torrent.get_rss_note_item(notes)
-        filter_htmls = []
-        if rss_info.get("over_edition"):
-            filter_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>')
-        if rss_info.get("filter_map") and rss_info.get("filter_map").get("restype"):
-            filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
-                    "restype"))
-        if rss_info.get("filter_map") and rss_info.get("filter_map").get("pix"):
-            filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
-                    "pix"))
-        if rss_info.get("filter_map") and rss_info.get("filter_map").get("team"):
-            filter_htmls.append(
-                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
-                    "team"))
-        if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
-            filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
-                                FilterRule().get_rule_groups(groupid=rss_info.get("filter_map").get("rule")).get(
-                                    "name") or "")
-        return "".join(filter_htmls)
 
     @staticmethod
     def parse_brush_rule_string(rules: dict):
@@ -3017,7 +2966,7 @@ class WebAction:
                             "size": rule.get("size"),
                             "free": rule.get("free")
                         })
-                FilterRule().init_config()
+                Filter().init_config()
             return {"code": 0, "msg": ""}
         except Exception as err:
             return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}
@@ -3250,17 +3199,19 @@ class WebAction:
 
         return {"code": 0, "result": medias}
 
-    def get_movie_rss_list(self, data=None):
+    @staticmethod
+    def get_movie_rss_list(data=None):
         """
         查询所有电影订阅
         """
-        return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_movies()]}
+        return {"code": 0, "result": Rss().get_rss_movies()}
 
-    def get_tv_rss_list(self, data=None):
+    @staticmethod
+    def get_tv_rss_list(data=None):
         """
         查询所有电视剧订阅
         """
-        return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_tvs()]}
+        return {"code": 0, "result": Rss().get_rss_tvs()}
 
     def get_rss_history(self, data):
         """
@@ -3486,7 +3437,7 @@ class WebAction:
         """
         查询所有过滤规则
         """
-        RuleGroups = FilterRule().get_rule_infos()
+        RuleGroups = Filter().get_rule_infos()
         sql_file = os.path.join(Config().get_root_path(), "config", "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_list = f.read().split(';\n')

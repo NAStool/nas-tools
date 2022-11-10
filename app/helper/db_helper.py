@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import time
+import json
 from enum import Enum
 from sqlalchemy import cast, func
 
@@ -534,13 +535,17 @@ class DbHelper:
     @DbPersist(_db)
     def insert_rss_movie(self, media_info,
                          state='D',
-                         sites: list = None,
+                         rss_sites: list = None,
                          search_sites: list = None,
-                         over_edition=False,
-                         rss_restype=None,
-                         rss_pix=None,
-                         rss_team=None,
-                         rss_rule=None):
+                         over_edition=0,
+                         filter_restype=0,
+                         filter_pix=0,
+                         filter_team=None,
+                         filter_rule=0,
+                         save_path=None,
+                         download_setting=-1,
+                         fuzzy_match=0,
+                         note=None):
         """
         新增RSS电影
         """
@@ -550,20 +555,31 @@ class DbHelper:
             return -1
         if self.is_exists_rss_movie(media_info.title, media_info.year):
             return 9
-        desc = "#".join(["|".join(sites or []),
-                         "|".join(search_sites or []),
-                         "Y" if over_edition else "N",
-                         "@".join([StringUtils.str_sql(rss_restype),
-                                   StringUtils.str_sql(rss_pix),
-                                   StringUtils.str_sql(rss_rule),
-                                   StringUtils.str_sql(rss_team)])])
+        # desc = "#".join(["|".join(sites or []),
+        #                  "|".join(search_sites or []),
+        #                  "Y" if over_edition else "N",
+        #                  "@".join([StringUtils.str_sql(rss_restype),
+        #                            StringUtils.str_sql(rss_pix),
+        #                            StringUtils.str_sql(rss_rule),
+        #                            StringUtils.str_sql(rss_team)])])
         self._db.insert(RSSMOVIES(
             NAME=media_info.title,
             YEAR=media_info.year,
             TMDBID=media_info.tmdb_id,
             IMAGE=media_info.get_message_image(),
-            DESC=desc,
-            STATE=state
+            RSS_SITES=json.dumps(rss_sites),
+            SEARCH_SITES=json.dumps(search_sites),
+            OVER_EDITION=int(over_edition),
+            FILTER_RESTYPE=int(filter_restype),
+            FILTER_PIX=int(filter_pix),
+            FILTER_RULE=int(filter_rule),
+            FILTER_TEAM=filter_team,
+            SAVE_PATH=save_path,
+            DOWNLOAD_SETTING=int(download_setting),
+            FUZZY_MATCH=int(fuzzy_match),
+            STATE=state,
+            DESC='',
+            NOTE=note
         ))
         return 0
 
@@ -691,17 +707,19 @@ class DbHelper:
 
     @DbPersist(_db)
     def insert_rss_tv(self, media_info, total, lack=0, state="D",
-                      sites: list = None,
+                      rss_sites: list = None,
                       search_sites: list = None,
-                      over_edition=False,
-                      rss_restype=None,
-                      rss_pix=None,
-                      rss_team=None,
-                      rss_rule=None,
-                      match=False,
-                      total_ep=None,
-                      current_ep=None
-                      ):
+                      over_edition=0,
+                      filter_restype=0,
+                      filter_pix=0,
+                      filter_team=None,
+                      filter_rule=0,
+                      save_path=None,
+                      download_setting=-1,
+                      total_ep=0,
+                      current_ep=0,
+                      fuzzy_match=0,
+                      note=None):
         """
         新增RSS电视剧
         """
@@ -709,32 +727,45 @@ class DbHelper:
             return -1
         if not media_info.title:
             return -1
-        if match and media_info.begin_season is None:
+        if fuzzy_match and media_info.begin_season is None:
             season_str = ""
         else:
             season_str = media_info.get_season_string()
         if self.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return 9
         # 插入订阅数据
-        desc = "#".join(["|".join(sites or []),
-                         "|".join(search_sites or []),
-                         "Y" if over_edition else "N",
-                         "@".join([StringUtils.str_sql(rss_restype),
-                                   StringUtils.str_sql(rss_pix),
-                                   StringUtils.str_sql(rss_rule),
-                                   StringUtils.str_sql(rss_team)]),
-                         "@".join([StringUtils.str_sql(total_ep),
-                                   StringUtils.str_sql(current_ep)])])
+        # desc = "#".join(["|".join(sites or []),
+        #                  "|".join(search_sites or []),
+        #                  "Y" if over_edition else "N",
+        #                  "@".join([StringUtils.str_sql(rss_restype),
+        #                            StringUtils.str_sql(rss_pix),
+        #                            StringUtils.str_sql(rss_rule),
+        #                            StringUtils.str_sql(rss_team)]),
+        #                  "@".join([StringUtils.str_sql(total_ep),
+        #                            StringUtils.str_sql(current_ep)])])
         self._db.insert(RSSTVS(
             NAME=media_info.title,
             YEAR=media_info.year,
             SEASON=season_str,
             TMDBID=media_info.tmdb_id,
             IMAGE=media_info.get_message_image(),
-            DESC=desc,
-            TOTAL=total,
-            LACK=lack,
-            STATE=state
+            RSS_SITES=json.dumps(rss_sites),
+            SEARCH_SITES=json.dumps(search_sites),
+            OVER_EDITION=int(over_edition),
+            FILTER_RESTYPE=int(filter_restype),
+            FILTER_PIX=int(filter_pix),
+            FILTER_RULE=int(filter_rule),
+            FILTER_TEAM=filter_team,
+            SAVE_PATH=save_path,
+            DOWNLOAD_SETTING=int(download_setting),
+            FUZZY_MATCH=int(fuzzy_match),
+            TOTAL_EP=int(total_ep),
+            CURRENT_EP=int(current_ep),
+            TOTAL=int(total),
+            LACK=int(lack),
+            STATE=state,
+            DESC='',
+            NOTE=note
         ))
         return 0
 

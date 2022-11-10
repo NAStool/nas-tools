@@ -99,7 +99,7 @@
               {% endif %}
               {% if Site.rule %}
               <dt class="col-3">过滤规则:</dt>
-              <dd class="col-9"><span class="badge bg-orange me-2">{{ Site.rule_name }}</span></dd>
+              <dd class="col-9"><span class="badge bg-orange me-2">{{ RuleGroups[Site.rule|string] }}</span></dd>
               {% endif %}
             </dl>
             <div class="row">
@@ -246,8 +246,8 @@
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_rule">
                 <option value="" selected>请选择</option>
-                {% for RuleGroup in RuleGroups %}
-                <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                {% for Id in RuleGroups %}
+                <option value="{{ Id }}">{{ RuleGroups[Id] }}</option>
                 {% endfor %}
               </select>
             </div>

@@ -18,7 +18,7 @@ from flask_login import LoginManager, login_user, login_required, current_user
 import log
 from app.brushtask import BrushTask
 from app.downloader import Downloader
-from app.filterrules import FilterRule
+from app.filter import Filter
 from app.helper import DbHelper
 from app.helper import SecurityHelper, MetaHelper
 from app.indexer import BuiltinIndexer
@@ -107,11 +107,12 @@ def create_flask_app():
                                            GoPage=GoPage,
                                            LoginWallpaper=get_login_wallpaper())
                 else:
-                    RssSites = Sites().get_sites(rss=True)
-                    SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
-                    RuleGroups = FilterRule().get_rule_groups()
-                    RestypeDict = TORRENT_SEARCH_PARAMS.get("restype").keys()
-                    PixDict = TORRENT_SEARCH_PARAMS.get("pix").keys()
+                    RssSites = {site["id"]: site["name"] for site in Sites().get_sites(rss=True)}
+                    SearchSites = {str(site.id): site.name for site in Searcher().indexer.get_indexers()}
+                    RuleGroups = Filter().get_rule_groups()
+                    RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
+                    PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+                    DownloadSettings = Downloader().get_download_setting()
                     return render_template('navigation.html',
                                            GoPage=GoPage,
                                            UserName=username,
@@ -123,6 +124,7 @@ def create_flask_app():
                                            RuleGroups=RuleGroups,
                                            RestypeDict=RestypeDict,
                                            PixDict=PixDict,
+                                           DownloadSettings=DownloadSettings,
                                            SyncMod=SyncMod)
             else:
                 return render_template('login.html',
@@ -152,11 +154,12 @@ def create_flask_app():
                 # 创建用户 Session
                 login_user(user_info)
                 session.permanent = True if remember else False
-                RssSites = Sites().get_sites(rss=True)
-                SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
-                RuleGroups = FilterRule().get_rule_groups()
-                RestypeDict = TORRENT_SEARCH_PARAMS.get("restype").keys()
-                PixDict = TORRENT_SEARCH_PARAMS.get("pix").keys()
+                RssSites = {str(site["id"]): site["name"] for site in Sites().get_sites(rss=True)}
+                SearchSites = {site.id: site.name for site in Searcher().indexer.get_indexers()}
+                RuleGroups = Filter().get_rule_groups()
+                RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
+                PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+                DownloadSettings = Downloader().get_download_setting()
                 return render_template('navigation.html',
                                        GoPage=GoPage,
                                        UserName=username,
@@ -168,6 +171,7 @@ def create_flask_app():
                                        RuleGroups=RuleGroups,
                                        RestypeDict=RestypeDict,
                                        PixDict=PixDict,
+                                       DownloadSettings=DownloadSettings,
                                        SyncMod=SyncMod)
             else:
                 return render_template('login.html',
@@ -334,8 +338,8 @@ def create_flask_app():
                                MediaSPStates=MediaSPStates,
                                MediaNames=MediaNames,
                                MediaRestypes=MediaRestypes,
-                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
-                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
+                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                                SiteDict=SiteDict,
                                SaveDirs=SaveDirs,
                                UPCHAR=chr(8593))
@@ -361,8 +365,20 @@ def create_flask_app():
     @login_required
     def movie_rss():
         RssItems = WebAction().get_movie_rss_list().get("result")
+        RssSites = {str(site["id"]): site["name"] for site in Sites().get_sites(rss=True)}
+        SearchSites = {site.id: site.name for site in Searcher().indexer.get_indexers()}
+        RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
+        RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
+        PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        DownloadSettings = Downloader().get_download_setting()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
+                               RssSites=RssSites,
+                               SearchSites=SearchSites,
+                               RuleGroups=RuleGroups,
+                               RestypeDict=RestypeDict,
+                               PixDict=PixDict,
+                               DownloadSettings=DownloadSettings,
                                Items=RssItems
                                )
 
@@ -371,8 +387,20 @@ def create_flask_app():
     @login_required
     def tv_rss():
         RssItems = WebAction().get_tv_rss_list().get("result")
+        RssSites = {str(site["id"]): site["name"] for site in Sites().get_sites(rss=True)}
+        SearchSites = {site.id: site.name for site in Searcher().indexer.get_indexers()}
+        RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
+        RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
+        PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        DownloadSettings = Downloader().get_download_setting()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
+                               RssSites=RssSites,
+                               SearchSites=SearchSites,
+                               RuleGroups=RuleGroups,
+                               RestypeDict=RestypeDict,
+                               PixDict=PixDict,
+                               DownloadSettings=DownloadSettings,
                                Items=RssItems
                                )
 
@@ -410,7 +438,7 @@ def create_flask_app():
     @login_required
     def site():
         CfgSites = Sites().get_sites()
-        RuleGroups = FilterRule().get_rule_groups()
+        RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
         return render_template("site/site.html",
                                Sites=CfgSites,
                                RuleGroups=RuleGroups)
@@ -1016,7 +1044,7 @@ def create_flask_app():
     def user_rss():
         Tasks = RssChecker().get_rsstask_info()
         RssParsers = RssChecker().get_userrss_parser()
-        FilterRules = FilterRule().get_rule_groups()
+        FilterRules = Filter().get_rule_groups()
         DownloadSettings = Downloader().get_download_setting()
         return render_template("rss/user_rss.html",
                                Tasks=Tasks,
@@ -1338,16 +1366,6 @@ def create_flask_app():
     @App.template_filter('split')
     def split(string, char, pos):
         return string.split(char)[pos]
-
-    # 站点信息拆分模板过滤器
-    @App.template_filter('rss_sites_string')
-    def rss_sites_string(notes):
-        return WebAction().parse_sites_string(notes)
-
-    # RSS过滤规则拆分模板过滤器
-    @App.template_filter('rss_filter_string')
-    def rss_filter_string(notes):
-        return WebAction().parse_filter_string(notes)
 
     # 刷流规则过滤器
     @App.template_filter('brush_rule_string')

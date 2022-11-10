@@ -10,6 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from app.helper import DbHelper, DictHelper
 from app.sites import Sites
+from app.filter import Filter
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
 from app.message import Message
@@ -23,6 +24,7 @@ from app.utils.commons import singleton
 class BrushTask(object):
     message = None
     sites = None
+    filter = None
     _scheduler = None
     _brush_tasks = []
     _torrents_cache = []
@@ -36,6 +38,7 @@ class BrushTask(object):
     def init_config(self):
         self.message = Message()
         self.sites = Sites()
+        self.filter = Filter()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -667,21 +670,21 @@ class BrushTask(object):
                 if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
                     return False
 
-            attr_type = self.sites.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
-
-            log.debug("【Brush】%s 解析详情, %s" % (title, attr_type))
+            torrent_attr = self.filter.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
+            torrent_peer_count = torrent_attr.get("peer_count")
+            log.debug("【Brush】%s 解析详情, %s" % (title, torrent_attr))
 
             # 检查免费状态
             if rss_rule.get("free") == "FREE":
-                if not attr_type.is_free():
+                if not torrent_attr.get("free"):
                     return False
             elif rss_rule.get("free") == "2XFREE":
-                if not attr_type.is_free2x():
+                if not torrent_attr.get("2xfree"):
                     return False
 
             # 检查HR状态
             if rss_rule.get("hr"):
-                if attr_type.is_hr():
+                if torrent_attr.get("hr"):
                     return False
 
             # 检查做种人数
@@ -702,17 +705,17 @@ class BrushTask(object):
                         max_count = int(min_max_count[1])
                     else:
                         max_count = sys.maxsize
-                    if peer_counts[0] == "gt" and attr_type.peer_count <= min_count:
+                    if peer_counts[0] == "gt" and torrent_peer_count <= min_count:
                         log.debug("【Brush】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (
-                            title, attr_type.peer_count, peer_counts[0], min_count))
+                            title, torrent_peer_count, peer_counts[0], min_count))
                         return False
-                    if peer_counts[0] == "lt" and attr_type.peer_count >= min_count:
+                    if peer_counts[0] == "lt" and torrent_peer_count >= min_count:
                         log.debug("【Brush】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (
-                            title, attr_type.peer_count, peer_counts[0], min_count))
+                            title, torrent_peer_count, peer_counts[0], min_count))
                         return False
-                    if peer_counts[0] == "bw" and not (min_count <= attr_type.peer_count <= max_count):
+                    if peer_counts[0] == "bw" and not (min_count <= torrent_peer_count <= max_count):
                         log.debug("【Brush】%s `判断做种数, 判断条件: left:%d %s peer_count:%d %s right:%d" % (
-                            title, min_count, peer_counts[0], attr_type.peer_count, peer_counts[0], max_count))
+                            title, min_count, peer_counts[0], torrent_peer_count, peer_counts[0], max_count))
                         return False
 
             # 检查发布时间

@@ -383,8 +383,8 @@
               <label class="form-label">质量</label>
               <select class="form-select" id="search_restype">
                 <option value="" selected>全部</option>
-                {% for restype in RestypeDict %}
-                <option value="{{ restype }}">{{ restype }}</option>
+                {% for Id in RestypeDict %}
+                <option value="{{ Id }}">{{ RestypeDict[Id].name }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -394,8 +394,8 @@
               <label class="form-label">分辨率</label>
               <select class="form-select" id="search_pix">
                 <option value="" selected>全部</option>
-                {% for pix in PixDict %}
-                <option value="{{ pix }}">{{ pix }}</option>
+                {% for Id in PixDict %}
+                <option value="{{ Id }}">{{ PixDict[Id].name }}</option>
                 {% endfor %}
               </select>
             </div>

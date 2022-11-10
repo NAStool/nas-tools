@@ -8,7 +8,7 @@ from lxml import etree
 
 import log
 from app.helper import DbHelper
-from app.filterrules import FilterRule
+from app.filter import Filter
 from app.media import Media
 from app.message import Message
 from app.searcher import Searcher
@@ -44,7 +44,7 @@ class RssChecker(object):
     def init_config(self):
         self.message = Message()
         self.searcher = Searcher()
-        self.filterrule = FilterRule()
+        self.filter = Filter()
         self.media = Media()
         self.downloader = Downloader()
         self.subscribe = Subscribe()
@@ -77,7 +77,7 @@ class RssChecker(object):
         for task in rsstasks:
             parser = self.get_userrss_parser(task.PARSER)
             if task.FILTER:
-                filterrule = self.filterrule.get_rule_groups(groupid=task.FILTER)
+                filterrule = self.filter.get_rule_groups(groupid=task.FILTER)
             else:
                 filterrule = {}
             # 兼容旧配置
@@ -427,7 +427,7 @@ class RssChecker(object):
             if re.search(r"%s" % taskinfo.get("exclude"), media_info.org_string, re.IGNORECASE):
                 return False, 0
         if taskinfo.get("filter"):
-            match_flag, res_order, _ = self.filterrule.check_rules(meta_info=media_info,
+            match_flag, res_order, _ = self.filter.check_rules(meta_info=media_info,
                                                                    rolegroup=taskinfo.get("filter"))
             if not match_flag:
                 return False, 0
