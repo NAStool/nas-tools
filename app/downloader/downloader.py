@@ -405,7 +405,10 @@ class Downloader:
             """
             下载及发送通知
             """
-            state, msg = self.download(media_info=download_item)
+            state, msg = self.download(
+                media_info=download_item,
+                download_dir=download_item.save_path,
+                download_setting=download_item.download_setting)
             if state:
                 if download_item not in return_items:
                     return_items.append(download_item)

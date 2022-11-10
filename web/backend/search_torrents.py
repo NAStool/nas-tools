@@ -373,17 +373,17 @@ def __rss_media(in_from, media_info, user_id=None, state='D'):
     """
     # 添加订阅
     if media_info.douban_id:
-        code, msg, media_info = Subscribe().add_rss_subscribe(media_info.type,
-                                                              media_info.title,
-                                                              media_info.year,
-                                                              media_info.begin_season,
+        code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
+                                                              name=media_info.title,
+                                                              year=media_info.year,
+                                                              season=media_info.begin_season,
                                                               doubanid=media_info.douban_id,
                                                               state=state)
     else:
-        code, msg, media_info = Subscribe().add_rss_subscribe(media_info.type,
-                                                              media_info.title,
-                                                              media_info.year,
-                                                              media_info.begin_season,
+        code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
+                                                              name=media_info.title,
+                                                              year=media_info.year,
+                                                              season=media_info.begin_season,
                                                               tmdbid=media_info.tmdb_id,
                                                               state=state)
     if code == 0:

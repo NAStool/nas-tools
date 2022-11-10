@@ -917,28 +917,39 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <label class="form-label required">标题/年份</label>
-            <div class="row mb-3">
-              <div class="col-12 col-lg-8 mb-1">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label required">标题</label>
                 <input type="text" value="" id="rss_name" class="form-control" placeholder="标题">
               </div>
-              <div class="col-12 col-lg-4 mb-1">
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">年份</label>
                 <input type="text" value="" id="rss_year" class="form-control" placeholder="年份">
               </div>
             </div>
           </div>
           <div class="row" id="rss_tv_season_div">
-            <label class="form-label required">季集</label>
-            <div class="row mb-3">
-              <div class="col-12 col-lg mb-1">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">季</label>
                 <select class="form-select" id="rss_season">
                   <option value="" selected>请选择</option>
                 </select>
               </div>
-              <div class="col-12 col-lg mb-1">
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">总集数 <span class="form-help"
+                title="可留空应用TMDB剧集信息"
+                data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="" id="rss_total_ep" class="form-control" placeholder="总集数">
               </div>
-              <div class="col-12 col-lg mb-1">
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">开始订阅集数</label>
                 <input type="text" value="" id="rss_current_ep" class="form-control" placeholder="开始订阅集数">
               </div>
             </div>
@@ -947,7 +958,7 @@
             <div class="col-xl-4">
               <div class="mb-3">
                 <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="key_match"
+                  <input class="form-check-input" type="checkbox" id="fuzzy_match"
                     onclick="javascript:change_match_check(this)">
                   <span class="form-check-label">模糊匹配 <span class="form-help"
                       title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配"
@@ -967,34 +978,63 @@
             </div>
           </div>
           <div class="row">
-            <label class="form-label">过滤规则 <span class="form-help"
-                title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
-                data-bs-toggle="tooltip">?</span></label>
-            <div class="row mb-3">
-              <div class="col-12 col-lg-3 mb-1">
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">质量</label>
                 <select class="form-select" id="rss_restype">
-                  <option value="" selected>全部</option>
-                  {% for restype in RestypeDict %}
-                  <option value="{{ restype }}">{{ restype }}</option>
+                  <option value="0" selected>全部</option>
+                  {% for Id in RestypeDict %}
+                  <option value="{{ Id }}">{{ RestypeDict[Id].name }}</option>
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-12 col-lg-3 mb-1">
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">分辨率</label>
                 <select class="form-select" id="rss_pix">
-                  <option value="" selected>全部</option>
-                  {% for pix in PixDict %}
-                  <option value="{{ pix }}">{{ pix }}</option>
+                  <option value="0" selected>全部</option>
+                  {% for Id in PixDict %}
+                  <option value="{{ Id }}">{{ PixDict[Id].name }}</option>
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-12 col-lg-3 mb-1">
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">制作组/字幕组</label>
                 <input type="text" value="" id="rss_team" class="form-control" placeholder="制作组/字幕组">
               </div>
-              <div class="col-12 col-lg-3 mb-1">
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">过滤规则 <span class="form-help"
+                title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
+                data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rss_rule">
-                  <option value="" selected>请选择</option>
+                  <option value="0" selected>站点规则</option>
                   {% for RuleGroup in RuleGroups %}
                   <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label">保存路径</label>
+                <input type="text" id="rss_save_path" class="form-control" placeholder="留空自动选择保存路径">
+              </div>
+            </div>
+          <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">下载设置 <span class="form-help"
+                title="下载设置仅适用于Qbittorrent和Transmission"
+                data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="rss_download_setting">
+                  {% for Id in DownloadSettings %}
+                  <option value="{{ DownloadSettings[Id].id }}">{{ DownloadSettings[Id].name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -1005,11 +1045,11 @@
             <div class="mb-3">
               <label class="form-label">订阅站点</label>
               <div class="form-selectgroup">
-                {% for site in RssSites %}
+                {% for Id in RssSites %}
                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="rss_sites" value="{{ site.name }}" class="form-selectgroup-input"
+                  <input type="checkbox" name="rss_sites" value="{{ Id }}" class="form-selectgroup-input"
                     checked>
-                  <span class="form-selectgroup-label">{{ site.name }}</span>
+                  <span class="form-selectgroup-label">{{ RssSites[Id] }}</span>
                 </label>
                 {% endfor %}
               </div>
@@ -1021,11 +1061,11 @@
             <div class="mb-3">
               <label class="form-label">搜索站点</label>
               <div class="form-selectgroup">
-                {% for site in SearchSites %}
+                {% for Id in SearchSites %}
                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="search_sites" value="{{ site.name }}" class="form-selectgroup-input"
+                  <input type="checkbox" name="search_sites" value="{{ Id }}" class="form-selectgroup-input"
                     checked>
-                  <span class="form-selectgroup-label">{{ site.name }}</span>
+                  <span class="form-selectgroup-label">{{ SearchSites[Id] }}</span>
                 </label>
                 {% endfor %}
               </div>
@@ -1515,6 +1555,8 @@
       ajax_post("refresh_rss", { "type": type, "rssid": rssid, "page": page }, function (ret) {
         if (ret.page) {
           navmenu(ret.page);
+        }else{
+
         }
       });
     }
@@ -1562,33 +1604,23 @@
 
     //新增订阅
     function add_rss_manual() {
-      let doubanid;
-      const rssid = $("#rss_id").val();
-      const rsstype = $("#rss_type").val();
-      let tmdbid = $("#rss_tmdbid").val();
+      const mtype = $("#rss_type").val();
       const name = $("#rss_name").val();
       const year = $("#rss_year").val();
       const season = $("#rss_season").val();
-      const total_ep = $("#rss_total_ep").val();
-      if (total_ep && isNaN(total_ep)) {
-        $("#rss_total_ep").addClass("is-invalid");
-        return;
-      } else {
-        $("#rss_total_ep").removeClass("is-invalid");
-      }
-      const current_ep = $("#rss_current_ep").val();
-      if (current_ep && isNaN(current_ep)) {
-        $("#rss_current_ep").addClass("is-invalid");
-        return;
-      } else {
-        $("#rss_current_ep").removeClass("is-invalid");
-      }
-      const match = $("#key_match").prop("checked");
-      const rss_restype = $("#rss_restype").val();
-      const rss_pix = $("#rss_pix").val();
-      const rss_team = $("#rss_team").val();
-      const rss_rule = $("#rss_rule").val();
+      const fuzzy_match = $("#fuzzy_match").prop("checked");
+      let doubanid;
+      let tmdbid = $("#rss_tmdbid").val();
       const over_edition = $("#over_edition").prop("checked");
+      const filter_restype = $("#rss_restype").val();
+      const filter_pix = $("#rss_pix").val();
+      const filter_team = $("#rss_team").val();
+      const filter_rule = $("#rss_rule").val();
+      const save_path = $("#rss_save_path").val();
+      const download_setting = $("#rss_download_setting").val();
+      const total_ep = $("#rss_total_ep").val();
+      const current_ep = $("#rss_current_ep").val();
+      const rssid = $("#rss_id").val();
       if (!name) {
         $("#rss_name").addClass("is-invalid");
         return;
@@ -1601,11 +1633,23 @@
       } else {
         $("#rss_year").removeClass("is-invalid");
       }
-      if (!match && !season && (rsstype == "TV" || rsstype == "电视剧")) {
+      if (!fuzzy_match && !season && (mtype == "TV" || mtype == "电视剧")) {
         $("#rss_season").addClass("is-invalid");
         return;
       } else {
         $("#rss_season").removeClass("is-invalid");
+      }
+      if (total_ep && isNaN(total_ep)) {
+        $("#rss_total_ep").addClass("is-invalid");
+        return;
+      } else {
+        $("#rss_total_ep").removeClass("is-invalid");
+      }
+      if (current_ep && isNaN(current_ep)) {
+        $("#rss_current_ep").addClass("is-invalid");
+        return;
+      } else {
+        $("#rss_current_ep").removeClass("is-invalid");
       }
       if (tmdbid && tmdbid.startsWith("DB:")) {
         doubanid = tmdbid.replace("DB:", "");
@@ -1614,55 +1658,53 @@
         doubanid = "";
       }
       //订阅站点
-      let sites = [];
-      let i = 0;
-      let checkall = true;
+      let rss_sites = [];
+      let rss_all = true;
       $("input[name=rss_sites]").each(function () {
         if ($(this).prop("checked")) {
-          sites[i] = $(this).val();
-          i = i + 1;
+          rss_sites.push($(this).val());
         } else {
-          checkall = false;
+          rss_all = false;
         }
       });
-      if (checkall) {
-        sites = [];
+      if (rss_all) {
+        rss_sites = [];
       }
       //搜索站点
       let search_sites = [];
-      if (!match) {
-        i = 0;
-        let search_checkall = true;
+      if (!fuzzy_match) {
+        let search_all = true;
         $("input[name=search_sites]").each(function () {
           if ($(this).prop("checked")) {
-            search_sites[i] = $(this).val();
-            i = i + 1;
+            search_sites.push($(this).val());
           } else {
-            search_checkall = false;
+            search_all = false;
           }
         });
-        if (search_checkall) {
+        if (search_all) {
           search_sites = [];
         }
       }
       const data = {
+        "type": mtype,
         "name": name,
-        "type": rsstype,
         "year": year,
         "season": season,
-        "match": match,
-        "sites": sites,
+        "fuzzy_match": fuzzy_match,
+        "doubanid": doubanid,
+        "tmdbid": tmdbid,
+        "rss_sites": rss_sites,
         "search_sites": search_sites,
-        "rss_restype": rss_restype,
-        "rss_pix": rss_pix,
-        "rss_team": rss_team,
-        "rss_rule": rss_rule,
         "over_edition": over_edition,
+        "filter_restype": filter_restype,
+        "filter_pix": filter_pix,
+        "filter_team": filter_team,
+        "filter_rule": filter_rule,
+        "save_path": save_path,
+        "download_setting": download_setting,
         "total_ep": total_ep,
         "current_ep": current_ep,
         "rssid": rssid,
-        "tmdbid": tmdbid,
-        "doubanid": doubanid
       };
       $("#modal-manual-rss").modal("hide");
       show_wait_process();
@@ -1753,7 +1795,8 @@
         hide_wait_process();
         if (ret.code === 0) {
           $("#rss_tmdbid").val(ret.detail.tmdbid);
-          $("#rss_name").val(ret.detail.name);
+          $("#rss_name").val(ret.detail.name).attr("readonly", true);
+          $("#rss_year").val(ret.detail.year).attr("readonly", true);
           if (type == "MOV" || type == "电影") {
             $("#rss_tv_season_div").hide();
             $("#rss_season").val("");
@@ -1777,48 +1820,40 @@
               $("#rss_current_ep").val("");
             }
           }
-          $("#rss_name").attr("readonly", true);
-          $("#rss_year").val(ret.detail.year).attr("readonly", true);
-          if (ret.detail.tmdbid) {
-            $("#key_match").prop("checked", false);
+          if (!ret.detail.fuzzy_match) {
+            $("#fuzz_match").prop("checked", false);
             $("#rss_search_sites_div").show();
           } else {
-            $("#key_match").prop("checked", true);
+            $("#fuzzy_match").prop("checked", true);
             $("#rss_search_sites_div").hide();
-            $("#over_edition").prop("checked", false);
           }
           if (ret.detail.over_edition) {
             $("#over_edition").prop("checked", true);
           } else {
             $("#over_edition").prop("checked", false);
           }
-          if (ret.detail.filter) {
-            $("#rss_restype").val(ret.detail.filter.restype);
-            $("#rss_pix").val(ret.detail.filter.pix);
-            $("#rss_team").val(ret.detail.filter.team);
-            $("#rss_rule").val(ret.detail.filter.rule);
-          } else {
-            $("#rss_restype").val("");
-            $("#rss_pix").val("");
-            $("#rss_team").val("");
-            $("#rss_rule").val("");
-          }
+          $("#rss_restype").val(ret.detail.filter_restype);
+          $("#rss_pix").val(ret.detail.filter_pix);
+          $("#rss_team").val(ret.detail.filter_team);
+          $("#rss_rule").val(ret.detail.filter_rule);
+          $("#rss_save_path").val(ret.detail.save_path);
+          $("#rss_download_setting").val(ret.detail.download_setting);
           $("#rss_sites_div").find("input[type=checkbox]").each(function () {
-            if (ret.detail.r_sites && (ret.detail.r_sites.length === 0 || ret.detail.r_sites.includes($(this).val()))) {
+            if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes(parseInt($(this).val())))) {
               $(this).prop("checked", true);
             } else {
               $(this).prop("checked", false);
             }
           });
           $("#rss_search_sites_div").find("input[type=checkbox]").each(function () {
-            if (ret.detail.s_sites && (ret.detail.s_sites.length === 0 || ret.detail.s_sites.includes($(this).val()))) {
+            if (ret.detail.search_sites && (ret.detail.search_sites.length === 0 || ret.detail.search_sites.includes($(this).val()))) {
               $(this).prop("checked", true);
             } else {
               $(this).prop("checked", false);
             }
           });
           $("#rss_delete_btn").attr("href",
-            'javascript:remove_rss_manual("' + ret.detail.type + '","' + ret.detail.name + '","' + ret.detail.year + '","' + rssid + '")')
+            `javascript:remove_rss_manual('${ret.detail.type}','${ret.detail.name}','${ret.detail.year}','${rssid}')`)
             .show();
           $("#modal-manual-rss").modal('show');
         }

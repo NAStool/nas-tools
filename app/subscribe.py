@@ -2,7 +2,6 @@ from app.media.douban import DouBan
 from app.helper import DbHelper
 from app.media import MetaInfo, Media
 from app.message import Message
-from app.utils import Torrent
 from app.utils.types import MediaType
 
 
@@ -14,36 +13,40 @@ class Subscribe:
 
     def add_rss_subscribe(self, mtype, name, year,
                           season=None,
-                          match=False,
+                          fuzzy_match=0,
                           doubanid=None,
                           tmdbid=None,
-                          sites=None,
+                          rss_sites=None,
                           search_sites=None,
                           over_edition=False,
-                          rss_restype=None,
-                          rss_pix=None,
-                          rss_team=None,
-                          rss_rule=None,
-                          state="D",
-                          rssid=None,
+                          filter_restype=None,
+                          filter_pix=None,
+                          filter_team=None,
+                          filter_rule=None,
+                          save_path=None,
+                          download_setting=-1,
                           total_ep=None,
-                          current_ep=None):
+                          current_ep=None,
+                          state="D",
+                          rssid=None):
         """
         添加电影、电视剧订阅
         :param mtype: 类型，电影、电视剧、动漫
         :param name: 标题
         :param year: 年份，如要是剧集需要是首播年份
         :param season: 第几季，数字
-        :param match: 是否模糊匹配
+        :param fuzzy_match: 是否模糊匹配
         :param doubanid: 豆瓣ID，有此ID时从豆瓣查询信息
         :param tmdbid: TMDBID，有此ID时优先使用ID查询TMDB信息，没有则使用名称查询
-        :param sites: 站点列表，为空则表示全部站点
+        :param rss_sites: 订阅站点列表，为空则表示全部站点
         :param search_sites: 搜索站点列表，为空则表示全部站点
         :param over_edition: 是否选版
-        :param rss_restype: 质量过滤
-        :param rss_pix: 分辨率过滤
-        :param rss_team: 制作组/字幕组过滤
-        :param rss_rule: 关键字过滤
+        :param filter_restype: 质量过滤
+        :param filter_pix: 分辨率过滤
+        :param filter_team: 制作组/字幕组过滤
+        :param filter_rule: 关键字过滤
+        :param save_path: 保存路径
+        :param download_setting: 下载设置
         :param state: 添加订阅时的状态
         :param rssid: 修改订阅时传入
         :param total_ep: 总集数
@@ -52,18 +55,23 @@ class Subscribe:
         """
         if not name:
             return -1, "标题或类型有误", None
-        if not year:
+        if str(year).isdigit():
+            year = int(year)
+        else:
             year = ""
+        if rss_sites:
+            rss_sites = [int(site) for site in rss_sites]
         if str(total_ep).isdigit():
             total_ep = int(total_ep)
         else:
-            total_ep = None
+            total_ep = 0
         if str(current_ep).isdigit():
             current_ep = int(current_ep)
         else:
-            current_ep = None
+            current_ep = 0
         # 检索媒体信息
-        if not match:
+        fuzzy_match = int(fuzzy_match)
+        if not fuzzy_match:
             # 精确匹配
             media = Media()
             # 根据TMDBID查询，从推荐加订阅的情况
@@ -135,39 +143,44 @@ class Subscribe:
                 if rssid:
                     self.dbhelper.delete_rss_tv(rssid=rssid)
                 if total_ep:
-                    total = int(total_ep)
+                    total = total_ep
                 else:
                     total = media_info.total_episodes
                 if current_ep:
-                    lack = total - int(current_ep) - 1
+                    lack = total - current_ep - 1
                 else:
                     lack = total
                 code = self.dbhelper.insert_rss_tv(media_info=media_info,
                                                    total=total,
                                                    lack=lack,
-                                                   sites=sites,
+                                                   state=state,
+                                                   rss_sites=rss_sites,
                                                    search_sites=search_sites,
                                                    over_edition=over_edition,
-                                                   rss_restype=rss_restype,
-                                                   rss_pix=rss_pix,
-                                                   rss_team=rss_team,
-                                                   rss_rule=rss_rule,
-                                                   state=state,
-                                                   match=match,
+                                                   filter_restype=filter_restype,
+                                                   filter_pix=filter_pix,
+                                                   filter_team=filter_team,
+                                                   filter_rule=filter_rule,
+                                                   save_path=save_path,
+                                                   download_setting=download_setting,
                                                    total_ep=total_ep,
-                                                   current_ep=current_ep)
+                                                   current_ep=current_ep,
+                                                   fuzzy_match=0)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
                 code = self.dbhelper.insert_rss_movie(media_info=media_info,
-                                                      sites=sites,
+                                                      state=state,
+                                                      rss_sites=rss_sites,
                                                       search_sites=search_sites,
                                                       over_edition=over_edition,
-                                                      rss_restype=rss_restype,
-                                                      rss_pix=rss_pix,
-                                                      rss_team=rss_team,
-                                                      rss_rule=rss_rule,
-                                                      state=state)
+                                                      filter_restype=filter_restype,
+                                                      filter_pix=filter_pix,
+                                                      filter_team=filter_team,
+                                                      filter_rule=filter_rule,
+                                                      save_path=save_path,
+                                                      download_setting=download_setting,
+                                                      fuzzy_match=0)
         else:
             # 模糊匹配
             media_info = MetaInfo(title=name, mtype=mtype)
@@ -180,13 +193,16 @@ class Subscribe:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
                 code = self.dbhelper.insert_rss_movie(media_info=media_info,
                                                       state="R",
-                                                      sites=sites,
+                                                      rss_sites=rss_sites,
                                                       search_sites=search_sites,
                                                       over_edition=over_edition,
-                                                      rss_restype=rss_restype,
-                                                      rss_pix=rss_pix,
-                                                      rss_team=rss_team,
-                                                      rss_rule=rss_rule)
+                                                      filter_restype=filter_restype,
+                                                      filter_pix=filter_pix,
+                                                      filter_team=filter_team,
+                                                      filter_rule=filter_rule,
+                                                      save_path=save_path,
+                                                      download_setting=download_setting,
+                                                      fuzzy_match=1)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_tv(rssid=rssid)
@@ -194,14 +210,16 @@ class Subscribe:
                                                    total=0,
                                                    lack=0,
                                                    state="R",
-                                                   sites=sites,
+                                                   rss_sites=rss_sites,
                                                    search_sites=search_sites,
                                                    over_edition=over_edition,
-                                                   rss_restype=rss_restype,
-                                                   rss_pix=rss_pix,
-                                                   rss_team=rss_team,
-                                                   rss_rule=rss_rule,
-                                                   match=match)
+                                                   filter_restype=filter_restype,
+                                                   filter_pix=filter_pix,
+                                                   filter_team=filter_team,
+                                                   filter_rule=filter_rule,
+                                                   save_path=save_path,
+                                                   download_setting=download_setting,
+                                                   fuzzy_match=1)
 
         if code == 0:
             return code, "添加订阅成功", media_info
@@ -243,10 +261,7 @@ class Subscribe:
             rss = self.dbhelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return
-            # 解析RSS属性
-            rss_info = Torrent.get_rss_note_item(rss[0].DESC)
-            total_ep = rss_info.get("episode_info", {}).get("total")
-            start_ep = rss_info.get("episode_info", {}).get("current")
+            total = rss[0].TOTAL_EP
             # 登记订阅历史
             self.dbhelper.insert_rss_history(rssid=rssid,
                                              rtype=rtype,
@@ -256,8 +271,8 @@ class Subscribe:
                                              tmdbid=rss[0].TMDBID,
                                              image=media.get_poster_image(),
                                              desc=media.overview,
-                                             total=total_ep if total_ep else rss[0].TOTAL,
-                                             start=start_ep)
+                                             total=total if total else rss[0].TOTAL,
+                                             start=rss[0].CURRENT_EP)
             # 删除订阅
             self.dbhelper.delete_rss_tv(rssid=rssid)
 
