@@ -707,8 +707,10 @@ class Rss:
             # 兼容旧配置
             desc = rss_movie.DESC
             tmdbid = rss_movie.TMDBID
-            rss_sites = json.loads(rss_movie.RSS_SITES)
-            search_sites = json.loads(rss_movie.SEARCH_SITES)
+            rss_sites = rss_movie.RSS_SITES
+            rss_sites = json.loads(rss_sites) if rss_sites else []
+            search_sites = rss_movie.SEARCH_SITES
+            search_sites = json.loads(search_sites) if search_sites else []
             over_edition = rss_movie.OVER_EDITION
             filter_restype = rss_movie.FILTER_RESTYPE
             filter_pix = rss_movie.FILTER_PIX
@@ -753,8 +755,10 @@ class Rss:
             # 兼容旧配置
             desc = rss_tv.DESC
             tmdbid = rss_tv.TMDBID
-            rss_sites = json.loads(rss_tv.RSS_SITES)
-            search_sites = json.loads(rss_tv.SEARCH_SITES)
+            rss_sites = rss_tv.RSS_SITES
+            rss_sites = json.loads(rss_sites) if rss_sites else []
+            search_sites = rss_tv.SEARCH_SITES
+            search_sites = json.loads(search_sites) if search_sites else []
             over_edition = rss_tv.OVER_EDITION
             filter_restype = rss_tv.FILTER_RESTYPE
             filter_pix = rss_tv.FILTER_PIX
