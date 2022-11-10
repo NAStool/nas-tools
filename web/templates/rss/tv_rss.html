@@ -88,7 +88,14 @@
               <span class="badge bg-blue"></span>  完成
               {% endif %}
             </div>
-            <div class="text-muted border-top pt-2 mt-2">
+            <div{% if Items[Id].over_edition or
+                      Items[Id].filter_restype or
+                      Items[Id].filter_pix or
+                      Items[Id].filter_team or
+                      Items[Id].download_setting != -1 or
+                      Items[Id].rss_sites or
+                      Items[Id].search_sites %} class="text-muted border-top pt-2 mt-2"
+              {% else %} class=“text-muted"{% endif %}>
               <small>
                 {% if Items[Id].over_edition %}
                 <span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>
