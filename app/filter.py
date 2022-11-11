@@ -434,17 +434,6 @@ class Filter:
                 current = rss_info.get('current')
                 tmdbid = rss_info.get('tmdbid')
                 fuzzy_match = rss_info.get('fuzzy_match')
-                # 匹配季，季可以为空
-                if season and season != media_info.get_season_string():
-                    continue
-                # 匹配集
-                if not media_info.get_episode_list():
-                    continue
-                for episode in media_info.get_episode_list():
-                    if total < episode:
-                        continue
-                    if current and current > episode:
-                        continue
                 # 非模糊匹配
                 if not fuzzy_match:
                     if tmdbid and not tmdbid.startswith("DB:"):
@@ -458,8 +447,14 @@ class Filter:
                         if name not in [str(media_info.title),
                                         str(media_info.original_title)]:
                             continue
+                    # 匹配季，季可以为空
+                    if season and season != media_info.get_season_string():
+                        continue
                 # 模糊匹配
                 else:
+                    # 匹配季，季可以为空
+                    if season and season != "S00" and season != media_info.get_season_string():
+                        continue
                     # 匹配年份
                     if year and str(year) != str(media_info.year):
                         continue
