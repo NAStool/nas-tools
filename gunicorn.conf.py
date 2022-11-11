@@ -1,31 +1,7 @@
-from config import Config
-
 """
 这个文件是对gunicorn启动方式进行管理的配置文件具体参数可以查看下边的说明注释
 主要涉及到启动方式，进程数，线程数已经配置读取
 """
-
-# 这里读取配置文件进行启动项参数的入参
-__web_host = "0.0.0.0"
-__web_port = 3000
-__ssl_cert = None
-__ssl_key = None
-app_conf = Config().get_config('app')
-print(app_conf)
-if app_conf:
-    if app_conf.get("web_host"):
-        __web_host = app_conf.get("web_host")
-        __web_host = "0.0.0.0" if __web_host == "::" else __web_host
-    __web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port', '')).isdigit() else 3000
-    __ssl_cert = app_conf.get('ssl_cert')
-    __ssl_key = app_conf.get('ssl_key')
-
-bind = f"{__web_host}:{__web_port}"
-print(bind)
-
-if __ssl_cert and __ssl_key:
-    keyfile = __ssl_key
-    certfile = __ssl_cert
 
 #
 # Server socket

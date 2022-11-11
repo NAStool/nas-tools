@@ -164,7 +164,8 @@ class Filter:
                         rule_match = False
                 else:
                     if meta_info.total_episodes \
-                            and not begin_size * 1024 ** 3 <= int(meta_info.size)/int(meta_info.total_episodes) <= end_size * 1024 ** 3:
+                            and not begin_size * 1024 ** 3 <= int(meta_info.size) / int(
+                        meta_info.total_episodes) <= end_size * 1024 ** 3:
                         rule_match = False
 
             # 促销
@@ -377,8 +378,8 @@ class Filter:
 
         # 匹配电影
         if media_info.type == MediaType.MOVIE and rss_movies:
-            for id in rss_movies:
-                rss_info = rss_movies[id]
+            for rid in rss_movies:
+                rss_info = rss_movies[rid]
                 rss_sites = rss_info.get('rss_sites')
                 # 过滤订阅站点
                 if rss_sites and media_info.site not in rss_sites:
@@ -420,8 +421,8 @@ class Filter:
         # 匹配电视剧
         elif rss_tvs:
             # 匹配种子标题
-            for id in rss_tvs:
-                rss_info = rss_tvs[id]
+            for rid in rss_tvs:
+                rss_info = rss_tvs[rid]
                 rss_sites = rss_info.get('rss_sites')
                 # 过滤订阅站点
                 if rss_sites and media_info.site not in rss_sites:
@@ -430,8 +431,6 @@ class Filter:
                 name = rss_info.get('name')
                 year = rss_info.get('year')
                 season = rss_info.get('season')
-                total = rss_info.get('total')
-                current = rss_info.get('current')
                 tmdbid = rss_info.get('tmdbid')
                 fuzzy_match = rss_info.get('fuzzy_match')
                 # 非模糊匹配
@@ -472,8 +471,8 @@ class Filter:
             if site_parse:
                 # 检测Free
                 torrent_attr = self.check_torrent_attr(torrent_url=media_info.page_url,
-                                                                  cookie=site_cookie,
-                                                                  ua=site_ua)
+                                                       cookie=site_cookie,
+                                                       ua=site_ua)
                 if torrent_attr.get('2xfree'):
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0

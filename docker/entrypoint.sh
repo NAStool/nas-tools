@@ -55,7 +55,7 @@ mkdir -p /.local
 chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/chromium /.local
 export PATH=$PATH:/usr/lib/chromium
 if [ -f /usr/bin/gunicorn ]; then
-    exec su-exec ${PUID}:${PGID} gunicorn server:nastool
+    exec su-exec ${PUID}:${PGID} gunicorn run:NAStool
 else
     echo "注意：日志将停止打印，请通过文件或WEB页面查看日志"
     mkdir -p /config/logs/supervisor

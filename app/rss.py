@@ -18,6 +18,7 @@ from app.utils.types import MediaType, SearchType
 from app.subscribe import Subscribe
 
 from config import TORRENT_SEARCH_PARAMS
+
 lock = Lock()
 
 
@@ -60,29 +61,29 @@ class Rss:
             if not rss_movies:
                 log_warn("【Rss】没有正在订阅的电影")
             else:
-                log_info("【Rss】电影订阅清单：%s" % " ".join('%s' % rss_movies[id].get("name") for id in rss_movies))
+                log_info("【Rss】电影订阅清单：%s" % " ".join('%s' % rss_movies[rid].get("name") for rid in rss_movies))
             # 读取电视剧订阅
             rss_tvs = self.get_rss_tvs(state='R')
             if not rss_tvs:
                 log_warn("【Rss】没有正在订阅的电视剧")
             else:
-                log_info("【Rss】电视剧订阅清单：%s" % " ".join('%s' % rss_tvs[id].get("name") for id in rss_tvs))
+                log_info("【Rss】电视剧订阅清单：%s" % " ".join('%s' % rss_tvs[rid].get("name") for rid in rss_tvs))
             # 没有订阅退出
             if not rss_movies and not rss_tvs:
                 return
             # 获取有订阅的站点范围
             check_sites = []
             check_all = False
-            for id in rss_movies:
-                rss_sites = rss_movies[id].get("rss_sites")
+            for rid in rss_movies:
+                rss_sites = rss_movies[rid].get("rss_sites")
                 if not rss_sites:
                     check_all = True
                     break
                 else:
                     check_sites += rss_sites
             if not check_all:
-                for id in rss_tvs:
-                    rss_sites = rss_tvs[id].get("rss_sites")
+                for rid in rss_tvs:
+                    rss_sites = rss_tvs[rid].get("rss_sites")
                     if not rss_sites:
                         check_all = True
                         break
@@ -286,7 +287,7 @@ class Rss:
                                 if item.rssid:
                                     log_info(
                                         "【Rss】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
-                                                                         item.get_season_string()))
+                                                                                    item.get_season_string()))
                                     # 完成订阅
                                     self.subscribe.finish_rss_subscribe(rtype="TV", rssid=item.rssid, media=item)
                             else:
@@ -338,8 +339,8 @@ class Rss:
             rss_movies = self.get_rss_movies(state=state)
         if rss_movies:
             log_info("【Rss】共有 %s 个电影订阅需要检索" % len(rss_movies))
-        for id in rss_movies:
-            rss_info = rss_movies[id]
+        for rid in rss_movies:
+            rss_info = rss_movies[rid]
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -399,8 +400,8 @@ class Rss:
         if rss_tvs:
             log_info("【Rss】共有 %s 个电视剧订阅需要检索" % len(rss_tvs))
         rss_no_exists = {}
-        for id in rss_tvs:
-            rss_info = rss_tvs[id]
+        for rid in rss_tvs:
+            rss_info = rss_tvs[rid]
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -507,8 +508,8 @@ class Rss:
         """
         # 更新电影
         rss_movies = self.get_rss_movies(state='R')
-        for id in rss_movies:
-            rss_info = rss_movies[id]
+        for rid in rss_movies:
+            rss_info = rss_movies[rid]
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -535,8 +536,8 @@ class Rss:
 
         # 更新电视剧
         rss_tvs = self.get_rss_tvs(state='R')
-        for id in rss_tvs:
-            rss_info = rss_tvs[id]
+        for rid in rss_tvs:
+            rss_info = rss_tvs[rid]
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -558,14 +559,15 @@ class Rss:
                 # 获取总集数
                 if not total_ep:
                     total_episode = self.media.get_tmdb_season_episodes_num(sea=int(str(season).replace("S", "")),
-                                                                        tv_info=media_info.tmdb_info)
+                                                                            tv_info=media_info.tmdb_info)
                 else:
                     total_episode = total_ep
                 # 设置总集数的，不更新集数
                 if total_episode and (name != media_info.title or total != total_episode):
                     # 新的缺失集数
                     lack_episode = total_episode - (total - lack)
-                    log_info(f"【Rss】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
+                    log_info(
+                        f"【Rss】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
                     # 更新订阅信息
                     self.dbhelper.update_rss_tv_tmdb(rid=rssid,
                                                      tmdbid=media_info.tmdb_id,
@@ -859,7 +861,7 @@ class Rss:
                     restype = filters[0]
                     if restype:
                         restype_dict = TORRENT_SEARCH_PARAMS.get("restype")
-                        restype_dict = {restype_dict[id]["name"]: int(id) for id in restype_dict}
+                        restype_dict = {restype_dict[rid]["name"]: int(rid) for rid in restype_dict}
                         restype = restype_dict[restype] if restype_dict.get(restype) else 0
                     else:
                         restype = 0
@@ -867,7 +869,7 @@ class Rss:
                     pix = filters[1]
                     if pix:
                         pix_dict = TORRENT_SEARCH_PARAMS.get("pix")
-                        pix_dict = {pix_dict[id]["name"]: int(id) for id in pix_dict}
+                        pix_dict = {pix_dict[rid]["name"]: int(rid) for rid in pix_dict}
                         pix = pix_dict[pix] if pix_dict.get(pix) else 0
                     else:
                         pix = 0

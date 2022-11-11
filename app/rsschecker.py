@@ -418,7 +418,6 @@ class RssChecker(object):
         """
         检查是否匹配
         """
-        res_order = 0
         if not taskinfo or not media_info:
             return False, 0
         if taskinfo.get("include"):

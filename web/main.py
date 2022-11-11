@@ -55,10 +55,10 @@ login_manager.init_app(App)
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
-
 """
 创建Flask实例，定时前端WEB的所有请求接口及页面访问
 """
+
 
 @App.after_request
 def add_header(r):
@@ -70,20 +70,24 @@ def add_header(r):
     r.headers["Expires"] = "0"
     return r
 
+
 # 定义获取登录用户的方法
 @login_manager.user_loader
 def load_user(user_id):
     return User().get(user_id)
+
 
 # 页面不存在
 @App.errorhandler(404)
 def page_not_found(error):
     return render_template("404.html", error=error), 404
 
+
 # 服务错误
 @App.errorhandler(500)
 def page_server_error(error):
     return render_template("500.html", error=error), 500
+
 
 # 主页面
 @App.route('/', methods=['GET', 'POST'])
@@ -178,6 +182,7 @@ def login():
                                    LoginWallpaper=get_login_wallpaper(),
                                    err_msg="用户名或密码错误")
 
+
 # 开始
 @App.route('/index', methods=['POST', 'GET'])
 @login_required
@@ -219,6 +224,7 @@ def index():
                            AnimeNums=TransferStatistics.get("AnimeNums"),
                            MediaServerType=MSType
                            )
+
 
 # 资源搜索页面
 @App.route('/search', methods=['POST', 'GET'])
@@ -343,6 +349,7 @@ def search():
                            SaveDirs=SaveDirs,
                            UPCHAR=chr(8593))
 
+
 # 媒体列表页面
 @App.route('/medialist', methods=['POST', 'GET'])
 @login_required
@@ -358,6 +365,7 @@ def medialist():
                            OperType=OperType,
                            Count=len(medias),
                            Medias=medias)
+
 
 # 电影订阅页面
 @App.route('/movie_rss', methods=['POST', 'GET'])
@@ -381,6 +389,7 @@ def movie_rss():
                            Items=RssItems
                            )
 
+
 # 电视剧订阅页面
 @App.route('/tv_rss', methods=['POST', 'GET'])
 @login_required
@@ -403,6 +412,7 @@ def tv_rss():
                            Items=RssItems
                            )
 
+
 # 订阅历史页面
 @App.route('/rss_history', methods=['POST', 'GET'])
 @login_required
@@ -414,6 +424,7 @@ def rss_history():
                            Items=RssHistory,
                            Type=mtype
                            )
+
 
 # 订阅日历页面
 @App.route('/rss_calendar', methods=['POST', 'GET'])
@@ -432,15 +443,17 @@ def rss_calendar():
                            RssMovieIds=RssMovieIds,
                            RssTvItems=RssTvItems)
 
+
 # 站点维护页面
 @App.route('/site', methods=['POST', 'GET'])
 @login_required
-def site():
+def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups)
+
 
 # 站点列表页面
 @App.route('/sitelist', methods=['POST', 'GET'])
@@ -450,6 +463,7 @@ def sitelist():
     return render_template("site/sitelist.html",
                            Sites=IndexerSites,
                            Count=len(IndexerSites))
+
 
 # 站点资源页面
 @App.route('/resources', methods=['POST', 'GET'])
@@ -473,6 +487,7 @@ def resources():
                            CurrentPage=int(page),
                            TotalPage=10)
 
+
 # 推荐页面
 @App.route('/recommend', methods=['POST', 'GET'])
 @login_required
@@ -485,6 +500,7 @@ def recommend():
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 
+
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
 @login_required
@@ -495,6 +511,7 @@ def downloading():
                            Torrents=DispTorrents,
                            Client=Config().get_config("pt").get("pt_client"))
 
+
 # 近期下载页面
 @App.route('/downloaded', methods=['POST', 'GET'])
 @login_required
@@ -503,6 +520,7 @@ def downloaded():
     return render_template("download/downloaded.html",
                            Count=len(Items),
                            Items=Items)
+
 
 # 数据统计页面
 @App.route('/statistics', methods=['POST', 'GET'])
@@ -573,6 +591,7 @@ def statistics():
                            SiteErr=SiteErrs,
                            SiteUserStatistics=SiteUserStatistics)
 
+
 # 刷流任务页面
 @App.route('/brushtask', methods=['POST', 'GET'])
 @login_required
@@ -591,6 +610,7 @@ def brushtask():
                            Tasks=Tasks,
                            Downloaders=Downloaders)
 
+
 # 自定义下载器页面
 @App.route('/userdownloader', methods=['POST', 'GET'])
 @login_required
@@ -599,6 +619,7 @@ def userdownloader():
     return render_template("download/userdownloader.html",
                            Count=len(downloaders),
                            Downloaders=downloaders)
+
 
 # 服务页面
 @App.route('/service', methods=['POST', 'GET'])
@@ -721,7 +742,7 @@ def service():
         '''
         scheduler_cfg_list.append(
             {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
-                'color': "orange"})
+             'color': "orange"})
     # 豆瓣同步
     douban_cfg = Config().get_config('douban')
     if douban_cfg:
@@ -826,6 +847,7 @@ def service():
                            RuleGroups=RuleGroups,
                            SchedulerTasks=scheduler_cfg_list)
 
+
 # 历史记录页面
 @App.route('/history', methods=['POST', 'GET'])
 @login_required
@@ -861,6 +883,7 @@ def history():
                            TotalPage=Result.get("totalPage"),
                            PageRange=PageRange,
                            PageNum=Result.get("currentPage"))
+
 
 # TMDB缓存页面
 @App.route('/tmdbcache', methods=['POST', 'GET'])
@@ -907,6 +930,7 @@ def tmdbcache():
                            PageRange=page_range,
                            PageNum=page_num)
 
+
 # 手工识别页面
 @App.route('/unidentification', methods=['POST', 'GET'])
 @login_required
@@ -915,6 +939,7 @@ def unidentification():
     return render_template("rename/unidentification.html",
                            TotalCount=len(Items),
                            Items=Items)
+
 
 # 文件管理页面
 @App.route('/mediafile', methods=['POST', 'GET'])
@@ -932,6 +957,7 @@ def mediafile():
     return render_template("rename/mediafile.html",
                            Dir=Dir)
 
+
 # 基础设置页面
 @App.route('/basic', methods=['POST', 'GET'])
 @login_required
@@ -943,6 +969,7 @@ def basic():
                            Config=Config().get_config(),
                            Proxy=proxy)
 
+
 # 自定义识别词设置页面
 @App.route('/customwords', methods=['POST', 'GET'])
 @login_required
@@ -951,6 +978,7 @@ def customwords():
     return render_template("setting/customwords.html",
                            Groups=groups,
                            GroupsCount=len(groups))
+
 
 # 目录同步页面
 @App.route('/directorysync', methods=['POST', 'GET'])
@@ -961,11 +989,13 @@ def directorysync():
                            SyncPaths=SyncPaths,
                            SyncCount=len(SyncPaths))
 
+
 # 豆瓣页面
 @App.route('/douban', methods=['POST', 'GET'])
 @login_required
 def douban():
     return render_template("setting/douban.html", Config=Config().get_config())
+
 
 # 下载器页面
 @App.route('/downloader', methods=['POST', 'GET'])
@@ -973,6 +1003,7 @@ def douban():
 def downloader():
     return render_template("setting/downloader.html",
                            Config=Config().get_config())
+
 
 # 下载设置页面
 @App.route('/download_setting', methods=['POST', 'GET'])
@@ -983,6 +1014,7 @@ def download_setting():
     return render_template("setting/download_setting.html",
                            DownloadSetting=DownloadSetting,
                            Count=Count)
+
 
 # 索引器页面
 @App.route('/indexer', methods=['POST', 'GET'])
@@ -997,11 +1029,13 @@ def indexer():
                            PublicCount=public_count,
                            Indexers=indexers)
 
+
 # 媒体库页面
 @App.route('/library', methods=['POST', 'GET'])
 @login_required
 def library():
     return render_template("setting/library.html", Config=Config().get_config())
+
 
 # 媒体服务器页面
 @App.route('/mediaserver', methods=['POST', 'GET'])
@@ -1009,11 +1043,13 @@ def library():
 def mediaserver():
     return render_template("setting/mediaserver.html", Config=Config().get_config())
 
+
 # 通知消息页面
 @App.route('/notification', methods=['POST', 'GET'])
 @login_required
 def notification():
     return render_template("setting/notification.html", Config=Config().get_config())
+
 
 # 字幕设置页面
 @App.route('/subtitle', methods=['POST', 'GET'])
@@ -1021,12 +1057,14 @@ def notification():
 def subtitle():
     return render_template("setting/subtitle.html", Config=Config().get_config())
 
+
 # 用户管理页面
 @App.route('/users', methods=['POST', 'GET'])
 @login_required
 def users():
     Users = WebAction().get_users().get("result")
     return render_template("setting/users.html", Users=Users, UserCount=len(Users))
+
 
 # 过滤规则设置页面
 @App.route('/filterrule', methods=['POST', 'GET'])
@@ -1037,6 +1075,7 @@ def filterrule():
                            Count=len(result.get("ruleGroups")),
                            RuleGroups=result.get("ruleGroups"),
                            Init_RuleGroups=result.get("initRules"))
+
 
 # 自定义订阅页面
 @App.route('/user_rss', methods=['POST', 'GET'])
@@ -1053,6 +1092,7 @@ def user_rss():
                            FilterRules=FilterRules,
                            DownloadSettings=DownloadSettings)
 
+
 # RSS解析器页面
 @App.route('/rss_parser', methods=['POST', 'GET'])
 @login_required
@@ -1061,6 +1101,7 @@ def rss_parser():
     return render_template("rss/rss_parser.html",
                            RssParsers=RssParsers,
                            Count=len(RssParsers))
+
 
 # 事件响应
 @App.route('/do', methods=['POST'])
@@ -1074,6 +1115,7 @@ def do():
     if data:
         data = json.loads(data)
     return WebAction().action(cmd, data)
+
 
 # 目录事件响应
 @App.route('/dirlist', methods=['POST'])
@@ -1116,10 +1158,12 @@ def dirlist():
     r.append('</ul>')
     return make_response(''.join(r), 200)
 
+
 # 禁止搜索引擎
 @App.route('/robots.txt', methods=['GET', 'POST'])
 def robots():
     return send_from_directory("", "robots.txt")
+
 
 # 响应企业微信消息
 @App.route('/wechat', methods=['GET', 'POST'])
@@ -1206,6 +1250,7 @@ def wechat():
             log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
             return make_response("ok", 200)
 
+
 # Plex Webhook
 @App.route('/plex', methods=['POST'])
 def plex_webhook():
@@ -1216,6 +1261,7 @@ def plex_webhook():
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
     WebhookEvent().plex_action(request_json)
     return 'Success'
+
 
 # Emby Webhook
 @App.route('/jellyfin', methods=['POST'])
@@ -1228,6 +1274,7 @@ def jellyfin_webhook():
     WebhookEvent().jellyfin_action(request_json)
     return 'Success'
 
+
 @App.route('/emby', methods=['POST'])
 # Emby Webhook
 def emby_webhook():
@@ -1238,6 +1285,7 @@ def emby_webhook():
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     WebhookEvent().emby_action(request_json)
     return 'Success'
+
 
 # Telegram消息
 @App.route('/telegram', methods=['POST', 'GET'])
@@ -1254,6 +1302,7 @@ def telegram():
         if text:
             WebAction().handle_message_job(text, SearchType.TG, user_id)
     return 'Success'
+
 
 # Jellyseerr Overseerr订阅接口
 @App.route('/subscribe', methods=['POST', 'GET'])
@@ -1300,6 +1349,7 @@ def subscribe():
     else:
         return make_response(msg, 500)
 
+
 @App.route('/backup', methods=['POST'])
 @login_required
 def backup():
@@ -1345,6 +1395,7 @@ def backup():
         return make_response("创建备份失败", 400)
     return send_file(zip_file)
 
+
 @App.route('/upload', methods=['POST'])
 @login_required
 def upload():
@@ -1357,20 +1408,24 @@ def upload():
         log.debug(e)
         return {"code": 1, "msg": str(e), "filepath": ""}
 
+
 # base64模板过滤器
 @App.template_filter('b64encode')
 def b64encode(s):
     return base64.b64encode(s.encode()).decode()
+
 
 # split模板过滤器
 @App.template_filter('split')
 def split(string, char, pos):
     return string.split(char)[pos]
 
+
 # 刷流规则过滤器
 @App.template_filter('brush_rule_string')
 def brush_rule_string(rules):
     return WebAction.parse_brush_rule_string(rules)
+
 
 # 大小格式化过滤器
 @App.template_filter('str_filesize')
