@@ -600,30 +600,30 @@ def userdownloader():
                            Count=len(downloaders),
                            Downloaders=downloaders)
 
-    # 服务页面
-    @App.route('/service', methods=['POST', 'GET'])
-    @login_required
-    def service():
-        scheduler_cfg_list = []
-        RuleGroups = Filter().get_rule_groups()
-        pt = Config().get_config('pt')
-        if pt:
-            # RSS订阅
-            pt_check_interval = pt.get('pt_check_interval')
-            if str(pt_check_interval).isdigit():
-                tim_rssdownload = str(round(int(pt_check_interval) / 60)) + " 分钟"
-                rss_state = 'ON'
-            else:
-                tim_rssdownload = ""
-                rss_state = 'OFF'
-            svg = '''
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4"></path>
-                     <line x1="12" y1="13" x2="12" y2="22"></line>
-                     <polyline points="9 19 12 22 15 19"></polyline>
-                </svg>
-            '''
+# 服务页面
+@App.route('/service', methods=['POST', 'GET'])
+@login_required
+def service():
+    scheduler_cfg_list = []
+    RuleGroups = Filter().get_rule_groups()
+    pt = Config().get_config('pt')
+    if pt:
+        # RSS订阅
+        pt_check_interval = pt.get('pt_check_interval')
+        if str(pt_check_interval).isdigit():
+            tim_rssdownload = str(round(int(pt_check_interval) / 60)) + " 分钟"
+            rss_state = 'ON'
+        else:
+            tim_rssdownload = ""
+            rss_state = 'OFF'
+        svg = '''
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4"></path>
+                 <line x1="12" y1="13" x2="12" y2="22"></line>
+                 <polyline points="9 19 12 22 15 19"></polyline>
+            </svg>
+        '''
 
         scheduler_cfg_list.append(
             {'name': 'RSS订阅', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
@@ -811,46 +811,46 @@ def userdownloader():
         {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
          "targets": targets})
 
-        # 备份
-        svg = '''
-        <svg t="1660720525544" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1559" width="16" height="16">
-        <path d="M646 1024H100A100 100 0 0 1 0 924V258a100 100 0 0 1 100-100h546a100 100 0 0 1 100 100v31a40 40 0 1 1-80 0v-31a20 20 0 0 0-20-20H100a20 20 0 0 0-20 20v666a20 20 0 0 0 20 20h546a20 20 0 0 0 20-20V713a40 40 0 0 1 80 0v211a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1560"></path>
-        <path d="M924 866H806a40 40 0 0 1 0-80h118a20 20 0 0 0 20-20V100a20 20 0 0 0-20-20H378a20 20 0 0 0-20 20v8a40 40 0 0 1-80 0v-8A100 100 0 0 1 378 0h546a100 100 0 0 1 100 100v666a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1561"></path>
-        <path d="M469 887a40 40 0 0 1-27-10L152 618a40 40 0 0 1 1-60l290-248a40 40 0 0 1 66 30v128a367 367 0 0 0 241-128l94-111a40 40 0 0 1 70 35l-26 109a430 430 0 0 1-379 332v142a40 40 0 0 1-40 40zM240 589l189 169v-91a40 40 0 0 1 40-40c144 0 269-85 323-214a447 447 0 0 1-323 137 40 40 0 0 1-40-40v-83z" fill="#ffffff" p-id="1562"></path>
-        </svg>
-        '''
-        scheduler_cfg_list.append(
-            {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'green'})
-        return render_template("service.html",
-                               Count=len(scheduler_cfg_list),
-                               RuleGroups=RuleGroups,
-                               SchedulerTasks=scheduler_cfg_list)
+    # 备份
+    svg = '''
+    <svg t="1660720525544" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1559" width="16" height="16">
+    <path d="M646 1024H100A100 100 0 0 1 0 924V258a100 100 0 0 1 100-100h546a100 100 0 0 1 100 100v31a40 40 0 1 1-80 0v-31a20 20 0 0 0-20-20H100a20 20 0 0 0-20 20v666a20 20 0 0 0 20 20h546a20 20 0 0 0 20-20V713a40 40 0 0 1 80 0v211a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1560"></path>
+    <path d="M924 866H806a40 40 0 0 1 0-80h118a20 20 0 0 0 20-20V100a20 20 0 0 0-20-20H378a20 20 0 0 0-20 20v8a40 40 0 0 1-80 0v-8A100 100 0 0 1 378 0h546a100 100 0 0 1 100 100v666a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1561"></path>
+    <path d="M469 887a40 40 0 0 1-27-10L152 618a40 40 0 0 1 1-60l290-248a40 40 0 0 1 66 30v128a367 367 0 0 0 241-128l94-111a40 40 0 0 1 70 35l-26 109a430 430 0 0 1-379 332v142a40 40 0 0 1-40 40zM240 589l189 169v-91a40 40 0 0 1 40-40c144 0 269-85 323-214a447 447 0 0 1-323 137 40 40 0 0 1-40-40v-83z" fill="#ffffff" p-id="1562"></path>
+    </svg>
+    '''
+    scheduler_cfg_list.append(
+        {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'green'})
+    return render_template("service.html",
+                           Count=len(scheduler_cfg_list),
+                           RuleGroups=RuleGroups,
+                           SchedulerTasks=scheduler_cfg_list)
 
-    # 历史记录页面
-    @App.route('/history', methods=['POST', 'GET'])
-    @login_required
-    def history():
-        pagenum = request.args.get("pagenum")
-        keyword = request.args.get("s") or ""
-        current_page = request.args.get("page")
-        Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
-        if Result.get("totalPage") <= 5:
+# 历史记录页面
+@App.route('/history', methods=['POST', 'GET'])
+@login_required
+def history():
+    pagenum = request.args.get("pagenum")
+    keyword = request.args.get("s") or ""
+    current_page = request.args.get("page")
+    Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
+    if Result.get("totalPage") <= 5:
+        StartPage = 1
+        EndPage = Result.get("totalPage")
+    else:
+        if Result.get("currentPage") <= 3:
             StartPage = 1
+            EndPage = 5
+        elif Result.get("currentPage") >= Result.get("totalPage") - 2:
+            StartPage = Result.get("totalPage") - 4
             EndPage = Result.get("totalPage")
         else:
-            if Result.get("currentPage") <= 3:
-                StartPage = 1
-                EndPage = 5
-            elif Result.get("currentPage") >= Result.get("totalPage") - 2:
-                StartPage = Result.get("totalPage") - 4
-                EndPage = Result.get("totalPage")
+            StartPage = Result.get("currentPage") - 2
+            if Result.get("totalPage") > Result.get("currentPage") + 2:
+                EndPage = Result.get("currentPage") + 2
             else:
-                StartPage = Result.get("currentPage") - 2
-                if Result.get("totalPage") > Result.get("currentPage") + 2:
-                    EndPage = Result.get("currentPage") + 2
-                else:
-                    EndPage = Result.get("totalPage")
-        PageRange = range(StartPage, EndPage + 1)
+                EndPage = Result.get("totalPage")
+    PageRange = range(StartPage, EndPage + 1)
 
     return render_template("rename/history.html",
                            TotalCount=Result.get("total"),
