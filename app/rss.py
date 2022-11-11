@@ -163,7 +163,7 @@ class Rss:
                                                     site_order=site_order,
                                                     enclosure=enclosure)
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
-                        match_info = self.filter.torrent_match_rss(
+                        match_flag, match_msg, match_info = self.filter.check_torrent_rss(
                             media_info=media_info,
                             rss_movies=rss_movies,
                             rss_tvs=rss_tvs,
@@ -171,8 +171,10 @@ class Rss:
                             site_cookie=site_cookie,
                             site_parse=site_parse,
                             site_ua=site_ua)
+                        for msg in match_msg:
+                            log_info(f"【Rss】{msg}")
                         # 未匹配
-                        if not match_info:
+                        if not match_flag:
                             continue
                         # 非模糊匹配命中
                         if not match_info.get("fuzzy_match"):

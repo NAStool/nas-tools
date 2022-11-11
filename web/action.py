@@ -1904,16 +1904,18 @@ class WebAction:
         title = data.get("title")
         subtitle = data.get("subtitle")
         size = data.get("size")
+        rulegroup = data.get("rulegroup")
         if not title:
             return {"code": -1}
         meta_info = MetaInfo(title=title, subtitle=subtitle)
         meta_info.size = float(size) * 1024 ** 3 if size else 0
-        match_flag, res_order, rule_name = Filter().check_rules(meta_info=meta_info)
+        match_flag, res_order, match_msg = \
+            Filter().check_torrent_filter(meta_info=meta_info,
+                                          filter_args={"rule": rulegroup})
         return {
             "code": 0,
             "flag": match_flag,
             "text": "匹配" if match_flag else "未匹配",
-            "name": rule_name if rule_name else "未设置默认规则",
             "order": 100 - res_order if res_order else 0
         }
 

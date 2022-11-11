@@ -312,28 +312,13 @@ class IIndexer(metaclass=ABCMeta):
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 continue
             # 检查订阅过滤规则匹配
-            if filter_args.get("rule"):
-                match_flag, res_order, _ = self.filter.check_rules(meta_info=meta_info,
-                                                                   rolegroup=filter_args.get("rule"))
-                if not match_flag:
-                    log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅/站点过滤规则")
-                    index_rule_fail += 1
-                    continue
-            # 使用默认规则
-            else:
-                match_flag, res_order, _ = self.filter.check_rules(meta_info=meta_info)
-                if match_type == 1 and not match_flag:
-                    log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合默认过滤规则")
-                    index_rule_fail += 1
-                    continue
-            # 有高级过滤条件时，先过滤一遍
-            if not self.filter.check_torrent_filter(meta_info=meta_info,
-                                               filter_args=filter_args,
-                                               uploadvolumefactor=uploadvolumefactor,
-                                               downloadvolumefactor=downloadvolumefactor):
-                log.info(f"【{self.index_type}】{torrent_name} 不符合高级过滤条件")
+            filter_args["rule"] = filter_args.get("rule") or -1
+            match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
+                                                                                filter_args=filter_args,
+                                                                                uploadvolumefactor=uploadvolumefactor,
+                                                                                downloadvolumefactor=downloadvolumefactor)
+            if not match_flag:
+                log.info(f"【{self.index_type}】{match_msg}")
                 index_rule_fail += 1
                 continue
             # 识别媒体信息
