@@ -107,16 +107,31 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-8">
+          <div class="col-lg-7">
             <div class="mb-3">
               <label class="form-label required">标题</label>
               <input type="text" value="" id="test_title" class="form-control" placeholder="种子名称">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-2">
             <div class="mb-3">
               <label class="form-label required">大小(GB)</label>
               <input type="text" value="" id="test_size" class="form-control" placeholder="种子大小">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">过滤规则</label>
+              <select class="form-select" id="test_rulegroup">
+                  {% if RuleGroups %}
+                  <option value="0">请选择</option>
+                  {% for RuleGroup in RuleGroups %}
+                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                  {% endfor %}
+                  {% else %}
+                  <option value="0">未配置</option>
+                  {% endif %}
+                </select>
             </div>
           </div>
         </div>
@@ -322,17 +337,29 @@
     } else {
       $("#test_size").removeClass("is-invalid");
     }
+    var rulegroup = $("#test_rulegroup").val();
+    if (rulegroup == "0") {
+      $("#test_rulegroup").addClass("is-invalid");
+      return;
+    } else {
+      $("#test_rulegroup").removeClass("is-invalid");
+    }
+
     var subtitle = $("#test_subtitle").val();
-    $("#ruletest_btn").text("测试中...");
-    $("#ruletest_btn").attr("disabled", true);
-    ajax_post("rule_test", { "title": title, "subtitle": subtitle, "size": size }, function (ret) {
+    $("#ruletest_btn").text("测试中...").attr("disabled", true);
+    var params = {
+      "title": title,
+      "size": size,
+      "rulegroup": rulegroup,
+      "subtitle": subtitle
+    };
+    ajax_post("rule_test", params, function (ret) {
       $("#ruletest_btn").text("测试");
       $("#ruletest_btn").attr("disabled", false);
       if (ret.code == 0) {
         $("#testrule_result").empty();
         if (ret.flag) {
           $("#testrule_result").append(`<span class="badge bg-green me-1 mb-1">${ret.text}</span>`);
-          $("#testrule_result").append(`<span class="badge badge-outline text-orange me-1 mb-1" title="命中规则组">${ret.name}</span>`);
           $("#testrule_result").append(`<span class="badge badge-outline text-blue me-1 mb-1" title="命中规则在规则组内的序号">优先级：${ret.order}</span>`);
         } else {
           $("#testrule_result").append(`<span class="badge bg-red me-1 mb-1">${ret.text}</span>`);

@@ -606,6 +606,7 @@ def create_flask_app():
     @login_required
     def service():
         scheduler_cfg_list = []
+        RuleGroups = Filter().get_rule_groups()
         pt = Config().get_config('pt')
         if pt:
             # RSS订阅
@@ -821,9 +822,9 @@ def create_flask_app():
         '''
         scheduler_cfg_list.append(
             {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'green'})
-
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
+                               RuleGroups=RuleGroups,
                                SchedulerTasks=scheduler_cfg_list)
 
     # 历史记录页面

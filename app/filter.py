@@ -3,7 +3,6 @@ import time
 import random
 from lxml import etree
 
-import log
 from app.helper import DbHelper
 from app.sites.sites import Sites
 from app.utils.commons import singleton
@@ -86,11 +85,11 @@ class Filter:
             return ret_rules[0] if ret_rules else {}
         return ret_rules
 
-    def check_rules(self, meta_info, rolegroup=None):
+    def check_rules(self, meta_info, rulegroup=None):
         """
         检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
         :param meta_info: 识别的信息
-        :param rolegroup: 规则组ID
+        :param rulegroup: 规则组ID
         :return: 是否匹配，匹配的优先值，规则名称，值越大越优先
         """
         if not meta_info:
@@ -99,13 +98,13 @@ class Filter:
             title = "%s %s" % (meta_info.org_string, meta_info.subtitle)
         else:
             title = meta_info.org_string
-        if not rolegroup:
-            rolegroup = self.get_rule_groups(default=True)
-            if not rolegroup:
+        if not rulegroup:
+            rulegroup = self.get_rule_groups(default=True)
+            if not rulegroup:
                 return True, 0, "未配置过滤规则"
         else:
-            rolegroup = self.get_rule_groups(groupid=rolegroup)
-        filters = self.get_rules(groupid=rolegroup.get("id"))
+            rulegroup = self.get_rule_groups(groupid=rulegroup)
+        filters = self.get_rules(groupid=rulegroup.get("id"))
         # 命中优先级
         order_seq = 0
         # 当前规则组是否命中
@@ -177,24 +176,24 @@ class Filter:
                     rule_match = False
 
             if rule_match:
-                return True, order_seq, rolegroup.get("name")
+                return True, order_seq, rulegroup.get("name")
             else:
                 group_match = False
         if not group_match:
-            return False, 0, rolegroup.get("name")
-        return True, order_seq, rolegroup.get("name")
+            return False, 0, rulegroup.get("name")
+        return True, order_seq, rulegroup.get("name")
 
-    def is_rule_free(self, rolegroup=None):
+    def is_rule_free(self, rulegroup=None):
         """
         判断规则中是否需要Free检测
         """
-        if not rolegroup:
-            rolegroup = self.get_rule_groups(default=True)
-            if not rolegroup:
+        if not rulegroup:
+            rulegroup = self.get_rule_groups(default=True)
+            if not rulegroup:
                 return True, 0, ""
         else:
-            rolegroup = self.get_rule_groups(groupid=rolegroup)
-        filters = self.get_rules(groupid=rolegroup.get("id"))
+            rulegroup = self.get_rule_groups(groupid=rulegroup)
+        filters = self.get_rules(groupid=rulegroup.get("id"))
         for filter_info in filters:
             if filter_info.get("free"):
                 return True
@@ -227,44 +226,73 @@ class Filter:
                 return False
         return True
 
-    @staticmethod
-    def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
+    def check_torrent_filter(self, meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
         """
         对种子进行过滤
         :param meta_info: 名称识别后的MetaBase对象
         :param filter_args: 过滤条件的字典
         :param uploadvolumefactor: 种子的上传因子 传空不过滤
         :param downloadvolumefactor: 种子的下载因子 传空不过滤
+        :return: 是否匹配，匹配的优先值，匹配信息，值越大越优先
         """
+        # 过滤质量
         if filter_args.get("restype"):
-            restype_re = TORRENT_SEARCH_PARAMS["restype"].get(str(filter_args.get("restype"))).get("re")
+            restype = TORRENT_SEARCH_PARAMS["restype"].get(str(filter_args.get("restype")))
+            restype_re = restype.get("re")
+            restype_name = restype.get("name")
             if not meta_info.resource_type:
-                return False
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.IGNORECASE):
-                return False
+                return False, 0, f"{meta_info.org_string} 不符合质量 {restype_name}要求"
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合质量 {restype_name}要求"
+        # 过滤分辨率
         if filter_args.get("pix"):
-            restype_re = TORRENT_SEARCH_PARAMS["pix"].get(str(filter_args.get("pix"))).get("re")
+            pix = TORRENT_SEARCH_PARAMS["pix"].get(str(filter_args.get("pix")))
+            pix_name = pix.get("name")
+            pix_re = pix.get("re")
             if not meta_info.resource_pix:
-                return False
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_pix, re.IGNORECASE):
-                return False
+                return False, 0, f"{meta_info.org_string} 不符合分辨率 {pix_name}要求"
+            if pix_re and not re.search(r"%s" % pix_re, meta_info.resource_pix, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合分辨率 {pix_name}要求"
+        # 过滤制作组/字幕组
         if filter_args.get("team"):
-            restype_re = filter_args.get("team")
+            team = filter_args.get("team")
             if not meta_info.resource_team:
-                return False
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_team, re.IGNORECASE):
-                return False
+                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team}要求"
+            if team and not re.search(r"%s" % team, meta_info.resource_team, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team}要求"
+        # 过滤促销
         if filter_args.get("sp_state"):
             ul_factor, dl_factor = filter_args.get("sp_state").split()
             if uploadvolumefactor and ul_factor not in ("*", str(uploadvolumefactor)):
-                return False
+                return False, 0, f"{meta_info.org_string} 不符合促销要求"
             if downloadvolumefactor and dl_factor not in ("*", str(downloadvolumefactor)):
-                return False
-        if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"),
-                                                    meta_info.org_string,
-                                                    re.IGNORECASE):
-            return False
-        return True
+                return False, 0, f"{meta_info.org_string} 不符合促销要求"
+        # 过滤关键字
+        if filter_args.get("key"):
+            key = filter_args.get("key")
+            if not re.search(r"%s" % key, meta_info.org_string, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合 {key}要求"
+        # 过滤过滤规则
+        if filter_args.get("rule"):
+            rule_group = filter_args.get("rule")
+            if rule_group == -1:
+                match_flag, order_seq, match_msg = self.check_rules(meta_info)
+                match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s要求" % (
+                    meta_info.org_string,
+                    StringUtils.str_filesize(meta_info.size),
+                    meta_info.get_volume_factor_string(),
+                    match_msg
+                )
+                return match_flag, order_seq, match_msg
+            match_flag, order_seq, match_msg = self.check_rules(meta_info, rule_group)
+            match_msg = "%s 大小：%s 促销：%s 不符合默认过滤规则 %s要求" % (
+                meta_info.org_string,
+                StringUtils.str_filesize(meta_info.size),
+                meta_info.get_volume_factor_string(),
+                match_msg
+            )
+            return match_flag, order_seq, match_msg
+        return True, 0, ""
 
     def check_torrent_attr(self, torrent_url, cookie, ua=None):
         """
@@ -316,7 +344,7 @@ class Filter:
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr
 
-    def torrent_match_rss(self,
+    def check_torrent_rss(self,
                           media_info,
                           rss_movies,
                           rss_tvs,
@@ -338,7 +366,8 @@ class Filter:
         # 默认值
         # 匹配状态 0不在订阅范围内 -1不符合过滤条件 1匹配
         match_flag = False
-        # 匹配上的rss
+        # 匹配的rss信息
+        match_msg = []
         match_rss_info = {}
         # 上传因素
         upload_volume_factor = None
@@ -386,6 +415,7 @@ class Filter:
                 # 媒体匹配成功
                 match_flag = True
                 match_rss_info = rss_info
+
                 break
         # 匹配电视剧
         elif rss_tvs:
@@ -400,6 +430,8 @@ class Filter:
                 name = rss_info.get('name')
                 year = rss_info.get('year')
                 season = rss_info.get('season')
+                total = rss_info.get('total')
+                current = rss_info.get('current')
                 tmdbid = rss_info.get('tmdbid')
                 fuzzy_match = rss_info.get('fuzzy_match')
                 # 非模糊匹配
@@ -420,7 +452,7 @@ class Filter:
                         continue
                 # 模糊匹配
                 else:
-                    # 匹配季
+                    # 匹配季，季可以为空
                     if season and season != "S00" and season != media_info.get_season_string():
                         continue
                     # 匹配年份
@@ -436,17 +468,6 @@ class Filter:
                 break
         # 名称匹配成功，开始过滤
         if match_flag:
-            # 过滤质量、分辨率、制作组/字幕组
-            filter_dict = {
-                "restype": match_rss_info.get('filter_restype'),
-                "pix": match_rss_info.get('filter_pix'),
-                "team": match_rss_info.get('filter_team'),
-            }
-            if not self.check_torrent_filter(meta_info=media_info,
-                                             filter_args=filter_dict):
-                log_info(
-                    f"【Rss】{media_info.org_string} 不符合质量、分辨率、制作组/字幕组要求")
-                return {}
             # 解析种子详情
             if site_parse:
                 # 检测Free
@@ -469,42 +490,32 @@ class Filter:
                                             download_volume_factor=download_volume_factor,
                                             hit_and_run=hit_and_run)
             # 订阅无过滤规则应用站点设置
-            filter_rule = match_rss_info.get('filter_rule') or site_filter_rule
-            match_flag, res_order, rule_name = self.check_rules(meta_info=media_info,
-                                                                           rolegroup=filter_rule)
-            if not match_flag:
-                log_info(
-                    f"【Rss】{media_info.org_string} "
-                    f"大小：{StringUtils.str_filesize(media_info.size)} "
-                    f"促销：{media_info.get_volume_factor_string()} "
-                    f"不符合过滤规则：{rule_name}")
-                return {}
+            # 过滤质
+            filter_dict = {
+                "restype": match_rss_info.get('filter_restype'),
+                "pix": match_rss_info.get('filter_pix'),
+                "team": match_rss_info.get('filter_team'),
+                "rule": match_rss_info.get('filter_rule') or site_filter_rule or -1
+            }
+            match_filter_flag, res_order, match_filter_msg = self.check_torrent_filter(meta_info=media_info,
+                                                                                       filter_args=filter_dict)
+            if not match_filter_flag:
+                match_msg.append(match_filter_msg)
+                return False, match_msg, match_rss_info
             else:
-                log_info("【Rss】%s 识别为 %s %s 匹配订阅成功" % (
+                match_msg.append("%s 识别为 %s %s 匹配订阅成功" % (
                     media_info.org_string,
                     media_info.get_title_string(),
                     media_info.get_season_episode_string()))
-                log_info("【Rss】种子描述：%s" % media_info.subtitle)
+                match_msg.append(f"种子描述：{media_info.subtitle}")
                 match_rss_info.update({
                     "res_order": res_order,
                     "upload_volume_factor": upload_volume_factor,
                     "download_volume_factor": download_volume_factor})
-                return match_rss_info
+                return True, match_msg, match_rss_info
         else:
-            log_info("【Rss】%s 识别为 %s %s 不在订阅范围" % (
+            match_msg.append("%s 识别为 %s %s 不在订阅范围" % (
                 media_info.org_string,
                 media_info.get_title_string(),
                 media_info.get_season_episode_string()))
-            return {}
-
-
-def log_info(text):
-    log.info(text, module="filter")
-
-
-def log_warn(text):
-    log.warn(text, module="filter")
-
-
-def log_error(text):
-    log.error(text, module="filter")
+            return False, match_msg, match_rss_info
