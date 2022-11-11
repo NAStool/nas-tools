@@ -85,7 +85,7 @@ worker_class = 'sync'
 threads = 8
 # 设置最大并发量
 worker_connections = 1000
-timeout = 30
+timeout = 0
 keepalive = 2
 
 # 日志级别，这个日志级别指的是错误日志的级别，而访问日志的级别无法设置
@@ -102,8 +102,7 @@ keepalive = 2
 #
 
 errorlog = "-"
-loglevel = "error"
-accesslog = "-"
+loglevel = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
 #
