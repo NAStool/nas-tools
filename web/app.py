@@ -1,6 +1,6 @@
 import log
 from config import Config
-from web.main import create_flask_app
+from web.main import App
 
 
 class FlaskApp:
@@ -24,7 +24,7 @@ class FlaskApp:
             self.__ssl_key = app.get('ssl_key')
         if not self.__web_port:
             self.__web_port = 3000
-        self.__app = create_flask_app()
+        self.__app = App
 
     def run_service(self):
         try:
