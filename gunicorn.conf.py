@@ -27,7 +27,6 @@ if __ssl_cert and __ssl_key:
     keyfile = __ssl_key
     certfile = __ssl_cert
 
-
 #
 # Server socket
 #
@@ -173,6 +172,7 @@ spew = False
 #
 
 daemon = False
+
 
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)

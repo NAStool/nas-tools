@@ -57,7 +57,6 @@ if is_docker:
 else:
     display = None
 
-
 from config import Config
 from app.utils import StringUtils
 from app.brushtask import BrushTask
@@ -395,15 +394,13 @@ def update_config(cfg):
         cfg.save_config(_config)
 
 
-config = Config()
-
-def get_run_config():
+def get_run_config(cfg):
     __web_host = "::"
     __web_port = 3000
     __ssl_cert = None
     __ssl_key = None
 
-    app_conf = config.get_config('app')
+    app_conf = cfg.get_config('app')
     if app_conf:
         if app_conf.get("web_host"):
             __web_host = app_conf.get("web_host")
@@ -411,48 +408,10 @@ def get_run_config():
         __ssl_cert = app_conf.get('ssl_cert')
         __ssl_key = app_conf.get('ssl_key')
 
-
     app_arg = dict(host=__web_host, port=__web_port, debug=False, threaded=True, use_reloader=False)
     if __ssl_cert:
         app_arg['ssl_context'] = (__ssl_cert, __ssl_key)
     return app_arg
-
-
-
-# 数据库初始化
-init_db()
-
-# 数据库更新
-update_db(config)
-
-# 升级配置文件
-update_config(config)
-
-# 检查配置文件
-if not check_config(config):
-    sys.exit()
-
-# 启动进程
-log.console("开始启动进程...")
-
-# 退出事件
-signal.signal(signal.SIGINT, sigal_handler)
-signal.signal(signal.SIGTERM, sigal_handler)
-
-# 启动定时服务
-run_scheduler()
-
-# 启动监控服务
-run_monitor()
-
-# 启动刷流服务
-BrushTask()
-
-# 启动自定义订阅服务
-RssChecker()
-
-# 加载索引器配置
-IndexerHelper()
 
 
 if __name__ == '__main__':
@@ -460,6 +419,44 @@ if __name__ == '__main__':
     os.environ['TZ'] = 'Asia/Shanghai'
     log.console("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     log.console('NASTool 当前版本号：%s' % APP_VERSION)
+
+    # 读取配置
+    config = Config()
+
+    # 数据库初始化
+    init_db()
+
+    # 数据库更新
+    update_db(config)
+
+    # 升级配置文件
+    update_config(config)
+
+    # 检查配置文件
+    if not check_config(config):
+        sys.exit()
+
+    # 启动进程
+    log.console("开始启动进程...")
+
+    # 退出事件
+    signal.signal(signal.SIGINT, sigal_handler)
+    signal.signal(signal.SIGTERM, sigal_handler)
+
+    # 启动定时服务
+    run_scheduler()
+
+    # 启动监控服务
+    run_monitor()
+
+    # 启动刷流服务
+    BrushTask()
+
+    # 启动自定义订阅服务
+    RssChecker()
+
+    # 加载索引器配置
+    IndexerHelper()
 
     # Windows启动托盘
     if is_windows_exe:
@@ -477,4 +474,5 @@ if __name__ == '__main__':
             p1 = threading.Thread(target=traystart, daemon=True)
             p1.start()
 
-    nastool.run(**get_run_config())
+    # gunicorn 启动
+    nastool.run(**get_run_config(config))
