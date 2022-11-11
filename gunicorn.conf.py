@@ -7,8 +7,8 @@ from config import Config
 # 这里读取配置文件进行启动项参数的入参
 app_conf = Config().get_config('app')
 if app_conf:
-    _web_host = app_conf.get("web_host") if app_conf.get("web_host") else '::'
-    _web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port', '')).isdigit() else 3000
+    _web_host = app_conf.get("web_host") if app_conf.get("web_host") else '0.0.0.0'
+    _web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port')).isdigit() else 3000
     bind = f"{_web_host}:{_web_port}"
     keyfile = app_conf.get('ssl_cert')
     certfile = app_conf.get('ssl_key')
