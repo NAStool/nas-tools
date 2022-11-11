@@ -103,7 +103,6 @@ keepalive = 2
 
 errorlog = "-"
 loglevel = "info"
-access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
 #
 #   spew - Install a trace function that spews every line of Python
