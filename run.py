@@ -417,50 +417,51 @@ def get_run_config(cfg):
     return app_arg
 
 
+# 开始启动附属程序
+os.environ['TZ'] = 'Asia/Shanghai'
+log.console("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
+log.console('NASTool 当前版本号：%s' % APP_VERSION)
+
+# 配置
+config = Config()
+
+# 数据库初始化
+init_db()
+
+# 数据库更新
+update_db(config)
+
+# 升级配置文件
+update_config(config)
+
+# 检查配置文件
+if not check_config(config):
+    sys.exit()
+
+# 启动进程
+log.console("开始启动进程...")
+
+# 退出事件
+signal.signal(signal.SIGINT, sigal_handler)
+signal.signal(signal.SIGTERM, sigal_handler)
+
+# 启动定时服务
+run_scheduler()
+
+# 启动监控服务
+run_monitor()
+
+# 启动刷流服务
+BrushTask()
+
+# 启动自定义订阅服务
+RssChecker()
+
+# 加载索引器配置
+IndexerHelper()
+
+# 本地运行
 if __name__ == '__main__':
-    # 参数
-    os.environ['TZ'] = 'Asia/Shanghai'
-    log.console("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
-    log.console('NASTool 当前版本号：%s' % APP_VERSION)
-
-    # 读取配置
-    config = Config()
-
-    # 数据库初始化
-    init_db()
-
-    # 数据库更新
-    update_db(config)
-
-    # 升级配置文件
-    update_config(config)
-
-    # 检查配置文件
-    if not check_config(config):
-        sys.exit()
-
-    # 启动进程
-    log.console("开始启动进程...")
-
-    # 退出事件
-    signal.signal(signal.SIGINT, sigal_handler)
-    signal.signal(signal.SIGTERM, sigal_handler)
-
-    # 启动定时服务
-    run_scheduler()
-
-    # 启动监控服务
-    run_monitor()
-
-    # 启动刷流服务
-    BrushTask()
-
-    # 启动自定义订阅服务
-    RssChecker()
-
-    # 加载索引器配置
-    IndexerHelper()
-
     # Windows启动托盘
     if is_windows_exe:
         homepage = config.get_config('app').get('domain')
