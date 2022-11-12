@@ -108,7 +108,9 @@ class MetaBase(object):
     # 订阅ID
     rssid = None
     # 保存目录
-    save_dir = None
+    save_path = None
+    # 下载设置
+    download_setting = None
     # 识别辅助
     ignored_words = None
     replaced_words = None
