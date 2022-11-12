@@ -31,7 +31,7 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import DomUtils, SystemUtils, WebUtils
 from app.utils.types import *
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, \
+from config import MESSAGE_SETTING, WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, \
     Config
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
@@ -1048,7 +1048,13 @@ def mediaserver():
 @App.route('/notification', methods=['POST', 'GET'])
 @login_required
 def notification():
-    return render_template("setting/notification.html", Config=Config().get_config())
+    MessageClients = Message().get_message_client_info()
+    Channels = MESSAGE_SETTING.get("channel")
+    Switchs = MESSAGE_SETTING.get("switch")
+    return render_template("setting/notification.html",
+                           Channels=Channels,
+                           Switchs=Switchs,
+                           MessageClients=MessageClients)
 
 
 # 字幕设置页面

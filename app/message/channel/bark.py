@@ -1,7 +1,6 @@
 from urllib.parse import quote_plus
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 
@@ -9,16 +8,18 @@ from app.utils import RequestUtils
 class Bark(IMessageChannel):
     __server = None
     __apikey = None
+    name = None
+    type = "Bark"
 
-    def __init__(self):
+    def __init__(self, config, name=None):
+        self.__client_config = config
+        self.name = name if name else ""
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self.__server = message.get('bark', {}).get('server')
-            self.__apikey = message.get('bark', {}).get('apikey')
+        if self.__client_config:
+            self.__server = self.__client_config.get('server')
+            self.__apikey = self.__client_config.get('apikey')
 
     def get_status(self):
         """

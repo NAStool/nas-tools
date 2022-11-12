@@ -22,32 +22,27 @@ class Telegram(IMessageChannel):
     __domain = None
     __config = None
     __message_proxy_event = None
+    name = None
+    type = "Telegram"
 
-    def __init__(self):
+    def __init__(self, config, name=None):
+        self.__config = Config()
+        self.__client_config = config
+        self.__domain = Config().get_domain()
+        self.name = name if name else ""
         self.init_config()
 
     def init_config(self):
-        self.__config = Config()
-        app = self.__config.get_config('app')
-        if app:
-            self.__domain = app.get('domain')
-            if self.__domain:
-                if not self.__domain.startswith('http'):
-                    self.__domain = "http://" + self.__domain
-                if not self.__domain.endswith('/'):
-                    self.__domain = self.__domain + "/"
-        message = self.__config.get_config('message')
-        if message:
-            self.__telegram_token = message.get('telegram', {}).get('telegram_token')
-            self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
-            telegram_user_ids = message.get('telegram', {}).get('telegram_user_ids')
+        if self.__client_config:
+            self.__telegram_token = self.__client_config.get('token')
+            self.__telegram_chat_id = self.__client_config.get('chat_id')
+            telegram_user_ids = self.__client_config.get('user_ids')
             if telegram_user_ids:
                 self.__telegram_user_ids = telegram_user_ids.split(",")
             else:
                 self.__telegram_user_ids = []
-            if self.__telegram_token \
-                    and self.__telegram_chat_id:
-                if message.get('telegram', {}).get('webhook'):
+            if self.__telegram_token and self.__telegram_chat_id:
+                if self.__client_config.get('webhook') or str(self.__client_config.get('webhook')) == "1":
                     if self.__domain:
                         self.__webhook_url = "%stelegram" % self.__domain
                         self.__set_bot_webhook()

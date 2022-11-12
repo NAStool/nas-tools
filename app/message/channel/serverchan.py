@@ -1,22 +1,23 @@
 from urllib.parse import urlencode
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 
 
 class ServerChan(IMessageChannel):
     __sckey = None
+    name = None
+    type = "ServerChan"
 
-    def __init__(self):
+    def __init__(self, config, name=None):
+        self.__client_config = config
+        self.name = name if name else ""
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self.__sckey = message.get('serverchan', {}).get('sckey')
+        if self.__client_config:
+            self.__sckey = self.__client_config.get('sckey')
 
     def get_status(self):
         """

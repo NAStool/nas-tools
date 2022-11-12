@@ -3,7 +3,7 @@ import threading
 from datetime import datetime
 
 import log
-from config import Config, DEFAULT_WECHAT_PROXY
+from config import DEFAULT_WECHAT_PROXY
 from app.message.channel.channel import IMessageChannel
 from app.utils.commons import singleton
 from app.utils import RequestUtils
@@ -26,17 +26,20 @@ class WeChat(IMessageChannel):
     __send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
     __token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
-    def __init__(self):
+    name = None
+    type = "WeChat"
+
+    def __init__(self, config, name=None):
+        self.__client_config = config
+        self.name = name if name else ""
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self.__corpid = message.get('wechat', {}).get('corpid')
-            self.__corpsecret = message.get('wechat', {}).get('corpsecret')
-            self.__agent_id = message.get('wechat', {}).get('agentid')
-            self.__default_proxy = message.get('wechat', {}).get('default_proxy')
+        if self.__client_config:
+            self.__corpid = self.__client_config.get('corpid')
+            self.__corpsecret = self.__client_config.get('corpsecret')
+            self.__agent_id = self.__client_config.get('agentid')
+            self.__default_proxy = self.__client_config.get('default_proxy')
         if self.__default_proxy:
             if isinstance(self.__default_proxy, bool):
                 self.__send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"

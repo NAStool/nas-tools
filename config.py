@@ -91,7 +91,7 @@ KEYWORD_DIFF_SCORE_THRESHOLD = 30
 KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版', '法语',
                      '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
-#  网络测试对象
+# 网络测试对象
 NETTEST_TARGETS = ["www.themoviedb.org",
                    "api.themoviedb.org",
                    "api.tmdb.org",
@@ -100,7 +100,30 @@ NETTEST_TARGETS = ["www.themoviedb.org",
                    "api.telegram.org",
                    "qyapi.weixin.qq.com",
                    "www.opensubtitles.org"]
-
+# 消息通知类型
+MESSAGE_SETTING = {
+    "channel": {
+        "1": {"name": "Telegram", "img_url": "../static/img/telegram.png"},
+        "2": {"name": "WeChat", "img_url": "../static/img/wechat.png"},
+        "3": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
+        "4": {"name": "Bark", "img_url": "../static/img/bark.webp"},
+        "5": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
+        "6": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"}
+    },
+    "switch": {
+        "11": {"name": "新增下载", "fuc_name": "download_start"},
+        "12": {"name": "下载失败", "fuc_name": "download_fail"},
+        "21": {"name": "转移完成", "fuc_name": "transfer_finished"},
+        "22": {"name": "转移失败", "fuc_name": "transfer_fail"},
+        "31": {"name": "新增订阅", "fuc_name": "rss_added"},
+        "32": {"name": "订阅完成", "fuc_name": "rss_finished"},
+        "41": {"name": "站点签到", "fuc_name": "site_signin"},
+        "42": {"name": "站点消息", "fuc_name": "site_message"},
+        "51": {"name": "刷流下种", "fuc_name": "brushtask_added"},
+        "52": {"name": "刷流删种", "fuc_name": "brushtask_remove"},
+        "61": {"name": "媒体服务", "fuc_name": "mediaserver_message"},
+    }
+}
 # 站点签到支持的识别XPATH
 SITE_CHECKIN_XPATH = [
     '//a[@id="signed"]',
@@ -185,3 +208,9 @@ class Config(object):
 
     def get_inner_config_path(self):
         return os.path.join(self.get_root_path(), "config")
+
+    def get_domain(self):
+        domain = (self.get_config('app') or {}).get('domain')
+        if domain and not domain.startswith('http'):
+            domain = "http://" + domain
+        return domain
