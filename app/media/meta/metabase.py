@@ -81,7 +81,8 @@ class MetaBase(object):
     # 本地状态 1-已订阅 2-已存在
     fav = 0
     # 站点列表
-    sites = []
+    rss_sites = []
+    search_sites = []
     # 种子附加信息
     # 站点名称
     site = None

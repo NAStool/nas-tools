@@ -343,9 +343,9 @@ class StringUtils:
         if not content:
             return []
         id_list = []
+        content_list = content.split()
         for dic in dicts:
-            if content.find(dic['name']) != -1:
-                if dic['id'] not in id_list:
-                    id_list.append(dic['id'])
-                    content = content.replace(dic['name'], '')
+            if dic.get('name') in content_list and dic.get('id') not in id_list:
+                id_list.append(dic.get('id'))
+                content = content.replace(dic.get('name'), '')
         return id_list, re.sub(r'\s+', ' ', content).strip()

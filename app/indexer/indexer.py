@@ -367,9 +367,9 @@ class IIndexer(metaclass=ABCMeta):
 
             # 检查标题是否匹配季、集、年
             if not self.filter.is_torrent_match_sey(media_info,
-                                               filter_args.get("season"),
-                                               filter_args.get("episode"),
-                                               filter_args.get("year")):
+                                                    filter_args.get("season"),
+                                                    filter_args.get("episode"),
+                                                    filter_args.get("year")):
                 log.info(
                     f"【{self.index_type}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1
