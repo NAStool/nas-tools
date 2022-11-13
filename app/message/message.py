@@ -78,6 +78,7 @@ class Message:
                 "type": ctype,
                 "search_type": self.MESSAGE_DICT.get('channel').get(ctype, {}).get('search_type'),
                 "client": self.__build_client(ctype, config),
+                "config": config,
                 "switchs": switchs,
                 "interactive": interactive
             })

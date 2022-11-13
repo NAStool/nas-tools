@@ -230,7 +230,7 @@ class WebAction:
         os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
     @staticmethod
-    def handle_message_job(msg, in_from=SearchType.OT, user_id=None):
+    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None):
         """
         处理消息事件
         """
@@ -246,10 +246,7 @@ class WebAction:
         }
         command = commands.get(msg)
         message = Message()
-        interactive_client = message.get_interactive_client()
-        # 检查用户权限
-        if in_from != interactive_client.get("search_type"):
-            return
+
         if command:
             if in_from == SearchType.TG:
                 if str(user_id) != interactive_client.get("client").get_admin_user():

@@ -1176,10 +1176,15 @@ def robots():
 # 响应企业微信消息
 @App.route('/wechat', methods=['GET', 'POST'])
 def wechat():
-    message = Config().get_config('message')
-    sToken = message.get('wechat', {}).get('Token')
-    sEncodingAESKey = message.get('wechat', {}).get('EncodingAESKey')
-    sCorpID = message.get('wechat', {}).get('corpid')
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client()
+    if not interactive_client or interactive_client.get("search_type") != SearchType.WX:
+        return
+    # 读取配置
+    conf = interactive_client.get("config")
+    sToken = conf.get('Token')
+    sEncodingAESKey = conf.get('EncodingAESKey')
+    sCorpID = conf.get('corpid')
     if not sToken or not sEncodingAESKey or not sCorpID:
         return
     wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
@@ -1252,7 +1257,10 @@ def wechat():
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
                 # 处理消息内容
-                WebAction().handle_message_job(content, SearchType.WX, user_id)
+                WebAction().handle_message_job(msg=content,
+                                               client=interactive_client,
+                                               in_from=SearchType.WX,
+                                               user_id=user_id)
             return make_response(content, 200)
         except Exception as err:
             log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -1298,6 +1306,10 @@ def emby_webhook():
 # Telegram消息
 @App.route('/telegram', methods=['POST', 'GET'])
 def telegram():
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client()
+    if not interactive_client or interactive_client.get("search_type") != SearchType.TG:
+        return
     msg_json = request.get_json()
     if not SecurityHelper().check_telegram_ip(request.remote_addr):
         log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
@@ -1308,7 +1320,10 @@ def telegram():
         user_id = message.get("from", {}).get("id")
         log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
         if text:
-            WebAction().handle_message_job(text, SearchType.TG, user_id)
+            WebAction().handle_message_job(msg=text,
+                                           client=interactive_client,
+                                           in_from=SearchType.TG,
+                                           user_id=user_id)
     return 'Success'
 
 

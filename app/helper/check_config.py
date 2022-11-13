@@ -117,42 +117,6 @@ def check_config(config):
     else:
         log.error("配置文件格式错误，找不到media配置项！")
 
-    # 检查消息配置
-    if config.get_config('message'):
-        msg_channel = config.get_config('message').get('msg_channel')
-        if not msg_channel:
-            log.warn("消息通知渠道未配置，将无法接收到通知消息")
-        elif msg_channel == "wechat":
-            corpid = config.get_config('message').get('wechat', {}).get('corpid')
-            corpsecret = config.get_config('message').get('wechat', {}).get('corpsecret')
-            agentid = config.get_config('message').get('wechat', {}).get('agentid')
-            if not corpid or not corpsecret or not agentid:
-                log.warn("微信配置不完整，将无法接收到通知消息！")
-            Token = config.get_config('message').get('wechat', {}).get('Token')
-            EncodingAESKey = config.get_config('message').get('wechat', {}).get('EncodingAESKey')
-            if not Token or not EncodingAESKey:
-                log.warn("微信Token、EncodingAESKey未配置，微信控制功能将无法使用")
-        elif msg_channel == "serverchan":
-            sckey = config.get_config('message').get('serverchan', {}).get('sckey')
-            if not sckey:
-                log.warn("Server酱未配置，将无法接收到通知消息！")
-        elif msg_channel == "telegram":
-            telegram_token = config.get_config('message').get('telegram', {}).get('telegram_token')
-            telegram_chat_id = config.get_config('message').get('telegram', {}).get('telegram_chat_id')
-            if not telegram_token or not telegram_chat_id:
-                log.warn("Telegram配置不完整，将无法接收到通知消息！")
-        elif msg_channel == "pushplus":
-            pushplus_token = config.get_config('message').get('pushplus', {}).get('push_token')
-            pushplus_channel = config.get_config('message').get('pushplus', {}).get('push_channel')
-            if not pushplus_token or not pushplus_channel:
-                log.warn("PushPlus配置不完整，将无法接收到通知消息！")
-    else:
-        log.error("配置文件格式错误，找不到message配置项！")
-
-    # 检查目录同步
-    if not config.get_config('sync'):
-        log.error("配置文件格式错误，找不到sync配置项！")
-
     # 检查站点配置
     if config.get_config('pt'):
         pt_client = config.get_config('pt').get('pt_client')
@@ -160,17 +124,17 @@ def check_config(config):
 
         rmt_mode = config.get_config('pt').get('rmt_mode', 'copy')
         if rmt_mode == "link":
-            log.info("下载文件转移模式为：硬链接")
+            log.info("默认文件转移模式为：硬链接")
         elif rmt_mode == "softlink":
-            log.info("下载文件转移模式为：软链接")
+            log.info("默认文件转移模式为：软链接")
         elif rmt_mode == "move":
-            log.info("下载文件转移模式为：移动")
+            log.info("默认文件转移模式为：移动")
         elif rmt_mode == "rclone":
-            log.info("下载文件转移模式为：rclone移动")
+            log.info("默认文件转移模式为：rclone移动")
         elif rmt_mode == "rclonecopy":
-            log.info("下载文件转移模式为：rclone复制")
+            log.info("默认文件转移模式为：rclone复制")
         else:
-            log.info("下载文件转移模式为：复制")
+            log.info("默认文件转移模式为：复制")
 
         search_indexer = config.get_config('pt').get('search_indexer')
         if search_indexer:
