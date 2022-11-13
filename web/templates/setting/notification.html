@@ -68,19 +68,19 @@
                   <small>
                     {% for SwitchID in Switchs %}
                       {% if not Attr.switchs or SwitchID in Attr.switchs %}
-                      <span class="badge badge-outline
+                      <span class="badge
                       {% if "download" in SwitchID %}
-                      text-blue
+                      bg-blue-lt
                       {% elif "transfer" in SwitchID %}
-                      text-azure
+                      bg-azure-lt
                       {% elif "rss" in SwitchID %}
-                      text-indigo
+                      bg-indigo-lt
                       {% elif "site" in SwitchID %}
-                      text-purple
+                      bg-purple-lt
                       {% elif "brushtask" in SwitchID %}
-                      text-pink
+                      bg-pink-lt
                       {% elif "mediaserver" in SwitchID %}
-                      text-orange
+                      bg-orange-lt
                       {% endif %}
                       me-1 mb-1">{{ Switchs[SwitchID].name }}</span>
                       {% endif %}
