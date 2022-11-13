@@ -11,41 +11,37 @@ lock = threading.Lock()
 
 
 class WeChat(IMessageChannel):
-    __instance = None
-    __access_token = None
-    __expires_in = None
-    __access_token_time = None
-    __default_proxy = False
+    _instance = None
+    _access_token = None
+    _expires_in = None
+    _access_token_time = None
+    _default_proxy = False
+    _client_config = {}
+    _corpid = None
+    _corpsecret = None
+    _agent_id = None
 
-    __corpid = None
-    __corpsecret = None
-    __agent_id = None
+    _send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
+    _token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
-    __send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
-    __token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
-
-    name = None
-    type = "WeChat"
-
-    def __init__(self, config, name=None):
-        self.__client_config = config
-        self.name = name if name else ""
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        if self.__client_config:
-            self.__corpid = self.__client_config.get('corpid')
-            self.__corpsecret = self.__client_config.get('corpsecret')
-            self.__agent_id = self.__client_config.get('agentid')
-            self.__default_proxy = self.__client_config.get('default_proxy')
-        if self.__default_proxy:
-            if isinstance(self.__default_proxy, bool):
-                self.__send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"
-                self.__token_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
+        if self._client_config:
+            self._corpid = self._client_config.get('corpid')
+            self._corpsecret = self._client_config.get('corpsecret')
+            self._agent_id = self._client_config.get('agentid')
+            self._default_proxy = self._client_config.get('default_proxy')
+        if self._default_proxy:
+            if isinstance(self._default_proxy, bool):
+                self._send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"
+                self._token_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
             else:
-                self.__send_msg_url = f"{self.__default_proxy}/cgi-bin/message/send?access_token=%s"
-                self.__token_url = f"{self.__default_proxy}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
-        if self.__corpid and self.__corpsecret and self.__agent_id:
+                self._send_msg_url = f"{self._default_proxy}/cgi-bin/message/send?access_token=%s"
+                self._token_url = f"{self._default_proxy}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
+        if self._corpid and self._corpsecret and self._agent_id:
             self.__get_access_token()
 
     def __get_access_token(self, force=False):
@@ -54,28 +50,28 @@ class WeChat(IMessageChannel):
         :return： 微信Token
         """
         token_flag = True
-        if not self.__access_token:
+        if not self._access_token:
             token_flag = False
         else:
-            if (datetime.now() - self.__access_token_time).seconds >= self.__expires_in:
+            if (datetime.now() - self._access_token_time).seconds >= self._expires_in:
                 token_flag = False
 
         if not token_flag or force:
-            if not self.__corpid or not self.__corpsecret:
+            if not self._corpid or not self._corpsecret:
                 return None
             try:
-                token_url = self.__token_url % (self.__corpid, self.__corpsecret)
+                token_url = self._token_url % (self._corpid, self._corpsecret)
                 res = RequestUtils().get_res(token_url)
                 if res:
                     ret_json = res.json()
                     if ret_json.get('errcode') == 0:
-                        self.__access_token = ret_json.get('access_token')
-                        self.__expires_in = ret_json.get('expires_in')
-                        self.__access_token_time = datetime.now()
+                        self._access_token = ret_json.get('access_token')
+                        self._expires_in = ret_json.get('expires_in')
+                        self._access_token_time = datetime.now()
             except Exception as e:
                 log.console(str(e))
                 return None
-        return self.__access_token
+        return self._access_token
 
     def get_status(self):
         """
@@ -96,7 +92,7 @@ class WeChat(IMessageChannel):
         """
         if not self.__get_access_token():
             return False, "参数未配置或配置不正确"
-        message_url = self.__send_msg_url % self.__get_access_token()
+        message_url = self._send_msg_url % self.__get_access_token()
         if text:
             conent = "%s\n%s" % (title, text.replace("\n\n", "\n"))
         else:
@@ -106,7 +102,7 @@ class WeChat(IMessageChannel):
         req_json = {
             "touser": user_id,
             "msgtype": "text",
-            "agentid": self.__agent_id,
+            "agentid": self._agent_id,
             "text": {
                 "content": conent
             },
@@ -128,7 +124,7 @@ class WeChat(IMessageChannel):
         """
         if not self.__get_access_token():
             return False, "参数未配置或配置不正确"
-        message_url = self.__send_msg_url % self.__get_access_token()
+        message_url = self._send_msg_url % self.__get_access_token()
         if text:
             text = text.replace("\n\n", "\n")
         if not user_id:
@@ -136,7 +132,7 @@ class WeChat(IMessageChannel):
         req_json = {
             "touser": user_id,
             "msgtype": "news",
-            "agentid": self.__agent_id,
+            "agentid": self._agent_id,
             "news": {
                 "articles": [
                     {
@@ -176,7 +172,7 @@ class WeChat(IMessageChannel):
             return False, "参数未配置或配置不正确"
         if not isinstance(medias, list):
             return False, "数据错误"
-        message_url = self.__send_msg_url % self.__get_access_token()
+        message_url = self._send_msg_url % self.__get_access_token()
         if not user_id:
             user_id = "@all"
         articles = []
@@ -192,7 +188,7 @@ class WeChat(IMessageChannel):
         req_json = {
             "touser": user_id,
             "msgtype": "news",
-            "agentid": self.__agent_id,
+            "agentid": self._agent_id,
             "news": {
                 "articles": articles
             }

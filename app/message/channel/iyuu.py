@@ -7,17 +7,15 @@ from app.utils import RequestUtils
 
 class IyuuMsg(IMessageChannel):
     _token = None
-    name = None
-    type = "IyuuMsg"
+    _client_config = {}
 
-    def __init__(self, config, name=None):
-        self.__client_config = config
-        self.name = name if name else ""
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        if self.__client_config:
-            self._token = self.__client_config.get('token')
+        if self._client_config:
+            self._token = self._client_config.get('token')
 
     def get_status(self):
         """
@@ -57,5 +55,5 @@ class IyuuMsg(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, **kwargs):
         pass

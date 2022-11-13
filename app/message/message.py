@@ -54,6 +54,7 @@ class Message:
 
     def init_config(self):
         self._active_clients = []
+        self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
             cid = client_config.ID
             name = client_config.NAME

@@ -1182,8 +1182,8 @@ def wechat():
         return
     # 读取配置
     conf = interactive_client.get("config")
-    sToken = conf.get('Token')
-    sEncodingAESKey = conf.get('EncodingAESKey')
+    sToken = conf.get('token')
+    sEncodingAESKey = conf.get('encodingAESKey')
     sCorpID = conf.get('corpid')
     if not sToken or not sEncodingAESKey or not sCorpID:
         return

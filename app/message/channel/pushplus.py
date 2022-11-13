@@ -11,20 +11,18 @@ class PushPlus(IMessageChannel):
     _topic = None
     _channel = None
     _webhook = None
-    name = None
-    type = "PushPlus"
+    _client_config = {}
 
-    def __init__(self, config, name=None):
-        self.__client_config = config
-        self.name = name if name else ""
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        if self.__client_config:
-            self._token = self.__client_config.get('token')
-            self._topic = self.__client_config.get('topic')
-            self._channel = self.__client_config.get('channel')
-            self._webhook = self.__client_config.get('webhook')
+        if self._client_config:
+            self._token = self._client_config.get('token')
+            self._topic = self._client_config.get('topic')
+            self._channel = self._client_config.get('channel')
+            self._webhook = self._client_config.get('webhook')
 
     def get_status(self):
         """
@@ -75,5 +73,5 @@ class PushPlus(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, **kwargs):
         pass
