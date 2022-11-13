@@ -179,6 +179,19 @@ class DOWNLOADSETTING(Base):
     NOTE = Column(Text)
 
 
+class MESSAGECLIENT(Base):
+    __tablename__ = 'MESSAGE_CLIENT'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    NAME = Column(Text)
+    TYPE = Column(Integer)
+    CONFIG = Column(Text)
+    SWITCHS = Column(Text)
+    INTERACTIVE = Column(Integer)
+    ENABLED = Column(Integer)
+    NOTE = Column(Text)
+
+
 class RSSHISTORY(Base):
     __tablename__ = 'RSS_HISTORY'
 

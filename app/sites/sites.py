@@ -222,9 +222,9 @@ class Sites:
             for head, date, content in site_user_info.message_unread_contents:
                 msg_title = f"【站点 {site_user_info.site_name} 消息】"
                 msg_text = f"时间：{date}\n标题：{head}\n内容：\n{content}"
-                self.message.sendmsg(title=msg_title, text=msg_text)
+                self.message.send_site_message(title=msg_title, text=msg_text)
         else:
-            self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+            self.message.send_site_message(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
     def test_connection(self, site_id):
         """

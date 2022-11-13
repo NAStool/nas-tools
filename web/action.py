@@ -174,7 +174,12 @@ class WebAction:
             "download_subtitle": self.__download_subtitle,
             "get_download_setting": self.__get_download_setting,
             "update_download_setting": self.__update_download_setting,
-            "delete_download_setting": self.__delete_download_setting
+            "delete_download_setting": self.__delete_download_setting,
+            "update_message_client": self.__update_message_client,
+            "delete_message_client": self.__delete_message_client,
+            "check_message_client": self.__check_message_client,
+            "get_message_client": self.__get_message_client,
+            "test_message_client": self.__test_message_client,
         }
 
     def action(self, cmd, data=None):
@@ -240,21 +245,26 @@ class WebAction:
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"}
         }
         command = commands.get(msg)
+        message = Message()
         if command:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
-                if str(user_id) != Telegram().get_admin_user():
-                    Message().send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
+                if not message.interactive_type != "Telegram":
+                    return
+                if str(user_id) != message.interactive_client.get_admin_user():
+                    message.send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
-            Message().send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
+            message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
         else:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
-                if not str(user_id) in Telegram().get_users() \
-                        and str(user_id) != Telegram().get_admin_user():
-                    Message().send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
+                if not message.interactive_type != "Telegram":
+                    return
+                if not str(user_id) in message.interactive_client.get_users() \
+                        and str(user_id) != message.interactive_client.get_admin_user():
+                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
                                                user_id=user_id)
                     return
             # 站点检索或者添加订阅
@@ -3645,3 +3655,79 @@ class WebAction:
         self.dbhelper.delete_download_setting(sid=sid)
         Downloader().init_config()
         return {"code": 0}
+
+    def __update_message_client(self, data):
+        """
+        更新消息设置
+        """
+        name = data.get("name")
+        cid = data.get("cid")
+        ctype = data.get("type")
+        config = data.get("config")
+        switchs = data.get("switchs")
+        interactive = data.get("interactive")
+        enabled = data.get("enabled")
+        if cid:
+            self.dbhelper.delete_message_client(cid=cid)
+        self.dbhelper.insert_message_client(name=name,
+                                            ctype=ctype,
+                                            config=config,
+                                            switchs=switchs,
+                                            interactive=interactive,
+                                            enabled=enabled)
+        Message().init_config()
+        return {"code": 0}
+
+    def __delete_message_client(self, data):
+        """
+        删除消息设置
+        """
+        if self.dbhelper.delete_message_client(cid=data.get("cid")):
+            Message().init_config()
+            return {"code": 0}
+        else:
+            return {"code": 1}
+
+    def __check_message_client(self, data):
+        """
+        维护消息设置
+        """
+        flag = data.get("flag")
+        cid = data.get("cid")
+        checked = data.get("checked")
+        if flag == "interactive":
+            # 最多开启一个交互
+            if checked:
+                self.dbhelper.check_message_client(interactive=0)
+            self.dbhelper.check_message_client(cid=cid,
+                                               interactive=1 if checked else 0)
+            Message().init_config()
+            return {"code": 0}
+        elif flag == "enable":
+            self.dbhelper.check_message_client(cid=cid,
+                                               enabled=1 if checked else 0)
+            Message().init_config()
+            return {"code": 0}
+        else:
+            return {"code": 1}
+
+    @staticmethod
+    def __get_message_client(data):
+        """
+        获取消息设置
+        """
+        cid = data.get("cid")
+        return {"code": 0, "detail": Message().get_message_client_info(cid=cid)}
+
+    @staticmethod
+    def __test_message_client(data):
+        """
+        测试消息设置
+        """
+        ctype = data.get("type")
+        config = json.loads(data.get("config"))
+        res = Message().get_status(ctype=ctype, config=config)
+        if res:
+            return {"code": 0}
+        else:
+            return {"code": 1}

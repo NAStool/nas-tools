@@ -253,7 +253,7 @@ class BrushTask(object):
             """
             _msg_title = "【刷流任务 {} 删除做种】".format(_task_name)
             _msg_text = "删除原因：{}\n种子名称：{}".format(_delete_type.value, _torrent.get('name'))
-            self.message.sendmsg(title=_msg_title, text=_msg_text)
+            self.message.send_brushtask_remove_message(title=_msg_title, text=_msg_text)
 
         # 遍历所有任务
         _dbhelper = DbHelper()
@@ -601,7 +601,7 @@ class BrushTask(object):
             if sendmessage:
                 msg_title = "【刷流任务 {} 新增下载】".format(taskname)
                 msg_text = "种子名称：{}\n种子大小：{}".format(title, StringUtils.str_filesize(size))
-                self.message.sendmsg(title=msg_title, text=msg_text)
+                self.message.send_brushtask_added_message(title=msg_title, text=msg_text)
         # 插入种子数据
         _dbhelper = DbHelper()
         if _dbhelper.insert_brushtask_torrent(brush_id=taskid,

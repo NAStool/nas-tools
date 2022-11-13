@@ -537,7 +537,9 @@
   // 显示编辑任务
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
+    show_wait_process();
     ajax_post("get_userrss_task", { id: id }, function (ret) {
+      hide_wait_process();
       if (ret.code == 0) {
         $("#userrss_modal_title").text("编辑订阅");
         $("#userrss_name").val(ret.detail.name);

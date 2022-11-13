@@ -2072,3 +2072,66 @@ class DbHelper:
                 SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
                 NOTE=note
             ))
+
+    @DbPersist(_db)
+    def delete_message_client(self, cid):
+        """
+        删除消息服务器
+        """
+        if not cid:
+            return
+        self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).delete()
+
+    def get_message_client(self, cid=None):
+        """
+        查询消息服务器
+        """
+        if cid:
+            return self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).all()
+        return self._db.query(MESSAGECLIENT).order_by(MESSAGECLIENT.TYPE).all()
+
+    @DbPersist(_db)
+    def insert_message_client(self,
+                              name,
+                              ctype,
+                              config,
+                              switchs: list,
+                              interactive,
+                              enabled,
+                              note=None):
+        """
+        设置消息服务器
+        """
+        self._db.insert(MESSAGECLIENT(
+            NAME=name,
+            TYPE=int(ctype),
+            CONFIG=config,
+            SWITCHS=json.dumps(switchs),
+            INTERACTIVE=int(interactive),
+            ENABLED=int(enabled),
+            NOTE=note
+        ))
+
+    @DbPersist(_db)
+    def check_message_client(self, cid=None, interactive=None, enabled=None):
+        """
+        设置目录同步状态
+        """
+        if cid and interactive is not None:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).update(
+                {
+                    "INTERACTIVE": int(interactive)
+                }
+            )
+        elif cid and enabled is not None:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )
+        elif not cid and int(interactive) == 0:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1).update(
+                {
+                    "INTERACTIVE": 0
+                }
+            )

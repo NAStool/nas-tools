@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import signal
 import warnings
 import log
@@ -386,6 +387,122 @@ def update_config(cfg):
                                                   rename=1,
                                                   enabled=0)
             _config['sync'].pop('sync_path')
+            overwrite_cofig = True
+    except Exception as e:
+        print(str(e))
+    # 目录同步兼容旧配置
+    try:
+        message = Config().get_config('message') or {}
+        msg_channel = message.get('msg_channel')
+        switch = message.get('switch')
+        client_config = {}
+        interactive = 0
+        ctype = 0
+        enabled = 1
+        name = None
+        if msg_channel == "telegram":
+            token = message.get('telegram', {}).get('telegram_token')
+            chat_id = message.get('telegram', {}).get('telegram_chat_id')
+            user_ids = message.get('telegram', {}).get('telegram_user_ids')
+            webhook = message.get('telegram', {}).get('webhook')
+            if token and chat_id:
+                name = "Telegram"
+                ctype = 1
+                interactive = 1
+                client_config = {
+                    'token': token,
+                    'chat_id': chat_id,
+                    'user_ids': user_ids,
+                    'webhook': webhook
+                }
+        elif msg_channel == "wechat":
+            corpid = message.get('wechat', {}).get('corpid')
+            corpsecret = message.get('wechat', {}).get('corpsecret')
+            agent_id = message.get('wechat', {}).get('agentid')
+            default_proxy = message.get('wechat', {}).get('default_proxy')
+            token = message.get('wechat', {}).get('default_proxy')
+            encodingAESkey = message.get('wechat', {}).get('EncodingAESKey')
+            if corpid and corpsecret and agent_id:
+                name = "WeChat"
+                ctype = 2
+                interactive = 1
+                client_config = {
+                    'corpid': corpid,
+                    'corpsecret': corpsecret,
+                    'agent_id': agent_id,
+                    'default_proxy': default_proxy,
+                    'token': token,
+                    'encodingAESkey': encodingAESkey
+                }
+        elif msg_channel == "serverchan":
+            sckey = message.get('serverchan', {}).get('sckey')
+            if sckey:
+                name = "ServerChan"
+                ctype = 3
+                interactive = 0
+                client_config = {
+                    'sckey': sckey
+                }
+        elif msg_channel == "bark":
+            server = message.get('bark', {}).get('server')
+            apikey = message.get('bark', {}).get('apikey')
+            if server and apikey:
+                name = "Bark"
+                ctype = 4
+                interactive = 0
+                client_config = {
+                    'server': server,
+                    'apikey': apikey
+                }
+        elif msg_channel == "pushplus":
+            token = message.get('pushplus', {}).get('push_token')
+            topic = message.get('pushplus', {}).get('push_topic')
+            channel = message.get('pushplus', {}).get('push_channel')
+            webhook = message.get('pushplus', {}).get('push_webhook')
+            if token and channel:
+                name = "PushPlus"
+                ctype = 5
+                interactive = 0
+                client_config = {
+                    'token': token,
+                    'topic': topic,
+                    'channel': channel,
+                    'webhook': webhook
+                }
+        elif msg_channel == "iyuu":
+            token = message.get('iyuu', {}).get('iyuu_token')
+            if token:
+                name = "IyuuMsg"
+                ctype = 6
+                interactive = 0
+                client_config = {
+                    'token': token
+                }
+        if client_config:
+            switchs = []
+            if switch:
+                if switch.get("download_start"):
+                    switchs.append("11")
+                if switch.get("download_fail"):
+                    switchs.append("12")
+                if switch.get("transfer_finished"):
+                    switchs.append("21")
+                if switch.get("transfer_fail"):
+                    switchs.append("22")
+                if switch.get("rss_added"):
+                    switchs.append("31")
+                if switch.get("rss_finished"):
+                    switchs.append("32")
+                if switch.get("site_signin"):
+                    switchs.append("41")
+            client_config = json.dumps(client_config)
+            _dbhelper.insert_message_client(name=name,
+                                            ctype=ctype,
+                                            config=client_config,
+                                            switchs=switchs,
+                                            interactive=interactive,
+                                            enabled=enabled)
+            _config['message'].pop('msg_channel')
             overwrite_cofig = True
     except Exception as e:
         print(str(e))

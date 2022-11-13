@@ -2,7 +2,6 @@ import time
 from urllib.parse import urlencode
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 
@@ -12,18 +11,20 @@ class PushPlus(IMessageChannel):
     _topic = None
     _channel = None
     _webhook = None
+    name = None
+    type = "PushPlus"
 
-    def __init__(self):
+    def __init__(self, config, name=None):
+        self.__client_config = config
+        self.name = name if name else ""
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self._token = message.get('pushplus', {}).get('push_token')
-            self._topic = message.get('pushplus', {}).get('push_topic')
-            self._channel = message.get('pushplus', {}).get('push_channel')
-            self._webhook = message.get('pushplus', {}).get('push_webhook')
+        if self.__client_config:
+            self._token = self.__client_config.get('token')
+            self._topic = self.__client_config.get('topic')
+            self._channel = self.__client_config.get('channel')
+            self._webhook = self.__client_config.get('webhook')
 
     def get_status(self):
         """
