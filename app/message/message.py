@@ -3,7 +3,8 @@ import json
 from enum import Enum
 
 import log
-from config import Config, MESSAGE_SETTING
+from app.utils.commons import singleton
+from config import Config
 from app.helper import DbHelper
 from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
 from app.utils import StringUtils
@@ -11,53 +12,58 @@ from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
 
 
+@singleton
 class Message:
-    __msg_channel = None
-    __msg_switch = None
-    __webhook_ignore = None
-    __domain = None
-    __client_configs = {}
-    normal_clients = {}
-    interactive_client = None
-    interactive_type = ""
+    _active_clients = []
+    _client_configs = {}
+    _webhook_ignore = None
+    _domain = None
     dbhelper = None
     messagecenter = None
+
+    # 消息通知类型
+    MESSAGE_DICT = {
+        "channel": {
+            "telegram": {"name": "Telegram", "img_url": "../static/img/telegram.png", "search_type": SearchType.TG},
+            "wechat": {"name": "WeChat", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
+            "serverchan": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
+            "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
+            "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
+            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"}
+        },
+        "switch": {
+            "download_start": {"name": "新增下载", "fuc_name": "download_start"},
+            "download_fail": {"name": "下载失败", "fuc_name": "download_fail"},
+            "transfer_finished": {"name": "转移完成", "fuc_name": "transfer_finished"},
+            "transfer_fail": {"name": "转移失败", "fuc_name": "transfer_fail"},
+            "rss_added": {"name": "新增订阅", "fuc_name": "rss_added"},
+            "rss_finished": {"name": "订阅完成", "fuc_name": "rss_finished"},
+            "site_signin": {"name": "站点签到", "fuc_name": "site_signin"},
+            "site_message": {"name": "站点消息", "fuc_name": "site_message"},
+            "brushtask_added": {"name": "刷流下种", "fuc_name": "brushtask_added"},
+            "brushtask_remove": {"name": "刷流删种", "fuc_name": "brushtask_remove"},
+            "mediaserver_message": {"name": "媒体服务", "fuc_name": "mediaserver_message"},
+        }
+    }
 
     def __init__(self):
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
-        self.__domain = Config().get_domain()
-        self.__msg_channel = MESSAGE_SETTING.get('channel')
-        self.__msg_switch = MESSAGE_SETTING.get('switch')
+        self._domain = Config().get_domain()
+        self._domain = Config().get_domain()
         self.init_config()
 
     def init_config(self):
-        self.__client_configs = {}
-        self.interactive_client = None
-        self.interactive_type = ""
-        self.normal_clients = {
-            "11": [],
-            "12": [],
-            "21": [],
-            "22": [],
-            "31": [],
-            "32": [],
-            "41": [],
-            "42": [],
-            "51": [],
-            "52": [],
-            "61": []
-        }
-        client_configs = self.dbhelper.get_message_client()
-        for client_config in client_configs:
+        self._active_clients = []
+        for client_config in self.dbhelper.get_message_client() or []:
             cid = client_config.ID
             name = client_config.NAME
+            enabled = client_config.ENABLED
+            config = client_config.CONFIG
             ctype = client_config.TYPE
-            config = json.loads(client_config.CONFIG) if client_config.CONFIG else {}
             switchs = json.loads(client_config.SWITCHS) if client_config.SWITCHS else {}
             interactive = client_config.INTERACTIVE
-            enabled = client_config.ENABLED
-            self.__client_configs[str(client_config.ID)] = {
+            self._client_configs[str(cid)] = {
                 "id": cid,
                 "name": name,
                 "type": ctype,
@@ -66,23 +72,36 @@ class Message:
                 "interactive": interactive,
                 "enabled": enabled,
             }
-            # 跳过不启用
-            if not enabled:
+            if not enabled or not config:
                 continue
-            # 跳过不启用
-            if not config:
-                continue
-            # 实例化
-            exec(f"self.client_{cid} = {self.__msg_channel[str(ctype)].get('name')}(config={config}, name='{name}')")
-            if interactive:
-                self.interactive_type = self.__msg_channel[str(ctype)].get('name')
-                self.interactive_client = eval(f"self.client_{cid}")
-            if not switchs:
-                for switch in self.normal_clients:
-                    self.normal_clients[switch].append(eval(f"self.client_{cid}"))
-            else:
-                for switch in switchs:
-                    self.normal_clients[switch].append(eval(f"self.client_{cid}"))
+            self._active_clients.append({
+                "name": name,
+                "type": ctype,
+                "search_type": self.MESSAGE_DICT.get('channel').get(ctype, {}).get('search_type'),
+                "client": self.__build_client(ctype, json.loads(config)),
+                "switchs": switchs,
+                "interactive": interactive
+            })
+
+    @staticmethod
+    def __build_client(ctype, conf):
+        """
+        构造客户端实例
+        """
+        if ctype == "wechat":
+            return WeChat(conf)
+        elif ctype == "telegram":
+            return Telegram(conf)
+        elif ctype == "serverchan":
+            return ServerChan(conf)
+        elif ctype == "bark":
+            return Bark(conf)
+        elif ctype == "pushpush":
+            return PushPlus(conf)
+        elif ctype == "iyuu":
+            return IyuuMsg(conf)
+        else:
+            return None
 
     def get_webhook_ignore(self):
         """
@@ -90,7 +109,7 @@ class Message:
         """
         return self.__webhook_ignore or []
 
-    def sendmsg(self, client, title, text="", image="", url="", user_id=""):
+    def __sendmsg(self, client, title, text="", image="", url="", user_id=""):
         """
         通用消息发送
         :param client: 消息端
@@ -101,25 +120,29 @@ class Message:
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
-        if not client:
+        if not client or not client.get('client'):
             return None
-        log.info(f"【Message】发送{client.type}消息服务{client.name}：title={title}, text={text}")
-        if self.__domain:
+        log.info(f"【Message】发送{client.get('type')}消息服务{client.get('name')}：title={title}, text={text}")
+        if self._domain:
             if url:
-                url = "%s?next=%s" % (self.__domain, url)
+                url = "%s?next=%s" % (self._domain, url)
             else:
-                url = self.__domain
+                url = self._domain
         else:
             url = ""
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
-        state, ret_msg = client.send_msg(title, text, image, url, user_id)
+        state, ret_msg = client.get('client').send_msg(title=title,
+                                                       text=text,
+                                                       image=image,
+                                                       url=url,
+                                                       user_id=user_id)
         if not state:
             log.error("【Message】发送消息失败：%s" % ret_msg)
         return state
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
         """
-        按渠道发送消息
+        按渠道发送消息，用于消息交互
         :param channel: 消息渠道
         :param title: 消息标题
         :param text: 消息内容
@@ -128,50 +151,57 @@ class Message:
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
-        if not self.interactive_client:
-            return False
-        if self.__domain:
+        if self._domain:
             if url:
-                url = "%s?next=%s" % (self.__domain, url)
+                url = "%s?next=%s" % (self._domain, url)
             else:
-                url = self.__domain
+                url = self._domain
         else:
             url = ""
-        if channel == SearchType.TG:
-            if self.interactive_type != "Telegram":
-                log.error("【Message】发送消息失败：搜索渠道为TG，但未启用TG消息服务")
-                return False
-            state, ret_msg = self.interactive_client.send_msg(title, text, image, url, user_id)
-        elif channel == SearchType.WX:
-            if self.interactive_type != "WeChat":
-                log.error("【Message】发送消息失败：搜索渠道为TG，但未启用TG消息服务")
-                return False
-            state, ret_msg = self.interactive_client.send_msg(title, text, image, url, user_id)
-        else:
-            state, ret_msg = self.interactive_client.send_msg(title, text, image, url, user_id)
-        if not state:
-            log.error("【Message】发送消息失败：%s" % ret_msg)
-        return state
+        for client in self._active_clients:
+            if client.get("search_type") == channel \
+                    and client.get("interactive"):
+                state, ret_msg = self.__sendmsg(client=client,
+                                                title=title,
+                                                text=text,
+                                                image=image,
+                                                url=url,
+                                                user_id=user_id)
+                if not state:
+                    log.error("【Message】发送消息失败：%s" % ret_msg)
+                return state
+        return False
+
+    def __send_list_msg(self, client, medias, user_id, title):
+        """
+        发送选择类消息
+        """
+        if not client or not client.get('client'):
+            return False, ""
+        return client.get('client').send_list_msg(medias=medias,
+                                                  user_id=user_id,
+                                                  title=title,
+                                                  url=self._domain)
 
     def send_channel_list_msg(self, channel, title, medias: list, user_id=""):
         """
-        发送列表选择消息
+        发送列表选择消息，用于消息交互
         :param channel: 消息渠道
         :param title: 消息标题
         :param medias: 媒体信息列表
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
-        if channel == SearchType.TG:
-            state, ret_msg = Telegram().send_list_msg(title, medias, user_id)
-        elif channel == SearchType.WX:
-            WeChat().send_msg(title, user_id=user_id)
-            state, ret_msg = WeChat().send_list_msg(medias, self.__domain, user_id)
-        else:
-            return False
-        if not state:
-            log.error("【Message】发送消息失败：%s" % ret_msg)
-        return state
+        for client in self._active_clients:
+            if client.get("search_type") == channel:
+                state, ret_msg = self.__send_list_msg(client=client,
+                                                      title=title,
+                                                      medias=medias,
+                                                      user_id=user_id)
+                if not state:
+                    log.error("【Message】发送消息失败：%s" % ret_msg)
+                return state
+        return False
 
     def send_download_message(self, in_from: SearchType, can_item):
         """
@@ -180,10 +210,6 @@ class Message:
         :param can_item: 下载的媒体信息
         :return: 发送状态、错误信息
         """
-        # 获取消息端
-        clients = self.normal_clients.get("11")
-        if not clients:
-            return
         msg_title = can_item.get_title_ep_vote_string()
         msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()} {can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
@@ -209,8 +235,8 @@ class Message:
             can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=msg_title,
                 text=msg_text,
@@ -227,10 +253,6 @@ class Message:
         :param category_flag: 二级分类开关
         :return: 发送状态、错误信息
         """
-        # 获取消息端
-        clients = self.normal_clients.get("21")
-        if not clients:
-            return
         msg_title = f"{media_info.get_title_string()} 转移完成"
         if media_info.vote_average:
             msg_str = f"{media_info.get_vote_string()}，类型：电影"
@@ -245,8 +267,8 @@ class Message:
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=msg_title,
                 text=msg_str,
@@ -258,10 +280,6 @@ class Message:
         """
         发送转移电视剧/动漫的消息
         """
-        # 获取消息端
-        clients = self.normal_clients.get("21")
-        if not clients:
-            return
         for item_info in message_medias.values():
             if item_info.total_episodes == 1:
                 msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
@@ -278,8 +296,8 @@ class Message:
             else:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 发送消息
-            for client in clients:
-                self.sendmsg(
+            for client in self._active_clients:
+                self.__sendmsg(
                     client=client,
                     title=msg_title,
                     text=msg_str,
@@ -290,13 +308,9 @@ class Message:
         """
         发送下载失败的消息
         """
-        # 获取消息端
-        clients = self.normal_clients.get("12")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
                 text=f"种子：{item.org_string}\n错误信息：{error_msg}",
@@ -307,9 +321,6 @@ class Message:
         """
         发送订阅成功的消息
         """
-        # 获取消息端
-        if not self.interactive_client:
-            return
         if media_info.type == MediaType.MOVIE:
             msg_title = f"{media_info.get_title_string()} 已添加订阅"
         else:
@@ -319,23 +330,20 @@ class Message:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         msg_str = f"{msg_str}，来自：{in_from.value}"
         # 发送消息
-        self.send_channel_msg(
-            channel=in_from,
-            title=msg_title,
-            text=msg_str,
-            image=media_info.get_message_image(),
-            url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-            user_id=user_id
-        )
+        for client in self._active_clients:
+            self.__sendmsg(
+                client=client,
+                title=msg_title,
+                text=msg_str,
+                image=media_info.get_message_image(),
+                url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
+                user_id=user_id
+            )
 
     def send_rss_finished_message(self, media_info):
         """
         发送订阅完成的消息，只针对电视剧
         """
-        # 获取消息端
-        clients = self.normal_clients.get("32")
-        if not clients:
-            return
         if media_info.type == MediaType.MOVIE:
             return
         else:
@@ -344,8 +352,8 @@ class Message:
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=msg_title,
                 text=msg_str,
@@ -359,13 +367,9 @@ class Message:
         """
         if not msgs:
             return
-        # 获取消息端
-        clients = self.normal_clients.get("41")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title="站点签到",
                 text="\n".join(msgs)
@@ -379,13 +383,9 @@ class Message:
             return
         if not text:
             text = ""
-        # 获取消息端
-        clients = self.normal_clients.get("42")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=title,
                 text=text
@@ -397,16 +397,12 @@ class Message:
         """
         if not path or not count:
             return
-        # 获取消息端
-        clients = self.normal_clients.get("22")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=f"【{count} 个文件转移失败】",
-                text=f"路径：{path}\n原因：{text}"
+                text=f"源路径：{path}\n原因：{text}"
             )
 
     def send_brushtask_remove_message(self, title, text):
@@ -415,13 +411,9 @@ class Message:
         """
         if not title or not text:
             return
-        # 获取消息端
-        clients = self.normal_clients.get("51")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=title,
                 text=text
@@ -433,13 +425,9 @@ class Message:
         """
         if not title or not text:
             return
-        # 获取消息端
-        clients = self.normal_clients.get("52")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=title,
                 text=text
@@ -451,13 +439,9 @@ class Message:
         """
         if not title or not text or image:
             return
-        # 获取消息端
-        clients = self.normal_clients.get("61")
-        if not clients:
-            return
         # 发送消息
-        for client in clients:
-            self.sendmsg(
+        for client in self._active_clients:
+            self.__sendmsg(
                 client=client,
                 title=title,
                 text=text,
@@ -469,8 +453,17 @@ class Message:
         获取消息端信息
         """
         if cid:
-            return self.__client_configs.get(str(cid))
-        return self.__client_configs
+            return self._client_configs.get(str(cid))
+        return self._client_configs
+
+    def get_interactive_client(self):
+        """
+        查询当前可以交互的渠道
+        """
+        for client in self._active_clients:
+            if client.get('interactive'):
+                return client
+        return {}
 
     def get_status(self, ctype=None, config=None):
         """
@@ -478,9 +471,7 @@ class Message:
         """
         if not config or not ctype:
             return False
-        client = eval(f"{self.__msg_channel[str(ctype)].get('name')}({config})")
-        if client:
-            return client.get_status()
-        else:
-            return False
-    
+        for client in self._active_clients:
+            if client.get("type") == ctype:
+                return client.get('client').get_status()
+        return False

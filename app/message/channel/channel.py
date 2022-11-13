@@ -24,11 +24,12 @@ class IMessageChannel(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, medias: list, user_id="", title="", url=""):
         """
         发送列表类消息
         :param title: 消息标题
         :param medias: 媒体列表
         :param user_id: 消息发送对象的ID，为空则发给所有人
+        :param url: 跳转链接地址
         """
         pass

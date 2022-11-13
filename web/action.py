@@ -246,12 +246,13 @@ class WebAction:
         }
         command = commands.get(msg)
         message = Message()
+        interactive_client = message.get_interactive_client()
+        # 检查用户权限
+        if in_from != interactive_client.get("search_type"):
+            return
         if command:
-            # 检查用户权限
-            if in_from == SearchType.TG and user_id:
-                if not message.interactive_type != "Telegram":
-                    return
-                if str(user_id) != message.interactive_client.get_admin_user():
+            if in_from == SearchType.TG:
+                if str(user_id) != interactive_client.get("client").get_admin_user():
                     message.send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
@@ -259,13 +260,11 @@ class WebAction:
             message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
         else:
             # 检查用户权限
-            if in_from == SearchType.TG and user_id:
-                if not message.interactive_type != "Telegram":
-                    return
-                if not str(user_id) in message.interactive_client.get_users() \
-                        and str(user_id) != message.interactive_client.get_admin_user():
+            if in_from == SearchType.TG:
+                if not str(user_id) in interactive_client.get("client").get_users() \
+                        and str(user_id) != interactive_client.get("client").get_admin_user():
                     message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
-                                               user_id=user_id)
+                                             user_id=user_id)
                     return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
@@ -3625,7 +3624,7 @@ class WebAction:
         sid = data.get("sid")
         download_setting = Downloader().get_download_setting(sid=sid)
         return {"code": 0, "data": download_setting}
-    
+
     def __update_download_setting(self, data):
         sid = data.get("sid")
         name = data.get("name")

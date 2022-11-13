@@ -179,7 +179,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_telegram">
-                <input type="radio" name="client_type" id="type_telegram" value="1" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_telegram" value="telegram" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -194,7 +194,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_wechat">
-                <input type="radio" name="client_type" id="type_wechat" value="2" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_wechat" value="wechat" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -209,7 +209,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_serverchan">
-                <input type="radio" name="client_type" id="type_serverchan" value="3" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_serverchan" value="serverchan" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -224,7 +224,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_bark">
-                <input type="radio" name="client_type" id="type_bark" value="4" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_bark" value="bark" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -239,7 +239,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_pushplus">
-                <input type="radio" name="client_type" id="type_pushplus" value="5" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_pushplus" value="pushplus" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -254,7 +254,7 @@
           <div class="col-lg-4">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="type_iyuumsg">
-                <input type="radio" name="client_type" id="type_iyuumsg" value="6" class="form-selectgroup-input" checked>
+                <input type="radio" name="client_type" id="type_iyuumsg" value="iyuu" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
@@ -840,7 +840,7 @@
 
   // 消息服务端类型
   function show_client_type(type) {
-    if (type == '1') {
+    if (type == 'telegram') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -849,7 +849,7 @@
       $("#div_client_interactive").show();
       $("#type_telegram").prop("checked", true);
     }
-    else if (type == '2') {
+    else if (type == 'wechat') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -858,7 +858,7 @@
       $("#div_client_interactive").show();
       $("#type_wechat").prop("checked", true);
     }
-    else if (type == '3') {
+    else if (type == 'serverchan') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -867,7 +867,7 @@
       $("#div_client_interactive").hide();
       $("#type_serverchan").prop("checked", true);
     }
-    else if (type == '4') {
+    else if (type == 'bark') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -876,7 +876,7 @@
       $("#div_client_interactive").hide();
       $("#type_bark").prop("checked", true);
     }
-    else if (type == '5') {
+    else if (type == 'pushplus') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });

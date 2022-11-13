@@ -60,5 +60,5 @@ class Bark(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, title, medias: list, user_id="", url=""):
         pass

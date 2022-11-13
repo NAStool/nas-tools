@@ -398,19 +398,19 @@ def update_config(cfg):
         switch = message.get('switch')
         if switch:
             if switch.get("download_start"):
-                switchs.append("11")
+                switchs.append("download_start")
             if switch.get("download_fail"):
-                switchs.append("12")
+                switchs.append("download_fail")
             if switch.get("transfer_finished"):
-                switchs.append("21")
+                switchs.append("transfer_finished")
             if switch.get("transfer_fail"):
-                switchs.append("22")
+                switchs.append("transfer_fail")
             if switch.get("rss_added"):
-                switchs.append("31")
+                switchs.append("rss_added")
             if switch.get("rss_finished"):
-                switchs.append("32")
+                switchs.append("rss_finished")
             if switch.get("site_signin"):
-                switchs.append("41")
+                switchs.append("site_signin")
         if message.get('telegram'):
             token = message.get('telegram', {}).get('telegram_token')
             chat_id = message.get('telegram', {}).get('telegram_chat_id')
@@ -418,9 +418,9 @@ def update_config(cfg):
             webhook = message.get('telegram', {}).get('webhook')
             if token and chat_id:
                 name = "Telegram"
-                ctype = 1
-                interactive = 1
+                ctype = 'telegram'
                 enabled = 1 if msg_channel == 'telegram' else 0
+                interactive = 1 if enabled else 0
                 client_config = json.dumps({
                     'token': token,
                     'chat_id': chat_id,
@@ -442,9 +442,9 @@ def update_config(cfg):
             encodingAESkey = message.get('wechat', {}).get('EncodingAESKey')
             if corpid and corpsecret and agent_id:
                 name = "WeChat"
-                ctype = 2
-                interactive = 1
+                ctype = 'wechat'
                 enabled = 1 if msg_channel == 'wechat' else 0
+                interactive = 1 if enabled else 0
                 client_config = json.dumps({
                     'corpid': corpid,
                     'corpsecret': corpsecret,
@@ -463,7 +463,7 @@ def update_config(cfg):
             sckey = message.get('serverchan', {}).get('sckey')
             if sckey:
                 name = "ServerChan"
-                ctype = 3
+                ctype = 'serverchan'
                 interactive = 0
                 enabled = 1 if msg_channel == 'serverchan' else 0
                 client_config = json.dumps({
@@ -480,7 +480,7 @@ def update_config(cfg):
             apikey = message.get('bark', {}).get('apikey')
             if server and apikey:
                 name = "Bark"
-                ctype = 4
+                ctype = 'bark'
                 interactive = 0
                 enabled = 1 if msg_channel == 'bark' else 0
                 client_config = json.dumps({
@@ -500,7 +500,7 @@ def update_config(cfg):
             webhook = message.get('pushplus', {}).get('push_webhook')
             if token and channel:
                 name = "PushPlus"
-                ctype = 5
+                ctype = 'pushplus'
                 interactive = 0
                 enabled = 1 if msg_channel == 'pushplus' else 0
                 client_config = {
@@ -519,7 +519,7 @@ def update_config(cfg):
             token = message.get('iyuu', {}).get('iyuu_token')
             if token:
                 name = "IyuuMsg"
-                ctype = 6
+                ctype = 'iyuu'
                 interactive = 0
                 enabled = 1 if msg_channel == 'iyuu' else 0
                 client_config = json.dumps({
