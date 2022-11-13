@@ -160,8 +160,7 @@ class Message:
         else:
             url = ""
         for client in self._active_clients:
-            if client.get("search_type") == channel \
-                    and client.get("interactive"):
+            if client.get("search_type") == channel:
                 state, ret_msg = self.__sendmsg(client=client,
                                                 title=title,
                                                 text=text,
