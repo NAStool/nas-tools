@@ -53,101 +53,95 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      {% for Id in Items %}
+      {% for Id, Attr in Items.items() %}
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop rounded-3"
-          href='javascript:{% if Items[Id].tmdbid %}show_mediainfo_modal("TV", "{{ Items[Id].name }}", "{{ Items[Id].year }}", "{{ Items[Id].tmdbid }}", "tv_rss", "{{ Items[Id].id }}"){% else %}show_edit_rss_media_modal("{{ Items[Id].id }}", "TV"){% endif %}'>
+          href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("TV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "tv_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "TV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Items[Id].image }}"
+            <img class="rounded-top w-100" src="{{ Attr.image }}"
               style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-progress">
             <div class="progress-bar bg-green"
-              style="width: {% if (Items[Id].total or -1) > 0 %}{{ ((Items[Id].total or -1)-(Items[Id].lack or -1))*100/(Items[Id].total or -1) }}{% endif %}%"
+              style="width: {% if (Attr.total or -1) > 0 %}{{ ((Attr.total or -1)-(Attr.lack or -1))*100/(Attr.total or -1) }}{% endif %}%"
               role="progressbar"
-              aria-valuenow="{% if (Items[Id].total or -1) > 0 %}{{ ((Items[Id].total or -1)-(Items[Id].lack or -1))*100/(Items[Id].total or -1) }}{% endif %}"
+              aria-valuenow="{% if (Attr.total or -1) > 0 %}{{ ((Attr.total or -1)-(Attr.lack or -1))*100/(Attr.total or -1) }}{% endif %}"
               aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
-              {% if Items[Id].year %}
-              {{ Items[Id].name }} ({{ Items[Id].year }}) {% if Items[Id].season != "S00" %}{{ Items[Id].season }}{% endif %}
+              {% if Attr.year %}
+              {{ Attr.name }} ({{ Attr.year }}) {% if Attr.season != "S00" %}{{ Attr.season }}{% endif %}
               {% else %}
-              {{ Items[Id].name }} {% if Items[Id].season != "S00" %}{{ Items[Id].season }}{% endif %}
+              {{ Attr.name }} {% if Attr.season != "S00" %}{{ Attr.season }}{% endif %}
               {% endif %}
             </div>
             <div class="text-muted">
-              {% if Items[Id].state == 'D' %}
+              {% if Attr.state == 'D' %}
               <span class="badge bg-gray"></span>  队列中
-              {% elif Items[Id].state == 'S' %}
+              {% elif Attr.state == 'S' %}
               <span class="badge bg-orange"></span>  正在搜索
-              {% elif Items[Id].state == 'R' %}
-              <span class="badge bg-green"></span>  正在订阅 {% if (Items[Id].total or -1) > 0 %}({{ (Items[Id].total or -1) - (Items[Id].lack or -1) }}/{{ (Items[Id].total or -1)}}){% endif %}
+              {% elif Attr.state == 'R' %}
+              <span class="badge bg-green"></span>  正在订阅 {% if (Attr.total or -1) > 0 %}({{ (Attr.total or -1) - (Attr.lack or -1) }}/{{ (Attr.total or -1)}}){% endif %}
               {% else %}
               <span class="badge bg-blue"></span>  完成
               {% endif %}
             </div>
-            <div{% if Items[Id].over_edition or
-                      Items[Id].filter_restype or
-                      Items[Id].filter_pix or
-                      Items[Id].filter_team or
-                      Items[Id].download_setting != -1 or
-                      Items[Id].rss_sites or
-                      Items[Id].search_sites %} class="text-muted border-top pt-2 mt-2"
+            <div{% if Attr.over_edition or
+                      Attr.filter_restype or
+                      Attr.filter_pix or
+                      Attr.filter_team or
+                      Attr.download_setting != -1 or
+                      Attr.rss_sites or
+                      Attr.search_sites %} class="text-muted border-top pt-2 mt-2"
               {% else %} class=“text-muted"{% endif %}>
               <small>
-                {% if Items[Id].over_edition %}
+                {% if Attr.over_edition %}
                 <span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>
                 {% endif %}
-                {% if Items[Id].filter_restype %}
+                {% if Attr.filter_restype %}
                 <span class="badge badge-outline text-orange me-1 mb-1" title="质量">
-                  {{ RestypeDict[Items[Id].filter_restype|string].name }}
+                  {{ RestypeDict[Attr.filter_restype|string].name }}
                 </span>
                 {% endif %}
-                {% if Items[Id].filter_pix %}
+                {% if Attr.filter_pix %}
                 <span class="badge badge-outline text-orange me-1 mb-1" title="分辨率">
-                  {{ PixDict[Items[Id].filter_pix|string].name }}
+                  {{ PixDict[Attr.filter_pix|string].name }}
                 </span>
                 {% endif %}
-                {% if Items[Id].filter_team %}
+                {% if Attr.filter_team %}
                 <span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">
-                  {{ Items[Id].filter_team }}
+                  {{ Attr.filter_team }}
                 </span>
                 {% endif %}
-                {% if Items[Id].filter_rule|string in RuleGroups%}
+                {% if Attr.filter_rule|string in RuleGroups%}
                 <span class="badge badge-outline text-orange me-1 mb-1" title="过滤规则">
-                  {{ RuleGroups[Items[Id].filter_rule|string] }}
+                  {{ RuleGroups[Attr.filter_rule|string] }}
                 </span>
                 {% endif %}
-                {% if Items[Id].download_setting|string in DownloadSettings %}
-                {% if Items[Id].download_setting != -1 %}
+                {% if Attr.download_setting and Attr.download_setting != -1 %}
                 <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
-                  {{ DownloadSettings[Items[Id].download_setting|string].name }}
-                </span>
-                {% endif %}
-                {% else %}
-                <span class="badge badge-outline bg-red me-1 mb-1" title="下载设置">
-                  {{ DownloadSettings["-1"].name }}
+                  {{ DownloadSettings[Attr.download_setting|string].name }}
                 </span>
                 {% endif %}
               </small>
             </div>
             <div class="text-muted">
               <small>
-                {% for Site in Items[Id].rss_sites %}
-                {% if Site|string in RssSites %}
-                <span class="badge bg-lime me-1 mb-1" title="订阅站点">
-                  {{ RssSites[Site|string] }}
-                </span>
-                {% endif %}
+                {% for Site in Attr.rss_sites %}
+                    {% if Site|string in RssSites %}
+                    <span class="badge bg-lime me-1 mb-1" title="订阅站点">
+                      {{ RssSites[Site|string] }}
+                    </span>
+                    {% endif %}
                 {% endfor %}
-                {% for Site in Items[Id].search_sites %}
-                {% if Site|string in SearchSites %}
-                <span class="badge bg-yellow me-1 mb-1" title="搜索站点">
-                  {{ SearchSites[Site|string] }}
-                </span>
-                {% endif %}
+                {% for Site in Attr.search_sites %}
+                    {% if Site|string in SearchSites %}
+                    <span class="badge bg-yellow me-1 mb-1" title="搜索站点">
+                      {{ SearchSites[Site|string] }}
+                    </span>
+                    {% endif %}
                 {% endfor %}
               </small>
             </div>
