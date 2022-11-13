@@ -143,13 +143,13 @@
             <div class="datagrid-item">
               <div class="datagrid-title">上传速度限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].upload_limit or '' }} KB/s
+                {{ DownloadSetting[Id].upload_limit + 'KB/s' or '' }}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载速度限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].download_limit or ''}} KB/s
+                {{ DownloadSetting[Id].download_limit + 'KB/s' or ''}}
               </div>
             </div>
             <div class="datagrid-item">
