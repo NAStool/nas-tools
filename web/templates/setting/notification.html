@@ -57,17 +57,17 @@
             </thead>
             <tbody>
               {% if MessageClients %}
-              {% for Id in MessageClients %}
+              {% for Id, Attr in MessageClients.items() %}
               <tr>
                 <td>
                   <span class="avatar avatar-sm avatar-thumb avatar-rounded"
-                        style="background-image: url({{ Channels[MessageClients[Id].type|string].get("img_url") }})"></span>
+                        style="background-image: url({{ Channels[Attr.type|string].get("img_url") }})"></span>
                 </td>
-                <td>{{ MessageClients[Id].name }}</td>
+                <td>{{ Attr.name }}</td>
                 <td>
                   <small>
                     {% for SwitchID in Switchs %}
-                      {% if not MessageClients[Id].switchs or SwitchID in MessageClients[Id].switchs %}
+                      {% if not Attr.switchs or SwitchID in Attr.switchs %}
                       <span class="badge badge-outline
                       {% if "download" in SwitchID %}
                       text-blue
@@ -88,16 +88,16 @@
                   </small>
                 </td>
                 <td>
-                  {% if MessageClients[Id].type in ['telegram', 'wechat'] %}
+                  {% if Attr.type in ['telegram', 'wechat'] %}
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" {% if MessageClients[Id].interactive == 1 %} checked {% endif %}
+                    <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %} checked {% endif %}
                       onclick="check_message_client('interactive', '{{ Id }}', this.checked)">
                   </label>
                   {% endif %}
                 </td>
                 <td>
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" {% if MessageClients[Id].enabled == 1 %} checked {% endif %}
+                    <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %} checked {% endif %}
                       onclick="check_message_client('enable', '{{ Id }}', this.checked)">
                   </label>
                 </td>
@@ -113,7 +113,7 @@
                         <line x1="16" y1="5" x2="19" y2="8" />
                       </svg>
                     </a>
-                    <a href="javascript:delete_message_client('{{ Id }}', '{{ MessageClients[Id].name }}')" title="删除" class="ms-2">
+                    <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除" class="ms-2">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                         stroke-linecap="round" stroke-linejoin="round">

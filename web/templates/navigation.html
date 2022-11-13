@@ -983,8 +983,8 @@
                 <label class="form-label">质量</label>
                 <select class="form-select" id="rss_restype">
                   <option value="0" selected>全部</option>
-                  {% for Id in RestypeDict %}
-                  <option value="{{ Id }}">{{ RestypeDict[Id].name }}</option>
+                  {% for Id, Attr in RestypeDict.items() %}
+                  <option value="{{ Id }}">{{ Attr.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -994,8 +994,8 @@
                 <label class="form-label">分辨率</label>
                 <select class="form-select" id="rss_pix">
                   <option value="0" selected>全部</option>
-                  {% for Id in PixDict %}
-                  <option value="{{ Id }}">{{ PixDict[Id].name }}</option>
+                  {% for Id, Attr in PixDict.items() %}
+                  <option value="{{ Id }}">{{ Attr.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -1033,8 +1033,8 @@
                 title="下载设置仅适用于Qbittorrent和Transmission"
                 data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rss_download_setting">
-                  {% for Id in DownloadSettings %}
-                  <option value="{{ DownloadSettings[Id].id }}">{{ DownloadSettings[Id].name }}</option>
+                  {% for Id, Attr in DownloadSettings.items() %}
+                  <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -1045,11 +1045,11 @@
             <div class="mb-3">
               <label class="form-label">订阅站点</label>
               <div class="form-selectgroup">
-                {% for Id in RssSites %}
+                {% for Id, Attr in RssSites.items() %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="rss_sites" value="{{ Id }}" class="form-selectgroup-input"
                     checked>
-                  <span class="form-selectgroup-label">{{ RssSites[Id] }}</span>
+                  <span class="form-selectgroup-label">{{ Attr }}</span>
                 </label>
                 {% endfor %}
               </div>
@@ -1061,11 +1061,11 @@
             <div class="mb-3">
               <label class="form-label">搜索站点</label>
               <div class="form-selectgroup">
-                {% for Id in SearchSites %}
+                {% for Id, Attr in SearchSites.items() %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="search_sites" value="{{ Id }}" class="form-selectgroup-input"
                     checked>
-                  <span class="form-selectgroup-label">{{ SearchSites[Id] }}</span>
+                  <span class="form-selectgroup-label">{{ Attr }}</span>
                 </label>
                 {% endfor %}
               </div>

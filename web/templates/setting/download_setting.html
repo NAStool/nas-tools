@@ -52,20 +52,20 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      {% for Id in DownloadSetting %}
+      {% for Id, Attr in DownloadSetting.items() %}
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ DownloadSetting[Id].name }}</h3>
+          <h3 class="card-title">{{ Attr.name }}</h3>
           <div class="card-actions btn-actions">
-            <a href="javascript:show_download_setting_detail('{{ DownloadSetting[Id].id }}')" class="btn-action">
+            <a href="javascript:show_download_setting_detail('{{ Attr.id }}')" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
                   d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
               </svg>
             </a>
-            {% if DownloadSetting[Id].id > 0 %}
-            <a href="javascript:show_edit_download_setting_modal('{{ DownloadSetting[Id].id }}')" class="btn-action" title="编辑设置">
+            {% if Attr.id > 0 %}
+            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action" title="编辑设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -74,7 +74,7 @@
                 <line x1="16" y1="5" x2="19" y2="8" />
               </svg>
             </a>
-            <a href="javascript:delete_download_setting('{{ DownloadSetting[Id].id }}', '{{ DownloadSetting[Id].name }}')" class="btn-action" title="删除设置">
+            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action" title="删除设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
@@ -86,28 +86,28 @@
             {% endif %}
           </div>
         </div>
-        <div class="card-body" id="detail_{{ DownloadSetting[Id].id }}"
+        <div class="card-body" id="detail_{{ Attr.id }}"
             style="display: {% if Count > 3 %}none{% else %}block{% endif %};">
           <div class="datagrid">
             <div class="datagrid-item">
               <div class="datagrid-title">下载器</div>
               <div class="datagrid-content">
-                <span class="badge me-2 bg-blue">{{ DownloadSetting[Id].downloader or '默认' }}</span>
+                <span class="badge me-2 bg-blue">{{ Attr.downloader or '默认' }}</span>
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">分类</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].category %}
-                <span class="badge me-2">{{ DownloadSetting[Id].category }}</span>
+                {% if Attr.category %}
+                <span class="badge me-2">{{ Attr.category }}</span>
                 {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">标签</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].tags %}
-                {% for Tag in DownloadSetting[Id].tags.split(";") %}
+                {% if Attr.tags %}
+                {% for Tag in Attr.tags.split(";") %}
                 <span class="badge me-2">{{ Tag }}</span>
                 {% endfor %}
                 {% endif %}
@@ -116,16 +116,16 @@
             <div class="datagrid-item">
               <div class="datagrid-title">布局</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].content_layout == 0 %}
+                {% if Attr.content_layout == 0 %}
                 <span class="badge me-2">全局</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 1 %}
+                {% if Attr.content_layout == 1 %}
                 <span class="badge me-2">原始</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 2 %}
+                {% if Attr.content_layout == 2 %}
                 <span class="badge me-2">创建子文件夹</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 3 %}
+                {% if Attr.content_layout == 3 %}
                 <span class="badge me-2">不建子文件夹</span>
                 {% endif %}
               </div>
@@ -133,7 +133,7 @@
             <div class="datagrid-item">
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].is_paused %}
+                {% if Attr.is_paused %}
                 <span class="badge me-2 bg-orange">添加后暂停</span>
                 {% else %}
                 <span class="badge me-2 bg-green">添加后开始</span>
@@ -143,30 +143,30 @@
             <div class="datagrid-item">
               <div class="datagrid-title">上传速度限制</div>
               <div class="datagrid-content">
-              {% if DownloadSetting[Id].upload_limit %}
-                {{ DownloadSetting[Id].upload_limit|string + ' KB/s' or '' }}
+              {% if Attr.upload_limit %}
+                {{ Attr.upload_limit|string + ' KB/s' or '' }}
               {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载速度限制</div>
               <div class="datagrid-content">
-              {% if DownloadSetting[Id].download_limit %}
-                {{ DownloadSetting[Id].download_limit|string + ' KB/s' or ''}}
+              {% if Attr.download_limit %}
+                {{ Attr.download_limit|string + ' KB/s' or ''}}
               {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">分享率限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].ratio_limit or '' }}
+                {{ Attr.ratio_limit or '' }}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">做种时间限制</div>
               <div class="datagrid-content">
-              {% if DownloadSetting[Id].seeding_time_limit %}
-                {{ DownloadSetting[Id].seeding_time_limit|string + ' 分钟' or '' }}
+              {% if Attr.seeding_time_limit %}
+                {{ Attr.seeding_time_limit|string + ' 分钟' or '' }}
               {% endif %}
               </div>
             </div>

@@ -385,8 +385,8 @@
               <label class="form-label">下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission"
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="userrss_download_setting">
-                {% for Id in DownloadSettings %}
-                <option value="{{ DownloadSettings[Id].id }}">{{ DownloadSettings[Id].name }}</option>
+                {% for Id, Attr in DownloadSettings.items() %}
+                <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                 {% endfor %}
               </select>
             </div>
