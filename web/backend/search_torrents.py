@@ -3,7 +3,6 @@ import re
 import cn2an
 
 import log
-from app.indexer import BuiltinIndexer
 from app.sites import Sites
 from config import Config
 from app.message import Message
@@ -248,24 +247,19 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
 
         # 去掉查询中的电影或电视剧关键字
         mtype, _, _, _, _, content = StringUtils.get_keyword_from_string(input_str)
-        # 获取字符串中可能的RSS站点列表
-        rss_sites, content = StringUtils.get_idlist_from_string(content,
-                                                                [{
-                                                                    "id": site.get("id"),
-                                                                    "name": site.get("name")
-                                                                } for site in Sites().get_sites(rss=True)])
-        # 获取字符串中可能的搜索站点列表
-        search_sites, content = StringUtils.get_idlist_from_string(content,
-                                                                   [{
-                                                                       "id": indexer.id,
-                                                                       "name": indexer.name
-                                                                   } for indexer in BuiltinIndexer().get_indexers()])
+        # 获取字符串中可能的站点列表
+        sites, content = StringUtils.get_idlist_from_string(content,
+                                                            [{
+                                                                "id": site.get("id"),
+                                                                "name": site.get("name")
+                                                            } for site in Sites().get_sites(rss=True)])
         # 获取字符串中可能的下载设置
         download_setting, content = StringUtils.get_idlist_from_string(content,
                                                                        [{
                                                                            "id": dl.get("id"),
                                                                            "name": dl.get("name")
-                                                                       } for dl in Downloader().get_download_setting().values()])
+                                                                       } for dl in
+                                                                           Downloader().get_download_setting().values()])
         if download_setting:
             download_setting = download_setting[0]
         # 识别媒体信息，列出匹配到的所有媒体
@@ -300,8 +294,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         if use_douban_titles:
             for meta_info in tmdb_infos:
                 # 合并站点和下载设置信息
-                meta_info.rss_sites = rss_sites
-                meta_info.search_sites = search_sites
+                meta_info.sites = sites
                 media_info.download_setting = download_setting
 
                 SEARCH_MEDIA_CACHE.append(meta_info)
@@ -314,8 +307,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                 if meta_info.begin_episode:
                     meta_info.title = "%s 第%s集" % (meta_info.title, meta_info.begin_episode)
                 # 合并站点和下载设置信息
-                meta_info.rss_sites = rss_sites
-                meta_info.search_sites = search_sites
+                meta_info.sites = sites
                 media_info.download_setting = download_setting
 
                 SEARCH_MEDIA_CACHE.append(meta_info)
@@ -374,7 +366,7 @@ def __search_media(in_from, media_info, user_id):
     search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
                                                                                          in_from=in_from,
                                                                                          no_exists=no_exists,
-                                                                                         sites=media_info.search_sites)
+                                                                                         sites=media_info.sites)
     # 没有搜索到数据
     if not search_count:
         Message().send_channel_msg(channel=in_from,
@@ -414,8 +406,8 @@ def __rss_media(in_from, media_info, user_id=None, state='D'):
                                                               season=media_info.begin_season,
                                                               doubanid=media_info.douban_id,
                                                               state=state,
-                                                              rss_sites=media_info.rss_sites,
-                                                              search_sites=media_info.search_sites)
+                                                              rss_sites=media_info.sites,
+                                                              search_sites=media_info.sites)
     else:
         code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
                                                               name=media_info.title,
@@ -423,8 +415,8 @@ def __rss_media(in_from, media_info, user_id=None, state='D'):
                                                               season=media_info.begin_season,
                                                               tmdbid=media_info.tmdb_id,
                                                               state=state,
-                                                              rss_sites=media_info.rss_sites,
-                                                              search_sites=media_info.search_sites)
+                                                              rss_sites=media_info.sites,
+                                                              search_sites=media_info.sites)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:

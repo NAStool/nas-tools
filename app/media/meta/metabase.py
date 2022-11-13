@@ -80,9 +80,8 @@ class MetaBase(object):
     tmdb_info = {}
     # 本地状态 1-已订阅 2-已存在
     fav = 0
-    # RSS站点
-    rss_sites = []
-    search_sites = []
+    # 站点列表
+    sites = []
     # 种子附加信息
     # 站点名称
     site = None
