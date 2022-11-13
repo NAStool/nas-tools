@@ -390,17 +390,28 @@ def update_config(cfg):
             overwrite_cofig = True
     except Exception as e:
         print(str(e))
-    # 目录同步兼容旧配置
+    # 消息服务兼容旧配置
     try:
         message = Config().get_config('message') or {}
         msg_channel = message.get('msg_channel')
+        switchs = []
         switch = message.get('switch')
-        client_config = {}
-        interactive = 0
-        ctype = 0
-        enabled = 1
-        name = None
-        if msg_channel == "telegram":
+        if switch:
+            if switch.get("download_start"):
+                switchs.append("11")
+            if switch.get("download_fail"):
+                switchs.append("12")
+            if switch.get("transfer_finished"):
+                switchs.append("21")
+            if switch.get("transfer_fail"):
+                switchs.append("22")
+            if switch.get("rss_added"):
+                switchs.append("31")
+            if switch.get("rss_finished"):
+                switchs.append("32")
+            if switch.get("site_signin"):
+                switchs.append("41")
+        if message.get('telegram'):
             token = message.get('telegram', {}).get('telegram_token')
             chat_id = message.get('telegram', {}).get('telegram_chat_id')
             user_ids = message.get('telegram', {}).get('telegram_user_ids')
@@ -409,52 +420,80 @@ def update_config(cfg):
                 name = "Telegram"
                 ctype = 1
                 interactive = 1
-                client_config = {
+                enabled = 1 if msg_channel == 'telegram' else 0
+                client_config = json.dumps({
                     'token': token,
                     'chat_id': chat_id,
                     'user_ids': user_ids,
                     'webhook': webhook
-                }
-        elif msg_channel == "wechat":
+                })
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        if message.get('wechat'):
             corpid = message.get('wechat', {}).get('corpid')
             corpsecret = message.get('wechat', {}).get('corpsecret')
             agent_id = message.get('wechat', {}).get('agentid')
             default_proxy = message.get('wechat', {}).get('default_proxy')
-            token = message.get('wechat', {}).get('default_proxy')
+            token = message.get('wechat', {}).get('Token')
             encodingAESkey = message.get('wechat', {}).get('EncodingAESKey')
             if corpid and corpsecret and agent_id:
                 name = "WeChat"
                 ctype = 2
                 interactive = 1
-                client_config = {
+                enabled = 1 if msg_channel == 'wechat' else 0
+                client_config = json.dumps({
                     'corpid': corpid,
                     'corpsecret': corpsecret,
-                    'agent_id': agent_id,
+                    'agentid': agent_id,
                     'default_proxy': default_proxy,
                     'token': token,
-                    'encodingAESkey': encodingAESkey
-                }
-        elif msg_channel == "serverchan":
+                    'encodingAESKey': encodingAESkey
+                })
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        if message.get('serverchan'):
             sckey = message.get('serverchan', {}).get('sckey')
             if sckey:
                 name = "ServerChan"
                 ctype = 3
                 interactive = 0
-                client_config = {
+                enabled = 1 if msg_channel == 'serverchan' else 0
+                client_config = json.dumps({
                     'sckey': sckey
-                }
-        elif msg_channel == "bark":
+                })
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        if message.get('bark'):
             server = message.get('bark', {}).get('server')
             apikey = message.get('bark', {}).get('apikey')
             if server and apikey:
                 name = "Bark"
                 ctype = 4
                 interactive = 0
-                client_config = {
+                enabled = 1 if msg_channel == 'bark' else 0
+                client_config = json.dumps({
                     'server': server,
                     'apikey': apikey
-                }
-        elif msg_channel == "pushplus":
+                })
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        if message.get('pushplus'):
             token = message.get('pushplus', {}).get('push_token')
             topic = message.get('pushplus', {}).get('push_topic')
             channel = message.get('pushplus', {}).get('push_channel')
@@ -463,47 +502,53 @@ def update_config(cfg):
                 name = "PushPlus"
                 ctype = 5
                 interactive = 0
+                enabled = 1 if msg_channel == 'pushplus' else 0
                 client_config = {
                     'token': token,
                     'topic': topic,
                     'channel': channel,
                     'webhook': webhook
                 }
-        elif msg_channel == "iyuu":
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        if message.get('iyuu'):
             token = message.get('iyuu', {}).get('iyuu_token')
             if token:
                 name = "IyuuMsg"
                 ctype = 6
                 interactive = 0
-                client_config = {
+                enabled = 1 if msg_channel == 'iyuu' else 0
+                client_config = json.dumps({
                     'token': token
-                }
-        if client_config:
-            switchs = []
-            if switch:
-                if switch.get("download_start"):
-                    switchs.append("11")
-                if switch.get("download_fail"):
-                    switchs.append("12")
-                if switch.get("transfer_finished"):
-                    switchs.append("21")
-                if switch.get("transfer_fail"):
-                    switchs.append("22")
-                if switch.get("rss_added"):
-                    switchs.append("31")
-                if switch.get("rss_finished"):
-                    switchs.append("32")
-                if switch.get("site_signin"):
-                    switchs.append("41")
-            client_config = json.dumps(client_config)
-            _dbhelper.insert_message_client(name=name,
-                                            ctype=ctype,
-                                            config=client_config,
-                                            switchs=switchs,
-                                            interactive=interactive,
-                                            enabled=enabled)
+                })
+                _dbhelper.insert_message_client(name=name,
+                                                ctype=ctype,
+                                                config=client_config,
+                                                switchs=switchs,
+                                                interactive=interactive,
+                                                enabled=enabled)
+        # 删除旧配置
+        if _config.get('message', {}).get('msg_channel'):
             _config['message'].pop('msg_channel')
-            overwrite_cofig = True
+        if _config.get('message', {}).get('switch'):
+            _config['message'].pop('switch')
+        if _config.get('message', {}).get('wechat'):
+            _config['message'].pop('wechat')
+        if _config.get('message', {}).get('telegram'):
+            _config['message'].pop('telegram')
+        if _config.get('message', {}).get('serverchan'):
+            _config['message'].pop('serverchan')
+        if _config.get('message', {}).get('bark'):
+            _config['message'].pop('bark')
+        if _config.get('message', {}).get('pushplus'):
+            _config['message'].pop('pushplus')
+        if _config.get('message', {}).get('iyuu'):
+            _config['message'].pop('iyuu')
+        overwrite_cofig = True
     except Exception as e:
         print(str(e))
     # 重写配置文件
@@ -523,7 +568,7 @@ def get_run_config(cfg):
     app_conf = cfg.get_config('app')
     if app_conf:
         if app_conf.get("web_host"):
-            _web_host = app_conf.get("web_host")
+            _web_host = app_conf.get("web_host").replace('[', '').replace(']', '')
         _web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port', '')).isdigit() else 3000
         _ssl_cert = app_conf.get('ssl_cert')
         _ssl_key = app_conf.get('ssl_key')
