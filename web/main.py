@@ -1013,6 +1013,7 @@ def download_setting():
     Count = len(DownloadSetting)
     return render_template("setting/download_setting.html",
                            DownloadSetting=DownloadSetting,
+                           DownloaderTypes=DownloaderType,
                            Count=Count)
 
 

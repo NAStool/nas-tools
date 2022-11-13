@@ -295,7 +295,12 @@ class RssChecker(object):
                     _dbhelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
                     # FIXME 自定义RSS任务下载记录 里面缺少必要字段无法进行种子是否已下载去重 需要进行表结构升级
-                    _dbhelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
+                    downloader = Downloader().get_default_client_type().value
+                    if media.download_setting:
+                        download_attr = self.get_download_setting(media.download_setting)
+                        if download_attr.get("downloader"):
+                            downloader = download_attr.get("downloader")
+                    _dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)
                 else:
                     log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                     if ret_msg:
@@ -599,7 +604,12 @@ class RssChecker(object):
                 # 插入数据库
                 _dbhelper.insert_rss_torrents(media)
                 # 登记自定义RSS任务下载记录
-                _dbhelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
+                downloader = Downloader().get_default_client_type().value
+                if taskinfo.get("download_setting"):
+                    download_attr = self.get_download_setting(taskinfo.get("download_setting"))
+                    if download_attr.get("downloader"):
+                        downloader = download_attr.get("downloader")
+                _dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)
             else:
                 log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:

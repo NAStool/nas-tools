@@ -2040,7 +2040,7 @@ class DbHelper:
                                 download_limit,
                                 ratio_limit,
                                 seeding_time_limit,
-                                note=None):
+                                downloader):
         """
         设置下载设置
         """
@@ -2056,7 +2056,7 @@ class DbHelper:
                     "DOWNLOAD_LIMIT": int(float(download_limit)),
                     "RATIO_LIMIT": int(round(float(ratio_limit), 2) * 100),
                     "SEEDING_TIME_LIMIT": int(float(seeding_time_limit)),
-                    "NOTE": note
+                    "NOTE": downloader
                 }
             )
         else:
@@ -2070,7 +2070,7 @@ class DbHelper:
                 DOWNLOAD_LIMIT=int(float(download_limit)),
                 RATIO_LIMIT=int(round(float(ratio_limit), 2) * 100),
                 SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
-                NOTE=note
+                NOTE=downloader
             ))
 
     @DbPersist(_db)

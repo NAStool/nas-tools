@@ -356,6 +356,7 @@ class Rss:
             if not media_info or not media_info.tmdb_info:
                 self.dbhelper.update_rss_movie_state(rssid=rssid, state='R')
                 continue
+            media_info.download_setting = rss_info.get("download_setting")
             # 非洗版的情况检查是否存在
             if not rss_info.get("over_edition"):
                 # 检查是否存在
@@ -417,6 +418,8 @@ class Rss:
             if not media_info or not media_info.tmdb_info:
                 self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
                 continue
+            # 取下载设置
+            media_info.download_setting = rss_info.get("download_setting")
             # 从登记薄中获取缺失剧集
             season = 1
             if rss_info.get("season"):

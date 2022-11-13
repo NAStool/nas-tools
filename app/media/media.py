@@ -1217,6 +1217,7 @@ class Media:
         target.set_tmdb_info(source.tmdb_info)
         target.fanart_poster = source.get_poster_image()
         target.fanart_backdrop = source.get_backdrop_image()
+        target.download_setting = source.download_setting
         return target
 
     def get_tmdbid_by_imdbid(self, imdbid):
