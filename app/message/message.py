@@ -34,8 +34,8 @@ class Message:
         "switch": {
             "download_start": {"name": "新增下载", "fuc_name": "download_start"},
             "download_fail": {"name": "下载失败", "fuc_name": "download_fail"},
-            "transfer_finished": {"name": "转移完成", "fuc_name": "transfer_finished"},
-            "transfer_fail": {"name": "转移失败", "fuc_name": "transfer_fail"},
+            "transfer_finished": {"name": "入库完成", "fuc_name": "transfer_finished"},
+            "transfer_fail": {"name": "入库失败", "fuc_name": "transfer_fail"},
             "rss_added": {"name": "新增订阅", "fuc_name": "rss_added"},
             "rss_finished": {"name": "订阅完成", "fuc_name": "rss_finished"},
             "site_signin": {"name": "站点签到", "fuc_name": "site_signin"},
@@ -208,8 +208,9 @@ class Message:
         :param can_item: 下载的媒体信息
         :return: 发送状态、错误信息
         """
-        msg_title = can_item.get_title_ep_vote_string()
-        msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()} {can_item.get_season_episode_string()} 已开始下载"
+        msg_title = f"{can_item.get_title_ep_string()} 开始下载"
+        msg_text = f"{can_item.get_vote_string()}"
+        msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.site:
             msg_text = f"{msg_text}\n站点：{can_item.site}"
         if can_item.get_resource_type_string():
@@ -252,7 +253,7 @@ class Message:
         :param category_flag: 二级分类开关
         :return: 发送状态、错误信息
         """
-        msg_title = f"{media_info.get_title_string()} 转移完成"
+        msg_title = f"{media_info.get_title_string()} 已入库"
         if media_info.vote_average:
             msg_str = f"{media_info.get_vote_string()}，类型：电影"
         else:
@@ -282,9 +283,9 @@ class Message:
         """
         for item_info in message_medias.values():
             if item_info.total_episodes == 1:
-                msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
+                msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 已入库"
             else:
-                msg_title = f"{item_info.get_title_string()} {item_info.get_season_string()} 转移完成"
+                msg_title = f"{item_info.get_title_string()} {item_info.get_season_string()} 共{item_info.total_episodes}集 已入库"
             if item_info.vote_average:
                 msg_str = f"{item_info.get_vote_string()}，类型：{item_info.type.value}"
             else:
@@ -294,7 +295,7 @@ class Message:
             if item_info.total_episodes == 1:
                 msg_str = f"{msg_str}，大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             else:
-                msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
+                msg_str = f"{msg_str}，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 发送消息
             for client in self._active_clients:
                 if "transfer_finished" in client.get("switchs"):
