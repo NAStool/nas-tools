@@ -54,11 +54,4 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 mkdir -p /.local
 chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/chromium /.local
 export PATH=$PATH:/usr/lib/chromium
-if [ -f /usr/bin/gunicorn ]; then
-    exec su-exec ${PUID}:${PGID} gunicorn run:NAStool
-else
-    echo "注意：日志将停止打印，请通过文件或WEB页面查看日志"
-    mkdir -p /config/logs/supervisor
-    umask ${UMASK}
-    exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf
-fi
+exec su-exec ${PUID}:${PGID} gunicorn run:NAStool

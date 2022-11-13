@@ -8,12 +8,13 @@
 #   move会直接移动原文件，会影响做种，请谨慎使用
 #   rclone需要自行映射rclone配置目录到容器中，或在容器内完成rclone配置
 app:
-  # 【日志记录类型】：server、file
-  # 如果是使用Docker安装建议设置为file，将日志输出到配置文件目录
+  # 【日志记录类型】：server、file、console
+  # 如果是使用Docker安装建议设置为console，通过Docker管理器查看日志
   # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
-  logtype: file
+  # 其它情况可以设置为file，将日志写入文件
+  logtype: console
   # 【日志文件的路径】：logtype为file时生效
-  logpath: '/config/logs'
+  logpath:
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP，示例：127.0.0.1:514
   logserver: 127.0.0.1:514
   # 【日志级别】：info、debug、error
