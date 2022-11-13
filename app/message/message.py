@@ -161,14 +161,12 @@ class Message:
             url = ""
         for client in self._active_clients:
             if client.get("search_type") == channel:
-                state, ret_msg = self.__sendmsg(client=client,
-                                                title=title,
-                                                text=text,
-                                                image=image,
-                                                url=url,
-                                                user_id=user_id)
-                if not state:
-                    log.error("【Message】发送消息失败：%s" % ret_msg)
+                state = self.__sendmsg(client=client,
+                                       title=title,
+                                       text=text,
+                                       image=image,
+                                       url=url,
+                                       user_id=user_id)
                 return state
         return False
 

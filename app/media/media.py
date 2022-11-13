@@ -158,10 +158,10 @@ class Media:
             if first_media_year:
                 year_range.append(str(int(first_media_year) + 1))
                 year_range.append(str(int(first_media_year) - 1))
-            for first_media_year in year_range:
+            for year in year_range:
                 log.debug(
-                    f"【Meta】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
-                info = self.__search_movie_by_name(file_media_name, first_media_year)
+                    f"【Meta】正在识别{search_type.value}：{file_media_name}, 年份={year} ...")
+                info = self.__search_movie_by_name(file_media_name, year)
                 if info:
                     info['media_type'] = MediaType.MOVIE
                     log.info("【Meta】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
