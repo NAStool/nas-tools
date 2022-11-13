@@ -143,13 +143,17 @@
             <div class="datagrid-item">
               <div class="datagrid-title">上传速度限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].upload_limit + 'KB/s' or '' }}
+              {% if DownloadSetting[Id].upload_limit %}
+                {{ DownloadSetting[Id].upload_limit|string + ' KB/s' or '' }}
+              {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载速度限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].download_limit + 'KB/s' or ''}}
+              {% if DownloadSetting[Id].download_limit %}
+                {{ DownloadSetting[Id].download_limit|string + ' KB/s' or ''}}
+              {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
@@ -161,7 +165,9 @@
             <div class="datagrid-item">
               <div class="datagrid-title">做种时间限制</div>
               <div class="datagrid-content">
-                {{ DownloadSetting[Id].seeding_time_limit or '' }} 分钟
+              {% if DownloadSetting[Id].seeding_time_limit %}
+                {{ DownloadSetting[Id].seeding_time_limit|string + ' 分钟' or '' }}
+              {% endif %}
               </div>
             </div>
           </div>
