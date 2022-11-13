@@ -331,3 +331,21 @@ class StringUtils:
         :return:
         """
         return '; '.join(['='.join(item) for item in cj.items()])
+
+    @staticmethod
+    def get_idlist_from_string(content, dicts):
+        """
+        从字符串中提取id列表
+        :param content: 字符串
+        :param dicts: 字典
+        :return:
+        """
+        if not content:
+            return []
+        id_list = []
+        for dic in dicts:
+            if content.find(dic['name']) != -1:
+                if dic['id'] not in id_list:
+                    id_list.append(dic['id'])
+                    content = content.replace(dic['name'], '')
+        return id_list, re.sub(r'\s+', ' ', content).strip()
