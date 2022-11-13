@@ -235,13 +235,14 @@ class Message:
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=msg_title,
-                text=msg_text,
-                image=can_item.get_message_image(),
-                url='downloading'
-            )
+            if "download_start" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=msg_title,
+                    text=msg_text,
+                    image=can_item.get_message_image(),
+                    url='downloading'
+                )
 
     def send_transfer_movie_message(self, in_from: Enum, media_info, exist_filenum, category_flag):
         """
