@@ -27,31 +27,33 @@ class Logger:
     def __init__(self, module):
         self.logger = logging.getLogger(module)
         self.__config = Config()
-        logtype = self.__config.get_config('app').get('logtype') or "file"
+        logtype = self.__config.get_config('app').get('logtype') or "console"
         loglevel = self.__config.get_config('app').get('loglevel') or "info"
         self.logger.setLevel(level=self.__loglevels.get(loglevel))
         if logtype == "server":
             logserver = self.__config.get_config('app').get('logserver', '').split(':')
-            logip = logserver[0]
-            if len(logserver) > 1:
-                logport = int(logserver[1] or '514')
-            else:
-                logport = 514
-            log_server_handler = logging.handlers.SysLogHandler((logip, logport),
-                                                                logging.handlers.SysLogHandler.LOG_USER)
-            log_server_handler.setFormatter(logging.Formatter('%(filename)s: %(message)s'))
-            self.logger.addHandler(log_server_handler)
-        else:
+            if logserver:
+                logip = logserver[0]
+                if len(logserver) > 1:
+                    logport = int(logserver[1] or '514')
+                else:
+                    logport = 514
+                log_server_handler = logging.handlers.SysLogHandler((logip, logport),
+                                                                    logging.handlers.SysLogHandler.LOG_USER)
+                log_server_handler.setFormatter(logging.Formatter('%(filename)s: %(message)s'))
+                self.logger.addHandler(log_server_handler)
+        elif logtype == "file":
             # 记录日志到文件
             logpath = os.environ.get('NASTOOL_LOG') or self.__config.get_config('app').get('logpath') or ""
-            if not os.path.exists(logpath):
-                os.makedirs(logpath)
-            log_file_handler = RotatingFileHandler(filename=os.path.join(logpath, module + ".txt"),
-                                                   maxBytes=5 * 1024 * 1024,
-                                                   backupCount=3,
-                                                   encoding='utf-8')
-            log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
-            self.logger.addHandler(log_file_handler)
+            if logpath:
+                if not os.path.exists(logpath):
+                    os.makedirs(logpath)
+                log_file_handler = RotatingFileHandler(filename=os.path.join(logpath, module + ".txt"),
+                                                       maxBytes=5 * 1024 * 1024,
+                                                       backupCount=3,
+                                                       encoding='utf-8')
+                log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
+                self.logger.addHandler(log_file_handler)
         # 记录日志到终端
         log_console_handler = logging.StreamHandler()
         log_console_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
