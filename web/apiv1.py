@@ -20,7 +20,7 @@ apiv1_bp = Blueprint("apiv1",
 Apiv1 = Api(apiv1_bp,
             version="1.0",
             title="NAStool Api",
-            description="",
+            description="POST接口调用/user/login获取Token，GET接口使用Api Key",
             doc="/",
             security='Bearer Auth',
             authorizations={"Bearer Auth": {"type": "apiKey", "name": "Authorization", "in": "header"}},
@@ -43,6 +43,7 @@ media = Apiv1.namespace('media', description='媒体')
 sync = Apiv1.namespace('sync', description='目录同步')
 filterrule = Apiv1.namespace('filterrule', description='过滤规则')
 words = Apiv1.namespace('words', description='识别词')
+message = Apiv1.namespace('message', description='消息通知')
 
 
 class ApiResource(Resource):
@@ -1972,3 +1973,77 @@ class SyncDirectoryList(ClientResource):
         查询所有同步目录
         """
         return WebAction().api_action(cmd='get_directorysync')
+
+
+@message.route('/client/update')
+class MessageClientUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form')
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）',
+                        location='form', required=True)
+    parser.add_argument('config', type=str, help='配置项（JSON）', location='form', required=True)
+    parser.add_argument('switchs', type=list, help='开关', location='form', required=True)
+    parser.add_argument('interactive', type=int, help='是否开启交互（0/1）', location='form', required=True)
+    parser.add_argument('enabled', type=int, help='是否启用（0/1）', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改通知消息服务渠道
+        """
+        return WebAction().api_action(cmd='update_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/delete')
+class MessageClientDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        删除通知消息服务渠道
+        """
+        return WebAction().api_action(cmd='delete_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/status')
+class MessageClientStatus(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('flag', type=str, help='操作类型（interactive/enable）', location='form', required=True)
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        设置通知消息服务渠道状态
+        """
+        return WebAction().api_action(cmd='check_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/info')
+class MessageClientInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        查询通知消息服务渠道设置
+        """
+        return WebAction().api_action(cmd='get_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/test')
+class MessageClientTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）', location='form', required=True)
+    parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        测试通知消息服务配置正确性
+        """
+        return WebAction().api_action(cmd='test_message_client', data=self.parser.parse_args())
