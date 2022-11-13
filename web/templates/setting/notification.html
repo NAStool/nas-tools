@@ -69,18 +69,18 @@
                     {% for SwitchID in Switchs %}
                       {% if not MessageClients[Id].switchs or SwitchID in MessageClients[Id].switchs %}
                       <span class="badge badge-outline
-                      {% if "download" in Switchs[SwitchID].fuc_name %}
-                      text-pink
-                      {% elif "transfer" in Switchs[SwitchID].fuc_name %}
-                      text-orange
-                      {% elif "rss" in Switchs[SwitchID].fuc_name %}
-                      text-yellow
-                      {% elif "site" in Switchs[SwitchID].fuc_name %}
-                      text-green
-                      {% elif "brushtask" in Switchs[SwitchID].fuc_name %}
-                      text-cyan
-                      {% elif "mediaserver" in Switchs[SwitchID].fuc_name %}
+                      {% if "download" in SwitchID %}
                       text-blue
+                      {% elif "transfer" in SwitchID %}
+                      text-azure
+                      {% elif "rss" in SwitchID %}
+                      text-indigo
+                      {% elif "site" in SwitchID %}
+                      text-purple
+                      {% elif "brushtask" in SwitchID %}
+                      text-pink
+                      {% elif "mediaserver" in SwitchID %}
+                      text-orange
                       {% endif %}
                       me-1 mb-1">{{ Switchs[SwitchID].name }}</span>
                       {% endif %}
@@ -88,7 +88,7 @@
                   </small>
                 </td>
                 <td>
-                  {% if MessageClients[Id].type in [1, 2] %}
+                  {% if MessageClients[Id].type in ['telegram', 'wechat'] %}
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" {% if MessageClients[Id].interactive == 1 %} checked {% endif %}
                       onclick="check_message_client('interactive', '{{ Id }}', this.checked)">
@@ -103,7 +103,7 @@
                 </td>
                 <td>
                   <div class="d-flex">
-                    <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑替换词">
+                    <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -113,7 +113,7 @@
                         <line x1="16" y1="5" x2="19" y2="8" />
                       </svg>
                     </a>
-                    <a href="javascript:delete_message_client('{{ Id }}', '{{ MessageClients[Id].name }}')" title="删除目录" class="ms-2">
+                    <a href="javascript:delete_message_client('{{ Id }}', '{{ MessageClients[Id].name }}')" title="删除" class="ms-2">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -485,7 +485,7 @@
     $("#pushplus_topic").val('');
     $("#pushplus_webhook").val('');
     $("#iyuumsg_token").val('');
-    show_client_type('1');
+    show_client_type('telegram');
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
       $(this).prop("checked", false);
@@ -504,8 +504,27 @@
         $("#client_name").val(ret.detail.name);
         $("#client_enabled").val(ret.detail.enabled);
         $("#client_interactive").val(ret.detail.interactive);
-        var type = String(ret.detail.type);
-        if (type == "1") {
+        // 清空输入项
+        $("#telegram_token").val('');
+        $("#telegram_chat_id").val('');
+        $("#telegram_user_ids").val('');
+        $("#telegram_webhook").prop("checked", false);
+        $("#wechat_corpid").val('');
+        $("#wechat_corpsecret").val('');
+        $("#wechat_agentid").val('');
+        $("#wechat_default_proxy").val('');
+        $("#wechat_token").val('');
+        $("#wechat_encodingAESKey").val('');
+        $("#serverchan_sckey").val('');
+        $("#bark_server").val('');
+        $("#bark_apikey").val('');
+        $("#pushplus_token").val('');
+        $("#pushplus_channel").val('WeChat');
+        $("#pushplus_topic").val('');
+        $("#pushplus_webhook").val('');
+        $("#iyuumsg_token").val('');
+        var type = ret.detail.type;
+        if (type == "telegram") {
           $("#telegram_token").val(ret.detail.config.token);
           $("#telegram_chat_id").val(ret.detail.config.chat_id);
           $("#telegram_user_ids").val(ret.detail.config.user_ids);
@@ -514,114 +533,24 @@
           } else {
             $("#telegram_webhook").prop("checked", false);
           }
-          $("#wechat_corpid").val('');
-          $("#wechat_corpsecret").val('');
-          $("#wechat_agentid").val('');
-          $("#wechat_default_proxy").val('https://wechat.nastool.cn');
-          $("#wechat_token").val('');
-          $("#wechat_encodingAESKey").val('');
-          $("#serverchan_sckey").val('');
-          $("#bark_server").val('https://api.day.app');
-          $("#bark_apikey").val('');
-          $("#pushplus_token").val('');
-          $("#pushplus_channel").val('WeChat');
-          $("#pushplus_topic").val('');
-          $("#pushplus_webhook").val('');
-          $("#iyuumsg_token").val('');
-        } else if (type == "2") {
-          $("#telegram_token").val('');
-          $("#telegram_chat_id").val('');
-          $("#telegram_user_ids").val('');
-          $("#telegram_webhook").prop("checked", false);
+        } else if (type == "wechat") {
           $("#wechat_corpid").val(ret.detail.config.corpid);
           $("#wechat_corpsecret").val(ret.detail.config.corpsecret);
           $("#wechat_agentid").val(ret.detail.config.agentid);
           $("#wechat_default_proxy").val(ret.detail.config.default_proxy);
           $("#wechat_token").val(ret.detail.config.token);
           $("#wechat_encodingAESKey").val(ret.detail.config.encodingAESKey);
-          $("#serverchan_sckey").val('');
-          $("#bark_server").val('https://api.day.app');
-          $("#bark_apikey").val('');
-          $("#pushplus_token").val('');
-          $("#pushplus_channel").val('WeChat');
-          $("#pushplus_topic").val('');
-          $("#pushplus_webhook").val('');
-          $("#iyuumsg_token").val('');
-        } else if (type == "3") {
-          $("#telegram_token").val('');
-          $("#telegram_chat_id").val('');
-          $("#telegram_user_ids").val('');
-          $("#telegram_webhook").prop("checked", false);
-          $("#wechat_corpid").val('');
-          $("#wechat_corpsecret").val('');
-          $("#wechat_agentid").val('');
-          $("#wechat_default_proxy").val('https://wechat.nastool.cn');
-          $("#wechat_token").val('');
-          $("#wechat_encodingAESKey").val('');
+        } else if (type == "serverchan") {
           $("#serverchan_sckey").val(ret.detail.config.sckey);
-          $("#bark_server").val('https://api.day.app');
-          $("#bark_apikey").val('');
-          $("#pushplus_token").val('');
-          $("#pushplus_channel").val('WeChat');
-          $("#pushplus_topic").val('');
-          $("#pushplus_webhook").val('');
-          $("#iyuumsg_token").val('');
-        } else if (type == "4") {
-          $("#telegram_token").val('');
-          $("#telegram_chat_id").val('');
-          $("#telegram_user_ids").val('');
-          $("#telegram_webhook").prop("checked", false);
-          $("#wechat_corpid").val('');
-          $("#wechat_corpsecret").val('');
-          $("#wechat_agentid").val('');
-          $("#wechat_default_proxy").val('https://wechat.nastool.cn');
-          $("#wechat_token").val('');
-          $("#wechat_encodingAESKey").val('');
-          $("#serverchan_sckey").val('');
+        } else if (type == "bark") {
           $("#bark_server").val(ret.detail.config.server);
           $("#bark_apikey").val(ret.detail.config.apikey);
-          $("#pushplus_token").val('');
-          $("#pushplus_channel").val('WeChat');
-          $("#pushplus_topic").val('');
-          $("#pushplus_webhook").val('');
-          $("#iyuumsg_token").val('');
-        } else if (type == "5") {
-          $("#telegram_token").val('');
-          $("#telegram_chat_id").val('');
-          $("#telegram_user_ids").val('');
-          $("#telegram_webhook").prop("checked", false);
-          $("#wechat_corpid").val('');
-          $("#wechat_corpsecret").val('');
-          $("#wechat_agentid").val('');
-          $("#wechat_default_proxy").val('https://wechat.nastool.cn');
-          $("#wechat_token").val('');
-          $("#wechat_encodingAESKey").val('');
-          $("#serverchan_sckey").val('');
-          $("#bark_server").val('https://api.day.app');
-          $("#bark_apikey").val('');
+        } else if (type == "pushplus") {
           $("#pushplus_token").val(ret.detail.config.token);
           $("#pushplus_channel").val(ret.detail.config.channel);
           $("#pushplus_topic").val(ret.detail.config.topic);
           $("#pushplus_webhook").val(ret.detail.config.webhook);
-          $("#iyuumsg_token").val('');
-        } else if (type == "6") {
-          $("#telegram_token").val('');
-          $("#telegram_chat_id").val('');
-          $("#telegram_user_ids").val('');
-          $("#telegram_webhook").prop("checked", false);
-          $("#wechat_corpid").val('');
-          $("#wechat_corpsecret").val('');
-          $("#wechat_agentid").val('');
-          $("#wechat_default_proxy").val('https://wechat.nastool.cn');
-          $("#wechat_token").val('');
-          $("#wechat_encodingAESKey").val('');
-          $("#serverchan_sckey").val('');
-          $("#bark_server").val('https://api.day.app');
-          $("#bark_apikey").val('');
-          $("#pushplus_token").val('');
-          $("#pushplus_channel").val('WeChat');
-          $("#pushplus_topic").val('');
-          $("#pushplus_webhook").val('');
+        } else if (type == "iyuu") {
           $("#iyuumsg_token").val(ret.detail.config.token);
         }
         show_client_type(type);
@@ -637,11 +566,11 @@
       }
     });
   }
-  // 新增/编辑自屏蔽词
+  // 新增/编辑消息
   function add_or_edit_or_test_message_client(action) {
     var type = $('input:radio[name=client_type]:checked').val();
     var interactive = $("#client_interactive").val();
-    if (type == "1") {
+    if (type == "telegram") {
         var token = $("#telegram_token").val();
         var chat_id = $("#telegram_chat_id").val();
         var user_ids = $("#telegram_user_ids").val();
@@ -668,7 +597,7 @@
           user_ids: user_ids,
           webhook: webhook
         });
-    } else if (type == "2") {
+    } else if (type == "wechat") {
         var corpid = $("#wechat_corpid").val();
         var corpsecret = $("#wechat_corpsecret").val();
         var agentid = $("#wechat_agentid").val();
@@ -685,13 +614,13 @@
           $("#wechat_corpsecret").addClass("is-invalid");
           return;
         } else {
-          $("#wechat_corpsecret").addClass("is-invalid");
+          $("#wechat_corpsecret").removeClass("is-invalid");
         }
         if (!agentid) {
           $("#wechat_agentid").addClass("is-invalid");
           return;
         } else {
-          $("#wechat_agentid").addClass("is-invalid");
+          $("#wechat_agentid").removeClass("is-invalid");
         }
         config = JSON.stringify({
           corpid: corpid,
@@ -701,7 +630,7 @@
           token: token,
           encodingAESKey: encodingAESKey
         });
-    } else if (type == "3") {
+    } else if (type == "serverchan") {
       var sckey = $("#serverchan_sckey").val();
       interactive = "0";
       if (!sckey) {
@@ -713,7 +642,7 @@
       var config = JSON.stringify({
         sckey: sckey
       });
-    } else if (type == "4") {
+    } else if (type == "bark") {
       var server = $("#bark_server").val();
       var apikey = $("#bark_apikey").val();
       interactive = "0";
@@ -733,7 +662,7 @@
         server: server,
         apikey: apikey
       });
-    } else if (type == "5") {
+    } else if (type == "pushplus") {
       var token = $("#pushplus_token").val();
       var channel = $("#pushplus_channel").val();
       var topic = $("#pushplus_topic").val();
@@ -751,7 +680,7 @@
         topic: topic,
         webhook: webhook
       });
-    } else if (type == "6") {
+    } else if (type == "iyuu") {
       var token = $("#iyuumsg_token").val();
       interactive = "0";
       if (!token) {
@@ -885,7 +814,7 @@
       $("#div_client_interactive").hide();
       $("#type_pushplus").prop("checked", true);
     }
-    else if (type == '6') {
+    else if (type == 'iyuu') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });

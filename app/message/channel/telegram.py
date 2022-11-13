@@ -1,19 +1,18 @@
 from threading import Event, Lock
 from urllib.parse import urlencode
-from app.helper.thread_helper import ThreadHelper
+
 import requests
 
 import log
-from config import Config
+from app.helper.thread_helper import ThreadHelper
 from app.message.channel.channel import IMessageChannel
-from app.utils.commons import singleton
 from app.utils import RequestUtils
+from config import Config
 
 lock = Lock()
 WEBHOOK_STATUS = False
 
 
-@singleton
 class Telegram(IMessageChannel):
     __telegram_token = None
     __telegram_chat_id = None

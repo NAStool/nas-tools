@@ -1398,7 +1398,6 @@
       }
       ajax_post("media_info", { "id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid, "page": page, "rssid": rssid }, function (ret) {
         hide_wait_process();
-        debugger;
         if (ret.code === 0) {
           //显示信息
           $("#system_media_name").text(ret.title);
@@ -1489,7 +1488,6 @@
           $("#system-media-modal").modal("show");
         } else if (ret.code === 1) {
           if (ret.rssid) {
-            debugger;
             show_edit_rss_media_modal(ret.rssid, ret.type_str);
           } else {
             show_fail_modal(name + " 未查询到TMDB媒体信息！");
@@ -1505,7 +1503,6 @@
 
     //新增订阅
     function add_rss_media(name, year, type, tmdbid, doubanid, page, season, func) {
-      debugger;
       hide_mediainfo_modal();
       let data = {
         "name": name,
@@ -2041,7 +2038,6 @@
     // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
     // media_type: 电影，电视剧，动漫
     function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
-      debugger;
       // 初始化类型
       if (!syncmod) {
         syncmod = '{{ SyncMod }}';

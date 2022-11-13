@@ -411,6 +411,10 @@ def update_config(cfg):
                 switchs.append("rss_finished")
             if switch.get("site_signin"):
                 switchs.append("site_signin")
+            switchs.append('site_message')
+            switchs.append('brushtask_added')
+            switchs.append('brushtask_remove')
+            switchs.append('mediaserver_message')
         if message.get('telegram'):
             token = message.get('telegram', {}).get('telegram_token')
             chat_id = message.get('telegram', {}).get('telegram_chat_id')
@@ -419,7 +423,7 @@ def update_config(cfg):
             if token and chat_id:
                 name = "Telegram"
                 ctype = 'telegram'
-                enabled = 1 if msg_channel == 'telegram' else 0
+                enabled = 1 if msg_channel == ctype else 0
                 interactive = 1 if enabled else 0
                 client_config = json.dumps({
                     'token': token,
@@ -443,7 +447,7 @@ def update_config(cfg):
             if corpid and corpsecret and agent_id:
                 name = "WeChat"
                 ctype = 'wechat'
-                enabled = 1 if msg_channel == 'wechat' else 0
+                enabled = 1 if msg_channel == ctype else 0
                 interactive = 1 if enabled else 0
                 client_config = json.dumps({
                     'corpid': corpid,
@@ -465,7 +469,7 @@ def update_config(cfg):
                 name = "ServerChan"
                 ctype = 'serverchan'
                 interactive = 0
-                enabled = 1 if msg_channel == 'serverchan' else 0
+                enabled = 1 if msg_channel == ctype else 0
                 client_config = json.dumps({
                     'sckey': sckey
                 })
@@ -482,7 +486,7 @@ def update_config(cfg):
                 name = "Bark"
                 ctype = 'bark'
                 interactive = 0
-                enabled = 1 if msg_channel == 'bark' else 0
+                enabled = 1 if msg_channel == ctype else 0
                 client_config = json.dumps({
                     'server': server,
                     'apikey': apikey
@@ -502,13 +506,13 @@ def update_config(cfg):
                 name = "PushPlus"
                 ctype = 'pushplus'
                 interactive = 0
-                enabled = 1 if msg_channel == 'pushplus' else 0
-                client_config = {
+                enabled = 1 if msg_channel == ctype else 0
+                client_config = json.dumps({
                     'token': token,
                     'topic': topic,
                     'channel': channel,
                     'webhook': webhook
-                }
+                })
                 _dbhelper.insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
@@ -521,7 +525,7 @@ def update_config(cfg):
                 name = "IyuuMsg"
                 ctype = 'iyuu'
                 interactive = 0
-                enabled = 1 if msg_channel == 'iyuu' else 0
+                enabled = 1 if msg_channel == ctype else 0
                 client_config = json.dumps({
                     'token': token
                 })

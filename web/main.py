@@ -1055,6 +1055,7 @@ def notification():
     return render_template("setting/notification.html",
                            Channels=Channels,
                            Switchs=Switchs,
+                           ClientCount=len(MessageClients),
                            MessageClients=MessageClients)
 
 

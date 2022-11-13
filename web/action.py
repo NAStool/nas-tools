@@ -28,7 +28,7 @@ from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
 from app.mediaserver import Emby, Jellyfin, Plex
 from app.mediaserver import MediaServer
-from app.message import Telegram, WeChat, Message, MessageCenter
+from app.message import Message, MessageCenter
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import Scheduler
@@ -951,8 +951,6 @@ class WebAction:
         emby_reload = False
         jellyfin_reload = False
         plex_reload = False
-        wechat_reload = False
-        telegram_reload = False
         category_reload = False
         subtitle_reload = False
         sites_reload = False
@@ -972,16 +970,10 @@ class WebAction:
                 jellyfin_reload = True
             if key.startswith("plex"):
                 plex_reload = True
-            if key.startswith("message.telegram"):
-                telegram_reload = True
-            if key.startswith("message.wechat"):
-                wechat_reload = True
             if key.startswith("media.category"):
                 category_reload = True
             if key.startswith("subtitle"):
                 subtitle_reload = True
-            if key.startswith("message.switch"):
-                sites_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -998,12 +990,6 @@ class WebAction:
         # 重载Plex
         if plex_reload:
             Plex().init_config()
-        # 重载wechat
-        if wechat_reload:
-            WeChat().init_config()
-        # 重载telegram
-        if telegram_reload:
-            Telegram().init_config()
         # 重载二级分类
         if category_reload:
             Category().init_config()

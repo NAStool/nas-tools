@@ -184,7 +184,7 @@ class MESSAGECLIENT(Base):
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     NAME = Column(Text)
-    TYPE = Column(Integer)
+    TYPE = Column(Text)
     CONFIG = Column(Text)
     SWITCHS = Column(Text)
     INTERACTIVE = Column(Integer)

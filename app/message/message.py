@@ -50,7 +50,6 @@ class Message:
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
         self._domain = Config().get_domain()
-        self._domain = Config().get_domain()
         self.init_config()
 
     def init_config(self):
@@ -59,9 +58,9 @@ class Message:
             cid = client_config.ID
             name = client_config.NAME
             enabled = client_config.ENABLED
-            config = client_config.CONFIG
+            config = json.loads(client_config.CONFIG) if client_config.CONFIG else {}
             ctype = client_config.TYPE
-            switchs = json.loads(client_config.SWITCHS) if client_config.SWITCHS else {}
+            switchs = json.loads(client_config.SWITCHS) if client_config.SWITCHS else []
             interactive = client_config.INTERACTIVE
             self._client_configs[str(cid)] = {
                 "id": cid,
@@ -78,7 +77,7 @@ class Message:
                 "name": name,
                 "type": ctype,
                 "search_type": self.MESSAGE_DICT.get('channel').get(ctype, {}).get('search_type'),
-                "client": self.__build_client(ctype, json.loads(config)),
+                "client": self.__build_client(ctype, config),
                 "switchs": switchs,
                 "interactive": interactive
             })
@@ -268,13 +267,14 @@ class Message:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=msg_title,
-                text=msg_str,
-                image=media_info.get_message_image(),
-                url='history'
-            )
+            if "transfer_finished" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=msg_title,
+                    text=msg_str,
+                    image=media_info.get_message_image(),
+                    url='history'
+                )
 
     def send_transfer_tv_message(self, message_medias: dict, in_from: Enum):
         """
@@ -297,12 +297,13 @@ class Message:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 发送消息
             for client in self._active_clients:
-                self.__sendmsg(
-                    client=client,
-                    title=msg_title,
-                    text=msg_str,
-                    image=item_info.get_message_image(),
-                    url='history')
+                if "transfer_finished" in client.get("switchs"):
+                    self.__sendmsg(
+                        client=client,
+                        title=msg_title,
+                        text=msg_str,
+                        image=item_info.get_message_image(),
+                        url='history')
 
     def send_download_fail_message(self, item, error_msg):
         """
@@ -310,12 +311,13 @@ class Message:
         """
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
-                text=f"种子：{item.org_string}\n错误信息：{error_msg}",
-                image=item.get_message_image()
-            )
+            if "download_fail" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
+                    text=f"种子：{item.org_string}\n错误信息：{error_msg}",
+                    image=item.get_message_image()
+                )
 
     def send_rss_success_message(self, in_from: Enum, media_info, user_id=""):
         """
@@ -331,14 +333,15 @@ class Message:
         msg_str = f"{msg_str}，来自：{in_from.value}"
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=msg_title,
-                text=msg_str,
-                image=media_info.get_message_image(),
-                url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                user_id=user_id
-            )
+            if "rss_added" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=msg_title,
+                    text=msg_str,
+                    image=media_info.get_message_image(),
+                    url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
+                    user_id=user_id
+                )
 
     def send_rss_finished_message(self, media_info):
         """
@@ -353,13 +356,14 @@ class Message:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=msg_title,
-                text=msg_str,
-                image=media_info.get_message_image(),
-                url='downloaded'
-            )
+            if "rss_finished" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=msg_title,
+                    text=msg_str,
+                    image=media_info.get_message_image(),
+                    url='downloaded'
+                )
 
     def send_site_signin_message(self, msgs: list):
         """
@@ -369,11 +373,12 @@ class Message:
             return
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title="站点签到",
-                text="\n".join(msgs)
-            )
+            if "site_signin" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title="站点签到",
+                    text="\n".join(msgs)
+                )
 
     def send_site_message(self, title=None, text=None):
         """
@@ -385,11 +390,12 @@ class Message:
             text = ""
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=title,
-                text=text
-            )
+            if "site_message" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text
+                )
 
     def send_transfer_fail_message(self, path, count, text):
         """
@@ -399,11 +405,12 @@ class Message:
             return
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=f"【{count} 个文件转移失败】",
-                text=f"源路径：{path}\n原因：{text}"
-            )
+            if "transfer_fail" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=f"【{count} 个文件转移失败】",
+                    text=f"源路径：{path}\n原因：{text}"
+                )
 
     def send_brushtask_remove_message(self, title, text):
         """
@@ -413,11 +420,12 @@ class Message:
             return
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=title,
-                text=text
-            )
+            if "brushtask_remove" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text
+                )
 
     def send_brushtask_added_message(self, title, text):
         """
@@ -427,11 +435,12 @@ class Message:
             return
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=title,
-                text=text
-            )
+            if "brushtask_added" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text
+                )
 
     def send_mediaserver_message(self, title, text, image):
         """
@@ -441,12 +450,13 @@ class Message:
             return
         # 发送消息
         for client in self._active_clients:
-            self.__sendmsg(
-                client=client,
-                title=title,
-                text=text,
-                image=image
-            )
+            if "mediaserver_message" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text,
+                    image=image
+                )
 
     def get_message_client_info(self, cid=None):
         """
@@ -471,7 +481,4 @@ class Message:
         """
         if not config or not ctype:
             return False
-        for client in self._active_clients:
-            if client.get("type") == ctype:
-                return client.get('client').get_status()
-        return False
+        return self.__build_client(ctype, config).get_status()

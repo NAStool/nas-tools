@@ -3,15 +3,13 @@ import threading
 from datetime import datetime
 
 import log
-from config import DEFAULT_WECHAT_PROXY
 from app.message.channel.channel import IMessageChannel
-from app.utils.commons import singleton
 from app.utils import RequestUtils
+from config import DEFAULT_WECHAT_PROXY
 
 lock = threading.Lock()
 
 
-@singleton
 class WeChat(IMessageChannel):
     __instance = None
     __access_token = None

@@ -2098,13 +2098,13 @@ class DbHelper:
                               switchs: list,
                               interactive,
                               enabled,
-                              note=None):
+                              note=''):
         """
         设置消息服务器
         """
         self._db.insert(MESSAGECLIENT(
             NAME=name,
-            TYPE=int(ctype),
+            TYPE=ctype,
             CONFIG=config,
             SWITCHS=json.dumps(switchs),
             INTERACTIVE=int(interactive),

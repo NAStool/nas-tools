@@ -210,7 +210,6 @@
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
-        debugger;
         if (checkid && checkid.startsWith("check_")) {
           id = checkid.replace("check_", "");
           ids[i] = id;
