@@ -151,11 +151,11 @@
                     </td>
                     <td>
                       <div>
-                        <a class="text-cyan" href='javascript:jump_to_mediafile("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                        <a class="text-cyan" href='javascript:show_mediafile_modal("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
                         {{ History.SOURCE_FILENAME }}</a>
                       </div>
                       <div>
-                        <a class="text-orange">-> </a><a class="text-green" href='javascript:jump_to_mediafile("{{ History.DEST_PATH.replace("\\", "/") }}")'>
+                        <a class="text-orange">=> </a><a class="text-green" href='javascript:show_mediafile_modal("{{ History.DEST_PATH.replace("\\", "/") }}")'>
                         {{ History.DEST_FILENAME }}</a>
                       </div>
                     </td>
@@ -335,13 +335,6 @@
   function single_re_identification_history(logid) {
     var logids = [logid];
     re_identification(logids);
-  }
-
-  // 跳转文件管理页面
-  function jump_to_mediafile(path) {
-    console.log(path);
-    path = path.replace(/\\/g, "/");
-    navmenu("mediafile?path=" + path);{#navmenu("mediafile?path=" + path);#}
   }
 
 </script>
