@@ -522,8 +522,6 @@ class FileTransfer:
                 total_count = total_count + 1
                 # 文件名
                 file_name = os.path.basename(file_item)
-                # 上级目录
-                file_path = os.path.dirname(file_item)
 
                 # 数据库记录的路径
                 if bluray_disk_dir:
@@ -579,6 +577,7 @@ class FileTransfer:
                 dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
                 # 新文件后缀
                 file_ext = os.path.splitext(file_item)[-1]
+                new_file = ret_file_path
                 # 已存在的文件数量
                 exist_filenum = 0
                 handler_flag = False
