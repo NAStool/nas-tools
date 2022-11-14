@@ -22,6 +22,7 @@ def upgrade() -> None:
         batch_op.alter_column('FILE_PATH', new_column_name="SOURCE_PATH", existing_type=sa.Text)
         batch_op.alter_column('FILE_NAME', new_column_name="SOURCE_FILENAME", existing_type=sa.Text)
         batch_op.alter_column('SE', new_column_name="SEASON_EPISODE", existing_type=sa.Text)
+        batch_op.add_column(sa.Column('TMDBID', sa.Integer))
         batch_op.add_column(sa.Column('DEST_PATH', sa.Text))
         batch_op.add_column(sa.Column('DEST_FILENAME', sa.Text))
     with op.batch_alter_table("DOWNLOAD_SETTING") as batch_op:
@@ -35,6 +36,7 @@ def downgrade() -> None:
         batch_op.alter_column('SOURCE_PATH', new_column_name="FILE_PATH", existing_type=sa.Text)
         batch_op.alter_column('SOURCE_FILENAME', new_column_name="FILE_NAME", existing_type=sa.Text)
         batch_op.alter_column('SEASON_EPISODE', new_column_name="SE", existing_type=sa.Text)
+        batch_op.drop_column('TMDBID')
         batch_op.drop_column('DEST_PATH')
         batch_op.drop_column('DEST_FILENAME')
     with op.batch_alter_table("DOWNLOAD_SETTING") as batch_op:
