@@ -151,12 +151,12 @@
                     </td>
                     <td>
                       <div>
-                        <a class="text-reset" href='javascript:jump_to_mediafile("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                        <a class="text-cyan" href='javascript:jump_to_mediafile("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
                         {{ History.SOURCE_FILENAME }}</a>
                       </div>
                       <div>
-                        <a class="text-reset" href='javascript:jump_to_mediafile("{{ History.DEST_PATH.replace("\\", "/") }}")'>
-                        -> {{ History.DEST_FILENAME }}</a>
+                        <a class="text-orange">-> </a><a class="text-green" href='javascript:jump_to_mediafile("{{ History.DEST_PATH.replace("\\", "/") }}")'>
+                        {{ History.DEST_FILENAME }}</a>
                       </div>
                     </td>
                     <td>{{ History.DATE }}<div class="text-muted">来自：{{ History.SOURCE }}</div></td>

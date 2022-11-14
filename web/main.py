@@ -939,15 +939,15 @@ def mediafile():
     download_dirs = Downloader().get_download_visit_dirs()
     if download_dirs:
         try:
-            Dir = os.path.commonpath(download_dirs).replace("\\", "/")
+            DirD = os.path.commonpath(download_dirs).replace("\\", "/")
         except Exception as err:
             print(str(err))
-            Dir = "/"
+            DirD = "/"
     else:
-        Dir = "/"
-    Dir = request.args.get("path") or Dir
+        DirD = "/"
+    DirR = request.args.get("path")
     return render_template("rename/mediafile.html",
-                           Dir=Dir)
+                           Dir=DirR or DirD)
 
 
 # 基础设置页面
