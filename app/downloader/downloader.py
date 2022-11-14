@@ -98,7 +98,7 @@ class Downloader:
                 "download_limit": download_setting.DOWNLOAD_LIMIT,
                 "ratio_limit": download_setting.RATIO_LIMIT / 100,
                 "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT,
-                "downloader": download_setting.NOTE}
+                "downloader": download_setting.DOWNLOADER}
 
     @property
     def client(self):

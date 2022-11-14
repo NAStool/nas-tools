@@ -176,7 +176,7 @@ class DOWNLOADSETTING(Base):
     DOWNLOAD_LIMIT = Column(Integer)
     RATIO_LIMIT = Column(Integer)
     SEEDING_TIME_LIMIT = Column(Integer)
-    DOWNLOADER = Column(Integer)
+    DOWNLOADER = Column(Text)
     NOTE = Column(Text)
 
 
