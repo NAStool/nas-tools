@@ -331,6 +331,8 @@ def search():
 
     # 下载目录
     SaveDirs = Downloader().get_download_dirs()
+    # 下载设置
+    DownloadSettings = Downloader().get_download_setting()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
@@ -347,6 +349,7 @@ def search():
                            PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
                            SaveDirs=SaveDirs,
+                           DownloadSettings=DownloadSettings,
                            UPCHAR=chr(8593))
 
 

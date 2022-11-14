@@ -432,34 +432,41 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-search-download" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
     <input type="hidden" id="search_download_id">
     <input type="hidden" id="search_download_name">
     <div class="modal-content">
       <div class="modal-body">
-        <div class="modal-title">询问</div>
-        <div id="search_download_message">是否执行？</div>
+        <div class="modal-title" id="search_download_message">添加下载</div>
+        <div class="row mt-3">
+          <div class="col-md">
+            <div class="form-floating">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置">
+                {% for Id, Attr in DownloadSettings.items() %}
+                <option value="{{ Id }}" {% if Id == '-1' %}selected{% endif %}>{{ Attr.name }}</option>
+                 {% endfor %}
+              </select>
+              <label for="floatingSelect">下载设置</label>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-floating">
+              <select class="form-select" id="search_download_dir" aria-label="保存目录">
+                <option value="" selected>自动</option>
+                {% for SaveDir in SaveDirs %}
+                  <option value="{{ SaveDir }}">{{ SaveDir }}</option>
+                {% endfor %}
+                </select>
+                <label for="floatingSelect">保存目录</label>
+              </div>
+            </div>
+          </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <div class="d-flex">
-          {% if SaveDirs %}
-          <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载"
-            style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
-          <button data-bs-toggle="dropdown" type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split"
-            title="手动选择下载目录" style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
-          <div class="dropdown-menu dropdown-menu-end">
-            {% for SaveDir in SaveDirs %}
-            <a class="dropdown-item" href="javascript:download_link('{{ SaveDir|safe }}')">
-              {{ SaveDir }}
-            </a>
-            {% endfor %}
-          </div>
-          {% else %}
-          <button type="button" class="btn btn-danger" onclick="javascript:download_link()"
-            title="自动选择目录下载">确认下载</button>
-          {% endif %}
-        </div>
+      <button type="button" class="btn btn-primary" onclick="javascript:download_link()" title="自动选择目录下载">
+        下载
+      </button>
       </div>
     </div>
   </div>
@@ -482,7 +489,7 @@
   function show_download_modal(id, name) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
-    $("#search_download_message").text("是否立即下载 " + name + "？");
+    $("#search_download_message").text("下载 " + name);
     $("#modal-search-download").modal('show');
   }
 
@@ -531,11 +538,13 @@
   }
 
   //点击链接下载
-  function download_link(dir) {
+  function download_link() {
     var id = $("#search_download_id").val();
     var name = $("#search_download_name").val();
+    var dir = $("#search_download_dir").val();
+    var setting = $("#search_download_setting").val();
     $("#modal-search-download").modal('hide');
-    ajax_post("download", { "id": id, "dir": dir }, function (ret) {
+    ajax_post("download", { "id": id, "dir": dir, "setting": setting}, function (ret) {
       if (ret.retcode == 0) {
         show_success_modal(name + " 添加下载成功！");
       } else {
