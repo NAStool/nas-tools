@@ -183,14 +183,14 @@ class DbHelper:
         """
         if not file_path:
             return False
-        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.FILE_PATH == file_path,
-                                                     TRANSFERHISTORY.FILE_NAME == file_name,
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == file_path,
+                                                     TRANSFERHISTORY.SOURCE_FILENAME == file_name,
                                                      TRANSFERHISTORY.TITLE == title,
-                                                     TRANSFERHISTORY.SE == se).count()
+                                                     TRANSFERHISTORY.SEASON_EPISODE == se).count()
         return True if ret > 0 else False
 
     @DbPersist(_db)
-    def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
+    def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, out_path, dest, media_info):
         """
         插入识别转移记录
         """
@@ -198,27 +198,39 @@ class DbHelper:
             return
         if in_path:
             in_path = os.path.normpath(in_path)
+            source_path = os.path.dirname(in_path)
+            source_filename = os.path.basename(in_path)
         else:
             return
-        if not dest:
-            dest = ""
-        file_path = os.path.dirname(in_path)
-        file_name = os.path.basename(in_path)
-        if self.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
+        if out_path:
+            outpath = os.path.normpath(out_path)
+            dest_path = os.path.dirname(outpath)
+            dest_filename = os.path.basename(outpath)
+            season_episode = media_info.get_season_episode_string()
+        else:
+            dest_path = ""
+            dest_filename = ""
+            season_episode = media_info.get_season_string()
+        title = media_info.title
+        if self.is_transfer_history_exists(source_path, source_filename, title, season_episode):
             return
+        dest = dest or ""
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self._db.insert(
             TRANSFERHISTORY(
-                SOURCE=str(in_from.value),
                 MODE=str(rmt_mode.value),
                 TYPE=media_info.type.value,
-                FILE_PATH=file_path,
-                FILE_NAME=file_name,
-                TITLE=media_info.title,
                 CATEGORY=media_info.category,
+                TMDBID=int(media_info.tmdb_id),
+                TITLE=title,
                 YEAR=media_info.year,
-                SE=media_info.get_season_string(),
+                SEASON_EPISODE=season_episode,
+                SOURCE=str(in_from.value),
+                SOURCE_PATH=source_path,
+                SOURCE_FILENAME=source_filename,
                 DEST=dest,
+                DEST_PATH=dest_path,
+                DEST_FILENAME=dest_filename,
                 DATE=timestr
             )
         )
@@ -234,9 +246,9 @@ class DbHelper:
 
         if search:
             search = f"%{search}%"
-            count = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            count = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.SOURCE_FILENAME.like(search))
                                                            | (TRANSFERHISTORY.TITLE.like(search))).count()
-            data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.SOURCE_FILENAME.like(search))
                                                           | (TRANSFERHISTORY.TITLE.like(search))).order_by(
                 TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
             return count, data

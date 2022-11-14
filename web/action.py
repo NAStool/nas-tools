@@ -598,7 +598,7 @@ class WebAction:
         if logid:
             paths = self.dbhelper.get_transfer_path_by_id(logid)
             if paths:
-                path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
+                path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                 dest_dir = paths[0].DEST
             else:
                 return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
@@ -720,54 +720,76 @@ class WebAction:
             # 读取历史记录
             paths = self.dbhelper.get_transfer_path_by_id(logid)
             if paths:
-                dest_dir = paths[0].DEST
-                meta_info = MetaInfo(title=paths[0].FILE_NAME)
-                meta_info.title = paths[0].TITLE
-                meta_info.category = paths[0].CATEGORY
-                meta_info.year = paths[0].YEAR
-                if paths[0].SE:
-                    meta_info.begin_season = int(str(paths[0].SE).replace("S", ""))
-                if paths[0].TYPE == MediaType.MOVIE.value:
-                    meta_info.type = MediaType.MOVIE
+                dest = paths[0].DEST
+                dest_path = paths[0].DEST_PATH
+                dest_filename = paths[0].DEST_FILENAME
+                if dest_path and dest_filename:
+                    dest_file = os.path.join(dest_path, dest_filename)
+                    # 删除文件
+                    try:
+                        os.remove(dest_file)
+                        # 如果上级文件夹为空，删除上级文件夹
+                        if re.findall(r"^S\d{2}|^Season", os.path.basename(dest_path), re.I):
+                            seaon_path = dest_path
+                            media_path = os.path.dirname(seaon_path)
+                            if not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
+                                shutil.rmtree(seaon_path)
+                        else:
+                            media_path = dest_path
+                        if not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
+                            shutil.rmtree(media_path)
+                    except Exception as e:
+                        log.console(str(e))
+                    # 删除记录
+                    self.dbhelper.delete_transfer_log_by_id(logid)
                 else:
-                    meta_info.type = MediaType.TV
-                # 删除记录
-                self.dbhelper.delete_transfer_log_by_id(logid)
-                # 删除文件
-                dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
-                if dest_path and dest_path.find(meta_info.title) != -1:
-                    rm_parent_dir = False
-                    if not meta_info.get_season_list():
-                        # 电影，删除整个目录
-                        try:
-                            shutil.rmtree(dest_path)
-                        except Exception as e:
-                            log.console(str(e))
-                    elif not meta_info.get_episode_string():
-                        # 电视剧但没有集数，删除季目录
-                        try:
-                            shutil.rmtree(dest_path)
-                        except Exception as e:
-                            log.console(str(e))
-                        rm_parent_dir = True
+                    meta_info = MetaInfo(title=paths[0].SOURCE_FILENAME)
+                    meta_info.title = paths[0].TITLE
+                    meta_info.category = paths[0].CATEGORY
+                    meta_info.year = paths[0].YEAR
+                    if paths[0].SEASON_EPISODE:
+                        meta_info.begin_season = int(str(paths[0].SEASON_EPISODE).replace("S", ""))
+                    if paths[0].TYPE == MediaType.MOVIE.value:
+                        meta_info.type = MediaType.MOVIE
                     else:
-                        # 有集数的电视剧，删除对应的集数文件
-                        for dest_file in PathUtils.get_dir_files(dest_path):
-                            file_meta_info = MetaInfo(os.path.basename(dest_file))
-                            if file_meta_info.get_episode_list() and set(
-                                    file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
-                                try:
-                                    os.remove(dest_file)
-                                except Exception as e:
-                                    log.console(str(e))
-                        rm_parent_dir = True
-                    if rm_parent_dir \
-                            and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
-                        # 没有媒体文件时，删除整个目录
-                        try:
-                            shutil.rmtree(os.path.dirname(dest_path))
-                        except Exception as e:
-                            log.console(str(e))
+                        meta_info.type = MediaType.TV
+                    # 删除记录
+                    self.dbhelper.delete_transfer_log_by_id(logid)
+                    # 删除文件
+                    dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
+                    if dest_path and dest_path.find(meta_info.title) != -1:
+                        rm_parent_dir = False
+                        if not meta_info.get_season_list():
+                            # 电影，删除整个目录
+                            try:
+                                shutil.rmtree(dest_path)
+                            except Exception as e:
+                                log.console(str(e))
+                        elif not meta_info.get_episode_string():
+                            # 电视剧但没有集数，删除季目录
+                            try:
+                                shutil.rmtree(dest_path)
+                            except Exception as e:
+                                log.console(str(e))
+                            rm_parent_dir = True
+                        else:
+                            # 有集数的电视剧，删除对应的集数文件
+                            for dest_file in PathUtils.get_dir_files(dest_path):
+                                file_meta_info = MetaInfo(os.path.basename(dest_file))
+                                if file_meta_info.get_episode_list() and set(
+                                        file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                    try:
+                                        os.remove(dest_file)
+                                    except Exception as e:
+                                        log.console(str(e))
+                            rm_parent_dir = True
+                        if rm_parent_dir \
+                                and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                            # 没有媒体文件时，删除整个目录
+                            try:
+                                shutil.rmtree(os.path.dirname(dest_path))
+                            except Exception as e:
+                                log.console(str(e))
         return {"retcode": 0}
 
     @staticmethod
@@ -1234,7 +1256,7 @@ class WebAction:
             for wid in ids:
                 paths = self.dbhelper.get_transfer_path_by_id(wid)
                 if paths:
-                    path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
+                    path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}

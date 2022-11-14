@@ -528,10 +528,8 @@ class FileTransfer:
                 # 数据库记录的路径
                 if bluray_disk_dir:
                     reg_path = bluray_disk_dir
-                elif media.type == MediaType.MOVIE:
-                    reg_path = file_item
                 else:
-                    reg_path = max(file_path, in_path)
+                    reg_path = file_item
                 # 未识别
                 if not media or not media.tmdb_info or not media.get_title_string():
                     log.warn("【Rmt】%s 无法识别媒体信息！" % file_name)
@@ -710,7 +708,13 @@ class FileTransfer:
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
-                self.dbhelper.insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                self.dbhelper.insert_transfer_history(
+                    in_from=in_from,
+                    rmt_mode=rmt_mode,
+                    in_path=reg_path,
+                    out_path=new_file if not bluray_disk_dir else None,
+                    dest=dist_path,
+                    media_info=media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
                 if isinstance(episode[1], bool) and episode[1]:
                     # 未识别手动识别，更改未识别记录为已处理
