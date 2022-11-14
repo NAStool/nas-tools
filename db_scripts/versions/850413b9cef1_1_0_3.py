@@ -26,7 +26,7 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('DEST_PATH', sa.Text))
         batch_op.add_column(sa.Column('DEST_FILENAME', sa.Text))
     with op.batch_alter_table("DOWNLOAD_SETTING") as batch_op:
-        batch_op.add_column(sa.Column('DOWNLOADER', sa.Integer))
+        batch_op.add_column(sa.Column('DOWNLOADER', sa.Text))
     # ### end Alembic commands ###
 
 

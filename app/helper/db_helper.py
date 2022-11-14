@@ -2068,7 +2068,7 @@ class DbHelper:
                     "DOWNLOAD_LIMIT": int(float(download_limit)),
                     "RATIO_LIMIT": int(round(float(ratio_limit), 2) * 100),
                     "SEEDING_TIME_LIMIT": int(float(seeding_time_limit)),
-                    "NOTE": downloader
+                    "DOWNLOADER": downloader
                 }
             )
         else:
@@ -2082,7 +2082,7 @@ class DbHelper:
                 DOWNLOAD_LIMIT=int(float(download_limit)),
                 RATIO_LIMIT=int(round(float(ratio_limit), 2) * 100),
                 SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
-                NOTE=downloader
+                DOWNLOADER=downloader
             ))
 
     @DbPersist(_db)

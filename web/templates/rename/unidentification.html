@@ -93,7 +93,7 @@
                   <tr>
                     <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
                     <td>
-                      {{ Path.name }}
+                      <a class="text-danger" href='javascript:show_mediafile_modal("{{ Path.name.replace("\\", "/") }}")'>{{ Path.name }}</a>
                       {% if Path.to %}
                         <div class="text-muted">
                           => {{ Path.to }}

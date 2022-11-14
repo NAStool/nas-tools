@@ -150,10 +150,16 @@
                       </div>
                     </td>
                     <td>
-                      <div>{{ History.SOURCE_FILENAME }}</div>
-                      <div class="text-muted">来自：{{ History.SOURCE }}</div>
+                      <div>
+                        <a class="text-cyan" href='javascript:show_mediafile_modal("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                        {{ History.SOURCE_FILENAME }}</a>
+                      </div>
+                      <div>
+                        <a class="text-orange">=> </a><a class="text-green" href='javascript:show_mediafile_modal("{{ History.DEST_PATH.replace("\\", "/") }}")'>
+                        {{ History.DEST_FILENAME }}</a>
+                      </div>
                     </td>
-                    <td>{{ History.DATE }}</td>
+                    <td>{{ History.DATE }}<div class="text-muted">来自：{{ History.SOURCE }}</div></td>
                     <td>
                       <div class="dropdown">
                         <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
