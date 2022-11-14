@@ -150,10 +150,16 @@
                       </div>
                     </td>
                     <td>
-                      <div>{{ History.SOURCE_FILENAME }}</div>
-                      <div class="text-muted">来自：{{ History.SOURCE }}</div>
+                      <div>
+                        <a class="text-reset" href='javascript:jump_to_mediafile("{{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                        {{ History.SOURCE_FILENAME }}</a>
+                      </div>
+                      <div>
+                        <a class="text-reset" href='javascript:jump_to_mediafile("{{ History.DEST_PATH.replace("\\", "/") }}")'>
+                        -> {{ History.DEST_FILENAME }}</a>
+                      </div>
                     </td>
-                    <td>{{ History.DATE }}</td>
+                    <td>{{ History.DATE }}<div class="text-muted">来自：{{ History.SOURCE }}</div></td>
                     <td>
                       <div class="dropdown">
                         <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
@@ -329,6 +335,13 @@
   function single_re_identification_history(logid) {
     var logids = [logid];
     re_identification(logids);
+  }
+
+  // 跳转文件管理页面
+  function jump_to_mediafile(path) {
+    console.log(path);
+    path = path.replace(/\\/g, "/");
+    navmenu("mediafile?path=" + path);{#navmenu("mediafile?path=" + path);#}
   }
 
 </script>

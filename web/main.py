@@ -945,6 +945,7 @@ def mediafile():
             Dir = "/"
     else:
         Dir = "/"
+    Dir = request.args.get("path") or Dir
     return render_template("rename/mediafile.html",
                            Dir=Dir)
 
