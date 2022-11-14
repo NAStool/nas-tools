@@ -61,7 +61,7 @@
               <tr>
                 <td>
                   <span class="avatar avatar-sm avatar-thumb avatar-rounded"
-                        style="background-image: url({{ Channels[Attr.type|string].get("img_url") }})"></span>
+                        style="background-image: url({{ Channels[Attr.type].img_url }})"></span>
                 </td>
                 <td>{{ Attr.name }}</td>
                 <td>
@@ -176,96 +176,24 @@
           </div>
         <div class="form-selectgroup-boxes row mb-3">
           <label class="form-label required">类型</label>
+          {% for Id, Attr in Channels.items() %}
           <div class="col-lg-4">
             <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_telegram">
-                <input type="radio" name="client_type" id="type_telegram" value="telegram" class="form-selectgroup-input" checked>
+              <label class="form-selectgroup-item" for="type_{{ Id }}">
+                <input type="radio" name="client_type" id="type_{{ Id }}" value="{{ Id }}" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label d-flex align-items-center p-3">
                   <span class="me-3">
                     <span class="form-selectgroup-check"></span>
                   </span>
                   <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Telegram</span>
+                    <span class="avatar avatar-sm avatar-thumb avatar-rounded" style="background-image: url({{ Attr.img_url }})"></span>
+                    <span class="form-selectgroup-title strong mb-1">{{ Attr.name }}</span>
                   </span>
                 </span>
               </label>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_wechat">
-                <input type="radio" name="client_type" id="type_wechat" value="wechat" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">微信</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_serverchan">
-                <input type="radio" name="client_type" id="type_serverchan" value="serverchan" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Server酱</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_bark">
-                <input type="radio" name="client_type" id="type_bark" value="bark" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">Bark</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_pushplus">
-                <input type="radio" name="client_type" id="type_pushplus" value="pushplus" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">PushPlus</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="type_iyuumsg">
-                <input type="radio" name="client_type" id="type_iyuumsg" value="iyuu" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">爱语飞飞</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
+          {% endfor %}
         </div>
         <div id="div_client_config_telegram">
           <div class="row">

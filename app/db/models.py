@@ -176,6 +176,7 @@ class DOWNLOADSETTING(Base):
     DOWNLOAD_LIMIT = Column(Integer)
     RATIO_LIMIT = Column(Integer)
     SEEDING_TIME_LIMIT = Column(Integer)
+    DOWNLOADER = Column(Integer)
     NOTE = Column(Text)
 
 
@@ -466,16 +467,19 @@ class TRANSFERHISTORY(Base):
     __tablename__ = 'TRANSFER_HISTORY'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
-    SOURCE = Column(Text)
     MODE = Column(Text)
     TYPE = Column(Text)
-    FILE_PATH = Column(Text, index=True)
-    FILE_NAME = Column(Text, index=True)
-    TITLE = Column(Text, index=True)
     CATEGORY = Column(Text)
+    TMDBID = Column(Integer)
+    TITLE = Column(Text, index=True)
     YEAR = Column(Text)
-    SE = Column(Text)
+    SEASON_EPISODE = Column(Text)
+    SOURCE = Column(Text)
+    SOURCE_PATH = Column(Text, index=True)
+    SOURCE_FILENAME = Column(Text, index=True)
     DEST = Column(Text)
+    DEST_PATH = Column(Text)
+    DEST_FILENAME = Column(Text)
     DATE = Column(Text)
 
     def as_dict(self):

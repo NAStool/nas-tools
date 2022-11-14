@@ -87,7 +87,8 @@ class Subscribe:
                 # 根据名称和年份查询
                 media_info = media.get_media_info(title=title,
                                                   mtype=mtype,
-                                                  strict=True if year else False)
+                                                  strict=True if year else False,
+                                                  cache=False)
                 if media_info and media_info.tmdb_info:
                     tmdbid = media_info.tmdb_id
                 elif doubanid:
