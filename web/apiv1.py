@@ -451,7 +451,8 @@ class SearchResult(ClientResource):
 class DownloadSearch(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('id', type=str, help='搜索结果ID', location='form', required=True)
-    parser.add_argument('dir', type=str, help='下载目录', location='form')
+    parser.add_argument('dir', type=str, help='保存目录', location='form')
+    parser.add_argument('setting', type=str, help='下载设置', location='form')
 
     @download.doc(parser=parser)
     def post(self):

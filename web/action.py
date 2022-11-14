@@ -424,6 +424,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         dl_dir = data.get("dir")
+        dl_setting = data.get("setting")
         results = self.dbhelper.get_search_result_by_id(dl_id)
         for res in results:
             media = Media().get_media_info(title=res.TORRENT_NAME, subtitle=res.DESCRIPTION)
@@ -437,7 +438,8 @@ class WebAction:
                                    download_volume_factor=float(res.DOWNLOAD_VOLUME_FACTOR))
             # 添加下载
             ret, ret_msg = Downloader().download(media_info=media,
-                                                 download_dir=dl_dir)
+                                                 download_dir=dl_dir,
+                                                 download_setting=dl_setting)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
