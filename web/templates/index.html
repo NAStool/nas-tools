@@ -246,6 +246,9 @@
       name: "电影",
       data: {{ MovieNums }}
     }],
+    tooltip: {
+      theme: 'dark'
+    },
     grid: {
       strokeDashArray: 4,
     },
@@ -267,7 +270,7 @@
       },
     },
     labels: {{ MovieChartLabels| safe }},
-    colors: ["#206bc4"],
+    colors: [tabler.getColor("primary")],
     legend: {
       show: false,
     },
@@ -301,6 +304,9 @@
       name: "动漫",
       data: {{ AnimeNums }}
     }],
+    tooltip: {
+      theme: 'dark'
+    },
     grid: {
       strokeDashArray: 4,
     },
@@ -319,7 +325,7 @@
       },
     },
     labels: {{ TvChartLabels| safe }},
-    colors: ["#206bc4", "#a8aeb7"],
+    colors: [tabler.getColor("primary"), tabler.getColor("gray-600")],
     legend: {
       show: false,
     },
