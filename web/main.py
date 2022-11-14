@@ -92,11 +92,47 @@ def page_server_error(error):
 # 主页面
 @App.route('/', methods=['GET', 'POST'])
 def login():
-    # 判断当前的运营环境
-    SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
-    SyncMod = Config().get_config('pt').get('rmt_mode')
-    if not SyncMod:
-        SyncMod = "link"
+    def redirect_to_navigation(userinfo):
+        """
+        跳转到导航页面
+        """
+        # 判断当前的运营环境
+        SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
+        SyncMod = Config().get_config('pt').get('rmt_mode')
+        if not SyncMod:
+            SyncMod = "link"
+        RssSites = {site["id"]: site["name"] for site in Sites().get_sites(rss=True)}
+        SearchSites = {str(site.id): site.name for site in Searcher().indexer.get_indexers()}
+        RuleGroups = Filter().get_rule_groups()
+        RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
+        PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        DownloadSettings = Downloader().get_download_setting()
+        SaveDirs = Downloader().get_download_dirs()
+        return render_template('navigation.html',
+                               GoPage=GoPage,
+                               UserName=userinfo.username,
+                               UserPris=str(userinfo.pris).split(","),
+                               SystemFlag=SystemFlag,
+                               AppVersion=WebUtils.get_current_version(),
+                               RssSites=RssSites,
+                               SearchSites=SearchSites,
+                               RuleGroups=RuleGroups,
+                               RestypeDict=RestypeDict,
+                               PixDict=PixDict,
+                               DownloadSettings=DownloadSettings,
+                               SaveDirs=SaveDirs,
+                               SyncMod=SyncMod)
+
+    def redirect_to_login(errmsg=''):
+        """
+        跳转到登录页面
+        """
+        return render_template('login.html',
+                               GoPage=GoPage,
+                               LoginWallpaper=get_login_wallpaper(),
+                               err_msg=errmsg)
+
+    # 登录认证
     if request.method == 'GET':
         GoPage = request.args.get("next") or ""
         if GoPage.startswith('/'):
@@ -104,35 +140,13 @@ def login():
         if current_user.is_authenticated:
             userid = current_user.id
             username = current_user.username
-            pris = User().get_user(username).pris
             if userid is None or username is None:
-                return render_template('login.html',
-                                       GoPage=GoPage,
-                                       LoginWallpaper=get_login_wallpaper())
+                return redirect_to_login()
             else:
-                RssSites = {site["id"]: site["name"] for site in Sites().get_sites(rss=True)}
-                SearchSites = {str(site.id): site.name for site in Searcher().indexer.get_indexers()}
-                RuleGroups = Filter().get_rule_groups()
-                RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-                PixDict = TORRENT_SEARCH_PARAMS.get("pix")
-                DownloadSettings = Downloader().get_download_setting()
-                return render_template('navigation.html',
-                                       GoPage=GoPage,
-                                       UserName=username,
-                                       UserPris=str(pris).split(","),
-                                       SystemFlag=SystemFlag,
-                                       AppVersion=WebUtils.get_current_version(),
-                                       RssSites=RssSites,
-                                       SearchSites=SearchSites,
-                                       RuleGroups=RuleGroups,
-                                       RestypeDict=RestypeDict,
-                                       PixDict=PixDict,
-                                       DownloadSettings=DownloadSettings,
-                                       SyncMod=SyncMod)
+                # 登录成功
+                return redirect_to_navigation(User().get_user(username))
         else:
-            return render_template('login.html',
-                                   GoPage=GoPage,
-                                   LoginWallpaper=get_login_wallpaper())
+            return redirect_to_login()
 
     else:
         GoPage = request.form.get('next') or ""
@@ -142,45 +156,19 @@ def login():
         password = request.form.get('password')
         remember = request.form.get('remember')
         if not username:
-            return render_template('login.html',
-                                   GoPage=GoPage,
-                                   LoginWallpaper=get_login_wallpaper(),
-                                   err_msg="请输入用户名")
+            return redirect_to_login('请输入用户名')
         user_info = User().get_user(username)
         if not user_info:
-            return render_template('login.html',
-                                   GoPage=GoPage,
-                                   LoginWallpaper=get_login_wallpaper(),
-                                   err_msg="用户名或密码错误")
+            return redirect_to_login('用户名或密码错误')
         # 校验密码
         if user_info.verify_password(password):
             # 创建用户 Session
             login_user(user_info)
             session.permanent = True if remember else False
-            RssSites = {str(site["id"]): site["name"] for site in Sites().get_sites(rss=True)}
-            SearchSites = {site.id: site.name for site in Searcher().indexer.get_indexers()}
-            RuleGroups = Filter().get_rule_groups()
-            RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-            PixDict = TORRENT_SEARCH_PARAMS.get("pix")
-            DownloadSettings = Downloader().get_download_setting()
-            return render_template('navigation.html',
-                                   GoPage=GoPage,
-                                   UserName=username,
-                                   UserPris=str(user_info.pris).split(","),
-                                   SystemFlag=SystemFlag,
-                                   AppVersion=WebUtils.get_current_version(),
-                                   RssSites=RssSites,
-                                   SearchSites=SearchSites,
-                                   RuleGroups=RuleGroups,
-                                   RestypeDict=RestypeDict,
-                                   PixDict=PixDict,
-                                   DownloadSettings=DownloadSettings,
-                                   SyncMod=SyncMod)
+            # 登录成功
+            return redirect_to_navigation(user_info)
         else:
-            return render_template('login.html',
-                                   GoPage=GoPage,
-                                   LoginWallpaper=get_login_wallpaper(),
-                                   err_msg="用户名或密码错误")
+            return redirect_to_login('用户名或密码错误')
 
 
 # 开始

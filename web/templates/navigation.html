@@ -1035,7 +1035,12 @@
           <div class="col-lg-8">
             <div class="mb-3">
               <label class="form-label">保存路径</label>
-              <input type="text" id="rss_save_path" class="form-control" placeholder="留空自动选择保存路径">
+              <select class="form-select" id="rss_save_path" aria-label="保存目录">
+                <option value="" selected>自动</option>
+                {% for SaveDir in SaveDirs %}
+                  <option value="{{ SaveDir }}">{{ SaveDir }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
           <div class="col-lg-4">

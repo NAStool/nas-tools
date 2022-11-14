@@ -472,7 +472,7 @@
         <div class="modal-title" id="search_download_message">添加下载</div>
         <div class="row mt-3">
           <div class="col-md">
-            <div class="form-floating">
+            <div class="form-floating mb-1">
               <select class="form-select" id="search_download_setting" aria-label="下载设置">
                 {% for Id, Attr in DownloadSettings.items() %}
                   <option value="{{ Id }}"
@@ -483,7 +483,7 @@
             </div>
           </div>
           <div class="col-md">
-            <div class="form-floating">
+            <div class="form-floating mb-1">
               <select class="form-select" id="search_download_dir" aria-label="保存目录">
                 <option value="" selected>自动</option>
                 {% for SaveDir in SaveDirs %}
