@@ -18,14 +18,13 @@
               <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
                      aria-label="Search in website">
             </div>
-            <a href="javascript:return_to_parentdir()" class="btn-action">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
-                  <path d="M4 14h9"></path>
-                  <path d="M10 11l3 3l-3 3"></path>
-                </svg>
-              </a>
+            <a href="javascript:return_to_parentdir()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+              </svg>
+              上级目录
+            </a>
             <div id="mediafile_tree" style="overflow-y: auto;"></div>
           </div>
         </div>

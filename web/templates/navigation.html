@@ -1276,15 +1276,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-mediafile" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div id="frame_mediafile"></div>
-    </div>
-  </div>
-</div>
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -2542,19 +2533,6 @@
       refresh_message("");
     {% endif %}
   });
-
-// 显示文件管理窗口
-  function show_mediafile_modal(dir) {
-    page = `mediafile?dir=${dir}`.replaceAll(" ", "%20");
-    CURRENT_PAGE_URI = page;
-    $("#frame_mediafile").load(page, {}, function (response, status, xhr) {
-      hide_wait_process();
-      fresh_tooltip();
-      init_filetree_element();
-    });
-    $("#modal-mediafile").modal("show");
-  }
-
 </script>
 </body>
 
