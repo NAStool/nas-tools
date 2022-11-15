@@ -674,7 +674,10 @@ class WebAction:
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
         tmdbid = data.get("tmdb")
-        if not tmdbid.strip() and not tmdbid.isdigit():
+        if isinstance(tmdbid, int):
+            # 兼容一下 api 接口传入的 tmdbid 是 int 类型
+            pass
+        elif not tmdbid.strip() and not tmdbid.isdigit():
             return {"retcode": -1, "retmsg": "tmdbid 格式不正确！"}
         mtype = data.get("type")
         season = data.get("season")
@@ -682,9 +685,9 @@ class WebAction:
         episode_details = data.get("episode_details")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
-        if mtype == "TV":
+        if mtype == "TV" or mtype == MediaType.TV:
             media_type = MediaType.TV
-        elif mtype == "MOV":
+        elif mtype == "MOV" or mtype == MediaType.MOVIE:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.ANIME
