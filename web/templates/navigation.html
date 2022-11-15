@@ -1045,9 +1045,7 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">下载设置 <span class="form-help"
-                                                       title="下载设置仅适用于Qbittorrent和Transmission"
-                                                       data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label">下载设置</label>
               <select class="form-select" id="rss_download_setting">
                 {% for Id, Attr in DownloadSettings.items() %}
                   <option value="{{ Attr.id }}">{{ Attr.name }}</option>
