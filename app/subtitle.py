@@ -56,14 +56,13 @@ class Subtitle:
         """
         if not items:
             return False, "参数有误"
-        if not server:
-            server = self.__server
-        if not server:
+        _server = self.__server if not server else server
+        if not _server:
             return False, "未配置字幕下载器"
-        if server == "opensubtitles":
-            if self.__opensubtitles_enable:
+        if _server == "opensubtitles":
+            if server or self.__opensubtitles_enable:
                 return self.__download_opensubtitles(items)
-        elif server == "chinesesubfinder":
+        elif _server == "chinesesubfinder":
             return self.__download_chinesesubfinder(items)
         return False, "未配置字幕下载器"
 

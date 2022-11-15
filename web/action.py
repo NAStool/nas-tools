@@ -674,11 +674,8 @@ class WebAction:
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
         tmdbid = data.get("tmdb")
-        if isinstance(tmdbid, int):
-            # 兼容一下 api 接口传入的 tmdbid 是 int 类型
-            pass
-        elif not tmdbid.strip() and not tmdbid.isdigit():
-            return {"retcode": -1, "retmsg": "tmdbid 格式不正确！"}
+        if not tmdbid or not str(tmdbid).isdigit():
+            return {"retcode": -1, "retmsg": "TMDBID未输入或格式不正确！"}
         mtype = data.get("type")
         season = data.get("season")
         episode_format = data.get("episode_format")
