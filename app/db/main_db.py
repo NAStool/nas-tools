@@ -31,8 +31,8 @@ class MainDb:
     def __del__(self):
         self._session.close()
 
-    @event.listens_for(Session, "after_soft_rollback")
-    def receive_after_soft_rollback(self, session, previous_transaction):
+    @event.listens_for(Session, "after_rollback")
+    def receive_after_rollback(self, session):
         if not session.is_active:
             self._session = _Session()
 
