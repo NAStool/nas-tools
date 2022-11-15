@@ -1,8 +1,8 @@
 import os
 import threading
 import time
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker, scoped_session, Session
 from sqlalchemy.pool import QueuePool
 from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
 from config import Config
@@ -38,6 +38,11 @@ class MediaDb:
     def init_db():
         with lock:
             BaseMedia.metadata.create_all(_Engine)
+
+    @event.listens_for(Session, "after_soft_rollback")
+    def receive_after_soft_rollback(self, session, previous_transaction):
+        if not session.is_active:
+            self._session = _Session()
 
     def insert(self, server_type, iteminfo):
         if not server_type or not iteminfo:

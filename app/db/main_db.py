@@ -1,7 +1,7 @@
 import os
 import threading
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker, scoped_session, Session
 from sqlalchemy.pool import QueuePool
 
 from app.db.models import Base
@@ -30,6 +30,11 @@ class MainDb:
 
     def __del__(self):
         self._session.close()
+
+    @event.listens_for(Session, "after_soft_rollback")
+    def receive_after_soft_rollback(self, session, previous_transaction):
+        if not session.is_active:
+            self._session = _Session()
 
     @property
     def session(self):
