@@ -318,7 +318,7 @@ class Subscribe:
             save_path = rss_movie.SAVE_PATH
             fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
             # 兼容旧配置
-            if desc and not download_setting:
+            if desc and desc.find('{') != -1:
                 desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
                 search_sites = desc.get("search_sites")
@@ -379,7 +379,7 @@ class Subscribe:
             current_ep = rss_tv.CURRENT_EP
             fuzzy_match = True if rss_tv.FUZZY_MATCH == 1 else False
             # 兼容旧配置
-            if desc and not download_setting:
+            if desc and desc.find('{') != -1:
                 desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
                 search_sites = desc.get("search_sites")
