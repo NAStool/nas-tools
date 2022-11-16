@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "24 S01 1080p WEB-DL AAC2.0 H.264-BTN",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "24",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "H264",
+        "audio_codec": "AAC 2.0"
+    }
+}, {
     "title": "Qi Refining for 3000 Years S01E06 2022 1080p B-Blobal WEB-DL x264 AAC-AnimeS@AdWeb",
     "subtitle": "",
     "target": {
