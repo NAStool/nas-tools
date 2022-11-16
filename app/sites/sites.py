@@ -63,6 +63,14 @@ class Sites:
         self._siteByIds = {}
         # URL存储站点
         self._siteByUrls = {}
+        # 开启订阅功能站点
+        self._rss_sites = []
+        # 开启刷流功能站点：
+        self._brush_sites = []
+        # 开启统计功能站点：
+        self._statistic_sites = []
+        # 开启签到功能站点：
+        self._signin_sites = []
         # 站点图标
         self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_user_statistics()}
         # 站点数据

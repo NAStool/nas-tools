@@ -365,12 +365,14 @@ def medialist():
 @login_required
 def movie_rss():
     RssItems = WebAction().get_movie_rss_list().get("result")
+    RssSites = Sites().get_sites(rss=True)
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
     PixDict = TORRENT_SEARCH_PARAMS.get("pix")
     DownloadSettings = Downloader().get_download_setting()
     return render_template("rss/movie_rss.html",
                            Count=len(RssItems),
+                           RssSites=RssSites,
                            RuleGroups=RuleGroups,
                            RestypeDict=RestypeDict,
                            PixDict=PixDict,
@@ -384,12 +386,14 @@ def movie_rss():
 @login_required
 def tv_rss():
     RssItems = WebAction().get_tv_rss_list().get("result")
+    RssSites = Sites().get_sites(rss=True)
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
     PixDict = TORRENT_SEARCH_PARAMS.get("pix")
     DownloadSettings = Downloader().get_download_setting()
     return render_template("rss/tv_rss.html",
                            Count=len(RssItems),
+                           RssSites=RssSites,
                            RuleGroups=RuleGroups,
                            RestypeDict=RestypeDict,
                            PixDict=PixDict,

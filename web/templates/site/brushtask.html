@@ -630,7 +630,7 @@
 <script type="text/javascript">
   // 显示新增刷流任务
   function show_brushtask_modal() {
-    if (!{{ Sites }}) {
+    if (!{{ Sites|length }}) {
       show_fail_modal("未有站点启用刷流功能");
       return;
     }

@@ -153,9 +153,9 @@
 <script type="text/javascript">
   // 显示新增订阅
   function show_add_movierss_media_modal() {
-    if (!{{ RssSites }}) {
-    show_fail_modal("未有站点启用订阅功能");
-    return;
+    if (!{{ RssSites|length }}) {
+      show_fail_modal("未有站点启用订阅功能");
+      return;
     }
     $("#rss_id").val("");
     $("#rss_modal_title").text("新增订阅");
