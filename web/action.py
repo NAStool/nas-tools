@@ -1669,13 +1669,13 @@ class WebAction:
         rid = data.get("rssid")
         mtype = data.get("rsstype")
         if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
-            rssdetail = Rss().get_rss_movies(rid=rid)
+            rssdetail = Subscribe().get_subscribe_movies(rid=rid)
             if not rssdetail:
                 return {"code": 1}
             rssdetail = list(rssdetail.values())[0]
             rssdetail["type"] = "MOV"
         else:
-            rssdetail = Rss().get_rss_tvs(rid=rid)
+            rssdetail = Subscribe().get_subscribe_tvs(rid=rid)
             if not rssdetail:
                 return {"code": 1}
             rssdetail = list(rssdetail.values())[0]
@@ -3231,14 +3231,14 @@ class WebAction:
         """
         查询所有电影订阅
         """
-        return {"code": 0, "result": Rss().get_rss_movies()}
+        return {"code": 0, "result": Subscribe().get_subscribe_movies()}
 
     @staticmethod
     def get_tv_rss_list(data=None):
         """
         查询所有电视剧订阅
         """
-        return {"code": 0, "result": Rss().get_rss_tvs()}
+        return {"code": 0, "result": Subscribe().get_subscribe_tvs()}
 
     def get_rss_history(self, data):
         """

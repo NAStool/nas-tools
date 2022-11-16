@@ -1,4 +1,3 @@
-import json
 import re
 import traceback
 import xml.dom.minidom
@@ -56,13 +55,13 @@ class Rss:
         with lock:
             log.info("【Rss】开始RSS订阅...")
             # 读取电影订阅
-            rss_movies = self.get_rss_movies(state='R')
+            rss_movies = self.subscribe.get_subscribe_movies(state='R')
             if not rss_movies:
                 log.warn("【Rss】没有正在订阅的电影")
             else:
                 log.info("【Rss】电影订阅清单：%s" % " ".join('%s' % rss_movies[rid].get("name") for rid in rss_movies))
             # 读取电视剧订阅
-            rss_tvs = self.get_rss_tvs(state='R')
+            rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
             if not rss_tvs:
                 log.warn("【Rss】没有正在订阅的电视剧")
             else:
@@ -159,7 +158,7 @@ class Rss:
                         # 大小及种子页面
                         media_info.set_torrent_info(size=size,
                                                     page_url=page_url,
-                                                    site=site_id,
+                                                    site=site_name,
                                                     site_order=site_order,
                                                     enclosure=enclosure)
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
@@ -334,9 +333,9 @@ class Rss:
         :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
-            rss_movies = self.get_rss_movies(rid=rssid)
+            rss_movies = self.subscribe.get_subscribe_movies(rid=rssid)
         else:
-            rss_movies = self.get_rss_movies(state=state)
+            rss_movies = self.subscribe.get_subscribe_movies(state=state)
         if rss_movies:
             log.info("【Rss】共有 %s 个电影订阅需要检索" % len(rss_movies))
         for rid in rss_movies:
@@ -395,9 +394,9 @@ class Rss:
         :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
-            rss_tvs = self.get_rss_tvs(rid=rssid)
+            rss_tvs = self.subscribe.get_subscribe_tvs(rid=rssid)
         else:
-            rss_tvs = self.get_rss_tvs(state=state)
+            rss_tvs = self.subscribe.get_subscribe_tvs(state=state)
         if rss_tvs:
             log.info("【Rss】共有 %s 个电视剧订阅需要检索" % len(rss_tvs))
         rss_no_exists = {}
@@ -510,7 +509,7 @@ class Rss:
         定时将豆瓣订阅转换为TMDB的订阅，并更新订阅的TMDB信息
         """
         # 更新电影
-        rss_movies = self.get_rss_movies(state='R')
+        rss_movies = self.subscribe.get_subscribe_movies(state='R')
         for rid in rss_movies:
             rss_info = rss_movies[rid]
             # 跳过模糊匹配的
@@ -538,7 +537,7 @@ class Rss:
                 self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 
         # 更新电视剧
-        rss_tvs = self.get_rss_tvs(state='R')
+        rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
         for rid in rss_tvs:
             rss_info = rss_tvs[rid]
             # 跳过模糊匹配的
@@ -705,127 +704,6 @@ class Rss:
             target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
             target[title][index]["episodes"] = target_episodes
         return target
-
-    def get_rss_movies(self, rid=None, state=None):
-        ret_dict = {}
-        rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
-        for rss_movie in rss_movies:
-            # 兼容旧配置
-            desc = rss_movie.DESC
-            tmdbid = rss_movie.TMDBID
-            rss_sites = rss_movie.RSS_SITES
-            rss_sites = json.loads(rss_sites) if rss_sites else []
-            search_sites = rss_movie.SEARCH_SITES
-            search_sites = json.loads(search_sites) if search_sites else []
-            over_edition = True if rss_movie.OVER_EDITION == 1 else False
-            filter_restype = rss_movie.FILTER_RESTYPE
-            filter_pix = rss_movie.FILTER_PIX
-            filter_team = rss_movie.FILTER_TEAM
-            filter_rule = rss_movie.FILTER_RULE
-            download_setting = rss_movie.DOWNLOAD_SETTING
-            save_path = rss_movie.SAVE_PATH
-            fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
-            if desc and not download_setting:
-                desc = self.__parse_rss_desc(desc)
-                rss_sites = desc.get("rss_sites")
-                search_sites = desc.get("search_sites")
-                over_edition = True if desc.get("over_edition") == 'Y' else False
-                filter_restype = desc.get("restype")
-                filter_pix = desc.get("pix")
-                filter_team = desc.get("team")
-                filter_rule = desc.get("rule")
-                download_setting = -1
-                save_path = ""
-                fuzzy_match = False if tmdbid else True
-            ret_dict[str(rss_movie.ID)] = {
-                "id": rss_movie.ID,
-                "name": rss_movie.NAME,
-                "year": rss_movie.YEAR,
-                "tmdbid": rss_movie.TMDBID,
-                "image": rss_movie.IMAGE,
-                "rss_sites": rss_sites,
-                "search_sites": search_sites,
-                "over_edition": over_edition,
-                "filter_restype": filter_restype,
-                "filter_pix": filter_pix,
-                "filter_team": filter_team,
-                "filter_rule": filter_rule,
-                "save_path": save_path,
-                "download_setting": download_setting,
-                "fuzzy_match": fuzzy_match,
-                "state": rss_movie.STATE
-            }
-        return ret_dict
-
-    def get_rss_tvs(self, rid=None, state=None):
-        ret_dict = {}
-        rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
-        for rss_tv in rss_tvs:
-            # 兼容旧配置
-            desc = rss_tv.DESC
-            tmdbid = rss_tv.TMDBID
-            rss_sites = json.loads(rss_tv.RSS_SITES) if rss_tv.RSS_SITES else []
-            search_sites = json.loads(rss_tv.SEARCH_SITES) if rss_tv.SEARCH_SITES else []
-            over_edition = True if rss_tv.OVER_EDITION == 1 else False
-            filter_restype = rss_tv.FILTER_RESTYPE
-            filter_pix = rss_tv.FILTER_PIX
-            filter_team = rss_tv.FILTER_TEAM
-            filter_rule = rss_tv.FILTER_RULE
-            download_setting = rss_tv.DOWNLOAD_SETTING
-            save_path = rss_tv.SAVE_PATH
-            total_ep = rss_tv.TOTAL_EP
-            current_ep = rss_tv.CURRENT_EP
-            fuzzy_match = True if rss_tv.FUZZY_MATCH == 1 else False
-            if desc and not download_setting:
-                desc = self.__parse_rss_desc(desc)
-                rss_sites = desc.get("rss_sites")
-                search_sites = desc.get("search_sites")
-                over_edition = True if desc.get("over_edition") == 'Y' else False
-                filter_restype = desc.get("restype")
-                filter_pix = desc.get("pix")
-                filter_team = desc.get("team")
-                filter_rule = desc.get("rule")
-                save_path = ""
-                download_setting = -1
-                total_ep = desc.get("total")
-                current_ep = desc.get("current")
-                fuzzy_match = False if tmdbid else True
-            ret_dict[str(rss_tv.ID)] = {
-                "id": rss_tv.ID,
-                "name": rss_tv.NAME,
-                "year": rss_tv.YEAR,
-                "season": rss_tv.SEASON,
-                "tmdbid": rss_tv.TMDBID,
-                "image": rss_tv.IMAGE,
-                "rss_sites": rss_sites,
-                "search_sites": search_sites,
-                "over_edition": over_edition,
-                "filter_restype": filter_restype,
-                "filter_pix": filter_pix,
-                "filter_team": filter_team,
-                "filter_rule": filter_rule,
-                "save_path": save_path,
-                "download_setting": download_setting,
-                "total": rss_tv.TOTAL,
-                "lack": rss_tv.LACK,
-                "total_ep": total_ep,
-                "current_ep": current_ep,
-                "fuzzy_match": fuzzy_match,
-                "state": rss_tv.STATE
-            }
-        return ret_dict
-
-    @staticmethod
-    def __parse_rss_desc(desc):
-        """
-        解析订阅的DESC字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、订阅制作组/字幕组、过滤规则等信息
-        DESC字段组成：RSS站点#搜索站点#是否洗版(Y/N)#过滤条件，站点用|分隔多个站点，过滤条件用@分隔多个条件
-        :param desc: RSS订阅DESC字段的值
-        :return: 订阅站点、搜索站点、是否洗版、过滤字典、总集数，当前集数
-        """
-        if not desc:
-            return {}
-        return json.loads(desc)
 
     def check_torrent_rss(self,
                           media_info,

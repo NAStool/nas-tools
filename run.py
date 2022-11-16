@@ -664,8 +664,8 @@ def update_config(cfg):
                 desc=json.dumps(__parse_rss_desc(movie.DESC))
             )
         # 电视剧订阅
-        rss_tvshows = DbHelper().get_rss_tvs()
-        for tv in rss_tvshows:
+        rss_tvs = DbHelper().get_rss_tvs()
+        for tv in rss_tvs:
             if not tv.DESC or str(tv.DESC).find('#') == -1:
                 continue
             # 更新到具体字段
