@@ -133,7 +133,7 @@
       if (ret.code == 0) {
         show_success_modal("重新订阅成功！");
       } else {
-        show_fail_modal("重新订阅失败：" + ret.msg);
+        show_fail_modal(`重新订阅失败：${ret.msg}`);
       }
     });
   }

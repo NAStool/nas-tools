@@ -1514,7 +1514,7 @@
         if (ret.rssid) {
           show_edit_rss_media_modal(ret.rssid, ret.type_str);
         } else {
-          show_fail_modal(name + " 未查询到TMDB媒体信息！");
+          show_fail_modal(`${name} 未查询到TMDB媒体信息！`);
         }
       }
     });
@@ -1550,7 +1550,7 @@
           show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！")
         }
       } else {
-        show_fail_modal(ret.name + " 添加订阅失败：" + ret.msg + "！");
+        show_fail_modal(`${ret.name} 添加订阅失败：${ret.msg}！`);
       }
     });
   }
@@ -1740,7 +1740,13 @@
           show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！")
         }
       } else {
-        show_fail_modal(ret.name + " 订阅失败：" + ret.msg + "！");
+        if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+          show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`, function () {
+            $("#modal-manual-rss").modal("show");
+          });
+        } else {
+          show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`);
+        }
       }
     });
   }
@@ -2530,6 +2536,14 @@
       //刷新消息
       refresh_message("");
     {% endif %}
+
+    {% if not TMDBFlag %}
+      //检查tmdb配置
+      show_fail_modal("请先配置TMDB API Key，否则无法使用影视管理功能！", function () {
+        navmenu('basic');
+      });
+    {% endif %}
+
   });
 </script>
 </body>

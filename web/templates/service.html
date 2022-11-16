@@ -299,7 +299,9 @@
           setTimeout("window.location.reload()", 10000);
         });
       } else {
-        show_fail_modal("备份恢复失败：" + ret.msg);
+        show_fail_modal(`备份恢复失败：${ret.msg}`, function() {
+          $("#modal-backup").modal('show');
+        });
       }
     });
   });

@@ -1160,9 +1160,11 @@ class WebAction:
         """
         添加RSS订阅
         """
+        name = data.get("name")
+        if not Sites().get_sites(rss=True):
+            return {"code": -1, "msg": "未有站点启用订阅功能", "name": name}
         _subscribe = Subscribe()
         mtype = data.get("type")
-        name = data.get("name")
         year = data.get("year")
         season = data.get("season")
         fuzzy_match = data.get("fuzzy_match")

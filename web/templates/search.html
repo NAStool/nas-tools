@@ -582,9 +582,9 @@
     $("#modal-search-download").modal('hide');
     ajax_post("download", {"id": id, "dir": dir, "setting": setting}, function (ret) {
       if (ret.retcode == 0) {
-        show_success_modal(name + " 添加下载成功！");
+        show_success_modal(`${name} 添加下载成功！`);
       } else {
-        show_fail_modal(name + " 添加下载失败 " + ret.retmsg + "！");
+        show_fail_modal(`${name} 添加下载失败 ${ret.retmsg}！`);
       }
     });
   }
@@ -740,7 +740,9 @@
       if (ret.code == 0) {
         navmenu('search?s=' + keyword);
       } else {
-        show_fail_modal(ret.msg);
+        show_fail_modal(ret.msg,function () {
+          $("#modal-search-advanced").modal("show");
+        });
       }
     });
   }

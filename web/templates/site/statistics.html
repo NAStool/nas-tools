@@ -600,7 +600,7 @@
               };
               chart_site_activity.setOption(options_site_activity);
             } else {
-              show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
+              show_fail_modal(`${site_name} 查询失败：${ret.msg}！`);
             }
           }
       );
@@ -674,7 +674,7 @@
               };
               chart_seeding_info.setOption(options_seeding_info);
             } else {
-              show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
+              show_fail_modal(`${site_name} 查询失败：${ret.msg}！`);
             }
           }
       );
@@ -771,7 +771,7 @@
               dl_all = numeral(dl_all).format('0.0 ib')
               $('#site-history-title').text("历史数据 (上传量 " + up_all + " / 下载量 " + dl_all + ")")
             } else {
-              show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
+              show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
             }
           }
       );
@@ -848,7 +848,7 @@
             };
             pie_dl.setOption(option_dl)
           } else {
-            show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
+            show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
           }
         }
     );

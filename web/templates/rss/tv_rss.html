@@ -169,6 +169,12 @@
 <script type="text/javascript">
   // 显示新增订阅
   function show_add_tvrss_media_modal() {
+    if (!{{ RssSites|length }}) {
+      show_fail_modal("未有站点启用订阅功能", function () {
+        navmenu('site');
+      });
+      return;
+    }
     $("#rss_id").val("");
     $("#rss_modal_title").text("新增订阅");
     $("#rss_type").val("TV");

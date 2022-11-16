@@ -333,15 +333,15 @@
       if (!batch) {
         hide_wait_process();
         if (ret.code == 0) {
-          show_success_modal(name + "添加下载成功！");
+          show_success_modal(`${name}添加下载成功！`);
         } else {
-          show_fail_modal(name + " 添加下载失败 " + ret.msg);
+          show_fail_modal(`${name} 添加下载失败 ${ret.msg}`);
         }
       } else {
         current_download = current_download + 1;
         if (current_download < total_downloads.length) {
           if (ret.code != 0) {
-            show_fail_modal(name + " 添加下载失败 " + ret.msg, function () {
+            show_fail_modal(`${name} 添加下载失败 ${ret.msg}`, function () {
               download_resource(total_downloads[current_download], true);
             });
           } else {

@@ -600,9 +600,9 @@ class RssChecker(object):
                 # 插入数据库
                 self.dbhelper.insert_rss_torrents(media)
                 # 登记自定义RSS任务下载记录
-                downloader = Downloader().get_default_client_type().value
+                downloader = self.downloader.get_default_client_type().value
                 if taskinfo.get("download_setting"):
-                    download_attr = self.get_download_setting(taskinfo.get("download_setting"))
+                    download_attr = self.downloader.get_download_setting(taskinfo.get("download_setting"))
                     if download_attr.get("downloader"):
                         downloader = download_attr.get("downloader")
                 self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)

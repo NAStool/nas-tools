@@ -284,7 +284,7 @@
       if (ret.retcode == 0) {
         navmenu('history');
       } else {
-        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
       }
     });
   }
