@@ -1059,11 +1059,11 @@
             <div class="mb-3">
               <label class="form-label">订阅站点</label>
               <div class="form-selectgroup">
-                {% for Id, Attr in RssSites.items() %}
+                {% for Id, Name in RssSites.items() %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="rss_sites" value="{{ Id }}" class="form-selectgroup-input"
+                    <input type="checkbox" name="rss_sites" value="{{ Name }}" class="form-selectgroup-input"
                            checked>
-                    <span class="form-selectgroup-label">{{ Attr }}</span>
+                    <span class="form-selectgroup-label">{{ Name }}</span>
                   </label>
                 {% endfor %}
               </div>
@@ -1075,11 +1075,11 @@
             <div class="mb-3">
               <label class="form-label">搜索站点</label>
               <div class="form-selectgroup">
-                {% for Id, Attr in SearchSites.items() %}
+                {% for Id, Name in SearchSites.items() %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="search_sites" value="{{ Id }}" class="form-selectgroup-input"
+                    <input type="checkbox" name="search_sites" value="{{ Name }}" class="form-selectgroup-input"
                            checked>
-                    <span class="form-selectgroup-label">{{ Attr }}</span>
+                    <span class="form-selectgroup-label">{{ Name }}</span>
                   </label>
                 {% endfor %}
               </div>
