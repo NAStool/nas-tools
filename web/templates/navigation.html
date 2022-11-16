@@ -2481,6 +2481,13 @@
       e.stopPropagation();
     });
 
+      // 绑定识别modal-media-identification 消失事件
+      $("#modal-media-identification").on('hidden.bs.modal', function (e) {
+          hide_wait_process()
+          $("#identification_action_btn").attr("disabled", false)
+                .text("转移");
+      })
+
     /**
      * 计算菜单列表高度
      * @return {number}
