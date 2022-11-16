@@ -711,34 +711,44 @@ class WebAction:
         自动识别当前目录文件
         """
         monpath = data.get("curr_dir")
-        syncmodStr = data.get("syncmode")
+        syncmod_str = data.get("syncmode")
 
-        if syncmodStr:
-            syncmod = RMT_MODES.get(syncmodStr)
+        if syncmod_str:
+            syncmod = RMT_MODES.get(syncmod_str)
         else:
             syncmod = RmtMode.LINK
 
         if not monpath:
             return {"retcode": -1, "retmsg": "当前目录路径为null"}
-        error_cnt = 0
+        succ_cnt = 0
+        transfer_list = []
         for file in PathUtils.get_dir_level1_medias(monpath, RMT_MEDIAEXT):
             if PathUtils.is_invalid_path(file):
                 continue
             name = os.path.basename(file)
             if not name:
                 continue
-            media_info = Media().get_media_info(title=name)
-            if not media_info:
-                continue
-            log.debug("开始转移" + str(media_info))
-            # 自定义转移
-            succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                           in_path=file,
-                                                           rmt_mode=syncmod,
-                                                           media_info=media_info)
-            if not succ_flag:
-                error_cnt += 1
-        return {"retcode": 0, "retmsg": "自动转移执行成功，失败文件：" + error_cnt }
+            try:
+                media_info = Media().get_media_info(title=name)
+                if not media_info:
+                    continue
+                # 自定义转移
+                succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                                   in_path=file,
+                                                                   rmt_mode=syncmod,
+                                                                   media_info=media_info)
+                if not succ_flag:
+                    transfer_list.append("[failed]%s, msg:%s\n" % (name, ret_msg))
+                else:
+                    succ_cnt += 1
+                    transfer_list.append("[success]%s \n" % name)
+            except Exception as e:
+                transfer_list.append("[failed]%s, msg:%s\n" % (name, e))
+                log.error(str(e))
+
+        msg = "自动转移执行成功，转移列表[%d]：\n%s" % (succ_cnt, transfer_list)
+        log.console(msg)
+        return {"retcode": 0, "retmsg": msg}
 
     def __delete_history(self, data):
         """
@@ -3697,7 +3707,7 @@ class WebAction:
         sid = data.get("sid")
         download_setting = Downloader().get_download_setting(sid=sid)
         return {"code": 0, "data": download_setting}
-    
+
     def __update_download_setting(self, data):
         sid = data.get("sid")
         name = data.get("name")
