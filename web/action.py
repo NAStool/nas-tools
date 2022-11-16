@@ -845,6 +845,8 @@ class WebAction:
         signurl = data.get('site_signurl')
         cookie = data.get('site_cookie')
         note = data.get('site_note')
+        if isinstance(note, dict):
+            note = json.dumps(note)
         rss_uses = data.get('site_include')
 
         if __is_site_duplicate(name, tid):
@@ -1769,11 +1771,10 @@ class WebAction:
             "remove_rule": remove_rule
         }
         self.dbhelper.insert_brushtask(brushtask_id, item)
-        _dicthelper = DictHelper()
         # 存储消息开关
-        _dicthelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
+        DictHelper().set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
         # 存储是否强制做种的开关
-        _dicthelper.set(SystemDictType.BrushForceUpSwitch.value, brushtask_site, brushtask_forceupload)
+        DictHelper().set(SystemDictType.BrushForceUpSwitch.value, brushtask_site, brushtask_forceupload)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1801,9 +1802,8 @@ class WebAction:
             return {"code": 1, "task": {}}
         site_info = Sites().get_sites(siteid=brushtask.SITE)
         scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-        _dicthelper = DictHelper()
-        sendmessage_switch = _dicthelper.get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
-        forceupload_switch = _dicthelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
+        sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
+        forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
         task = {
             "id": brushtask.ID,
             "name": brushtask.NAME,

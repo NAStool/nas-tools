@@ -14,7 +14,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
 
-
 import log
 from app.message import Message
 from app.sites import SiteUserInfoFactory
@@ -33,49 +32,40 @@ class Sites:
     message = None
     siteconf = None
 
-    __sites_data = {}
-    __sites = None
-    __last_update_time = None
-    __site_favicons = {}
+    _sites = []
+    _siteByIds = {}
+    _siteByUrls = {}
+    _sites_data = {}
+    _site_favicons = {}
+    _last_update_time = None
+
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        _dbhelper = DbHelper()
         self.message = Message()
         self.siteconf = SiteConf()
-        self.__sites = _dbhelper.get_config_site()
-        self.__sites_data = {}
-        self.__last_update_time = None
-        self.__site_favicons = {site.SITE: site.FAVICON for site in _dbhelper.get_site_user_statistics()}
-
-    def get_sites(self,
-                  siteid=None,
-                  siteurl=None,
-                  rss=False,
-                  brush=False,
-                  signin=False,
-                  statistic=False):
-        """
-        获取站点配置
-        """
-        ret_sites = []
-        # 补全 favicon
-        for site in self.__sites:
-            # 是否解析种子详情为|分隔的第1位
-            site_parse = str(site.NOTE).split("|")[0] or "Y"
-            # 站点过滤规则为|分隔的第2位
-            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
-            # 站点未读消息为|分隔的第3位
-            site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(str(site.NOTE).split("|")) > 2 else "Y"
-            # 自定义UA为|分隔的第4位
-            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
-            # 是否开启浏览器仿真为|分隔的第5位
-            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
-            # 是否使用代理为|分隔的第6位
-            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
+        # 原始站点列表
+        self._sites = []
+        # 站点数据
+        self._sites_data = {}
+        # 站点数据更新时间
+        self._last_update_time = None
+        # ID存储站点
+        self._siteByIds = {}
+        # URL存储站点
+        self._siteByUrls = {}
+        # 站点图标
+        self._site_favicons = {site.SITE: site.FAVICON for site in DbHelper().get_site_user_statistics()}
+        # 站点数据
+        self._sites = DbHelper().get_config_site()
+        for site in self._sites:
+            # 站点属性
+            site_note = self.__get_site_note_items(site.NOTE)
+            # 站点地址ID
+            _, site_strict_url = StringUtils.get_url_netloc(site.SIGNURL or site.RSSURL)
             # 站点用途：Q签到、D订阅、S刷流
             signin_enable = True if site.INCLUDE and str(site.INCLUDE).count("Q") else False
             rss_enable = True if site.INCLUDE and str(site.INCLUDE).count("D") else False
@@ -88,32 +78,51 @@ class Sites:
                 "rssurl": site.RSSURL,
                 "signurl": site.SIGNURL,
                 "cookie": site.COOKIE,
-                "rule": rule_groupid,
-                "parse": site_parse,
-                "unread_msg_notify": site_unread_msg_notify,
+                "rule": site_note.get("rule"),
+                "parse": site_note.get("parse"),
+                "unread_msg_notify": site_note.get("message"),
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
-                "favicon": self.__site_favicons.get(site.NAME, ""),
-                "ua": ua,
-                "chrome": chrome,
-                "proxy": proxy
+                "favicon": self._site_favicons.get(site.NAME, ""),
+                "ua": site_note.get("ua"),
+                "chrome": site_note.get("chrome"),
+                "proxy": site_note.get("proxy")
             }
-            if siteid and int(site.ID) == int(siteid):
-                return site_info
-            url = site.RSSURL if not site.SIGNURL else site.SIGNURL
-            if siteurl and url and StringUtils.url_equal(siteurl, url):
-                return site_info
-            if rss and (not site.RSSURL or not rss_enable):
+            # 以ID存储
+            self._siteByIds[site.ID] = site_info
+            # 以域名存储
+            if site_strict_url:
+                self._siteByUrls[site_strict_url] = site_info
+
+    def get_sites(self,
+                  siteid=None,
+                  siteurl=None,
+                  rss=False,
+                  brush=False,
+                  signin=False,
+                  statistic=False):
+        """
+        获取站点配置
+        """
+        if siteid:
+            return self._siteByIds.get(int(siteid))
+        if siteurl:
+            _, url = StringUtils.get_url_netloc(siteurl)
+            return self._siteByUrls.get(url)
+
+        ret_sites = []
+        for site in self._siteByIds.values():
+            if rss and (not site.get('rssurl') or not site.get('rss_enable')):
                 continue
-            if brush and (not site.RSSURL or not brush_enable):
+            if brush and (not site.get('rssurl') or not site.get('brush_enable')):
                 continue
-            if signin and (not site.SIGNURL or not signin_enable):
+            if signin and (not site.get('signurl') or not site.get('signin_enable')):
                 continue
-            if statistic and not statistic_enable:
+            if statistic and not site.get('statistic_enable'):
                 continue
-            ret_sites.append(site_info)
+            ret_sites.append(site)
         if siteid or siteurl:
             return {}
         return ret_sites
@@ -122,9 +131,9 @@ class Sites:
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
-        if not self.__sites:
+        if not self._sites:
             return
-        if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 6 * 3600:
+        if not force and self._last_update_time and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
             return
 
         with lock:
@@ -143,16 +152,15 @@ class Sites:
                 site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
-            _dbhelper = DbHelper()
-            _dbhelper.insert_site_statistics_history(site_user_infos)
+            DbHelper().insert_site_statistics_history(site_user_infos)
             # 实时用户数据
-            _dbhelper.update_site_user_statistics(site_user_infos)
+            DbHelper().update_site_user_statistics(site_user_infos)
             # 实时做种信息
-            _dbhelper.update_site_seed_info(site_user_infos)
+            DbHelper().update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
-            self.__last_update_time = datetime.now()
+            self._last_update_time = datetime.now()
 
     def __refresh_site_data(self, site_info):
         """
@@ -184,26 +192,27 @@ class Sites:
 
                 # 获取不到数据时，仅返回错误信息，不做历史数据更新
                 if site_user_info.err_msg:
-                    self.__sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
+                    self._sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
                     return
 
                 # 发送通知，存在未读消息
                 self.__notify_unread_msg(site_name, site_user_info, unread_msg_notify)
 
-                self.__sites_data.update({site_name: {"upload": site_user_info.upload,
-                                                      "username": site_user_info.username,
-                                                      "user_level": site_user_info.user_level,
-                                                      "join_at": site_user_info.join_at,
-                                                      "download": site_user_info.download,
-                                                      "ratio": site_user_info.ratio,
-                                                      "seeding": site_user_info.seeding,
-                                                      "seeding_size": site_user_info.seeding_size,
-                                                      "leeching": site_user_info.leeching,
-                                                      "bonus": site_user_info.bonus,
-                                                      "url": site_url,
-                                                      "err_msg": site_user_info.err_msg,
-                                                      "message_unread": site_user_info.message_unread}
-                                          })
+                self._sites_data.update({site_name: {
+                    "upload": site_user_info.upload,
+                    "username": site_user_info.username,
+                    "user_level": site_user_info.user_level,
+                    "join_at": site_user_info.join_at,
+                    "download": site_user_info.download,
+                    "ratio": site_user_info.ratio,
+                    "seeding": site_user_info.seeding,
+                    "seeding_size": site_user_info.seeding_size,
+                    "leeching": site_user_info.leeching,
+                    "bonus": site_user_info.bonus,
+                    "url": site_url,
+                    "err_msg": site_user_info.err_msg,
+                    "message_unread": site_user_info.message_unread}
+                })
 
                 return site_user_info
 
@@ -213,7 +222,7 @@ class Sites:
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
         if site_user_info.message_unread <= 0:
             return
-        if self.__sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
+        if self._sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
             return
         if unread_msg_notify != 'Y':
             return
@@ -225,7 +234,8 @@ class Sites:
                 msg_text = f"时间：{date}\n标题：{head}\n内容：\n{content}"
                 self.message.send_site_message(title=msg_title, text=msg_text)
         else:
-            self.message.send_site_message(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+            self.message.send_site_message(
+                title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
     def test_connection(self, site_id):
         """
@@ -422,7 +432,7 @@ class Sites:
         获取站点上传下载量
         """
         self.refresh_all_site_data()
-        return self.__sites_data
+        return self._sites_data
 
     def get_pt_site_statistics_history(self, days=7):
         """
@@ -702,3 +712,13 @@ class Sites:
             return self.siteconf.PUBLIC_TORRENT_SITES.get(netloc)
         else:
             return self.siteconf.PUBLIC_TORRENT_SITES.items()
+
+    @staticmethod
+    def __get_site_note_items(note):
+        """
+        从note中提取站点信息
+        """
+        infos = {}
+        if note:
+            infos = json.loads(note)
+        return infos

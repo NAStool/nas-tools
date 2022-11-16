@@ -456,6 +456,19 @@ class DbHelper:
             }
         )
 
+    @DbPersist(_db)
+    def update_config_site_note(self, tid, note):
+        """
+        更新站点属性
+        """
+        if not tid:
+            return
+        self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
+            {
+                "NOTE": note
+            }
+        )
+
     def get_config_filter_group(self, gid=None):
         """
         查询过滤规则组

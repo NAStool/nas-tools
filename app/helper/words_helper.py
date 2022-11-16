@@ -17,13 +17,12 @@ class WordsHelper:
         self.init_config()
 
     def init_config(self):
-        _dbhelper = DbHelper()
-        self.ignored_words_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
-        self.ignored_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
-        self.replaced_words_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)
-        self.replaced_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=0)
-        self.replaced_offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=3, regex=1)
-        self.offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
+        self.ignored_words_info = DbHelper().get_custom_words(enabled=1, wtype=1, regex=1)
+        self.ignored_words_noregex_info = DbHelper().get_custom_words(enabled=1, wtype=1, regex=0)
+        self.replaced_words_info = DbHelper().get_custom_words(enabled=1, wtype=2, regex=1)
+        self.replaced_words_noregex_info = DbHelper().get_custom_words(enabled=1, wtype=2, regex=0)
+        self.replaced_offset_words_info = DbHelper().get_custom_words(enabled=1, wtype=3, regex=1)
+        self.offset_words_info = DbHelper().get_custom_words(enabled=1, wtype=4, regex=1)
 
     def process(self, title):
         # 错误信息

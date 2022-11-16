@@ -30,7 +30,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     :param media_type: 媒体类型，配合tmdbid传入
     :return: 错误码，错误原因，成功时直接插入数据库
     """
-    _dbhelper = DbHelper()
     mtype, key_word, season_num, episode_num, year, content = StringUtils.get_keyword_from_string(content)
     if not key_word:
         log.info("【Web】%s 检索关键字有误！" % content)
@@ -169,7 +168,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
-    _dbhelper.delete_all_search_torrents()
+    DbHelper().delete_all_search_torrents()
     # 结束进度
     search_process.end('search')
     if len(media_list) == 0:
@@ -181,7 +180,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        _dbhelper.insert_search_results(media_list)
+        DbHelper().insert_search_results(media_list)
         return 0, ""
 
 

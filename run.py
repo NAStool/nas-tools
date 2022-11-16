@@ -121,14 +121,15 @@ def update_config(cfg):
     """
     升级配置文件
     """
-    _dbhelper = DbHelper()
     _config = cfg.get_config()
     overwrite_cofig = False
+
     # 密码初始化
     login_password = _config.get("app", {}).get("login_password") or "password"
     if login_password and not login_password.startswith("[hash]"):
         _config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
         overwrite_cofig = True
+
     # 实验室配置初始化
     if not _config.get("laboratory"):
         _config['laboratory'] = {
@@ -139,6 +140,7 @@ def update_config(cfg):
             'chrome_browser': False
         }
         overwrite_cofig = True
+
     # 安全配置初始化
     if not _config.get("security"):
         _config['security'] = {
@@ -152,6 +154,7 @@ def update_config(cfg):
             }
         }
         overwrite_cofig = True
+
     # API密钥初始化
     if not _config.get("security", {}).get("api_key"):
         _config['security']['api_key'] = _config.get("security",
@@ -160,6 +163,7 @@ def update_config(cfg):
         if _config.get('security', {}).get('subscribe_token'):
             _config['security'].pop('subscribe_token')
         overwrite_cofig = True
+
     # 消息推送开关初始化
     if not _config.get("message", {}).get("switch"):
         _config['message']['switch'] = {
@@ -172,6 +176,7 @@ def update_config(cfg):
             "site_signin": True
         }
         overwrite_cofig = True
+
     # 刮削NFO配置初始化
     if not _config.get("scraper_nfo"):
         _config['scraper_nfo'] = {
@@ -188,6 +193,7 @@ def update_config(cfg):
                 "episode_credits": True}
         }
         overwrite_cofig = True
+
     # 刮削图片配置初始化
     if not _config.get("scraper_pic"):
         _config['scraper_pic'] = {
@@ -212,6 +218,7 @@ def update_config(cfg):
                 "season_thumb": True}
         }
         overwrite_cofig = True
+
     # 下载目录配置初始化
     if not _config.get('downloaddir'):
         dl_client = _config.get('pt', {}).get('pt_client')
@@ -266,14 +273,15 @@ def update_config(cfg):
                                      "label": attr.get("label")})
         _config['downloaddir'] = downloaddir_list
         overwrite_cofig = True
+
     # 自定义识别词兼容旧配置
     try:
         ignored_words = Config().get_config('laboratory').get("ignored_words")
         if ignored_words:
             ignored_words = ignored_words.split("||")
             for ignored_word in ignored_words:
-                if not _dbhelper.is_custom_words_existed(replaced=ignored_word):
-                    _dbhelper.insert_custom_word(replaced=ignored_word,
+                if not DbHelper().is_custom_words_existed(replaced=ignored_word):
+                    DbHelper().insert_custom_word(replaced=ignored_word,
                                                  replace="",
                                                  front="",
                                                  back="",
@@ -291,8 +299,8 @@ def update_config(cfg):
             replaced_words = replaced_words.split("||")
             for replaced_word in replaced_words:
                 replaced_word = replaced_word.split("@")
-                if not _dbhelper.is_custom_words_existed(replaced=replaced_word[0]):
-                    _dbhelper.insert_custom_word(replaced=replaced_word[0],
+                if not DbHelper().is_custom_words_existed(replaced=replaced_word[0]):
+                    DbHelper().insert_custom_word(replaced=replaced_word[0],
                                                  replace=replaced_word[1],
                                                  front="",
                                                  back="",
@@ -310,8 +318,8 @@ def update_config(cfg):
             offset_words = offset_words.split("||")
             for offset_word in offset_words:
                 offset_word = offset_word.split("@")
-                if not _dbhelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
-                    _dbhelper.insert_custom_word(replaced="",
+                if not DbHelper().is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
+                    DbHelper().insert_custom_word(replaced="",
                                                  replace="",
                                                  front=offset_word[0],
                                                  back=offset_word[1],
@@ -326,6 +334,7 @@ def update_config(cfg):
             overwrite_cofig = True
     except Exception as e:
         print(str(e))
+
     # 目录同步兼容旧配置
     try:
         sync_paths = Config().get_config('sync').get('sync_path')
@@ -371,16 +380,16 @@ def update_config(cfg):
                         SyncPath['unknown'] = os.path.normpath(paths[2])
                     # 相同from的同步目录不能同时开启
                     if SyncPath['enabled'] == 1:
-                        _dbhelper.check_config_sync_paths(source=SyncPath['from'],
+                        DbHelper().check_config_sync_paths(source=SyncPath['from'],
                                                           enabled=0)
-                    _dbhelper.insert_config_sync_path(source=SyncPath['from'],
+                    DbHelper().insert_config_sync_path(source=SyncPath['from'],
                                                       dest=SyncPath['to'],
                                                       unknown=SyncPath['unknown'],
                                                       mode=SyncPath['syncmod'],
                                                       rename=SyncPath['rename'],
                                                       enabled=SyncPath['enabled'])
             else:
-                _dbhelper.insert_config_sync_path(source=sync_paths,
+                DbHelper().insert_config_sync_path(source=sync_paths,
                                                   dest="",
                                                   unknown="",
                                                   mode=rmt_mode,
@@ -390,6 +399,7 @@ def update_config(cfg):
             overwrite_cofig = True
     except Exception as e:
         print(str(e))
+
     # 消息服务兼容旧配置
     try:
         message = Config().get_config('message') or {}
@@ -431,7 +441,7 @@ def update_config(cfg):
                     'user_ids': user_ids,
                     'webhook': webhook
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -457,7 +467,7 @@ def update_config(cfg):
                     'token': token,
                     'encodingAESKey': encodingAESkey
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -473,7 +483,7 @@ def update_config(cfg):
                 client_config = json.dumps({
                     'sckey': sckey
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -491,7 +501,7 @@ def update_config(cfg):
                     'server': server,
                     'apikey': apikey
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -513,7 +523,7 @@ def update_config(cfg):
                     'channel': channel,
                     'webhook': webhook
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -529,7 +539,7 @@ def update_config(cfg):
                 client_config = json.dumps({
                     'token': token
                 })
-                _dbhelper.insert_message_client(name=name,
+                DbHelper().insert_message_client(name=name,
                                                 ctype=ctype,
                                                 config=client_config,
                                                 switchs=switchs,
@@ -553,6 +563,37 @@ def update_config(cfg):
         if _config.get('message', {}).get('iyuu'):
             _config['message'].pop('iyuu')
         overwrite_cofig = True
+    except Exception as e:
+        print(str(e))
+
+    # 站点兼容旧配置
+    try:
+        sites = DbHelper().get_config_site()
+        for site in sites:
+            if not site.NOTE or str(site.NOTE).find('{') != -1:
+                continue
+            # 是否解析种子详情为|分隔的第1位
+            site_parse = str(site.NOTE).split("|")[0] or "Y"
+            # 站点过滤规则为|分隔的第2位
+            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
+            # 站点未读消息为|分隔的第3位
+            site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(
+                str(site.NOTE).split("|")) > 2 else "Y"
+            # 自定义UA为|分隔的第4位
+            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
+            # 是否开启浏览器仿真为|分隔的第5位
+            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
+            # 是否使用代理为|分隔的第6位
+            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
+            DbHelper().update_config_site_note(tid=site.ID, note=json.dumps({
+                "parse": site_parse,
+                "rule": rule_groupid,
+                "message": site_unread_msg_notify,
+                "ua": ua,
+                "chrome": chrome,
+                "proxy": proxy
+            }))
+
     except Exception as e:
         print(str(e))
     # 重写配置文件

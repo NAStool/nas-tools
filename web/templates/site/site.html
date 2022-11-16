@@ -420,9 +420,9 @@
   //新增站点
   function add_or_edit_site() {
     //id
-    var site_id = $("#site_id").val();
+    let site_id = $("#site_id").val();
     //名称
-    var site_name = $("#site_name").val();
+    let site_name = $("#site_name").val();
     if (site_name == "") {
       $("#site_name").addClass("is-invalid");
       return;
@@ -430,7 +430,7 @@
       $("#site_name").removeClass("is-invalid");
     }
     //优先级
-    var site_pri = $("#site_pri").val();
+    let site_pri = $("#site_pri").val();
     if (site_pri) {
       $("#site_pri").removeClass("is-invalid");
     } else {
@@ -438,7 +438,7 @@
       return;
     }
     //签到URL
-    var site_signurl = $("#site_signurl").val();
+    let site_signurl = $("#site_signurl").val();
     if (!site_signurl || site_signurl.startsWith('http')) {
       $("#site_signurl").removeClass("is-invalid");
     } else {
@@ -446,9 +446,9 @@
       return;
     }
     //Cookie
-    var site_cookie = $("#site_cookie").val();
+    let site_cookie = $("#site_cookie").val();
     //RSS URL
-    var site_rssurl = $("#site_rssurl").val();
+    let site_rssurl = $("#site_rssurl").val();
     if (site_rssurl) {
       if (site_rssurl.startsWith('http')) {
         $("#site_rssurl").removeClass("is-invalid");
@@ -457,19 +457,19 @@
         return;
       }
     }
-    var site_rule = $("#site_rule").val();
-    var site_parse = $("#site_parse").val();
-    var site_unread_msg_notify = $("#site_unread_msg_notify").val();
-    var site_uses = "";
+    let site_rule = $("#site_rule").val();
+    let site_parse = $("#site_parse").val();
+    let site_unread_msg_notify = $("#site_unread_msg_notify").val();
+    let site_uses = "";
     $("input[name=site_uses]").each(function () {
       if ($(this).prop("checked")) {
         site_uses = site_uses + $(this).val();
       }
     });
-    var ua = $("#site_ua").val();
-    var chrome = $("#site_chrome").val();
-    var proxy = $("#site_proxy").val();
-    var data = {
+    let ua = $("#site_ua").val();
+    let chrome = $("#site_chrome").val();
+    let proxy = $("#site_proxy").val();
+    let data = {
       "site_id": site_id,
       "site_name": site_name,
       "site_pri": site_pri,
@@ -477,7 +477,14 @@
       "site_signurl": site_signurl,
       "site_cookie": site_cookie,
       "site_include": site_uses,
-      "site_note": site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome + "|" + proxy
+      "site_note": {
+        "rule": site_rule,
+        "parse": site_parse,
+        "ua": ua,
+        "chrome": chrome,
+        "proxy": proxy,
+        "message": site_unread_msg_notify
+      }
     }
 
     $("#add_or_edit_site_btn").attr("disabled", true);
@@ -518,7 +525,7 @@
   }
 
   // 优先级
-  for (var i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 50; i++) {
     $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
@@ -566,7 +573,7 @@
   $("#sitetest_btn").click(function () {
     $("#modal-sitetest input[type=checkbox]").each(function () {
       if ($(this).attr("id").startsWith("check_") && $(this).prop("checked")) {
-        var siteid = $(this).attr("id").replace("check_", "");
+        let siteid = $(this).attr("id").replace("check_", "");
         test_one_site(siteid);
       }
     });

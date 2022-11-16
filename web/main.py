@@ -417,14 +417,13 @@ def rss_history():
 @App.route('/rss_calendar', methods=['POST', 'GET'])
 @login_required
 def rss_calendar():
-    _dbhelper = DbHelper()
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    RssMovieIds = [movie.TMDBID for movie in _dbhelper.get_rss_movies()]
+    RssMovieIds = [movie.TMDBID for movie in DbHelper().get_rss_movies()]
     RssTvItems = [{
         "id": tv.TMDBID,
         "season": int(str(tv.SEASON).replace("S", "")),
         "name": tv.NAME
-    } for tv in _dbhelper.get_rss_tvs() if tv.SEASON]
+    } for tv in DbHelper().get_rss_tvs() if tv.SEASON]
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieIds=RssMovieIds,
@@ -583,7 +582,6 @@ def statistics():
 @App.route('/brushtask', methods=['POST', 'GET'])
 @login_required
 def brushtask():
-    _dbhelper = DbHelper()
     # 站点列表
     CfgSites = Sites().get_sites(brush=True)
     # 下载器列表
@@ -716,8 +714,7 @@ def service():
                  'color': "facebook"})
 
     # 目录同步
-    _dbhelper = DbHelper()
-    sync_paths = _dbhelper.get_config_sync_paths()
+    sync_paths = DbHelper().get_config_sync_paths()
     if sync_paths:
         sta_sync = 'ON'
         svg = '''

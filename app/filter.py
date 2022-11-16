@@ -16,9 +16,8 @@ class Filter:
         self.init_config()
 
     def init_config(self):
-        _dbhelper = DbHelper()
-        self._groups = _dbhelper.get_config_filter_group()
-        self._rules = _dbhelper.get_config_filter_rule()
+        self._groups = DbHelper().get_config_filter_group()
+        self._rules = DbHelper().get_config_filter_rule()
 
     def get_rule_groups(self, groupid=None, default=False):
         """
