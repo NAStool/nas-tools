@@ -1741,11 +1741,11 @@
         }
       } else {
         if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
-          show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`);
-        } else {
           show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`, function () {
-              $("#modal-manual-rss").modal("show");
+            $("#modal-manual-rss").modal("show");
           });
+        } else {
+          show_fail_modal(`${ret.name} 订阅失败：${ret.msg}！`);
         }
       }
     });
