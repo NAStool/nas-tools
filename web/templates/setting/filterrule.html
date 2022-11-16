@@ -618,7 +618,7 @@
         $("#share_filtergroup_code").text(ret.string);
         $("#modal-share-filtergroup").modal('show');
       } else {
-        show_fail_modal("无法生成分享：" + ret.msg);
+        show_fail_modal(`无法生成分享：${ret.msg}`);
       }
     });
   }
@@ -642,7 +642,9 @@
       if (ret.code == 0) {
         navmenu('filterrule');
       } else {
-        show_fail_modal("规则导入失败：" + ret.msg);
+        show_fail_modal(`规则导入失败：${ret.msg}`, function () {
+          $("#modal-import-filtergroup").modal('show');
+        });
       }
     });
   }

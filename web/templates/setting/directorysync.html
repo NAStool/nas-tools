@@ -275,7 +275,9 @@
       if (ret.code == 0) {
         navmenu('directorysync');
       } else {
-        show_fail_modal(ret.msg);
+        show_fail_modal(ret.msg, function () {
+          $("#modal-directory").modal('show');
+        });
       }
     });
   }

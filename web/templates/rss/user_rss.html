@@ -790,11 +790,14 @@
     ajax_post("rss_articles_download", { "articles": articles, "taskid": id }, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
-        show_success_modal("添加下载成功！");
+        show_success_modal("添加下载成功！", function() {
+          show_rss_articles_modal(id);//
+        });
       } else if (ret.code == 1) {
-        show_fail_modal(" 添加下载失败！");
+        show_fail_modal(" 添加下载失败！", function() {
+          show_rss_articles_modal(id);//
+        });
       }
-      show_rss_articles_modal(id);
     });
   }
 
