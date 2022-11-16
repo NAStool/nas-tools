@@ -1,4 +1,5 @@
 import json
+import random
 import re
 import time
 import traceback
@@ -632,6 +633,56 @@ class Sites:
             if StringUtils.url_equal(k, url):
                 return v
         return {}
+
+    def check_torrent_attr(self, torrent_url, cookie, ua=None):
+        """
+        检验种子是否免费，当前做种人数
+        :param torrent_url: 种子的详情页面
+        :param cookie: 站点的Cookie
+        :param ua: 站点的ua
+        :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
+        """
+        ret_attr = {
+            "free": False,
+            "2xfree": False,
+            "hr": False,
+            "peer_count": 0
+        }
+        if not torrent_url:
+            return ret_attr
+        xpath_strs = self.get_grapsite_conf(torrent_url)
+        if not xpath_strs:
+            return ret_attr
+        html_text = self.__get_site_page_html(url=torrent_url, cookie=cookie, ua=ua)
+        if not html_text:
+            return ret_attr
+        try:
+            html = etree.HTML(html_text)
+            # 检测2XFREE
+            for xpath_str in xpath_strs.get("2XFREE"):
+                if html.xpath(xpath_str):
+                    ret_attr["free"] = True
+                    ret_attr["2xfree"] = True
+            # 检测FREE
+            for xpath_str in xpath_strs.get("FREE"):
+                if html.xpath(xpath_str):
+                    ret_attr["free"] = True
+            # 检测HR
+            for xpath_str in xpath_strs.get("HR"):
+                if html.xpath(xpath_str):
+                    ret_attr["hr"] = True
+            # 检测PEER_COUNT当前做种人数
+            for xpath_str in xpath_strs.get("PEER_COUNT"):
+                peer_count_dom = html.xpath(xpath_str)
+                if peer_count_dom:
+                    peer_count_str = peer_count_dom[0].text
+                    peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
+                    ret_attr["peer_count"] = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
+        except Exception as err:
+            print(str(err))
+        # 随机休眼后再返回
+        time.sleep(round(random.uniform(1, 5), 1))
+        return ret_attr
 
     def is_public_site(self, url):
         """
