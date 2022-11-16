@@ -230,22 +230,18 @@ class Filter:
         """
         # 过滤质量
         if filter_args.get("restype"):
-            restype = TORRENT_SEARCH_PARAMS["restype"].get(str(filter_args.get("restype")))
-            restype_re = restype.get("re")
-            restype_name = restype.get("name")
+            restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
             if not meta_info.resource_type:
-                return False, 0, f"{meta_info.org_string} 不符合质量 {restype_name}要求"
+                return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
             if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合质量 {restype_name}要求"
+                return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
         # 过滤分辨率
         if filter_args.get("pix"):
-            pix = TORRENT_SEARCH_PARAMS["pix"].get(str(filter_args.get("pix")))
-            pix_name = pix.get("name")
-            pix_re = pix.get("re")
+            pix_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
             if not meta_info.resource_pix:
-                return False, 0, f"{meta_info.org_string} 不符合分辨率 {pix_name}要求"
+                return False, 0, f"{meta_info.org_string} 不符合分辨率 {filter_args.get('pix')} 要求"
             if pix_re and not re.search(r"%s" % pix_re, meta_info.resource_pix, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合分辨率 {pix_name}要求"
+                return False, 0, f"{meta_info.org_string} 不符合分辨率 {filter_args.get('pix')} 要求"
         # 过滤制作组/字幕组
         if filter_args.get("team"):
             team = filter_args.get("team")

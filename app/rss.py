@@ -18,8 +18,6 @@ from app.utils.rsstitle_utils import RssTitleUtils
 from app.utils.types import MediaType, SearchType
 from app.subscribe import Subscribe
 
-from config import TORRENT_SEARCH_PARAMS
-
 lock = Lock()
 
 
@@ -719,26 +717,26 @@ class Rss:
             rss_sites = json.loads(rss_sites) if rss_sites else []
             search_sites = rss_movie.SEARCH_SITES
             search_sites = json.loads(search_sites) if search_sites else []
-            over_edition = rss_movie.OVER_EDITION
+            over_edition = True if rss_movie.OVER_EDITION == 1 else False
             filter_restype = rss_movie.FILTER_RESTYPE
             filter_pix = rss_movie.FILTER_PIX
             filter_team = rss_movie.FILTER_TEAM
             filter_rule = rss_movie.FILTER_RULE
             download_setting = rss_movie.DOWNLOAD_SETTING
             save_path = rss_movie.SAVE_PATH
-            fuzzy_match = rss_movie.FUZZY_MATCH
+            fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
             if desc and not download_setting:
-                desc = self.__parse_desc(desc)
+                desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
                 search_sites = desc.get("search_sites")
-                over_edition = desc.get("over_edition")
+                over_edition = True if desc.get("over_edition") == 'Y' else False
                 filter_restype = desc.get("restype")
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
                 filter_rule = desc.get("rule")
                 download_setting = -1
                 save_path = ""
-                fuzzy_match = 0 if tmdbid else 1
+                fuzzy_match = False if tmdbid else True
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
                 "name": rss_movie.NAME,
@@ -766,11 +764,9 @@ class Rss:
             # 兼容旧配置
             desc = rss_tv.DESC
             tmdbid = rss_tv.TMDBID
-            rss_sites = rss_tv.RSS_SITES
-            rss_sites = json.loads(rss_sites) if rss_sites else []
-            search_sites = rss_tv.SEARCH_SITES
-            search_sites = json.loads(search_sites) if search_sites else []
-            over_edition = rss_tv.OVER_EDITION
+            rss_sites = json.loads(rss_tv.RSS_SITES) if rss_tv.RSS_SITES else []
+            search_sites = json.loads(rss_tv.SEARCH_SITES) if rss_tv.SEARCH_SITES else []
+            over_edition = True if rss_tv.OVER_EDITION == 1 else False
             filter_restype = rss_tv.FILTER_RESTYPE
             filter_pix = rss_tv.FILTER_PIX
             filter_team = rss_tv.FILTER_TEAM
@@ -779,12 +775,12 @@ class Rss:
             save_path = rss_tv.SAVE_PATH
             total_ep = rss_tv.TOTAL_EP
             current_ep = rss_tv.CURRENT_EP
-            fuzzy_match = rss_tv.FUZZY_MATCH
+            fuzzy_match = True if rss_tv.FUZZY_MATCH == 1 else False
             if desc and not download_setting:
-                desc = self.__parse_desc(desc)
+                desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
                 search_sites = desc.get("search_sites")
-                over_edition = desc.get("over_edition")
+                over_edition = True if desc.get("over_edition") == 'Y' else False
                 filter_restype = desc.get("restype")
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
@@ -793,7 +789,7 @@ class Rss:
                 download_setting = -1
                 total_ep = desc.get("total")
                 current_ep = desc.get("current")
-                fuzzy_match = 0 if tmdbid else 1
+                fuzzy_match = False if tmdbid else True
             ret_dict[str(rss_tv.ID)] = {
                 "id": rss_tv.ID,
                 "name": rss_tv.NAME,
@@ -819,7 +815,8 @@ class Rss:
             }
         return ret_dict
 
-    def __parse_desc(self, desc):
+    @staticmethod
+    def __parse_rss_desc(desc):
         """
         解析订阅的DESC字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、订阅制作组/字幕组、过滤规则等信息
         DESC字段组成：RSS站点#搜索站点#是否洗版(Y/N)#过滤条件，站点用|分隔多个站点，过滤条件用@分隔多个条件
@@ -828,82 +825,7 @@ class Rss:
         """
         if not desc:
             return {}
-        rss_sites = []
-        search_sites = []
-        over_edition = False
-        restype = None
-        pix = None
-        team = None
-        rule = None
-        total = None
-        current = None
-        notes = str(desc).split('#')
-        # 订阅站点
-        if len(notes) > 0:
-            if notes[0]:
-                rss_sites = [site for site in notes[0].split('|') if site and len(site) < 20]
-                if rss_sites:
-                    rss_sites_dict = {site["name"]: site["id"] for site in self.__sites}
-                    rss_sites = [rss_sites_dict[site] for site in rss_sites if rss_sites_dict.get("site")]
-        # 搜索站点
-        if len(notes) > 1:
-            if notes[1]:
-                search_sites = [site for site in notes[1].split('|') if site]
-                if search_sites:
-                    search_sites_dict = {str(site.id): site.name for site in self.searcher.indexer.get_indexers()}
-                    search_sites = [search_sites_dict[site] for site in search_sites if search_sites_dict.get("site")]
-        # 洗版
-        if len(notes) > 2:
-            if notes[2] == 'Y':
-                over_edition = 1
-            else:
-                over_edition = 0
-        # 过滤条件
-        if len(notes) > 3:
-            if notes[3]:
-                filters = notes[3].split('@')
-                if len(filters) > 0:
-                    restype = filters[0]
-                    if restype:
-                        restype_dict = TORRENT_SEARCH_PARAMS.get("restype")
-                        restype_dict = {restype_dict[rid]["name"]: int(rid) for rid in restype_dict}
-                        restype = restype_dict[restype] if restype_dict.get(restype) else 0
-                    else:
-                        restype = 0
-                if len(filters) > 1:
-                    pix = filters[1]
-                    if pix:
-                        pix_dict = TORRENT_SEARCH_PARAMS.get("pix")
-                        pix_dict = {pix_dict[rid]["name"]: int(rid) for rid in pix_dict}
-                        pix = pix_dict[pix] if pix_dict.get(pix) else 0
-                    else:
-                        pix = 0
-                if len(filters) > 2:
-                    rule = filters[2]
-                    rule = int(rule) if rule else 0
-                if len(filters) > 3:
-                    team = filters[3] or ""
-        # 总集数及当前集数
-        if len(notes) > 4:
-            if notes[4]:
-                ep_info = notes[4].split('@')
-                if len(ep_info) > 0:
-                    total = ep_info[0]
-                    total = int(total) if total else 0
-                if len(ep_info) > 1:
-                    current = ep_info[1]
-                    current = int(current) if current else 0
-        return {
-            "rss_sites": rss_sites,
-            "search_sites": search_sites,
-            "over_edition": over_edition,
-            "restype": restype,
-            "pix": pix,
-            "team": team,
-            "rule": rule,
-            "total": total,
-            "current": current
-        }
+        return json.loads(desc)
 
     def check_torrent_rss(self,
                           media_info,

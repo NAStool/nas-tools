@@ -282,16 +282,16 @@ def update_config(cfg):
             for ignored_word in ignored_words:
                 if not DbHelper().is_custom_words_existed(replaced=ignored_word):
                     DbHelper().insert_custom_word(replaced=ignored_word,
-                                                 replace="",
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=1,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                                                  replace="",
+                                                  front="",
+                                                  back="",
+                                                  offset=0,
+                                                  wtype=1,
+                                                  gid=-1,
+                                                  season=-2,
+                                                  enabled=1,
+                                                  regex=1,
+                                                  whelp="")
             _config['laboratory'].pop('ignored_words')
             overwrite_cofig = True
         replaced_words = Config().get_config('laboratory').get("replaced_words")
@@ -301,16 +301,16 @@ def update_config(cfg):
                 replaced_word = replaced_word.split("@")
                 if not DbHelper().is_custom_words_existed(replaced=replaced_word[0]):
                     DbHelper().insert_custom_word(replaced=replaced_word[0],
-                                                 replace=replaced_word[1],
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=2,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                                                  replace=replaced_word[1],
+                                                  front="",
+                                                  back="",
+                                                  offset=0,
+                                                  wtype=2,
+                                                  gid=-1,
+                                                  season=-2,
+                                                  enabled=1,
+                                                  regex=1,
+                                                  whelp="")
             _config['laboratory'].pop('replaced_words')
             overwrite_cofig = True
         offset_words = Config().get_config('laboratory').get("offset_words")
@@ -320,16 +320,16 @@ def update_config(cfg):
                 offset_word = offset_word.split("@")
                 if not DbHelper().is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
                     DbHelper().insert_custom_word(replaced="",
-                                                 replace="",
-                                                 front=offset_word[0],
-                                                 back=offset_word[1],
-                                                 offset=offset_word[2],
-                                                 wtype=4,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                                                  replace="",
+                                                  front=offset_word[0],
+                                                  back=offset_word[1],
+                                                  offset=offset_word[2],
+                                                  wtype=4,
+                                                  gid=-1,
+                                                  season=-2,
+                                                  enabled=1,
+                                                  regex=1,
+                                                  whelp="")
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
     except Exception as e:
@@ -381,20 +381,20 @@ def update_config(cfg):
                     # 相同from的同步目录不能同时开启
                     if SyncPath['enabled'] == 1:
                         DbHelper().check_config_sync_paths(source=SyncPath['from'],
-                                                          enabled=0)
+                                                           enabled=0)
                     DbHelper().insert_config_sync_path(source=SyncPath['from'],
-                                                      dest=SyncPath['to'],
-                                                      unknown=SyncPath['unknown'],
-                                                      mode=SyncPath['syncmod'],
-                                                      rename=SyncPath['rename'],
-                                                      enabled=SyncPath['enabled'])
+                                                       dest=SyncPath['to'],
+                                                       unknown=SyncPath['unknown'],
+                                                       mode=SyncPath['syncmod'],
+                                                       rename=SyncPath['rename'],
+                                                       enabled=SyncPath['enabled'])
             else:
                 DbHelper().insert_config_sync_path(source=sync_paths,
-                                                  dest="",
-                                                  unknown="",
-                                                  mode=rmt_mode,
-                                                  rename=1,
-                                                  enabled=0)
+                                                   dest="",
+                                                   unknown="",
+                                                   mode=rmt_mode,
+                                                   rename=1,
+                                                   enabled=0)
             _config['sync'].pop('sync_path')
             overwrite_cofig = True
     except Exception as e:
@@ -442,11 +442,11 @@ def update_config(cfg):
                     'webhook': webhook
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         if message.get('wechat'):
             corpid = message.get('wechat', {}).get('corpid')
             corpsecret = message.get('wechat', {}).get('corpsecret')
@@ -468,11 +468,11 @@ def update_config(cfg):
                     'encodingAESKey': encodingAESkey
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         if message.get('serverchan'):
             sckey = message.get('serverchan', {}).get('sckey')
             if sckey:
@@ -484,11 +484,11 @@ def update_config(cfg):
                     'sckey': sckey
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         if message.get('bark'):
             server = message.get('bark', {}).get('server')
             apikey = message.get('bark', {}).get('apikey')
@@ -502,11 +502,11 @@ def update_config(cfg):
                     'apikey': apikey
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         if message.get('pushplus'):
             token = message.get('pushplus', {}).get('push_token')
             topic = message.get('pushplus', {}).get('push_topic')
@@ -524,11 +524,11 @@ def update_config(cfg):
                     'webhook': webhook
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         if message.get('iyuu'):
             token = message.get('iyuu', {}).get('iyuu_token')
             if token:
@@ -540,11 +540,11 @@ def update_config(cfg):
                     'token': token
                 })
                 DbHelper().insert_message_client(name=name,
-                                                ctype=ctype,
-                                                config=client_config,
-                                                switchs=switchs,
-                                                interactive=interactive,
-                                                enabled=enabled)
+                                                 ctype=ctype,
+                                                 config=client_config,
+                                                 switchs=switchs,
+                                                 interactive=interactive,
+                                                 enabled=enabled)
         # 删除旧配置
         if _config.get('message', {}).get('msg_channel'):
             _config['message'].pop('msg_channel')
@@ -596,6 +596,87 @@ def update_config(cfg):
 
     except Exception as e:
         print(str(e))
+
+    # 订阅兼容旧配置
+    try:
+        def __parse_rss_desc(desc):
+            rss_sites = []
+            search_sites = []
+            over_edition = False
+            restype = None
+            pix = None
+            team = None
+            rule = None
+            total = None
+            current = None
+            notes = str(desc).split('#')
+            # 订阅站点
+            if len(notes) > 0:
+                if notes[0]:
+                    rss_sites = [s for s in str(notes[0]).split('|') if s and len(s) < 20]
+            # 搜索站点
+            if len(notes) > 1:
+                if notes[1]:
+                    search_sites = [s for s in str(notes[1]).split('|') if s]
+            # 洗版
+            if len(notes) > 2:
+                over_edition = notes[2]
+            # 过滤条件
+            if len(notes) > 3:
+                if notes[3]:
+                    filters = notes[3].split('@')
+                    if len(filters) > 0:
+                        restype = filters[0]
+                    if len(filters) > 1:
+                        pix = filters[1]
+                    if len(filters) > 2:
+                        rule = int(filters[2]) if filters[2].isdigit() else None
+                    if len(filters) > 3:
+                        team = filters[3]
+            # 总集数及当前集数
+            if len(notes) > 4:
+                if notes[4]:
+                    ep_info = notes[4].split('@')
+                    if len(ep_info) > 0:
+                        total = int(ep_info[0]) if ep_info[0] else None
+                    if len(ep_info) > 1:
+                        current = int(ep_info[1]) if ep_info[1] else None
+            return {
+                "rss_sites": rss_sites,
+                "search_sites": search_sites,
+                "over_edition": over_edition,
+                "restype": restype,
+                "pix": pix,
+                "team": team,
+                "rule": rule,
+                "total": total,
+                "current": current
+            }
+
+        # 电影订阅
+        rss_movies = DbHelper().get_rss_movies()
+        for movie in rss_movies:
+            if not movie.DESC or str(movie.DESC).find('#') == -1:
+                continue
+            # 更新到具体字段
+            DbHelper().update_rss_movie_desc(
+                rid=movie.ID,
+                desc=json.dumps(__parse_rss_desc(movie.DESC))
+            )
+        # 电视剧订阅
+        rss_tvshows = DbHelper().get_rss_tvs()
+        for tv in rss_tvshows:
+            if not tv.DESC or str(tv.DESC).find('#') == -1:
+                continue
+            # 更新到具体字段
+            DbHelper().update_rss_tv_desc(
+                rid=tv.ID,
+                desc=json.dumps(__parse_rss_desc(tv.DESC))
+            )
+
+    except Exception as e:
+        print(str(e))
+
     # 重写配置文件
     if overwrite_cofig:
         cfg.save_config(_config)

@@ -993,9 +993,9 @@
             <div class="mb-3">
               <label class="form-label">质量</label>
               <select class="form-select" id="rss_restype">
-                <option value="0" selected>全部</option>
-                {% for Id, Attr in RestypeDict.items() %}
-                  <option value="{{ Id }}">{{ Attr.name }}</option>
+                <option value="" selected>全部</option>
+                {% for Restype in RestypeDict %}
+                  <option value="{{ Restype }}">{{ Restype }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -1004,9 +1004,9 @@
             <div class="mb-3">
               <label class="form-label">分辨率</label>
               <select class="form-select" id="rss_pix">
-                <option value="0" selected>全部</option>
-                {% for Id, Attr in PixDict.items() %}
-                  <option value="{{ Id }}">{{ Attr.name }}</option>
+                <option value="" selected>全部</option>
+                {% for Pix in PixDict %}
+                  <option value="{{ Pix }}">{{ Pix }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -1023,7 +1023,7 @@
                                                        title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
                                                        data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="rss_rule">
-                <option value="0" selected>站点规则</option>
+                <option value="" selected>站点规则</option>
                 {% for RuleGroup in RuleGroups %}
                   <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
                 {% endfor %}
@@ -1059,11 +1059,11 @@
             <div class="mb-3">
               <label class="form-label">订阅站点</label>
               <div class="form-selectgroup">
-                {% for Id, Name in RssSites.items() %}
+                {% for Site in RssSites %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="rss_sites" value="{{ Name }}" class="form-selectgroup-input"
+                    <input type="checkbox" name="rss_sites" value="{{ Site.name }}" class="form-selectgroup-input"
                            checked>
-                    <span class="form-selectgroup-label">{{ Name }}</span>
+                    <span class="form-selectgroup-label">{{ Site.name }}</span>
                   </label>
                 {% endfor %}
               </div>
@@ -1075,11 +1075,11 @@
             <div class="mb-3">
               <label class="form-label">搜索站点</label>
               <div class="form-selectgroup">
-                {% for Id, Name in SearchSites.items() %}
+                {% for Site in SearchSites %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="search_sites" value="{{ Name }}" class="form-selectgroup-input"
+                    <input type="checkbox" name="search_sites" value="{{ Site.name }}" class="form-selectgroup-input"
                            checked>
-                    <span class="form-selectgroup-label">{{ Name }}</span>
+                    <span class="form-selectgroup-label">{{ Site.name }}</span>
                   </label>
                 {% endfor %}
               </div>
@@ -1785,7 +1785,7 @@
   // 选择洗版
   function change_over_edition_check(obj) {
     if ($(obj).prop("checked")) {
-      $("#key_match").prop("checked", false);
+      $("#fuzzy_match").prop("checked", false);
       $("#rss_search_sites_div").show();
     }
   }

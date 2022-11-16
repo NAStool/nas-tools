@@ -251,7 +251,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 获取字符串中可能的RSS站点列表
         rss_sites, content = StringUtils.get_idlist_from_string(org_content,
                                                                 [{
-                                                                    "id": site.get("id"),
+                                                                    "id": site.get("name"),
                                                                     "name": site.get("name")
                                                                 } for site in Sites().get_sites(rss=True)])
 
@@ -267,12 +267,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 获取字符串中可能的搜索站点列表
         if indexer_type == "builtin":
             search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
-                "id": indexer.id,
+                "name": indexer.id,
                 "name": indexer.name
             } for indexer in indexers])
         else:
             search_sites, content = StringUtils.get_idlist_from_string(content, [{
-                "id": indexer.id,
+                "name": indexer.id,
                 "name": indexer.name
             } for indexer in indexers])
 

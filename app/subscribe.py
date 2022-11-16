@@ -56,17 +56,13 @@ class Subscribe:
         if not name:
             return -1, "标题或类型有误", None
         year = int(year) if str(year).isdigit() else ""
-        rss_sites = [int(site) for site in rss_sites] if rss_sites else []
-        search_sites = search_sites if search_sites else []
+        rss_sites = rss_sites or []
+        search_sites = search_sites or []
         over_edition = 1 if over_edition else 0
-        filter_restype = int(filter_restype) if str(filter_restype).isdigit() else 0
-        filter_pix = int(filter_pix) if str(filter_pix).isdigit() else 0
-        filter_team = filter_team if filter_team else ""
-        filter_rule = int(filter_rule) if str(filter_rule).isdigit() else 0
-        total_ep = int(total_ep) if str(total_ep).isdigit() else 0
-        current_ep = int(current_ep) if str(current_ep).isdigit() else 0
-        save_path = save_path if save_path else ""
-        download_setting = int(download_setting) if str(download_setting).isdigit() else -1
+        filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
+        total_ep = int(total_ep) if str(total_ep).isdigit() else None
+        current_ep = int(current_ep) if str(current_ep).isdigit() else None
+        download_setting = int(download_setting) if str(download_setting).isdigit() else None
         fuzzy_match = 1 if fuzzy_match else 0
         # 检索媒体信息
         if not fuzzy_match:

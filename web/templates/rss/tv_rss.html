@@ -105,12 +105,12 @@
                     {% endif %}
                     {% if Attr.filter_restype %}
                       <span class="badge badge-outline text-orange me-1 mb-1" title="质量">
-                        {{ RestypeDict[Attr.filter_restype|string].name }}
+                        {{ Attr.filter_restype }}
                       </span>
                     {% endif %}
                     {% if Attr.filter_pix %}
                       <span class="badge badge-outline text-orange me-1 mb-1" title="分辨率">
-                        {{ PixDict[Attr.filter_pix|string].name }}
+                        {{ Attr.filter_pix }}
                       </span>
                     {% endif %}
                     {% if Attr.filter_team %}
