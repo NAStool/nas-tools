@@ -99,6 +99,7 @@ def login():
         # 判断当前的运营环境
         SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
         SyncMod = Config().get_config('pt').get('rmt_mode')
+        TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
         RssSites = Sites().get_sites(rss=True)
@@ -113,6 +114,7 @@ def login():
                                UserName=userinfo.username,
                                UserPris=str(userinfo.pris).split(","),
                                SystemFlag=SystemFlag,
+                               TMDBFlag=TMDBFlag,
                                AppVersion=WebUtils.get_current_version(),
                                RssSites=RssSites,
                                SearchSites=SearchSites,

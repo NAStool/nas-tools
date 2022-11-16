@@ -466,6 +466,18 @@
         site_uses = site_uses + $(this).val();
       }
     });
+    if (site_uses.match(/[DS]/) && !site_rssurl) {
+      $("#site_rssurl").addClass("is-invalid");
+      return;
+    } else {
+      $("#site_rssurl").removeClass("is-invalid");
+    };
+    if (site_uses.match(/T/) && !site_cookie) {
+      $("#site_cookie").addClass("is-invalid");
+      return;
+    } else {
+      $("#site_cookie").removeClass("is-invalid");
+    };
     let ua = $("#site_ua").val();
     let chrome = $("#site_chrome").val();
     let proxy = $("#site_proxy").val();

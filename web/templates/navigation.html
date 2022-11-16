@@ -2530,6 +2530,12 @@
       //刷新消息
       refresh_message("");
     {% endif %}
+
+    {% if not TMDBFlag %}
+      //检查tmdb配置
+      show_fail_modal("请先配置TMDB API Key，否则无法使用影视管理功能！");
+    {% endif %}
+
   });
 </script>
 </body>
