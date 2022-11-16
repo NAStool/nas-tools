@@ -84,7 +84,7 @@
                       Attr.filter_restype or
                       Attr.filter_pix or
                       Attr.filter_team or
-                      Attr.download_setting != -1 or
+                      (Attr.download_setting and Attr.download_setting != -1) or
                       Attr.rss_sites or
                       Attr.search_sites %} class="text-muted border-top pt-2 mt-2"
                 {% else %} class=“text-muted"{% endif %}>

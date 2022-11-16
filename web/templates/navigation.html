@@ -1860,7 +1860,8 @@
         $("#rss_save_path").val(ret.detail.save_path);
         $("#rss_download_setting").val(ret.detail.download_setting);
         $("#rss_sites_div").find("input[type=checkbox]").each(function () {
-          if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes(parseInt($(this).val())))) {
+          debugger;
+          if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes($(this).val()))) {
             $(this).prop("checked", true);
           } else {
             $(this).prop("checked", false);
