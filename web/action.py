@@ -1300,13 +1300,44 @@ class WebAction:
         page = data.get("page")
         doubanid = data.get("doubanid")
         rssid = data.get("rssid")
+        seasons = []
+        link_url = ""
+        vote_average = 0
+        poster_path = ""
+        release_date = ""
+        overview = ""
+        # 类型
         if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.TV
 
-        if media_type == MediaType.MOVIE:
-            # 查媒体信息
+        # 先取订阅信息
+        rssid_ok = False
+        if rssid:
+            if media_type == MediaType.MOVIE:
+                rssinfo = Subscribe().get_subscribe_movies(rid=rssid)
+            else:
+                rssinfo = Subscribe().get_subscribe_tvs(rid=rssid)
+            if not rssinfo:
+                return {
+                    "code": 1,
+                    "retmsg": "无法查询到订阅信息",
+                    "rssid": rssid,
+                    "type_str": media_type.value
+                }
+            overview = rssinfo[rssid].get("overview")
+            poster_path = rssinfo[rssid].get("poster")
+            title = rssinfo[rssid].get("name")
+            vote_average = rssinfo[rssid].get("vote")
+            year = rssinfo[rssid].get("year")
+            release_date = rssinfo[rssid].get("release_date")
+            if overview and poster_path:
+                rssid_ok = True
+
+        # 订阅信息不足
+        if not rssid_ok:
+            # 如果是豆瓣
             if doubanid:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=media_type)
@@ -1345,101 +1376,40 @@ class WebAction:
                 poster_path = media.get_poster_image()
                 title = media.title
                 vote_average = round(float(media.vote_average or 0), 1)
-                release_date = media.tmdb_info.get('release_date')
                 year = media.year
-
-            # 查订阅信息
-            if not rssid:
-                rssid = self.dbhelper.get_rss_movie_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
-
-            # 查下载信息
-
-            return {
-                "code": 0,
-                "type": mtype,
-                "type_str": media_type.value,
-                "page": page,
-                "title": title,
-                "vote_average": vote_average,
-                "poster_path": poster_path,
-                "release_date": release_date,
-                "year": year,
-                "overview": overview,
-                "link_url": link_url,
-                "tmdbid": tmdbid,
-                "doubanid": doubanid,
-                "rssid": rssid,
-                "seasons": []
-            }
-        else:
-            # 查媒体信息
-            if doubanid:
-                link_url = "https://movie.douban.com/subject/%s" % doubanid
-                douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=media_type)
-                if not douban_info:
-                    return {
-                        "code": 1,
-                        "retmsg": "无法查询到豆瓣信息",
-                        "link_url": link_url,
-                        "rssid": rssid,
-                        "type_str": media_type.value
-                    }
-                overview = douban_info.get("intro")
-                poster_path = douban_info.get("cover_url")
-                title = douban_info.get("title")
-                rating = douban_info.get("rating", {}) or {}
-                vote_average = rating.get("value") or ""
-                release_date = douban_info.get("pubdate")
-                year = douban_info.get("year")
-                seasons = []
-            else:
-                if tmdbid:
-                    media = MetaInfo(title=title, mtype=media_type)
-                    media.set_tmdb_info(Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid))
+                if media_type != MediaType.MOVIE:
+                    release_date = media.tmdb_info.get('first_air_date')
+                    seasons = [{
+                        "text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
+                        "num": season.get("season_number")} for season in
+                        Media().get_tmdb_seasons_list(tv_info=media.tmdb_info)]
                 else:
-                    media = Media().get_media_info(title=f"{title} {year}", mtype=media_type)
-                if not media or not media.tmdb_info:
-                    return {
-                        "code": 1,
-                        "retmsg": "无法查询到TMDB信息",
-                        "rssid": rssid,
-                        "type_str": media_type.value
-                    }
-                if not tmdbid:
-                    tmdbid = media.tmdb_id
-                link_url = media.get_detail_url()
-                overview = media.overview
-                poster_path = media.get_poster_image()
-                title = media.title
-                vote_average = round(float(media.vote_average or 0), 1)
-                release_date = media.tmdb_info.get('first_air_date')
-                year = media.year
-                seasons = [{
-                    "text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
-                    "num": season.get("season_number")} for season in
-                    Media().get_tmdb_seasons_list(tv_info=media.tmdb_info)]
+                    release_date = media.tmdb_info.get('release_date')
 
-            # 查订阅信息
-            if not rssid:
-                rssid = self.dbhelper.get_rss_tv_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
+                # 查订阅信息
+                if not rssid:
+                    if media_type == MediaType.MOVIE:
+                        rssid = self.dbhelper.get_rss_movie_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
+                    else:
+                        rssid = self.dbhelper.get_rss_tv_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
 
-            return {
-                "code": 0,
-                "type": mtype,
-                "type_str": media_type.value,
-                "page": page,
-                "title": title,
-                "vote_average": vote_average,
-                "poster_path": poster_path,
-                "release_date": release_date,
-                "year": year,
-                "overview": overview,
-                "link_url": link_url,
-                "tmdbid": tmdbid,
-                "doubanid": doubanid,
-                "rssid": rssid,
-                "seasons": seasons
-            }
+        return {
+            "code": 0,
+            "type": mtype,
+            "type_str": media_type.value,
+            "page": page,
+            "title": title,
+            "vote_average": vote_average,
+            "poster_path": poster_path,
+            "release_date": release_date,
+            "year": year,
+            "overview": overview,
+            "link_url": link_url,
+            "tmdbid": tmdbid,
+            "doubanid": doubanid,
+            "rssid": rssid,
+            "seasons": seasons
+        }
 
     def __test_connection(self, data):
         """
@@ -1559,6 +1529,7 @@ class WebAction:
         查询电影上映日期
         """
         tid = data.get("id")
+        rssid = data.get("rssid")
         if tid and tid.startswith("DB:"):
             doubanid = tid.replace("DB:", "")
             douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=MediaType.MOVIE)
@@ -1581,7 +1552,8 @@ class WebAction:
                         "id": tid,
                         "year": release_date[0:4] if release_date else "",
                         "poster": poster_path,
-                        "vote_average": vote_average
+                        "vote_average": vote_average,
+                        "rssid": rssid
                         }
         else:
             tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
@@ -1602,7 +1574,8 @@ class WebAction:
                         "id": tid,
                         "year": release_date[0:4] if release_date else "",
                         "poster": poster_path,
-                        "vote_average": vote_average
+                        "vote_average": vote_average,
+                        "rssid": rssid
                         }
 
     @staticmethod
@@ -1613,6 +1586,7 @@ class WebAction:
         tid = data.get("id")
         season = data.get("season")
         name = data.get("name")
+        rssid = data.get("rssid")
         if tid and tid.startswith("DB:"):
             doubanid = tid.replace("DB:", "")
             douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=MediaType.TV)
@@ -1633,7 +1607,8 @@ class WebAction:
                         "id": tid,
                         "year": release_date[0:4] if release_date else "",
                         "poster": poster_path,
-                        "vote_average": vote_average
+                        "vote_average": vote_average,
+                        "rssid": rssid
                         }
         else:
             tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
@@ -1660,7 +1635,8 @@ class WebAction:
                     "id": tid,
                     "year": year,
                     "poster": poster_path,
-                    "vote_average": episode.get("vote_average") or "无"
+                    "vote_average": episode.get("vote_average") or "无",
+                    "rssid": rssid
                 })
             return {"code": 0, "events": episode_events}
 

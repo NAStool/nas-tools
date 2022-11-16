@@ -414,15 +414,16 @@ def rss_history():
 @login_required
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    RssMovieIds = [movie.get("tmdbid") for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
+    RssMovieItems = [{"tmdbid": movie.get("tmdbid"), "rssid": movie.get("id")} for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
     RssTvItems = [{
         "id": tv.get("tmdbid"),
+        "rssid": tv.get("id"),
         "season": int(str(tv.get('season')).replace("S", "")),
         "name": tv.get("name"),
     } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
     return render_template("rss/rss_calendar.html",
                            Today=Today,
-                           RssMovieIds=RssMovieIds,
+                           RssMovieItems=RssMovieItems,
                            RssTvItems=RssTvItems)
 
 

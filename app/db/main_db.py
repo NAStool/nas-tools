@@ -19,7 +19,8 @@ _Engine = create_engine(
 )
 _Session = scoped_session(sessionmaker(bind=_Engine,
                                        autoflush=True,
-                                       autocommit=False))
+                                       autocommit=False,
+                                       expire_on_commit=False))
 
 
 class MainDb:

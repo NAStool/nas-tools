@@ -1431,7 +1431,7 @@
         } else {
           $("#system_media_poster").attr("src", "../static/img/no-image.png");
         }
-        if (ret.overview.length > 200) {
+        if (ret.overview && ret.overview.length > 200) {
           $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
         } else {
           $("#system_media_overview").text(ret.overview);
@@ -1860,7 +1860,6 @@
         $("#rss_save_path").val(ret.detail.save_path);
         $("#rss_download_setting").val(ret.detail.download_setting);
         $("#rss_sites_div").find("input[type=checkbox]").each(function () {
-          debugger;
           if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes($(this).val()))) {
             $(this).prop("checked", true);
           } else {

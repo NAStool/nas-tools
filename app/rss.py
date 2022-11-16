@@ -338,8 +338,7 @@ class Rss:
             rss_movies = self.subscribe.get_subscribe_movies(state=state)
         if rss_movies:
             log.info("【Rss】共有 %s 个电影订阅需要检索" % len(rss_movies))
-        for rid in rss_movies:
-            rss_info = rss_movies[rid]
+        for rid, rss_info in rss_movies.items():
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue

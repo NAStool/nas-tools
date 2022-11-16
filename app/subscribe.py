@@ -65,7 +65,7 @@ class Subscribe:
         total_ep = int(total_ep) if str(total_ep).isdigit() else None
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
         download_setting = int(download_setting) if str(download_setting).isdigit() else -1
-        fuzzy_match = 1 if fuzzy_match else 0
+        fuzzy_match = True if fuzzy_match else False
         # 检索媒体信息
         if not fuzzy_match:
             # 精确匹配
@@ -137,8 +137,6 @@ class Subscribe:
                         return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
                     media_info.begin_season = season
                     media_info.total_episodes = total_episode
-                if rssid:
-                    self.dbhelper.delete_rss_tv(rssid=rssid)
                 if total_ep:
                     total = total_ep
                 else:
@@ -147,6 +145,15 @@ class Subscribe:
                     lack = total - current_ep - 1
                 else:
                     lack = total
+                if rssid:
+                    self.dbhelper.delete_rss_tv(rssid=rssid)
+                media_note = None
+                if media_info.tmdb_info:
+                    media_note = {
+                        "poster": media_info.get_poster_image(),
+                        "release_date": media_info.tmdb_info.get("first_air_date"),
+                        "vote": media_info.vote_average
+                    }
                 code = self.dbhelper.insert_rss_tv(media_info=media_info,
                                                    total=total,
                                                    lack=lack,
@@ -162,10 +169,19 @@ class Subscribe:
                                                    download_setting=download_setting,
                                                    total_ep=total_ep,
                                                    current_ep=current_ep,
-                                                   fuzzy_match=0)
+                                                   fuzzy_match=0,
+                                                   desc=media_info.overview,
+                                                   note=json.dumps(media_note))
             else:
                 if rssid:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
+                media_note = None
+                if media_info.tmdb_info:
+                    media_note = {
+                        "poster": media_info.get_poster_image(),
+                        "release_date": media_info.tmdb_info.get("release_date"),
+                        "vote": media_info.vote_average
+                    }
                 code = self.dbhelper.insert_rss_movie(media_info=media_info,
                                                       state=state,
                                                       rss_sites=rss_sites,
@@ -177,7 +193,9 @@ class Subscribe:
                                                       filter_rule=filter_rule,
                                                       save_path=save_path,
                                                       download_setting=download_setting,
-                                                      fuzzy_match=0)
+                                                      fuzzy_match=0,
+                                                      desc=media_info.overview,
+                                                      note=json.dumps(media_note))
         else:
             # 模糊匹配
             media_info = MetaInfo(title=name, mtype=mtype)
@@ -284,8 +302,8 @@ class Subscribe:
         ret_dict = {}
         rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
         for rss_movie in rss_movies:
-            # 兼容旧配置
             desc = rss_movie.DESC
+            note = rss_movie.NOTE
             tmdbid = rss_movie.TMDBID
             rss_sites = rss_movie.RSS_SITES
             rss_sites = json.loads(rss_sites) if rss_sites else []
@@ -299,6 +317,7 @@ class Subscribe:
             download_setting = rss_movie.DOWNLOAD_SETTING
             save_path = rss_movie.SAVE_PATH
             fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
+            # 兼容旧配置
             if desc and not download_setting:
                 desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
@@ -311,12 +330,17 @@ class Subscribe:
                 download_setting = -1
                 save_path = ""
                 fuzzy_match = False if tmdbid else True
+            if note:
+                note_info = self.__parse_rss_desc(note)
+            else:
+                note_info = {}
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
                 "name": rss_movie.NAME,
                 "year": rss_movie.YEAR,
                 "tmdbid": rss_movie.TMDBID,
                 "image": rss_movie.IMAGE,
+                "overview": rss_movie.DESC,
                 "rss_sites": rss_sites,
                 "search_sites": search_sites,
                 "over_edition": over_edition,
@@ -327,7 +351,11 @@ class Subscribe:
                 "save_path": save_path,
                 "download_setting": download_setting,
                 "fuzzy_match": fuzzy_match,
-                "state": rss_movie.STATE
+                "state": rss_movie.STATE,
+                "poster": note_info.get("poster"),
+                "release_date": note_info.get("release_date"),
+                "vote": note_info.get("vote")
+
             }
         return ret_dict
 
@@ -335,8 +363,8 @@ class Subscribe:
         ret_dict = {}
         rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
         for rss_tv in rss_tvs:
-            # 兼容旧配置
             desc = rss_tv.DESC
+            note = rss_tv.NOTE
             tmdbid = rss_tv.TMDBID
             rss_sites = json.loads(rss_tv.RSS_SITES) if rss_tv.RSS_SITES else []
             search_sites = json.loads(rss_tv.SEARCH_SITES) if rss_tv.SEARCH_SITES else []
@@ -350,6 +378,7 @@ class Subscribe:
             total_ep = rss_tv.TOTAL_EP
             current_ep = rss_tv.CURRENT_EP
             fuzzy_match = True if rss_tv.FUZZY_MATCH == 1 else False
+            # 兼容旧配置
             if desc and not download_setting:
                 desc = self.__parse_rss_desc(desc)
                 rss_sites = desc.get("rss_sites")
@@ -364,6 +393,10 @@ class Subscribe:
                 total_ep = desc.get("total")
                 current_ep = desc.get("current")
                 fuzzy_match = False if tmdbid else True
+            if note:
+                note_info = self.__parse_rss_desc(note)
+            else:
+                note_info = {}
             ret_dict[str(rss_tv.ID)] = {
                 "id": rss_tv.ID,
                 "name": rss_tv.NAME,
@@ -371,6 +404,7 @@ class Subscribe:
                 "season": rss_tv.SEASON,
                 "tmdbid": rss_tv.TMDBID,
                 "image": rss_tv.IMAGE,
+                "overview": rss_tv.DESC,
                 "rss_sites": rss_sites,
                 "search_sites": search_sites,
                 "over_edition": over_edition,
@@ -385,7 +419,10 @@ class Subscribe:
                 "total_ep": total_ep,
                 "current_ep": current_ep,
                 "fuzzy_match": fuzzy_match,
-                "state": rss_tv.STATE
+                "state": rss_tv.STATE,
+                "poster": note_info.get("poster"),
+                "release_date": note_info.get("release_date"),
+                "vote": note_info.get("vote")
             }
         return ret_dict
 
@@ -399,4 +436,4 @@ class Subscribe:
         """
         if not desc:
             return {}
-        return json.loads(desc)
+        return json.loads(desc) or {}

@@ -569,8 +569,8 @@ class DbHelper:
     @DbPersist(_db)
     def insert_rss_movie(self, media_info,
                          state='D',
-                         rss_sites: list = [],
-                         search_sites: list = [],
+                         rss_sites=None,
+                         search_sites=None,
                          over_edition=0,
                          filter_restype=None,
                          filter_pix=None,
@@ -584,6 +584,10 @@ class DbHelper:
         """
         新增RSS电影
         """
+        if search_sites is None:
+            search_sites = []
+        if rss_sites is None:
+            rss_sites = []
         if not media_info:
             return -1
         if not media_info.title:
@@ -750,8 +754,8 @@ class DbHelper:
                       total,
                       lack=0,
                       state="D",
-                      rss_sites: list = [],
-                      search_sites: list = [],
+                      rss_sites=None,
+                      search_sites=None,
                       over_edition=0,
                       filter_restype=None,
                       filter_pix=None,
@@ -767,6 +771,10 @@ class DbHelper:
         """
         新增RSS电视剧
         """
+        if search_sites is None:
+            search_sites = []
+        if rss_sites is None:
+            rss_sites = []
         if not media_info:
             return -1
         if not media_info.title:
