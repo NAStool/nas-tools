@@ -1315,6 +1315,7 @@ class WebAction:
         # 先取订阅信息
         rssid_ok = False
         if rssid:
+            rssid = str(rssid)
             if media_type == MediaType.MOVIE:
                 rssinfo = Subscribe().get_subscribe_movies(rid=rssid)
             else:
