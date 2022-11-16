@@ -5,6 +5,7 @@ from time import sleep
 import log
 from app.helper import DbHelper
 from app.media import MetaInfo, Media
+from app.utils.commons import singleton
 from config import Config, PT_TAG, RMT_MEDIAEXT
 from app.message import Message
 from app.downloader import Aria2, Client115, Qbittorrent, Transmission
@@ -18,6 +19,7 @@ lock = Lock()
 client_lock = Lock()
 
 
+@singleton
 class Downloader:
     _client = None
     _default_client = None

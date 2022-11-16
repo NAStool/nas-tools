@@ -975,6 +975,7 @@ class WebAction:
         category_reload = False
         subtitle_reload = False
         sites_reload = False
+        downloader_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -982,8 +983,9 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time',
-                       'douban.interval', 'media.mediasync_interval']:
+            if key.startswith('pt') \
+                    or key in ['douban.interval',
+                               'media.mediasync_interval']:
                 scheduler_reload = True
             if key.startswith("emby"):
                 emby_reload = True
@@ -995,6 +997,10 @@ class WebAction:
                 category_reload = True
             if key.startswith("subtitle"):
                 subtitle_reload = True
+            if key.startswith('pt') \
+                    or key in ["downloaddir"]:
+                downloader_reload = True
+
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -1020,6 +1026,9 @@ class WebAction:
         # 重载站点
         if sites_reload:
             Sites().init_config()
+        # 重载下载器
+        if downloader_reload:
+            Downloader().init_config()
 
         return {"code": 0}
 
