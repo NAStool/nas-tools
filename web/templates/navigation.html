@@ -1908,6 +1908,14 @@
       body.style.cursor = "default";
     }
 
+    //当前目录自动识别转移
+    function media_auto_name_and_transfer(path, func) {
+        if (!path) {
+            return;
+        }
+        ajax_post("transfer_curr_dir", { "curr_dir": path }, func)
+    }
+
     // 名称识别测试
     function media_name_test(name, result_div, func) {
       if (!name) {

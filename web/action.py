@@ -102,6 +102,7 @@ class WebAction:
             "delete_downloader": self.__delete_downloader,
             "get_downloader": self.__get_downloader,
             "name_test": self.__name_test,
+            "transfer_curr_dir": self.__transfer_curr_dir,
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
             "add_filtergroup": self.__add_filtergroup,
@@ -704,6 +705,40 @@ class WebAction:
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
+
+    def __transfer_curr_dir(self, data):
+        """
+        自动识别当前目录文件
+        """
+        monpath = data.get("curr_dir")
+        syncmodStr = data.get("syncmode")
+
+        if syncmodStr:
+            syncmod = RMT_MODES.get(syncmodStr)
+        else:
+            syncmod = RmtMode.LINK
+
+        if not monpath:
+            return {"retcode": -1, "retmsg": "当前目录路径为null"}
+        error_cnt = 0
+        for file in PathUtils.get_dir_level1_medias(monpath, RMT_MEDIAEXT):
+            if PathUtils.is_invalid_path(file):
+                continue
+            name = os.path.basename(file)
+            if not name:
+                continue
+            media_info = Media().get_media_info(title=name)
+            if not media_info:
+                continue
+            log.debug("开始转移" + str(media_info))
+            # 自定义转移
+            succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                           in_path=file,
+                                                           rmt_mode=syncmod,
+                                                           media_info=media_info)
+            if not succ_flag:
+                error_cnt += 1
+        return {"retcode": 0, "retmsg": "自动转移执行成功，失败文件：" + error_cnt }
 
     def __delete_history(self, data):
         """

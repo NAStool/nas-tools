@@ -29,18 +29,32 @@
               </div>
             </div>
             <div class="card-actions btn-actions">
-              <a href="javascript:mediafile_transfer_all()" class="btn-action" title="转移当前目录">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
-                  <circle cx="6" cy="6" r="3"></circle>
-                  <circle cx="18" cy="18" r="3"></circle>
-                  <path d="M16 9l2 2l2 -2"></path>
-                  <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
-                  <path d="M3 15l2 -2l2 2"></path>
-               </svg>
-              </a>
-              <a href="javascript:mediafile_findlinks_all()" class="btn-action" title="查询所有文件硬链接">
+
+              <div class="dropdown">
+                <a href="#" class="btn-action" title="转移当前目录" data-bs-toggle="dropdown" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+                    <circle cx="6" cy="6" r="3"></circle>
+                    <circle cx="18" cy="18" r="3"></circle>
+                    <path d="M16 9l2 2l2 -2"></path>
+                    <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+                    <path d="M3 15l2 -2l2 2"></path>
+                  </svg>
+                </a>
+                  <div class="dropdown-menu dropdown-menu-end">
+                      <a class="dropdown-item"
+                         href='javascript:mediafile_transfer_curr_dir()'>
+                          自动识别转移【仅当前目录】
+                      </a>
+                      <a class="dropdown-item"
+                         href='javascript:mediafile_transfer_all()'>
+                          手动识别转移
+                      </a>
+                  </div>
+              </div>
+
+                <a href="javascript:mediafile_findlinks_all()" class="btn-action" title="查询所有文件硬链接">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                    <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
@@ -160,6 +174,16 @@
   function mediafile_transfer(name, id){
     let path = $("#mediafilepath_" + id).val();
     show_manual_transfer_modal(3, path, '', '', '', '');
+  }
+
+
+  // 自动转移当前文件目录
+  function mediafile_transfer_curr_dir(){
+    let path = $("#mediafile_current_dir").val();
+    show_wait_process()
+    media_auto_name_and_transfer(path, function () {
+      hide_wait_process()
+    });
   }
 
   function mediafile_transfer_all(){

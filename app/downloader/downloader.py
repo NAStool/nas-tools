@@ -288,6 +288,7 @@ class Downloader:
                 if trans_tasks:
                     log.info("【Downloader】开始转移下载文件...")
                 else:
+                    log.warn("【Downloader】没有文件需要转移...")
                     return
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(in_from=self._client_type,

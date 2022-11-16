@@ -379,6 +379,7 @@ class FileTransfer:
                        files: list = None,
                        target_dir=None,
                        unknown_dir=None,
+                       media_info=None,
                        tmdb_info=None,
                        media_type: MediaType = None,
                        season=None,
@@ -414,6 +415,7 @@ class FileTransfer:
         success_flag = True
         error_message = ""
         bluray_disk_dir = None
+        media_list = {}
         if not files:
             # 如果传入的是个目录
             if os.path.isdir(in_path):
@@ -458,8 +460,10 @@ class FileTransfer:
                 if bluray_disk_dir:
                     file_list = [bluray_disk_dir]
                     log.info("【Rmt】当前为蓝光原盘文件夹：%s" % bluray_disk_dir)
+                    media_list[bluray_disk_dir] = media_info
                 else:
                     file_list = [in_path]
+                    media_list[in_path] = media_info
         else:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
@@ -494,8 +498,11 @@ class FileTransfer:
             if not file_list:
                 log.info("【Rmt】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
                 return True, "没有新文件需要处理"
-        # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0])
+        if not media_info:
+            # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
+            Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0])
+        else:
+            Medias = media_list
         if not Medias:
             log.error("【Rmt】检索媒体信息出错！")
             return False, "检索媒体信息出错"
