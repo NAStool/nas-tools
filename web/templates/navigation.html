@@ -34,10 +34,11 @@
   <link href="../static/css/jquery.filetree.css" rel="stylesheet"/>
   <link href="../static/css/dropzone.css" rel="stylesheet"/>
   <style>
-    @import url('https://rsms.me/inter/inter.css');
-    :root {
-      --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
-    }
+      @import url('https://rsms.me/inter/inter.css');
+
+      :root {
+          --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+      }
   </style>
   <style type="text/css">
       body,
@@ -1976,10 +1977,10 @@
   }
 
   // 刷新规则下拉框
-  function refresh_filter_select(obj_id, aync=true) {
+  function refresh_filter_select(obj_id, aync = true) {
     ajax_post("get_filterrules", {}, function (ret) {
       if (ret.code === 0) {
-        let rule_select = $("#"+obj_id);
+        let rule_select = $("#" + obj_id);
         rule_select.empty();
         rule_select.append(`<option value="">站点规则</option>`);
         for (let i = 0; i < ret.ruleGroups.length; i++) {
@@ -1991,15 +1992,16 @@
 
   // 刷新订阅站点列表
   var RSS_SITES_LENGTH = 0;
-  function refresh_rsssites_select(obj_id, aync=true){
+
+  function refresh_rsssites_select(obj_id, aync = true) {
     ajax_post("get_sites", {rss: true, basic: true}, function (ret) {
       if (ret.code === 0) {
-        let rsssites_select = $("#"+obj_id);
+        let rsssites_select = $("#" + obj_id);
         rsssites_select.empty();
         RSS_SITES_LENGTH = ret.sites.length;
-        if (ret.sites.length > 0){
+        if (ret.sites.length > 0) {
           rsssites_select.parent().parent().show();
-        }else{
+        } else {
           rsssites_select.parent().parent().hide();
         }
         for (let i = 0; i < ret.sites.length; i++) {
@@ -2015,13 +2017,13 @@
   }
 
   // 刷新搜索站点列表
-  function refresh_searchsites_select(obj_id, aync=true){
+  function refresh_searchsites_select(obj_id, aync = true) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
-        let searchsites_select = $("#"+obj_id);
-        if (ret.indexers.length > 0){
+        let searchsites_select = $("#" + obj_id);
+        if (ret.indexers.length > 0) {
           searchsites_select.parent().parent().show();
-        }else{
+        } else {
           searchsites_select.parent().parent().hide();
         }
         searchsites_select.empty();
@@ -2038,10 +2040,10 @@
   }
 
   // 刷新保存路径
-  function refresh_savepath_select(obj_id, aync=true){
+  function refresh_savepath_select(obj_id, aync = true) {
     ajax_post("get_download_dirs", {}, function (ret) {
       if (ret.code === 0) {
-        let savepath_select = $("#"+obj_id);
+        let savepath_select = $("#" + obj_id);
         savepath_select.empty();
         savepath_select.append(`<option value="">请选择</option>`);
         for (let i = 0; i < ret.paths.length; i++) {
@@ -2052,10 +2054,10 @@
   }
 
   // 刷新下载设置
-  function refresh_downloadsetting_select(obj_id, aync=true){
+  function refresh_downloadsetting_select(obj_id, aync = true) {
     ajax_post("get_download_setting", {}, function (ret) {
       if (ret.code === 0) {
-        let downloadsetting_select = $("#"+obj_id);
+        let downloadsetting_select = $("#" + obj_id);
         downloadsetting_select.empty();
         downloadsetting_select.append(`<option value="">请选择</option>`);
         for (let i = 0; i < ret.data.length; i++) {
@@ -2457,14 +2459,11 @@
 
   //导航点击
   function navmenu(page) {
-    $("#navbar-menu").find("li").removeClass("active")
-        .find("a").removeClass("active")
-        .find("a").each(function () {
-      if ($(this).attr("onclick") == "navmenu('" + page + "')") {
-        if ($(this).attr("class") == "dropdown-item") {
-          $(this).addClass("active");
-        } else {
-          $(this).parent().addClass("active");
+    $("#navbar-menu li").find("a").removeClass("active").each(function () {
+      if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + page + "')")) {
+        $(this).addClass("active");
+        if ($(this).hasClass('dropdown-item')) {
+          $(this).parent().addClass("show");
         }
       }
     });
