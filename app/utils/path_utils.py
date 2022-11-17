@@ -134,7 +134,7 @@ class PathUtils:
             else:
                 return None
         else:
-            if os.path.splitext(path)[-1] == ".m2ts" \
+            if str(os.path.splitext(path)[-1]).lower() in [".m2ts", ".ts"] \
                     and os.path.normpath(os.path.dirname(path)).endswith("STREAM") \
                     and os.path.exists(os.path.join(PathUtils.get_parent_paths(path, 2), "index.bdmv")):
                 return PathUtils.get_parent_paths(path, 3)
