@@ -460,8 +460,7 @@ class Subscribe:
         # 更新电影
         log.info("【Subscribe】开始刷新订阅TMDB信息...")
         rss_movies = self.get_subscribe_movies(state='R')
-        for rid in rss_movies:
-            rss_info = rss_movies[rid]
+        for rid, rss_info in rss_movies.items():
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -490,8 +489,7 @@ class Subscribe:
 
         # 更新电视剧
         rss_tvs = self.get_subscribe_tvs(state='R')
-        for rid in rss_tvs:
-            rss_info = rss_tvs[rid]
+        for rid, rss_info in rss_tvs.items():
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
@@ -637,8 +635,7 @@ class Subscribe:
         if rss_tvs:
             log.info("【Subscribe】共有 %s 个电视剧订阅需要检索" % len(rss_tvs))
         rss_no_exists = {}
-        for rid in rss_tvs:
-            rss_info = rss_tvs[rid]
+        for rid, rss_info in rss_tvs.items():
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue

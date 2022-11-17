@@ -51,29 +51,31 @@ class Rss:
             if not rss_movies:
                 log.warn("【Rss】没有正在订阅的电影")
             else:
-                log.info("【Rss】电影订阅清单：%s" % " ".join('%s' % rss_movies[rid].get("name") for rid in rss_movies))
+                log.info("【Rss】电影订阅清单：%s"
+                         % " ".join('%s' % info.get("name") for _, info in rss_movies.items()))
             # 读取电视剧订阅
             rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
             if not rss_tvs:
                 log.warn("【Rss】没有正在订阅的电视剧")
             else:
-                log.info("【Rss】电视剧订阅清单：%s" % " ".join('%s' % rss_tvs[rid].get("name") for rid in rss_tvs))
+                log.info("【Rss】电视剧订阅清单：%s"
+                         % " ".join('%s' % info.get("name") for _, info in rss_tvs.items()))
             # 没有订阅退出
             if not rss_movies and not rss_tvs:
                 return
             # 获取有订阅的站点范围
             check_sites = []
             check_all = False
-            for rid in rss_movies:
-                rss_sites = rss_movies[rid].get("rss_sites")
+            for rid, rinfo in rss_movies.items():
+                rss_sites = rinfo.get("rss_sites")
                 if not rss_sites:
                     check_all = True
                     break
                 else:
                     check_sites += rss_sites
             if not check_all:
-                for rid in rss_tvs:
-                    rss_sites = rss_tvs[rid].get("rss_sites")
+                for rid, rinfo in rss_tvs.items():
+                    rss_sites = rinfo.get("rss_sites")
                     if not rss_sites:
                         check_all = True
                         break
@@ -411,8 +413,7 @@ class Rss:
 
         # 匹配电影
         if media_info.type == MediaType.MOVIE and rss_movies:
-            for rid in rss_movies:
-                rss_info = rss_movies[rid]
+            for rid, rss_info in rss_movies.items():
                 rss_sites = rss_info.get('rss_sites')
                 # 过滤订阅站点
                 if rss_sites and media_info.site not in rss_sites:
@@ -454,8 +455,7 @@ class Rss:
         # 匹配电视剧
         elif rss_tvs:
             # 匹配种子标题
-            for rid in rss_tvs:
-                rss_info = rss_tvs[rid]
+            for rid, rss_info in rss_tvs.items():
                 rss_sites = rss_info.get('rss_sites')
                 # 过滤订阅站点
                 if rss_sites and media_info.site not in rss_sites:
