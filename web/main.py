@@ -570,7 +570,6 @@ def brushtask():
     Downloaders = BrushTask().get_downloader_info()
     # 任务列表
     Tasks = BrushTask().get_brushtask_info()
-
     return render_template("site/brushtask.html",
                            Count=len(Tasks),
                            Sites=CfgSites,

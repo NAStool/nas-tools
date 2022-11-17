@@ -225,23 +225,36 @@ class SystemUtils:
                 vols.append(vol)
         return vols
 
-    @staticmethod
-    def find_links(file, fdir=None):
+    def find_hardlinks(self, file, fdir=None):
         """
         查找文件的所有硬链接
         """
         ret_files = []
         if os.name == "nt":
-            stdout = subprocess.run(['fsutil',
-                                     'hardlink',
-                                     'list',
-                                     file], shell=True, stdout=subprocess.PIPE).stdout
+            ret = subprocess.run(
+                ['fsutil', 'hardlink', 'list', file],
+                startupinfo=self.__get_hidden_shell(),
+                stdout=subprocess.PIPE
+            )
+            if ret.returncode != 0:
+                return False
+            if ret.stdout:
+                drive = os.path.splitdrive(file)[0].upper()
+                link_files = ret.stdout.decode('GBK').encode('utf-8').decode('utf-8').replace('\\', '/').split('\r\n')
+                for link_file in link_files:
+                    if link_file and "$RECYCLE.BIN" not in link_file:
+                        link_file= f'{drive}{link_file}'
+                        file_name = os.path.basename(link_file)
+                        file_path = os.path.dirname(link_file)
+                        ret_files.append({
+                            "file": link_file,
+                            "filename": file_name,
+                            "filepath": file_path
+                        })
         else:
             stdout = subprocess.run(['find',
                                      '-L',
                                      fdir,
                                      '-samefile',
                                      file], shell=True, stdout=subprocess.PIPE).stdout
-        if stdout:
-            ret_files = stdout.decode('utf-8').split()
         return ret_files

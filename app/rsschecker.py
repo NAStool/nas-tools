@@ -236,11 +236,16 @@ class RssChecker(object):
                                                 download_volume_factor=0.0,
                                                 upload_volume_factor=1.0)
                     # 检查种子是否匹配过滤条件
-                    match_flag, res_order = self.__is_match_rss(media_info=media_info,
-                                                                taskinfo=taskinfo)
+                    filter_args = {
+                        "include": taskinfo.get("include"),
+                        "exclude": taskinfo.get("exclude"),
+                        "rule": taskinfo.get("filter")
+                    }
+                    match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
+                                                                                        filter_args=filter_args)
                     # 未匹配
                     if not match_flag:
-                        log.info("【RssChecker】%s 不匹配" % title)
+                        log.info(f"【RssChecker】{match_msg}")
                         continue
                     else:
                         log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
@@ -418,25 +423,6 @@ class RssChecker(object):
                 rss_result.append(rss_item)
         return rss_result
 
-    def __is_match_rss(self, taskinfo, media_info):
-        """
-        检查是否匹配
-        """
-        if not taskinfo or not media_info:
-            return False, 0
-        if taskinfo.get("include"):
-            if not re.search(r"%s" % taskinfo.get("include"), media_info.org_string, re.IGNORECASE):
-                return False, 0
-        if taskinfo.get("exclude"):
-            if re.search(r"%s" % taskinfo.get("exclude"), media_info.org_string, re.IGNORECASE):
-                return False, 0
-        filter_args = {"rule": taskinfo.get("filter")}
-        match_flag, res_order, _ = self.filter.check_torrent_filter(meta_info=media_info,
-                                                                    filter_args=filter_args)
-        if not match_flag:
-            return False, 0
-        return True, res_order
-
     def get_userrss_parser(self, pid=None):
         if pid:
             for rss_parser in self._rss_parsers:
@@ -515,13 +501,17 @@ class RssChecker(object):
         media_info = self.media.get_media_info(title=title)
         if not media_info:
             log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
-        # 检查种子是否匹配过滤条件
-        match_flag, res_order = self.__is_match_rss(
-            media_info=media_info,
-            taskinfo=taskinfo)
+        # 检查是否匹配
+        filter_args = {
+            "include": taskinfo.get("include"),
+            "exclude": taskinfo.get("exclude"),
+            "rule": taskinfo.get("filter")
+        }
+        match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
+                                                                            filter_args=filter_args)
         # 未匹配
         if not match_flag:
-            log.info("【RssChecker】%s 不匹配" % title)
+            log.info(f"【RssChecker】{match_msg}")
         else:
             log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
                 title,

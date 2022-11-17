@@ -262,6 +262,16 @@ class Filter:
                 return False, 0, f"{meta_info.org_string} 不符合促销要求"
             if downloadvolumefactor and dl_factor not in ("*", str(downloadvolumefactor)):
                 return False, 0, f"{meta_info.org_string} 不符合促销要求"
+        # 过滤包含
+        if filter_args.get("include"):
+            include = filter_args.get("include")
+            if not re.search(r"%s" % include, meta_info.org_string, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合包含 {include} 要求"
+        # 过滤排除
+        if filter_args.get("exclude"):
+            exclude = filter_args.get("exclude")
+            if re.search(r"%s" % exclude, meta_info.org_string, re.I):
+                return False, 0, f"{meta_info.org_string} 不符合排除 {exclude} 要求"
         # 过滤关键字
         if filter_args.get("key"):
             key = filter_args.get("key")
@@ -288,4 +298,3 @@ class Filter:
                 rule_name
             )
             return match_flag, order_seq, match_msg
-        return True, 0, ""

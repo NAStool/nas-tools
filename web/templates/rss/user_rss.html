@@ -423,15 +423,10 @@
         <div class="ms-2">
           <h5 class="modal-title">订阅预览</h5>
         </div>
-        <div class="ms-5">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-      </div>      
-      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
-        <div class="ms-auto" id="articles-check" style="position: absolute; top: 60px; right: 50%;">
+        <div class="ms-auto" id="articles-check">
           <div class="btn-list" id="batch_articles_action_div" style="display: none;">
             <input type="hidden" id="article_check_id" value="" >
-            <a href="javascript:batch_articles_action('download')" 
+            <a href="javascript:batch_articles_action('download')"
               class="btn btn-primary ms-auto d-none d-sm-inline-block">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -494,6 +489,11 @@
             </a>
           </div>
         </div>
+        <div class="ms-5">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>      
+      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
         <table id="table-rss-articles" class="table table-vcenter card-table">
         </table>
       </div>
@@ -737,7 +737,6 @@
   // 获取选中按钮
   function get_article_checked(){
     var articles = [];
-    var i = 0;
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
@@ -745,8 +744,7 @@
           title = $(`#${checkid.replace("check", "title")}`).val();
           enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
           if (title || enclosure) {
-            articles[i] = { title: title, enclosure: enclosure }
-            i = i + 1;
+            articles.push({ title: title, enclosure: enclosure })
           }
         }
       }
@@ -759,7 +757,6 @@
   function batch_articles_action(flag) {
     var articles = get_article_checked();
     var id = $("#article_check_id").val();
-    
     if (articles.length == 0) {
       return;
     }
@@ -767,8 +764,6 @@
       articles_check(id, flag, articles);
     } else if (flag == "download") {
       articles_download(id, articles);
-    } else {
-      return
     }
   }
 
