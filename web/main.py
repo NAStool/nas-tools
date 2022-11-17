@@ -655,7 +655,7 @@ def service():
         '''
 
         scheduler_cfg_list.append(
-            {'name': '订阅搜索', 'time': tim_rsssearch, 'state': rss_search_state, 'id': 'rsssearch_all', 'svg': svg,
+            {'name': '订阅搜索', 'time': tim_rsssearch, 'state': rss_search_state, 'id': 'subscribe_search_all', 'svg': svg,
              'color': "blue"})
 
         # 下载文件转移

@@ -386,7 +386,7 @@ class WebAction:
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
             "douban": DoubanSync().sync,
-            "rsssearch_all": Rss().rsssearch_all,
+            "subscribe_search_all": Subscribe().subscribe_search_all,
         }
         sch_item = data.get("item")
         if sch_item and commands.get(sch_item):
@@ -1471,9 +1471,9 @@ class WebAction:
         rssid = data.get("rssid")
         page = data.get("page")
         if mtype == "MOV":
-            ThreadHelper().start_thread(Rss().rsssearch_movie, (rssid,))
+            ThreadHelper().start_thread(Subscribe().subscribe_search_movie, (rssid,))
         else:
-            ThreadHelper().start_thread(Rss().rsssearch_tv, (rssid,))
+            ThreadHelper().start_thread(Subscribe().subscribe_search_tv, (rssid,))
         return {"code": 0, "page": page}
 
     @staticmethod

@@ -531,9 +531,9 @@ class DbHelper:
         return ""
 
     @DbPersist(_db)
-    def update_rss_movie_tmdb(self, rid, tmdbid, title, year, image):
+    def update_rss_movie_tmdb(self, rid, tmdbid, title, year, image, desc, note):
         """
-        更新订阅电影的TMDBID
+        更新订阅电影的部分信息
         """
         if not tmdbid:
             return
@@ -541,7 +541,9 @@ class DbHelper:
             "TMDBID": tmdbid,
             "NAME": title,
             "YEAR": year,
-            "IMAGE": image
+            "IMAGE": image,
+            "NOTE": note,
+            "DESC": desc
         })
 
     @DbPersist(_db)
@@ -702,7 +704,7 @@ class DbHelper:
         return ""
 
     @DbPersist(_db)
-    def update_rss_tv_tmdb(self, rid, tmdbid, title, year, total, lack, image):
+    def update_rss_tv_tmdb(self, rid, tmdbid, title, year, total, lack, image, desc, note):
         """
         更新订阅电影的TMDBID
         """
@@ -715,7 +717,9 @@ class DbHelper:
                 "YEAR": year,
                 "TOTAL": total,
                 "LACK": lack,
-                "IMAGE": image
+                "IMAGE": image,
+                "DESC": desc,
+                "NOTE": note
             }
         )
 

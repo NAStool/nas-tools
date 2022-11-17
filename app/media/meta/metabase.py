@@ -65,6 +65,8 @@ class MetaBase(object):
     original_language = None
     # 媒体原发行标题
     original_title = None
+    # 媒体发行日期
+    release_date = None
     # 媒体年份
     year = None
     # 封面图片
@@ -451,17 +453,17 @@ class MetaBase(object):
             self.title = info.get('title')
             self.original_title = info.get('original_title')
             self.original_language = info.get('original_language')
-            release_date = info.get('release_date')
-            if release_date:
-                self.year = release_date[0:4]
+            self.release_date = info.get('release_date')
+            if self.release_date:
+                self.year = self.release_date[0:4]
             self.category = self.category_handler.get_movie_category(info)
         else:
             self.title = info.get('name')
             self.original_title = info.get('original_name')
             self.original_language = info.get('original_language')
-            first_air_date = info.get('first_air_date')
-            if first_air_date:
-                self.year = first_air_date[0:4]
+            self.release_date = info.get('first_air_date')
+            if self.release_date:
+                self.year = self.release_date[0:4]
             if self.type == MediaType.TV:
                 self.category = self.category_handler.get_tv_category(info)
             else:
