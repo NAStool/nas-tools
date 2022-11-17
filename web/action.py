@@ -181,6 +181,8 @@ class WebAction:
             "get_message_client": self.__get_message_client,
             "test_message_client": self.__test_message_client,
             "get_sites": self.__get_sites,
+            "get_indexers": self.__get_indexers,
+            "get_download_dirs": self.__get_download_dirs
         }
 
     def action(self, cmd, data=None):
@@ -3632,7 +3634,10 @@ class WebAction:
     @staticmethod
     def __get_download_setting(data):
         sid = data.get("sid")
-        download_setting = Downloader().get_download_setting(sid=sid)
+        if sid:
+            download_setting = Downloader().get_download_setting(sid=sid)
+        else:
+            download_setting = list(Downloader().get_download_setting().values())
         return {"code": 0, "data": download_setting}
 
     def __update_download_setting(self, data):
@@ -3742,3 +3747,20 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
+
+    @staticmethod
+    def __get_indexers(data):
+        """
+        获取索引器
+        """
+        check = True if data.get("check") else False
+        indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check, public=False)]
+        return {"code": 0, "indexers": indexers}
+
+    @staticmethod
+    def __get_download_dirs(data=None):
+        """
+        获取下载目录
+        """
+        dirs = Downloader().get_download_dirs()
+        return {"code": 0, "paths": dirs}

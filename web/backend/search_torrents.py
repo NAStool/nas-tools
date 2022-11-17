@@ -168,7 +168,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
-    DbHelper().delete_all_search_torrents()
+    dbhepler = DbHelper()
+    dbhepler.delete_all_search_torrents()
     # 结束进度
     search_process.end('search')
     if len(media_list) == 0:
@@ -180,7 +181,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        DbHelper().insert_search_results(media_list)
+        dbhepler.insert_search_results(media_list)
         return 0, ""
 
 

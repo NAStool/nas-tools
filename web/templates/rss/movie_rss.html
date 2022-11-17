@@ -102,11 +102,6 @@
                         {{ Attr.filter_pix }}
                       </span>
                     {% endif %}
-                    {% if Attr.filter_team %}
-                      <span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">
-                        {{ Attr.filter_team }}
-                      </span>
-                    {% endif %}
                     {% if Attr.filter_rule|string in RuleGroups %}
                       <span class="badge badge-outline text-orange me-1 mb-1" title="过滤规则">
                         {{ RuleGroups[Attr.filter_rule|string] }}
@@ -115,6 +110,11 @@
                     {% if Attr.download_setting and Attr.download_setting != -1 %}
                       <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
                         {{ DownloadSettings[Attr.download_setting|string].name }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.filter_team %}
+                      <span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">
+                        {{ Attr.filter_team }}
                       </span>
                     {% endif %}
                   </small>
@@ -150,38 +150,3 @@
     </div>
   </div>
 {% endif %}
-<script type="text/javascript">
-  // 显示新增订阅
-  function show_add_movierss_media_modal() {
-    if (!{{ RssSites|length }}) {
-      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
-        navmenu('site');
-      });
-      return;
-    }
-    $("#rss_id").val("");
-    $("#rss_modal_title").text("新增订阅");
-    $("#rss_type").val("MOV");
-    $("#rss_name").val("").attr("readonly", false);
-    $("#rss_year").val("").attr("readonly", false);
-    $("#rss_tmdbid").val("");
-    $("#rss_tv_season_div").hide();
-    $("#fuzzy_match").prop("checked", false);
-    $("#over_edition").prop("checked", false);
-    $("#rss_restype").val('0');
-    $("#rss_pix").val('0');
-    $("#rss_team").val('');
-    $("#rss_rule").val('0');
-    $("#rss_save_path").val('');
-    $("#rss_download_setting").val('-1');
-    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
-    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
-    $("#rss_delete_btn").hide();
-    $("#modal-manual-rss").modal('show');
-  }
-
-</script>

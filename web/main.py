@@ -29,6 +29,7 @@ from app.rsschecker import RssChecker
 from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
+from app.sync import Sync
 from app.utils import DomUtils, SystemUtils, WebUtils
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, \
@@ -102,13 +103,8 @@ def login():
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
-        RssSites = Sites().get_sites(rss=True)
-        SearchSites = Searcher().indexer.get_indexers()
-        RuleGroups = Filter().get_rule_groups()
         RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = TORRENT_SEARCH_PARAMS.get("pix")
-        DownloadSettings = Downloader().get_download_setting()
-        SaveDirs = Downloader().get_download_dirs()
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -116,13 +112,8 @@ def login():
                                SystemFlag=SystemFlag,
                                TMDBFlag=TMDBFlag,
                                AppVersion=WebUtils.get_current_version(),
-                               RssSites=RssSites,
-                               SearchSites=SearchSites,
-                               RuleGroups=RuleGroups,
                                RestypeDict=RestypeDict,
                                PixDict=PixDict,
-                               DownloadSettings=DownloadSettings,
-                               SaveDirs=SaveDirs,
                                SyncMod=SyncMod)
 
     def redirect_to_login(errmsg=''):
@@ -365,17 +356,11 @@ def medialist():
 @login_required
 def movie_rss():
     RssItems = WebAction().get_movie_rss_list().get("result")
-    RssSites = Sites().get_sites(rss=True)
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-    PixDict = TORRENT_SEARCH_PARAMS.get("pix")
     DownloadSettings = Downloader().get_download_setting()
     return render_template("rss/movie_rss.html",
                            Count=len(RssItems),
-                           RssSites=RssSites,
                            RuleGroups=RuleGroups,
-                           RestypeDict=RestypeDict,
-                           PixDict=PixDict,
                            DownloadSettings=DownloadSettings,
                            Items=RssItems
                            )
@@ -386,17 +371,11 @@ def movie_rss():
 @login_required
 def tv_rss():
     RssItems = WebAction().get_tv_rss_list().get("result")
-    RssSites = Sites().get_sites(rss=True)
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-    PixDict = TORRENT_SEARCH_PARAMS.get("pix")
     DownloadSettings = Downloader().get_download_setting()
     return render_template("rss/tv_rss.html",
                            Count=len(RssItems),
-                           RssSites=RssSites,
                            RuleGroups=RuleGroups,
-                           RestypeDict=RestypeDict,
-                           PixDict=PixDict,
                            DownloadSettings=DownloadSettings,
                            Items=RssItems
                            )
@@ -717,7 +696,7 @@ def service():
                  'color': "facebook"})
 
     # 目录同步
-    sync_paths = DbHelper().get_config_sync_paths()
+    sync_paths = Sync().get_sync_dirs()
     if sync_paths:
         sta_sync = 'ON'
         svg = '''

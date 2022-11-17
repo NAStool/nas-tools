@@ -430,7 +430,7 @@ class RssChecker(object):
         if taskinfo.get("exclude"):
             if re.search(r"%s" % taskinfo.get("exclude"), media_info.org_string, re.IGNORECASE):
                 return False, 0
-        filter_args = {"rule": taskinfo.get("filter") or -1}
+        filter_args = {"rule": taskinfo.get("filter")}
         match_flag, res_order, _ = self.filter.check_torrent_filter(meta_info=media_info,
                                                                     filter_args=filter_args)
         if not match_flag:

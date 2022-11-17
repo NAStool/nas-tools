@@ -405,18 +405,14 @@ class SiteList(ClientResource):
 
 @site.route('/indexers')
 class SiteIndexers(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('check', type=bool, help='过滤选中站点', location='form')
+
+    def post(self):
         """
         查询站点索引列表
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": [index.__dict__ for index in BuiltinIndexer().get_indexers(check=False, public=False)]
-            }
-        }
+        return WebAction().api_action(cmd='get_indexers', data=self.parser.parse_args())
 
 
 @search.route('/keyword')
@@ -609,18 +605,24 @@ class DownloadConfigDelete(ClientResource):
 
 @download.route('/config/list')
 class DownloadConfigList(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='ID', location='form')
+
+    def post(self):
+        """
+        查询下载设置
+        """
+        return WebAction.api_action("get_download_setting", data=self.parser.parse_args())
+
+
+@download.route('/config/directory')
+class DownloadConfigDirectory(ClientResource):
     @staticmethod
     def post():
         """
-        查询所有下载设置
+        查询下载保存目录
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": Downloader().get_download_setting()
-            }
-        }
+        return WebAction.api_action("get_download_dirs")
 
 
 @organization.route('/unknown/delete')

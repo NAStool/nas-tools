@@ -1023,10 +1023,6 @@
                                                        title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
                                                        data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="rss_rule">
-                <option value="" selected>站点规则</option>
-                {% for RuleGroup in RuleGroups %}
-                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
@@ -1036,10 +1032,6 @@
             <div class="mb-3">
               <label class="form-label">保存路径</label>
               <select class="form-select" id="rss_save_path" aria-label="保存目录">
-                <option value="" selected>自动</option>
-                {% for SaveDir in SaveDirs %}
-                  <option value="{{ SaveDir }}">{{ SaveDir }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
@@ -1047,45 +1039,24 @@
             <div class="mb-3">
               <label class="form-label">下载设置</label>
               <select class="form-select" id="rss_download_setting">
-                {% for Id, Attr in DownloadSettings.items() %}
-                  <option value="{{ Attr.id }}">{{ Attr.name }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
         </div>
-        {% if RssSites %}
-          <div class="row rss_sites_container" id="rss_sites_div">
-            <div class="mb-3">
-              <label class="form-label">订阅站点</label>
-              <div class="form-selectgroup">
-                {% for Site in RssSites %}
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="rss_sites" value="{{ Site.name }}" class="form-selectgroup-input"
-                           checked>
-                    <span class="form-selectgroup-label">{{ Site.name }}</span>
-                  </label>
-                {% endfor %}
-              </div>
+        <div class="row rss_sites_container" id="rss_sites_div">
+          <div class="mb-3">
+            <label class="form-label">订阅站点</label>
+            <div class="form-selectgroup" id="rss_sites_group">
             </div>
           </div>
-        {% endif %}
-        {% if SearchSites %}
-          <div class="row rss_sites_container" id="rss_search_sites_div">
-            <div class="mb-3">
-              <label class="form-label">搜索站点</label>
-              <div class="form-selectgroup">
-                {% for Site in SearchSites %}
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="search_sites" value="{{ Site.name }}" class="form-selectgroup-input"
-                           checked>
-                    <span class="form-selectgroup-label">{{ Site.name }}</span>
-                  </label>
-                {% endfor %}
-              </div>
+        </div>
+        <div class="row rss_sites_container" id="rss_search_sites_div">
+          <div class="mb-3">
+            <label class="form-label">搜索站点</label>
+            <div class="form-selectgroup" id="rss_search_sites_group">
             </div>
           </div>
-        {% endif %}
+        </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:rss_sites_select()" class="btn btn-link me-auto" id="rss_sites_select_btn">
@@ -1811,13 +1782,113 @@
     remove_rss_media(name, year, type, rssid, page);
   }
 
+  // 显示新增电视剧订阅
+  function show_add_tvrss_media_modal() {
+    // 刷新下拉框
+    refresh_rsssites_select('rss_sites_group', false);
+    if (RSS_SITES_LENGTH === 0) {
+      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
+        navmenu('site');
+      });
+      return;
+    }
+
+    // 刷新下拉框
+    show_wait_process();
+    refresh_searchsites_select('rss_search_sites_group');
+    refresh_filter_select('rss_rule');
+    refresh_downloadsetting_select('rss_download_setting');
+    refresh_savepath_select('rss_save_path');
+    hide_wait_process();
+
+    // 界面初始化
+    $("#rss_id").val("");
+    $("#rss_modal_title").text("新增订阅");
+    $("#rss_type").val("TV");
+    $("#rss_name").val("").attr("readonly", false);
+    $("#rss_year").val("").attr("readonly", false);
+    $("#rss_tmdbid").val("");
+    $("#rss_season").val("");
+    $("#rss_total_ep").val("");
+    $("#rss_current_ep").val("");
+    $("#fuzzy_match").prop("checked", false);
+    $("#over_edition").prop("checked", false);
+    $("#rss_restype").val('');
+    $("#rss_pix").val('');
+    $("#rss_team").val('');
+    $("#rss_rule").val('');
+    $("#rss_save_path").val('');
+    $("#rss_download_setting").val('-1');
+    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#rss_delete_btn").hide();
+    $("#modal-manual-rss").modal('show');
+  }
+
+  // 显示新增电影订阅
+  function show_add_movierss_media_modal() {
+    // 刷新下拉框
+    refresh_rsssites_select('rss_sites_group', false);
+    if (RSS_SITES_LENGTH === 0) {
+      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
+        navmenu('site');
+      });
+      return;
+    }
+
+    // 刷新下拉框
+    show_wait_process();
+    refresh_searchsites_select('rss_search_sites_group');
+    refresh_filter_select('rss_rule');
+    refresh_downloadsetting_select('rss_download_setting');
+    refresh_savepath_select('rss_save_path');
+    hide_wait_process();
+
+    // 界面初始化
+    $("#rss_id").val("");
+    $("#rss_modal_title").text("新增订阅");
+    $("#rss_type").val("MOV");
+    $("#rss_name").val("").attr("readonly", false);
+    $("#rss_year").val("").attr("readonly", false);
+    $("#rss_tmdbid").val("");
+    $("#rss_tv_season_div").hide();
+    $("#fuzzy_match").prop("checked", false);
+    $("#over_edition").prop("checked", false);
+    $("#rss_restype").val('');
+    $("#rss_pix").val('');
+    $("#rss_team").val('');
+    $("#rss_rule").val('');
+    $("#rss_save_path").val('');
+    $("#rss_download_setting").val('-1');
+    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#rss_delete_btn").hide();
+    $("#modal-manual-rss").modal('show');
+  }
+
   // 显示编辑订阅
   function show_edit_rss_media_modal(rssid, type) {
     $("#system-media-modal").modal('hide');
     $("#rss_id").val(rssid);
     $("#rss_type").val(type);
     $("#rss_modal_title").text("编辑订阅");
+
     show_wait_process();
+    // 刷新下拉框
+    refresh_rsssites_select("rss_sites_group", false);
+    refresh_searchsites_select("rss_search_sites_group", false);
+    refresh_filter_select("rss_rule", false);
+    refresh_downloadsetting_select("rss_download_setting", false);
+    refresh_savepath_select("rss_save_path", false);
+    // 获取订阅信息
     ajax_post("rss_detail", {"rssid": rssid, "rsstype": type}, function (ret) {
       hide_wait_process();
       if (ret.code === 0) {
@@ -1902,6 +1973,96 @@
       $("#system_success_action_div").hide();
     }
     $("#system-success-action-modal").modal('show');
+  }
+
+  // 刷新规则下拉框
+  function refresh_filter_select(obj_id, aync=true) {
+    ajax_post("get_filterrules", {}, function (ret) {
+      if (ret.code === 0) {
+        let rule_select = $("#"+obj_id);
+        rule_select.empty();
+        rule_select.append(`<option value="">站点规则</option>`);
+        for (let i = 0; i < ret.ruleGroups.length; i++) {
+          rule_select.append(`<option value="${ret.ruleGroups[i].id}">${ret.ruleGroups[i].name}</option>`);
+        }
+      }
+    }, aync);
+  }
+
+  // 刷新订阅站点列表
+  var RSS_SITES_LENGTH = 0;
+  function refresh_rsssites_select(obj_id, aync=true){
+    ajax_post("get_sites", {rss: true}, function (ret) {
+      if (ret.code === 0) {
+        let rsssites_select = $("#"+obj_id);
+        rsssites_select.empty();
+        RSS_SITES_LENGTH = ret.sites.length;
+        if (ret.sites.length > 0){
+          rsssites_select.parent().parent().show();
+        }else{
+          rsssites_select.parent().parent().hide();
+        }
+        for (let i = 0; i < ret.sites.length; i++) {
+          rsssites_select.append(`
+          <label class="form-selectgroup-item">
+            <input type="checkbox" name="rss_sites" value="${ret.sites[i].name}" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">${ret.sites[i].name}</span>
+          </label>
+          `);
+        }
+      }
+    }, aync);
+  }
+
+  // 刷新搜索站点列表
+  function refresh_searchsites_select(obj_id, aync=true){
+    ajax_post("get_indexers", {check: true}, function (ret) {
+      if (ret.code === 0) {
+        let searchsites_select = $("#"+obj_id);
+        if (ret.indexers.length > 0){
+          searchsites_select.parent().parent().show();
+        }else{
+          searchsites_select.parent().parent().hide();
+        }
+        searchsites_select.empty();
+        for (let i = 0; i < ret.indexers.length; i++) {
+          searchsites_select.append(`
+          <label class="form-selectgroup-item">
+            <input type="checkbox" name="search_sites" value="${ret.indexers[i].name}" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">${ret.indexers[i].name}</span>
+          </label>
+          `);
+        }
+      }
+    }, aync);
+  }
+
+  // 刷新保存路径
+  function refresh_savepath_select(obj_id, aync=true){
+    ajax_post("get_download_dirs", {}, function (ret) {
+      if (ret.code === 0) {
+        let savepath_select = $("#"+obj_id);
+        savepath_select.empty();
+        savepath_select.append(`<option value="">请选择</option>`);
+        for (let i = 0; i < ret.paths.length; i++) {
+          savepath_select.append(`<option value="${ret.paths[i]}">${ret.paths[i]}</option>`);
+        }
+      }
+    }, aync);
+  }
+
+  // 刷新下载设置
+  function refresh_downloadsetting_select(obj_id, aync=true){
+    ajax_post("get_download_setting", {}, function (ret) {
+      if (ret.code === 0) {
+        let downloadsetting_select = $("#"+obj_id);
+        downloadsetting_select.empty();
+        downloadsetting_select.append(`<option value="">请选择</option>`);
+        for (let i = 0; i < ret.data.length; i++) {
+          downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
+        }
+      }
+    }, aync);
   }
 
 </script>

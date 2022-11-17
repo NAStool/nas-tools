@@ -138,11 +138,11 @@ class Sites:
 
         ret_sites = []
         for site in self._siteByIds.values():
-            if rss and (not site.get('rssurl') or not site.get('rss_enable')):
+            if rss and not site.get('rss_enable'):
                 continue
-            if brush and (not site.get('rssurl') or not site.get('brush_enable')):
+            if brush and not site.get('brush_enable'):
                 continue
-            if signin and (not site.get('signurl') or not site.get('signin_enable')):
+            if signin and not site.get('signin_enable'):
                 continue
             if statistic and not site.get('statistic_enable'):
                 continue

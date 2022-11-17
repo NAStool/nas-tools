@@ -527,7 +527,7 @@ class Rss:
                 "restype": match_rss_info.get('filter_restype'),
                 "pix": match_rss_info.get('filter_pix'),
                 "team": match_rss_info.get('filter_team'),
-                "rule": match_rss_info.get('filter_rule') or site_filter_rule or -1
+                "rule": match_rss_info.get('filter_rule') or site_filter_rule
             }
             match_filter_flag, res_order, match_filter_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                                               filter_args=filter_dict)

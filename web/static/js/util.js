@@ -1,5 +1,5 @@
 // Ajax主方法
-function ajax_post(cmd, data, handler) {
+function ajax_post(cmd, data, handler, aync=true) {
     var data = {
         cmd: cmd,
         data: JSON.stringify(data)
@@ -10,6 +10,7 @@ function ajax_post(cmd, data, handler) {
         dataType: "json",
         data: data,
         cache: false,
+        async: aync,
         timeout: 0,
         success: handler,
         error: function (xhr, textStatus, errorThrown) {

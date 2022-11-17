@@ -221,7 +221,11 @@ class Filter:
                 return False
         return True
 
-    def check_torrent_filter(self, meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
+    def check_torrent_filter(self,
+                             meta_info,
+                             filter_args,
+                             uploadvolumefactor=None,
+                             downloadvolumefactor=None):
         """
         对种子进行过滤
         :param meta_info: 名称识别后的MetaBase对象
@@ -248,9 +252,9 @@ class Filter:
         if filter_args.get("team"):
             team = filter_args.get("team")
             if not meta_info.resource_team:
-                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team}要求"
+                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
             if team and not re.search(r"%s" % team, meta_info.resource_team, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team}要求"
+                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
         # 过滤促销
         if filter_args.get("sp_state"):
             ul_factor, dl_factor = filter_args.get("sp_state").split()
@@ -262,13 +266,13 @@ class Filter:
         if filter_args.get("key"):
             key = filter_args.get("key")
             if not re.search(r"%s" % key, meta_info.org_string, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合 {key}要求"
+                return False, 0, f"{meta_info.org_string} 不符合 {key} 要求"
         # 过滤过滤规则
         if filter_args.get("rule"):
             rule_group = filter_args.get("rule")
-            if rule_group == -1:
+            if rule_group:
                 match_flag, order_seq, match_msg = self.check_rules(meta_info)
-                match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s要求" % (
+                match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
                     meta_info.org_string,
                     StringUtils.str_filesize(meta_info.size),
                     meta_info.get_volume_factor_string(),
@@ -276,7 +280,7 @@ class Filter:
                 )
                 return match_flag, order_seq, match_msg
             match_flag, order_seq, match_msg = self.check_rules(meta_info, rule_group)
-            match_msg = "%s 大小：%s 促销：%s 不符合默认过滤规则 %s要求" % (
+            match_msg = "%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (
                 meta_info.org_string,
                 StringUtils.str_filesize(meta_info.size),
                 meta_info.get_volume_factor_string(),
