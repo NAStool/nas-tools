@@ -284,6 +284,16 @@
               </select>
             </div>
           </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">从详情页下载字幕 <span class="form-help"
+                  title="开启后将查询该种子详情页是否有提供字幕，如有则会自动下载" data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_subtitle">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div class="row">
           <div class="col">
@@ -361,6 +371,7 @@
     $("#site_chrome").val('N');
     $("#site_proxy").val('N');
     $("#site_parse").val('Y');
+    $("#site_subtitle").val('N');
     $("#site_unread_msg_notify").val('Y');
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
@@ -384,6 +395,7 @@
         $("#site_ua").val(ret.site.ua);
         $("#site_chrome").val(ret.site.chrome);
         $("#site_proxy").val(ret.site.proxy);
+        $("#site_subtitle").val(ret.site.subtitle);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
         $("input[name=site_uses]").each(function () {
           $(this).prop("checked", false);
@@ -481,6 +493,7 @@
     let ua = $("#site_ua").val();
     let chrome = $("#site_chrome").val();
     let proxy = $("#site_proxy").val();
+    let subtitle = $("#site_subtitle").val();
     let data = {
       "site_id": site_id,
       "site_name": site_name,
@@ -495,7 +508,8 @@
         "ua": ua,
         "chrome": chrome,
         "proxy": proxy,
-        "message": site_unread_msg_notify
+        "message": site_unread_msg_notify,
+        "subtitle": subtitle
       }
     }
 

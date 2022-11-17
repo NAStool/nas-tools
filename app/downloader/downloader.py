@@ -3,8 +3,9 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.helper import DbHelper
+from app.helper import DbHelper, ThreadHelper
 from app.media import MetaInfo, Media
+from app.subtitle import Subtitle
 from app.utils.commons import singleton
 from config import Config, PT_TAG, RMT_MEDIAEXT
 from app.message import Message
@@ -124,7 +125,8 @@ class Downloader:
                  is_paused=None,
                  tag=None,
                  download_dir=None,
-                 download_setting=None):
+                 download_setting=None,
+                 torrent_file=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
@@ -132,6 +134,7 @@ class Downloader:
         :param tag: 种子标签
         :param download_dir: 指定下载目录
         :param download_setting: 下载设置id
+        :param torrent_file: 种子文件路径
         """
         if not self.client:
             return None, "下载器初始化失败"
@@ -188,13 +191,22 @@ class Downloader:
                     url = Torrent.convert_hash_to_magnet(hash_text=url, title=title)
                     if not url:
                         return None, "%s 转换磁力链失败" % url
-            # 下载种子文件
-            content, retmsg = Torrent.get_torrent_content(url=url,
-                                                          cookie=cookie,
-                                                          ua=ua,
-                                                          referer=page_url if referer else None)
+            if torrent_file:
+                # 读取种子文件
+                content, retmsg = Torrent.read_torrent_file(torrent_file)
+            else:
+                # 下载种子文件
+                content, retmsg = Torrent.get_torrent_content(url=url,
+                                                              cookie=cookie,
+                                                              ua=ua,
+                                                              referer=page_url if referer else None)
             if not content:
                 return None, retmsg
+
+            # 下载字幕文件
+            if page_url:
+                ThreadHelper().start_thread(Subtitle().download_subtitle_from_site,
+                                            (page_url, cookie, ua, title))
         else:
             content = url
 
@@ -409,14 +421,15 @@ class Downloader:
         # 返回按季、集数倒序排序的列表
         download_list = self.get_download_list(media_list)
 
-        def __download(download_item):
+        def __download(download_item, torrent_file=None):
             """
             下载及发送通知
             """
             state, msg = self.download(
                 media_info=download_item,
                 download_dir=download_item.save_path,
-                download_setting=download_item.download_setting)
+                download_setting=download_item.download_setting,
+                torrent_file=torrent_file)
             if state:
                 if download_item not in return_items:
                     return_items.append(download_item)
@@ -491,11 +504,12 @@ class Downloader:
                         if set(item_season).issubset(set(need_season)):
                             if len(item_season) == 1:
                                 # 只有一季的可能是命名错误，需要打开种子鉴别，只有实际集数大于等于总集数才下载
-                                torrent_episodes = self.get_torrent_episodes(url=item.enclosure,
-                                                                             page_url=item.page_url)
+                                torrent_episodes, torrent_path = self.get_torrent_episodes(
+                                    url=item.enclosure,
+                                    page_url=item.page_url)
                                 if not torrent_episodes \
                                         or len(torrent_episodes) >= __get_season_episodes(need_tmdbid, item_season[0]):
-                                    download_state = __download(item)
+                                    download_state = __download(item, torrent_path)
                                 else:
                                     log.info(
                                         f"【Downloader】种子 {item.org_string} 未含集数信息，解析文件数为 {len(torrent_episodes)}")
@@ -927,10 +941,11 @@ class Downloader:
     def get_torrent_episodes(self, url, page_url=None):
         """
         解析种子文件，获取集数
+        :return: 集数列表、种子路径
         """
         cookie, ua, referer = self.sites.get_site_attr(url)
         if not cookie:
-            return []
+            return [], None
         # 保存种子文件
         file_path = Torrent.save_torrent_file(url=url,
                                               cookie=cookie,
@@ -939,12 +954,12 @@ class Downloader:
                                               referer=page_url if referer else None)
         if not file_path:
             log.error("【Downloader】下载种子文件失败：%s" % url)
-            return []
+            return [], None
         # 解析种子文件
         files = Torrent.get_torrent_files(path=file_path)
         if not files:
             log.error("【Downloader】解析种子文件失败：%s" % file_path)
-            return []
+            return [], None
         episodes = []
         for file in files:
             if os.path.splitext(file)[-1] not in RMT_MEDIAEXT:
@@ -953,7 +968,7 @@ class Downloader:
             if not meta.begin_episode:
                 continue
             episodes = list(set(episodes).union(set(meta.get_episode_list())))
-        return episodes
+        return episodes, file_path
 
     def get_download_setting(self, sid=None):
         if sid:

@@ -269,17 +269,16 @@ class Filter:
                 return False, 0, f"{meta_info.org_string} 不符合 {key} 要求"
         # 过滤过滤规则
         if filter_args.get("rule"):
-            rule_group = filter_args.get("rule")
-            if rule_group:
-                # 已设置默认规则
-                match_flag, order_seq, rule_name = self.check_rules(meta_info, rule_group)
-                match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
-                    meta_info.org_string,
-                    StringUtils.str_filesize(meta_info.size),
-                    meta_info.get_volume_factor_string(),
-                    rule_name
-                )
-                return match_flag, order_seq, match_msg
+            # 已设置默认规则
+            match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"))
+            match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
+                meta_info.org_string,
+                StringUtils.str_filesize(meta_info.size),
+                meta_info.get_volume_factor_string(),
+                rule_name
+            )
+            return match_flag, order_seq, match_msg
+        else:
             # 默认过滤规则
             match_flag, order_seq, rule_name = self.check_rules(meta_info)
             match_msg = "%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (

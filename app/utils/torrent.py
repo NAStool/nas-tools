@@ -17,6 +17,7 @@ class Torrent:
         :param cookie: 站点Cookie
         :param ua: 站点UserAgent
         :param referer: 关联地址，有的网站需要这个否则无法下载
+        :return: 种子内容、种子文件名、错误信息
         """
         if not url:
             return None, "URL为空"
@@ -35,6 +36,7 @@ class Torrent:
                 metadata = bencode.bdecode(req.content)
                 if not metadata or not isinstance(metadata, dict):
                     return None, "不正确的种子文件"
+                # TODO 获取种子文件名
                 return req.content, ""
             elif not req:
                 return None, "无法打开链接：%s" % url
@@ -110,3 +112,18 @@ class Torrent:
         except Exception as err:
             print(str(err))
         return file_names
+
+    @staticmethod
+    def read_torrent_file(path):
+        """
+        读取本地种子文件的内容
+        """
+        if not path or not os.path.exists(path):
+            return None, "种子文件不存在：%s" % path
+        content, retmsg = None, ""
+        try:
+            with open(path, 'rb') as f:
+                content = f.read()
+        except Exception as e:
+            retmsg = "读取种子文件出错：%s" % str(e)
+        return content, retmsg

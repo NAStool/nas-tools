@@ -104,15 +104,16 @@ class Sites:
                 "cookie": site_cookie,
                 "rule": site_note.get("rule"),
                 "parse": site_note.get("parse"),
-                "unread_msg_notify": site_note.get("message"),
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
                 "favicon": self._site_favicons.get(site.NAME, ""),
                 "ua": site_note.get("ua"),
-                "chrome": site_note.get("chrome"),
-                "proxy": site_note.get("proxy")
+                "unread_msg_notify": site_note.get("message") or 'N',
+                "chrome": site_note.get("chrome") or 'N',
+                "proxy": site_note.get("proxy") or 'N',
+                "subtitle": site_note.get("subtitle") or 'N'
             }
             # 以ID存储
             self._siteByIds[site.ID] = site_info
