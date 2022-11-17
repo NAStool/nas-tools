@@ -438,7 +438,9 @@ class FileTransfer:
                         now_filesize = self.__min_filesize if not str(min_filesize).isdigit() else int(
                             min_filesize) * 1024 * 1024
                     # 查找目录下的文件
-                    file_list = PathUtils.get_dir_files(in_path=in_path, episode_format=episode[0], exts=RMT_MEDIAEXT,
+                    file_list = PathUtils.get_dir_files(in_path=in_path,
+                                                        episode_format=episode[0],
+                                                        exts=RMT_MEDIAEXT,
                                                         filesize=now_filesize)
                     log.debug("【Rmt】文件清单：" + str(file_list))
                     if len(file_list) == 0:
@@ -472,7 +474,7 @@ class FileTransfer:
                         log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
-                    return True, "没有新文件需要处理"
+                    return True, "排除转移文件夹黑名单后，没有新文件需要处理"
             except Exception as err:
                 log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
 
@@ -484,7 +486,7 @@ class FileTransfer:
                         log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
-                    return True, "没有新文件需要处理"
+                    return True, "排除文件转移忽略词后，没有新文件需要处理"
             except Exception as err:
                 log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
 

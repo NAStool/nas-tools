@@ -17,8 +17,7 @@ from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, Strin
 from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT, \
-    DEFAULT_TMDB_PROXY
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
 
 
 class Media:
@@ -821,6 +820,8 @@ class Media:
                             meta_info.begin_episode = begin_ep
                         if end_ep is not None:
                             meta_info.end_episode = end_ep
+                    # 加入缓存
+                    self.save_rename_cache(file_name, tmdb_info)
                 return_media_infos[file_path] = meta_info
             except Exception as err:
                 log.error("【Rmt】发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -1183,29 +1184,18 @@ class Media:
             return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
         return ""
 
-    def save_rename_cache(self, path, tmdb_info):
+    def save_rename_cache(self, file_name, tmdb_info):
         """
         将手动识别的信息加入缓存
         """
-        if not path or not tmdb_info:
+        if not file_name or not tmdb_info:
             return
         meta_infos = {}
-        if os.path.isfile(path):
-            meta_info = MetaInfo(title=os.path.basename(path))
-            if meta_info.get_name():
-                media_key = "[%s]%s-%s-%s" % (
-                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-                meta_infos[media_key] = tmdb_info
-        else:
-            path_files = PathUtils.get_dir_files(in_path=path, exts=RMT_MEDIAEXT)
-            for path_file in path_files:
-                meta_info = MetaInfo(title=os.path.basename(path_file))
-                if not meta_info.get_name():
-                    continue
-                media_key = "[%s]%s-%s-%s" % (
-                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-                if media_key not in meta_infos.keys():
-                    meta_infos[media_key] = tmdb_info
+        meta_info = MetaInfo(title=file_name)
+        if meta_info.get_name():
+            media_key = "[%s]%s-%s-%s" % (
+                tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+            meta_infos[media_key] = tmdb_info
         if meta_infos:
             self.meta.update_meta_data(meta_infos)
 

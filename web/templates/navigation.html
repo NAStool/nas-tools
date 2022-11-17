@@ -1198,8 +1198,8 @@
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB的编号">
+              <label class="form-label">TMDB ID</label>
+              <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
             </div>
           </div>
           <div class="col-lg-4" id="rename_season_div">
@@ -2359,13 +2359,6 @@
 
     if (manual_type == '2' && !logid) {
       return;
-    }
-
-    if (!tmdb || isNaN(tmdb)) {
-      $("#rename_tmdb").addClass("is-invalid");
-      return;
-    } else {
-      $("#rename_tmdb").removeClass("is-invalid");
     }
 
     if (manual_type == '3') {
