@@ -923,10 +923,21 @@ class WebAction:
         brush = True if data.get("brush") else False
         signin = True if data.get("signin") else False
         statistic = True if data.get("statistic") else False
-        return {"code": 0, "sites": Sites().get_sites(rss=rss,
-                                                      brush=brush,
-                                                      signin=signin,
-                                                      statistic=statistic)}
+        basic = True if data.get("basic") else False
+        if basic:
+            sites = [{
+                "id": site.get("id"),
+                "name": site.get("name")
+            } for site in Sites().get_sites(rss=rss,
+                                            brush=brush,
+                                            signin=signin,
+                                            statistic=statistic)]
+        else:
+            sites = Sites().get_sites(rss=rss,
+                                      brush=brush,
+                                      signin=signin,
+                                      statistic=statistic)
+        return {"code": 0, "sites": sites}
 
     def __del_site(self, data):
         """
@@ -3754,7 +3765,14 @@ class WebAction:
         获取索引器
         """
         check = True if data.get("check") else False
-        indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check, public=False)]
+        basic = data.get("basic")
+        if basic:
+            indexers = [{
+                "id": index.id,
+                "name": index.name
+            } for index in BuiltinIndexer().get_indexers(check=check, public=False)]
+        else:
+            indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check, public=False)]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod

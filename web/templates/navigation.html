@@ -1992,7 +1992,7 @@
   // 刷新订阅站点列表
   var RSS_SITES_LENGTH = 0;
   function refresh_rsssites_select(obj_id, aync=true){
-    ajax_post("get_sites", {rss: true}, function (ret) {
+    ajax_post("get_sites", {rss: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let rsssites_select = $("#"+obj_id);
         rsssites_select.empty();
@@ -2016,7 +2016,7 @@
 
   // 刷新搜索站点列表
   function refresh_searchsites_select(obj_id, aync=true){
-    ajax_post("get_indexers", {check: true}, function (ret) {
+    ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let searchsites_select = $("#"+obj_id);
         if (ret.indexers.length > 0){

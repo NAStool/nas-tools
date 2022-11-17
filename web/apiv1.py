@@ -391,6 +391,7 @@ class SiteResources(ClientResource):
 @site.route('/list')
 class SiteList(ClientResource):
     parser = reqparse.RequestParser()
+    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
     parser.add_argument('rss', type=bool, help='订阅', location='form')
     parser.add_argument('brush', type=bool, help='刷流', location='form')
     parser.add_argument('signin', type=bool, help='签到', location='form')
@@ -406,6 +407,7 @@ class SiteList(ClientResource):
 @site.route('/indexers')
 class SiteIndexers(ClientResource):
     parser = reqparse.RequestParser()
+    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
     parser.add_argument('check', type=bool, help='过滤选中站点', location='form')
 
     def post(self):
