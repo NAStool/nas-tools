@@ -3815,7 +3815,8 @@ class WebAction:
             try:
                 for file in files:
                     link_files = SystemUtils().find_hardlinks(file=file)
-                    hardlinks.append(link_files)
+                    if link_files:
+                        hardlinks.append(link_files)
                 if not hardlinks:
                     return {"code": 1}
             except Exception as e:

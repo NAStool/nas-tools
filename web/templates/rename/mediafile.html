@@ -106,16 +106,6 @@
         <div class="ms-auto" id="hardlinks-check">
           <div class="btn-list" id="batch_hardlinks_action_div" style="display: none;">
             <input type="hidden" id="findfile_path" value="" >
-            <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              批量删除
-            </a>
             <a href="javascript:mediafile_delete_all()" class="btn btn-danger d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -134,6 +124,12 @@
       <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
         <table id="table-hardlinks" class="table table-vcenter card-table">
         </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">关闭</button>
+        <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
+         批量删除
+        </a>
       </div>
     </div>
   </div>
@@ -242,9 +238,9 @@
 
   // 文件删除
   function delete_files(files) {
+    hide_confirm_modal();
     show_wait_process();
     ajax_post("delete_files", {files: files}, function (ret) {
-      hide_confirm_modal();
       hide_wait_process();
       refresh_files();
     });
@@ -289,26 +285,25 @@
     ajax_post("find_hardlinks", {files: files}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
-        if (ret.data) {
+        if (ret.data && ret.data.length > 0) {
           let thead = `<thead><tr>
                        <th class="w-1">
-                        <input class="form-check-input m-0 align-middle" id="hardlinks_check_all_btn" type="checkbox" aria-label="全选" onchange="show_hardlink_batch_button()">
+                        <input class="form-check-input m-0 align-middle" id="hardlinks_check_all_btn" type="checkbox" aria-label="全选">
                        </th>
                        <th>文件信息</th>
                        <tr></thead>`;
           $("#table-hardlinks").empty().append(`${thead}`);
           let color = ["orange", "cyan"];
           for (let i in ret.data) {
-            console.log(ret.data[i]);
             let hardlinks = ret.data[i];
             let tbody = ``;
             for (let hardlink of hardlinks) {
               let tr = `<tr>
                         <td class="w-1">
-                          <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox" onchange="show_hardlink_batch_button()">
+                          <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox">
                         </td>
                         <td>
-                          <div><span class="text-${color[i%2]}">${hardlink.filename}</span></div>
+                          <div>${hardlink.filename}</div>
                           <div><span class="text-muted">${hardlink.filepath}</span></div>
                         </td>
                         </tr>`;
@@ -320,11 +315,10 @@
           // 绑定全选事件
           $("#hardlinks_check_all_btn").bind("change", function () {
             $("[id^='check_hardlink_']").prop("checked", $(this).prop("checked"));
-            show_hardlink_batch_button();
           });
           $("#modal-hardlinks").modal("show");
         } else {
-          show_success_modal("查询成功，未找到硬链接文件！");
+          show_success_modal("查询成功，但未找到硬链接文件！");
         }
       } else {
         show_fail_modal("查询硬链接文件失败！");
@@ -356,16 +350,6 @@
       }
     });
     return hardlinks;
-  }
-
-  // 显示批量处理按钮
-  function show_hardlink_batch_button(){
-    let hardlinks = get_hardlink_checked();
-    if(hardlinks.length > 0){
-      $("#batch_hardlinks_action_div").show();
-    }else{
-      $("#batch_hardlinks_action_div").hide();
-    }
   }
 
   // 设置高度
