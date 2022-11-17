@@ -62,6 +62,7 @@
           </div>
           <div class="card-body">
             <input type="hidden" id="mediafile_current_dir">
+            <input type="hidden" id="mediafile_current_files">
             <div class="row row-cards">
               <div class="space-y" id="mediafile_file_container" style="overflow-y: auto;"></div>
             </div>
@@ -95,6 +96,48 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-hardlinks" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ms-2">
+          <h5 class="modal-title">硬链接文件</h5>
+        </div>
+        <div class="ms-auto" id="hardlinks-check">
+          <div class="btn-list" id="batch_hardlinks_action_div" style="display: none;">
+            <input type="hidden" id="findfile_path" value="" >
+            <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              批量删除
+            </a>
+            <a href="javascript:mediafile_delete_all()" class="btn btn-danger d-sm-none btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="ms-3">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+        <table id="table-hardlinks" class="table table-vcenter card-table">
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 
   //刷新文件列表
@@ -107,14 +150,15 @@
     ajax_post("get_sub_path", {"dir": folder, "filter": "MEDIAFILE|SUBFILE"}, function (ret) {
       $("#mediafile_file_container").empty();
       if (ret.data) {
+        let files = [];
         $("#mediafile_num").text(ret.count);
         for (let i = 0; i < ret.data.length; i++) {
           let filepath = ret.data[i].path;
+          files.push(filepath);
           let fileext = ret.data[i].ext;
           let filename = ret.data[i].name;
           let filesize = ret.data[i].size;
           let template_html = $("#mediafile_item_template").text();
-          debugger;
           $("#mediafile_file_container").append(
               template_html.replaceAll("{FILEEXT}", fileext)
                   .replaceAll("{FILENAME}", filename.replace("'", "&apos;"))
@@ -122,6 +166,7 @@
                   .replaceAll("{FILEPOS}", i)
                   .replaceAll("{FILEPATH}", filepath.replace("'", "&apos;"))
           );
+        $("#mediafile_current_files").val(JSON.stringify(files))
         }
       }
     });
@@ -196,15 +241,30 @@
   }
 
   // 文件删除
-  function mediafile_delete(name, id) {
-    let path = $("#mediafilepath_" + id).val();
-    show_confirm_modal("是否确认删除文件 " + name + "？", function () {
-      ajax_post("delete_file", {path: path}, function (ret) {
-        hide_confirm_modal();
-        refresh_files();
-      });
+  function delete_files(files) {
+    show_wait_process();
+    ajax_post("delete_files", {files: files}, function (ret) {
+      hide_confirm_modal();
+      hide_wait_process();
+      refresh_files();
     });
+  }
 
+  // 多个文件删除
+  function mediafile_delete_all() {
+    let files = get_hardlink_checked();
+    show_confirm_modal(`是否确认删除文件？`, function () {
+      delete_files(files)
+      $("#modal-hardlinks").modal("hide");
+    });
+  }
+
+  // 单个文件删除
+  function mediafile_delete(name, id) {
+    let file = $(`#mediafilepath_${id}`).val();
+    show_confirm_modal(`是否确认删除文件 ${name}？`, function () {
+      delete_files([file])
+    });
   }
 
   // 下载字幕
@@ -224,13 +284,88 @@
   }
 
   // 查询硬链接
-  function mediafile_findlinks(name, id) {
-    let path = $("#mediafilepath_" + id).val();
+  function find_hardlinks(files) {
+    show_wait_process();
+    ajax_post("find_hardlinks", {files: files}, function (ret) {
+      hide_wait_process();
+      if (ret.code == 0) {
+        if (ret.data) {
+          let thead = `<thead><tr>
+                       <th class="w-1">
+                        <input class="form-check-input m-0 align-middle" id="hardlinks_check_all_btn" type="checkbox" aria-label="全选" onchange="show_hardlink_batch_button()">
+                       </th>
+                       <th>文件信息</th>
+                       <tr></thead>`;
+          $("#table-hardlinks").empty().append(`${thead}`);
+          let color = ["orange", "cyan"];
+          for (let i in ret.data) {
+            console.log(ret.data[i]);
+            let hardlinks = ret.data[i];
+            let tbody = ``;
+            for (let hardlink of hardlinks) {
+              let tr = `<tr>
+                        <td class="w-1">
+                          <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox" onchange="show_hardlink_batch_button()">
+                        </td>
+                        <td>
+                          <div><span class="text-${color[i%2]}">${hardlink.filename}</span></div>
+                          <div><span class="text-muted">${hardlink.filepath}</span></div>
+                        </td>
+                        </tr>`;
+              tbody = `${tbody}${tr}`;
+            }
+            tbody = `<tbody>${tbody}</tbody>`;
+            $("#table-hardlinks").append(`${tbody}`);
+          }
+          // 绑定全选事件
+          $("#hardlinks_check_all_btn").bind("change", function () {
+            $("[id^='check_hardlink_']").prop("checked", $(this).prop("checked"));
+            show_hardlink_batch_button();
+          });
+          $("#modal-hardlinks").modal("show");
+        } else {
+          show_success_modal("查询成功，未找到硬链接文件！");
+        }
+      } else {
+        show_fail_modal("查询硬链接文件失败！");
+      }
+    });
   }
 
   // 查询所有硬链接
   function mediafile_findlinks_all() {
-    let path = $("#mediafile_modify_path").val();
+    let files = $("#mediafile_current_files").val();
+    files = JSON.parse(files)
+    find_hardlinks(files);
+  }
+
+  // 查询硬链接
+  function mediafile_findlinks(name, id) {
+    let file = $(`#mediafilepath_${id}`).val();
+    find_hardlinks([file]);
+  }
+
+    // 获取选中按钮
+  function get_hardlink_checked(){
+    let hardlinks = [];
+    $("[id^='check_hardlink_']").each(function () {
+      if ($(this).prop("checked")) {
+        let checkid = $(this).attr("id");
+        let file = checkid.replace("check_hardlink_", "");
+        hardlinks.push(file);
+      }
+    });
+    return hardlinks;
+  }
+
+  // 显示批量处理按钮
+  function show_hardlink_batch_button(){
+    let hardlinks = get_hardlink_checked();
+    if(hardlinks.length > 0){
+      $("#batch_hardlinks_action_div").show();
+    }else{
+      $("#batch_hardlinks_action_div").hide();
+    }
   }
 
   // 设置高度

@@ -170,7 +170,7 @@ class WebAction:
             "test_site": self.__test_site,
             "get_sub_path": self.__get_sub_path,
             "rename_file": self.__rename_file,
-            "delete_file": self.__delete_file,
+            "delete_files": self.__delete_files,
             "download_subtitle": self.__download_subtitle,
             "get_download_setting": self.__get_download_setting,
             "update_download_setting": self.__update_download_setting,
@@ -182,7 +182,8 @@ class WebAction:
             "test_message_client": self.__test_message_client,
             "get_sites": self.__get_sites,
             "get_indexers": self.__get_indexers,
-            "get_download_dirs": self.__get_download_dirs
+            "get_download_dirs": self.__get_download_dirs,
+            "find_hardlinks": self.__find_hardlinks
         }
 
     def action(self, cmd, data=None):
@@ -3623,14 +3624,15 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def __delete_file(data):
+    def __delete_files(data):
         """
         删除文件
         """
-        path = data.get("path")
-        if path:
+        files = data.get("files")
+        if files:
             try:
-                os.remove(path)
+                for file in files:
+                    os.remove(file)
             except Exception as e:
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
@@ -3804,3 +3806,19 @@ class WebAction:
         """
         dirs = Downloader().get_download_dirs()
         return {"code": 0, "paths": dirs}
+
+    @staticmethod
+    def __find_hardlinks(data):
+        files = data.get("files")
+        hardlinks = []
+        if files:
+            try:
+                for file in files:
+                    link_files = SystemUtils().find_hardlinks(file=file)
+                    hardlinks.append(link_files)
+                if not hardlinks:
+                    return {"code": 1}
+            except Exception as e:
+                log.console(str(e))
+                return {"code": 1}
+        return {"code": 0, "data": hardlinks}
