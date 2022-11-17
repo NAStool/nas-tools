@@ -180,7 +180,7 @@ class WebAction:
             "check_message_client": self.__check_message_client,
             "get_message_client": self.__get_message_client,
             "test_message_client": self.__test_message_client,
-            "get_sites": self.__get_sites(),
+            "get_sites": self.__get_sites,
         }
 
     def action(self, cmd, data=None):
