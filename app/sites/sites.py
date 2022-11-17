@@ -84,7 +84,7 @@ class Sites:
             site_rssurl = site.RSSURL
             site_signurl = site.SIGNURL
             site_cookie = site.COOKIE
-            site_uses = site.INCLUDE
+            site_uses = site.INCLUDE or ''
             if site_uses:
                 signin_enable = True if "Q" in site_uses and site_signurl else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
@@ -119,18 +119,6 @@ class Sites:
             # 以域名存储
             if site_strict_url:
                 self._siteByUrls[site_strict_url] = site_info
-            # 开启订阅功能站点
-            if rss_enable:
-                self._rss_sites.append(site_info)
-            # 开启刷流功能站点：
-            if brush_enable:
-                self._brush_sites.append(site_info)
-            # 开启统计功能站点：
-            if statistic_enable:
-                self._statistic_sites.append(site_info)
-            # 开启签到功能站点：
-            if signin_enable:
-                self._signin_sites.append(site_info)
 
     def get_sites(self,
                   siteid=None,
@@ -144,19 +132,24 @@ class Sites:
         """
         if siteid:
             return self._siteByIds.get(int(siteid))
-        elif siteurl:
+        if siteurl:
             _, url = StringUtils.get_url_netloc(siteurl)
             return self._siteByUrls.get(url)
-        elif rss:
-            return self._rss_sites
-        elif brush:
-            return self._brush_sites
-        elif statistic:
-            return self._statistic_sites
-        elif signin:
-            return self._signin_sites
-        else:
-            return list(self._siteByIds.values())
+
+        ret_sites = []
+        for site in self._siteByIds.values():
+            if rss and (not site.get('rssurl') or not site.get('rss_enable')):
+                continue
+            if brush and (not site.get('rssurl') or not site.get('brush_enable')):
+                continue
+            if signin and (not site.get('signurl') or not site.get('signin_enable')):
+                continue
+            if statistic and not site.get('statistic_enable'):
+                continue
+            ret_sites.append(site)
+        if siteid or siteurl:
+            return {}
+        return ret_sites
 
     def refresh_all_site_data(self, force=False, specify_sites=None):
         """

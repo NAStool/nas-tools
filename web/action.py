@@ -180,6 +180,7 @@ class WebAction:
             "check_message_client": self.__check_message_client,
             "get_message_client": self.__get_message_client,
             "test_message_client": self.__test_message_client,
+            "get_sites": self.__get_sites(),
         }
 
     def action(self, cmd, data=None):
@@ -910,6 +911,20 @@ class WebAction:
         else:
             ret = []
         return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
+
+    @staticmethod
+    def __get_sites(data):
+        """
+        查询多个站点信息
+        """
+        rss = True if data.get("rss") else False
+        brush = True if data.get("brush") else False
+        signin = True if data.get("signin") else False
+        statistic = True if data.get("statistic") else False
+        return {"code": 0, "sites": Sites().get_sites(rss=rss,
+                                                      brush=brush,
+                                                      signin=signin,
+                                                      statistic=statistic)}
 
     def __del_site(self, data):
         """

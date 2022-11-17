@@ -390,18 +390,17 @@ class SiteResources(ClientResource):
 
 @site.route('/list')
 class SiteList(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('rss', type=bool, help='订阅', location='form')
+    parser.add_argument('brush', type=bool, help='刷流', location='form')
+    parser.add_argument('signin', type=bool, help='签到', location='form')
+    parser.add_argument('statistic', type=bool, help='数据统计', location='form')
+
+    def post(self):
         """
         查询站点列表
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": Sites().get_sites()
-            }
-        }
+        return WebAction().api_action(cmd='get_sites', data=self.parser.parse_args())
 
 
 @site.route('/indexers')
