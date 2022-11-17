@@ -631,7 +631,7 @@
   // 显示新增刷流任务
   function show_brushtask_modal() {
     if (!{{ Sites|length }}) {
-      show_fail_modal("未有站点启用刷流功能", function () {
+      show_fail_modal("没有可用于刷流的站点，请先维护站点信息！", function () {
         navmenu('site');
       });
       return;

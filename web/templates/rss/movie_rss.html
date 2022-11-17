@@ -154,7 +154,7 @@
   // 显示新增订阅
   function show_add_movierss_media_modal() {
     if (!{{ RssSites|length }}) {
-      show_fail_modal("未有站点启用订阅功能", function () {
+      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
         navmenu('site');
       });
       return;

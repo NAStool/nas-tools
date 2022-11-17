@@ -2539,7 +2539,7 @@
 
     {% if not TMDBFlag %}
       //检查tmdb配置
-      show_fail_modal("请先配置TMDB API Key，否则无法使用影视管理功能！", function () {
+      show_fail_modal("请先配置TMDB API Key，并修改登录密码！", function () {
         navmenu('basic');
       });
     {% endif %}
