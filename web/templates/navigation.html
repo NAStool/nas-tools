@@ -2090,6 +2090,14 @@
         if (ret.data.team) {
           $("#" + result_div).append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
         }
+        //解析出tmdbid时，增加增加快速识别转移
+        if (ret.data.tmdbid) {
+           $("#" + result_div).append(`<span id="quick_sync"><a href="javascript:void(0)"" class="badge badge-outline text-green me-1 mb-1">一键识别转移</a></span>`);
+           $("#quick_sync").click(function() {
+               const path = $("#" + result_div).data("path")
+               show_manual_transfer_modal(3, path, '', ret.data.type.trim(), ret.data.tmdbid, '', '');
+           });
+        }
       }
     });
   }
@@ -2097,7 +2105,7 @@
   // 显示手动识别转移框
   // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
   // media_type: 电影，电视剧，动漫
-  function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
+  function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, tmdbid, unknown_id, transferlog_id) {
     // 初始化类型
     if (!syncmod) {
       syncmod = '{{ SyncMod }}';
@@ -2157,7 +2165,7 @@
     $("#rename_episode_details").val("");
     $("#rename_episode_offset").val("");
     $("#rename_season").val("");
-    $("#rename_tmdb").val("");
+    $("#rename_tmdb").val(tmdbid);
 
     // 显示窗口
     $("#modal-media-identification").modal("show");

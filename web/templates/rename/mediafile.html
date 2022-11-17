@@ -170,12 +170,12 @@
   // 文件转移
   function mediafile_transfer(name, id) {
     let path = $("#mediafilepath_" + id).val();
-    show_manual_transfer_modal(3, path, '', '', '', '');
+    show_manual_transfer_modal(3, path, '', '', '', '', '');
   }
 
   function mediafile_transfer_all() {
     let path = $("#mediafile_current_dir").val();
-    show_manual_transfer_modal(3, path, '', '', '', '');
+    show_manual_transfer_modal(3, path, '', '', '', '', '');
   }
 
   // 文件重命名
@@ -271,7 +271,7 @@
             <div class="row">
               <div class="col">
                 <h3 class="mb-0"><a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")'>{FILENAME}</a></h3>
-                <div id="testresults_{FILEPOS}" class="text-muted"></div>
+                <div id="testresults_{FILEPOS}" data-path="{FILEPATH}"  class="text-muted"></div>
                 <input type="hidden" value="{FILEPATH}" id="mediafilepath_{FILEPOS}">
               </div>
             </div>
