@@ -103,20 +103,6 @@
         <div class="ms-2">
           <h5 class="modal-title">硬链接文件</h5>
         </div>
-        <div class="ms-auto" id="hardlinks-check">
-          <div class="btn-list" id="batch_hardlinks_action_div" style="display: none;">
-            <input type="hidden" id="findfile_path" value="" >
-            <a href="javascript:mediafile_delete_all()" class="btn btn-danger d-sm-none btn-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </a>
-          </div>
-        </div>
         <div class="ms-3">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -145,6 +131,7 @@
     }
     ajax_post("get_sub_path", {"dir": folder, "filter": "MEDIAFILE|SUBFILE"}, function (ret) {
       $("#mediafile_file_container").empty();
+      $("#mediafile_current_files").val('')
       if (ret.data) {
         let files = [];
         $("#mediafile_num").text(ret.count);
@@ -329,6 +316,10 @@
   // 查询所有硬链接
   function mediafile_findlinks_all() {
     let files = $("#mediafile_current_files").val();
+    if (!files) {
+      show_fail_modal("当前目录下没有文件！");
+      return;
+    }
     files = JSON.parse(files)
     find_hardlinks(files);
   }

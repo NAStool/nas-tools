@@ -36,13 +36,14 @@ def __get_bing_wallpaper(today):
     """
     获取Bing每日壁纸
     """
-    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&today=%s" % today
+    url = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&today=%s" % today
     try:
         resp = RequestUtils(timeout=5).get_res(url)
     except Exception as err:
         print(str(err))
         return ""
     if resp and resp.status_code == 200:
-        for image in resp.json()['images']:
-            return f"https://cn.bing.com{image['url']}"
+        if resp.json():
+            for image in resp.json().get('images') or []:
+                return f"https://cn.bing.com{image.get('url')}"
     return ""
