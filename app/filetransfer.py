@@ -198,12 +198,16 @@ class FileTransfer:
             log.debug("【Rmt】字幕文件清单：" + str(file_list))
             metainfo = MetaInfo(title=file_name)
             for file_item in file_list:
+                sub_file_name = os.path.basename(file_item)
                 sub_metainfo = MetaInfo(title=os.path.basename(file_item))
-                if (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
+                if (os.path.splitext(file_name)[0] == os.path.splitext(sub_file_name)[0]) or \
+                        (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
                         or (sub_metainfo.en_name and sub_metainfo.en_name == metainfo.en_name):
-                    if metainfo.get_season_string() and metainfo.get_season_string() != sub_metainfo.get_season_string():
+                    if metainfo.get_season_string() \
+                            and metainfo.get_season_string() != sub_metainfo.get_season_string():
                         continue
-                    if metainfo.get_episode_string() and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
+                    if metainfo.get_episode_string() \
+                            and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
                     sub_language = os.path.basename(file_item).split(".")[-2]
