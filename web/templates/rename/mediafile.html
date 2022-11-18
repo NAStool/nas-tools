@@ -295,9 +295,9 @@
                       </td>
                       </tr>`;
             tbody = `${tbody}${tr}`;
-            tbody = `<tbody>${tbody}</tbody>`;
-            $("#table-hardlinks").append(`${tbody}`);
           }
+          tbody = `<tbody>${tbody}</tbody>`;
+          $("#table-hardlinks").append(`${tbody}`);
           // 绑定全选事件
           $("#hardlinks_check_all_btn").unbind('change').bind("change", function () {
             $("[id^='check_hardlink_']").prop("checked", $(this).prop("checked"));

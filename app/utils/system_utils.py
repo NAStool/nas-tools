@@ -244,7 +244,7 @@ class SystemUtils:
                 for link_file in link_files:
                     if link_file \
                             and "$RECYCLE.BIN" not in link_file \
-                            and os.path.normpath(file) != os.path.normpath(link_file):
+                            and os.path.normpath(file) != os.path.normpath(f'{drive}{link_file}'):
                         link_file = f'{drive}{link_file}'
                         file_name = os.path.basename(link_file)
                         file_path = os.path.dirname(link_file)
