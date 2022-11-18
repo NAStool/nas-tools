@@ -1,22 +1,6 @@
 FROM alpine
 RUN apk add --no-cache \
-       git \
-       gcc \
-       musl-dev \
-       python3-dev \
-       py3-pip \
-       libxml2-dev \
-       libxslt-dev \
-       tzdata \
-       su-exec \
-       zip \
-       curl \
-       bash \
-       fuse \
-       xvfb \
-       inotify-tools \
-       chromium-chromedriver --repository https://pkgs.alpinelinux.org/package/edge/community \
-       libffi-dev --repository https://pkgs.alpinelinux.org/package/edge/main \
+       $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/DDS-Derek/nas-tools/dev/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
