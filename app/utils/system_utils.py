@@ -239,13 +239,13 @@ class SystemUtils:
             if ret.returncode != 0:
                 return []
             if ret.stdout:
-                drive = os.path.splitdrive(file)[0].upper()
+                drive = os.path.splitdrive(file)[0]
                 link_files = ret.stdout.decode('GBK').encode('utf-8').decode('utf-8').replace('\\', '/').split('\r\n')
                 for link_file in link_files:
                     if link_file \
                             and "$RECYCLE.BIN" not in link_file \
                             and os.path.normpath(file) != os.path.normpath(f'{drive}{link_file}'):
-                        link_file = f'{drive}{link_file}'
+                        link_file = f'{drive.upper()}{link_file}'
                         file_name = os.path.basename(link_file)
                         file_path = os.path.dirname(link_file)
                         ret_files.append({
