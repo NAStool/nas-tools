@@ -121,8 +121,6 @@ class MetaVideo(MetaBase):
         name = re.sub(r'%s' % self._name_nostring_re, '', name,
                       flags=re.IGNORECASE).strip()
         name = re.sub(r'\s+', ' ', name)
-        if self.year:
-            name = name.replace(str(self.year), '').strip()
         if name.isdigit() \
                 and int(name) < 1800 \
                 and not self.year \
@@ -142,20 +140,15 @@ class MetaVideo(MetaBase):
         if not token:
             return
         # 回收标题
-        if self._unknown_name_str and self._unknown_name_str != self.year:
-            if not self.en_name:
-                self.en_name = self._unknown_name_str
-            elif self._unknown_name_str != self.year:
-                self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
-            self._last_token_type = "enname"
+        if self._unknown_name_str:
+            if not self.cn_name:
+                if not self.en_name:
+                    self.en_name = self._unknown_name_str
+                elif self._unknown_name_str != self.year:
+                    self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
+                self._last_token_type = "enname"
             self._unknown_name_str = ""
         if self._stop_name_flag:
-            if self._unknown_name_str and self._unknown_name_str != self.year:
-                if self.en_name:
-                    self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
-                else:
-                    self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
-                self._unknown_name_str = ""
             return
         if token in self._name_se_words:
             self._last_token_type = 'name_se_words'
@@ -258,8 +251,10 @@ class MetaVideo(MetaBase):
         if not 1900 < int(token) < 2050:
             return
         if self.year:
-            if self._last_token_type == "enname" and self.en_name:
+            if self.en_name:
                 self.en_name = "%s %s" % (self.en_name, self.year)
+            elif self.cn_name:
+                self.cn_name = "%s %s" % (self.cn_name, self.year)
         self.year = token
         self._last_token_type = "year"
         self._continue_flag = False

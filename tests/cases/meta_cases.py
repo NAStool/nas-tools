@@ -1,4 +1,36 @@
 meta_cases = [{
+    "title": "哆啦A梦：大雄的宇宙小战争 2021 (2022) - 1080p.mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "哆啦A梦：大雄的宇宙小战争 2021",
+        "en_name": "",
+        "year": "2022",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
+    "title": "新精武门1991 (1991).mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "新精武门1991",
+        "en_name": "",
+        "year": "1991",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
     "title": "24 S01 1080p WEB-DL AAC2.0 H.264-BTN",
     "subtitle": "",
     "target": {
