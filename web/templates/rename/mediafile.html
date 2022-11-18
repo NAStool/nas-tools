@@ -282,27 +282,24 @@
                        <th>文件信息</th>
                        <tr></thead>`;
           $("#table-hardlinks").empty().append(`${thead}`);
-          let color = ["orange", "cyan"];
+          let tbody = ``;
           for (let i in ret.data) {
-            let hardlinks = ret.data[i];
-            let tbody = ``;
-            for (let hardlink of hardlinks) {
-              let tr = `<tr>
-                        <td class="w-1">
-                          <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox">
-                        </td>
-                        <td>
-                          <div>${hardlink.filename}</div>
-                          <div><span class="text-muted">${hardlink.filepath}</span></div>
-                        </td>
-                        </tr>`;
-              tbody = `${tbody}${tr}`;
-            }
+            hardlink = ret.data[i];
+            let tr = `<tr>
+                      <td class="w-1">
+                        <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox">
+                      </td>
+                      <td>
+                        <div>${hardlink.filename}</div>
+                        <div><span class="text-muted">${hardlink.filepath}</span></div>
+                      </td>
+                      </tr>`;
+            tbody = `${tbody}${tr}`;
             tbody = `<tbody>${tbody}</tbody>`;
             $("#table-hardlinks").append(`${tbody}`);
           }
           // 绑定全选事件
-          $("#hardlinks_check_all_btn").bind("change", function () {
+          $("#hardlinks_check_all_btn").unbind('change').bind("change", function () {
             $("[id^='check_hardlink_']").prop("checked", $(this).prop("checked"));
           });
           $("#modal-hardlinks").modal("show");

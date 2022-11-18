@@ -3810,16 +3810,26 @@ class WebAction:
     @staticmethod
     def __find_hardlinks(data):
         files = data.get("files")
+        if not files:
+            return []
+        # 取根目录的下一级为查找目录
+        if os.name == "nt":
+            file_dir = None
+        else:
+            file_dir = os.path.commonpath(files).replace("\\", "/")
+            if file_dir != "/":
+                file_dir = "/" + file_dir.split("/")[1]
+            else:
+                return []
         hardlinks = []
         if files:
             try:
                 for file in files:
-                    link_files = SystemUtils().find_hardlinks(file=file)
-                    if link_files:
-                        hardlinks.append(link_files)
-                if not hardlinks:
-                    return {"code": 1}
+                    link_files = SystemUtils().find_hardlinks(file=file, fdir=file_dir)
+                    for link_file in link_files:
+                        if link_file not in hardlinks:
+                            hardlinks.append(link_file)
             except Exception as e:
-                log.console(str(e))
+                print(str(e))
                 return {"code": 1}
         return {"code": 0, "data": hardlinks}
