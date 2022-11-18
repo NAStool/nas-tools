@@ -1029,17 +1029,18 @@
           </div>
         </div>
         <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">下载设置</label>
+              <select class="form-select" id="rss_download_setting"
+                      onchange="refresh_savepath_select('rss_save_path', true, $(this).val())">
+              </select>
+            </div>
+          </div>
           <div class="col-lg-8">
             <div class="mb-3">
               <label class="form-label">保存路径</label>
               <select class="form-select" id="rss_save_path" aria-label="保存目录">
-              </select>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">下载设置</label>
-              <select class="form-select" id="rss_download_setting">
               </select>
             </div>
           </div>
@@ -1798,8 +1799,8 @@
     show_wait_process();
     refresh_searchsites_select('rss_search_sites_group');
     refresh_filter_select('rss_rule');
-    refresh_downloadsetting_select('rss_download_setting');
-    refresh_savepath_select('rss_save_path');
+    refresh_downloadsetting_select('rss_download_setting', false);
+    refresh_savepath_select('rss_save_path', true, $("#rss_download_setting").val());
     hide_wait_process();
 
     // 界面初始化
@@ -1845,8 +1846,8 @@
     show_wait_process();
     refresh_searchsites_select('rss_search_sites_group');
     refresh_filter_select('rss_rule');
-    refresh_downloadsetting_select('rss_download_setting');
-    refresh_savepath_select('rss_save_path');
+    refresh_downloadsetting_select('rss_download_setting', false);
+    refresh_savepath_select('rss_save_path', true, $("#rss_download_setting").val());
     hide_wait_process();
 
     // 界面初始化
@@ -1888,7 +1889,7 @@
     refresh_searchsites_select("rss_search_sites_group", false);
     refresh_filter_select("rss_rule", false);
     refresh_downloadsetting_select("rss_download_setting", false);
-    refresh_savepath_select("rss_save_path", false);
+    refresh_savepath_select("rss_save_path", false, $("#rss_download_setting").val());
     // 获取订阅信息
     ajax_post("rss_detail", {"rssid": rssid, "rsstype": type}, function (ret) {
       hide_wait_process();
@@ -2040,12 +2041,12 @@
   }
 
   // 刷新保存路径
-  function refresh_savepath_select(obj_id, aync = true) {
-    ajax_post("get_download_dirs", {}, function (ret) {
+  function refresh_savepath_select(obj_id, aync = true, sid = "") {
+    ajax_post("get_download_dirs", {sid: sid}, function (ret) {
       if (ret.code === 0) {
         let savepath_select = $("#" + obj_id);
         savepath_select.empty();
-        savepath_select.append(`<option value="">请选择</option>`);
+        savepath_select.append(`<option value="">自动</option>`);
         for (let i = 0; i < ret.paths.length; i++) {
           savepath_select.append(`<option value="${ret.paths[i]}">${ret.paths[i]}</option>`);
         }

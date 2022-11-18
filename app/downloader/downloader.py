@@ -881,12 +881,28 @@ class Downloader:
                 can_download_list_item.append(t_item)
         return can_download_list_item
 
-    def get_download_dirs(self):
+    def get_download_dirs(self, setting='-1'):
         """
         返回下载器中设置的保存目录
         """
         if not self._downloaddir:
             return []
+        if not setting:
+            setting = "-1"
+        # 查询下载设置
+        download_setting = self.get_download_setting(sid=setting)
+        # 下载设置为QB
+        if download_setting \
+                and download_setting.get('downloader') == "Qbittorrent" \
+                and Config().get_config("qbittorrent").get("auto_management"):
+            return []
+        # 默认下载器为QB
+        if download_setting \
+                and not download_setting.get('downloader') \
+                and Config().get_config("pt").get("pt_client") == "qbittorrent" \
+                and Config().get_config("qbittorrent").get("auto_management"):
+            return []
+        # 查询目录
         save_path_list = [attr.get("save_path") for attr in self._downloaddir if attr.get("save_path")]
         save_path_list.sort()
         return list(set(save_path_list))

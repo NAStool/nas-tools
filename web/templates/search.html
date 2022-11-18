@@ -473,10 +473,10 @@
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置" onchange="refresh_download_setting_dirs()">
                 {% for Id, Attr in DownloadSettings.items() %}
                   <option value="{{ Id }}"
-                          {% if Id == '-1' %}selected{% endif %}>{{ Attr.name }}</option>
+                    {% if Id == '-1' %}selected{% endif %}>{{ Attr.name }}</option>
                 {% endfor %}
               </select>
               <label for="floatingSelect">下载设置</label>
@@ -526,7 +526,14 @@
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
     $("#search_download_message").text("下载 " + name);
+    // 根据下载设置刷新下载目录选项
+    refresh_download_setting_dirs();
     $("#modal-search-download").modal('show');
+  }
+
+  //根据下载设置刷新下载目录选项
+  function refresh_download_setting_dirs(){
+    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val());
   }
 
   // 搜索按钮

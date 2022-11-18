@@ -619,12 +619,14 @@ class DownloadConfigList(ClientResource):
 
 @download.route('/config/directory')
 class DownloadConfigDirectory(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form')
+
+    def post(self):
         """
         查询下载保存目录
         """
-        return WebAction.api_action("get_download_dirs")
+        return WebAction.api_action("get_download_dirs", data=self.parser.parse_args())
 
 
 @organization.route('/unknown/delete')

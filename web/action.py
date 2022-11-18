@@ -3800,11 +3800,11 @@ class WebAction:
         return {"code": 0, "indexers": indexers}
 
     @staticmethod
-    def __get_download_dirs(data=None):
+    def __get_download_dirs(data):
         """
         获取下载目录
         """
-        dirs = Downloader().get_download_dirs()
+        dirs = Downloader().get_download_dirs(setting=data.get("sid"))
         return {"code": 0, "paths": dirs}
 
     @staticmethod
