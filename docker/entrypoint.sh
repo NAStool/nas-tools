@@ -45,10 +45,12 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                         hash_new=$(sha256sum package_list.txt)
                         if [ "$hash_old" != "$hash_new" ]; then
                             echo "检测到package_list.txt有变化，更新软件包..."
+                            apk add --no-cache libffi-dev
                             apk add --no-cache $(echo $(cat package_list.txt))
                             if [ $? -ne 0 ]; then
                                 echo "无法更新软件包，请更新镜像..."
                             else
+                                apk del libffi-dev
                                 echo "软件包安装成功..."
                                 sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
                             fi

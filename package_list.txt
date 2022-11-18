@@ -14,4 +14,3 @@ fuse
 xvfb
 inotify-tools
 chromium-chromedriver
-libffi-dev
