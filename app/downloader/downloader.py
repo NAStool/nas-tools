@@ -167,6 +167,8 @@ class Downloader:
             download_attr = self.get_download_setting(-1)
         # 下载器
         downloader = self.__get_client_type(download_attr.get("downloader"))
+        # Cookie
+        cookie = None
         # 获取种子内容，磁力链不解析
         if url.startswith("magnet:"):
             content = url
@@ -258,7 +260,8 @@ class Downloader:
             if downloader == DownloaderType.TR:
                 ret = self.client.add_torrent(content,
                                               is_paused=is_paused,
-                                              download_dir=download_dir)
+                                              download_dir=download_dir,
+                                              cookie=cookie)
                 if ret:
                     self.client.change_torrent(tid=ret.id,
                                                tag=tags,
@@ -276,7 +279,8 @@ class Downloader:
                                               upload_limit=upload_limit,
                                               download_limit=download_limit,
                                               ratio_limit=ratio_limit,
-                                              seeding_time_limit=seeding_time_limit)
+                                              seeding_time_limit=seeding_time_limit,
+                                              cookie=cookie)
             else:
                 ret = self.client.add_torrent(content,
                                               is_paused=is_paused,
