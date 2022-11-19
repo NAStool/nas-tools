@@ -1,4 +1,4 @@
-name: Build Nas-tools Image
+name: Build NAStool Image
 on:
   workflow_dispatch:
   push:
