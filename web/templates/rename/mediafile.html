@@ -164,7 +164,7 @@
     ft.fileTree(
         {
           script: 'dirlist',
-          root: $("#mediafile_path").val(),
+          root: encodeURIComponent($("#mediafile_path").val()),
           filter: 'HIDE_FILES_FILTER',
           allowBrowsing: true
         },
