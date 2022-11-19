@@ -20,12 +20,14 @@ class WeChat(IMessageChannel):
     _corpid = None
     _corpsecret = None
     _agent_id = None
+    _interactive = False
 
     _send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
     _token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
-    def __init__(self, config):
+    def __init__(self, config, interactive=False):
         self._client_config = config
+        self._interactive = interactive
         self.init_config()
 
     def init_config(self):
