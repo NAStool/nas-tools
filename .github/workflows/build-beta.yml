@@ -6,7 +6,7 @@ on:
       - dev
     paths:
       - version.py
-      - docker/Dockerfile
+      - docker/Dockerfile.beta
       - .github/workflows/build-beta.yml
 jobs:
   build:
