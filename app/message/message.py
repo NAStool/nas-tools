@@ -53,11 +53,6 @@ class Message:
         self.init_config()
 
     def init_config(self):
-        # 暂停旧消息客户端
-        if self._active_clients:
-            for client in self._active_clients:
-                if client.get("type") == "telegram":
-                    client.get("client").close()
         # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}

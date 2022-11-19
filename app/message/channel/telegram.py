@@ -266,6 +266,3 @@ class Telegram(IMessageChannel):
             while i < 20 and not event.is_set():
                 offset = consume_messages(_config, offset, sc_url, ds_url)
                 i = i + 1
-
-    def close(self):
-        self._interactive = False

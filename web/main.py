@@ -1276,7 +1276,7 @@ def telegram():
     # 当前在用的交互渠道
     interactive_client = Message().get_interactive_client()
     if not interactive_client or interactive_client.get("search_type") != SearchType.TG:
-        return
+        return 'Reject'
     msg_json = request.get_json()
     if not SecurityHelper().check_telegram_ip(request.remote_addr):
         log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
