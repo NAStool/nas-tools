@@ -1,4 +1,16 @@
-FROM jxxghp/nas-tools-base-image
+FROM alpine
+RUN apk add --no-cache libffi-dev \
+    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/master/package_list.txt)) \
+    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo "${TZ}" > /etc/timezone \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && curl https://rclone.org/install.sh | bash \
+    && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc \
+    && chmod +x /usr/bin/mc \
+    && pip install --upgrade pip setuptools wheel \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && apk del libffi-dev \
+    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
