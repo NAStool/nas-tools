@@ -3631,8 +3631,32 @@ class WebAction:
         files = data.get("files")
         if files:
             try:
+                # 删除文件
                 for file in files:
                     os.remove(file)
+                # 取公共上级目录
+                file_dir = os.path.commonpath(files)
+                if not os.path.isdir(file_dir):
+                    file_dir = os.path.dirname(file_dir)
+                # 检查空目录并删除
+                if re.findall(r"^S\d{2}|^Season", os.path.basename(file_dir), re.I):
+                    # 当前是季文件夹，判断并删除
+                    seaon_path = os.path.normpath(file_dir).replace("\\", "/")
+                    # 删除空的季文件夹
+                    if seaon_path.count('/') > 1 \
+                            and not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
+                        shutil.rmtree(seaon_path)
+                    # 媒体文件夹
+                    media_path = os.path.dirname(seaon_path)
+                else:
+                    media_path = file_dir
+                # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
+                media_path = os.path.normpath(media_path).replace("\\", "/")
+                if media_path != '/' \
+                        and media_path.count('/') > 1 \
+                        and not re.search(r'[a-zA-Z]:/$', media_path) \
+                        and not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
+                    shutil.rmtree(media_path)
             except Exception as e:
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
@@ -3812,23 +3836,20 @@ class WebAction:
         files = data.get("files")
         if not files:
             return []
-        # 取根目录的下一级为查找目录
         if os.name == "nt":
             file_dir = None
         else:
+            # 取根目录下一级为查找目录
             file_dir = os.path.commonpath(files).replace("\\", "/")
             if file_dir != "/":
-                file_dir = "/" + file_dir.split("/")[1]
+                file_dir = "/" + str(file_dir).split("/")[1]
             else:
                 return []
-        hardlinks = []
+        hardlinks = {}
         if files:
             try:
                 for file in files:
-                    link_files = SystemUtils().find_hardlinks(file=file, fdir=file_dir)
-                    for link_file in link_files:
-                        if link_file not in hardlinks:
-                            hardlinks.append(link_file)
+                    hardlinks[os.path.basename(file)] = SystemUtils().find_hardlinks(file=file, fdir=file_dir)
             except Exception as e:
                 print(str(e))
                 return {"code": 1}

@@ -240,7 +240,7 @@ class SystemUtils:
                 return []
             if ret.stdout:
                 drive = os.path.splitdrive(file)[0]
-                link_files = ret.stdout.decode('GBK').encode('utf-8').decode('utf-8').replace('\\', '/').split('\r\n')
+                link_files = ret.stdout.decode('GBK').replace('\\', '/').split('\r\n')
                 for link_file in link_files:
                     if link_file \
                             and "$RECYCLE.BIN" not in link_file \

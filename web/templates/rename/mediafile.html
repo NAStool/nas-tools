@@ -58,7 +58,7 @@
                   <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
                   <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
                 </svg>
-                硬链接查询
+                所有硬链接
               </a>
             </div>
           </div>
@@ -99,7 +99,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-hardlinks" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <div class="ms-2">
@@ -114,7 +114,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">关闭</button>
+        <a type="button" id="hardlinks_check_all_btn" class="btn btn-link me-auto">全选</a>
         <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
          批量删除
         </a>
@@ -238,7 +238,11 @@
   // 多个文件删除
   function mediafile_delete_all() {
     let files = get_hardlink_checked();
-    show_confirm_modal(`是否确认删除文件？`, function () {
+    if (files.length === 0) {
+      show_fail_modal("没有硬链接文件被选中！");
+      return;
+    }
+    show_confirm_modal(`即将删除所有选中的硬链接文件，如文件所在目录已经没有了其它媒体文件则目录也将被删除，是否确认？`, function () {
       delete_files(files)
       $("#modal-hardlinks").modal("hide");
     });
@@ -247,7 +251,7 @@
   // 单个文件删除
   function mediafile_delete(name, id) {
     let file = $(`#mediafilepath_${id}`).val();
-    show_confirm_modal(`是否确认删除文件 ${name}？`, function () {
+    show_confirm_modal(`是否确认删除文件 ${name} ？注意：没有其它媒体文件的目录也被将删除。`, function () {
       delete_files([file])
     });
   }
@@ -273,35 +277,44 @@
     show_wait_process();
     ajax_post("find_hardlinks", {files: files}, function (ret) {
       hide_wait_process();
-      if (ret.code == 0) {
-        if (ret.data && ret.data.length > 0) {
-          let thead = `<thead><tr>
-                       <th class="w-1">
-                        <input class="form-check-input m-0 align-middle" id="hardlinks_check_all_btn" type="checkbox" aria-label="全选">
-                       </th>
-                       <th>文件信息</th>
-                       <tr></thead>`;
-          $("#table-hardlinks").empty().append(`${thead}`);
+      $("#table-hardlinks").empty();
+      if (ret.code === 0) {
+        if (ret.data) {
           let tbody = ``;
-          for (let i in ret.data) {
-            hardlink = ret.data[i];
-            let tr = `<tr>
+          for (let file in ret.data) {
+            // 查询文件
+            let thead = `<thead><tr>
+             <th class="w-1">
+              <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选">
+             </th>
+             <th>${file}</th>
+             <tr></thead>`;
+            tbody = `${tbody}${thead}`;
+            // 查询文件的硬链接文件
+            let hardlinks = ret.data[file];
+            for (let i in hardlinks) {
+              let hardlink = hardlinks[i];
+              let tr = `<tr class="ms-3">
                       <td class="w-1">
                         <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox">
                       </td>
                       <td>
-                        <div>${hardlink.filename}</div>
-                        <div><span class="text-muted">${hardlink.filepath}</span></div>
+                        <div class="ms-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+                             <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+                          </svg>
+                          ${hardlink.filename}
+                        </div>
+                        <div class="ms-3"><span class="text-muted">${hardlink.filepath}</span></div>
                       </td>
                       </tr>`;
-            tbody = `${tbody}${tr}`;
+              tbody = `${tbody}${tr}`;
+            }
           }
           tbody = `<tbody>${tbody}</tbody>`;
           $("#table-hardlinks").append(`${tbody}`);
-          // 绑定全选事件
-          $("#hardlinks_check_all_btn").unbind('change').bind("change", function () {
-            $("[id^='check_hardlink_']").prop("checked", $(this).prop("checked"));
-          });
           $("#modal-hardlinks").modal("show");
         } else {
           show_success_modal("查询成功，但未找到硬链接文件！");
@@ -335,8 +348,10 @@
     $("[id^='check_hardlink_']").each(function () {
       if ($(this).prop("checked")) {
         let checkid = $(this).attr("id");
-        let file = checkid.replace("check_hardlink_", "");
-        hardlinks.push(file);
+        if(checkid){
+          let file = checkid.replace("check_hardlink_", "");
+          hardlinks.push(file);
+        }
       }
     });
     return hardlinks;
@@ -364,6 +379,20 @@
   set_mediafile_height();
   $(window).bind('resize', function () {
     set_mediafile_height();
+  });
+
+  // 绑定全选事件
+  let check_all = false;
+  $("#hardlinks_check_all_btn").click(function () {
+    if(check_all){
+      check_all = false;
+      $(this).text("全选");
+      $("#modal-hardlinks input[type=checkbox]").prop("checked", false);
+    }else{
+      check_all = true;
+      $(this).text("全不选");
+      $("#modal-hardlinks input[type=checkbox]").prop("checked", true);
+    }
   });
 
 </script>
