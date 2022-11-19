@@ -105,6 +105,7 @@ class BrushTask(object):
                 "id": task.ID,
                 "name": task.NAME,
                 "site": site_info.get("name"),
+                "site_id": site_info.get("id"),
                 "interval": task.INTEVAL,
                 "state": task.STATE,
                 "downloader": task.DOWNLOADER,
@@ -148,6 +149,7 @@ class BrushTask(object):
         # 检索RSS
         seed_size = taskinfo.get("seed_size")
         task_name = taskinfo.get("name")
+        site_id = taskinfo.get("site_id")
         site_name = taskinfo.get("site")
         rss_url = taskinfo.get("rss_url")
         rss_rule = taskinfo.get("rss_rule")
@@ -225,7 +227,8 @@ class BrushTask(object):
                                            forceupload=True if taskinfo.get("forceupload") == 'Y' else False,
                                            upspeed=rss_rule.get("upspeed"),
                                            downspeed=rss_rule.get("downspeed"),
-                                           taskname=task_name):
+                                           taskname=task_name,
+                                           site_id=site_id):
                     # 计数
                     success_count += 1
                     # 再判断一次
@@ -527,7 +530,8 @@ class BrushTask(object):
                            forceupload,
                            upspeed,
                            downspeed,
-                           taskname):
+                           taskname,
+                           site_id):
         """
         添加下载任务，更新任务数据
         :param downloadercfg: 下载器的所有参数
@@ -541,6 +545,7 @@ class BrushTask(object):
         :param upspeed: 上传限速
         :param downspeed: 下载限速
         :param taskname: 任务名称
+        :param site_id: 站点ID
         """
         if not downloadercfg:
             return False
@@ -548,6 +553,8 @@ class BrushTask(object):
         tag = "已整理" if not transfer else None
         # 下载任务ID
         download_id = None
+        # 查询站点信息
+        site_info = self.sites.get_sites(siteid=site_id) or {}
         # 添加下载
         if downloadercfg.get("type") == self._qb_client:
             # 初始化下载器
@@ -564,7 +571,8 @@ class BrushTask(object):
                                          tag=tag,
                                          download_dir=downloadercfg.get("save_dir"),
                                          upload_limit=upspeed,
-                                         download_limit=downspeed)
+                                         download_limit=downspeed,
+                                         cookie=site_info.get("cookie"))
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
                 for i in range(1, 6):
@@ -588,7 +596,8 @@ class BrushTask(object):
             ret = downloader.add_torrent(content=enclosure,
                                          download_dir=downloadercfg.get("save_dir"),
                                          upload_limit=upspeed,
-                                         download_limit=downspeed
+                                         download_limit=downspeed,
+                                         cookie=site_info.get("cookie")
                                          )
             if ret:
                 download_id = ret.id
