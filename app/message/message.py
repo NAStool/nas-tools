@@ -53,6 +53,7 @@ class Message:
         self.init_config()
 
     def init_config(self):
+        # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
@@ -78,21 +79,21 @@ class Message:
                 "name": name,
                 "type": ctype,
                 "search_type": self.MESSAGE_DICT.get('channel').get(ctype, {}).get('search_type'),
-                "client": self.__build_client(ctype, config),
+                "client": self.__build_client(ctype, config, interactive),
                 "config": config,
                 "switchs": switchs,
                 "interactive": interactive
             })
 
     @staticmethod
-    def __build_client(ctype, conf):
+    def __build_client(ctype, conf, interactive=False):
         """
         构造客户端实例
         """
         if ctype == "wechat":
-            return WeChat(conf)
+            return WeChat(conf, interactive)
         elif ctype == "telegram":
-            return Telegram(conf)
+            return Telegram(conf, interactive)
         elif ctype == "serverchan":
             return ServerChan(conf)
         elif ctype == "bark":

@@ -16,16 +16,19 @@ WEBHOOK_STATUS = False
 class Telegram(IMessageChannel):
     _telegram_token = None
     _telegram_chat_id = None
+    _webhook = None
     _webhook_url = None
     _telegram_user_ids = []
     _domain = None
     _config = None
     _message_proxy_event = None
     _client_config = {}
+    _interactive = False
 
-    def __init__(self, config):
+    def __init__(self, config, interactive=False):
         self._config = Config()
         self._client_config = config
+        self._interactive = interactive
         self._domain = self._config.get_domain()
         self.init_config()
 
@@ -33,20 +36,21 @@ class Telegram(IMessageChannel):
         if self._client_config:
             self._telegram_token = self._client_config.get('token')
             self._telegram_chat_id = self._client_config.get('chat_id')
+            self._webhook = self._client_config.get('webhook')
             telegram_user_ids = self._client_config.get('user_ids')
             if telegram_user_ids:
                 self._telegram_user_ids = telegram_user_ids.split(",")
             else:
                 self._telegram_user_ids = []
             if self._telegram_token and self._telegram_chat_id:
-                if self._client_config.get('webhook') or str(self._client_config.get('webhook')) == "1":
+                if self._webhook:
                     if self._domain:
                         self._webhook_url = "%stelegram" % self._domain
                         self.__set_bot_webhook()
                     if self._message_proxy_event:
                         self._message_proxy_event.set()
                         self._message_proxy_event = None
-                else:
+                elif self._interactive:
                     self.__del_bot_webhook()
                     if not self._message_proxy_event:
                         event = Event()
@@ -228,8 +232,7 @@ class Telegram(IMessageChannel):
         """
         return self._telegram_user_ids
 
-    @staticmethod
-    def __start_telegram_message_proxy(event: Event):
+    def __start_telegram_message_proxy(self, event: Event):
         log.info("【Telegram】消息接收服务启动")
 
         long_poll_timeout = 5
@@ -251,20 +254,15 @@ class Telegram(IMessageChannel):
 
         offset = 0
         while True:
-            # read config from config.yaml directly to make config.yaml changes aware 
-            config = Config()
-            message = config.get_config("message")
-            channel = message.get("msg_channel")
-            telegram_token = message.get('telegram', {}).get('telegram_token')
-            web_port = config.get_config("app").get("web_port")
-            sc_url = "https://api.telegram.org/bot%s/getUpdates?" % telegram_token
+            _config = Config()
+            web_port = _config.get_config("app").get("web_port")
+            sc_url = "https://api.telegram.org/bot%s/getUpdates?" % self._telegram_token
             ds_url = "http://127.0.0.1:%s/telegram" % web_port
-            telegram_webhook = message.get('telegram', {}).get('webhook')
-            if not channel == "telegram" or not telegram_token or telegram_webhook:
+            if not self._interactive or not self._telegram_token or self._webhook:
                 log.info("【Telegram】消息接收服务已停止")
                 break
 
             i = 0
             while i < 20 and not event.is_set():
-                offset = consume_messages(config, offset, sc_url, ds_url)
+                offset = consume_messages(_config, offset, sc_url, ds_url)
                 i = i + 1
