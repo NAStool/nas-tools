@@ -25,6 +25,7 @@
                 <div class="mb-3">
                   <label class="form-label required">日志输出类型</label>
                   <select class="form-select" id="app.logtype">
+                    <option value="console" {% if Config.app.logtype=='console' %}selected{% endif %}>控制台</option>
                     <option value="file" {% if Config.app.logtype=='file' %}selected{% endif %}>文件</option>
                     <option value="server" {% if Config.app.logtype=='server' %}selected{% endif %}>日志中心</option>
                   </select>
