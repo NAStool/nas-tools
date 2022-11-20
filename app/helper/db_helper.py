@@ -1493,7 +1493,7 @@ class DbHelper:
         if not brush_id:
             return 0
         return self._db.query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
-                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
+                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID == '0').all()
 
     @DbPersist(_db)
     def add_brushtask_upload_count(self, brush_id, upload_size, download_size, remove_count):
