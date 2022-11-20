@@ -2,7 +2,7 @@ from urllib.parse import quote_plus
 
 import log
 from app.message.channel.channel import IMessageChannel
-from app.utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 
 
 class Bark(IMessageChannel):
@@ -16,7 +16,8 @@ class Bark(IMessageChannel):
 
     def init_config(self):
         if self._client_config:
-            self._server = self._client_config.get('server')
+            scheme, netloc = StringUtils.get_url_netloc(self._client_config.get('server'))
+            self._server = f"{scheme}://{netloc}"
             self._apikey = self._client_config.get('apikey')
 
     def get_status(self):
