@@ -463,6 +463,7 @@ class WebAction:
         uploadvolumefactor = data.get("uploadvolumefactor")
         downloadvolumefactor = data.get("downloadvolumefactor")
         dl_dir = data.get("dl_dir")
+        dl_setting = data.get("dl_setting")
         if not title or not enclosure:
             return {"code": -1, "msg": "种子信息有误"}
         media = Media().get_media_info(title=title, subtitle=description)
@@ -475,7 +476,8 @@ class WebAction:
         media.seeders = seeders
         # 添加下载
         ret, ret_msg = Downloader().download(media_info=media,
-                                             download_dir=dl_dir)
+                                             download_dir=dl_dir,
+                                             download_setting=dl_setting)
         if ret:
             # 发送消息
             Message().send_download_message(SearchType.WEB, media)

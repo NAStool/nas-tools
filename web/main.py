@@ -309,11 +309,6 @@ def search():
     Indexers = Searcher().indexer.get_indexers() or []
     for item in Indexers:
         SiteDict.append({"id": item.id, "name": item.name})
-
-    # 下载目录
-    SaveDirs = Downloader().get_download_dirs()
-    # 下载设置
-    DownloadSettings = Downloader().get_download_setting()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
@@ -329,8 +324,6 @@ def search():
                            RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
                            PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
-                           SaveDirs=SaveDirs,
-                           DownloadSettings=DownloadSettings,
                            UPCHAR=chr(8593))
 
 
@@ -443,13 +436,11 @@ def resources():
     keyword = request.args.get("keyword")
     Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
         "data") or []
-    SaveDirs = Downloader().get_download_dirs()
     return render_template("site/resources.html",
                            Results=Results,
                            SiteId=site_id,
                            Title=site_name,
                            KeyWord=keyword,
-                           SaveDirs=SaveDirs,
                            TotalCount=len(Results),
                            PageRange=range(0, 10),
                            CurrentPage=int(page),

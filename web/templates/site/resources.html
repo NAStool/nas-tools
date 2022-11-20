@@ -162,7 +162,7 @@
                     <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
                     <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
                     <td>
-                      <a href='javascript:show_download_link_modal({{ loop.index0 }}, "{{ Result.title }}")'
+                      <a href='javascript:download_site_resource({{ loop.index0 }}, "{{ Result.title }}")'
                          title="下载">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24"
                              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -223,42 +223,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-resource-download" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <input type="hidden" id="resource_download_id">
-    <input type="hidden" id="resource_download_name">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">询问</div>
-        <div id="resource_download_message">是否确认下载？</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <div class="d-flex">
-          {% if SaveDirs %}
-            <button type="button" class="btn btn-danger" onclick="javascript:download_modal_action()"
-                    title="自动选择目录下载"
-                    style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载
-            </button>
-            <button data-bs-toggle="dropdown" type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split"
-                    title="手动选择下载目录" style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
-            <div class="dropdown-menu dropdown-menu-end">
-              {% for SaveDir in SaveDirs %}
-                <a class="dropdown-item" href="javascript:download_modal_action('{{ SaveDir|safe }}')">
-                  {{ SaveDir }}
-                </a>
-              {% endfor %}
-            </div>
-          {% else %}
-            <button type="button" class="btn btn-danger" onclick="javascript:download_modal_action()"
-                    title="自动选择目录下载">确认下载
-            </button>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   //排序表单
   tableDataList = new List('site-resources-table', {
@@ -282,46 +246,37 @@
     navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + (page + 1) + "&keyword=" + $("#search_word").val())
   }
 
-  //显示下载对话框
-  function show_download_link_modal(id, name) {
-    $("#resource_download_id").val(id);
-    $("#resource_download_name").val(name);
-    $("#resource_download_message").text("是否确认下载 " + name + " ？");
-    $("#modal-resource-download").modal("show");
-  }
-
-  //下载对话框的下载按钮
-  function download_modal_action(dl_dir) {
-    $("#modal-resource-download").modal("hide");
-    item = {id: $("#resource_download_id").val(), name: $("#resource_download_name").val(), dl_dir: dl_dir};
-    download_resource(item, false);
+  //下载按钮
+  function download_site_resource(id, name) {
+    show_download_modal(id, name, function(){
+      $("#modal-search-download").modal('hide');
+      download_resource(id, false);
+    })
   }
 
   //下载种子
   var total_downloads = [];
   var current_download = 0;
 
-  function download_resource(item, batch) {
-    var site = "{{ Title }}"
-    var id = item.id;
-    var name = item.name;
-    var dl_dir = item.dl_dir;
-    var enclosure = $("#enclosure_" + id).val();
-    var title = $("#title_" + id).val();
-    var description = $("#description_" + id).val();
-    var page_url = $("#page_url_" + id).val();
-    var size = $("#size_" + id).val();
-    var seeders = $("#seeders_" + id).val();
-    var uploadvolumefactor = $("#uploadvolumefactor_" + id).val();
-    var downloadvolumefactor = $("#downloadvolumefactor_" + id).val();
-    if (!batch || current_download == 0) {
+  function download_resource(id, batch) {
+    const site = "{{ Title }}";
+    const enclosure = $("#enclosure_" + id).val();
+    const title = $("#title_" + id).val();
+    const description = $("#description_" + id).val();
+    const page_url = $("#page_url_" + id).val();
+    const size = $("#size_" + id).val();
+    const seeders = $("#seeders_" + id).val();
+    const uploadvolumefactor = $("#uploadvolumefactor_" + id).val();
+    const downloadvolumefactor = $("#downloadvolumefactor_" + id).val();
+    if (!batch || current_download === 0) {
       show_wait_process();
     }
-    var params = {
+    const params = {
       site: site,
       enclosure: enclosure,
       title: title,
-      dl_dir: dl_dir,
+      dl_dir: $("#search_download_dir").val(),
+      dl_setting: $("#search_download_setting").val(),
       description: description,
       page_url: page_url,
       size: size,
@@ -332,16 +287,16 @@
     ajax_post("download_link", params, function (ret) {
       if (!batch) {
         hide_wait_process();
-        if (ret.code == 0) {
-          show_success_modal(`${name}添加下载成功！`);
+        if (ret.code === 0) {
+          show_success_modal(`${title} 添加下载成功！`);
         } else {
-          show_fail_modal(`${name} 添加下载失败 ${ret.msg}`);
+          show_fail_modal(`${title} 添加下载失败 ${ret.msg}`);
         }
       } else {
         current_download = current_download + 1;
         if (current_download < total_downloads.length) {
-          if (ret.code != 0) {
-            show_fail_modal(`${name} 添加下载失败 ${ret.msg}`, function () {
+          if (ret.code !== 0) {
+            show_fail_modal(`${title} 添加下载失败 ${ret.msg}`, function () {
               download_resource(total_downloads[current_download], true);
             });
           } else {
@@ -359,21 +314,21 @@
   //批量下载
   function batch_download() {
     total_downloads = [];
-    var i = 0;
+    let i = 0;
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
-        checkid = $(this).attr("id");
+        let checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
-          id = checkid.replace("check_", "");
-          name = $("#title_" + id).val();
+          let id = checkid.replace("check_", "");
+          let name = $("#title_" + id).val();
           if (name) {
-            total_downloads[i] = {id: id, name: name}
+            total_downloads[i] = id
             i = i + 1;
           }
         }
       }
     });
-    if (total_downloads.length == 0) {
+    if (total_downloads.length === 0) {
       return;
     }
     current_download = 0;

@@ -1247,6 +1247,40 @@
     </div>
   </div>
 </div>
+<!-- 手动下载 -->
+<div class="modal modal-blur fade" id="modal-search-download" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+    <input type="hidden" id="search_download_id">
+    <input type="hidden" id="search_download_name">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title" id="search_download_message">添加下载</div>
+        <div class="row mt-3">
+          <div class="col-md">
+            <div class="form-floating mb-1">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置" onchange="refresh_download_setting_dirs()">
+              </select>
+              <label for="floatingSelect">下载设置</label>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-floating mb-1">
+              <select class="form-select" id="search_download_dir" aria-label="保存目录">
+              </select>
+              <label for="floatingSelect">保存目录</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" id="search_download_btn" title="自动选择目录下载">
+          下载
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -1787,21 +1821,15 @@
   // 显示新增电视剧订阅
   function show_add_tvrss_media_modal() {
     // 刷新下拉框
-    refresh_rsssites_select('rss_sites_group', false);
+    show_wait_process();
+    refresh_rss_download_setting_dirs();
+    hide_wait_process();
     if (RSS_SITES_LENGTH === 0) {
       show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
         navmenu('site');
       });
       return;
     }
-
-    // 刷新下拉框
-    show_wait_process();
-    refresh_searchsites_select('rss_search_sites_group');
-    refresh_filter_select('rss_rule');
-    refresh_downloadsetting_select('rss_download_setting', false);
-    refresh_savepath_select('rss_save_path', true, $("#rss_download_setting").val());
-    hide_wait_process();
 
     // 界面初始化
     $("#rss_id").val("");
@@ -1844,10 +1872,7 @@
 
     // 刷新下拉框
     show_wait_process();
-    refresh_searchsites_select('rss_search_sites_group');
-    refresh_filter_select('rss_rule');
-    refresh_downloadsetting_select('rss_download_setting', false);
-    refresh_savepath_select('rss_save_path', true, $("#rss_download_setting").val());
+    refresh_rss_download_setting_dirs();
     hide_wait_process();
 
     // 界面初始化
@@ -1885,11 +1910,7 @@
 
     show_wait_process();
     // 刷新下拉框
-    refresh_rsssites_select("rss_sites_group", false);
-    refresh_searchsites_select("rss_search_sites_group", false);
-    refresh_filter_select("rss_rule", false);
-    refresh_downloadsetting_select("rss_download_setting", false);
-    refresh_savepath_select("rss_save_path", false, $("#rss_download_setting").val());
+    refresh_rss_download_setting_dirs();
     // 获取订阅信息
     ajax_post("rss_detail", {"rssid": rssid, "rsstype": type}, function (ret) {
       hide_wait_process();
@@ -2060,12 +2081,58 @@
       if (ret.code === 0) {
         let downloadsetting_select = $("#" + obj_id);
         downloadsetting_select.empty();
-        downloadsetting_select.append(`<option value="">请选择</option>`);
         for (let i = 0; i < ret.data.length; i++) {
           downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
         }
       }
     }, aync);
+  }
+
+  // 刷新订阅框的下载设置及目录等选项
+  function refresh_rss_download_setting_dirs(){
+    refresh_rsssites_select("rss_sites_group", false);
+    refresh_searchsites_select("rss_search_sites_group");
+    refresh_filter_select("rss_rule");
+    refresh_downloadsetting_select("rss_download_setting", false);
+    refresh_savepath_select("rss_save_path", true, $("#rss_download_setting").val());
+  }
+
+  // 刷新下载框的下载设置及目录选项
+  function refresh_search_download_setting_dirs(){
+    refresh_downloadsetting_select("search_download_setting", false);
+    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val());
+  }
+
+  // 显示下载提示框
+  function show_download_modal(id, name, func) {
+    $("#search_download_id").val(id);
+    $("#search_download_name").val(name);
+    $("#search_download_message").text("下载 " + name);
+    // 根据下载设置刷新下载目录选项
+    refresh_search_download_setting_dirs();
+    // 绑定下载按钮事件
+    if (func) {
+      $("#search_download_btn").unbind("click").click(func);
+    }else{
+      $("#search_download_btn").unbind("click").click(download_link);
+    }
+    $("#modal-search-download").modal('show');
+  }
+
+  //点击链接下载
+  function download_link() {
+    const id = $("#search_download_id").val();
+    const name = $("#search_download_name").val();
+    const dir = $("#search_download_dir").val();
+    const setting = $("#search_download_setting").val();
+    $("#modal-search-download").modal('hide');
+    ajax_post("download", {"id": id, "dir": dir, "setting": setting}, function (ret) {
+      if (ret.retcode === 0) {
+        show_success_modal(`${name} 添加下载成功！`);
+      } else {
+        show_fail_modal(`${name} 添加下载失败 ${ret.retmsg}！`);
+      }
+    });
   }
 
 </script>

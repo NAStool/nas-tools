@@ -167,6 +167,8 @@ class Downloader:
             download_attr = self.get_download_setting(-1)
         # 下载器
         downloader = self.__get_client_type(download_attr.get("downloader"))
+        if not downloader:
+            downloader = self._default_client
         # Cookie
         cookie = None
         # 获取种子内容，磁力链不解析

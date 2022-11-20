@@ -3,7 +3,7 @@
   <div class="page-header d-print-none">
     <div class="row align-items-center">
       <div class="col">
-        <h2 class="page-title text-nowrap">
+        <h2 class="page-title text-nowrap d-none d-md-block">
           资源搜索
         </h2>
         {% if Count > 8 %}
@@ -463,48 +463,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-search-download" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-    <input type="hidden" id="search_download_id">
-    <input type="hidden" id="search_download_name">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title" id="search_download_message">添加下载</div>
-        <div class="row mt-3">
-          <div class="col-md">
-            <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置" onchange="refresh_download_setting_dirs()">
-                {% for Id, Attr in DownloadSettings.items() %}
-                  <option value="{{ Id }}"
-                    {% if Id == '-1' %}selected{% endif %}>{{ Attr.name }}</option>
-                {% endfor %}
-              </select>
-              <label for="floatingSelect">下载设置</label>
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_dir" aria-label="保存目录">
-                <option value="" selected>自动</option>
-                {% for SaveDir in SaveDirs %}
-                  <option value="{{ SaveDir }}">{{ SaveDir }}</option>
-                {% endfor %}
-              </select>
-              <label for="floatingSelect">保存目录</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" onclick="javascript:download_link()"
-                title="自动选择目录下载">
-          下载
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   // 关键字
   var search_word = "{{ SearchWord }}";
@@ -519,21 +477,6 @@
       $("#search_tip_title").text(search_word + " 未找到任何资源")
       $("#search_tip_text").text("")
     }
-  }
-
-  // 显示下载提示框
-  function show_download_modal(id, name) {
-    $("#search_download_id").val(id);
-    $("#search_download_name").val(name);
-    $("#search_download_message").text("下载 " + name);
-    // 根据下载设置刷新下载目录选项
-    refresh_download_setting_dirs();
-    $("#modal-search-download").modal('show');
-  }
-
-  //根据下载设置刷新下载目录选项
-  function refresh_download_setting_dirs(){
-    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val());
   }
 
   // 搜索按钮
@@ -578,22 +521,6 @@
       return;
     }
     navmenu('medialist?s=' + keyword + '&f=1&t=search');
-  }
-
-  //点击链接下载
-  function download_link() {
-    var id = $("#search_download_id").val();
-    var name = $("#search_download_name").val();
-    var dir = $("#search_download_dir").val();
-    var setting = $("#search_download_setting").val();
-    $("#modal-search-download").modal('hide');
-    ajax_post("download", {"id": id, "dir": dir, "setting": setting}, function (ret) {
-      if (ret.retcode == 0) {
-        show_success_modal(`${name} 添加下载成功！`);
-      } else {
-        show_fail_modal(`${name} 添加下载失败 ${ret.retmsg}！`);
-      }
-    });
   }
 
   // 搜索输入框
