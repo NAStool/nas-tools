@@ -213,7 +213,10 @@ class Message:
         msg_text = f"{can_item.get_vote_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.site:
-            msg_text = f"{msg_text}\n站点：{can_item.site}"
+            if in_from == SearchType.USERRSS:
+                msg_text = f"{msg_text}\n任务：{can_item.site}"
+            else:
+                msg_text = f"{msg_text}\n站点：{can_item.site}"
         if can_item.get_resource_type_string():
             msg_text = f"{msg_text}\n质量：{can_item.get_resource_type_string()}"
         if can_item.size:
