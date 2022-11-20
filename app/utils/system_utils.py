@@ -254,12 +254,12 @@ class SystemUtils:
                             "filepath": file_path
                         })
         else:
-            if not fdir:
-                fdir = os.path.dirname(file)
-            stdout = subprocess.run(['find',
-                                     fdir,
-                                     '-samefile',
-                                     file], shell=False, stdout=subprocess.PIPE).stdout
+            inode = os.stat(file).st_ino
+            # 只会搜索find后的目录内的文件，设置为根目录，不然硬链接和查找文件不在一个文件夹内就搜不到
+            stdout = subprocess.run(
+                ['find', '/', '-inum', str(inode)],
+                stdout=subprocess.PIPE
+            ).stdout
             if stdout:
                 link_files = stdout.decode('utf-8').split('\n')
                 for link_file in link_files:
