@@ -112,7 +112,7 @@ class Aria2(IDownloadClient):
     def delete_torrents(self, delete_file, ids):
         if not self._client:
             return False
-        return self._client.remove(gid=ids)
+        return self._client.removeDownloadResult(gid=ids)
 
     def get_download_dirs(self):
         return []
