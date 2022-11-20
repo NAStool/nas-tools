@@ -605,7 +605,7 @@ class Sites:
                             cookie = dict_from_cookiejar(res.cookies)
                     except Exception as err:
                         print(str(err))
-        return cookie, ua, referer
+        return cookie, ua, referer, site_info
 
     def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
         """

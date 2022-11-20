@@ -113,6 +113,11 @@ SITE_CHECKIN_XPATH = [
     '//a[contains(@href, "sign_in")]'
 ]
 
+# 站点详情页字幕下载链接识别XPATH
+SITE_SUBTITLE_XPATH = [
+    '//td[@class="rowhead"][text()="字幕"]/following-sibling::td//a/@href',
+]
+
 # 线程锁
 lock = Lock()
 

@@ -1,78 +1,64 @@
 import os.path
 import re
 from urllib.parse import quote
-import bencode
-
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
+from config import Config
 
 
 class Torrent:
 
-    @staticmethod
-    def get_torrent_content(url, cookie=None, ua=None, referer=None):
+    _torrent_path = None
+
+    def __init__(self):
+        self._torrent_path = os.path.join(Config().get_config_path(), "temp")
+        if not os.path.exists(self._torrent_path):
+            os.makedirs(self._torrent_path)
+
+    def get_torrent_info(self, url, cookie=None, ua=None, referer=None):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
         :param cookie: 站点Cookie
         :param ua: 站点UserAgent
         :param referer: 关联地址，有的网站需要这个否则无法下载
-        :return: 种子内容、种子文件名、错误信息
+        :return: 种子保存路径、种子内容、种子文件列表、错误信息
         """
         if not url:
-            return None, "URL为空"
+            return None, None, [], "URL为空"
         if url.startswith("magnet:"):
-            return url, "磁力链接"
+            return url, None, [], "磁力链接"
         try:
             req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
             while req and req.status_code in [301, 302]:
                 url = req.headers['Location']
                 if url and url.startswith("magnet:"):
-                    return url, "磁力链接"
+                    return url, None, [], "磁力链接"
                 req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
             if req and req.status_code == 200:
                 if not req.content:
-                    return None, "未下载到种子数据"
-                metadata = bencode.bdecode(req.content)
-                if not metadata or not isinstance(metadata, dict):
-                    return None, "不正确的种子文件"
-                # TODO 获取种子文件名
-                return req.content, ""
-            elif not req:
-                return None, "无法打开链接：%s" % url
-            else:
-                return None, "下载种子出错，状态码：%s" % req.status_code
-        except Exception as err:
-            return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
-
-    @staticmethod
-    def save_torrent_file(url, path, cookie, ua, referer=None):
-        """
-        下载种子并保存到文件，返回文件路径
-        """
-        if not os.path.exists(path):
-            os.makedirs(path)
-        # 下载种子
-        try:
-            ret = RequestUtils(cookies=cookie, headers=ua, referer=referer).get_res(url)
-            if ret and ret.status_code == 200:
-                file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
+                    return None, None, [], "未下载到种子数据"
+                # 读取种子文件名
+                file_name = re.findall(r"filename=\"?(.+)\"?", req.headers.get('content-disposition'))
                 if not file_name:
-                    return None
-                file_name = file_name[0]
+                    return None, None, [], "读取种子文件名错误"
+                file_name = str(file_name[0]).split(";")[0].strip()
                 if file_name.endswith('"'):
                     file_name = file_name[:-1]
-                file_path = os.path.join(path, file_name)
+                # 种子文件路径
+                file_path = os.path.join(self._torrent_path, file_name)
                 with open(file_path, 'wb') as f:
-                    f.write(ret.content)
-            elif not ret:
-                return None
+                    f.write(req.content)
+                # 解析种子文件
+                files, retmsg = self.__get_torrent_files(file_path)
+                # 种子文件路径、种子内容、种子文件列表、错误信息
+                return file_path, req.content, files, retmsg
+            elif not req:
+                return None, None, [], "无法打开链接：%s" % url
             else:
-                return None
-            return file_path
+                return None, None, [], "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
-            print(str(err))
-            return None
+            return None, None, [], "下载种子文件出现异常：%s，请检查是否站点Cookie已过期，或触发了站点首次种子下载" % str(err)
 
     @staticmethod
     def convert_hash_to_magnet(hash_text, title):
@@ -95,35 +81,42 @@ class Torrent:
                '&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969'
 
     @staticmethod
-    def get_torrent_files(path):
+    def __get_torrent_files(path):
         """
         解析Torrent文件，获取文件清单
         """
         if not path or not os.path.exists(path):
-            return []
+            return [], f"种子文件不存在：{path}"
         file_names = []
         try:
             torrent = TorrentParser().readFile(path=path)
             if torrent.get("torrent"):
+                name = torrent.get("torrent").get("info", {}).get("name")
                 files = torrent.get("torrent").get("info", {}).get("files") or []
-                for item in files:
-                    if item.get("path"):
-                        file_names.append(item["path"][0])
+                if not files and name:
+                    file_names.append(name)
+                else:
+                    for item in files:
+                        if item.get("path"):
+                            file_names.append(item["path"][0])
         except Exception as err:
-            print(str(err))
-        return file_names
+            return file_names, str(err)
+        return file_names, ""
 
-    @staticmethod
-    def read_torrent_file(path):
+    def read_torrent_file(self, path):
         """
         读取本地种子文件的内容
+        :return: 种子内容、种子文件列表、错误信息
         """
         if not path or not os.path.exists(path):
             return None, "种子文件不存在：%s" % path
-        content, retmsg = None, ""
+        content, retmsg, files = None, "", []
         try:
+            # 读取种子文件内容
             with open(path, 'rb') as f:
                 content = f.read()
+            # 解析种子文件
+            files, retmsg = self.__get_torrent_files(path)
         except Exception as e:
             retmsg = "读取种子文件出错：%s" % str(e)
-        return content, retmsg
+        return content, files, retmsg
