@@ -2,8 +2,6 @@ from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
 from app.brushtask import BrushTask
-from app.downloader import Downloader
-from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
 from app.utils import TokenCache
