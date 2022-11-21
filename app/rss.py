@@ -92,12 +92,12 @@ class Rss:
             for site_info in self._sites:
                 if not site_info:
                     continue
-                site_id = site_info.get("id")
-                # 没有订阅的站点中的不检索
-                if check_sites and site_id not in check_sites:
-                    continue
                 # 站点名称
                 site_name = site_info.get("name")
+                # 没有订阅的站点中的不检索
+                if check_sites and site_name not in check_sites:
+                    continue
+
                 # 站点rss链接
                 rss_url = site_info.get("rssurl")
                 if not rss_url:
