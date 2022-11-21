@@ -106,6 +106,7 @@ class DoubanSync:
                             # 合并季
                             media_info.begin_season = media.begin_season
                             # 开始检索
+                            # TODO 豆瓣用户名称
                             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                                 media_info=media_info,
                                 in_from=SearchType.DB,

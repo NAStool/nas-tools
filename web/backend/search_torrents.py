@@ -185,12 +185,13 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         return 0, ""
 
 
-def search_media_by_message(input_str, in_from: SearchType, user_id):
+def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=None):
     """
     输入字符串，解析要求并进行资源检索
     :param input_str: 输入字符串，可以包括标题、年份、季、集的信息，使用空格隔开
     :param in_from: 搜索下载的请求来源
     :param user_id: 需要发送消息的，传入该参数，则只给对应用户发送交互消息
+    :param user_name: 用户名称
     :return: 请求的资源是否全部下载完整、请求的文本对应识别出来的媒体信息、请求的资源如果是剧集，则返回下载后仍然缺失的季集信息
     """
     global SEARCH_MEDIA_TYPE
@@ -236,10 +237,16 @@ def search_media_by_message(input_str, in_from: SearchType, user_id):
                                                user_id=user_id)
                     return
             # 搜索
-            __search_media(in_from, media_info, user_id)
+            __search_media(in_from=in_from,
+                           media_info=media_info,
+                           user_id=user_id,
+                           user_name=user_name)
         else:
             # 订阅
-            __rss_media(in_from, media_info, user_id)
+            __rss_media(in_from=in_from,
+                        media_info=media_info,
+                        user_id=user_id,
+                        user_name=user_name)
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
         if input_str.startswith("订阅"):
@@ -362,10 +369,16 @@ def search_media_by_message(input_str, in_from: SearchType, user_id):
                                            image=media_info.get_message_image(),
                                            user_id=user_id)
                 # 开始搜索
-                __search_media(in_from, media_info, user_id)
+                __search_media(in_from=in_from,
+                               media_info=media_info,
+                               user_id=user_id,
+                               user_name=user_name)
             else:
                 # 添加订阅
-                __rss_media(in_from, media_info, user_id)
+                __rss_media(in_from=in_from,
+                            media_info=media_info,
+                            user_id=user_id,
+                            user_name=user_name)
         else:
             # 发送消息通知选择
             Message().send_channel_list_msg(channel=in_from,
@@ -374,7 +387,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id):
                                             user_id=user_id)
 
 
-def __search_media(in_from, media_info, user_id):
+def __search_media(in_from, media_info, user_id, user_name=None):
     """
     开始搜索和发送消息
     """
@@ -395,7 +408,8 @@ def __search_media(in_from, media_info, user_id):
     search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
                                                                                          in_from=in_from,
                                                                                          no_exists=no_exists,
-                                                                                         sites=media_info.search_sites)
+                                                                                         sites=media_info.search_sites,
+                                                                                         user_name=user_name)
     # 没有搜索到数据
     if not search_count:
         Message().send_channel_msg(channel=in_from,
@@ -420,10 +434,14 @@ def __search_media(in_from, media_info, user_id):
     # 没有下载完成，且打开了自动添加订阅
     if not search_result and Config().get_config('pt').get('search_no_result_rss'):
         # 添加订阅
-        __rss_media(in_from=in_from, media_info=media_info, user_id=user_id, state='R')
+        __rss_media(in_from=in_from,
+                    media_info=media_info,
+                    user_id=user_id,
+                    state='R',
+                    user_name=user_name)
 
 
-def __rss_media(in_from, media_info, user_id=None, state='D'):
+def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     """
     开始添加订阅和发送消息
     """
@@ -449,7 +467,10 @@ def __rss_media(in_from, media_info, user_id=None, state='D'):
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:
-            Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+            Message().send_rss_success_message(in_from=in_from,
+                                               media_info=media_info,
+                                               user_id=user_id,
+                                               user_name=user_name)
     else:
         if in_from in [SearchType.WX, SearchType.TG]:
             log.info("【Web】%s 添加订阅失败：%s" % (media_info.title, msg))

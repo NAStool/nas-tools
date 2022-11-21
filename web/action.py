@@ -10,7 +10,7 @@ from math import floor
 from urllib.parse import unquote
 
 import cn2an
-from flask_login import logout_user
+from flask_login import logout_user, current_user
 from werkzeug.security import generate_password_hash
 
 import log
@@ -446,7 +446,9 @@ class WebAction:
                                                  download_setting=dl_setting)
             if ret:
                 # 发送消息
-                Message().send_download_message(SearchType.WEB, media)
+                media.user_name = current_user.username
+                Message().send_download_message(in_from=SearchType.WEB,
+                                                can_item=media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
@@ -480,6 +482,7 @@ class WebAction:
                                              download_setting=dl_setting)
         if ret:
             # 发送消息
+            media.user_name = current_user.username
             Message().send_download_message(SearchType.WEB, media)
             return {"code": 0, "msg": "下载成功"}
         else:

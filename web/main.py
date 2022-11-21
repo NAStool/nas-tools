@@ -19,7 +19,6 @@ import log
 from app.brushtask import BrushTask
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import DbHelper
 from app.helper import SecurityHelper, MetaHelper
 from app.indexer import BuiltinIndexer
 from app.media import MetaInfo

@@ -90,6 +90,8 @@ class MetaBase(object):
     site = None
     # 站点优先级
     site_order = 0
+    # 操作用户
+    user_name = None
     # 种子链接
     enclosure = None
     # 资源优先级
