@@ -11,8 +11,8 @@
         <div class="btn-list">
           <a href="javascript:show_mediasync_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -21,8 +21,8 @@
           </a>
           <a href="javascript:show_mediasync_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -34,139 +34,140 @@
   </div>
 </div>
 {% if ServerSucess %}
-<div class="page-body">
-  <div class="container-xl">
-    <div class="row row-deck row-cards">
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="subheader">电影</div>
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">电影</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-0 me-2">{{ MediaCount.MovieCount }}</div>
+              </div>
             </div>
-            <div class="d-flex align-items-baseline">
-              <div class="h1 mb-0 me-2">{{ MediaCount.MovieCount }}</div>
-            </div>
+            <div id="chart-movie-bg" class="chart-sm"></div>
           </div>
-          <div id="chart-movie-bg" class="chart-sm"></div>
         </div>
-      </div>
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="subheader">电视剧/动漫</div>
-            </div>
-            <div class="d-flex align-items-baseline">
-              <div class="h1 mb-3 me-2">{{ MediaCount.SeriesCount }}</div>
-              <div class="me-auto">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">电视剧/动漫</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-3 me-2">{{ MediaCount.SeriesCount }}</div>
+                <div class="me-auto">
                 <span class="text-green d-inline-flex align-items-center lh-1">
                   {{ MediaCount.EpisodeCount }}
                 </span>
-              </div>
-            </div>
-          </div>
-          <div id="chart-tv-bg" class="chart-sm"></div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card">
-          <div class="card-stamp">
-            <div class="card-stamp-icon" style="background-color: transparent">
-              <img src="../static/img/music.png">
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="subheader">音乐</div>
-            </div>
-            <div class="d-flex align-items-baseline">
-              <div class="h1 mb-3 me-2">{{ MediaCount.SongCount }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-lg-3">
-        <div class="card">
-          <div class="card-stamp">
-            <div class="card-stamp-icon" style="background-color: transparent">
-              <img src="../static/img/users.png">
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="subheader">活跃用户</div>
-            </div>
-            <div class="d-flex align-items-baseline">
-              <div class="h1 mb-3 me-2">{{ UserCount }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-12">
-        <div class="row row-cards">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-body">
-                <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
-                <div class="progress progress-separated mb-3">
-                  <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
-                </div>
-                <div class="row">
-                  <div class="col-auto d-flex align-items-center pe-2">
-                    <span class="legend me-2 bg-primary"></span>
-                    <span>已使用</span>
-                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
-                  </div>
-                  <div class="col-auto d-flex align-items-center ps-2">
-                    <span class="legend me-2"></span>
-                    <span>空闲</span>
-                    <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
-                  </div>
                 </div>
               </div>
             </div>
+            <div id="chart-tv-bg" class="chart-sm"></div>
           </div>
-          <div class="col-12">
-            <div class="card" style="height: 27rem">
-              <div class="card-body card-body-scrollable card-body-scrollable-shadow">
-                <div class="divide-y">
-                  {% for Activity in Activitys %}
-                  <div>
-                    <div class="row">
-                      <div class="col-auto">
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-stamp">
+              <div class="card-stamp-icon" style="background-color: transparent">
+                <img src="../static/img/music.png">
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">音乐</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-3 me-2">{{ MediaCount.SongCount }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-stamp">
+              <div class="card-stamp-icon" style="background-color: transparent">
+                <img src="../static/img/users.png">
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="subheader">活跃用户</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-3 me-2">{{ UserCount }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-12">
+          <div class="row row-cards">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body">
+                  <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
+                  <div class="progress progress-separated mb-3">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-auto d-flex align-items-center pe-2">
+                      <span class="legend me-2 bg-primary"></span>
+                      <span>已使用</span>
+                      <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center ps-2">
+                      <span class="legend me-2"></span>
+                      <span>空闲</span>
+                      <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card" style="height: 27rem">
+                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                  <div class="divide-y">
+                    {% for Activity in Activitys %}
+                      <div>
+                        <div class="row">
+                          <div class="col-auto">
                         <span class="avatar">
                           {% if Activity.type == "LG" %}
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24"
-                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24"
+                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                 stroke-linecap="round" stroke-linejoin="round">
                             <desc>Download more icon variants from https://tabler-icons.io/i/user</desc>
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                             <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
                           </svg>
                           {% else %}
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play"
-                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play"
+                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <desc>Download more icon variants from https://tabler-icons.io/i/player-play</desc>
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M7 4v16l13 -8z"></path>
                           </svg>
                           {% endif %}
                         </span>
-                      </div>
-                      <div class="col">
-                        <div class="text-truncate">
-                          {{ Activity.event }}
+                          </div>
+                          <div class="col">
+                            <div class="text-truncate">
+                              {{ Activity.event }}
+                            </div>
+                            <div class="text-muted">{{ Activity.date }}</div>
+                          </div>
+                          <div class="col-auto align-self-center">
+                            <div class="bg-primary"></div>
+                          </div>
                         </div>
-                        <div class="text-muted">{{ Activity.date }}</div>
                       </div>
-                      <div class="col-auto align-self-center">
-                        <div class="bg-primary"></div>
-                      </div>
-                    </div>
+                    {% endfor %}
                   </div>
-                  {% endfor %}
                 </div>
               </div>
             </div>
@@ -175,24 +176,23 @@
       </div>
     </div>
   </div>
-</div>
 {% else %}
-<div class="page-wrapper">
-  <div class="container-xl">
-  </div>
-  <div class="page-body">
-    <div class="container-xl d-flex flex-column justify-content-center">
-      <div class="empty">
-        <div class="empty-img"><img src="./static/img/bug_fixing.svg" height="128" alt="">
+  <div class="page-wrapper">
+    <div class="container-xl">
+    </div>
+    <div class="page-body">
+      <div class="container-xl d-flex flex-column justify-content-center">
+        <div class="empty">
+          <div class="empty-img"><img src="./static/img/bug_fixing.svg" height="128" alt="">
+          </div>
+          <p class="empty-title">媒体服务器连接失败！</p>
+          <p class="empty-subtitle text-muted">
+            当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。
+          </p>
         </div>
-        <p class="empty-title">媒体服务器连接失败！</p>
-        <p class="empty-subtitle text-muted">
-          当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。
-        </p>
       </div>
     </div>
   </div>
-</div>
 {% endif %}
 <div class="modal modal-blur fade" id="index-mediasync-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered" role="document">
@@ -201,14 +201,14 @@
         <div class="card-body text-center">
           <div class="mb-3">
             <span class="avatar avatar-xl avatar-rounded"
-              style="background-image: url(../static/img/{{ MediaServerType }}.png)"></span>
+                  style="background-image: url(../static/img/{{ MediaServerType }}.png)"></span>
           </div>
           <div class="card-title mb-1">{{ MediaServerType|title }}</div>
           <div class="text-muted" id="mediasync_status"></div>
         </div>
         <div class="card-progress">
           <div class="progress-bar bg-green" id="mediasync_process_bar" style="width: 0%" role="progressbar"
-            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+               aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <a href="javascript:start_media_sync(true)" id="mediasync_btn" class="card-btn">开始同步</a>
       </div>
@@ -245,32 +245,35 @@
     series: [{
       name: "电影",
       data: {{ MovieNums }}
-      }],
-    grid: {
-    strokeDashArray: 4,
-  },
-    xaxis: {
-    labels: {
-      padding: 0,
-    },
+    }],
     tooltip: {
-      enabled: false
+      theme: 'dark'
     },
-    axisBorder: {
+    grid: {
+      strokeDashArray: 4,
+    },
+    xaxis: {
+      labels: {
+        padding: 0,
+      },
+      tooltip: {
+        enabled: false
+      },
+      axisBorder: {
+        show: false,
+      },
+      type: 'category',
+    },
+    yaxis: {
+      labels: {
+        padding: 4
+      },
+    },
+    labels: {{ MovieChartLabels| safe }},
+    colors: [tabler.getColor("primary")],
+    legend: {
       show: false,
     },
-    type: 'category',
-  },
-    yaxis: {
-    labels: {
-      padding: 4
-    },
-  },
-    labels: {{ MovieChartLabels| safe }},
-    colors: ["#206bc4"],
-    legend: {
-    show: false,
-  },
   })).render();
   // 电视剧变化图
   window.ApexCharts && (new ApexCharts(document.getElementById('chart-tv-bg'), {
@@ -297,32 +300,35 @@
     series: [{
       name: "电视剧",
       data: {{ TvNums }}
-      }, {
+    }, {
       name: "动漫",
       data: {{ AnimeNums }}
-      }],
-    grid: {
-    strokeDashArray: 4,
-  },
-    xaxis: {
-    labels: {
-      padding: 0,
-    },
+    }],
     tooltip: {
-      enabled: false
+      theme: 'dark'
     },
-    type: 'category',
-  },
+    grid: {
+      strokeDashArray: 4,
+    },
+    xaxis: {
+      labels: {
+        padding: 0,
+      },
+      tooltip: {
+        enabled: false
+      },
+      type: 'category',
+    },
     yaxis: {
-    labels: {
-      padding: 4
+      labels: {
+        padding: 4
+      },
     },
-  },
     labels: {{ TvChartLabels| safe }},
-    colors: ["#206bc4", "#a8aeb7"],
+    colors: [tabler.getColor("primary"), tabler.getColor("gray-600")],
     legend: {
-    show: false,
-  },
+      show: false,
+    },
   })).render();
   // @formatter:on
 </script>
@@ -330,7 +336,7 @@
   //显示媒体库同步框
   function show_mediasync_modal() {
     //获取同步状态
-    ajax_post("refresh_process", { type: "mediasync" }, function (ret) {
+    ajax_post("refresh_process", {type: "mediasync"}, function (ret) {
       if (ret.code === 0 && ret.value < 100) {
         //同步中
         $("#index-mediasync-modal").modal('show');
@@ -372,11 +378,12 @@
 
   //刷新进度及文件
   var refresh_sync_process_flag = false;
+
   function refresh_sync_process() {
     if (!refresh_sync_process_flag) {
       return;
     }
-    ajax_post("refresh_process", { type: "mediasync" }, function (ret) {
+    ajax_post("refresh_process", {type: "mediasync"}, function (ret) {
       if (ret.code === 0) {
         $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%")
             .attr("aria-valuenow", ret.value);

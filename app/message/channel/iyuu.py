@@ -1,22 +1,21 @@
 from urllib.parse import urlencode
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 
 
 class IyuuMsg(IMessageChannel):
     _token = None
+    _client_config = {}
 
-    def __init__(self):
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self._token = message.get('iyuu', {}).get('iyuu_token')
+        if self._client_config:
+            self._token = self._client_config.get('token')
 
     def get_status(self):
         """
@@ -56,5 +55,5 @@ class IyuuMsg(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, **kwargs):
         pass

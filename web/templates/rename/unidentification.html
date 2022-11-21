@@ -9,7 +9,9 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24"
+                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                 stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
               <circle cx="6" cy="6" r="3"></circle>
@@ -17,11 +19,13 @@
               <path d="M16 9l2 2l2 -2"></path>
               <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
               <path d="M3 15l2 -2l2 2"></path>
-           </svg>
+            </svg>
             自定义识别
           </a>
           <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24"
+                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                 stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
               <circle cx="6" cy="6" r="3"></circle>
@@ -29,7 +33,7 @@
               <path d="M16 9l2 2l2 -2"></path>
               <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
               <path d="M3 15l2 -2l2 2"></path>
-           </svg>
+            </svg>
           </a>
         </div>
       </div>
@@ -51,8 +55,8 @@
             <div class="card-actions btn-actions">
               <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24"
-                  height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                  stroke-linecap="round" stroke-linejoin="round">
+                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                     stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
                   <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -60,7 +64,7 @@
               </a>
               <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <line x1="4" y1="7" x2="20" y2="7"></line>
                   <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -74,62 +78,63 @@
           <div class="table-responsive" style="min-height: 300px">
             <table class="table table-vcenter card-table">
               <thead>
-                <tr>
-                  {% if TotalCount > 0 %}
+              <tr>
+                {% if TotalCount > 0 %}
                   <th class="w-1"><input class="form-check-input m-0 align-middle" id="unknown_check_all_btn"
-                      type="checkbox" aria-label="全选"></th>
-                  {% endif %}
-                  <th>文件名</th>
-                  <th class="w-5"></th>
-                </tr>
+                                         type="checkbox" aria-label="全选"></th>
+                {% endif %}
+                <th>文件名</th>
+                <th class="w-5"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if TotalCount > 0 %}
+              {% if TotalCount > 0 %}
                 {% for Path in Items %}
-                <tr>
-                  <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
-                  <td>
-                    {{ Path.name }}
-                    {% if Path.to %}
-                    <div class="text-muted">
-                      => {{ Path.to }}
-                    </div>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <div class="dropdown">
-                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <circle cx="12" cy="12" r="1" />
-                          <circle cx="12" cy="19" r="1" />
-                          <circle cx="12" cy="5" r="1" />
-                        </svg>
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:re_identification(["{{ Path.id }}"])'>
-                          重新识别
+                  <tr>
+                    <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
+                    <td>
+                      <a href='javascript:navmenu("mediafile?dir={{ Path.name.replace("\\", "/") }}")'>{{ Path.name }}</a>
+                      {% if Path.to %}
+                        <div class="text-muted">
+                          => {{ Path.to }}
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="12" cy="19" r="1"/>
+                            <circle cx="12" cy="5" r="1"/>
+                          </svg>
                         </a>
-                        <a class="dropdown-item"
-                          href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
-                          手动识别
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
-                          删除
-                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item" href='javascript:re_identification(["{{ Path.id }}"])'>
+                            重新识别
+                          </a>
+                          <a class="dropdown-item"
+                             href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
+                            手动识别
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
+                            删除
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="3" align="center">没有数据</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -139,7 +144,7 @@
   </div>
 </div>
 <script type="text/javascript">
- 
+
   //显示弹出窗口
   function show_rename_modal(id, path) {
     show_manual_transfer_modal(1, path, '', '', id, '');
@@ -147,7 +152,7 @@
 
   //显示自定义识别窗口
   function show_rename_udf_modal() {
-    show_manual_transfer_modal(3,'', '', '', '', '');
+    show_manual_transfer_modal(3, '', '', '', '', '');
   }
 
   //删除路径
@@ -156,7 +161,7 @@
       return;
     }
     var cmd = "del_unknown_path";
-    var data = { "id": id };
+    var data = {"id": id};
     ajax_post(cmd, data, function (ret) {
       navmenu('unidentification');
     });
@@ -165,14 +170,14 @@
   //重新识别
   function re_identification(unknown_ids) {
     var cmd = "re_identification";
-    var data = { "flag": "unknow", "ids": unknown_ids };
+    var data = {"flag": "unknow", "ids": unknown_ids};
     show_wait_process();
     ajax_post(cmd, data, function (ret) {
       hide_wait_process();
       if (ret.retcode == 0) {
         navmenu('unidentification');
       } else {
-        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
       }
     });
   }
@@ -196,7 +201,7 @@
     show_confirm_modal("是否确认删除所有选中的未识别记录？", function () {
       hide_confirm_modal();
       var cmd = "del_unknown_path";
-      var data = { "id": ids };
+      var data = {"id": ids};
       ajax_post(cmd, data, function (ret) {
         navmenu('unidentification');
       });
@@ -210,7 +215,6 @@
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
         checkid = $(this).attr("id");
-        debugger;
         if (checkid && checkid.startsWith("check_")) {
           id = checkid.replace("check_", "");
           ids[i] = id;

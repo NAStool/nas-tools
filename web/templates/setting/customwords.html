@@ -301,7 +301,7 @@
             <div class="mb-3">
               <label class="form-label required">偏移集数 <span class="form-help"
                   title="偏移集数支持运算，例如集数加1：EP+1；集数翻倍：2*EP；集数翻倍-1：2*EP-1" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="new_offset" class="form-control"">
+              <input type="text" value="" id="new_offset" class="form-control">
               </div>
             </div>
             <div class=" col-lg-2" id="enable_row2_div" value="0">
@@ -721,15 +721,18 @@
           ids_info.push($(this).attr("id").replace("import_check_group", ""));
         }
       });
+      $("#modal-import-custom-words-table").modal('hide');
       show_wait_process();
       ajax_post("import_custom_words", { ids_info: ids_info, import_code: import_code }, function (ret) {
         hide_wait_process();
         if (ret.code == 0) {
           $("#import_groups_div").empty();
-          $("#modal-import-custom-words-table").modal('hide');
+
           navmenu('customwords');
         } else {
-          show_fail_modal(ret.msg);
+          show_fail_modal(ret.msg, function() {
+            $("#modal-import-custom-words-table").modal('show');
+          });
         }
       });
     }
@@ -757,7 +760,9 @@
         if (ret.code == 0) {
           navmenu('customwords');
         } else {
-          show_fail_modal(ret.msg);
+          show_fail_modal(ret.msg, function() {
+            $("#modal-add-custom-word-group").modal('show');
+          });
         }
       });
     }
@@ -942,14 +947,16 @@
         enabled: enabled,
         regex: regex
       };
+      $("#modal-set-custom-word").modal('hide');
       show_wait_process();
       ajax_post("add_or_edit_custom_word", custom_word, function (ret) {
         hide_wait_process();
         if (ret.code == 0) {
-          $("#modal-set-custom-word").modal('hide');
           navmenu('customwords');
         } else {
-          show_fail_modal(ret.msg);
+          show_fail_modal(ret.msg, function() {
+            $("#modal-set-custom-word").modal('show');
+          });
         }
       });
     }

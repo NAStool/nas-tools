@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import time
+import json
 from enum import Enum
 from sqlalchemy import cast, func
 
@@ -182,14 +183,14 @@ class DbHelper:
         """
         if not file_path:
             return False
-        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.FILE_PATH == file_path,
-                                                     TRANSFERHISTORY.FILE_NAME == file_name,
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == file_path,
+                                                     TRANSFERHISTORY.SOURCE_FILENAME == file_name,
                                                      TRANSFERHISTORY.TITLE == title,
-                                                     TRANSFERHISTORY.SE == se).count()
+                                                     TRANSFERHISTORY.SEASON_EPISODE == se).count()
         return True if ret > 0 else False
 
     @DbPersist(_db)
-    def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
+    def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, out_path, dest, media_info):
         """
         插入识别转移记录
         """
@@ -197,27 +198,39 @@ class DbHelper:
             return
         if in_path:
             in_path = os.path.normpath(in_path)
+            source_path = os.path.dirname(in_path)
+            source_filename = os.path.basename(in_path)
         else:
             return
-        if not dest:
-            dest = ""
-        file_path = os.path.dirname(in_path)
-        file_name = os.path.basename(in_path)
-        if self.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
+        if out_path:
+            outpath = os.path.normpath(out_path)
+            dest_path = os.path.dirname(outpath)
+            dest_filename = os.path.basename(outpath)
+            season_episode = media_info.get_season_episode_string()
+        else:
+            dest_path = ""
+            dest_filename = ""
+            season_episode = media_info.get_season_string()
+        title = media_info.title
+        if self.is_transfer_history_exists(source_path, source_filename, title, season_episode):
             return
+        dest = dest or ""
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self._db.insert(
             TRANSFERHISTORY(
-                SOURCE=str(in_from.value),
                 MODE=str(rmt_mode.value),
                 TYPE=media_info.type.value,
-                FILE_PATH=file_path,
-                FILE_NAME=file_name,
-                TITLE=media_info.title,
                 CATEGORY=media_info.category,
+                TMDBID=int(media_info.tmdb_id),
+                TITLE=title,
                 YEAR=media_info.year,
-                SE=media_info.get_season_string(),
+                SEASON_EPISODE=season_episode,
+                SOURCE=str(in_from.value),
+                SOURCE_PATH=source_path,
+                SOURCE_FILENAME=source_filename,
                 DEST=dest,
+                DEST_PATH=dest_path,
+                DEST_FILENAME=dest_filename,
                 DATE=timestr
             )
         )
@@ -233,9 +246,9 @@ class DbHelper:
 
         if search:
             search = f"%{search}%"
-            count = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            count = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.SOURCE_FILENAME.like(search))
                                                            | (TRANSFERHISTORY.TITLE.like(search))).count()
-            data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.SOURCE_FILENAME.like(search))
                                                           | (TRANSFERHISTORY.TITLE.like(search))).order_by(
                 TRANSFERHISTORY.DATE.desc()).limit(int(rownum)).offset(begin_pos).all()
             return count, data
@@ -443,6 +456,19 @@ class DbHelper:
             }
         )
 
+    @DbPersist(_db)
+    def update_config_site_note(self, tid, note):
+        """
+        更新站点属性
+        """
+        if not tid:
+            return
+        self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
+            {
+                "NOTE": note
+            }
+        )
+
     def get_config_filter_group(self, gid=None):
         """
         查询过滤规则组
@@ -505,9 +531,9 @@ class DbHelper:
         return ""
 
     @DbPersist(_db)
-    def update_rss_movie_tmdb(self, rid, tmdbid, title, year, image):
+    def update_rss_movie_tmdb(self, rid, tmdbid, title, year, image, desc, note):
         """
-        更新订阅电影的TMDBID
+        更新订阅电影的部分信息
         """
         if not tmdbid:
             return
@@ -515,7 +541,18 @@ class DbHelper:
             "TMDBID": tmdbid,
             "NAME": title,
             "YEAR": year,
-            "IMAGE": image
+            "IMAGE": image,
+            "NOTE": note,
+            "DESC": desc
+        })
+
+    @DbPersist(_db)
+    def update_rss_movie_desc(self, rid, desc):
+        """
+        更新订阅电影的DESC
+        """
+        self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rid)).update({
+            "DESC": desc
         })
 
     def is_exists_rss_movie(self, title, year):
@@ -534,36 +571,49 @@ class DbHelper:
     @DbPersist(_db)
     def insert_rss_movie(self, media_info,
                          state='D',
-                         sites: list = None,
-                         search_sites: list = None,
-                         over_edition=False,
-                         rss_restype=None,
-                         rss_pix=None,
-                         rss_team=None,
-                         rss_rule=None):
+                         rss_sites=None,
+                         search_sites=None,
+                         over_edition=0,
+                         filter_restype=None,
+                         filter_pix=None,
+                         filter_team=None,
+                         filter_rule=None,
+                         save_path=None,
+                         download_setting=-1,
+                         fuzzy_match=0,
+                         desc=None,
+                         note=None):
         """
         新增RSS电影
         """
+        if search_sites is None:
+            search_sites = []
+        if rss_sites is None:
+            rss_sites = []
         if not media_info:
             return -1
         if not media_info.title:
             return -1
         if self.is_exists_rss_movie(media_info.title, media_info.year):
             return 9
-        desc = "#".join(["|".join(sites or []),
-                         "|".join(search_sites or []),
-                         "Y" if over_edition else "N",
-                         "@".join([StringUtils.str_sql(rss_restype),
-                                   StringUtils.str_sql(rss_pix),
-                                   StringUtils.str_sql(rss_rule),
-                                   StringUtils.str_sql(rss_team)])])
         self._db.insert(RSSMOVIES(
             NAME=media_info.title,
             YEAR=media_info.year,
             TMDBID=media_info.tmdb_id,
             IMAGE=media_info.get_message_image(),
+            RSS_SITES=json.dumps(rss_sites),
+            SEARCH_SITES=json.dumps(search_sites),
+            OVER_EDITION=over_edition,
+            FILTER_RESTYPE=filter_restype,
+            FILTER_PIX=filter_pix,
+            FILTER_RULE=filter_rule,
+            FILTER_TEAM=filter_team,
+            SAVE_PATH=save_path,
+            DOWNLOAD_SETTING=download_setting,
+            FUZZY_MATCH=fuzzy_match,
+            STATE=state,
             DESC=desc,
-            STATE=state
+            NOTE=note
         ))
         return 0
 
@@ -654,7 +704,7 @@ class DbHelper:
         return ""
 
     @DbPersist(_db)
-    def update_rss_tv_tmdb(self, rid, tmdbid, title, year, total, lack, image):
+    def update_rss_tv_tmdb(self, rid, tmdbid, title, year, total, lack, image, desc, note):
         """
         更新订阅电影的TMDBID
         """
@@ -667,7 +717,20 @@ class DbHelper:
                 "YEAR": year,
                 "TOTAL": total,
                 "LACK": lack,
-                "IMAGE": image
+                "IMAGE": image,
+                "DESC": desc,
+                "NOTE": note
+            }
+        )
+
+    @DbPersist(_db)
+    def update_rss_tv_desc(self, rid, desc):
+        """
+        更新订阅电视剧的DESC
+        """
+        self._db.query(RSSTVS).filter(RSSTVS.ID == int(rid)).update(
+            {
+                "DESC": desc
             }
         )
 
@@ -690,51 +753,65 @@ class DbHelper:
             return False
 
     @DbPersist(_db)
-    def insert_rss_tv(self, media_info, total, lack=0, state="D",
-                      sites: list = None,
-                      search_sites: list = None,
-                      over_edition=False,
-                      rss_restype=None,
-                      rss_pix=None,
-                      rss_team=None,
-                      rss_rule=None,
-                      match=False,
+    def insert_rss_tv(self,
+                      media_info,
+                      total,
+                      lack=0,
+                      state="D",
+                      rss_sites=None,
+                      search_sites=None,
+                      over_edition=0,
+                      filter_restype=None,
+                      filter_pix=None,
+                      filter_team=None,
+                      filter_rule=None,
+                      save_path=None,
+                      download_setting=-1,
                       total_ep=None,
-                      current_ep=None
-                      ):
+                      current_ep=None,
+                      fuzzy_match=0,
+                      desc=None,
+                      note=None):
         """
         新增RSS电视剧
         """
+        if search_sites is None:
+            search_sites = []
+        if rss_sites is None:
+            rss_sites = []
         if not media_info:
             return -1
         if not media_info.title:
             return -1
-        if match and media_info.begin_season is None:
+        if fuzzy_match and media_info.begin_season is None:
             season_str = ""
         else:
             season_str = media_info.get_season_string()
         if self.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return 9
-        # 插入订阅数据
-        desc = "#".join(["|".join(sites or []),
-                         "|".join(search_sites or []),
-                         "Y" if over_edition else "N",
-                         "@".join([StringUtils.str_sql(rss_restype),
-                                   StringUtils.str_sql(rss_pix),
-                                   StringUtils.str_sql(rss_rule),
-                                   StringUtils.str_sql(rss_team)]),
-                         "@".join([StringUtils.str_sql(total_ep),
-                                   StringUtils.str_sql(current_ep)])])
         self._db.insert(RSSTVS(
             NAME=media_info.title,
             YEAR=media_info.year,
             SEASON=season_str,
             TMDBID=media_info.tmdb_id,
             IMAGE=media_info.get_message_image(),
-            DESC=desc,
+            RSS_SITES=json.dumps(rss_sites),
+            SEARCH_SITES=json.dumps(search_sites),
+            OVER_EDITION=over_edition,
+            FILTER_RESTYPE=filter_restype,
+            FILTER_PIX=filter_pix,
+            FILTER_RULE=filter_rule,
+            FILTER_TEAM=filter_team,
+            SAVE_PATH=save_path,
+            DOWNLOAD_SETTING=download_setting,
+            FUZZY_MATCH=fuzzy_match,
+            TOTAL_EP=total_ep,
+            CURRENT_EP=current_ep,
             TOTAL=total,
             LACK=lack,
-            STATE=state
+            STATE=state,
+            DESC=desc,
+            NOTE=note
         ))
         return 0
 
@@ -1416,7 +1493,7 @@ class DbHelper:
         if not brush_id:
             return 0
         return self._db.query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
-                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
+                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID == '0').all()
 
     @DbPersist(_db)
     def add_brushtask_upload_count(self, brush_id, upload_size, download_size, remove_count):
@@ -2009,7 +2086,7 @@ class DbHelper:
                                 download_limit,
                                 ratio_limit,
                                 seeding_time_limit,
-                                note=None):
+                                downloader):
         """
         设置下载设置
         """
@@ -2025,7 +2102,7 @@ class DbHelper:
                     "DOWNLOAD_LIMIT": int(float(download_limit)),
                     "RATIO_LIMIT": int(round(float(ratio_limit), 2) * 100),
                     "SEEDING_TIME_LIMIT": int(float(seeding_time_limit)),
-                    "NOTE": note
+                    "DOWNLOADER": downloader
                 }
             )
         else:
@@ -2039,5 +2116,68 @@ class DbHelper:
                 DOWNLOAD_LIMIT=int(float(download_limit)),
                 RATIO_LIMIT=int(round(float(ratio_limit), 2) * 100),
                 SEEDING_TIME_LIMIT=int(float(seeding_time_limit)),
-                NOTE=note
+                DOWNLOADER=downloader
             ))
+
+    @DbPersist(_db)
+    def delete_message_client(self, cid):
+        """
+        删除消息服务器
+        """
+        if not cid:
+            return
+        self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).delete()
+
+    def get_message_client(self, cid=None):
+        """
+        查询消息服务器
+        """
+        if cid:
+            return self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).all()
+        return self._db.query(MESSAGECLIENT).order_by(MESSAGECLIENT.TYPE).all()
+
+    @DbPersist(_db)
+    def insert_message_client(self,
+                              name,
+                              ctype,
+                              config,
+                              switchs: list,
+                              interactive,
+                              enabled,
+                              note=''):
+        """
+        设置消息服务器
+        """
+        self._db.insert(MESSAGECLIENT(
+            NAME=name,
+            TYPE=ctype,
+            CONFIG=config,
+            SWITCHS=json.dumps(switchs),
+            INTERACTIVE=int(interactive),
+            ENABLED=int(enabled),
+            NOTE=note
+        ))
+
+    @DbPersist(_db)
+    def check_message_client(self, cid=None, interactive=None, enabled=None):
+        """
+        设置目录同步状态
+        """
+        if cid and interactive is not None:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).update(
+                {
+                    "INTERACTIVE": int(interactive)
+                }
+            )
+        elif cid and enabled is not None:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )
+        elif not cid and int(interactive) == 0:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1).update(
+                {
+                    "INTERACTIVE": 0
+                }
+            )

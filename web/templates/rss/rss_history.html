@@ -1,149 +1,149 @@
 <div class="container-xl">
-    <!-- Page title -->
-    <div class="page-header d-print-none">
-        <div class="row align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    订阅历史
-                </h2>
-            </div>
-            <div class="col-auto ms-auto d-print-none">
-                <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')"
-                    class="btn d-none d-sm-inline-block" title="返回">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
-                        width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-                    </svg>
-                    返回
-                </a>
-                <a href="javascript:navmenu('{% if Type == 'MOV'%}movie_rss{% else %}tv_rss{% endif %}')"
-                    class="btn d-sm-none btn-icon" title="返回">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
-                        width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-                    </svg>
-                </a>
-            </div>
-            <!-- Page title actions -->
-        </div>
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          订阅历史
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <a href="javascript:navmenu('{% if Type == 'MOV' %}movie_rss{% else %}tv_rss{% endif %}')"
+           class="btn d-none d-sm-inline-block" title="返回">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
+               width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+          </svg>
+          返回
+        </a>
+        <a href="javascript:navmenu('{% if Type == 'MOV' %}movie_rss{% else %}tv_rss{% endif %}')"
+           class="btn d-sm-none btn-icon" title="返回">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up"
+               width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+          </svg>
+        </a>
+      </div>
+      <!-- Page title actions -->
     </div>
+  </div>
 </div>
 <!-- 业务页面代码 -->
 <!-- 业务页面代码 -->
 <div class="page-body">
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body border-bottom py-3">
-                        <div class="d-flex">
-                            <div class="text-muted">
-                                共 {{ Count }} 条记录
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive" style="min-height: 300px">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>标题</th>
-                                    <th><span class="d-none d-md-block">简介</span></th>
-                                    <th>完成时间</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if Count > 0 %}
-                                {% for Item in Items %}
-                                <tr>
-                                    <td>
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ Count }} 条记录
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="min-height: 300px">
+            <table class="table table-vcenter card-table">
+              <thead>
+              <tr>
+                <th></th>
+                <th>标题</th>
+                <th><span class="d-none d-md-block">简介</span></th>
+                <th>完成时间</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Count > 0 %}
+                {% for Item in Items %}
+                  <tr>
+                    <td>
                                         <span class="d-none d-md-block" style="width: 60px">
                                             <img class="rounded" src="{{ Item.IMAGE }}"
-                                                onerror="this.src='../static/img/no-image.png'" />
+                                                 onerror="this.src='../static/img/no-image.png'"/>
                                         </span>
-                                    </td>
-                                    <td>
-                                        <div>{{ Item.NAME }} ({{ Item.YEAR }}) {{ Item.SEASON or '' }}</div>
-                                        <span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1"
-                                                href="https://www.themoviedb.org/{% if Item.TYPE == 'MOV' %}movie{% else %}tv{% endif %}/{{ Item.TMDBID }}"
-                                                target="_blank">{{ Item.TMDBID }}</a></span>
-                                        {% if Item.TOTAL %}
-                                        <div class="text-muted text-nowrap"><small>共 {{ Item.TOTAL - (Item.START or 0)
-                                                }} 集</small></div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="d-none d-md-block">{{ Item.DESC }}</span>
-                                    </td>
-                                    <td>
-                                        {{ Item.FINISH_TIME }}
-                                    </td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="btn-action" data-bs-toggle="dropdown"
-                                                aria-expanded="false">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                    <circle cx="12" cy="12" r="1"></circle>
-                                                    <circle cx="12" cy="19" r="1"></circle>
-                                                    <circle cx="12" cy="5" r="1"></circle>
-                                                </svg>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item"
-                                                    href='javascript:re_rss_history("{{ Item.ID }}")'>
-                                                    重新订阅
-                                                </a>
-                                                <a class="dropdown-item text-danger"
-                                                    href='javascript:delete_rss_history("{{ Item.ID }}")'>
-                                                    删除
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" align="center">没有完成的订阅</td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                    </td>
+                    <td>
+                      <div>{{ Item.NAME }} ({{ Item.YEAR }}) {{ Item.SEASON or '' }}</div>
+                      <span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1"
+                                               href="https://www.themoviedb.org/{% if Item.TYPE == 'MOV' %}movie{% else %}tv{% endif %}/{{ Item.TMDBID }}"
+                                               target="_blank">{{ Item.TMDBID }}</a></span>
+                      {% if Item.TOTAL %}
+                        <div class="text-muted text-nowrap"><small>共 {{ Item.TOTAL - (Item.START or 0) }} 集</small>
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="d-none d-md-block">{{ Item.DESC }}</span>
+                    </td>
+                    <td>
+                      {{ Item.FINISH_TIME }}
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                               height="24" viewBox="0 0 24 24" stroke-width="2"
+                               stroke="currentColor" fill="none" stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                          </svg>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item"
+                             href='javascript:re_rss_history("{{ Item.ID }}")'>
+                            重新订阅
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href='javascript:delete_rss_history("{{ Item.ID }}")'>
+                            删除
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="5" align="center">没有完成的订阅</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 <script type="text/javascript">
-    //重新订阅
-    function re_rss_history(rssid) {
-        show_wait_process();
-        ajax_post("re_rss_history", { "rssid": rssid, "type": "{{ Type }}" }, function (ret) {
-            hide_wait_process();
-            if (ret.code == 0) {
-                show_success_modal("重新订阅成功！");
-            } else {
-                show_fail_modal("重新订阅失败：" + ret.msg);
-            }
-        });
-    }
+  //重新订阅
+  function re_rss_history(rssid) {
+    show_wait_process();
+    ajax_post("re_rss_history", {"rssid": rssid, "type": "{{ Type }}"}, function (ret) {
+      hide_wait_process();
+      if (ret.code == 0) {
+        show_success_modal("重新订阅成功！");
+      } else {
+        show_fail_modal(`重新订阅失败：${ret.msg}`);
+      }
+    });
+  }
 
-    //删除订阅历史
-    function delete_rss_history(rssid) {
-        show_wait_process();
-        ajax_post("delete_rss_history", { "rssid": rssid }, function (ret) {
-            hide_wait_process();
-            navmenu('rss_history?t={{ Type }}');
-        });
-    }
+  //删除订阅历史
+  function delete_rss_history(rssid) {
+    show_wait_process();
+    ajax_post("delete_rss_history", {"rssid": rssid}, function (ret) {
+      hide_wait_process();
+      navmenu('rss_history?t={{ Type }}');
+    });
+  }
 </script>

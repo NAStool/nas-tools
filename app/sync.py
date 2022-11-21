@@ -21,7 +21,6 @@ class FileMonitorHandler(FileSystemEventHandler):
     """
     目录监控响应类
     """
-    dhelper = None
 
     def __init__(self, monpath, sync, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
@@ -43,6 +42,8 @@ class FileMonitorHandler(FileSystemEventHandler):
 @singleton
 class Sync(object):
     filetransfer = None
+    dbhelper = None
+
     sync_dir_config = {}
     __observer = []
     __sync_paths = []
@@ -63,14 +64,14 @@ class Sync(object):
     }
 
     def __init__(self):
-        self.filetransfer = FileTransfer()
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
-        _dbhelper = DbHelper()
+        self.filetransfer = FileTransfer()
         config = Config()
         sync = config.get_config('sync')
-        sync_paths = _dbhelper.get_config_sync_paths()
+        sync_paths = self.dbhelper.get_config_sync_paths()
         if sync and sync_paths:
             if sync.get('nas_sys') == "windows":
                 self.__sync_sys = OsType.WINDOWS
@@ -196,8 +197,7 @@ class Sync(object):
 
                 # 只做硬链接，不做识别重命名
                 if onlylink:
-                    _dbhelper = DbHelper()
-                    if _dbhelper.is_sync_in_history(event_path, target_path):
+                    if self.dbhelper.is_sync_in_history(event_path, target_path):
                         return
                     log.info("【Sync】开始同步 %s" % event_path)
                     ret = self.filetransfer.link_sync_files(src_path=monitor_dir,
@@ -207,7 +207,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (event_path, ret))
                     else:
-                        _dbhelper.insert_sync_history(event_path, monitor_dir, target_path)
+                        self.dbhelper.insert_sync_history(event_path, monitor_dir, target_path)
                         log.info("【Sync】%s 同步完成" % event_path)
                 # 识别转移
                 else:
@@ -323,7 +323,6 @@ class Sync(object):
         """
         全量转移Sync目录下的文件，WEB界面点击目录同步时获发
         """
-        _dbhelper = DbHelper()
         for monpath, target_dirs in self.sync_dir_config.items():
             if not monpath:
                 continue
@@ -334,7 +333,7 @@ class Sync(object):
             # 只做硬链接，不做识别重命名
             if onlylink:
                 for link_file in PathUtils.get_dir_files(monpath):
-                    if _dbhelper.is_sync_in_history(link_file, target_path):
+                    if self.dbhelper.is_sync_in_history(link_file, target_path):
                         continue
                     log.info("【Sync】开始同步 %s" % link_file)
                     ret = self.filetransfer.link_sync_files(src_path=monpath,
@@ -344,7 +343,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (link_file, ret))
                     else:
-                        _dbhelper.insert_sync_history(link_file, monpath, target_path)
+                        self.dbhelper.insert_sync_history(link_file, monpath, target_path)
                         log.info("【Sync】%s 同步完成" % link_file)
             else:
                 for path in PathUtils.get_dir_level1_medias(monpath, RMT_MEDIAEXT):

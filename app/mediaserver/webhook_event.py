@@ -140,7 +140,7 @@ class WebhookEvent:
         else:
             image_url = _webhook_images.get(channel)
         # 发送消息
-        self.message.sendmsg(title=message_title, text="\n".join(message_texts), image=image_url)
+        self.message.send_mediaserver_message(title=message_title, text="\n".join(message_texts), image=image_url)
 
     def is_ignore_webhook_message(self, user_name, device_name):
         """

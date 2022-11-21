@@ -2,8 +2,6 @@ from flask import Blueprint, request
 from flask_restx import Api, reqparse, Resource
 
 from app.brushtask import BrushTask
-from app.downloader import Downloader
-from app.indexer import BuiltinIndexer
 from app.rsschecker import RssChecker
 from app.sites import Sites
 from app.utils import TokenCache
@@ -20,7 +18,7 @@ apiv1_bp = Blueprint("apiv1",
 Apiv1 = Api(apiv1_bp,
             version="1.0",
             title="NAStool Api",
-            description="",
+            description="POST接口调用/user/login获取Token，GET接口使用Api Key",
             doc="/",
             security='Bearer Auth',
             authorizations={"Bearer Auth": {"type": "apiKey", "name": "Authorization", "in": "header"}},
@@ -43,6 +41,7 @@ media = Apiv1.namespace('media', description='媒体')
 sync = Apiv1.namespace('sync', description='目录同步')
 filterrule = Apiv1.namespace('filterrule', description='过滤规则')
 words = Apiv1.namespace('words', description='识别词')
+message = Apiv1.namespace('message', description='消息通知')
 
 
 class ApiResource(Resource):
@@ -389,34 +388,31 @@ class SiteResources(ClientResource):
 
 @site.route('/list')
 class SiteList(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
+    parser.add_argument('rss', type=bool, help='订阅', location='form')
+    parser.add_argument('brush', type=bool, help='刷流', location='form')
+    parser.add_argument('signin', type=bool, help='签到', location='form')
+    parser.add_argument('statistic', type=bool, help='数据统计', location='form')
+
+    def post(self):
         """
         查询站点列表
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": Sites().get_sites()
-            }
-        }
+        return WebAction().api_action(cmd='get_sites', data=self.parser.parse_args())
 
 
 @site.route('/indexers')
 class SiteIndexers(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
+    parser.add_argument('check', type=bool, help='过滤选中站点', location='form')
+
+    def post(self):
         """
         查询站点索引列表
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": [index.__dict__ for index in BuiltinIndexer().get_indexers(check=False, public=False)]
-            }
-        }
+        return WebAction().api_action(cmd='get_indexers', data=self.parser.parse_args())
 
 
 @search.route('/keyword')
@@ -450,7 +446,8 @@ class SearchResult(ClientResource):
 class DownloadSearch(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('id', type=str, help='搜索结果ID', location='form', required=True)
-    parser.add_argument('dir', type=str, help='下载目录', location='form')
+    parser.add_argument('dir', type=str, help='保存目录', location='form')
+    parser.add_argument('setting', type=str, help='下载设置', location='form')
 
     @download.doc(parser=parser)
     def post(self):
@@ -583,6 +580,7 @@ class DownloadConfigUpdate(ClientResource):
     parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
     parser.add_argument('ratio_limit', type=int, help='分享率限制', location='form')
     parser.add_argument('seeding_time_limit', type=int, help='做种时间限制', location='form')
+    parser.add_argument('downloader', type=str, help='下载器（Qbittorrent/Transmission/115网盘/Aria2）', location='form')
 
     @download.doc(parser=parser)
     def post(self):
@@ -607,18 +605,26 @@ class DownloadConfigDelete(ClientResource):
 
 @download.route('/config/list')
 class DownloadConfigList(ClientResource):
-    @staticmethod
-    def post():
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='ID', location='form')
+
+    def post(self):
         """
-        查询所有下载设置
+        查询下载设置
         """
-        return {
-            "code": 0,
-            "success": True,
-            "data": {
-                "result": Downloader().get_download_setting()
-            }
-        }
+        return WebAction.api_action(cmd="get_download_setting", data=self.parser.parse_args())
+
+
+@download.route('/config/directory')
+class DownloadConfigDirectory(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('sid', type=str, help='下载设置ID', location='form')
+
+    def post(self):
+        """
+        查询下载保存目录
+        """
+        return WebAction.api_action(cmd="get_download_dirs", data=self.parser.parse_args())
 
 
 @organization.route('/unknown/delete')
@@ -1972,3 +1978,77 @@ class SyncDirectoryList(ClientResource):
         查询所有同步目录
         """
         return WebAction().api_action(cmd='get_directorysync')
+
+
+@message.route('/client/update')
+class MessageClientUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form')
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）',
+                        location='form', required=True)
+    parser.add_argument('config', type=str, help='配置项（JSON）', location='form', required=True)
+    parser.add_argument('switchs', type=list, help='开关', location='form', required=True)
+    parser.add_argument('interactive', type=int, help='是否开启交互（0/1）', location='form', required=True)
+    parser.add_argument('enabled', type=int, help='是否启用（0/1）', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改通知消息服务渠道
+        """
+        return WebAction().api_action(cmd='update_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/delete')
+class MessageClientDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        删除通知消息服务渠道
+        """
+        return WebAction().api_action(cmd='delete_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/status')
+class MessageClientStatus(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('flag', type=str, help='操作类型（interactive/enable）', location='form', required=True)
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        设置通知消息服务渠道状态
+        """
+        return WebAction().api_action(cmd='check_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/info')
+class MessageClientInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('cid', type=int, help='ID', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        查询通知消息服务渠道设置
+        """
+        return WebAction().api_action(cmd='get_message_client', data=self.parser.parse_args())
+
+
+@message.route('/client/test')
+class MessageClientTest(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）', location='form', required=True)
+    parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
+
+    @sync.doc(parser=parser)
+    def post(self):
+        """
+        测试通知消息服务配置正确性
+        """
+        return WebAction().api_action(cmd='test_message_client', data=self.parser.parse_args())

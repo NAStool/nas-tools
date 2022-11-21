@@ -1,24 +1,24 @@
 from urllib.parse import quote_plus
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
-from app.utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 
 
 class Bark(IMessageChannel):
-    __server = None
-    __apikey = None
+    _server = None
+    _apikey = None
+    _client_config = {}
 
-    def __init__(self):
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self.__server = message.get('bark', {}).get('server')
-            self.__apikey = message.get('bark', {}).get('apikey')
+        if self._client_config:
+            scheme, netloc = StringUtils.get_url_netloc(self._client_config.get('server'))
+            self._server = f"{scheme}://{netloc}"
+            self._apikey = self._client_config.get('apikey')
 
     def get_status(self):
         """
@@ -42,9 +42,9 @@ class Bark(IMessageChannel):
         if not title and not text:
             return False, "标题和内容不能同时为空"
         try:
-            if not self.__server or not self.__apikey:
+            if not self._server or not self._apikey:
                 return False, "参数未配置"
-            sc_url = "%s/%s/%s/%s" % (self.__server, self.__apikey, quote_plus(title), quote_plus(text))
+            sc_url = "%s/%s/%s/%s" % (self._server, self._apikey, quote_plus(title), quote_plus(text))
             res = RequestUtils().post_res(sc_url)
             if res:
                 ret_json = res.json()
@@ -59,5 +59,5 @@ class Bark(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, **kwargs):
         pass

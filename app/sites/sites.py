@@ -14,17 +14,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
 
-
 import log
 from app.message import Message
-from app.filterrules import FilterRule
 from app.sites import SiteUserInfoFactory
 from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import DbHelper
-from app.utils.torrent import TorrentAttr
 from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
@@ -33,27 +30,96 @@ lock = Lock()
 @singleton
 class Sites:
     message = None
-    filtersites = None
     siteconf = None
+    dbhelper = None
 
-    __sites_data = {}
-    __sites = None
-    __last_update_time = None
-    __site_favicons = {}
+    _sites = []
+    _siteByIds = {}
+    _siteByUrls = {}
+    _sites_data = {}
+    _site_favicons = {}
+    _rss_sites = []
+    _brush_sites = []
+    _statistic_sites = []
+    _signin_sites = []
+    _last_update_time = None
+
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
-        _dbhelper = DbHelper()
         self.message = Message()
-        self.filtersites = FilterRule()
         self.siteconf = SiteConf()
-        self.__sites = _dbhelper.get_config_site()
-        self.__sites_data = {}
-        self.__last_update_time = None
-        self.__site_favicons = {site.SITE: site.FAVICON for site in _dbhelper.get_site_user_statistics()}
+        # 原始站点列表
+        self._sites = []
+        # 站点数据
+        self._sites_data = {}
+        # 站点数据更新时间
+        self._last_update_time = None
+        # ID存储站点
+        self._siteByIds = {}
+        # URL存储站点
+        self._siteByUrls = {}
+        # 开启订阅功能站点
+        self._rss_sites = []
+        # 开启刷流功能站点：
+        self._brush_sites = []
+        # 开启统计功能站点：
+        self._statistic_sites = []
+        # 开启签到功能站点：
+        self._signin_sites = []
+        # 站点图标
+        self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_user_statistics()}
+        # 站点数据
+        self._sites = self.dbhelper.get_config_site()
+        for site in self._sites:
+            # 站点属性
+            site_note = self.__get_site_note_items(site.NOTE)
+            # 站点地址ID
+            _, site_strict_url = StringUtils.get_url_netloc(site.SIGNURL or site.RSSURL)
+            # 站点用途：Q签到、D订阅、S刷流
+            site_rssurl = site.RSSURL
+            site_signurl = site.SIGNURL
+            site_cookie = site.COOKIE
+            site_uses = site.INCLUDE or ''
+            if site_uses:
+                signin_enable = True if "Q" in site_uses and site_signurl else False
+                rss_enable = True if "D" in site_uses and site_rssurl else False
+                brush_enable = True if "S" in site_uses and site_rssurl else False
+                statistic_enable = True if "T" in site_uses and site_cookie else False
+            else:
+                signin_enable = False
+                rss_enable = False
+                brush_enable = False
+                statistic_enable = False
+            site_info = {
+                "id": site.ID,
+                "name": site.NAME,
+                "pri": site.PRI or 0,
+                "rssurl": site_rssurl,
+                "signurl": site_signurl,
+                "cookie": site_cookie,
+                "rule": site_note.get("rule"),
+                "parse": site_note.get("parse"),
+                "signin_enable": signin_enable,
+                "rss_enable": rss_enable,
+                "brush_enable": brush_enable,
+                "statistic_enable": statistic_enable,
+                "favicon": self._site_favicons.get(site.NAME, ""),
+                "ua": site_note.get("ua"),
+                "unread_msg_notify": site_note.get("message") or 'N',
+                "chrome": site_note.get("chrome") or 'N',
+                "proxy": site_note.get("proxy") or 'N',
+                "subtitle": site_note.get("subtitle") or 'N'
+            }
+            # 以ID存储
+            self._siteByIds[site.ID] = site_info
+            # 以域名存储
+            if site_strict_url:
+                self._siteByUrls[site_strict_url] = site_info
 
     def get_sites(self,
                   siteid=None,
@@ -65,64 +131,23 @@ class Sites:
         """
         获取站点配置
         """
+        if siteid:
+            return self._siteByIds.get(int(siteid))
+        if siteurl:
+            _, url = StringUtils.get_url_netloc(siteurl)
+            return self._siteByUrls.get(url)
+
         ret_sites = []
-        # 补全 favicon
-        for site in self.__sites:
-            # 是否解析种子详情为|分隔的第1位
-            site_parse = str(site.NOTE).split("|")[0] or "Y"
-            # 站点过滤规则为|分隔的第2位
-            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
-            # 站点未读消息为|分隔的第3位
-            site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(str(site.NOTE).split("|")) > 2 else "Y"
-            # 自定义UA为|分隔的第4位
-            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
-            # 是否开启浏览器仿真为|分隔的第5位
-            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
-            # 是否使用代理为|分隔的第6位
-            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
-            # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if site.INCLUDE and str(site.INCLUDE).count("Q") else False
-            rss_enable = True if site.INCLUDE and str(site.INCLUDE).count("D") else False
-            brush_enable = True if site.INCLUDE and str(site.INCLUDE).count("S") else False
-            statistic_enable = True if site.INCLUDE and str(site.INCLUDE).count("T") else False
-            if rule_groupid:
-                rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
-            else:
-                rule_name = ""
-            site_info = {
-                "id": site.ID,
-                "name": site.NAME,
-                "pri": site.PRI or 0,
-                "rssurl": site.RSSURL,
-                "signurl": site.SIGNURL,
-                "cookie": site.COOKIE,
-                "rule": rule_groupid,
-                "rule_name": rule_name,
-                "parse": site_parse,
-                "unread_msg_notify": site_unread_msg_notify,
-                "signin_enable": signin_enable,
-                "rss_enable": rss_enable,
-                "brush_enable": brush_enable,
-                "statistic_enable": statistic_enable,
-                "favicon": self.__site_favicons.get(site.NAME, ""),
-                "ua": ua,
-                "chrome": chrome,
-                "proxy": proxy
-            }
-            if siteid and int(site.ID) == int(siteid):
-                return site_info
-            url = site.RSSURL if not site.SIGNURL else site.SIGNURL
-            if siteurl and url and StringUtils.url_equal(siteurl, url):
-                return site_info
-            if rss and (not site.RSSURL or not rss_enable):
+        for site in self._siteByIds.values():
+            if rss and not site.get('rss_enable'):
                 continue
-            if brush and (not site.RSSURL or not brush_enable):
+            if brush and not site.get('brush_enable'):
                 continue
-            if signin and (not site.SIGNURL or not signin_enable):
+            if signin and not site.get('signin_enable'):
                 continue
-            if statistic and not statistic_enable:
+            if statistic and not site.get('statistic_enable'):
                 continue
-            ret_sites.append(site_info)
+            ret_sites.append(site)
         if siteid or siteurl:
             return {}
         return ret_sites
@@ -131,9 +156,9 @@ class Sites:
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
-        if not self.__sites:
+        if not self._sites:
             return
-        if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 6 * 3600:
+        if not force and self._last_update_time and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
             return
 
         with lock:
@@ -152,16 +177,15 @@ class Sites:
                 site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
-            _dbhelper = DbHelper()
-            _dbhelper.insert_site_statistics_history(site_user_infos)
+            self.dbhelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
-            _dbhelper.update_site_user_statistics(site_user_infos)
+            self.dbhelper.update_site_user_statistics(site_user_infos)
             # 实时做种信息
-            _dbhelper.update_site_seed_info(site_user_infos)
+            self.dbhelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
-            self.__last_update_time = datetime.now()
+            self._last_update_time = datetime.now()
 
     def __refresh_site_data(self, site_info):
         """
@@ -193,26 +217,27 @@ class Sites:
 
                 # 获取不到数据时，仅返回错误信息，不做历史数据更新
                 if site_user_info.err_msg:
-                    self.__sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
+                    self._sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
                     return
 
                 # 发送通知，存在未读消息
                 self.__notify_unread_msg(site_name, site_user_info, unread_msg_notify)
 
-                self.__sites_data.update({site_name: {"upload": site_user_info.upload,
-                                                      "username": site_user_info.username,
-                                                      "user_level": site_user_info.user_level,
-                                                      "join_at": site_user_info.join_at,
-                                                      "download": site_user_info.download,
-                                                      "ratio": site_user_info.ratio,
-                                                      "seeding": site_user_info.seeding,
-                                                      "seeding_size": site_user_info.seeding_size,
-                                                      "leeching": site_user_info.leeching,
-                                                      "bonus": site_user_info.bonus,
-                                                      "url": site_url,
-                                                      "err_msg": site_user_info.err_msg,
-                                                      "message_unread": site_user_info.message_unread}
-                                          })
+                self._sites_data.update({site_name: {
+                    "upload": site_user_info.upload,
+                    "username": site_user_info.username,
+                    "user_level": site_user_info.user_level,
+                    "join_at": site_user_info.join_at,
+                    "download": site_user_info.download,
+                    "ratio": site_user_info.ratio,
+                    "seeding": site_user_info.seeding,
+                    "seeding_size": site_user_info.seeding_size,
+                    "leeching": site_user_info.leeching,
+                    "bonus": site_user_info.bonus,
+                    "url": site_url,
+                    "err_msg": site_user_info.err_msg,
+                    "message_unread": site_user_info.message_unread}
+                })
 
                 return site_user_info
 
@@ -222,7 +247,7 @@ class Sites:
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
         if site_user_info.message_unread <= 0:
             return
-        if self.__sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
+        if self._sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
             return
         if unread_msg_notify != 'Y':
             return
@@ -232,9 +257,10 @@ class Sites:
             for head, date, content in site_user_info.message_unread_contents:
                 msg_title = f"【站点 {site_user_info.site_name} 消息】"
                 msg_text = f"时间：{date}\n标题：{head}\n内容：\n{content}"
-                self.message.sendmsg(title=msg_title, text=msg_text)
+                self.message.send_site_message(title=msg_title, text=msg_text)
         else:
-            self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+            self.message.send_site_message(
+                title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
     def test_connection(self, site_id):
         """
@@ -431,7 +457,7 @@ class Sites:
         获取站点上传下载量
         """
         self.refresh_all_site_data()
-        return self.__sites_data
+        return self._sites_data
 
     def get_pt_site_statistics_history(self, days=7):
         """
@@ -443,7 +469,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        return DbHelper().get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
     def get_site_user_statistics(self, encoding="RAW"):
         """
@@ -458,7 +484,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        raw_statistics = DbHelper().get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = self.dbhelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":
             return raw_statistics
 
@@ -498,8 +524,7 @@ class Sites:
 
         self.refresh_all_site_data(force=True, specify_sites=specify_sites)
 
-    @staticmethod
-    def get_pt_site_activity_history(site, days=365 * 2):
+    def get_pt_site_activity_history(self, site, days=365 * 2):
         """
         查询站点 上传，下载，做种数据
         :param site: 站点名称
@@ -507,7 +532,7 @@ class Sites:
         :return:
         """
         site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
-        sql_site_activities = DbHelper().get_site_statistics_history(site=site, days=days)
+        sql_site_activities = self.dbhelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity.DATE, '%Y-%m-%d').timestamp() * 1000
             site_activities.append(
@@ -520,15 +545,14 @@ class Sites:
 
         return site_activities
 
-    @staticmethod
-    def get_pt_site_seeding_info(site):
+    def get_pt_site_seeding_info(self, site):
         """
         查询站点 做种分布信息
         :param site: 站点名称
         :return: seeding_info:[uploader_num, seeding_size]
         """
         site_seeding_info = {"seeding_info": []}
-        seeding_info = DbHelper().get_site_seeding_info(site=site)
+        seeding_info = self.dbhelper.get_site_seeding_info(site=site)
         if not seeding_info:
             return site_seeding_info
 
@@ -581,7 +605,7 @@ class Sites:
                             cookie = dict_from_cookiejar(res.cookies)
                     except Exception as err:
                         print(str(err))
-        return cookie, ua, referer
+        return cookie, ua, referer, site_info
 
     def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
         """
@@ -634,7 +658,16 @@ class Sites:
             return res.text
         return ""
 
-    def check_torrent_attr(self, torrent_url, cookie, ua=None) -> TorrentAttr:
+    def get_grapsite_conf(self, url):
+        """
+        根据地址找到RSS_SITE_GRAP_CONF对应配置
+        """
+        for k, v in self.siteconf.RSS_SITE_GRAP_CONF.items():
+            if StringUtils.url_equal(k, url):
+                return v
+        return {}
+
+    def check_torrent_attr(self, torrent_url, cookie, ua=None):
         """
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
@@ -642,7 +675,12 @@ class Sites:
         :param ua: 站点的ua
         :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
         """
-        ret_attr = TorrentAttr()
+        ret_attr = {
+            "free": False,
+            "2xfree": False,
+            "hr": False,
+            "peer_count": 0
+        }
         if not torrent_url:
             return ret_attr
         xpath_strs = self.get_grapsite_conf(torrent_url)
@@ -656,36 +694,28 @@ class Sites:
             # 检测2XFREE
             for xpath_str in xpath_strs.get("2XFREE"):
                 if html.xpath(xpath_str):
-                    ret_attr.free2x = True
+                    ret_attr["free"] = True
+                    ret_attr["2xfree"] = True
             # 检测FREE
             for xpath_str in xpath_strs.get("FREE"):
                 if html.xpath(xpath_str):
-                    ret_attr.free = True
+                    ret_attr["free"] = True
             # 检测HR
             for xpath_str in xpath_strs.get("HR"):
                 if html.xpath(xpath_str):
-                    ret_attr.hr = True
+                    ret_attr["hr"] = True
             # 检测PEER_COUNT当前做种人数
             for xpath_str in xpath_strs.get("PEER_COUNT"):
                 peer_count_dom = html.xpath(xpath_str)
                 if peer_count_dom:
                     peer_count_str = peer_count_dom[0].text
                     peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
-                    ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
+                    ret_attr["peer_count"] = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
         except Exception as err:
             print(str(err))
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr
-
-    def get_grapsite_conf(self, url):
-        """
-        根据地址找到RSS_SITE_GRAP_CONF对应配置
-        """
-        for k, v in self.siteconf.RSS_SITE_GRAP_CONF.items():
-            if StringUtils.url_equal(k, url):
-                return v
-        return {}
 
     def is_public_site(self, url):
         """
@@ -705,3 +735,13 @@ class Sites:
             return self.siteconf.PUBLIC_TORRENT_SITES.get(netloc)
         else:
             return self.siteconf.PUBLIC_TORRENT_SITES.items()
+
+    @staticmethod
+    def __get_site_note_items(note):
+        """
+        从note中提取站点信息
+        """
+        infos = {}
+        if note:
+            infos = json.loads(note)
+        return infos

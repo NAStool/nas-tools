@@ -20,47 +20,47 @@
             <h3 class="card-title"><strong>电影</strong></h3>
             <a href="javascript:show_directory_modal('movie')" class="btn btn-primary btn-icon ms-auto">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
+                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </a>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap datatable">
               <thead>
-                <tr>
-                  <th>目录</th>
-                  <th class="w-3"></th>
-                </tr>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if Config.media.movie_path %}
+              {% if Config.media.movie_path %}
                 {% for path in Config.media.movie_path %}
-                <tr>
-                  <td>
-                    <input type="hidden" value="{{ path }}">
-                    {{ path }}
-                  </td>
-                  <td>
-                    <a href="javascript:sub_directory_config('movie', '{{ path }}')" title="删除目录">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('movie', '{{ path }}')" title="删除目录">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="2" align="center">未配置</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -72,47 +72,47 @@
             <h3 class="card-title"><strong>电视剧</strong></h3>
             <a href="javascript:show_directory_modal('tv')" class="btn btn-primary btn-icon ms-auto">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
+                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </a>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap datatable">
               <thead>
-                <tr>
-                  <th>目录</th>
-                  <th class="w-3"></th>
-                </tr>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if Config.media.tv_path %}
+              {% if Config.media.tv_path %}
                 {% for path in Config.media.tv_path %}
-                <tr>
-                  <td>
-                    <input type="hidden" value="{{ path }}">
-                    {{ path }}
-                  </td>
-                  <td>
-                    <a href="javascript:sub_directory_config('tv', '{{ path }}')" title="删除目录">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('tv', '{{ path }}')" title="删除目录">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="2" align="center">未配置</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -124,47 +124,47 @@
             <h3 class="card-title"><strong>动漫</strong></h3>
             <a href="javascript:show_directory_modal('anime')" class="btn btn-primary btn-icon ms-auto">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
+                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </a>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap datatable">
               <thead>
-                <tr>
-                  <th>目录</th>
-                  <th class="w-3"></th>
-                </tr>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if Config.media.anime_path %}
+              {% if Config.media.anime_path %}
                 {% for path in Config.media.anime_path %}
-                <tr>
-                  <td>
-                    <input type="hidden" value="{{ path }}">
-                    {{ path }}
-                  </td>
-                  <td>
-                    <a href="javascript:sub_directory_config('anime', '{{ path }}')" title="删除目录">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('anime', '{{ path }}')" title="删除目录">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="2" align="center">未配置</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -176,47 +176,47 @@
             <h3 class="card-title"><strong>未识别</strong></h3>
             <a href="javascript:show_directory_modal('unknown')" class="btn btn-primary btn-icon ms-auto">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
+                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </a>
           </div>
           <div class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap datatable">
               <thead>
-                <tr>
-                  <th>目录</th>
-                  <th class="w-3"></th>
-                </tr>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if Config.media.unknown_path %}
+              {% if Config.media.unknown_path %}
                 {% for path in Config.media.unknown_path %}
-                <tr>
-                  <td>
-                    <input type="hidden" value="{{ path }}">
-                    {{ path }}
-                  </td>
-                  <td>
-                    <a href="javascript:sub_directory_config('unknown', '{{ path }}')" title="删除目录">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('unknown', '{{ path }}')" title="删除目录">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="2" align="center">未配置</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -226,7 +226,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-dirctory" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -238,8 +238,8 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label">路径 <span class="form-help"
-                  title="Emby/Jellyfin/Plex媒体库对应文件的路径，下载文件转移、目录同步未配置目的目录时，媒体文件将重命名转移到该目录"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                   title="Emby/Jellyfin/Plex媒体库对应文件的路径，下载文件转移、目录同步未配置目的目录时，媒体文件将重命名转移到该目录"
+                                                   data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="" id="path_str" class="form-control filetree-folders-only" autocomplete="off">
               <input type="hidden" value="" id="path_type" class="form-control">
             </div>
@@ -264,7 +264,7 @@
   function add_directory_config() {
     type = $("#path_type").val();
     value = $("#path_str").val();
-    var params = { "oper": "add", "key": "media." + type + "_path", "value": value };
+    var params = {"oper": "add", "key": "media." + type + "_path", "value": value};
     $("#modal-dirctory").modal('hide');
     ajax_post("update_directory", params, function (ret) {
       navmenu('library');
@@ -273,7 +273,7 @@
 
   // 删除目录
   function sub_directory_config(type, value) {
-    var params = { "oper": "sub", "key": "media." + type + "_path", "value": value };
+    var params = {"oper": "sub", "key": "media." + type + "_path", "value": value};
     ajax_post("update_directory", params, function (ret) {
       navmenu('library');
     });

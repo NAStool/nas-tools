@@ -1,0 +1,97 @@
+name: Build NAStool Windows
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
+      - .github/workflows/build-windows.yml
+
+jobs:
+  Windows-build:
+    runs-on: windows-latest
+    steps:
+    - name: init Python 3.10.6
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.6'
+    - name: install dependent packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel numpy railroad pyparsing wxpython pyinstaller
+        git clone --depth=1 -b master https://github.com/jxxghp/nas-tools --recurse-submodule
+        cd nas-tools
+        pip install -r requirements.txt
+        echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+        echo $env:NASTOOL_CONFIG
+      shell: pwsh
+    - name: package through pyinstaller
+      run: |
+        cd nas-tools
+        copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts
+        copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
+        copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
+        copy .\third_party.txt .\windows
+        copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
+        xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
+        xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
+        xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\db_scripts\ /e
+        cd windows
+        pyinstaller nas-tools.spec
+      shell: pwsh
+    - name: upload windows file
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: D:/a/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools.exe
+
+  Create-release_Send-message:
+    runs-on: ubuntu-latest
+    needs: [Windows-build]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release version
+      id: release_version
+      run: |
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+        echo "app_version=$app_version" >> $GITHUB_ENV
+    - name: download exe and rename
+      uses: actions/download-artifact@v3
+    - name: get release_informations
+      shell: bash
+      run: |
+        pwd
+        mkdir releases
+        cd windows
+        mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+        pwd
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        prerelease: false
+    - name: Upload release asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: |
+            /home/runner/work/nas-tools/nas-tools/releases/
+    - name: Send telegram message (release informations)
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+            *v${{ env.app_version }}*
+
+            ${{ github.event.commits[0].message }}

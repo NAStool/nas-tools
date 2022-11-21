@@ -11,19 +11,19 @@
         <div class="btn-list">
           <a href="javascript:show_add_sync_path_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             新增同步目录
           </a>
           <a href="javascript:show_add_sync_path_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </a>
         </div>
@@ -47,73 +47,74 @@
           <div class="table-responsive">
             <table class="table table-vcenter card-table">
               <thead>
-                <tr>
-                  <th>源目录</th>
-                  <th>目的目录</th>
-                  <th class="w-5 text-nowrap">同步方式</th>
-                  <th class="w-5 text-nowrap">识别重命名</th>
-                  <th class="w-5 text-nowrap">状态</th>
-                  <th class="w-5"></th>
-                </tr>
+              <tr>
+                <th>源目录</th>
+                <th>目的目录</th>
+                <th class="w-5 text-nowrap">同步方式</th>
+                <th class="w-5 text-nowrap">识别重命名</th>
+                <th class="w-5 text-nowrap">状态</th>
+                <th class="w-5"></th>
+              </tr>
               </thead>
               <tbody>
-                {% if SyncPaths %}
+              {% if SyncPaths %}
                 {% for SyncPath in SyncPaths %}
-                <tr>
-                  <td>{{ SyncPath.from or '' }}</td>
-                  <td>
-                    {{ SyncPath.to or '' }}
-                    {% if SyncPath.unknown and SyncPath.rename %}
-                    <div class="text-muted">
-                      未识别：{{ SyncPath.unknown }}
-                    </div>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span class="badge">{{ SyncPath.syncmod_name }}</span>
-                  </td>
-                  <td>
-                    <label class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" {% if SyncPath.rename==1 %} checked {% endif %}
-                        onclick="check_sync_path('rename', '{{ SyncPath.id }}', this.checked)">
-                    </label>
-                  </td>
-                  <td>
-                    <label class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" {% if SyncPath.enabled==1 %} checked {% endif %}
-                        onclick="check_sync_path('enable', '{{ SyncPath.id }}', this.checked)">
-                    </label>
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <a href="javascript:show_edit_sync_path_modal('{{ SyncPath.id }}')" title="编辑替换词">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                          <line x1="16" y1="5" x2="19" y2="8" />
-                        </svg>
-                      </a>
-                      <a href="javascript:delete_sync_path('{{ SyncPath.id }}')" title="删除目录" class="ms-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                          stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>{{ SyncPath.from or '' }}</td>
+                    <td>
+                      {{ SyncPath.to or '' }}
+                      {% if SyncPath.unknown and SyncPath.rename %}
+                        <div class="text-muted">
+                          未识别：{{ SyncPath.unknown }}
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge">{{ SyncPath.syncmod_name }}</span>
+                    </td>
+                    <td>
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" {% if SyncPath.rename==1 %} checked {% endif %}
+                               onclick="check_sync_path('rename', '{{ SyncPath.id }}', this.checked)">
+                      </label>
+                    </td>
+                    <td>
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" {% if SyncPath.enabled==1 %} checked {% endif %}
+                               onclick="check_sync_path('enable', '{{ SyncPath.id }}', this.checked)">
+                      </label>
+                    </td>
+                    <td>
+                      <div class="d-flex">
+                        <a href="javascript:show_edit_sync_path_modal('{{ SyncPath.id }}')" title="编辑替换词">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
+                               viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                            <line x1="16" y1="5" x2="19" y2="8"/>
+                          </svg>
+                        </a>
+                        <a href="javascript:delete_sync_path('{{ SyncPath.id }}')" title="删除目录" class="ms-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                               height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                               stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="6" align="center">未配置</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
@@ -123,7 +124,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -136,20 +137,21 @@
           <div class="col-lg-9">
             <div class="mb-3">
               <label class="form-label required">同步目录 <span class="form-help"
-                  title="源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录；只有源目录必须配置；目的目录未配置时将自动识别分类并转移到媒体库对应目录中；未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体整理->手动识别功能下处理"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                                title="源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录；只有源目录必须配置；目的目录未配置时将自动识别分类并转移到媒体库对应目录中；未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体整理->手动识别功能下处理"
+                                                                data-bs-toggle="tooltip">?</span></label>
               <div class="row">
                 <div class="col-12 col-lg-4 mb-1">
                   <input type="text" value="" id="from_path" class="form-control filetree-folders-only"
-                    placeholder="源目录" autocomplete="off">
+                         placeholder="源目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-4 mb-1">
-                  <input type="text" value="" id="to_path" class="form-control filetree-folders-only" placeholder="目的目录"
-                    autocomplete="off">
+                  <input type="text" value="" id="to_path" class="form-control filetree-folders-only"
+                         placeholder="目的目录"
+                         autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-4">
                   <input type="text" value="" id="unknown_path" class="form-control filetree-folders-only"
-                    placeholder="未识别目录" autocomplete="off">
+                         placeholder="未识别目录" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -157,8 +159,8 @@
           <div class="col-lg-3">
             <div class="mb-3">
               <label class="form-label required">同步方式 <span class="form-help"
-                  title="按目录设置文件转移方式，将覆盖默认文件转移方式设置。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                                title="按目录设置文件转移方式，将覆盖默认文件转移方式设置。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
+                                                                data-bs-toggle="tooltip">?</span></label>
               <select id="syncmod_flag" class="form-select">
                 <option value="link" selected="selected">硬链接</option>
                 <option value="softlink">软链接</option>
@@ -208,7 +210,7 @@
   // 打开编辑窗口
   function show_edit_sync_path_modal(sid) {
     show_wait_process();
-    ajax_post("get_sync_path", { sid: sid }, function (ret) {
+    ajax_post("get_sync_path", {sid: sid}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
         sync_item = ret.data;
@@ -273,7 +275,9 @@
       if (ret.code == 0) {
         navmenu('directorysync');
       } else {
-        show_fail_modal(ret.msg);
+        show_fail_modal(ret.msg, function () {
+          $("#modal-directory").modal('show');
+        });
       }
     });
   }
@@ -281,7 +285,7 @@
   // 删除目录
   function delete_sync_path(sid) {
     show_wait_process();
-    ajax_post("delete_sync_path", { sid: sid }, function (ret) {
+    ajax_post("delete_sync_path", {sid: sid}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
         navmenu('directorysync');
@@ -292,7 +296,7 @@
   // 更新目录
   function check_sync_path(flag, sid, checked) {
     show_wait_process();
-    ajax_post("check_sync_path", { flag: flag, sid: sid, checked: checked }, function (ret) {
+    ajax_post("check_sync_path", {flag: flag, sid: sid, checked: checked}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
         navmenu('directorysync');

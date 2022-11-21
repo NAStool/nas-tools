@@ -10,25 +10,25 @@
         <div class="btn-list">
           <a href="javascript:show_add_tvrss_media_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             新增订阅
           </a>
           <a href="javascript:show_add_tvrss_media_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </a>
           <a href="javascript:navmenu('rss_history?t=TV')" class="btn d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <polyline points="12 8 12 12 14 14"></polyline>
               <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -37,8 +37,8 @@
           </a>
           <a href="javascript:navmenu('rss_history?t=TV')" class="btn d-sm-none btn-icon" title="RSS解析器">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <polyline points="12 8 12 12 14 14"></polyline>
               <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -50,108 +50,118 @@
   </div>
 </div>
 {% if Count > 0 %}
-<div class="page-body">
-  <div class="container-xl">
-    <div class="row row-cards">
-      {% for Item in Items %}
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3"
-          href='javascript:{% if Item.TMDBID %}show_mediainfo_modal("TV", "{{ Item.NAME }}", "{{ Item.YEAR }}", "{{ Item.TMDBID }}", "tv_rss", "{{ Item.ID }}"){% else %}show_edit_rss_media_modal("{{ Item.ID }}", "TV"){% endif %}'>
-          <div class="text-center" style="overflow:hidden">
-            <img class="rounded-top w-100" src="{{ Item.IMAGE }}"
-              style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-cards">
+        {% for Id, Attr in Items.items() %}
+          <div class="col-12 col-md-4 col-xl-3">
+            <a class="card card-link card-link-pop rounded-3"
+               href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("TV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "tv_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "TV"){% endif %}'>
+              <div class="text-center" style="overflow:hidden">
+                <img class="rounded-top w-100" src="{{ Attr.image }}"
+                     style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+              </div>
+              <div class="card-progress">
+                <div class="progress-bar bg-green"
+                     style="width:
+                             {% if (Attr.total or -1) > 0 %}{{ ((Attr.total or -1)-(Attr.lack or -1))*100/(Attr.total or -1) }}{% endif %}%"
+                     role="progressbar"
+                     aria-valuenow="
+                             {% if (Attr.total or -1) > 0 %}{{ ((Attr.total or -1)-(Attr.lack or -1))*100/(Attr.total or -1) }}{% endif %}"
+                     aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+              <div class="card-body text-center">
+                <div class="card-title mb-1">
+                  {% if Attr.year %}
+                    {{ Attr.name }} ({{ Attr.year }}) {% if Attr.season != "S00" %}{{ Attr.season }}{% endif %}
+                  {% else %}
+                    {{ Attr.name }} {% if Attr.season != "S00" %}{{ Attr.season }}{% endif %}
+                  {% endif %}
+                </div>
+                <div class="text-muted">
+                  {% if Attr.state == 'D' %}
+                    <span class="badge bg-gray"></span>  队列中
+                  {% elif Attr.state == 'S' %}
+                    <span class="badge bg-orange"></span>  正在搜索
+                  {% elif Attr.state == 'R' %}
+                    <span class="badge bg-green"></span>  正在订阅 {% if (Attr.total or -1) > 0 %}(
+                    {{ (Attr.total or -1) - (Attr.lack or -1) }}/{{ (Attr.total or -1) }}){% endif %}
+                  {% else %}
+                    <span class="badge bg-blue"></span>  完成
+                  {% endif %}
+                </div>
+                <div{% if Attr.over_edition or
+                      Attr.filter_restype or
+                      Attr.filter_pix or
+                      Attr.filter_team or
+                      (Attr.download_setting and Attr.download_setting != -1) or
+                      Attr.rss_sites or
+                      Attr.search_sites %} class="text-muted border-top pt-2 mt-2"
+                {% else %} class=“text-muted"{% endif %}>
+                  <small>
+                    {% if Attr.over_edition %}
+                      <span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>
+                    {% endif %}
+                    {% if Attr.filter_restype %}
+                      <span class="badge badge-outline text-orange me-1 mb-1" title="质量">
+                        {{ Attr.filter_restype }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.filter_pix %}
+                      <span class="badge badge-outline text-orange me-1 mb-1" title="分辨率">
+                        {{ Attr.filter_pix }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.filter_rule|string in RuleGroups %}
+                      <span class="badge badge-outline text-orange me-1 mb-1" title="过滤规则">
+                        {{ RuleGroups[Attr.filter_rule|string] }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.download_setting and Attr.download_setting != -1 %}
+                      <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
+                        {{ DownloadSettings[Attr.download_setting|string].name }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.filter_team %}
+                      <span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">
+                        {{ Attr.filter_team }}
+                      </span>
+                    {% endif %}
+                  </small>
+                </div>
+                <div class="text-muted">
+                  <small>
+                    {% for Site in Attr.rss_sites %}
+                      <span class="badge bg-lime me-1 mb-1" title="订阅站点">
+                        {{ Site }}
+                      </span>
+                    {% endfor %}
+                    {% for Site in Attr.search_sites %}
+                      <span class="badge bg-yellow me-1 mb-1" title="搜索站点">
+                        {{ Site }}
+                      </span>
+                    {% endfor %}
+                  </small>
+                </div>
+              </div>
+            </a>
           </div>
-          <div class="card-progress">
-            <div class="progress-bar bg-green"
-              style="width: {% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}%"
-              role="progressbar"
-              aria-valuenow="{% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}"
-              aria-valuemin="0" aria-valuemax="100">
-            </div>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">
-              {% if Item.YEAR %}
-              {{ Item.NAME }} ({{ Item.YEAR }}) {% if Item.SEASON != "S00" %}{{ Item.SEASON }}{% endif %}
-              {% else %}
-              {{ Item.NAME }} {% if Item.SEASON != "S00" %}{{ Item.SEASON }}{% endif %}
-              {% endif %}
-            </div>
-            <div class="text-muted">
-              <span class="badge
-              {% if Item.STATE == 'D' %}
-              bg-gray
-              {% elif Item.STATE == 'S' %}
-              bg-orange
-              {% elif Item.STATE == 'R' %}
-              bg-green
-              {% else %}
-              bg-blue
-              {% endif %}
-              "></span>
-              {% if Item.STATE == "D" %}
-              队列中
-              {% elif Item.STATE == "S" %}
-              正在搜索
-              {% elif Item.STATE == "R" %}
-              正在订阅 {% if (Item.TOTAL or -1) > 0 %}({{ (Item.TOTAL or -1) - (Item.LACK or -1) }}/{{ (Item.TOTAL or -1)
-              }}){% endif %}
-              {% else %}
-              完成
-              {% endif %}
-            </div>
-            {% if Item.DESC|rss_filter_string %}
-            <div class="text-muted border-top pt-2 mt-2">
-              <small>{{ Item.DESC|rss_filter_string|safe }}</small>
-            </div>
-            {% endif %}
-            {% if Item.DESC|rss_sites_string %}
-            <div class="text-muted {% if not Item.DESC|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
-              <small>{{ Item.DESC|rss_sites_string|safe }}</small>
-            </div>
-            {% endif %}
-          </div>
-        </a>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
-</div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
+  <div class="page-body">
+    <div class="container-xl d-flex flex-column justify-content-center">
+      <div class="empty">
+        <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
+        </div>
+        <p class="empty-title">没有记录</p>
+        <p class="empty-subtitle text-muted">
+          当前没有正在订阅的电视剧。
+        </p>
       </div>
-      <p class="empty-title">没有记录</p>
-      <p class="empty-subtitle text-muted">
-        当前没有正在订阅的电视剧。
-      </p>
     </div>
   </div>
-</div>
 {% endif %}
-
-<script type="text/javascript">
-
-  // 显示新增订阅
-  function show_add_tvrss_media_modal() {
-    $("#rss_id").val("");
-    $("#rss_type").val("TV");
-    $("#rss_tmdbid").val("");
-    $("#rss_total_ep").val("");
-    $("#rss_current_ep").val("");
-    $("#rss_modal_title").text("新增订阅");
-    $("#key_match").prop("checked", false);
-    $("#rss_search_sites_div").show();
-    $("#rss_tv_season_div").show();
-    $("#over_edition").prop("checked", false);
-    $("#rss_name").attr("readonly", false);
-    $("#rss_year").attr("readonly", false);
-    $("#rss_delete_btn").hide();
-    $("#rss_name").attr("readonly", false);
-    $("#rss_year").attr("readonly", false);
-    $("#modal-manual-rss").modal('show');
-  }
-
-</script>

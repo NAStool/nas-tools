@@ -237,11 +237,13 @@ class Transmission(IDownloadClient):
                     download_dir=None,
                     upload_limit=None,
                     download_limit=None,
+                    cookie=None,
                     **kwargs):
         try:
             ret = self.trc.add_torrent(torrent=content,
                                        download_dir=download_dir,
-                                       paused=is_paused)
+                                       paused=is_paused,
+                                       cookies=cookie)
             if ret and ret.id:
                 if upload_limit:
                     self.set_uploadspeed_limit(ret.id, int(upload_limit))

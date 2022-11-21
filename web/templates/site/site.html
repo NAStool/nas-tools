@@ -99,34 +99,34 @@
               {% endif %}
               {% if Site.rule %}
               <dt class="col-3">过滤规则:</dt>
-              <dd class="col-9"><span class="badge bg-orange me-2">{{ Site.rule_name }}</span></dd>
+              <dd class="col-9"><span class="badge bg-orange me-2">{{ RuleGroups[Site.rule|string] }}</span></dd>
               {% endif %}
             </dl>
             <div class="row">
               <div class="col">
                 {% if Site.signin_enable and (Site.signurl or Site.rssurl) %}
-                <span class="badge badge-outline text-blue mb-1 me-1">签到</span>
+                <span class="badge bg-blue-lt mb-1 me-1">签到</span>
                 {% endif %}
                 {% if Site.rss_enable and Site.rssurl %}
-                <span class="badge badge-outline text-azure mb-1 me-1">订阅</span>
+                <span class="badge bg-azure-lt mb-1 me-1">订阅</span>
                 {% endif %}
                 {% if Site.brush_enable and Site.rssurl %}
-                <span class="badge badge-outline text-indigo mb-1 me-1">刷流</span>
+                <span class="badge bg-indigo-lt mb-1 me-1">刷流</span>
                 {% endif %}
                 {% if Site.statistic_enable and (Site.signurl or Site.rssurl) %}
-                <span class="badge badge-outline text-purple mb-1 me-1">数据统计</span>
+                <span class="badge bg-purple-lt mb-1 me-1">数据统计</span>
                 {% endif %}
                 {% if Site.parse == 'Y' %}
-                <span class="badge badge-outline text-pink mb-1 me-1">解析</span>
+                <span class="badge bg-pink-lt mb-1 me-1">解析</span>
                 {% endif %}
                 {% if Site.unread_msg_notify == 'Y' %}
-                <span class="badge badge-outline text-orange mb-1 me-1">消息</span>
+                <span class="badge bg-orange-lt mb-1 me-1">消息</span>
                 {% endif %}
                 {% if Site.chrome == 'Y' %}
-                <span class="badge badge-outline text-yellow mb-1 me-1">仿真</span>
+                <span class="badge bg-yellow-lt mb-1 me-1">仿真</span>
                 {% endif %}
                 {% if Site.proxy == 'Y' %}
-                <span class="badge badge-outline text-lime mb-1 me-1">代理</span>
+                <span class="badge bg-lime-lt mb-1 me-1">代理</span>
                 {% endif %}
               </div>
             </div>
@@ -246,8 +246,8 @@
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_rule">
                 <option value="" selected>请选择</option>
-                {% for RuleGroup in RuleGroups %}
-                <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                {% for Id, Attr in RuleGroups.items() %}
+                <option value="{{ Id }}">{{ Attr }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -279,6 +279,16 @@
               <label class="form-label required">使用代理服务器 <span class="form-help"
                   title="开启后该站点的访问将使用代理服务器，代理需在基础设置->系统->代理服务器中设置" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_proxy">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">从详情页下载字幕 <span class="form-help"
+                  title="开启后将查询该种子详情页是否有提供字幕，如有则会自动下载" data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_subtitle">
                 <option value="Y" selected>是</option>
                 <option value="N">否</option>
               </select>
@@ -361,6 +371,7 @@
     $("#site_chrome").val('N');
     $("#site_proxy").val('N');
     $("#site_parse").val('Y');
+    $("#site_subtitle").val('N');
     $("#site_unread_msg_notify").val('Y');
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
@@ -384,6 +395,7 @@
         $("#site_ua").val(ret.site.ua);
         $("#site_chrome").val(ret.site.chrome);
         $("#site_proxy").val(ret.site.proxy);
+        $("#site_subtitle").val(ret.site.subtitle);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
         $("input[name=site_uses]").each(function () {
           $(this).prop("checked", false);
@@ -420,9 +432,9 @@
   //新增站点
   function add_or_edit_site() {
     //id
-    var site_id = $("#site_id").val();
+    let site_id = $("#site_id").val();
     //名称
-    var site_name = $("#site_name").val();
+    let site_name = $("#site_name").val();
     if (site_name == "") {
       $("#site_name").addClass("is-invalid");
       return;
@@ -430,7 +442,7 @@
       $("#site_name").removeClass("is-invalid");
     }
     //优先级
-    var site_pri = $("#site_pri").val();
+    let site_pri = $("#site_pri").val();
     if (site_pri) {
       $("#site_pri").removeClass("is-invalid");
     } else {
@@ -438,7 +450,7 @@
       return;
     }
     //签到URL
-    var site_signurl = $("#site_signurl").val();
+    let site_signurl = $("#site_signurl").val();
     if (!site_signurl || site_signurl.startsWith('http')) {
       $("#site_signurl").removeClass("is-invalid");
     } else {
@@ -446,9 +458,9 @@
       return;
     }
     //Cookie
-    var site_cookie = $("#site_cookie").val();
+    let site_cookie = $("#site_cookie").val();
     //RSS URL
-    var site_rssurl = $("#site_rssurl").val();
+    let site_rssurl = $("#site_rssurl").val();
     if (site_rssurl) {
       if (site_rssurl.startsWith('http')) {
         $("#site_rssurl").removeClass("is-invalid");
@@ -457,19 +469,32 @@
         return;
       }
     }
-    var site_rule = $("#site_rule").val();
-    var site_parse = $("#site_parse").val();
-    var site_unread_msg_notify = $("#site_unread_msg_notify").val();
-    var site_uses = "";
+    let site_rule = $("#site_rule").val();
+    let site_parse = $("#site_parse").val();
+    let site_unread_msg_notify = $("#site_unread_msg_notify").val();
+    let site_uses = "";
     $("input[name=site_uses]").each(function () {
       if ($(this).prop("checked")) {
         site_uses = site_uses + $(this).val();
       }
     });
-    var ua = $("#site_ua").val();
-    var chrome = $("#site_chrome").val();
-    var proxy = $("#site_proxy").val();
-    var data = {
+    if (site_uses.match(/[DS]/) && !site_rssurl) {
+      $("#site_rssurl").addClass("is-invalid");
+      return;
+    } else {
+      $("#site_rssurl").removeClass("is-invalid");
+    };
+    if (site_uses.match(/T/) && !site_cookie) {
+      $("#site_cookie").addClass("is-invalid");
+      return;
+    } else {
+      $("#site_cookie").removeClass("is-invalid");
+    };
+    let ua = $("#site_ua").val();
+    let chrome = $("#site_chrome").val();
+    let proxy = $("#site_proxy").val();
+    let subtitle = $("#site_subtitle").val();
+    let data = {
       "site_id": site_id,
       "site_name": site_name,
       "site_pri": site_pri,
@@ -477,7 +502,15 @@
       "site_signurl": site_signurl,
       "site_cookie": site_cookie,
       "site_include": site_uses,
-      "site_note": site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome + "|" + proxy
+      "site_note": {
+        "rule": site_rule,
+        "parse": site_parse,
+        "ua": ua,
+        "chrome": chrome,
+        "proxy": proxy,
+        "message": site_unread_msg_notify,
+        "subtitle": subtitle
+      }
     }
 
     $("#add_or_edit_site_btn").attr("disabled", true);
@@ -518,7 +551,7 @@
   }
 
   // 优先级
-  for (var i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 50; i++) {
     $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
@@ -566,7 +599,7 @@
   $("#sitetest_btn").click(function () {
     $("#modal-sitetest input[type=checkbox]").each(function () {
       if ($(this).attr("id").startsWith("check_") && $(this).prop("checked")) {
-        var siteid = $(this).attr("id").replace("check_", "");
+        let siteid = $(this).attr("id").replace("check_", "");
         test_one_site(siteid);
       }
     });

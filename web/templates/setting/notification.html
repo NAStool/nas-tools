@@ -9,27 +9,21 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:show_messageswitch_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path
-                d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
-              </path>
-              <circle cx="12" cy="12" r="3"></circle>
+          <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            推送设置
+            新增消息通知
           </a>
-          <a href="javascript:show_messageswitch_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path
-                d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
-              </path>
-              <circle cx="12" cy="12" r="3"></circle>
+          <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </a>
         </div>
@@ -40,542 +34,739 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-wechat">
-          <div class="card-cover card-cover-blurred text-center bg-green">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/wechat.png)">
-            </span>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom py-3">
+          <div class="d-flex">
+            <div class="text-muted">
+              共 {{ ClientCount }} 条记录
+            </div>
           </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">微信</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "wechat" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-telegram">
-          <div class="card-cover card-cover-blurred text-center bg-blue">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/telegram.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Telegram</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "telegram" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-serverchan">
-          <div class="card-cover card-cover-blurred text-center bg-pink">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/serverchan.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Server酱</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "serverchan" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-bark">
-          <div class="card-cover card-cover-blurred text-center bg-red">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/bark.webp)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Bark</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "bark" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-pushplus">
-          <div class="card-cover card-cover-blurred text-center" style="background-color: #0693EF">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/pushplus.jpg)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">PushPlus</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "pushplus" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-iyuu">
-          <div class="card-cover card-cover-blurred text-center bg-yellow">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/iyuu.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">爱语飞飞</div>
-            <div class="text-muted">{% if Config.message.msg_channel == "iyuu" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
-          </div>
-        </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table">
+            <thead>
+            <tr>
+              <th class="w-7 text-nowrap">类型</th>
+              <th>名称</th>
+              <th>推送内容</th>
+              <th class="w-5 text-nowrap">交互</th>
+              <th class="w-5 text-nowrap">启用</th>
+              <th class="w-3"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if MessageClients %}
+              {% for Id, Attr in MessageClients.items() %}
+                <tr>
+                  <td>
+                  <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                        style="background-image: url({{ Channels[Attr.type].img_url }})"></span>
+                  </td>
+                  <td>{{ Attr.name }}</td>
+                  <td>
+                    <small>
+                      {% for SwitchID in Switchs %}
+                        {% if not Attr.switchs or SwitchID in Attr.switchs %}
+                          <span class="badge
+                      {% if "download" in SwitchID %}
+                      bg-blue-lt
+                      {% elif "transfer" in SwitchID %}
+                      bg-azure-lt
+                      {% elif "rss" in SwitchID %}
+                      bg-indigo-lt
+                      {% elif "site" in SwitchID %}
+                      bg-purple-lt
+                      {% elif "brushtask" in SwitchID %}
+                      bg-pink-lt
+                      {% elif "mediaserver" in SwitchID %}
+                      bg-orange-lt
+                      {% endif %}
+                      me-1 mb-1">{{ Switchs[SwitchID].name }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </small>
+                  </td>
+                  <td>
+                    {% if Attr.type in ['telegram', 'wechat'] %}
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %}
+                               checked {% endif %}
+                               onclick="check_message_client('interactive', '{{ Id }}', this.checked)">
+                      </label>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <label class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %} checked {% endif %}
+                             onclick="check_message_client('enable', '{{ Id }}', this.checked)">
+                    </label>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
+                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                          <line x1="16" y1="5" x2="19" y2="8"/>
+                        </svg>
+                      </a>
+                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除"
+                         class="ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" align="center">未配置</td>
+              </tr>
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-wechat" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-message-client" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">微信</h5>
+        <h5 class="modal-title" id="client_modal_title"></h5>
+        <input type="hidden" id="client_id">
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-4">
+          <div class="col-lg-9" id="div_client_name">
             <div class="mb-3">
-              <label class="form-label required">企业ID <span class="form-help"
-                  title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{{ Config.message.wechat.corpid or '' }}{% endif %}" id="corpid"
-                class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">Secret <span class="form-help"
-                  title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{{ Config.message.wechat.corpsecret or '' }}{% endif %}"
-                id="corpsecret" class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">AgentId <span class="form-help"
-                  title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{{ Config.message.wechat.agentid or '' }}{% endif %}" id="agentid"
-                class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">消息推送代理 <span class="form-help"
-                  title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{% if Config.message.wechat.default_proxy == true %}https://wechat.nastool.cn{% else %}{{ Config.message.wechat.default_proxy or '' }}{% endif %}{% endif %}"
-                id="default_proxy" class="form-control" placeholder="https://xxxx.xxxx.xxx">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">Token <span class="form-help"
-                  title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{{ Config.message.wechat.Token or '' }}{% endif %}" id="Token"
-                class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">EncodingAESKey <span class="form-help"
-                  title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.wechat %}{{ Config.message.wechat.EncodingAESKey or '' }}{% endif %}"
-                id="EncodingAESKey" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('wechat')" id="wechat_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('wechat')" id="wechat_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-telegram" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Telegram</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">Bot Token <span class="form-help"
-                  title="telegram机器人的Token，关注BotFather创建机器人" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_token or '' }}{% endif %}"
-                id="telegram_token" class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">Chat Id <span class="form-help" title="telegram中关注getuserID获取"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_chat_id or '' }}{% endif %}"
-                id="telegram_chat_id" class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label required">User Ids <span class="form-help"
-                  title="允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_user_ids or '' }}{% endif %}"
-                id="telegram_user_ids" class="form-control" placeholder="允许使用机器人的用户ID，使用,分隔">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="webhook" {% if Config.message.telegram.webhook
-                  %}checked{% endif %}>
-                <span class="form-check-label">WebHook <span class="form-help"
-                    title="Telegram机器人消息有两种模式：WebHook或消息轮循；开启后将使用WebHook方式，需要在基础设置中正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书；关闭后将使用消息轮循方式，使用该方式时，需要在基础设置->安全处将Telegram ipv4源地址设置为127.0.0.1，推荐关闭WebHook"
-                    data-bs-toggle="tooltip">?</span></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('telegram')" id="telegram_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('telegram')" id="telegram_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-serverchan" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Server酱</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label required">SCKEY <span class="form-help"
-                  title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}"
-                id="sckey" class="form-control" placeholder="登录https://sct.ftqq.com获取">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('serverchan')" id="serverchan_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('serverchan')" id="serverchan_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-bark" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Bark</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help"
-                  title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.server or '' }}{% endif %}"
-                id="server" class="form-control" placeholder="https://api.day.app">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help" title="Bark客户端生成的KEY"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.apikey or '' }}{% endif %}"
-                id="apikey" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('bark')" id="bark_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('bark')" id="bark_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-pushplus" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">PushPlus</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-3">
-            <div class="mb-3">
-              <label class="form-label required">用户令牌 <span class="form-help" title="登录http://pushplus.plus/申请token"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_token or '' }}{% endif %}"
-                id="push_token" class="form-control">
+              <label class="form-label required">名称</label>
+              <input type="text" id="client_name" class="form-control" placeholder="别名">
             </div>
           </div>
           <div class="col-lg-3">
             <div class="mb-3">
-              <label class="form-label required">发送渠道 <span class="form-help"
-                  title="使用PushPlus中配置的发送渠道，具体参考pushplus.plus官网文档说明，支持第三方webhook、钉钉、飞书、邮箱等"
-                  data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="push_channel">
-                <option value="wechat" {% if Config.message.pushplus %}{% if
-                  Config.message.pushplus.push_channel=='wechat' %}selected{% endif %}{% endif %}>微信公众号</option>
-                <option value="mail" {% if Config.message.pushplus %}{% if Config.message.pushplus.push_channel=='mail'
-                  %}selected{% endif %}{% endif %}>邮箱</option>
-                <option value="webhook" {% if Config.message.pushplus %}{% if
-                  Config.message.pushplus.push_channel=='webhook' %}selected{% endif %}{% endif %}>第三方webhook</option>
+              <label class="form-label required">状态</label>
+              <select class="form-select" id="client_enabled">
+                <option value="1" selected>启用</option>
+                <option value="0">停用</option>
               </select>
             </div>
           </div>
-          <div class="col-lg-3">
+          <div class="col-lg-3" id="div_client_interactive">
             <div class="mb-3">
-              <label class="form-label">群组编码 <span class="form-help" title="PushPlus中创建的群组，如未设置可为空"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_topic or '' }}{% endif %}"
-                id="push_topic" class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-3">
-            <div class="mb-3">
-              <label class="form-label">webhook编码 <span class="form-help"
-                  title="PushPlus中创建的webhook编码，发送渠道为第三方webhook时需要填入" data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_webhook or '' }}{% endif %}"
-                id="push_webhook" class="form-control">
+              <label class="form-label required">交互</label>
+              <select class="form-select" id="client_interactive">
+                <option value="1" selected>是</option>
+                <option value="0">否</option>
+              </select>
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('pushplus')" id="pushplus_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('pushplus')" id="pushplus_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-iyuu" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">爱语飞飞</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label required">令牌Token <span class="form-help" title="登录https://iyuu.cn/获取爱语飞飞令牌Token"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text"
-                value="{% if Config.message.iyuu %}{{ Config.message.iyuu.iyuu_token or '' }}{% endif %}"
-                id="iyuu_token" class="form-control" placeholder="登录https://iyuu.cn获取">
+        <div class="form-selectgroup-boxes row mb-3">
+          <label class="form-label required">类型</label>
+          {% for Id, Attr in Channels.items() %}
+            <div class="col-lg-4">
+              <div class="mb-1">
+                <label class="form-selectgroup-item" for="type_{{ Id }}">
+                  <input type="radio" name="client_type" id="type_{{ Id }}" value="{{ Id }}"
+                         class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                          style="background-image: url({{ Attr.img_url }})"></span>
+                    <span class="form-selectgroup-title strong mb-1">{{ Attr.name }}</span>
+                  </span>
+                </span>
+                </label>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div id="div_client_config_telegram">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Bot Token <span class="form-help"
+                                                                   title="telegram机器人的Token，关注BotFather创建机器人"
+                                                                   data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="telegram_token" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Chat Id <span class="form-help" title="telegram中关注getuserID获取"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="telegram_chat_id" class="form-control">
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_message_config('iyuu')" id="iyuu_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_message_config('iyuu')" id="iyuu_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="message-switch-modal" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">推送设置</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col">
-            <div class="mb-3">
-              <label class="form-label required">推送开关 <span class="form-help" title="选中的项才会推送通知消息"
-                  data-bs-toggle="tooltip">?</span></label>
-              <div class="form-selectgroup">
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="download_start" class="form-selectgroup-input" {%
-                    if Config.message.switch and Config.message.switch.download_start %}checked{% endif %}>
-                  <span class="form-selectgroup-label">新增下载</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="download_fail" class="form-selectgroup-input" {%
-                    if Config.message.switch and Config.message.switch.download_fail %}checked{% endif %}>
-                  <span class="form-selectgroup-label">下载失败</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="transfer_finished" class="form-selectgroup-input"
-                    {% if Config.message.switch and Config.message.switch.transfer_finished %}checked{% endif %}>
-                  <span class="form-selectgroup-label">转移完成</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="transfer_fail" class="form-selectgroup-input" {%
-                    if Config.message.switch and Config.message.switch.transfer_fail %}checked{% endif %}>
-                  <span class="form-selectgroup-label">转移失败</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="rss_added" class="form-selectgroup-input" {% if
-                    Config.message.switch and Config.message.switch.rss_added %}checked{% endif %}>
-                  <span class="form-selectgroup-label">新增订阅</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="rss_finished" class="form-selectgroup-input" {%
-                    if Config.message.switch and Config.message.switch.rss_finished %}checked{% endif %}>
-                  <span class="form-selectgroup-label">订阅完成</span>
-                </label>
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="message_switchs" value="site_signin" class="form-selectgroup-input" {% if
-                    Config.message.switch and Config.message.switch.site_signin %}checked{% endif %}>
-                  <span class="form-selectgroup-label">站点签到</span>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label required">User Ids <span class="form-help"
+                                                                  title="允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id"
+                                                                  data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="telegram_user_ids" class="form-control"
+                       placeholder="允许使用机器人的用户ID，使用,分隔">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3" style="height: 25%;"></div>
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="telegram_webhook">
+                  <span class="form-check-label">WebHook <span class="form-help"
+                                                               title="Telegram机器人消息有两种模式：WebHook或消息轮循；开启后将使用WebHook方式，需要在基础设置中正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书；关闭后将使用消息轮循方式，使用该方式时，需要在基础设置->安全处将Telegram ipv4源地址设置为127.0.0.1，推荐关闭WebHook"
+                                                               data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
           </div>
         </div>
+        <div id="div_client_config_wechat">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">企业ID <span class="form-help"
+                                                                title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）"
+                                                                data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_corpid" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Secret <span class="form-help"
+                                                                title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到"
+                                                                data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_corpsecret" class="form-control">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">AgentId <span class="form-help"
+                                                                 title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_agentid" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">消息推送代理 <span class="form-help"
+                                                             title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明"
+                                                             data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_default_proxy" class="form-control"
+                       placeholder="https://wechat.nastool.cn">
+              </div>
+            </div>
+          </div>
+          <div class="row border-top pt-2 mt-2 mb-2"></div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">Token <span class="form-help"
+                                                      title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定"
+                                                      data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_token" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">EncodingAESKey <span class="form-help"
+                                                               title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="wechat_encodingAESKey" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="div_client_config_serverchan">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">SCKEY <span class="form-help"
+                                                               title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="serverchan_sckey" class="form-control"
+                       placeholder="登录https://sct.ftqq.com获取">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="div_client_config_bark">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help"
+                                                                    title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app"
+                                                                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="bark_server" class="form-control" placeholder="https://api.day.app">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">API Key <span class="form-help" title="Bark客户端生成的KEY"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="bark_apikey" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="div_client_config_pushplus">
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label required">用户令牌 <span class="form-help"
+                                                                  title="登录http://pushplus.plus/申请token"
+                                                                  data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushplus_token" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label required">发送渠道 <span class="form-help"
+                                                                  title="使用PushPlus中配置的发送渠道，具体参考pushplus.plus官网文档说明，支持第三方webhook、钉钉、飞书、邮箱等"
+                                                                  data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="pushplus_channel">
+                  <option value="wechat">微信公众号</option>
+                  <option value="mail">邮箱</option>
+                  <option value="webhook">第三方webhook</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">群组编码 <span class="form-help" title="PushPlus中创建的群组，如未设置可为空"
+                                                         data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushplus_topic" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">webhook编码 <span class="form-help"
+                                                            title="PushPlus中创建的webhook编码，发送渠道为第三方webhook时需要填入"
+                                                            data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushplus_webhook" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="div_client_config_iyuumsg">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">令牌Token <span class="form-help"
+                                                                   title="登录https://iyuu.cn/获取爱语飞飞令牌Token"
+                                                                   data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="iyuumsg_token" class="form-control" placeholder="登录https://iyuu.cn获取">
+              </div>
+            </div>
+          </div>
+        </div>
+        <details>
+          <summary class="summary">推送设置</summary>
+          <div class="row mt-2">
+            <div class="form-selectgroup" id="div_message_switchs">
+              {% for SwitchID in Switchs %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="message_switchs" value="{{ SwitchID }}" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label">{{ Switchs[SwitchID].name }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </details>
       </div>
       <div class="modal-footer">
-        <a href="javascript:save_message_switch()" id="message_switch_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
+           class="btn me-auto">
+          测试
+        </a>
+        <a href="javascript:add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
+           class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
-  // 当前处理的类型
-  var currType = "";
-  // 保存配置
-  function save_config(type, func, test) {
-    currType = type;
-    var cfg_value = {};
-    var params = { "test": test || false };
-    $("#modal-" + type + " input").each(function () {
-      var key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
-      } else {
-        var value = $(this).val();
+  // 显示新增消息服务
+  function show_add_message_client_modal() {
+    $("#client_id").val('');
+    $("#client_modal_title").text("新增消息服务");
+    $("#client_name").val('');
+    $("#client_enabled").val('1');
+    $("#client_interactive").val('0');
+    $("#telegram_token").val('');
+    $("#telegram_chat_id").val('');
+    $("#telegram_user_ids").val('');
+    $("#telegram_webhook").prop("checked", false);
+    $("#wechat_corpid").val('');
+    $("#wechat_corpsecret").val('');
+    $("#wechat_agentid").val('');
+    $("#wechat_default_proxy").val('https://wechat.nastool.cn');
+    $("#wechat_token").val('');
+    $("#wechat_encodingAESKey").val('');
+    $("#serverchan_sckey").val('');
+    $("#bark_server").val('https://api.day.app');
+    $("#bark_apikey").val('');
+    $("#pushplus_token").val('');
+    $("#pushplus_channel").val('WeChat');
+    $("#pushplus_topic").val('');
+    $("#pushplus_webhook").val('');
+    $("#iyuumsg_token").val('');
+    show_client_type('telegram');
+    $("#test_message_client_btn").text("测试").attr("disabled", false);
+    $("#div_message_switchs").find("input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+    });
+    $("#modal-message-client").modal("show");
+  }
+
+  // 显示编辑消息服务
+  function show_edit_message_client_modal(cid) {
+    $("#client_id").val(cid);
+    $("#client_modal_title").text("编辑消息服务");
+    show_wait_process();
+    ajax_post("get_message_client", {cid: cid}, function (ret) {
+      hide_wait_process();
+      if (ret.code == 0) {
+        $("#client_name").val(ret.detail.name);
+        $("#client_enabled").val(ret.detail.enabled);
+        $("#client_interactive").val(ret.detail.interactive);
+        // 清空输入项
+        $("#telegram_token").val('');
+        $("#telegram_chat_id").val('');
+        $("#telegram_user_ids").val('');
+        $("#telegram_webhook").prop("checked", false);
+        $("#wechat_corpid").val('');
+        $("#wechat_corpsecret").val('');
+        $("#wechat_agentid").val('');
+        $("#wechat_default_proxy").val('');
+        $("#wechat_token").val('');
+        $("#wechat_encodingAESKey").val('');
+        $("#serverchan_sckey").val('');
+        $("#bark_server").val('');
+        $("#bark_apikey").val('');
+        $("#pushplus_token").val('');
+        $("#pushplus_channel").val('WeChat');
+        $("#pushplus_topic").val('');
+        $("#pushplus_webhook").val('');
+        $("#iyuumsg_token").val('');
+        var type = ret.detail.type;
+        if (type == "telegram") {
+          $("#telegram_token").val(ret.detail.config.token);
+          $("#telegram_chat_id").val(ret.detail.config.chat_id);
+          $("#telegram_user_ids").val(ret.detail.config.user_ids);
+          if (ret.detail.config.webhook) {
+            $("#telegram_webhook").prop("checked", true);
+          } else {
+            $("#telegram_webhook").prop("checked", false);
+          }
+        } else if (type == "wechat") {
+          $("#wechat_corpid").val(ret.detail.config.corpid);
+          $("#wechat_corpsecret").val(ret.detail.config.corpsecret);
+          $("#wechat_agentid").val(ret.detail.config.agentid);
+          $("#wechat_default_proxy").val(ret.detail.config.default_proxy);
+          $("#wechat_token").val(ret.detail.config.token);
+          $("#wechat_encodingAESKey").val(ret.detail.config.encodingAESKey);
+        } else if (type == "serverchan") {
+          $("#serverchan_sckey").val(ret.detail.config.sckey);
+        } else if (type == "bark") {
+          $("#bark_server").val(ret.detail.config.server);
+          $("#bark_apikey").val(ret.detail.config.apikey);
+        } else if (type == "pushplus") {
+          $("#pushplus_token").val(ret.detail.config.token);
+          $("#pushplus_channel").val(ret.detail.config.channel);
+          $("#pushplus_topic").val(ret.detail.config.topic);
+          $("#pushplus_webhook").val(ret.detail.config.webhook);
+        } else if (type == "iyuu") {
+          $("#iyuumsg_token").val(ret.detail.config.token);
+        }
+        show_client_type(type);
+        $("#test_message_client_btn").text("测试").attr("disabled", false);
+        $("#div_message_switchs").find("input[type=checkbox]").each(function () {
+          if (ret.detail.switchs && (ret.detail.switchs.length === 0 || ret.detail.switchs.includes($(this).val()))) {
+            $(this).prop("checked", true);
+          } else {
+            $(this).prop("checked", false);
+          }
+        });
+        $("#modal-message-client").modal("show");
       }
-      cfg_value[key] = value;
-    });
-    $("#modal-" + type + " select").each(function () {
-      var key = $(this).attr("id");
-      cfg_value[key] = $(this).val();
-    });
-    params["message." + type] = cfg_value;
-    params['message.msg_channel'] = type;
-    ajax_post("update_config", params, func);
-  }
-
-  //保存配置、关闭和刷新页面
-  function save_message_config(type) {
-    $("#modal-" + type).modal('hide');
-    save_config(type, function (ret) {
-      navmenu('notification');
     });
   }
 
-  //保存消息开关设置
-  function save_message_switch() {
-    var params = {};
+  // 新增/编辑消息
+  function add_or_edit_or_test_message_client(action) {
+    var type = $('input:radio[name=client_type]:checked').val();
+    var interactive = $("#client_interactive").val();
+    if (type == "telegram") {
+      var token = $("#telegram_token").val();
+      var chat_id = $("#telegram_chat_id").val();
+      var user_ids = $("#telegram_user_ids").val();
+      if ($("#telegram_webhook").prop("checked")) {
+        var webhook = 1;
+      } else {
+        var webhook = 0;
+      }
+      if (!token) {
+        $("#telegram_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#telegram_token").removeClass("is-invalid");
+      }
+      if (!chat_id) {
+        $("#telegram_chat_id").addClass("is-invalid");
+        return;
+      } else {
+        $("#telegram_chat_id").removeClass("is-invalid");
+      }
+      var config = JSON.stringify({
+        token: token,
+        chat_id: chat_id,
+        user_ids: user_ids,
+        webhook: webhook
+      });
+    } else if (type == "wechat") {
+      var corpid = $("#wechat_corpid").val();
+      var corpsecret = $("#wechat_corpsecret").val();
+      var agentid = $("#wechat_agentid").val();
+      var default_proxy = $("#wechat_default_proxy").val();
+      var token = $("#wechat_token").val();
+      var encodingAESKey = $("#wechat_encodingAESKey").val();
+      if (!corpid) {
+        $("#wechat_corpid").addClass("is-invalid");
+        return;
+      } else {
+        $("#wechat_corpid").removeClass("is-invalid");
+      }
+      if (!corpsecret) {
+        $("#wechat_corpsecret").addClass("is-invalid");
+        return;
+      } else {
+        $("#wechat_corpsecret").removeClass("is-invalid");
+      }
+      if (!agentid) {
+        $("#wechat_agentid").addClass("is-invalid");
+        return;
+      } else {
+        $("#wechat_agentid").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        corpid: corpid,
+        corpsecret: corpsecret,
+        agentid: agentid,
+        default_proxy: default_proxy,
+        token: token,
+        encodingAESKey: encodingAESKey
+      });
+    } else if (type == "serverchan") {
+      var sckey = $("#serverchan_sckey").val();
+      interactive = "0";
+      if (!sckey) {
+        $("#serverchan_sckey").addClass("is-invalid");
+        return;
+      } else {
+        $("#serverchan_sckey").removeClass("is-invalid");
+      }
+      var config = JSON.stringify({
+        sckey: sckey
+      });
+    } else if (type == "bark") {
+      var server = $("#bark_server").val();
+      var apikey = $("#bark_apikey").val();
+      interactive = "0";
+      if (!server) {
+        $("#bark_server").addClass("is-invalid");
+        return;
+      } else {
+        $("#bark_server").removeClass("is-invalid");
+      }
+      if (!apikey) {
+        $("#bark_apikey").addClass("is-invalid");
+        return;
+      } else {
+        $("#bark_apikey").removeClass("is-invalid");
+      }
+      var config = JSON.stringify({
+        server: server,
+        apikey: apikey
+      });
+    } else if (type == "pushplus") {
+      var token = $("#pushplus_token").val();
+      var channel = $("#pushplus_channel").val();
+      var topic = $("#pushplus_topic").val();
+      var webhook = $("#pushplus_webhook").val();
+      interactive = "0";
+      if (!token) {
+        $("#pushplus_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#pushplus_token").removeClass("is-invalid");
+      }
+      var config = JSON.stringify({
+        token: token,
+        channel: channel,
+        topic: topic,
+        webhook: webhook
+      });
+    } else if (type == "iyuu") {
+      var token = $("#iyuumsg_token").val();
+      interactive = "0";
+      if (!token) {
+        $("#iyuumsg_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#iyuumsg_token").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        token: token
+      });
+    }
+    var cid = $("#client_id").val();
+    var name = $("#client_name").val();
+    var enabled = $("#client_enabled").val();
+    // 推送设置
+    var switchs = [];
+    var switch_all = true;
     $("input[name=message_switchs]").each(function () {
       if ($(this).prop("checked")) {
-        params[$(this).val()] = true;
+        switchs.push($(this).val());
       } else {
-        params[$(this).val()] = false;
+        switch_all = false;
       }
     });
-    ajax_post("update_config", { "message.switch": params }, function () {
-      $("#message-switch-modal").modal("hide");
-    });
-  }
-
-  //保存配置和测试配置
-  function test_message_config(type) {
-    $("#" + type + "_test_btn").text("测试中...");
-    save_config(type, function (ret) {
-      if (currType == "bark") {
-        command = "app.message.channel.bark|Bark";
-      } else if (currType == "wechat") {
-        command = ["WeChat().get_status()"];
-      } else if (currType == "telegram") {
-        command = ["Telegram().get_status()"];
-      } else if (currType == "serverchan") {
-        command = "app.message.channel.serverchan|ServerChan";
-      } else if (currType == "pushplus") {
-        command = "app.message.channel.pushplus|PushPlus";
-      } else if (currType == "iyuu") {
-        command = "app.message.channel.iyuu|IyuuMsg";
-      }
-      ajax_post("test_connection", { "command": command }, function (ret) {
+    if (switch_all) {
+      switchs = [];
+    }
+    var params = {
+      cid: cid,
+      name: name,
+      type: type,
+      config: config,
+      switchs: switchs,
+      enabled: enabled,
+      interactive: interactive
+    };
+    if (action == "save") {
+      $("#add_or_edit_message_client_btn").text("保存中").attr("disabled", true);
+      ajax_post("update_message_client", params, function (ret) {
+        $("#modal-message-client").modal('hide');
+        $("#add_or_edit_message_client_btn").attr("disabled", false);
+        navmenu('notification');
+      });
+    } else if (action == "test") {
+      $("#test_message_client_btn").text("测试中").attr("disabled", true);
+      ajax_post("test_message_client", params, function (ret) {
         if (ret.code == 0) {
-          $("#" + currType + "_test_btn").text("测试成功");
+          $("#test_message_client_btn").text("测试成功").attr("disabled", false);
         } else {
-          $("#" + currType + "_test_btn").text("测试失败！");
+          $("#test_message_client_btn").text("测试失败").attr("disabled", false);
         }
       });
-    }, true);
+    } else {
+      return;
+    }
   }
 
-  //打开推送设置框
-  function show_messageswitch_modal() {
-    $("#message-switch-modal").modal("show");
+
+  // 打开推送设置框
+  function check_message_client(flag, cid, checked) {
+    show_wait_process();
+    ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked}, function (ret) {
+      hide_wait_process();
+      if (ret.code == 0) {
+        navmenu('notification');
+      }
+    });
   }
+
+  // 打开推送设置框
+  function delete_message_client(cid, name) {
+    show_confirm_modal("删除消息服务 " + name + " ？", function () {
+      hide_confirm_modal();
+      ajax_post("delete_message_client", {"cid": cid}, function (ret) {
+        navmenu('notification');
+      });
+    });
+  }
+
+  // 单选框事件
+  $('input[type=radio][name=client_type]').change(function () {
+    var type = this.value;
+    show_client_type(type);
+  });
+
+  // 消息服务端类型
+  function show_client_type(type) {
+    if (type == 'telegram') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_telegram").show();
+      $("#div_client_name").attr('class', 'col-lg-6');
+      $("#div_client_interactive").show();
+      $("#type_telegram").prop("checked", true);
+    } else if (type == 'wechat') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_wechat").show();
+      $("#div_client_name").attr('class', 'col-lg-6');
+      $("#div_client_interactive").show();
+      $("#type_wechat").prop("checked", true);
+    } else if (type == 'serverchan') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_serverchan").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_serverchan").prop("checked", true);
+    } else if (type == 'bark') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_bark").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_bark").prop("checked", true);
+    } else if (type == 'pushplus') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_pushplus").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_pushplus").prop("checked", true);
+    } else if (type == 'iyuu') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_iyuumsg").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_iyuumsg").prop("checked", true);
+    }
+  }
+
 </script>

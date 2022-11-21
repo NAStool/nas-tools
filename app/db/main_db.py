@@ -14,26 +14,20 @@ _Engine = create_engine(
     echo=False,
     poolclass=QueuePool,
     pool_pre_ping=True,
-    pool_size=5,
+    pool_size=50,
     pool_recycle=60 * 30
 )
 _Session = scoped_session(sessionmaker(bind=_Engine,
                                        autoflush=True,
-                                       autocommit=False))
+                                       autocommit=False,
+                                       expire_on_commit=False))
 
 
 class MainDb:
-    _session = None
-
-    def __init__(self):
-        self._session = _Session()
-
-    def __del__(self):
-        self._session.close()
 
     @property
     def session(self):
-        return self._session
+        return _Session()
 
     @staticmethod
     def init_db():

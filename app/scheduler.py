@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from app.doubansync import DoubanSync
 from app.mediaserver import MediaServer
+from app.subscribe import Subscribe
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
@@ -136,7 +137,7 @@ class Scheduler:
                         log.error("订阅定时搜索周期 配置格式错误：%s" % str(e))
                         search_rss_interval = 0
                 if search_rss_interval:
-                    self.SCHEDULER.add_job(Rss().rsssearch_all, 'interval', hours=search_rss_interval * 24)
+                    self.SCHEDULER.add_job(Subscribe().subscribe_search_all, 'interval', hours=search_rss_interval * 24)
                     log.info("订阅定时搜索服务启动")
 
         # 豆瓣电影同步
@@ -180,7 +181,7 @@ class Scheduler:
         self.SCHEDULER.add_job(Sync().transfer_mon_files, 'interval', seconds=SYNC_TRANSFER_INTERVAL)
 
         # RSS队列中检索
-        self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_CHECK_INTERVAL)
+        self.SCHEDULER.add_job(Subscribe().subscribe_search, 'interval', seconds=RSS_CHECK_INTERVAL)
 
         # 站点数据刷新
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now,
@@ -189,7 +190,7 @@ class Scheduler:
                                next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
 
         # 豆瓣RSS转TMDB，定时更新TMDB数据
-        self.SCHEDULER.add_job(Rss().refresh_rss_metainfo, 'interval', hours=RSS_REFRESH_TMDB_INTERVAL)
+        self.SCHEDULER.add_job(Subscribe().refresh_rss_metainfo, 'interval', hours=RSS_REFRESH_TMDB_INTERVAL)
 
         # 定时清除未识别的缓存
         self.SCHEDULER.add_job(MetaHelper().delete_unknown_meta, 'interval', hours=META_DELETE_UNKNOWN_INTERVAL)

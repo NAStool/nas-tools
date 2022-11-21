@@ -4,18 +4,18 @@
   </div>
 </div>
 <style type="text/css">
-  .fc-toolbar-title {
-    font-size: 1.5em !important;
-  }
+    .fc-toolbar-title {
+        font-size: 1.5em !important;
+    }
 
-  .fc-list-event .media_calendar_item_info {
-    display: block !important;
-  }
+    .fc-list-event .media_calendar_item_info {
+        display: block !important;
+    }
 
-  .fc .fc-list-event:hover td {
-    background-color: rgba(200, 200, 200, 0.1) !important;
-    background-color: var(--fc-list-event-hover-bg-color, rgba(200, 200, 200, 0.1));
-  }
+    .fc .fc-list-event:hover td {
+        background-color: rgba(200, 200, 200, 0.1) !important;
+        background-color: var(--fc-list-event-hover-bg-color, rgba(200, 200, 200, 0.1));
+    }
 </style>
 <script type="text/javascript">
   var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -46,7 +46,7 @@
       } else {
         var type = "TV";
       }
-      show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar");
+      show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar", eventData.rssid);
     },
     eventContent: function (info) {
       var eventData = info.event.extendedProps;
@@ -56,17 +56,21 @@
         var border_color = 'bg-primary';
       }
       var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
-      return { html: innerText };
+      return {html: innerText};
     }
   });
   calendar.render();
 </script>
 <script type="text/javascript">
   //查询订阅电影的上映日期
-  var RssMovieIds = {{ RssMovieIds| safe }};
+  var RssMovieItems = {{ RssMovieItems| safe }};
+
   function init_rss_movies_event() {
-    for (var i = 0; i < RssMovieIds.length; i++) {
-      ajax_post("movie_calendar_data", { "id": RssMovieIds[i] }, function (ret) {
+    for (var i = 0; i < RssMovieItems.length; i++) {
+      ajax_post("movie_calendar_data",
+          {"id": RssMovieItems[i].id,
+            "rssid": RssMovieItems[i].rssid
+          }, function (ret) {
         if (ret.code == 0) {
           calendar.addEvent({
             id: ret.id,
@@ -77,7 +81,7 @@
             vote_average: ret.vote_average,
             year: ret.year,
             type: ret.type,
-            rssid: true
+            rssid: ret.rssid
           });
         }
       });
@@ -85,9 +89,15 @@
   };
   //查询订阅电视剧各集的上映日期
   var RssTvItems = {{ RssTvItems| safe }};
+
   function init_rss_tvs_event() {
     for (var i = 0; i < RssTvItems.length; i++) {
-      ajax_post("tv_calendar_data", { "id": RssTvItems[i].id, "season": RssTvItems[i].season, "name": RssTvItems[i].name }, function (ret) {
+      ajax_post("tv_calendar_data", {
+        "id": RssTvItems[i].id,
+        "season": RssTvItems[i].season,
+        "name": RssTvItems[i].name,
+        "rssid": RssTvItems[i].rssid
+      }, function (ret) {
         if (ret.code == 0) {
           for (var i = 0; i < ret.events.length; i++) {
             calendar.addEvent({
@@ -99,7 +109,7 @@
               vote_average: ret.events[i].vote_average,
               year: ret.events[i].year,
               type: ret.events[i].type,
-              rssid: true
+              rssid: ret.events[i].rssid
             });
           }
         }

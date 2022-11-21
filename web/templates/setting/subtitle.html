@@ -18,28 +18,28 @@
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-opensubtitles">
           <div class="card-cover card-cover-blurred text-center">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/opensubtitles.png)">
+                  style="background-image: url(../static/img/opensubtitles.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">OpenSubtitles</div>
             <div class="text-muted">{% if Config.subtitle %}{% if Config.subtitle.server == "opensubtitles" %}<span
-                class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
+                    class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
           </div>
         </a>
       </div>
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal"
-          data-bs-target="#modal-chinesesubfinder">
+           data-bs-target="#modal-chinesesubfinder">
           <div class="card-cover card-cover-blurred text-center bg-lime">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/chinesesubfinder.png)">
+                  style="background-image: url(../static/img/chinesesubfinder.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">ChineseSubFinder</div>
             <div class="text-muted">{% if Config.subtitle %}{% if Config.subtitle.server == "chinesesubfinder" %}<span
-                class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
+                    class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
           </div>
         </a>
       </div>
@@ -47,7 +47,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-opensubtitles" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-md modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -62,7 +62,8 @@
                 <input class="form-check-input" type="checkbox" id="subtitle.opensubtitles.enable" {% if
                   Config.subtitle.opensubtitles and Config.subtitle.opensubtitles.enable %}checked{% endif %}>
                 <span class="form-check-label">开启opensubtitles.org字幕下载 <span class="form-help"
-                    title="需要确保网络能正常连通www.opensubtitles.org" data-bs-toggle="tooltip">?</span></span>
+                                                                                   title="需要确保网络能正常连通www.opensubtitles.org"
+                                                                                   data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
           </div>
@@ -71,13 +72,13 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
         <a href="javascript:save_subtitle_config('opensubtitles')" id="opensubtitles_save_btn"
-          class="btn btn-primary">确定</a>
+           class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-chinesesubfinder" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -88,20 +89,24 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀"
-                  data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">服务器地址 <span class="form-help"
+                                                                  title="配置IP地址和端口，如为https则需要增加https://前缀"
+                                                                  data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}"
-                id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
+                     value="
+                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}"
+                     id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Api Key <span class="form-help"
-                  title="在ChineseSubFinder->配置中心->实验室->API Key处生成" data-bs-toggle="tooltip">?</span></label>
+                                                               title="在ChineseSubFinder->配置中心->实验室->API Key处生成"
+                                                               data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}"
-                id="subtitle.chinesesubfinder.api_key" class="form-control">
+                     value="
+                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}"
+                     id="subtitle.chinesesubfinder.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -109,22 +114,25 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">本地路径 <span class="form-help"
-                  title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                       title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
+                                                       data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}"
-                id="subtitle.chinesesubfinder.local_path" class="form-control filetree-folders-only"
-                placeholder="本地映射路径" autocomplete="off">
+                     value="
+                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}"
+                     id="subtitle.chinesesubfinder.local_path" class="form-control filetree-folders-only"
+                     placeholder="本地映射路径" autocomplete="off">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">远程路径 <span class="form-help"
-                  title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                       title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
+                                                       data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}"
-                id="subtitle.chinesesubfinder.remote_path" class="form-control" placeholder="远程映射路径" autocomplete="off">
+                     value="
+                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}"
+                     id="subtitle.chinesesubfinder.remote_path" class="form-control" placeholder="远程映射路径"
+                     autocomplete="off">
             </div>
           </div>
         </div>
@@ -132,7 +140,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
         <a href="javascript:save_subtitle_config('chinesesubfinder')" id="chinesesubfinder_save_btn"
-          class="btn btn-primary">确定</a>
+           class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -144,7 +152,7 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = { "test": test || false };
+    var params = {"test": test || false};
     $("#modal-" + type + " input").each(function () {
       var key = $(this).attr("id");
       if ($(this).attr("type") == "checkbox") {

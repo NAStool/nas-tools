@@ -17,8 +17,7 @@ from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, Strin
 from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT, \
-    DEFAULT_TMDB_PROXY
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
 
 
 class Media:
@@ -158,10 +157,10 @@ class Media:
             if first_media_year:
                 year_range.append(str(int(first_media_year) + 1))
                 year_range.append(str(int(first_media_year) - 1))
-            for first_media_year in year_range:
+            for year in year_range:
                 log.debug(
-                    f"【Meta】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
-                info = self.__search_movie_by_name(file_media_name, first_media_year)
+                    f"【Meta】正在识别{search_type.value}：{file_media_name}, 年份={year} ...")
+                info = self.__search_movie_by_name(file_media_name, year)
                 if info:
                     info['media_type'] = MediaType.MOVIE
                     log.info("【Meta】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
@@ -725,6 +724,10 @@ class Media:
                 file_name = os.path.basename(file_path)
                 parent_name = os.path.basename(os.path.dirname(file_path))
                 parent_parent_name = os.path.basename(PathUtils.get_parent_paths(file_path, 2))
+                # 过滤掉蓝光原盘
+                if PathUtils.get_bluray_dir(file_path):
+                    log.info("【Meta】%s 跳过蓝光原盘文件：" % file_path)
+                    continue
                 # 没有自带TMDB信息
                 if not tmdb_info:
                     # 识别
@@ -821,6 +824,8 @@ class Media:
                             meta_info.begin_episode = begin_ep
                         if end_ep is not None:
                             meta_info.end_episode = end_ep
+                    # 加入缓存
+                    self.save_rename_cache(file_name, tmdb_info)
                 return_media_infos[file_path] = meta_info
             except Exception as err:
                 log.error("【Rmt】发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -944,7 +949,7 @@ class Media:
             return []
         total_seasons = []
         for season in seasons:
-            if season.get("season_number") != 0 and season.get("episode_count") != 0:
+            if season.get("episode_count"):
                 total_seasons.append(
                     {"season_number": season.get("season_number"),
                      "episode_count": season.get("episode_count"),
@@ -1183,29 +1188,18 @@ class Media:
             return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
         return ""
 
-    def save_rename_cache(self, path, tmdb_info):
+    def save_rename_cache(self, file_name, tmdb_info):
         """
         将手动识别的信息加入缓存
         """
-        if not path or not tmdb_info:
+        if not file_name or not tmdb_info:
             return
         meta_infos = {}
-        if os.path.isfile(path):
-            meta_info = MetaInfo(title=os.path.basename(path))
-            if meta_info.get_name():
-                media_key = "[%s]%s-%s-%s" % (
-                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-                meta_infos[media_key] = tmdb_info
-        else:
-            path_files = PathUtils.get_dir_files(in_path=path, exts=RMT_MEDIAEXT)
-            for path_file in path_files:
-                meta_info = MetaInfo(title=os.path.basename(path_file))
-                if not meta_info.get_name():
-                    continue
-                media_key = "[%s]%s-%s-%s" % (
-                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-                if media_key not in meta_infos.keys():
-                    meta_infos[media_key] = tmdb_info
+        meta_info = MetaInfo(title=file_name)
+        if meta_info.get_name():
+            media_key = "[%s]%s-%s-%s" % (
+                tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+            meta_infos[media_key] = tmdb_info
         if meta_infos:
             self.meta.update_meta_data(meta_infos)
 
@@ -1217,6 +1211,7 @@ class Media:
         target.set_tmdb_info(source.tmdb_info)
         target.fanart_poster = source.get_poster_image()
         target.fanart_backdrop = source.get_backdrop_image()
+        target.download_setting = source.download_setting
         return target
 
     def get_tmdbid_by_imdbid(self, imdbid):
@@ -1234,3 +1229,35 @@ class Media:
         except Exception as err:
             log.console(str(err))
         return {}
+
+    @staticmethod
+    def get_intersection_episodes(target, source, title):
+        """
+        对两个季集字典进行判重，有相同项目的取集的交集
+        """
+        if not source or not title:
+            return target
+        if not source.get(title):
+            return target
+        if not target.get(title):
+            target[title] = source.get(title)
+            return target
+        index = -1
+        for target_info in target.get(title):
+            index += 1
+            source_info = None
+            for info in source.get(title):
+                if info.get("season") == target_info.get("season"):
+                    source_info = info
+                    break
+            if not source_info:
+                continue
+            if not source_info.get("episodes"):
+                continue
+            if not target_info.get("episodes"):
+                target_episodes = source_info.get("episodes")
+                target[title][index]["episodes"] = target_episodes
+                continue
+            target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
+            target[title][index]["episodes"] = target_episodes
+        return target

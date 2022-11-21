@@ -2,7 +2,6 @@ import time
 from urllib.parse import urlencode
 
 import log
-from config import Config
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 
@@ -12,18 +11,18 @@ class PushPlus(IMessageChannel):
     _topic = None
     _channel = None
     _webhook = None
+    _client_config = {}
 
-    def __init__(self):
+    def __init__(self, config):
+        self._client_config = config
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        message = config.get_config('message')
-        if message:
-            self._token = message.get('pushplus', {}).get('push_token')
-            self._topic = message.get('pushplus', {}).get('push_topic')
-            self._channel = message.get('pushplus', {}).get('push_channel')
-            self._webhook = message.get('pushplus', {}).get('push_webhook')
+        if self._client_config:
+            self._token = self._client_config.get('token')
+            self._topic = self._client_config.get('topic')
+            self._channel = self._client_config.get('channel')
+            self._webhook = self._client_config.get('webhook')
 
     def get_status(self):
         """
@@ -74,5 +73,5 @@ class PushPlus(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, title, medias: list, user_id=""):
+    def send_list_msg(self, **kwargs):
         pass

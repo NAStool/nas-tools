@@ -18,13 +18,14 @@
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-builtin">
           <div class="card-cover card-cover-blurred text-center" style="background-color: #2E72B9">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/indexer.jpg)">
+                  style="background-image: url(../static/img/indexer.jpg)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">内建索引器</div>
             <div class="text-muted">{% if Config.pt.search_indexer == "builtin" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
+                                                                                        title="已开启"></span>
+              正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -32,13 +33,14 @@
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-jackett">
           <div class="card-cover card-cover-blurred text-center bg-black">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/jackett.png)">
+                  style="background-image: url(../static/img/jackett.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Jackett</div>
             <div class="text-muted">{% if Config.pt.search_indexer == "jackett" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
+                                                                                        title="已开启"></span>
+              正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -46,13 +48,14 @@
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-prowlarr">
           <div class="card-cover card-cover-blurred text-center bg-orange">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-              style="background-image: url(../static/img/prowlarr.png)">
+                  style="background-image: url(../static/img/prowlarr.png)">
             </span>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Prowlarr</div>
             <div class="text-muted">{% if Config.pt.search_indexer == "prowlarr" %}<span class="badge bg-green"
-                title="已开启"></span> 正在使用{% endif %}</div>
+                                                                                         title="已开启"></span>
+              正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -60,7 +63,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-jackett" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -72,25 +75,28 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">Jackett地址 <span class="form-help"
-                  title="Jackett访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                                                                   title="Jackett访问地址和端口，如为https需加https://前缀"
+                                                                   data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.jackett %}{{ Config.jackett.host or '' }}{% endif %}"
-                id="jackett.host" class="form-control" placeholder="http://127.0.0.1:9117">
+                     id="jackett.host" class="form-control" placeholder="http://127.0.0.1:9117">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help" title="Jackett管理界面右上角复制API Key"
-                  data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">API Key <span class="form-help"
+                                                               title="Jackett管理界面右上角复制API Key"
+                                                               data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.jackett %}{{ Config.jackett.api_key or '' }}{% endif %}"
-                id="jackett.api_key" class="form-control">
+                     id="jackett.api_key" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">密码 <span class="form-help"
-                  title="Jackett管理界面中配置的Admin password，如未配置可为空" data-bs-toggle="tooltip">?</span></label>
+                                                            title="Jackett管理界面中配置的Admin password，如未配置可为空"
+                                                            data-bs-toggle="tooltip">?</span></label>
               <input type="password" value="{% if Config.jackett %}{{ Config.jackett.password or '' }}{% endif %}"
-                id="jackett.password" class="form-control">
+                     id="jackett.password" class="form-control">
             </div>
           </div>
         </div>
@@ -105,7 +111,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-prowlarr" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -117,17 +123,19 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Prowlarr地址 <span class="form-help"
-                  title="Prowlarr访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                                                                    title="Prowlarr访问地址和端口，如为https需加https://前缀"
+                                                                    data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}"
-                id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
+                     id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">API Key <span class="form-help"
-                  title="在Prowlarr->Settings->General->Security-> API Key中获取" data-bs-toggle="tooltip">?</span></label>
+                                                               title="在Prowlarr->Settings->General->Security-> API Key中获取"
+                                                               data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.api_key or '' }}{% endif %}"
-                id="prowlarr.api_key" class="form-control">
+                     id="prowlarr.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -142,7 +150,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-builtin" tabindex="-1" role="dialog" aria-hidden="true"
-  data-bs-backdrop="static" data-bs-keyboard="false">
+     data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -154,45 +162,47 @@
           <div class="col">
             <div class="mb-3">
               <label class="form-label required">私有站点 <span class="form-help"
-                  title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                                title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持"
+                                                                data-bs-toggle="tooltip">?</span></label>
               <div class="form-selectgroup">
                 {% if PrivateCount > 0 %}
-                {% for Indexer in Indexers %}
-                {% if not Indexer.public %}
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}" class="form-selectgroup-input" {%
-                    if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
-                  <span class="form-selectgroup-label">{{ Indexer.name }}</span>
-                </label>
-                {% endif %}
-                {% endfor %}
+                  {% for Indexer in Indexers %}
+                    {% if not Indexer.public %}
+                      <label class="form-selectgroup-item">
+                        <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}"
+                               class="form-selectgroup-input"
+                               {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                        <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                      </label>
+                    {% endif %}
+                  {% endfor %}
                 {% else %}
-                <label class="form-selectgroup-item">
-                  <span class="form-selectgroup-label">无</span>
-                </label>
+                  <label class="form-selectgroup-item">
+                    <span class="form-selectgroup-label">无</span>
+                  </label>
                 {% endif %}
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label">公开站点 <span class="form-help"
-                  title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示；以下站点因为有Cloudflare防护，需要在站点信息中维护站点地址、Cookie和User-Agent才能正常使用：EXT.TO；以下站点需要拉取含浏览器内核的镜像才能正常使用：海盗湾；同时大部分公开站点都需要网络代理才能访问"
-                  data-bs-toggle="tooltip">?</span></label>
+                                                       title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示；以下站点因为有Cloudflare防护，需要在站点信息中维护站点地址、Cookie和User-Agent才能正常使用：EXT.TO；以下站点需要拉取含浏览器内核的镜像才能正常使用：海盗湾；同时大部分公开站点都需要网络代理才能访问"
+                                                       data-bs-toggle="tooltip">?</span></label>
               <div class="form-selectgroup">
                 {% if PublicCount > 0 %}
-                {% for Indexer in Indexers %}
-                {% if Indexer.public %}
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}" class="form-selectgroup-input" {%
-                    if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
-                  <span class="form-selectgroup-label">{{ Indexer.name }}</span>
-                </label>
-                {% endif %}
-                {% endfor %}
+                  {% for Indexer in Indexers %}
+                    {% if Indexer.public %}
+                      <label class="form-selectgroup-item">
+                        <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}"
+                               class="form-selectgroup-input"
+                               {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                        <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                      </label>
+                    {% endif %}
+                  {% endfor %}
                 {% else %}
-                <label class="form-selectgroup-item">
-                  <span class="form-selectgroup-label">无</span>
-                </label>
+                  <label class="form-selectgroup-item">
+                    <span class="form-selectgroup-label">无</span>
+                  </label>
                 {% endif %}
               </div>
             </div>
@@ -212,7 +222,7 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = { "test": test || false };
+    var params = {"test": test || false};
     if (type != "builtin") {
       $("#modal-" + type + " input").each(function () {
         var key = $(this).attr("id");
@@ -260,7 +270,7 @@
       } else if (currType == "prowlarr") {
         command = "app.indexer.client.prowlarr|Prowlarr";
       }
-      ajax_post("test_connection", { "command": command }, function (ret) {
+      ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code == 0) {
           $("#" + currType + "_test_btn").text("测试成功");
         } else {

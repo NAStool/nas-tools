@@ -8,12 +8,13 @@
 #   move会直接移动原文件，会影响做种，请谨慎使用
 #   rclone需要自行映射rclone配置目录到容器中，或在容器内完成rclone配置
 app:
-  # 【日志记录类型】：server、file
-  # 如果是使用Docker安装建议设置为file，将日志输出到配置文件目录
+  # 【日志记录类型】：server、file、console
+  # 如果是使用Docker安装建议设置为console，通过Docker管理器查看日志
   # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
-  logtype: file
+  # 其它情况可以设置为file，将日志写入文件
+  logtype: console
   # 【日志文件的路径】：logtype为file时生效
-  logpath: '/config/logs'
+  logpath:
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP，示例：127.0.0.1:514
   logserver: 127.0.0.1:514
   # 【日志级别】：info、debug、error
@@ -163,82 +164,8 @@ scraper_pic:
 
 # 【配置消息通知服务】
 message:
-  # 【发送消息使用的渠道】：wechat、serverchan、telegram、bark、pushplus、iyuu，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat、telegram渠道可以远程交互。不设置则不启用消息服务
-  msg_channel: wechat
   # 【Emby播放状态通知白名单】：配置了Emby webhooks插件回调时，用户播放媒体库中的媒体时会发送消息通知，本处配置哪些用户的设备不通知，避免打扰，配置格式：用户:设备名称，可用 - 增加多项
   webhook_ignore:
-  # 【推送开关设置】
-  switch:
-    # 开始下载
-    download_start: true
-    # 添加下载失败
-    download_fail: true
-    # 转移完成
-    transfer_finished: true
-    # 转移失败
-    transfer_fail: true
-    # 添加订阅
-    rss_added: true
-    # 订阅完成
-    rss_finished: true
-    # 站点签到
-    site_signin: true
-  # 【企业微信通知】：在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道
-  wechat:
-    # corpid:每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）
-    # corpsecret:自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到
-    # agentid:每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid
-    # 具体不明白的参考企业微信的开发者中心
-    corpid:
-    corpsecret:
-    agentid:
-    # 【微信回调】：用于在微信中控制本程序，需要在企业微信https://work.weixin.qq.com/中设置自建应用的菜单等
-    ## 配置步聚：
-    # 1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入下面区域。
-    # 2、重启本程序。
-    # 3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat，需要有公网IP并做好端口转发，最好要有域名
-    Token:
-    EncodingAESKey:
-    # 【使用默认微信代理服务器】：由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用代理服务器转发可解决该问题
-    # 选中该项则代表使用默认的代理服务器
-    # 1、默认的代理服务器为免费使用，仅转发请求不会收集用户数据，如不放心可不开始，如无法发送消息请自行解决。2、需要将nastool.jxxghp.cn域名对应的IP地址加入企业微信应用的白名单中（通过ping域名获取IP地址）
-    default_proxy: false
-  # 【Server酱消息通知】：填写ServerChan的API KEY，SCT类型，在https://sct.ftqq.com/中申请（非VIP貌似每日限制只能收到5条消息）
-  serverchan:
-    # 令牌Token
-    sckey:
-  # 【Telegram通知】：填写Telegram bot机器人的信息，需要在Telegram中创建机器人
-  telegram:
-    # telegram机器人的Token，关注BotFather创建机器人
-    telegram_token:
-    # telegram中关注getuserID获取
-    telegram_chat_id:
-    # 允许使用telegram机器人的user id，使用,分隔
-    telegram_user_ids:
-    # 【webhook开关】：Telegram机器人消息有两种模式：WebHook或消息轮循；
-    # 开启后将使用WebHook方式，需要在基础设置为正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书
-    # 关闭后将使用消息轮循方式，推荐关闭
-    webhook: false
-  # 【Bark通知】，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT
-  bark:
-    # 自己搭建请更换，否则保持默认
-    server: https://api.day.app
-    # Bark客户端生成的KEY
-    apikey:
-  # 【pushplus通知】：http://www.pushplus.plus/ 注册账号
-  pushplus:
-    # 用户令牌
-    push_token:
-    # 群组编码
-    push_topic:
-    # 发送渠道：wechat、webhook、cp、mail
-    push_channel:
-    # webhook编码，仅在channel使用webhook渠道和CP渠道时有效
-    push_webhook:
-  # 【爱语飞飞消息通知】：https://iyuu.cn/ 申请令牌token
-  iyuu:
-    # 令牌Token
-    iyuu_token:
 
 # 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
 sync:

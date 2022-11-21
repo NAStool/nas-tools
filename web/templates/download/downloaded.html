@@ -8,55 +8,58 @@
   </div>
 </div>
 {% if Count > 0 %}
-<div class="page-body">
-  <div class="container-xl">
-    <div class="row row-cards" id="downloaded_content">
-      {% for item in Items %}
-      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-        <div class="card card-sm card-link-pop rounded-3">
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-cards" id="downloaded_content">
+        {% for item in Items %}
+          <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+            <div class="card card-sm card-link-pop rounded-3">
           <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
-            style="position:absolute;top:10px;left:10px;">{{item.TYPE}}</span>
-          {% if item.VOTE > '0' %}
-          <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
-          {% endif %}
-          <a href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
-            class="d-block">
-            <img src="{{ item.POSTER or '../static/img/no-image.png' }}" onerror="this.src='../static/img/no-image.png'"
-              class="card-img-top"
-              style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
-          </a>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div>
-                <div><strong title="站点：{{ item.SITE }}<br>种子：{{ item.TORRENT }}<br>时间：{{ item.DATE }}"
-                    data-bs-toggle="tooltip" data-bs-html="true">{{ item.TITLE }}</strong></div>
+                style="position:absolute;top:10px;left:10px;">{{ item.TYPE }}</span>
+              {% if item.VOTE > '0' %}
+                <div class="badge badge-pill bg-purple"
+                     style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
+              {% endif %}
+              <a href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
+                 class="d-block">
+                <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
+                     onerror="this.src='../static/img/no-image.png'"
+                     class="card-img-top"
+                     style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+              </a>
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div>
+                    <div><strong title="站点：{{ item.SITE }}<br>种子：{{ item.TORRENT }}<br>时间：{{ item.DATE }}"
+                                 data-bs-toggle="tooltip" data-bs-html="true">{{ item.TITLE }}</strong></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
-</div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+  <div class="page-body">
+    <div class="container-xl d-flex flex-column justify-content-center">
+      <div class="empty">
+        <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+        </div>
+        <p class="empty-title" id="search_tip_title">没有记录</p>
+        <p class="empty-subtitle text-muted" id="search_tip_text">
+          近期没有下载任何影视资源
+        </p>
       </div>
-      <p class="empty-title" id="search_tip_title">没有记录</p>
-      <p class="empty-subtitle text-muted" id="search_tip_text">
-        近期没有下载任何影视资源
-      </p>
     </div>
   </div>
-</div>
 {% endif %}
 <script type="text/javascript">
   //状态标记
   var loading = false;
   var CurrentPage = 1;
+
   function loading_data() {
     if (loading) {
       return;
@@ -64,7 +67,7 @@
     loading = true;
     CurrentPage++;
     show_wait_process();
-    ajax_post("get_downloaded", { "page": CurrentPage }, function (ret) {
+    ajax_post("get_downloaded", {"page": CurrentPage}, function (ret) {
       if (ret.Items.length > 0) {
         loading = false;
       }

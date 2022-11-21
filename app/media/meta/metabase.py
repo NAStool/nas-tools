@@ -65,6 +65,8 @@ class MetaBase(object):
     original_language = None
     # 媒体原发行标题
     original_title = None
+    # 媒体发行日期
+    release_date = None
     # 媒体年份
     year = None
     # 封面图片
@@ -80,11 +82,16 @@ class MetaBase(object):
     tmdb_info = {}
     # 本地状态 1-已订阅 2-已存在
     fav = 0
+    # 站点列表
+    rss_sites = []
+    search_sites = []
     # 种子附加信息
     # 站点名称
     site = None
     # 站点优先级
     site_order = 0
+    # 操作用户
+    user_name = None
     # 种子链接
     enclosure = None
     # 资源优先级
@@ -108,7 +115,9 @@ class MetaBase(object):
     # 订阅ID
     rssid = None
     # 保存目录
-    save_dir = None
+    save_path = None
+    # 下载设置
+    download_setting = None
     # 识别辅助
     ignored_words = None
     replaced_words = None
@@ -160,15 +169,13 @@ class MetaBase(object):
         else:
             return "%s %s" % (self.get_title_string(), self.get_vote_string())
 
-    def get_title_ep_vote_string(self):
+    def get_title_ep_string(self):
         string = self.get_title_string()
         if self.get_episode_list():
             string = "%s %s" % (string, self.get_season_episode_string())
         else:
             if self.get_season_list():
                 string = "%s %s" % (string, self.get_season_string())
-            if self.vote_average:
-                string = "%s %s" % (string, self.get_vote_string())
         return string
 
     def get_overview_string(self, max_len=140):
@@ -448,17 +455,17 @@ class MetaBase(object):
             self.title = info.get('title')
             self.original_title = info.get('original_title')
             self.original_language = info.get('original_language')
-            release_date = info.get('release_date')
-            if release_date:
-                self.year = release_date[0:4]
+            self.release_date = info.get('release_date')
+            if self.release_date:
+                self.year = self.release_date[0:4]
             self.category = self.category_handler.get_movie_category(info)
         else:
             self.title = info.get('name')
             self.original_title = info.get('original_name')
             self.original_language = info.get('original_language')
-            first_air_date = info.get('first_air_date')
-            if first_air_date:
-                self.year = first_air_date[0:4]
+            self.release_date = info.get('first_air_date')
+            if self.release_date:
+                self.year = self.release_date[0:4]
             if self.type == MediaType.TV:
                 self.category = self.category_handler.get_tv_category(info)
             else:

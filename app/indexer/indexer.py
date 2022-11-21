@@ -4,8 +4,8 @@ from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
-from app.filterrules import FilterRule
-from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
+from app.filter import Filter
+from app.utils import DomUtils, RequestUtils, StringUtils
 from app.helper import ProgressHelper
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
@@ -16,14 +16,14 @@ class IIndexer(metaclass=ABCMeta):
     index_type = None
     api_key = None
     host = None
-    filterrule = None
+    filter = None
     progress = None
     _reverse_title_sites = ['keepfriends']
     _invalid_description_sites = ['tjupt']
 
     def __init__(self):
         self.media = Media()
-        self.filterrule = FilterRule()
+        self.filter = Filter()
         self.progress = ProgressHelper()
         self.init_config()
 
@@ -312,28 +312,12 @@ class IIndexer(metaclass=ABCMeta):
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 continue
             # 检查订阅过滤规则匹配
-            if filter_args.get("rule"):
-                match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
-                                                                       rolegroup=filter_args.get("rule"))
-                if not match_flag:
-                    log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅/站点过滤规则")
-                    index_rule_fail += 1
-                    continue
-            # 使用默认规则
-            else:
-                match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info)
-                if match_type == 1 and not match_flag:
-                    log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合默认过滤规则")
-                    index_rule_fail += 1
-                    continue
-            # 有高级过滤条件时，先过滤一遍
-            if not Torrent.check_torrent_filter(meta_info=meta_info,
-                                                filter_args=filter_args,
-                                                uploadvolumefactor=uploadvolumefactor,
-                                                downloadvolumefactor=downloadvolumefactor):
-                log.info(f"【{self.index_type}】{torrent_name} 不符合高级过滤条件")
+            match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
+                                                                                filter_args=filter_args,
+                                                                                uploadvolumefactor=uploadvolumefactor,
+                                                                                downloadvolumefactor=downloadvolumefactor)
+            if not match_flag:
+                log.info(f"【{self.index_type}】{match_msg}")
                 index_rule_fail += 1
                 continue
             # 识别媒体信息
@@ -381,8 +365,10 @@ class IIndexer(metaclass=ABCMeta):
                 media_info = meta_info
 
             # 检查标题是否匹配季、集、年
-            if not Torrent.is_torrent_match_sey(media_info, filter_args.get("season"), filter_args.get("episode"),
-                                                filter_args.get("year")):
+            if not self.filter.is_torrent_match_sey(media_info,
+                                                    filter_args.get("season"),
+                                                    filter_args.get("episode"),
+                                                    filter_args.get("year")):
                 log.info(
                     f"【{self.index_type}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1

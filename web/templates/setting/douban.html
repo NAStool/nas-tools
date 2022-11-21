@@ -20,44 +20,49 @@
             <div class="row">
               <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label required">豆瓣用户ID <span class="form-help" title="如有多个豆瓣用户ID，使用英文逗号,分隔"
-                      data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">豆瓣用户ID <span class="form-help"
+                                                                      title="如有多个豆瓣用户ID，使用英文逗号,分隔"
+                                                                      data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{% if Config.douban.users %}{{ Config.douban.users|join(',') }}{% endif %}"
-                    class="form-control" id="douban.users" placeholder="用户1,用户2,用户3" autocomplete="off">
+                         class="form-control" id="douban.users" placeholder="用户1,用户2,用户3" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label required">同步周期(天) <span class="form-help" title="同步多少天内标记的豆瓣数据"
-                      data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">同步周期(天) <span class="form-help"
+                                                                        title="同步多少天内标记的豆瓣数据"
+                                                                        data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.douban.days or '' }}" class="form-control" id="douban.days"
-                    placeholder="30" autocomplete="off">
+                         placeholder="30" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label required">同步间隔(小时) <span class="form-help" title="每隔多长时间同步一次豆瓣标记数据"
-                      data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">同步间隔(小时) <span class="form-help"
+                                                                          title="每隔多长时间同步一次豆瓣标记数据"
+                                                                          data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.douban.interval or '' }}" class="form-control"
-                    id="douban.interval" placeholder="留空关闭豆瓣同步" autocomplete="off">
+                         id="douban.interval" placeholder="留空关闭豆瓣同步" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-label required">同步数据类型 <span class="form-help"
-                      title="同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用英文逗号,分隔配置" data-bs-toggle="tooltip">?</span></label>
+                                                                        title="同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用英文逗号,分隔配置"
+                                                                        data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.douban.types or '' }}" class="form-control" id="douban.types"
-                    placeholder="do,wish,collect">
+                         placeholder="do,wish,collect">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-12">
                 <div class="mb-3">
-                  <label class="form-label required">豆瓣Cookie <span class="form-help" title="部分电影需要配置Cookie才能同步到数据"
-                      data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">豆瓣Cookie <span class="form-help"
+                                                                      title="部分电影需要配置Cookie才能同步到数据"
+                                                                      data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.douban.cookie or '' }}" class="form-control" id="douban.cookie"
-                    placeholder="" autocomplete="off">
+                         placeholder="" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -67,18 +72,20 @@
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="douban.auto_search" {% if
                       Config.douban.auto_search %}checked{% endif %}>
-                    <span class="form-check-label">自动搜索下载 <span class="form-help" title="开启后豆瓣同步的数据会自动进行站点聚合检索下载"
-                        data-bs-toggle="tooltip">?</span></span>
+                    <span class="form-check-label">自动搜索下载 <span class="form-help"
+                                                                      title="开启后豆瓣同步的数据会自动进行站点聚合检索下载"
+                                                                      data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="douban.auto_rss" {% if Config.douban.auto_rss
-                      %}checked{% endif %}>
-                    <span class="form-check-label">自动添加订阅 <span class="form-help" title="开启后未进行搜索下载或搜索下载不完整的将加入RSS订阅"
-                        data-bs-toggle="tooltip">?</span></span>
+                    <input class="form-check-input" type="checkbox" id="douban.auto_rss"
+                           {% if Config.douban.auto_rss %}checked{% endif %}>
+                    <span class="form-check-label">自动添加订阅 <span class="form-help"
+                                                                      title="开启后未进行搜索下载或搜索下载不完整的将加入RSS订阅"
+                                                                      data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>

@@ -10,10 +10,10 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:batch_check_action('reidentification')"
-            class="btn btn-primary ms-auto d-none d-sm-inline-block">
+             class="btn btn-primary ms-auto d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -22,8 +22,8 @@
           </a>
           <a href="javascript:batch_check_action('reidentification')" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
@@ -31,8 +31,8 @@
           </a>
           <a href="javascript:batch_check_action('delete')" class="btn btn-danger ms-auto d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <line x1="4" y1="7" x2="20" y2="7"></line>
               <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -44,8 +44,8 @@
           </a>
           <a href="javascript:batch_check_action('delete')" class="btn btn-danger d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
+                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                 stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <line x1="4" y1="7" x2="20" y2="7"></line>
               <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -75,7 +75,7 @@
                 搜索:
                 <div class="ms-2 d-inline-block">
                   <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
-                    aria-label="搜索">
+                         aria-label="搜索">
                 </div>
               </div>
             </div>
@@ -83,30 +83,30 @@
           <div class="table-responsive" style="min-height: 300px">
             <table class="table table-vcenter card-table">
               <thead>
-                <tr>
-                  {% if TotalCount > 0 %}
+              <tr>
+                {% if TotalCount > 0 %}
                   <th class="w-1"><input class="form-check-input m-0 align-middle" id="history_check_all_btn"
-                      type="checkbox" aria-label="全选"></th>
-                  {% endif %}
-                  <th>媒体信息</th>
-                  <th>文件信息</th>
-                  <th>时间</th>
-                  <th></th>
-                </tr>
+                                         type="checkbox" aria-label="全选"></th>
+                {% endif %}
+                <th>媒体信息</th>
+                <th>文件信息</th>
+                <th>时间</th>
+                <th></th>
+              </tr>
               </thead>
               <tbody>
-                {% if TotalCount > 0 %}
+              {% if TotalCount > 0 %}
                 {% for History in Historys %}
-                <tr>
-                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}"
-                      type="checkbox"></td>
-                  <td>
-                    <div class="d-flex py-1 align-items-center">
+                  <tr>
+                    <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}"
+                                           type="checkbox"></td>
+                    <td>
+                      <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
                         {% if History.TYPE == "电影" %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
-                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                          stroke-linecap="round" stroke-linejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
+                               height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                               stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <rect x="4" y="4" width="16" height="16" rx="2"></rect>
                           <line x1="8" y1="4" x2="8" y2="20"></line>
@@ -118,98 +118,128 @@
                           <line x1="16" y1="16" x2="20" y2="16"></line>
                         </svg>
                         {% else %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv"
-                          width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                          stroke-linecap="round" stroke-linejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv"
+                               width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <rect x="3" y="7" width="18" height="13" rx="2"></rect>
                           <polyline points="16 3 12 7 8 3"></polyline>
                         </svg>
                         {% endif %}
                       </span>
-                      <div class="flex-fill">
-                        <div class="font-weight-medium"><a class="text-reset">{{ History.TITLE }} ({{ History.YEAR }})
-                            {{
-                            History.SE }}</a></div>
-                        {% if History.CATEGORY %}
-                        <div class="text-muted">类别：{{ History.CATEGORY }}</div>
+                        <div class="flex-fill">
+                          <div class="font-weight-medium">
+                            {% if History.TMDBID %}
+                              <a href="https://www.themoviedb.org/{% if History.TYPE == "电影" %}movie{% else %}tv{% endif %}/{{ History.TMDBID }}"
+                                 target="_blank">
+                              {{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}
+                              </a>
+                            {% else %}
+                              {{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}
+                            {% endif %}
+                          </div>
+                          {% if History.CATEGORY %}
+                            <div class="text-muted">类别：{{ History.CATEGORY }}</div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <a href='javascript:navmenu("mediafile?dir={{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                          {{ History.SOURCE_FILENAME or '' }}</a>
+                      </div>
+                      <div>
+                        {% if History.DEST_PATH or History.DEST_FILENAME %}
+                        <span class="text-muted">=> </span>
+                        {% endif %}
+                        {% if History.DEST_PATH %}
+                          <a class="text-green"
+                             href='javascript:navmenu("mediafile?dir={{ History.DEST_PATH.replace("\\", "/") }}")'>
+                            {{ History.DEST_FILENAME or '' }}
+                          </a>
+                        {% else %}
+                          {{ History.DEST_FILENAME or '' }}
                         {% endif %}
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div>{{ History.FILE_NAME }}</div>
-                    <div class="text-muted">来自：{{ History.SOURCE }}</div>
-                  </td>
-                  <td>{{ History.DATE }}</td>
-                  <td>
-                    <div class="dropdown">
-                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <circle cx="12" cy="12" r="1" />
-                          <circle cx="12" cy="19" r="1" />
-                          <circle cx="12" cy="5" r="1" />
-                        </svg>
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:single_re_identification_history("{{History.ID}}",)'>
-                          重新识别
+                    </td>
+                    <td>{{ History.DATE }}
+                      <div class="text-muted">来自：{{ History.SOURCE or '' }}</div>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <circle cx="12" cy="12" r="1"/>
+                            <circle cx="12" cy="19" r="1"/>
+                            <circle cx="12" cy="5" r="1"/>
+                          </svg>
                         </a>
-                        <a class="dropdown-item"
-                          href='javascript:rename_history("{{History.TYPE}}", "{{History.FILE_NAME}}", "{{History.ID}}")'>
-                          手动识别
-                        </a>
-                        <a class="dropdown-item text-danger"
-                          href='javascript:single_delete_history("{{History.ID}}", "{{History.TITLE}} ({{History.YEAR}}) {{History.SE}}")'>
-                          删除
-                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item"
+                             href='javascript:single_re_identification_history("{{ History.ID }}",)'>
+                            重新识别
+                          </a>
+                          <a class="dropdown-item"
+                             href='javascript:rename_history("{{ History.TYPE }}", "{{ History.SOURCE_FILENAME }}", "{{ History.ID }}")'>
+                            手动识别
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href='javascript:single_delete_history("{{ History.ID }}", "{{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}")'>
+                            删除
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 {% endfor %}
-                {% else %}
+              {% else %}
                 <tr>
                   <td colspan="4" align="center">没有数据</td>
                 </tr>
-                {% endif %}
+              {% endif %}
               </tbody>
             </table>
           </div>
           {% if TotalCount > 0 %}
-          <div class="card-footer d-flex align-items-center">
-            <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
-            <ul class="pagination m-0 ms-auto">
-              <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
-                <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
-                  aria-disabled="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <polyline points="15 6 9 12 15 18" />
-                  </svg>
-                </a>
-              </li>
-              {% for page in PageRange %}
-              <li class="page-item {% if page==CurrentPage %} active {% endif %}">
-                <a class="page-link" href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a>
-              </li>
-              {% endfor %}
-              <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
-                <a class="page-link"
-                  href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <polyline points="9 6 15 12 9 18" />
-                  </svg>
-                </a>
-              </li>
-            </ul>
-          </div>
+            <div class="card-footer d-flex align-items-center">
+              <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+              <ul class="pagination m-0 ms-auto">
+                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                  <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
+                     aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <polyline points="15 6 9 12 15 18"/>
+                    </svg>
+                  </a>
+                </li>
+                {% for page in PageRange %}
+                  <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                    <a class="page-link"
+                       href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a>
+                  </li>
+                {% endfor %}
+                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                  <a class="page-link"
+                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                      <polyline points="9 6 15 12 9 18"/>
+                    </svg>
+                  </a>
+                </li>
+              </ul>
+            </div>
           {% endif %}
         </div>
       </div>
@@ -237,7 +267,7 @@
     show_confirm_modal(name + " 对应已重命名的文件将被同步删除，是否确认？", function () {
       hide_confirm_modal();
       show_wait_process();
-      ajax_post("delete_history", { "logids": logids }, function (ret) {
+      ajax_post("delete_history", {"logids": logids}, function (ret) {
         hide_wait_process();
         navmenu('history');
       });
@@ -247,12 +277,12 @@
   //重新识别
   function re_identification(logids) {
     show_wait_process();
-    ajax_post("re_identification", { flag: "history", ids: logids }, function (ret) {
+    ajax_post("re_identification", {flag: "history", ids: logids}, function (ret) {
       hide_wait_process();
       if (ret.retcode == 0) {
         navmenu('history');
       } else {
-        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
       }
     });
   }
@@ -271,8 +301,7 @@
       $("#rename_season_div").hide();
       $("#rename_episode_div").hide();
       $("#rename_season").val("");
-    }
-    else {
+    } else {
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
     }
@@ -314,5 +343,5 @@
     var logids = [logid];
     re_identification(logids);
   }
-  
+
 </script>

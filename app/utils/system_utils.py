@@ -225,23 +225,53 @@ class SystemUtils:
                 vols.append(vol)
         return vols
 
-    @staticmethod
-    def find_links(file, fdir=None):
+    def find_hardlinks(self, file, fdir=None):
         """
         查找文件的所有硬链接
         """
         ret_files = []
         if os.name == "nt":
-            stdout = subprocess.run(['fsutil',
-                                     'hardlink',
-                                     'list',
-                                     file], shell=True, stdout=subprocess.PIPE).stdout
+            ret = subprocess.run(
+                ['fsutil', 'hardlink', 'list', file],
+                startupinfo=self.__get_hidden_shell(),
+                stdout=subprocess.PIPE
+            )
+            if ret.returncode != 0:
+                return []
+            if ret.stdout:
+                drive = os.path.splitdrive(file)[0]
+                link_files = ret.stdout.decode('GBK').replace('\\', '/').split('\r\n')
+                for link_file in link_files:
+                    if link_file \
+                            and "$RECYCLE.BIN" not in link_file \
+                            and os.path.normpath(file) != os.path.normpath(f'{drive}{link_file}'):
+                        link_file = f'{drive.upper()}{link_file}'
+                        file_name = os.path.basename(link_file)
+                        file_path = os.path.dirname(link_file)
+                        ret_files.append({
+                            "file": link_file,
+                            "filename": file_name,
+                            "filepath": file_path
+                        })
         else:
-            stdout = subprocess.run(['find',
-                                     '-L',
-                                     fdir,
-                                     '-samefile',
-                                     file], shell=True, stdout=subprocess.PIPE).stdout
-        if stdout:
-            ret_files = stdout.decode('utf-8').split()
+            inode = os.stat(file).st_ino
+            if not fdir:
+                fdir = os.path.dirname(file)
+            stdout = subprocess.run(
+                ['find', fdir, '-inum', str(inode)],
+                stdout=subprocess.PIPE
+            ).stdout
+            if stdout:
+                link_files = stdout.decode('utf-8').split('\n')
+                for link_file in link_files:
+                    if link_file \
+                            and os.path.normpath(file) != os.path.normpath(link_file):
+                        file_name = os.path.basename(link_file)
+                        file_path = os.path.dirname(link_file)
+                        ret_files.append({
+                            "file": link_file,
+                            "filename": file_name,
+                            "filepath": file_path
+                        })
+
         return ret_files

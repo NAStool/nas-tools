@@ -52,20 +52,20 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      {% for Id in DownloadSetting %}
+      {% for Id, Attr in DownloadSetting.items() %}
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ DownloadSetting[Id].name }}</h3>
+          <h3 class="card-title">{{ Attr.name }}</h3>
           <div class="card-actions btn-actions">
-            <a href="javascript:show_download_setting_detail('{{ DownloadSetting[Id].id }}')" class="btn-action">
+            <a href="javascript:show_download_setting_detail('{{ Attr.id }}')" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
                   d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
               </svg>
             </a>
-            {% if DownloadSetting[Id].id > 0 %}
-            <a href="javascript:show_edit_download_setting_modal('{{ DownloadSetting[Id].id }}')" class="btn-action" title="编辑设置">
+            {% if Attr.id > 0 %}
+            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action" title="编辑设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -74,7 +74,7 @@
                 <line x1="16" y1="5" x2="19" y2="8" />
               </svg>
             </a>
-            <a href="javascript:delete_download_setting('{{ DownloadSetting[Id].id }}', '{{ DownloadSetting[Id].name }}')" class="btn-action" title="删除设置">
+            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action" title="删除设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
@@ -86,23 +86,29 @@
             {% endif %}
           </div>
         </div>
-        <div class="card-body" id="detail_{{ DownloadSetting[Id].id }}"
-        style="display: {% if Count > 3 %}none{% else %}block{% endif %};">
+        <div class="card-body" id="detail_{{ Attr.id }}"
+            style="display: {% if Count > 3 %}none{% else %}block{% endif %};">
           <div class="datagrid">
+            <div class="datagrid-item">
+              <div class="datagrid-title">下载器</div>
+              <div class="datagrid-content">
+                <span class="badge me-2 bg-blue">{{ Attr.downloader or '默认' }}</span>
+              </div>
+            </div>
             <div class="datagrid-item">
               <div class="datagrid-title">分类</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].category %}
-                <span class="badge me-2 bg-yellow">{{ DownloadSetting[Id].category }}</span>
+                {% if Attr.category %}
+                <span class="badge me-2">{{ Attr.category }}</span>
                 {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">标签</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].tags %}
-                {% for Tag in DownloadSetting[Id].tags.split(";") %}
-                <span class="badge me-2 bg-blue">{{ Tag }}</span>
+                {% if Attr.tags %}
+                {% for Tag in Attr.tags.split(";") %}
+                <span class="badge me-2">{{ Tag }}</span>
                 {% endfor %}
                 {% endif %}
               </div>
@@ -110,16 +116,16 @@
             <div class="datagrid-item">
               <div class="datagrid-title">布局</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].content_layout == 0 %}
+                {% if Attr.content_layout == 0 %}
                 <span class="badge me-2">全局</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 1 %}
+                {% if Attr.content_layout == 1 %}
                 <span class="badge me-2">原始</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 2 %}
+                {% if Attr.content_layout == 2 %}
                 <span class="badge me-2">创建子文件夹</span>
                 {% endif %}
-                {% if DownloadSetting[Id].content_layout == 3 %}
+                {% if Attr.content_layout == 3 %}
                 <span class="badge me-2">不建子文件夹</span>
                 {% endif %}
               </div>
@@ -127,8 +133,8 @@
             <div class="datagrid-item">
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].is_paused %}
-                <span class="badge me-2 bg-red">添加后暂停</span>
+                {% if Attr.is_paused %}
+                <span class="badge me-2 bg-orange">添加后暂停</span>
                 {% else %}
                 <span class="badge me-2 bg-green">添加后开始</span>
                 {% endif %}
@@ -137,33 +143,31 @@
             <div class="datagrid-item">
               <div class="datagrid-title">上传速度限制</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].upload_limit %}
-                <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].upload_limit }} KB/s</span>
-                {% endif %}
+              {% if Attr.upload_limit %}
+                {{ Attr.upload_limit|string + ' KB/s' or '' }}
+              {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载速度限制</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].download_limit %}
-                <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].download_limit }} KB/s</span>
-                {% endif %}
+              {% if Attr.download_limit %}
+                {{ Attr.download_limit|string + ' KB/s' or ''}}
+              {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">分享率限制</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].ratio_limit %}
-                <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].ratio_limit }}</span>
-                {% endif %}
+                {{ Attr.ratio_limit or '' }}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">做种时间限制</div>
               <div class="datagrid-content">
-                {% if DownloadSetting[Id].seeding_time_limit %}
-                <span class="badge badge-outline text-orange me-2">{{ DownloadSetting[Id].seeding_time_limit }} 分钟</span>
-                {% endif %}
+              {% if Attr.seeding_time_limit %}
+                {{ Attr.seeding_time_limit|string + ' 分钟' or '' }}
+              {% endif %}
               </div>
             </div>
           </div>
@@ -184,19 +188,32 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label required">名称</label>
               <input type="text" id="name" class="form-control" placeholder="别名">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
+            <div class="mb-3">
+              <label class="form-label required">下载器</label>
+              <select class="form-select" id="downloader">
+                <option value="" selected>默认</option>
+                {% for downloader_type in DownloaderTypes %}
+                <option value="{{ downloader_type.value }}">{{ downloader_type.value }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">分类 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="category" class="form-control" placeholder="下载器分类名称">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">标签 <span class="form-help" title="若启用只管理NASTool添加的下载且该下载设置需要被管理，请添加NASTOOL标签"
                 data-bs-toggle="tooltip">?</span></label>
@@ -205,19 +222,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">上传速度限制 </label>
               <input type="text" id="upload_limit" class="form-control" placeholder="KB/s，留空或0为不限速">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">下载速度限制 </label>
               <input type="text" id="download_limit" class="form-control" placeholder="KB/s，留空或0为不限速">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">布局 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="content_layout">
@@ -230,19 +247,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">分享率限制 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="ratio_limit" class="form-control" placeholder="留空或0为无限制">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">做种时间限制 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="seeding_time_limit" class="form-control" placeholder="分钟，留空或0为无限制">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label">动作 </label>
               <select class="form-select" id="is_paused">
@@ -288,6 +305,7 @@
     $("#download_limit").val('');
     $("#ratio_limit").val('');
     $("#seeding_time_limit").val('');
+    $("#downloader").val('');
     $("#modal-download-setting").modal('show');
   }
 
@@ -306,6 +324,7 @@
         $("#download_limit").val(ret.data.download_limit);
         $("#ratio_limit").val(ret.data.ratio_limit);
         $("#seeding_time_limit").val(ret.data.seeding_time_limit);
+        $("#downloader").val(ret.data.downloader);
         $("#modal-download-setting").modal('show');
       }
     });
@@ -313,47 +332,48 @@
 
   // 保存新建/编辑下载设置
   function add_or_edit_download_setting(){
-    sid = $("#download_setting_id").val();
-    name = $("#name").val();
+    let sid = $("#download_setting_id").val();
+    let name = $("#name").val();
     if (!name) {
       $("#name").addClass("is-invalid");
       return;
     } else {
       $("#name").removeClass("is-invalid");
     }
-    category = $("#category").val();
-    tags = $("#tags").val();
-    content_layout = $("#content_layout").val();
-    is_paused = $("#is_paused").val();
-    upload_limit = $("#upload_limit").val();
+    let category = $("#category").val();
+    let tags = $("#tags").val();
+    let content_layout = $("#content_layout").val();
+    let is_paused = $("#is_paused").val();
+    let upload_limit = $("#upload_limit").val();
     if (upload_limit && isNaN(upload_limit)) {
       $("#upload_limit").addClass("is-invalid");
       return;
     } else {
       $("#upload_limit").removeClass("is-invalid");
     }
-    download_limit = $("#download_limit").val();
+    let download_limit = $("#download_limit").val();
     if (download_limit && isNaN(download_limit)) {
       $("#download_limit").addClass("is-invalid");
       return;
     } else {
       $("#download_limit").removeClass("is-invalid");
     }
-    ratio_limit = $("#ratio_limit").val();
+    let ratio_limit = $("#ratio_limit").val();
     if (ratio_limit && isNaN(ratio_limit)) {
       $("#ratio_limit").addClass("is-invalid");
       return;
     } else {
       $("#ratio_limit").removeClass("is-invalid");
     }
-    seeding_time_limit = $("#seeding_time_limit").val();
+    let seeding_time_limit = $("#seeding_time_limit").val();
     if (seeding_time_limit && isNaN(seeding_time_limit)) {
       $("#seeding_time_limit").addClass("is-invalid");
       return;
     } else {
       $("#seeding_time_limit").removeClass("is-invalid");
     }
-    var params = {
+    let downloader = $("#downloader").val();
+    let params = {
       sid: sid,
       name: name,
       category: category,
@@ -363,7 +383,8 @@
       upload_limit: upload_limit,
       download_limit: download_limit,
       ratio_limit: ratio_limit,
-      seeding_time_limit: seeding_time_limit
+      seeding_time_limit: seeding_time_limit,
+      downloader: downloader
     };
     $("#add_or_edit_download_setting_btn").text("保存中").attr("disabled", true);
     ajax_post("update_download_setting", params, function (ret) {

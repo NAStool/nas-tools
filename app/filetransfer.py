@@ -198,12 +198,16 @@ class FileTransfer:
             log.debug("【Rmt】字幕文件清单：" + str(file_list))
             metainfo = MetaInfo(title=file_name)
             for file_item in file_list:
+                sub_file_name = os.path.basename(file_item)
                 sub_metainfo = MetaInfo(title=os.path.basename(file_item))
-                if (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
+                if (os.path.splitext(file_name)[0] == os.path.splitext(sub_file_name)[0]) or \
+                        (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
                         or (sub_metainfo.en_name and sub_metainfo.en_name == metainfo.en_name):
-                    if metainfo.get_season_string() and metainfo.get_season_string() != sub_metainfo.get_season_string():
+                    if metainfo.get_season_string() \
+                            and metainfo.get_season_string() != sub_metainfo.get_season_string():
                         continue
-                    if metainfo.get_episode_string() and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
+                    if metainfo.get_episode_string() \
+                            and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
                     sub_language = os.path.basename(file_item).split(".")[-2]
@@ -438,7 +442,9 @@ class FileTransfer:
                         now_filesize = self.__min_filesize if not str(min_filesize).isdigit() else int(
                             min_filesize) * 1024 * 1024
                     # 查找目录下的文件
-                    file_list = PathUtils.get_dir_files(in_path=in_path, episode_format=episode[0], exts=RMT_MEDIAEXT,
+                    file_list = PathUtils.get_dir_files(in_path=in_path,
+                                                        episode_format=episode[0],
+                                                        exts=RMT_MEDIAEXT,
                                                         filesize=now_filesize)
                     log.debug("【Rmt】文件清单：" + str(file_list))
                     if len(file_list) == 0:
@@ -472,7 +478,7 @@ class FileTransfer:
                         log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
-                    return True, "没有新文件需要处理"
+                    return True, "排除转移文件夹黑名单后，没有新文件需要处理"
             except Exception as err:
                 log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
 
@@ -484,7 +490,7 @@ class FileTransfer:
                         log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
-                    return True, "没有新文件需要处理"
+                    return True, "排除文件转移忽略词后，没有新文件需要处理"
             except Exception as err:
                 log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
 
@@ -522,16 +528,12 @@ class FileTransfer:
                 total_count = total_count + 1
                 # 文件名
                 file_name = os.path.basename(file_item)
-                # 上级目录
-                file_path = os.path.dirname(file_item)
 
                 # 数据库记录的路径
                 if bluray_disk_dir:
                     reg_path = bluray_disk_dir
-                elif media.type == MediaType.MOVIE:
-                    reg_path = file_item
                 else:
-                    reg_path = max(file_path, in_path)
+                    reg_path = file_item
                 # 未识别
                 if not media or not media.tmdb_info or not media.get_title_string():
                     log.warn("【Rmt】%s 无法识别媒体信息！" % file_name)
@@ -581,6 +583,7 @@ class FileTransfer:
                 dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
                 # 新文件后缀
                 file_ext = os.path.splitext(file_item)[-1]
+                new_file = ret_file_path
                 # 已存在的文件数量
                 exist_filenum = 0
                 handler_flag = False
@@ -710,7 +713,13 @@ class FileTransfer:
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
-                self.dbhelper.insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                self.dbhelper.insert_transfer_history(
+                    in_from=in_from,
+                    rmt_mode=rmt_mode,
+                    in_path=reg_path,
+                    out_path=new_file if not bluray_disk_dir else None,
+                    dest=dist_path,
+                    media_info=media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
                 if isinstance(episode[1], bool) and episode[1]:
                     # 未识别手动识别，更改未识别记录为已处理
