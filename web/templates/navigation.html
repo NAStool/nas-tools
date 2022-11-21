@@ -1821,15 +1821,7 @@
   // 显示新增电视剧订阅
   function show_add_tvrss_media_modal() {
     // 刷新下拉框
-    show_wait_process();
     refresh_rss_download_setting_dirs();
-    hide_wait_process();
-    if (RSS_SITES_LENGTH === 0) {
-      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
-        navmenu('site');
-      });
-      return;
-    }
 
     // 界面初始化
     $("#rss_id").val("");
@@ -1862,18 +1854,7 @@
   // 显示新增电影订阅
   function show_add_movierss_media_modal() {
     // 刷新下拉框
-    refresh_rsssites_select('rss_sites_group', false);
-    if (RSS_SITES_LENGTH === 0) {
-      show_fail_modal("没有可用于订阅的站点，请先维护站点信息！", function () {
-        navmenu('site');
-      });
-      return;
-    }
-
-    // 刷新下拉框
-    show_wait_process();
     refresh_rss_download_setting_dirs();
-    hide_wait_process();
 
     // 界面初始化
     $("#rss_id").val("");
@@ -1908,10 +1889,11 @@
     $("#rss_type").val(type);
     $("#rss_modal_title").text("编辑订阅");
 
-    show_wait_process();
     // 刷新下拉框
     refresh_rss_download_setting_dirs();
+
     // 获取订阅信息
+    show_wait_process();
     ajax_post("rss_detail", {"rssid": rssid, "rsstype": type}, function (ret) {
       hide_wait_process();
       if (ret.code === 0) {
@@ -2090,11 +2072,13 @@
 
   // 刷新订阅框的下载设置及目录等选项
   function refresh_rss_download_setting_dirs(){
+    show_wait_process();
     refresh_rsssites_select("rss_sites_group", false);
     refresh_searchsites_select("rss_search_sites_group");
     refresh_filter_select("rss_rule");
     refresh_downloadsetting_select("rss_download_setting", false);
     refresh_savepath_select("rss_save_path", true, $("#rss_download_setting").val());
+    hide_wait_process();
   }
 
   // 刷新下载框的下载设置及目录选项
