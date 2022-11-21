@@ -1215,7 +1215,7 @@ class WebAction:
         """
         name = data.get("name")
         if not Sites().get_sites(rss=True):
-            return {"code": -1, "msg": "未有站点启用订阅功能", "name": name}
+            return {"code": -1, "msg": "没有站点启用订阅功能，请先维护站点信息！", "name": name}
         _subscribe = Subscribe()
         mtype = data.get("type")
         year = data.get("year")
@@ -3820,9 +3820,9 @@ class WebAction:
             indexers = [{
                 "id": index.id,
                 "name": index.name
-            } for index in BuiltinIndexer().get_indexers(check=check, public=False)]
+            } for index in BuiltinIndexer().get_indexers(check=check)]
         else:
-            indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check, public=False)]
+            indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check)]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod

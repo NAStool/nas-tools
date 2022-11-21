@@ -66,24 +66,22 @@
                   <td>{{ Attr.name }}</td>
                   <td>
                     <small>
-                      {% for SwitchID in Switchs %}
-                        {% if not Attr.switchs or SwitchID in Attr.switchs %}
-                          <span class="badge
-                      {% if "download" in SwitchID %}
-                      bg-blue-lt
-                      {% elif "transfer" in SwitchID %}
-                      bg-azure-lt
-                      {% elif "rss" in SwitchID %}
-                      bg-indigo-lt
-                      {% elif "site" in SwitchID %}
-                      bg-purple-lt
-                      {% elif "brushtask" in SwitchID %}
-                      bg-pink-lt
-                      {% elif "mediaserver" in SwitchID %}
-                      bg-orange-lt
-                      {% endif %}
-                      me-1 mb-1">{{ Switchs[SwitchID].name }}</span>
-                        {% endif %}
+                      {% for swid in Attr.switchs %}
+                        <span class="badge
+                          {% if "download" in swid %}
+                          bg-blue-lt
+                          {% elif "transfer" in swid %}
+                          bg-azure-lt
+                          {% elif "rss" in swid %}
+                          bg-indigo-lt
+                          {% elif "site" in swid %}
+                          bg-purple-lt
+                          {% elif "brushtask" in swid %}
+                          bg-pink-lt
+                          {% elif "mediaserver" in swid %}
+                          bg-orange-lt
+                          {% endif %}
+                          me-1 mb-1">{{ Switchs[swid].name }}</span>
                       {% endfor %}
                     </small>
                   </td>
@@ -647,17 +645,11 @@
     var enabled = $("#client_enabled").val();
     // 推送设置
     var switchs = [];
-    var switch_all = true;
     $("input[name=message_switchs]").each(function () {
       if ($(this).prop("checked")) {
         switchs.push($(this).val());
-      } else {
-        switch_all = false;
       }
     });
-    if (switch_all) {
-      switchs = [];
-    }
     var params = {
       cid: cid,
       name: name,
