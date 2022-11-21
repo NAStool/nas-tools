@@ -1217,8 +1217,6 @@ class WebAction:
         添加RSS订阅
         """
         name = data.get("name")
-        if not Sites().get_sites(rss=True):
-            return {"code": -1, "msg": "没有站点启用订阅功能，请先维护站点信息！", "name": name}
         _subscribe = Subscribe()
         mtype = data.get("type")
         year = data.get("year")

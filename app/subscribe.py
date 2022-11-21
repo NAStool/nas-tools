@@ -578,10 +578,12 @@ class Subscribe:
             # 跳过模糊匹配的
             if rss_info.get("fuzzy_match"):
                 continue
+            # 搜索站点范围
             rssid = rss_info.get("id")
             name = rss_info.get("name")
             year = rss_info.get("year") or ""
             tmdbid = rss_info.get("tmdbid")
+
             # 开始搜索
             self.dbhelper.update_rss_movie_state(rssid=rssid, state='S')
             # 识别
@@ -608,7 +610,8 @@ class Subscribe:
                 "restype": rss_info.get('filter_restype'),
                 "pix": rss_info.get('filter_pix'),
                 "team": rss_info.get('filter_team'),
-                "rule": rss_info.get('filter_rule')
+                "rule": rss_info.get('filter_rule'),
+                "site": rss_info.get("search_sites")
             }
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -712,7 +715,8 @@ class Subscribe:
                 "restype": rss_info.get('filter_restype'),
                 "pix": rss_info.get('filter_pix'),
                 "team": rss_info.get('filter_team'),
-                "rule": rss_info.get('filter_rule')
+                "rule": rss_info.get('filter_rule'),
+                "site": rss_info.get("search_sites")
             }
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
