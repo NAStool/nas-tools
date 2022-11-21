@@ -292,12 +292,7 @@
       $("#restore_btn").attr("disabled", false).text("恢复配置");
       $("#modal-backup").modal('hide');
       if (ret.code == 0) {
-        show_confirm_modal("备份恢复成功，立即重启系统？", function () {
-          $("#system_confirm_btn").attr("disabled", true).text("重启中...");
-          ajax_post("restart", {}, function (ret) {
-          });
-          setTimeout("window.location.reload()", 10000);
-        });
+        show_success_modal("备份恢复成功，请完整重启整个系统（非内置重启功能），否则配置信息可能不生效！");
       } else {
         show_fail_modal(`备份恢复失败：${ret.msg}`, function() {
           $("#modal-backup").modal('show');

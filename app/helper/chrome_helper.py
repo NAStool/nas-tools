@@ -32,9 +32,9 @@ class ChromeHelper(object):
 
     def get_status(self):
         if self._executable_path \
-                and not os.path.exists(self._executable_path):
-            return False
-        return True
+                and os.path.exists(self._executable_path):
+            return True
+        return False
 
     def __get_browser(self):
         if not self.get_status():

@@ -16,7 +16,7 @@ class Searcher:
     indexer = None
     progress = None
     dbhelper = None
-    
+
     __search_auto = True
 
     def __init__(self):
@@ -70,7 +70,8 @@ class Searcher:
                          in_from: SearchType,
                          no_exists: dict,
                          sites: list = None,
-                         filters: dict = None):
+                         filters: dict = None,
+                         user_name=None):
         """
         只检索和下载一个资源，用于精确检索下载，由微信、Telegram或豆瓣调用
         :param media_info: 已识别的媒体信息
@@ -78,6 +79,7 @@ class Searcher:
         :param no_exists: 缺失的剧集清单
         :param sites: 检索哪些站点
         :param filters: 过滤条件，为空则不过滤
+        :param user_name: 用户名
         :return: 请求的资源是否全部下载完整
                  请求的资源如果是剧集则返回下载后仍然缺失的季集信息
                  搜索到的结果数量
@@ -170,7 +172,10 @@ class Searcher:
                 if not self.__search_auto:
                     return False, no_exists, len(media_list), None
             # 择优下载
-            download_items, left_medias = self.downloader.batch_download(in_from, media_list, no_exists)
+            download_items, left_medias = self.downloader.batch_download(in_from=in_from,
+                                                                         media_list=media_list,
+                                                                         need_tvs=no_exists,
+                                                                         user_name=user_name)
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
                 log.info("【Searcher】%s 未下载到资源" % media_info.title)

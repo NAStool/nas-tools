@@ -292,7 +292,7 @@ class RssChecker(object):
                                                         download_dir=media.save_path,
                                                         download_setting=media.download_setting)
                 if ret:
-                    self.message.send_download_message(in_from=SearchType.RSS,
+                    self.message.send_download_message(in_from=SearchType.USERRSS,
                                                        can_item=media)
                     # 下载类型的 这里下载成功了 插入数据库
                     self.dbhelper.insert_rss_torrents(media)
@@ -317,13 +317,13 @@ class RssChecker(object):
                                                                 season=media.begin_season,
                                                                 tmdbid=media.tmdb_id)
                 if code == 0:
-                    self.message.send_rss_success_message(in_from=SearchType.RSS, media_info=media)
+                    self.message.send_rss_success_message(in_from=SearchType.USERRSS, media_info=media)
                 else:
                     log.warn("【RssChecker】%s 添加订阅失败：%s" % (media.title, msg))
         # 直接搜索
         if rss_search_torrents:
             for media in rss_search_torrents:
-                self.searcher.search_one_media(in_from=SearchType.RSS,
+                self.searcher.search_one_media(in_from=SearchType.USERRSS,
                                                media_info=media,
                                                no_exists=no_exists)
 
@@ -584,7 +584,7 @@ class RssChecker(object):
                                                     download_dir=taskinfo.get("save_path"),
                                                     download_setting=taskinfo.get("download_setting"))
             if ret:
-                self.message.send_download_message(in_from=SearchType.RSS,
+                self.message.send_download_message(in_from=SearchType.USERRSS,
                                                    can_item=media)
                 # 插入数据库
                 self.dbhelper.insert_rss_torrents(media)

@@ -212,8 +212,13 @@ class Message:
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
         msg_text = f"{can_item.get_vote_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
+        if can_item.user_name:
+            msg_text = f"{msg_text}\n用户：{can_item.user_name}"
         if can_item.site:
-            msg_text = f"{msg_text}\n站点：{can_item.site}"
+            if in_from == SearchType.USERRSS:
+                msg_text = f"{msg_text}\n任务：{can_item.site}"
+            else:
+                msg_text = f"{msg_text}\n站点：{can_item.site}"
         if can_item.get_resource_type_string():
             msg_text = f"{msg_text}\n质量：{can_item.get_resource_type_string()}"
         if can_item.size:
@@ -321,7 +326,7 @@ class Message:
                     image=item.get_message_image()
                 )
 
-    def send_rss_success_message(self, in_from: Enum, media_info, user_id=""):
+    def send_rss_success_message(self, in_from: Enum, media_info):
         """
         发送订阅成功的消息
         """
@@ -333,6 +338,8 @@ class Message:
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         msg_str = f"{msg_str}，来自：{in_from.value}"
+        if media_info.user_name:
+            msg_str = f"{msg_str}，用户：{media_info.user_name}"
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -341,8 +348,7 @@ class Message:
                     title=msg_title,
                     text=msg_str,
                     image=media_info.get_message_image(),
-                    url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                    user_id=user_id
+                    url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss'
                 )
 
     def send_rss_finished_message(self, media_info):

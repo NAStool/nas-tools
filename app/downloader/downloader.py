@@ -422,12 +422,17 @@ class Downloader:
             return False
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
-    def batch_download(self, in_from: SearchType, media_list: list, need_tvs: dict = None):
+    def batch_download(self,
+                       in_from: SearchType,
+                       media_list: list,
+                       need_tvs: dict = None,
+                       user_name=None):
         """
         根据命中的种子媒体信息，添加下载，由RSS或Searcher调用
         :param in_from: 来源
         :param media_list: 命中并已经识别好的媒体信息列表，包括名称、年份、季、集等信息
         :param need_tvs: 缺失的剧集清单，对于剧集只有在该清单中的季和集才会下载，对于电影无需输入该参数
+        :param user_name: 用户名称
         :return: 已经添加了下载的媒体信息表表、剩余未下载到的媒体信息
         """
 
@@ -440,6 +445,7 @@ class Downloader:
             """
             下载及发送通知
             """
+            download_item.user_name = user_name
             state, msg = self.download(
                 media_info=download_item,
                 download_dir=download_item.save_path,
@@ -648,6 +654,7 @@ class Downloader:
                             # 记录下载项
                             return_items.append(item)
                             # 发送消息通知
+                            item.user_name = user_name
                             self.message.send_download_message(in_from, item)
                             # 清除记忆并退出一层循环
                             need_episodes = __update_episodes(tmdbid=need_tmdbid,

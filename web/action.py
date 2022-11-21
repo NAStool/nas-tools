@@ -10,7 +10,7 @@ from math import floor
 from urllib.parse import unquote
 
 import cn2an
-from flask_login import logout_user
+from flask_login import logout_user, current_user
 from werkzeug.security import generate_password_hash
 
 import log
@@ -231,10 +231,10 @@ class WebAction:
         # 关闭虚拟显示
         os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
         # 杀进程
-        os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
+        os.system("ps -ef|grep -w 'NAStool'|grep -v grep|awk '{print $1}'|xargs kill -9")
 
     @staticmethod
-    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None):
+    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
         """
         处理消息事件
         """
@@ -268,7 +268,7 @@ class WebAction:
                                              user_id=user_id)
                     return
             # 站点检索或者添加订阅
-            ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
+            ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id, user_name))
 
     @staticmethod
     def set_config_value(cfg, cfg_key, cfg_value):
@@ -446,7 +446,9 @@ class WebAction:
                                                  download_setting=dl_setting)
             if ret:
                 # 发送消息
-                Message().send_download_message(SearchType.WEB, media)
+                media.user_name = current_user.username
+                Message().send_download_message(in_from=SearchType.WEB,
+                                                can_item=media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
@@ -480,6 +482,7 @@ class WebAction:
                                              download_setting=dl_setting)
         if ret:
             # 发送消息
+            media.user_name = current_user.username
             Message().send_download_message(SearchType.WEB, media)
             return {"code": 0, "msg": "下载成功"}
         else:
