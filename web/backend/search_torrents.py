@@ -16,8 +16,8 @@ from app.helper import DbHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
 from app.subscribe import Subscribe
 
-SEARCH_MEDIA_CACHE = []
-SEARCH_MEDIA_TYPE = "SEARCH"
+SEARCH_MEDIA_CACHE = {}
+SEARCH_MEDIA_TYPE = {}
 
 
 def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, media_type=None):
@@ -185,7 +185,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         return 0, ""
 
 
-def search_media_by_message(input_str, in_from: SearchType, user_id=None):
+def search_media_by_message(input_str, in_from: SearchType, user_id):
     """
     输入字符串，解析要求并进行资源检索
     :param input_str: 输入字符串，可以包括标题、年份、季、集的信息，使用空格隔开
@@ -203,14 +203,16 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     if input_str.isdigit() and int(input_str) < 10:
         # 获取之前保存的可选项
         choose = int(input_str) - 1
-        if choose < 0 or choose >= len(SEARCH_MEDIA_CACHE):
+        if not SEARCH_MEDIA_CACHE.get(user_id) or \
+                choose < 0 or choose >= len(SEARCH_MEDIA_CACHE.get(user_id)):
             Message().send_channel_msg(channel=in_from,
                                        title="输入有误！",
                                        user_id=user_id)
             log.warn("【Web】错误的输入值：%s" % input_str)
             return
-        media_info = SEARCH_MEDIA_CACHE[choose]
-        if SEARCH_MEDIA_TYPE == "SEARCH":
+        media_info = SEARCH_MEDIA_CACHE[user_id][choose]
+        if not SEARCH_MEDIA_TYPE.get(user_id) \
+                or SEARCH_MEDIA_TYPE.get(user_id) == "SEARCH":
             # 如果是豆瓣数据，需要重新查询TMDB的数据
             if media_info.douban_id:
                 _title = media_info.get_title_string()
@@ -241,10 +243,10 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
         if input_str.startswith("订阅"):
-            SEARCH_MEDIA_TYPE = "RSS"
+            SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         else:
-            SEARCH_MEDIA_TYPE = "SEARCH"
+            SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
         # 去掉查询中的电影或电视剧关键字
         mtype, _, _, _, _, org_content = StringUtils.get_keyword_from_string(input_str)
@@ -314,7 +316,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             return
 
         # 保存识别信息到临时结果中
-        SEARCH_MEDIA_CACHE.clear()
+        SEARCH_MEDIA_CACHE[user_id] = []
         if use_douban_titles:
             for meta_info in tmdb_infos:
                 # 合并站点和下载设置信息
@@ -322,7 +324,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                 meta_info.search_sites = search_sites
                 media_info.download_setting = download_setting
 
-                SEARCH_MEDIA_CACHE.append(meta_info)
+                SEARCH_MEDIA_CACHE[user_id].append(meta_info)
         else:
             for tmdb_info in tmdb_infos:
                 meta_info = MetaInfo(title=content)
@@ -336,12 +338,13 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                 meta_info.search_sites = search_sites
                 media_info.download_setting = download_setting
 
-                SEARCH_MEDIA_CACHE.append(meta_info)
+                SEARCH_MEDIA_CACHE[user_id].append(meta_info)
 
-        if 1 == len(SEARCH_MEDIA_CACHE):
+        if 1 == len(SEARCH_MEDIA_CACHE[user_id]):
             # 只有一条数据，直接开始搜索
-            media_info = SEARCH_MEDIA_CACHE[0]
-            if SEARCH_MEDIA_TYPE == "SEARCH":
+            media_info = SEARCH_MEDIA_CACHE[user_id][0]
+            if not SEARCH_MEDIA_TYPE.get(user_id) \
+                    or SEARCH_MEDIA_TYPE.get(user_id) == "SEARCH":
                 # 如果是豆瓣数据，需要重新查询TMDB的数据
                 if media_info.douban_id:
                     _title = media_info.get_title_string()
@@ -366,8 +369,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         else:
             # 发送消息通知选择
             Message().send_channel_list_msg(channel=in_from,
-                                            title="共找到%s条相关信息，请回复对应序号" % len(SEARCH_MEDIA_CACHE),
-                                            medias=SEARCH_MEDIA_CACHE,
+                                            title="共找到%s条相关信息，请回复对应序号" % len(SEARCH_MEDIA_CACHE[user_id]),
+                                            medias=SEARCH_MEDIA_CACHE[user_id],
                                             user_id=user_id)
 
 
