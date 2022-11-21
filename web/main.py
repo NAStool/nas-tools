@@ -1214,13 +1214,11 @@ def wechat():
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
                 # 处理消息内容
-                # TODO 获取用户名
-                user_name = ""
                 WebAction().handle_message_job(msg=content,
                                                client=interactive_client,
                                                in_from=SearchType.WX,
                                                user_id=user_id,
-                                               user_name=user_name)
+                                               user_name=user_id)
             return make_response(content, 200)
         except Exception as err:
             log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -1266,6 +1264,29 @@ def emby_webhook():
 # Telegram消息
 @App.route('/telegram', methods=['POST', 'GET'])
 def telegram():
+    """
+    {
+        'update_id': ,
+        'message': {
+            'message_id': ,
+            'from': {
+                'id': ,
+                'is_bot': False,
+                'first_name': '',
+                'username': '',
+                'language_code': 'zh-hans'
+            },
+            'chat': {
+                'id': ,
+                'first_name': '',
+                'username': '',
+                'type': 'private'
+            },
+            'date': ,
+            'text': ''
+        }
+    }
+    """
     # 当前在用的交互渠道
     interactive_client = Message().get_interactive_client()
     if not interactive_client or interactive_client.get("search_type") != SearchType.TG:
@@ -1279,8 +1300,8 @@ def telegram():
         text = message.get("text")
         user_id = message.get("from", {}).get("id")
         log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
-        # TODO 获取用户名
-        user_name = ""
+        # 获取用户名
+        user_name = message.get("from", {}).get("username")
         if text:
             WebAction().handle_message_job(msg=text,
                                            client=interactive_client,
@@ -1294,6 +1315,43 @@ def telegram():
 @App.route('/subscribe', methods=['POST', 'GET'])
 @require_auth
 def subscribe():
+    """
+    {
+        "notification_type": "{{notification_type}}",
+        "event": "{{event}}",
+        "subject": "{{subject}}",
+        "message": "{{message}}",
+        "image": "{{image}}",
+        "{{media}}": {
+            "media_type": "{{media_type}}",
+            "tmdbId": "{{media_tmdbid}}",
+            "tvdbId": "{{media_tvdbid}}",
+            "status": "{{media_status}}",
+            "status4k": "{{media_status4k}}"
+        },
+        "{{request}}": {
+            "request_id": "{{request_id}}",
+            "requestedBy_email": "{{requestedBy_email}}",
+            "requestedBy_username": "{{requestedBy_username}}",
+            "requestedBy_avatar": "{{requestedBy_avatar}}"
+        },
+        "{{issue}}": {
+            "issue_id": "{{issue_id}}",
+            "issue_type": "{{issue_type}}",
+            "issue_status": "{{issue_status}}",
+            "reportedBy_email": "{{reportedBy_email}}",
+            "reportedBy_username": "{{reportedBy_username}}",
+            "reportedBy_avatar": "{{reportedBy_avatar}}"
+        },
+        "{{comment}}": {
+            "comment_message": "{{comment_message}}",
+            "commentedBy_email": "{{commentedBy_email}}",
+            "commentedBy_username": "{{commentedBy_username}}",
+            "commentedBy_avatar": "{{commentedBy_avatar}}"
+        },
+        "{{extra}}": []
+    }
+    """
     req_json = request.get_json()
     if not req_json:
         return make_response("非法请求！", 400)
@@ -1314,6 +1372,7 @@ def subscribe():
                                                              name=meta_info.get_name(),
                                                              year=meta_info.year,
                                                              tmdbid=tmdbId)
+        meta_info.user_name = req_json.get("request", {}).get("requestedBy_username")
         Message().send_rss_success_message(in_from=SearchType.API,
                                            media_info=meta_info)
     else:
