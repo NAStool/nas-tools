@@ -127,7 +127,8 @@ class Message:
         log.info(f"【Message】发送{client.get('type')}消息服务{client.get('name')}：title={title}, text={text}")
         if self._domain:
             if url:
-                url = "%s?next=%s" % (self._domain, url)
+                if not url.startswith(self._domain):
+                    url = "%s?next=%s" % (self._domain, url)
             else:
                 url = self._domain
         else:
