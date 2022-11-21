@@ -231,7 +231,7 @@ class WebAction:
         # 关闭虚拟显示
         os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
         # 杀进程
-        os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
+        os.system("ps -ef|grep -w 'NAStool'|grep -v grep|awk '{print $1}'|xargs kill -9")
 
     @staticmethod
     def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
