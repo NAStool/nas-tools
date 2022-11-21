@@ -277,12 +277,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         # 获取字符串中可能的搜索站点列表
         if indexer_type == "builtin":
             search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
-                "name": indexer.id,
+                "id": indexer.name,
                 "name": indexer.name
             } for indexer in indexers])
         else:
             search_sites, content = StringUtils.get_idlist_from_string(content, [{
-                "name": indexer.id,
+                "id": indexer.name,
                 "name": indexer.name
             } for indexer in indexers])
 
@@ -467,10 +467,9 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:
+            media_info.user_name = user_name
             Message().send_rss_success_message(in_from=in_from,
-                                               media_info=media_info,
-                                               user_id=user_id,
-                                               user_name=user_name)
+                                               media_info=media_info)
     else:
         if in_from in [SearchType.WX, SearchType.TG]:
             log.info("【Web】%s 添加订阅失败：%s" % (media_info.title, msg))

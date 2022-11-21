@@ -612,7 +612,7 @@ class DownloadConfigList(ClientResource):
         """
         查询下载设置
         """
-        return WebAction.api_action("get_download_setting", data=self.parser.parse_args())
+        return WebAction.api_action(cmd="get_download_setting", data=self.parser.parse_args())
 
 
 @download.route('/config/directory')
@@ -624,7 +624,7 @@ class DownloadConfigDirectory(ClientResource):
         """
         查询下载保存目录
         """
-        return WebAction.api_action("get_download_dirs", data=self.parser.parse_args())
+        return WebAction.api_action(cmd="get_download_dirs", data=self.parser.parse_args())
 
 
 @organization.route('/unknown/delete')

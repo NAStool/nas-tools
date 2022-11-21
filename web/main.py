@@ -1214,10 +1214,13 @@ def wechat():
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
                 # 处理消息内容
+                # TODO 获取用户名
+                user_name = ""
                 WebAction().handle_message_job(msg=content,
                                                client=interactive_client,
                                                in_from=SearchType.WX,
-                                               user_id=user_id)
+                                               user_id=user_id,
+                                               user_name=user_name)
             return make_response(content, 200)
         except Exception as err:
             log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -1276,11 +1279,14 @@ def telegram():
         text = message.get("text")
         user_id = message.get("from", {}).get("id")
         log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
+        # TODO 获取用户名
+        user_name = ""
         if text:
             WebAction().handle_message_job(msg=text,
                                            client=interactive_client,
                                            in_from=SearchType.TG,
-                                           user_id=user_id)
+                                           user_id=user_id,
+                                           user_name=user_name)
     return 'Success'
 
 

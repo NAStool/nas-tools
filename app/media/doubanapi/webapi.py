@@ -33,7 +33,9 @@ class DoubanWeb(object):
         # 搜索
         "search": f"{_search_base}/movie/subject_search?search_text=%s",
         # TOP 250
-        "top250": f"{_movie_base}/top250"
+        "top250": f"{_movie_base}/top250",
+        # 用户名称
+        "user": f"{_movie_base}/people/%s/",
     }
 
     _webparsers = {
@@ -111,6 +113,9 @@ class DoubanWeb(object):
                 "rate": "./div[@class='detail']/div[@class='rating']/span[@class='rating_nums']/text()",
                 "actor": "./div[@class='detail']/div[@class='meta abstract_2']/text()"
             }
+        },
+        "user": {
+            "name": "//div[@class='side-info']/div[@class='side-info-txt']/h3/text()"
         }
     }
 
@@ -195,12 +200,20 @@ class DoubanWeb(object):
         return obj
 
     @classmethod
-    @lru_cache(maxsize=512)
+    @lru_cache(maxsize=256)
     def detail(cls, cookie, doubanid):
         """
         查询详情
         """
         return cls.__get_obj("detail", cls.__invoke_web("detail", cookie, doubanid))
+
+    @classmethod
+    @lru_cache(maxsize=10)
+    def user(cls, cookie, userid):
+        """
+        查询用户信息
+        """
+        return cls.__get_obj("user", cls.__invoke_web("user", cookie, userid))
 
     def nowplaying(self, cookie):
         """

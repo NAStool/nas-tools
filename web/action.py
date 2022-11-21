@@ -234,7 +234,7 @@ class WebAction:
         os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
     @staticmethod
-    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None):
+    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
         """
         处理消息事件
         """
@@ -268,7 +268,7 @@ class WebAction:
                                              user_id=user_id)
                     return
             # 站点检索或者添加订阅
-            ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
+            ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id, user_name))
 
     @staticmethod
     def set_config_value(cfg, cfg_key, cfg_value):

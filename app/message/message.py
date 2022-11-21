@@ -326,7 +326,7 @@ class Message:
                     image=item.get_message_image()
                 )
 
-    def send_rss_success_message(self, in_from: Enum, media_info, user_id="", user_name=""):
+    def send_rss_success_message(self, in_from: Enum, media_info):
         """
         发送订阅成功的消息
         """
@@ -338,8 +338,8 @@ class Message:
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         msg_str = f"{msg_str}，来自：{in_from.value}"
-        if user_name:
-            msg_str = f"{msg_str}，用户：{user_name}"
+        if media_info.user_name:
+            msg_str = f"{msg_str}，用户：{media_info.user_name}"
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -348,8 +348,7 @@ class Message:
                     title=msg_title,
                     text=msg_str,
                     image=media_info.get_message_image(),
-                    url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                    user_id=user_id
+                    url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss'
                 )
 
     def send_rss_finished_message(self, media_info):
