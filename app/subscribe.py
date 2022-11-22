@@ -660,8 +660,12 @@ class Subscribe:
             season = 1
             if rss_info.get("season"):
                 season = int(str(rss_info.get("season")).replace("S", ""))
+            # 订阅季
+            media_info.begin_season = season
+            # 自定义集数
             total_ep = rss_info.get("total")
             current_ep = rss_info.get("current_ep")
+            # 表中记录的剩余订阅集数
             episodes = self.dbhelper.get_rss_tv_episodes(rss_info.get("id"))
             if episodes is None:
                 episodes = []
