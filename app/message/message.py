@@ -154,13 +154,6 @@ class Message:
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
-        if self._domain:
-            if url:
-                url = "%s?next=%s" % (self._domain, url)
-            else:
-                url = self._domain
-        else:
-            url = ""
         for client in self._active_clients:
             if client.get("search_type") == channel:
                 state = self.__sendmsg(client=client,
