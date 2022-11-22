@@ -724,8 +724,9 @@ class Media:
                 file_name = os.path.basename(file_path)
                 parent_name = os.path.basename(os.path.dirname(file_path))
                 parent_parent_name = os.path.basename(PathUtils.get_parent_paths(file_path, 2))
-                # 过滤掉蓝光原盘
-                if PathUtils.get_bluray_dir(file_path):
+                # 过滤掉蓝光原盘目录下的子文件
+                if not os.path.isdir(file_path) \
+                        and PathUtils.get_bluray_dir(file_path):
                     log.info("【Meta】%s 跳过蓝光原盘文件：" % file_path)
                     continue
                 # 没有自带TMDB信息
