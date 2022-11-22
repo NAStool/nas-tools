@@ -205,6 +205,8 @@ class Downloader:
                     cookie=cookie,
                     ua=ua,
                     referer=page_url if referer else None)
+            if retmsg:
+                log.warn("【Downloader】%s" % retmsg)
             if not content:
                 return None, retmsg
         else:

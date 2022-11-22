@@ -58,7 +58,8 @@ class Message:
             for active_client in self._active_clients:
                 if active_client.get("search_type") == SearchType.TG:
                     tg_client = active_client.get("client")
-                    tg_client.enabled = False
+                    if tg_client:
+                        tg_client.enabled = False
         self._active_clients = []
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:

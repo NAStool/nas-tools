@@ -2,6 +2,8 @@ import os.path
 import re
 import datetime
 from urllib.parse import quote
+
+import log
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
 from config import Config
@@ -28,27 +30,19 @@ class Torrent:
         if not url:
             return None, None, [], "URL为空"
         if url.startswith("magnet:"):
-            return None, url, [], "磁力链接"
+            return None, url, [], f"{url} 为磁力链接"
         try:
             req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
             while req and req.status_code in [301, 302]:
                 url = req.headers['Location']
                 if url and url.startswith("magnet:"):
-                    return None, url, [], "磁力链接"
+                    return None, url, [], f"获取到磁力链接：{url}"
                 req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, None, [], "未下载到种子数据"
                 # 读取种子文件名
-                file_name = re.findall(r"filename=\"?(.+)\"?", req.headers.get('content-disposition') or "")
-                if file_name:
-                    file_name = str(file_name[0]).split(";")[0].strip()
-                elif url.endswith(".torrent"):
-                    file_name = url.split("/")[-1]
-                else:
-                    file_name = str(datetime.datetime.now())
-                if file_name.endswith('"'):
-                    file_name = file_name[:-1]
+                file_name = self.__get_url_torrent_name(req.headers.get('content-disposition'), url)
                 # 种子文件路径
                 file_path = os.path.join(self._torrent_path, file_name)
                 with open(file_path, 'wb') as f:
@@ -104,7 +98,7 @@ class Torrent:
                         if item.get("path"):
                             file_names.append(item["path"][0])
         except Exception as err:
-            return file_names, str(err)
+            return file_names, "解析种子文件异常：%s" % str(err)
         return file_names, ""
 
     def read_torrent_file(self, path):
@@ -124,3 +118,19 @@ class Torrent:
         except Exception as e:
             retmsg = "读取种子文件出错：%s" % str(e)
         return content, files, retmsg
+
+    @staticmethod
+    def __get_url_torrent_name(disposition, url):
+        """
+        从下载请求中获取种子文件名
+        """
+        file_name = re.findall(r"filename=\"?(.+)\"?", disposition or "")
+        if file_name:
+            file_name = str(file_name[0]).split(";")[0].strip()
+            if file_name.endswith('"'):
+                file_name = file_name[:-1]
+        elif url and url.endswith(".torrent"):
+            file_name = url.split("/")[-1]
+        else:
+            file_name = str(datetime.datetime.now())
+        return file_name
