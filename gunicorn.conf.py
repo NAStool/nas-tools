@@ -12,8 +12,8 @@ if app_conf:
         _web_host = '[::]'
     _web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port')).isdigit() else 3000
     bind = f"{_web_host}:{int(_web_port)}"
-    keyfile = app_conf.get('ssl_cert')
-    certfile = app_conf.get('ssl_key')
+    certfile = app_conf.get('ssl_cert')
+    keyfile = app_conf.get('ssl_key')
 
 #
 # Server socket
