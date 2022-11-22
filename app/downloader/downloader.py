@@ -294,13 +294,17 @@ class Downloader:
                         and dl_files \
                         and site_info \
                         and site_info.get("subtitle") == "Y":
-                    # 取种子文件的公共目录为下载目录
-                    if len(dl_files) > 1:
-                        sub_dir = os.path.commonpath([os.path.join(download_dir, f) for f in dl_files])
-                    else:
-                        sub_dir = os.path.dirname(os.path.join(download_dir, dl_files[0]))
-                    ThreadHelper().start_thread(Subtitle().download_subtitle_from_site,
-                                                (media_info, cookie, ua, sub_dir))
+                    # 下载访问目录
+                    visit_dir = self.get_download_visit_dir(download_dir)
+                    if visit_dir:
+                        # 取种子文件的公共目录为下载目录
+                        if len(dl_files) > 1:
+                            sub_dir = os.path.commonpath([os.path.join(visit_dir,
+                                                                       f) for f in dl_files])
+                        else:
+                            sub_dir = os.path.dirname(os.path.join(visit_dir, dl_files[0]))
+                        ThreadHelper().start_thread(Subtitle().download_subtitle_from_site,
+                                                    (media_info, cookie, ua, sub_dir))
                 return ret, ""
             else:
                 return ret, "请检查下载任务是否已存在"
@@ -935,6 +939,12 @@ class Downloader:
                            attr.get("save_path")]
         visit_path_list.sort()
         return list(set(visit_path_list))
+
+    def get_download_visit_dir(self, download_dir):
+        """
+        返回下载器中设置的访问目录
+        """
+        return self.client.get_replace_path(download_dir)
 
     def __get_download_dir_info(self, media):
         """
