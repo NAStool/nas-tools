@@ -127,7 +127,8 @@ class Message:
         log.info(f"【Message】发送{client.get('type')}消息服务{client.get('name')}：title={title}, text={text}")
         if self._domain:
             if url:
-                url = "%s?next=%s" % (self._domain, url)
+                if not url.startswith(self._domain):
+                    url = "%s?next=%s" % (self._domain, url)
             else:
                 url = self._domain
         else:
@@ -153,13 +154,6 @@ class Message:
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
-        if self._domain:
-            if url:
-                url = "%s?next=%s" % (self._domain, url)
-            else:
-                url = self._domain
-        else:
-            url = ""
         for client in self._active_clients:
             if client.get("search_type") == channel:
                 state = self.__sendmsg(client=client,
