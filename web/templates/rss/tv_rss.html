@@ -61,7 +61,7 @@
                 <img class="rounded-top w-100" src="{{ Attr.image }}"
                      style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
               </div>
-              <div class="card-progress">
+              <div class="card-progress" style="overflow: hidden">
                 <div class="progress-bar bg-green"
                      style="width:
                              {% if (Attr.total or -1) > 0 %}{{ ((Attr.total or -1)-(Attr.lack or -1))*100/(Attr.total or -1) }}{% endif %}%"
