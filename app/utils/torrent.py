@@ -1,5 +1,6 @@
 import os.path
 import re
+import datetime
 from urllib.parse import quote
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
@@ -39,10 +40,13 @@ class Torrent:
                 if not req.content:
                     return None, None, [], "未下载到种子数据"
                 # 读取种子文件名
-                file_name = re.findall(r"filename=\"?(.+)\"?", req.headers.get('content-disposition'))
-                if not file_name:
-                    return None, None, [], "读取种子文件名错误"
-                file_name = str(file_name[0]).split(";")[0].strip()
+                file_name = re.findall(r"filename=\"?(.+)\"?", req.headers.get('content-disposition') or "")
+                if file_name:
+                    file_name = str(file_name[0]).split(";")[0].strip()
+                elif url.endswith(".torrent"):
+                    file_name = url.split("/")[-1]
+                else:
+                    file_name = str(datetime.datetime.now())
                 if file_name.endswith('"'):
                     file_name = file_name[:-1]
                 # 种子文件路径
