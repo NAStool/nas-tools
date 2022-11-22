@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import re
 import shutil
@@ -133,12 +134,9 @@ class Subtitle:
                                    headers=self.subhelper.get_ua()).get_res(Download_Link)
                 if ret and ret.status_code == 200:
                     # 保存ZIP
-                    file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
+                    file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), Download_Link)
                     if not file_name:
                         continue
-                    file_name = str(file_name[0]).split(";")[0].strip()
-                    if file_name.endswith('"'):
-                        file_name = file_name[:-1]
                     zip_file = os.path.join(self._save_tmp_path, file_name)
                     zip_path = os.path.splitext(zip_file)[0]
                     with open(zip_file, 'wb') as f:
@@ -295,13 +293,10 @@ class Subtitle:
                 ret = request.get_res(sublink)
                 if ret and ret.status_code == 200:
                     # 保存ZIP
-                    file_name = re.findall(r"filename=\"?(.+)\"?", ret.headers.get('content-disposition'))
+                    file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), sublink)
                     if not file_name:
                         log.warn(f"【Subtitle】链接不是字幕文件：{sublink}")
                         return
-                    file_name = str(file_name[0]).split(";")[0].strip()
-                    if file_name.endswith('"'):
-                        file_name = file_name[:-1]
                     if file_name.endswith(".zip"):
                         # ZIP包
                         zip_file = os.path.join(self._save_tmp_path, file_name)
@@ -337,3 +332,19 @@ class Subtitle:
             log.warn(f"【Subtitle】连接 {media_info.page_url} 失败，状态码：{res.status_code}")
         else:
             log.warn(f"【Subtitle】无法打开链接：{media_info.page_url}")
+
+    @staticmethod
+    def __get_url_subtitle_name(disposition, url):
+        """
+        从下载请求中获取字幕文件名
+        """
+        file_name = re.findall(r"filename=\"?(.+)\"?", disposition or "")
+        if file_name:
+            file_name = str(file_name[0]).split(";")[0].strip()
+            if file_name.endswith('"'):
+                file_name = file_name[:-1]
+        elif url and os.path.splitext(url)[-1] in (RMT_SUBEXT + ['.zip']):
+            file_name = url.split("/")[-1]
+        else:
+            file_name = str(datetime.datetime.now())
+        return file_name
