@@ -30,6 +30,8 @@ class Telegram(IMessageChannel):
         self._client_config = config
         self._interactive = interactive
         self._domain = self._config.get_domain()
+        if self._domain and self._domain.endswith("/"):
+            self._domain = self._domain[:-1]
         self.init_config()
 
     def init_config(self):
@@ -45,7 +47,7 @@ class Telegram(IMessageChannel):
             if self._telegram_token and self._telegram_chat_id:
                 if self._webhook:
                     if self._domain:
-                        self._webhook_url = "%stelegram" % self._domain
+                        self._webhook_url = "%s/telegram" % self._domain
                         self.__set_bot_webhook()
                     if self._message_proxy_event:
                         self._message_proxy_event.set()
@@ -179,7 +181,7 @@ class Telegram(IMessageChannel):
             values = {"url": self._webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self._telegram_token
             res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
-            if res:
+            if res is not None:
                 json = res.json()
                 if json.get("ok"):
                     log.info("【Telegram】Webhook 设置成功，地址为：%s" % self._webhook_url)
@@ -195,7 +197,7 @@ class Telegram(IMessageChannel):
         """
         sc_url = "https://api.telegram.org/bot%s/getWebhookInfo" % self._telegram_token
         res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url)
-        if res and res.json():
+        if res is not None and res.json():
             if res.json().get("ok"):
                 result = res.json().get("result") or {}
                 webhook_url = result.get("url") or ""

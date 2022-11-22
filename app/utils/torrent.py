@@ -53,7 +53,7 @@ class Torrent:
                 files, retmsg = self.__get_torrent_files(file_path)
                 # 种子文件路径、种子内容、种子文件列表、错误信息
                 return file_path, req.content, files, retmsg
-            elif not req:
+            elif req is None:
                 return None, None, [], "无法打开链接：%s" % url
             else:
                 return None, None, [], "下载种子出错，状态码：%s" % req.status_code
