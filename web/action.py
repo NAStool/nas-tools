@@ -986,6 +986,7 @@ class WebAction:
         """
         # 退出主进程
         self.shutdown_server()
+        return {"code": 0}
 
     def __update_system(self, data):
         """
@@ -1009,6 +1010,7 @@ class WebAction:
             os.system('pip install -r /nas-tools/requirements.txt')
             # 退出主进程
             self.shutdown_server()
+        return {"code": 0}
 
     @staticmethod
     def __logout(data):
