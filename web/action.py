@@ -33,6 +33,7 @@ from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import Scheduler
 from app.scheduler import restart_scheduler, stop_scheduler
+from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
@@ -1043,22 +1044,24 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key.startswith('pt') \
-                    or key in ['douban.interval',
-                               'media.mediasync_interval']:
+            if key in ['douban.interval',
+                       'media.mediasync_interval',
+                       'pt.pt_check_interval',
+                       'pt.ptsignin_cron',
+                       'pt.search_rss_interval']:
                 scheduler_reload = True
-            if key.startswith("emby"):
+            if key.startswith("emby."):
                 emby_reload = True
-            if key.startswith("jellyfin"):
+            if key.startswith("jellyfin."):
                 jellyfin_reload = True
-            if key.startswith("plex"):
+            if key.startswith("plex."):
                 plex_reload = True
             if key.startswith("media.category"):
                 category_reload = True
-            if key.startswith("subtitle"):
+            if key.startswith("subtitle."):
                 subtitle_reload = True
-            if key.startswith('pt') \
-                    or key in ["downloaddir"]:
+            if key.startswith('pt.') \
+                    or key in ["downloaddir."]:
                 downloader_reload = True
 
         # 保存配置
@@ -3813,19 +3816,14 @@ class WebAction:
             return {"code": 1}
 
     @staticmethod
-    def __get_indexers(data):
+    def __get_indexers(data=None):
         """
         获取索引器
         """
-        check = True if data.get("check") else False
-        basic = data.get("basic")
-        if basic:
-            indexers = [{
-                "id": index.id,
-                "name": index.name
-            } for index in BuiltinIndexer().get_indexers(check=check)]
-        else:
-            indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check)]
+        indexers = [{
+            "id": index.id,
+            "name": index.name
+        } for index in Searcher().indexer.get_indexers()]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod
