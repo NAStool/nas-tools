@@ -93,8 +93,7 @@
                                                                   title="配置IP地址和端口，如为https则需要增加https://前缀"
                                                                   data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                     value="
-                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}"
+                     value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}"
                      id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
             </div>
           </div>
@@ -104,8 +103,7 @@
                                                                title="在ChineseSubFinder->配置中心->实验室->API Key处生成"
                                                                data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                     value="
-                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}"
+                     value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}"
                      id="subtitle.chinesesubfinder.api_key" class="form-control">
             </div>
           </div>
@@ -117,8 +115,7 @@
                                                        title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
                                                        data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                     value="
-                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}"
+                     value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}"
                      id="subtitle.chinesesubfinder.local_path" class="form-control filetree-folders-only"
                      placeholder="本地映射路径" autocomplete="off">
             </div>
@@ -129,8 +126,7 @@
                                                        title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置"
                                                        data-bs-toggle="tooltip">?</span></label>
               <input type="text"
-                     value="
-                             {% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}"
+                     value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}"
                      id="subtitle.chinesesubfinder.remote_path" class="form-control" placeholder="远程映射路径"
                      autocomplete="off">
             </div>
