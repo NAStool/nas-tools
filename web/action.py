@@ -1043,9 +1043,11 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key.startswith('pt.') \
-                    or key in ['douban.interval',
-                               'media.mediasync_interval']:
+            if key in ['douban.interval',
+                       'media.mediasync_interval',
+                       'pt.pt_check_interval',
+                       'pt.ptsignin_cron',
+                       'pt.search_rss_interval']:
                 scheduler_reload = True
             if key.startswith("emby."):
                 emby_reload = True
