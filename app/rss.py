@@ -245,8 +245,8 @@ class Rss:
                                                     upload_volume_factor=match_info.get("upload_volume_factor"),
                                                     rssid=match_info.get("id"),
                                                     description=description)
-                        media_info.save_path = match_info.get("save_path")
-                        media_info.download_setting = match_info.get("download_setting")
+                        media_info.set_download_info(download_setting=match_info.get("download_setting"),
+                                                     save_path=match_info.get("save_path"))
                         # 插入数据库
                         self.dbhelper.insert_rss_torrents(media_info)
                         # 加入下载列表

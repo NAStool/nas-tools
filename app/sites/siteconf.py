@@ -358,7 +358,7 @@ class SiteConf:
         'hhanclub.top': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': [],
-            'HR': [],
+            'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': [],
         },
         'zmpt.cc': {

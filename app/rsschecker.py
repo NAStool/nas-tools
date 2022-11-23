@@ -266,8 +266,8 @@ class RssChecker(object):
                 if taskinfo.get("uses") == "D":
                     # 下载
                     if media_info not in rss_download_torrents:
-                        media_info.save_path = taskinfo.get("save_path")
-                        media_info.download_setting = taskinfo.get("download_setting")
+                        media_info.set_download_info(download_setting=taskinfo.get("download_setting"),
+                                                     save_path=taskinfo.get("save_path"))
                         rss_download_torrents.append(media_info)
                 elif taskinfo.get("uses") == "R":
                     # 订阅
