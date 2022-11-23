@@ -163,15 +163,17 @@ class Media:
                 info = self.__search_movie_by_name(file_media_name, year)
                 if info:
                     info['media_type'] = MediaType.MOVIE
-                    log.info("【Meta】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
-                                                                            info.get('id'),
-                                                                            info.get('title'),
-                                                                            info.get('release_date')))
+                    log.info("【Meta】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (
+                        file_media_name,
+                        info.get('id'),
+                        info.get('title'),
+                        info.get('release_date')))
                     break
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
-                log.debug(f"【Meta】正在识别{search_type.value}：{file_media_name}, 季集={season_number}, 季集年份={media_year} ...")
+                log.debug(
+                    f"【Meta】正在识别{search_type.value}：{file_media_name}, 季集={season_number}, 季集年份={media_year} ...")
                 info = self.__search_tv_by_season(file_media_name,
                                                   media_year,
                                                   season_number)
@@ -182,10 +184,11 @@ class Media:
                                                 first_media_year)
             if info:
                 info['media_type'] = MediaType.TV
-                log.info("【Meta】%s 识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name,
-                                                                         info.get('id'),
-                                                                         info.get('name'),
-                                                                         info.get('first_air_date')))
+                log.info("【Meta】%s 识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (
+                    file_media_name,
+                    info.get('id'),
+                    info.get('name'),
+                    info.get('first_air_date')))
         # 返回
         if info:
             return info
@@ -455,15 +458,17 @@ class Media:
                     if mtype == MediaType.TV and tmdbinfo.get('media_type') != MediaType.TV:
                         return {}
                     if tmdbinfo.get('media_type') == MediaType.MOVIE:
-                        log.info("【Meta】%s 从WEB识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
-                                                                                    tmdbinfo.get('id'),
-                                                                                    tmdbinfo.get('title'),
-                                                                                    tmdbinfo.get('release_date')))
+                        log.info("【Meta】%s 从WEB识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (
+                            file_media_name,
+                            tmdbinfo.get('id'),
+                            tmdbinfo.get('title'),
+                            tmdbinfo.get('release_date')))
                     else:
-                        log.info("【Meta】%s 从WEB识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name,
-                                                                                     tmdbinfo.get('id'),
-                                                                                     tmdbinfo.get('name'),
-                                                                                     tmdbinfo.get('first_air_date')))
+                        log.info("【Meta】%s 从WEB识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (
+                            file_media_name,
+                            tmdbinfo.get('id'),
+                            tmdbinfo.get('name'),
+                            tmdbinfo.get('first_air_date')))
                     return tmdbinfo
                 elif len(tmdb_links) > 1:
                     log.info("【Meta】%s TMDB网站返回数据过多：%s" % (file_media_name, len(tmdb_links)))
@@ -1212,7 +1217,8 @@ class Media:
         target.set_tmdb_info(source.tmdb_info)
         target.fanart_poster = source.get_poster_image()
         target.fanart_backdrop = source.get_backdrop_image()
-        target.download_setting = source.download_setting
+        target.set_download_info(download_setting=source.download_setting,
+                                 save_path=source.save_path)
         return target
 
     def get_tmdbid_by_imdbid(self, imdbid):

@@ -329,8 +329,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 # 合并站点和下载设置信息
                 meta_info.rss_sites = rss_sites
                 meta_info.search_sites = search_sites
-                media_info.download_setting = download_setting
-
+                media_info.set_download_info(download_setting=download_setting)
                 SEARCH_MEDIA_CACHE[user_id].append(meta_info)
         else:
             for tmdb_info in tmdb_infos:
@@ -343,8 +342,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 # 合并站点和下载设置信息
                 meta_info.rss_sites = rss_sites
                 meta_info.search_sites = search_sites
-                media_info.download_setting = download_setting
-
+                media_info.set_download_info(download_setting=download_setting)
                 SEARCH_MEDIA_CACHE[user_id].append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE[user_id]):
