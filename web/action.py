@@ -1043,22 +1043,22 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key.startswith('pt') \
+            if key.startswith('pt.') \
                     or key in ['douban.interval',
                                'media.mediasync_interval']:
                 scheduler_reload = True
-            if key.startswith("emby"):
+            if key.startswith("emby."):
                 emby_reload = True
-            if key.startswith("jellyfin"):
+            if key.startswith("jellyfin."):
                 jellyfin_reload = True
-            if key.startswith("plex"):
+            if key.startswith("plex."):
                 plex_reload = True
             if key.startswith("media.category"):
                 category_reload = True
-            if key.startswith("subtitle"):
+            if key.startswith("subtitle."):
                 subtitle_reload = True
-            if key.startswith('pt') \
-                    or key in ["downloaddir"]:
+            if key.startswith('pt.') \
+                    or key in ["downloaddir."]:
                 downloader_reload = True
 
         # 保存配置

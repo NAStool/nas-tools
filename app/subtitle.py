@@ -340,7 +340,7 @@ class Subtitle:
         """
         file_name = re.findall(r"filename=\"?(.+)\"?", disposition or "")
         if file_name:
-            file_name = str(file_name[0]).split(";")[0].strip()
+            file_name = str(file_name[0].encode('ISO-8859-1').decode()).split(";")[0].strip()
             if file_name.endswith('"'):
                 file_name = file_name[:-1]
         elif url and os.path.splitext(url)[-1] in (RMT_SUBEXT + ['.zip']):
