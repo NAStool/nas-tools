@@ -33,6 +33,7 @@ from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import Scheduler
 from app.scheduler import restart_scheduler, stop_scheduler
+from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
@@ -3815,19 +3816,14 @@ class WebAction:
             return {"code": 1}
 
     @staticmethod
-    def __get_indexers(data):
+    def __get_indexers(data=None):
         """
         获取索引器
         """
-        check = True if data.get("check") else False
-        basic = data.get("basic")
-        if basic:
-            indexers = [{
-                "id": index.id,
-                "name": index.name
-            } for index in BuiltinIndexer().get_indexers(check=check)]
-        else:
-            indexers = [index.__dict__ for index in BuiltinIndexer().get_indexers(check=check)]
+        indexers = [{
+            "id": index.id,
+            "name": index.name
+        } for index in Searcher().indexer.get_indexers()]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod

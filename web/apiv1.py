@@ -404,15 +404,13 @@ class SiteList(ClientResource):
 
 @site.route('/indexers')
 class SiteIndexers(ClientResource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
-    parser.add_argument('check', type=bool, help='过滤选中站点', location='form')
 
-    def post(self):
+    @staticmethod
+    def post():
         """
         查询站点索引列表
         """
-        return WebAction().api_action(cmd='get_indexers', data=self.parser.parse_args())
+        return WebAction().api_action(cmd='get_indexers')
 
 
 @search.route('/keyword')
