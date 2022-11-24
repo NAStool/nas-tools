@@ -4,7 +4,7 @@ import os
 from werkzeug.security import generate_password_hash
 from app.helper import DbHelper
 from app.utils import StringUtils
-from config import Config
+from config import CONFIG
 
 
 def check_config(config):
@@ -338,7 +338,7 @@ def update_config(cfg):
 
     # 自定义识别词兼容旧配置
     try:
-        ignored_words = Config().get_config('laboratory').get("ignored_words")
+        ignored_words = CONFIG.get_config('laboratory').get("ignored_words")
         if ignored_words:
             ignored_words = ignored_words.split("||")
             for ignored_word in ignored_words:
@@ -356,7 +356,7 @@ def update_config(cfg):
                                                  whelp="")
             _config['laboratory'].pop('ignored_words')
             overwrite_cofig = True
-        replaced_words = Config().get_config('laboratory').get("replaced_words")
+        replaced_words = CONFIG.get_config('laboratory').get("replaced_words")
         if replaced_words:
             replaced_words = replaced_words.split("||")
             for replaced_word in replaced_words:
@@ -375,7 +375,7 @@ def update_config(cfg):
                                                  whelp="")
             _config['laboratory'].pop('replaced_words')
             overwrite_cofig = True
-        offset_words = Config().get_config('laboratory').get("offset_words")
+        offset_words = CONFIG.get_config('laboratory').get("offset_words")
         if offset_words:
             offset_words = offset_words.split("||")
             for offset_word in offset_words:
@@ -399,8 +399,8 @@ def update_config(cfg):
 
     # 目录同步兼容旧配置
     try:
-        sync_paths = Config().get_config('sync').get('sync_path')
-        rmt_mode = Config().get_config('pt').get('sync_mod')
+        sync_paths = CONFIG.get_config('sync').get('sync_path')
+        rmt_mode = CONFIG.get_config('pt').get('sync_mod')
         if sync_paths:
             if isinstance(sync_paths, list):
                 for sync_items in sync_paths:
@@ -464,7 +464,7 @@ def update_config(cfg):
 
     # 消息服务兼容旧配置
     try:
-        message = Config().get_config('message') or {}
+        message = CONFIG.get_config('message') or {}
         msg_channel = message.get('msg_channel')
         switchs = []
         switch = message.get('switch')

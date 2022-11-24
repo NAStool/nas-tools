@@ -9,9 +9,9 @@ import log
 from app.doubansync import DoubanSync
 from app.mediaserver import MediaServer
 from app.subscribe import Subscribe
-from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
+from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, METAINFO_SAVE_INTERVAL, \
     SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
-    RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
+    RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL, CONFIG
 from app.downloader import Downloader
 from app.rss import Rss
 from app.sites import Sites
@@ -32,10 +32,9 @@ class Scheduler:
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        self.__pt = config.get_config('pt')
-        self.__media = config.get_config('media')
-        self.__douban = config.get_config('douban')
+        self.__pt = CONFIG.get_config('pt')
+        self.__media = CONFIG.get_config('media')
+        self.__douban = CONFIG.get_config('douban')
 
     def run_service(self):
         """

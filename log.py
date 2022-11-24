@@ -6,7 +6,7 @@ from collections import deque
 from html import escape
 from logging.handlers import RotatingFileHandler
 
-from config import Config
+from config import CONFIG
 
 lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)
@@ -26,7 +26,7 @@ class Logger:
 
     def __init__(self, module):
         self.logger = logging.getLogger(module)
-        self.__config = Config()
+        self.__config = CONFIG
         logtype = self.__config.get_config('app').get('logtype') or "console"
         loglevel = self.__config.get_config('app').get('loglevel') or "info"
         self.logger.setLevel(level=self.__loglevels.get(loglevel))

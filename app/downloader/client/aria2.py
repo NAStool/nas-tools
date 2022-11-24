@@ -3,7 +3,7 @@ import re
 
 from app.utils import RequestUtils
 from app.utils.types import DownloaderType
-from config import Config
+from config import CONFIG
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.pyaria2 import PyAria2
 
@@ -15,8 +15,7 @@ class Aria2(IDownloadClient):
 
     def get_config(self):
         # 读取配置文件
-        config = Config()
-        aria2config = config.get_config('aria2')
+        aria2config = CONFIG.get_config('aria2')
         if aria2config:
             self.host = aria2config.get("host")
             if self.host:

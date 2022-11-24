@@ -17,8 +17,8 @@ from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
-    DEFAULT_TV_FORMAT
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
+    DEFAULT_TV_FORMAT, CONFIG
 
 lock = Lock()
 
@@ -65,11 +65,10 @@ class FileTransfer:
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        media = config.get_config('media')
+        media = CONFIG.get_config('media')
         self.__scraper_flag = media.get("nfo_poster")
-        self.__scraper_nfo = config.get_config('scraper_nfo')
-        self.__scraper_pic = config.get_config('scraper_pic')
+        self.__scraper_nfo = CONFIG.get_config('scraper_nfo')
+        self.__scraper_pic = CONFIG.get_config('scraper_pic')
         if media:
             # 刷新媒体库开关
             self.__refresh_mediaserver = media.get("refresh_mediaserver")
@@ -143,7 +142,7 @@ class FileTransfer:
                     self.__tv_season_rmt_format = tv_formats[1]
                 if len(tv_formats) > 2:
                     self.__tv_file_rmt_format = tv_formats[2]
-        self.__default_rmt_mode = RMT_MODES.get(config.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
+        self.__default_rmt_mode = RMT_MODES.get(CONFIG.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):

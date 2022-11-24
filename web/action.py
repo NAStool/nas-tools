@@ -5,7 +5,6 @@ import json
 import os.path
 import re
 import shutil
-import signal
 from math import floor
 from urllib.parse import unquote
 
@@ -42,17 +41,15 @@ from app.sync import stop_monitor
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
 from app.utils.types import RMT_MODES, RmtMode, OsType
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
-from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT
+from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, CONFIG
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
 
 class WebAction:
-    config = None
     dbhelper = None
     _actions = {}
 
     def __init__(self):
-        self.config = Config()
         self.dbhelper = DbHelper()
         self._actions = {
             "sch": self.__sch,
@@ -845,7 +842,7 @@ class WebAction:
         检查新版本
         """
         try:
-            response = RequestUtils(proxies=self.config.get_proxies()).get_res(
+            response = RequestUtils(proxies=CONFIG.get_proxies()).get_res(
                 "https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
             if response:
                 ver_json = response.json()
@@ -1025,7 +1022,7 @@ class WebAction:
         """
         更新配置信息
         """
-        cfg = self.config.get_config()
+        cfg = CONFIG.get_config()
         cfgs = dict(data).items()
         # 重载配置标志
         config_test = False
@@ -1066,7 +1063,7 @@ class WebAction:
 
         # 保存配置
         if not config_test:
-            self.config.save_config(cfg)
+            CONFIG.save_config(cfg)
         # 重启定时服务
         if scheduler_reload:
             Scheduler().init_config()
@@ -1495,7 +1492,7 @@ class WebAction:
                     else:
                         ret = eval(command)
                 # 重载配置
-                self.config.init_config()
+                CONFIG.init_config()
             except Exception as e:
                 ret = None
                 print(str(e))
@@ -1995,7 +1992,7 @@ class WebAction:
                 or target.find("telegram") != -1 \
                 or target.find("fanart") != -1 \
                 or target.find("tmdb") != -1:
-            res = RequestUtils(proxies=Config().get_proxies(), timeout=5).get_res(target)
+            res = RequestUtils(proxies=CONFIG.get_proxies(), timeout=5).get_res(target)
         else:
             res = RequestUtils(timeout=5).get_res(target)
         seconds = int((datetime.datetime.now() - start_time).microseconds / 1000)
@@ -2398,7 +2395,7 @@ class WebAction:
         """
         filename = data.get("file_name")
         if filename:
-            config_path = Config().get_config_path()
+            config_path = CONFIG.get_config_path()
             file_path = os.path.join(config_path, filename)
             try:
                 shutil.unpack_archive(file_path, config_path, format='zip')
@@ -3044,7 +3041,7 @@ class WebAction:
         # 磁盘空间
         UsedPercent = 0
         TotalSpaceList = []
-        media = Config().get_config('media')
+        media = CONFIG.get_config('media')
         if media:
             # 电影目录
             movie_paths = media.get('movie_path')
@@ -3236,7 +3233,7 @@ class WebAction:
         if not SearchWord:
             return []
         _mediaserver = MediaServer()
-        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
+        use_douban_titles = CONFIG.get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
             _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
             medias = DouBan().search_douban_medias(keyword=key_word,
@@ -3503,7 +3500,7 @@ class WebAction:
         查询所有过滤规则
         """
         RuleGroups = Filter().get_rule_infos()
-        sql_file = os.path.join(Config().get_root_path(), "config", "init_filter.sql")
+        sql_file = os.path.join(CONFIG.get_root_path(), "config", "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_list = f.read().split(';\n')
             Init_RuleGroups = []
@@ -3537,13 +3534,13 @@ class WebAction:
         """
         维护媒体库目录
         """
-        cfg = self.set_config_directory(self.config.get_config(),
+        cfg = self.set_config_directory(CONFIG.get_config(),
                                         data.get("oper"),
                                         data.get("key"),
                                         data.get("value"),
                                         data.get("replace_value"))
         # 保存配置
-        self.config.save_config(cfg)
+        CONFIG.save_config(cfg)
         return {"code": 0}
 
     @staticmethod

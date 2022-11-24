@@ -4,55 +4,54 @@ import shutil
 import ruamel.yaml
 
 import log
-from config import Config
+from config import CONFIG
 from app.utils.commons import singleton
 
 
 @singleton
 class Category:
-    __category_path = None
-    __categorys = None
-    __tv_categorys = None
-    __movie_categorys = None
-    __anime_categorys = None
+    _category_path = None
+    _categorys = None
+    _tv_categorys = None
+    _movie_categorys = None
+    _anime_categorys = None
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        media = config.get_config('media')
+        media = CONFIG.get_config('media')
         if media:
             category = media.get('category')
             if not category:
                 return
-            self.__category_path = os.path.join(config.get_config_path(), "%s.yaml" % category)
+            self._category_path = os.path.join(CONFIG.get_config_path(), "%s.yaml" % category)
             try:
-                if not os.path.exists(self.__category_path):
-                    shutil.copy(os.path.join(config.get_inner_config_path(), "default-category.yaml"),
-                                self.__category_path)
+                if not os.path.exists(self._category_path):
+                    shutil.copy(os.path.join(CONFIG.get_inner_config_path(), "default-category.yaml"),
+                                self._category_path)
                     log.console("【Config】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
-                with open(self.__category_path, mode='r', encoding='utf-8') as f:
+                with open(self._category_path, mode='r', encoding='utf-8') as f:
                     try:
                         yaml = ruamel.yaml.YAML()
-                        self.__categorys = yaml.load(f)
+                        self._categorys = yaml.load(f)
                     except Exception as e:
                         log.console("【Config】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
-                        self.__categorys = {}
+                        self._categorys = {}
             except Exception as err:
                 log.console("【Config】加载 %s.yaml 配置出错：%s" % (category, str(err)))
                 return False
 
-            if self.__categorys:
-                self.__movie_categorys = self.__categorys.get('movie')
-                self.__tv_categorys = self.__categorys.get('tv')
-                self.__anime_categorys = self.__categorys.get('anime')
+            if self._categorys:
+                self._movie_categorys = self._categorys.get('movie')
+                self._tv_categorys = self._categorys.get('tv')
+                self._anime_categorys = self._categorys.get('anime')
 
     def get_movie_category_flag(self):
         """
         获取电影分类标志
         """
-        if self.__movie_categorys:
+        if self._movie_categorys:
             return True
         return False
 
@@ -60,7 +59,7 @@ class Category:
         """
         获取电视剧分类标志
         """
-        if self.__tv_categorys:
+        if self._tv_categorys:
             return True
         return False
 
@@ -68,7 +67,7 @@ class Category:
         """
         获取动漫分类标志
         """
-        if self.__anime_categorys:
+        if self._anime_categorys:
             return True
         return False
 
@@ -76,25 +75,25 @@ class Category:
         """
         获取电影分类清单
         """
-        if not self.__movie_categorys:
+        if not self._movie_categorys:
             return []
-        return self.__movie_categorys.keys()
+        return self._movie_categorys.keys()
 
     def get_tv_categorys(self):
         """
         获取电视剧分类清单
         """
-        if not self.__tv_categorys:
+        if not self._tv_categorys:
             return []
-        return self.__tv_categorys.keys()
+        return self._tv_categorys.keys()
 
     def get_anime_categorys(self):
         """
         获取动漫分类清单
         """
-        if not self.__anime_categorys:
+        if not self._anime_categorys:
             return []
-        return self.__anime_categorys.keys()
+        return self._anime_categorys.keys()
 
     def get_movie_category(self, tmdb_info):
         """
@@ -102,7 +101,7 @@ class Category:
         :param tmdb_info: 识别的TMDB中的信息
         :return: 二级分类的名称
         """
-        return self.get_category(self.__movie_categorys, tmdb_info)
+        return self.get_category(self._movie_categorys, tmdb_info)
 
     def get_tv_category(self, tmdb_info):
         """
@@ -110,7 +109,7 @@ class Category:
         :param tmdb_info: 识别的TMDB中的信息
         :return: 二级分类的名称
         """
-        return self.get_category(self.__tv_categorys, tmdb_info)
+        return self.get_category(self._tv_categorys, tmdb_info)
 
     def get_anime_category(self, tmdb_info):
         """
@@ -118,7 +117,7 @@ class Category:
         :param tmdb_info: 识别的TMDB中的信息
         :return: 二级分类的名称
         """
-        return self.get_category(self.__anime_categorys, tmdb_info)
+        return self.get_category(self._anime_categorys, tmdb_info)
 
     @staticmethod
     def get_category(categorys, tmdb_info):

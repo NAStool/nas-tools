@@ -2,10 +2,10 @@
 这个文件是对gunicorn启动方式进行管理的配置文件具体参数可以查看下边的说明注释
 主要涉及到启动方式，进程数，线程数已经配置读取
 """
-from config import Config
+from config import CONFIG
 
 # 这里读取配置文件进行启动项参数的入参
-app_conf = Config().get_config('app')
+app_conf = CONFIG.get_config('app')
 if app_conf:
     _web_host = app_conf.get("web_host")
     if not _web_host or _web_host == '::':

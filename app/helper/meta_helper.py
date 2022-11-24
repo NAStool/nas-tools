@@ -4,7 +4,7 @@ import random
 import time
 from threading import RLock
 from app.utils import JsonUtils
-from config import Config
+from config import CONFIG
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 
@@ -24,11 +24,10 @@ class MetaHelper(object):
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        laboratory = config.get_config('laboratory')
+        laboratory = CONFIG.get_config('laboratory')
         if laboratory:
             self.__tmdb_cache_expire = laboratory.get("tmdb_cache_expire")
-        self.__meta_path = os.path.join(config.get_config_path(), 'meta.dat')
+        self.__meta_path = os.path.join(CONFIG.get_config_path(), 'meta.dat')
         self.__meta_data = self.__load_meta_data(self.__meta_path)
 
     def clear_meta_data(self):

@@ -311,7 +311,7 @@ class Sites:
         else:
             # 计时
             start_time = datetime.now()
-            proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
+            proxies = CONFIG.get_proxies() if site_info.get("proxy") == "Y" else None
             res = RequestUtils(cookies=site_cookie,
                                headers=ua,
                                proxies=proxies
@@ -408,7 +408,7 @@ class Sites:
                             continue
                 # 模拟登录
                 else:
-                    proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
+                    proxies = CONFIG.get_proxies() if site_info.get("proxy") == "Y" else None
                     if site_url.find("attendance.php") != -1:
                         checkin_text = "签到"
                     else:

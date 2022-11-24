@@ -1,6 +1,6 @@
 import log
 from app.utils.types import DownloaderType
-from config import Config
+from config import CONFIG
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.py115 import Py115
 
@@ -13,8 +13,7 @@ class Client115(IDownloadClient):
 
     def get_config(self):
         # 读取配置文件
-        config = Config()
-        cloudconfig = config.get_config('client115')
+        cloudconfig = CONFIG.get_config('client115')
         if cloudconfig:
             self.downclient = Py115(cloudconfig.get("cookie"))
 

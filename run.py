@@ -44,8 +44,8 @@ if is_docker:
 else:
     display = None
 
+from config import CONFIG
 import log
-from config import Config
 from web.main import App as NAStool
 
 warnings.filterwarnings('ignore')
@@ -94,12 +94,11 @@ signal.signal(signal.SIGTERM, sigal_handler)
 
 # 本地运行
 if __name__ == '__main__':
-    config = Config()
     # Windows启动托盘
     if is_windows_exe:
-        homepage = config.get_config('app').get('domain')
+        homepage = CONFIG.get_config('app').get('domain')
         if not homepage:
-            homepage = "http://localhost:%s" % str(config.get_config('app').get('web_port'))
+            homepage = "http://localhost:%s" % str(CONFIG.get_config('app').get('web_port'))
         log_path = os.environ.get("NASTOOL_LOG")
 
 
@@ -112,4 +111,4 @@ if __name__ == '__main__':
             p1.start()
 
     # gunicorn 启动
-    NAStool.run(**get_run_config(config))
+    NAStool.run(**get_run_config(CONFIG))

@@ -8,7 +8,7 @@ from watchdog.observers.polling import PollingObserver
 
 import log
 from app.helper import DbHelper
-from config import RMT_MEDIAEXT, Config
+from config import RMT_MEDIAEXT, CONFIG
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
 from app.utils import PathUtils
@@ -69,8 +69,7 @@ class Sync(object):
 
     def init_config(self):
         self.filetransfer = FileTransfer()
-        config = Config()
-        sync = config.get_config('sync')
+        sync = CONFIG.get_config('sync')
         sync_paths = self.dbhelper.get_config_sync_paths()
         if sync and sync_paths:
             if sync.get('nas_sys') == "windows":

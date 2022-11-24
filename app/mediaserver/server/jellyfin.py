@@ -2,7 +2,7 @@ import re
 
 import log
 from app.utils.types import MediaServerType
-from config import Config
+from config import CONFIG
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
 from app.utils import RequestUtils, SystemUtils
@@ -20,8 +20,7 @@ class Jellyfin(IMediaServer):
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        jellyfin = config.get_config('jellyfin')
+        jellyfin = CONFIG.get_config('jellyfin')
         if jellyfin:
             self._host = jellyfin.get('host')
             if self._host:

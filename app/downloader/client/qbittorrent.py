@@ -4,7 +4,7 @@ import qbittorrentapi
 
 import log
 from app.utils.types import DownloaderType
-from config import Config, PT_TAG
+from config import CONFIG, PT_TAG
 from app.downloader.client.client import IDownloadClient
 from pkg_resources import parse_version as v
 
@@ -18,8 +18,7 @@ class Qbittorrent(IDownloadClient):
 
     def get_config(self):
         # 读取配置文件
-        config = Config()
-        qbittorrent = config.get_config('qbittorrent')
+        qbittorrent = CONFIG.get_config('qbittorrent')
         if qbittorrent:
             self.host = qbittorrent.get('qbhost')
             self.port = int(qbittorrent.get('qbport')) if str(qbittorrent.get('qbport')).isdigit() else 0

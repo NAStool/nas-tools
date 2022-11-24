@@ -1,8 +1,6 @@
 import os
 import shutil
 import sys
-from threading import Lock
-
 import ruamel.yaml
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
@@ -128,27 +126,12 @@ with open(os.path.join(os.path.dirname(__file__),
                                      "third_party",
                                      third_party_lib.strip()).replace("\\", "/"))
 
-# 线程锁
-lock = Lock()
-
 
 class Config(object):
-    _INSTANSE = None
-    _INSTANSE_FLAG = False
     _config = {}
     _config_path = None
 
-    def __new__(cls, *args, **kwargs):
-        with lock:
-            if not cls._INSTANSE:
-                cls._INSTANSE = super().__new__(cls)
-            return cls._INSTANSE
-
     def __init__(self):
-        with lock:
-            if Config._INSTANSE_FLAG:
-                return
-            Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         os.environ['TZ'] = 'Asia/Shanghai'
         print("配置文件地址：%s" % self._config_path)
@@ -164,11 +147,11 @@ class Config(object):
                 cfg_tp_path = cfg_tp_path.replace("\\", "/")
                 shutil.copy(cfg_tp_path, self._config_path)
                 print("【Config】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
-            with open(self._config_path, mode='r', encoding='utf-8') as f:
+            with open(self._config_path, mode='r', encoding='utf-8') as cf:
                 try:
                     # 读取配置
                     print("正在加载配置...")
-                    self._config = ruamel.yaml.YAML().load(f)
+                    self._config = ruamel.yaml.YAML().load(cf)
                 except Exception as e:
                     print("【Config】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self._config = {}
@@ -189,9 +172,9 @@ class Config(object):
 
     def save_config(self, new_cfg):
         self._config = new_cfg
-        with open(self._config_path, mode='w', encoding='utf-8') as f:
+        with open(self._config_path, mode='w', encoding='utf-8') as sf:
             yaml = ruamel.yaml.YAML()
-            return yaml.dump(new_cfg, f)
+            return yaml.dump(new_cfg, sf)
 
     def get_config_path(self):
         return os.path.dirname(self._config_path)
@@ -208,3 +191,7 @@ class Config(object):
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
         return domain
+
+
+# 配置实例
+CONFIG = Config()
