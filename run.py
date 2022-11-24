@@ -46,7 +46,7 @@ else:
 
 from config import CONFIG
 import log
-from web.main import App as NAStool
+from web.main import App
 
 warnings.filterwarnings('ignore')
 
@@ -111,4 +111,4 @@ if __name__ == '__main__':
             p1.start()
 
     # gunicorn 启动
-    NAStool.run(**get_run_config(CONFIG))
+    App.run(**get_run_config(CONFIG))
