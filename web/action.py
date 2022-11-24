@@ -5,6 +5,7 @@ import json
 import os.path
 import re
 import shutil
+import sys
 from math import floor
 from urllib.parse import unquote
 
@@ -229,7 +230,7 @@ class WebAction:
         # 关闭虚拟显示
         os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
         # 杀进程
-        os.system("ps -ef|grep -w 'NAStool'|grep -v grep|awk '{print $1}'|xargs kill -9")
+        os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
 
     @staticmethod
     def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):

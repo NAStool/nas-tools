@@ -117,15 +117,6 @@ SITE_SUBTITLE_XPATH = [
     '//td[@class="rowhead"][text()="字幕"]/following-sibling::td//a/@href',
 ]
 
-# 添加第三方库入口
-with open(os.path.join(os.path.dirname(__file__),
-                       "third_party.txt"), "r") as f:
-    third_party = f.readlines()
-    for third_party_lib in third_party:
-        sys.path.append(os.path.join(os.path.dirname(__file__),
-                                     "third_party",
-                                     third_party_lib.strip()).replace("\\", "/"))
-
 
 class Config(object):
     _config = {}

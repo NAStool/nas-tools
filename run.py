@@ -4,6 +4,17 @@ import sys
 import warnings
 from pyvirtualdisplay import Display
 
+
+# 添加第三方库入口
+with open(os.path.join(os.path.dirname(__file__),
+                       "third_party.txt"), "r") as f:
+    third_party = f.readlines()
+    for third_party_lib in third_party:
+        sys.path.append(os.path.join(os.path.dirname(__file__),
+                                     "third_party",
+                                     third_party_lib.strip()).replace("\\", "/"))
+
+
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
 if is_windows_exe:
@@ -47,6 +58,14 @@ else:
 from config import CONFIG
 import log
 from web.main import App
+from app.brushtask import BrushTask
+from app.db import init_db, update_db
+from app.helper import IndexerHelper
+from app.rsschecker import RssChecker
+from app.scheduler import run_scheduler
+from app.sync import run_monitor
+from check_config import update_config, check_config
+from version import APP_VERSION
 
 warnings.filterwarnings('ignore')
 
@@ -90,6 +109,42 @@ def get_run_config(cfg):
 # 退出事件
 signal.signal(signal.SIGINT, sigal_handler)
 signal.signal(signal.SIGTERM, sigal_handler)
+
+
+# 初始化
+def init_system():
+    # 配置
+    print('NASTool 当前版本号：%s' % APP_VERSION)
+    # 数据库初始化
+    init_db()
+    # 数据库更新
+    update_db(CONFIG)
+    # 升级配置文件
+    update_config(CONFIG)
+    # 检查配置文件
+    check_config(CONFIG)
+
+
+# 启动附属服务
+def start_service():
+    log.console("开始启动进程...")
+    # 启动定时服务
+    run_scheduler()
+    # 启动监控服务
+    run_monitor()
+    # 启动刷流服务
+    BrushTask()
+    # 启动自定义订阅服务
+    RssChecker()
+    # 加载索引器配置
+    IndexerHelper()
+
+
+# 系统初始化
+init_system()
+
+# 启动服务
+start_service()
 
 
 # 本地运行
