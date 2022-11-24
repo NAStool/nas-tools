@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 from threading import Lock
 
 import ruamel.yaml
@@ -118,6 +119,15 @@ SITE_SUBTITLE_XPATH = [
     '//td[@class="rowhead"][text()="字幕"]/following-sibling::td//a/@href',
 ]
 
+# 添加第三方库入口
+with open(os.path.join(os.path.dirname(__file__),
+                       "third_party.txt"), "r") as f:
+    third_party = f.readlines()
+    for third_party_lib in third_party:
+        sys.path.append(os.path.join(os.path.dirname(__file__),
+                                     "third_party",
+                                     third_party_lib.strip()).replace("\\", "/"))
+
 # 线程锁
 lock = Lock()
 
@@ -140,6 +150,8 @@ class Config(object):
                 return
             Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
+        os.environ['TZ'] = 'Asia/Shanghai'
+        print("配置文件地址：%s" % self._config_path)
         self.init_config()
 
     def init_config(self):
