@@ -22,7 +22,7 @@ from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import DbHelper
-from config import SITE_CHECKIN_XPATH, Config
+from config import SITE_CHECKIN_XPATH, CONFIG
 
 lock = Lock()
 

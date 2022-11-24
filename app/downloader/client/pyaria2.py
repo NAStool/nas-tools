@@ -231,7 +231,7 @@ class PyAria2(object):
              POS_CUR, it moves the download to a position relative to the current position.
              POS_END, it moves the download to a position relative to the end of the queue.
 
-        return: The response is of type integer and it is the destination position.
+        return: The response is of type integer, and it is the destination position.
         """
         return self.server.aria2.changePosition(self._secret, gid, pos, how)
 

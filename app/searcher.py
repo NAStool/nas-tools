@@ -17,7 +17,7 @@ class Searcher:
     progress = None
     dbhelper = None
 
-    __search_auto = True
+    _search_auto = True
 
     def __init__(self):
         self.downloader = Downloader()
@@ -28,7 +28,7 @@ class Searcher:
         self.init_config()
 
     def init_config(self):
-        self.__search_auto = CONFIG.get_config("pt").get('search_auto', True)
+        self._search_auto = CONFIG.get_config("pt").get('search_auto', True)
         if CONFIG.get_config("pt").get('search_indexer') == "prowlarr":
             self.indexer = Prowlarr()
         elif CONFIG.get_config("pt").get('search_indexer') == "jackett":
@@ -168,7 +168,7 @@ class Searcher:
                 # 插入数据库
                 self.dbhelper.insert_search_results(media_list)
                 # 微信未开自动下载时返回
-                if not self.__search_auto:
+                if not self._search_auto:
                     return False, no_exists, len(media_list), None
             # 择优下载
             download_items, left_medias = self.downloader.batch_download(in_from=in_from,

@@ -58,10 +58,10 @@ class TorrentParser:
             if d == 'l':
                 # List
                 self.level += 1
-                l = self.readList()
+                ll = self.readList()
                 # Lists can only be values
                 if value is None:
-                    value = l
+                    value = ll
                 self.level -= 1
 
             if self.isNumeric(d):
@@ -103,7 +103,7 @@ class TorrentParser:
                 self.open_dicts -= 1
                 break
 
-            # Bencoded files are dictionaries so we need both key and value
+            # Bencoded files are dictionaries, so we need both key and value
             if key is not None and value is not None:
                 dictionary[key] = value
                 key = None
@@ -134,9 +134,9 @@ class TorrentParser:
             if d == 'l':
                 # List
                 self.level += 1
-                l = self.readList()
+                ll = self.readList()
 
-                list_values.append(l)
+                list_values.append(ll)
 
                 self.level -= 1
 
@@ -265,7 +265,7 @@ class TorrentParser:
             c = self.file.read(1)
 
         # Calculate infohash
-        # Infohash is a SHA-1 hash of the value of the info key (bencoded dict)
+        #  is an SHA-1 hash of the value of the info key (bencoded dict)
 
         self.file.seek(self.info_start)
         infohash_data = self.file.read(self.info_end - self.info_start)

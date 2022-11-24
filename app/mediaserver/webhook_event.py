@@ -6,7 +6,6 @@ from app.utils import WebUtils
 
 
 class WebhookEvent:
-    __json = None
     message = None
     mediaserver = None
 
