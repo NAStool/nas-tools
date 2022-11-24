@@ -1,50 +1,49 @@
 import json
 import os
-
 from werkzeug.security import generate_password_hash
 from app.helper import DbHelper
 from app.utils import StringUtils
 from config import CONFIG
 
 
-def check_config(config):
+def check_config():
     """
     检查配置文件，如有错误进行日志输出
     """
     # 检查日志输出
-    if config.get_config('app'):
-        logtype = config.get_config('app').get('logtype')
+    if CONFIG.get_config('app'):
+        logtype = CONFIG.get_config('app').get('logtype')
         if logtype:
             print("日志输出类型为：%s" % logtype)
         if logtype == "server":
-            logserver = config.get_config('app').get('logserver')
+            logserver = CONFIG.get_config('app').get('logserver')
             if not logserver:
                 print("【Config】日志中心地址未配置，无法正常输出日志")
             else:
                 print("日志将上送到服务器：%s" % logserver)
         elif logtype == "file":
-            logpath = config.get_config('app').get('logpath')
+            logpath = CONFIG.get_config('app').get('logpath')
             if not logpath:
                 print("【Config】日志文件路径未配置，无法正常输出日志")
             else:
                 print("日志将写入文件：%s" % logpath)
 
         # 检查WEB端口
-        web_port = config.get_config('app').get('web_port')
+        web_port = CONFIG.get_config('app').get('web_port')
         if not web_port:
             print("WEB服务端口未设置，将使用默认3000端口")
 
         # 检查登录用户和密码
-        login_user = config.get_config('app').get('login_user')
-        login_password = config.get_config('app').get('login_password')
+        login_user = CONFIG.get_config('app').get('login_user')
+        login_password = CONFIG.get_config('app').get('login_password')
         if not login_user or not login_password:
             print("WEB管理用户或密码未设置，将使用默认用户：admin，密码：password")
         else:
             print("WEB管理页面用户：%s" % str(login_user))
 
         # 检查HTTPS
-        ssl_cert = config.get_config('app').get('ssl_cert')
-        ssl_key = config.get_config('app').get('ssl_key')
+        ssl_cert = CONFIG.get_config('app').get('ssl_cert')
+        ssl_key = CONFIG.get_config('app').get('ssl_key')
         if not ssl_cert or not ssl_key:
             print("未启用https，请使用 http://IP:%s 访问管理页面" % str(web_port))
         else:
@@ -54,10 +53,10 @@ def check_config(config):
                 print("ssl_key文件不存在：%s" % ssl_key)
             print("已启用https，请使用 https://IP:%s 访问管理页面" % str(web_port))
 
-        rmt_tmdbkey = config.get_config('app').get('rmt_tmdbkey')
+        rmt_tmdbkey = CONFIG.get_config('app').get('rmt_tmdbkey')
         if not rmt_tmdbkey:
             print("TMDB API Key未配置，媒体整理、搜索下载等功能将无法正常运行！")
-        rmt_match_mode = config.get_config('app').get('rmt_match_mode')
+        rmt_match_mode = CONFIG.get_config('app').get('rmt_match_mode')
         if rmt_match_mode:
             rmt_match_mode = rmt_match_mode.upper()
         else:
@@ -70,25 +69,25 @@ def check_config(config):
         print("配置文件格式错误，找不到app配置项！")
 
     # 检查媒体库目录路径
-    if config.get_config('media'):
-        media_server = config.get_config('media').get('media_server')
+    if CONFIG.get_config('media'):
+        media_server = CONFIG.get_config('media').get('media_server')
         if media_server:
             print("媒体管理软件设置为：%s" % media_server)
             if media_server == "jellyfin":
-                if not config.get_config('jellyfin'):
+                if not CONFIG.get_config('jellyfin'):
                     print("jellyfin未配置")
                 else:
-                    if not config.get_config('jellyfin').get('host') or not config.get_config('jellyfin').get(
+                    if not CONFIG.get_config('jellyfin').get('host') or not CONFIG.get_config('jellyfin').get(
                             'api_key'):
                         print("jellyfin配置不完整")
             else:
-                if not config.get_config('emby'):
+                if not CONFIG.get_config('emby'):
                     print("emby未配置")
                 else:
-                    if not config.get_config('emby').get('host') or not config.get_config('emby').get('api_key'):
+                    if not CONFIG.get_config('emby').get('host') or not CONFIG.get_config('emby').get('api_key'):
                         print("emby配置不完整")
 
-        movie_paths = config.get_config('media').get('movie_path')
+        movie_paths = CONFIG.get_config('media').get('movie_path')
         if not movie_paths:
             print("未配置电影媒体库目录")
         else:
@@ -98,7 +97,7 @@ def check_config(config):
                 if not os.path.exists(movie_path):
                     print("电影媒体库目录不存在：%s" % movie_path)
 
-        tv_paths = config.get_config('media').get('tv_path')
+        tv_paths = CONFIG.get_config('media').get('tv_path')
         if not tv_paths:
             print("未配置电视剧媒体库目录")
         else:
@@ -108,7 +107,7 @@ def check_config(config):
                 if not os.path.exists(tv_path):
                     print("电视剧媒体库目录不存在：%s" % tv_path)
 
-        anime_paths = config.get_config('media').get('anime_path')
+        anime_paths = CONFIG.get_config('media').get('anime_path')
         if anime_paths:
             if not isinstance(anime_paths, list):
                 anime_paths = [anime_paths]
@@ -116,18 +115,18 @@ def check_config(config):
                 if not os.path.exists(anime_path):
                     print("动漫媒体库目录不存在：%s" % anime_path)
 
-        category = config.get_config('media').get('category')
+        category = CONFIG.get_config('media').get('category')
         if not category:
             print("未配置分类策略")
     else:
         print("配置文件格式错误，找不到media配置项！")
 
     # 检查站点配置
-    if config.get_config('pt'):
-        pt_client = config.get_config('pt').get('pt_client')
+    if CONFIG.get_config('pt'):
+        pt_client = CONFIG.get_config('pt').get('pt_client')
         print("下载软件设置为：%s" % pt_client)
 
-        rmt_mode = config.get_config('pt').get('rmt_mode', 'copy')
+        rmt_mode = CONFIG.get_config('pt').get('rmt_mode', 'copy')
         if rmt_mode == "link":
             print("默认文件转移模式为：硬链接")
         elif rmt_mode == "softlink":
@@ -141,48 +140,48 @@ def check_config(config):
         else:
             print("默认文件转移模式为：复制")
 
-        search_indexer = config.get_config('pt').get('search_indexer')
+        search_indexer = CONFIG.get_config('pt').get('search_indexer')
         if search_indexer:
             print("索引器设置为：%s" % search_indexer)
 
-        search_auto = config.get_config('pt').get('search_auto')
+        search_auto = CONFIG.get_config('pt').get('search_auto')
         if search_auto:
             print("微信等移动端渠道搜索已开启自动择优下载")
 
-        ptsignin_cron = config.get_config('pt').get('ptsignin_cron')
+        ptsignin_cron = CONFIG.get_config('pt').get('ptsignin_cron')
         if not ptsignin_cron:
             print("站点自动签到时间未配置，站点签到功能已关闭")
 
-        pt_seeding_time = config.get_config('pt').get('pt_seeding_time')
+        pt_seeding_time = CONFIG.get_config('pt').get('pt_seeding_time')
         if not pt_seeding_time or pt_seeding_time == '0':
             print("保种时间未配置，自动删种功能已关闭")
         else:
             print("保种时间设置为：%s 天" % pt_seeding_time)
 
-        pt_check_interval = config.get_config('pt').get('pt_check_interval')
+        pt_check_interval = CONFIG.get_config('pt').get('pt_check_interval')
         if not pt_check_interval:
             print("RSS订阅周期未配置，RSS订阅功能已关闭")
 
-        pt_monitor = config.get_config('pt').get('pt_monitor')
+        pt_monitor = CONFIG.get_config('pt').get('pt_monitor')
         if not pt_monitor:
             print("下载软件监控未开启，下载器监控功能已关闭")
     else:
         print("配置文件格式错误，找不到pt配置项！")
 
     # 检查Douban配置
-    if not config.get_config('douban'):
+    if not CONFIG.get_config('douban'):
         print("豆瓣未配置")
     else:
-        if not config.get_config('douban').get('users') or not config.get_config('douban').get(
-                'types') or not config.get_config('douban').get('days'):
+        if not CONFIG.get_config('douban').get('users') or not CONFIG.get_config('douban').get(
+                'types') or not CONFIG.get_config('douban').get('days'):
             print("豆瓣配置不完整")
 
 
-def update_config(cfg):
+def update_config():
     """
     升级配置文件
     """
-    _config = cfg.get_config()
+    _config = CONFIG.get_config()
     _dbhelper = DbHelper()
     overwrite_cofig = False
 
@@ -506,7 +505,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -532,7 +531,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -548,7 +547,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -566,7 +565,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -588,7 +587,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -604,7 +603,7 @@ def update_config(cfg):
                     })
                     _dbhelper.insert_message_client(name=name,
                                                     ctype=ctype,
-                                                    config=client_config,
+                                                    CONFIG=client_config,
                                                     switchs=switchs,
                                                     interactive=interactive,
                                                     enabled=enabled)
@@ -742,4 +741,4 @@ def update_config(cfg):
 
     # 重写配置文件
     if overwrite_cofig:
-        cfg.save_config(_config)
+        CONFIG.save_config(_config)

@@ -55,7 +55,7 @@
       } else {
         var border_color = 'bg-primary';
       }
-      var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+      var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem; overflow: hidden;"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
       return {html: innerText};
     }
   });

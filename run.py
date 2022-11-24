@@ -112,15 +112,15 @@ signal.signal(signal.SIGTERM, sigal_handler)
 # 初始化
 def init_system():
     # 配置
-    print('NAStool 当前版本号：%s' % APP_VERSION)
+    log.console('NAStool 当前版本号：%s' % APP_VERSION)
     # 数据库初始化
     init_db()
     # 数据库更新
-    update_db(CONFIG)
+    update_db()
     # 升级配置文件
-    update_config(CONFIG)
+    update_config()
     # 检查配置文件
-    check_config(CONFIG)
+    check_config()
 
 
 # 启动附属服务
