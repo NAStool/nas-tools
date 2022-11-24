@@ -39,20 +39,31 @@ from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
 
+
+# Flask配置
+class AppConfig(object):
+    # App配置
+    SERVER_NAME = "NAStool"
+    JSON_AS_ASCII = False
+    DEBUG = False
+    SECRET_KEY = os.urandom(24)
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
+    # 定时任务
+    SCHEDULER_API_ENABLED = True
+    JOBS = []
+
+
+# Flask主程序
 App = Flask(__name__)
-App.config['JSON_AS_ASCII'] = False
-App.secret_key = os.urandom(24)
-App.permanent_session_lifetime = datetime.timedelta(days=30)
-
-applog = logging.getLogger('werkzeug')
-applog.setLevel(logging.ERROR)
-
-login_manager = LoginManager()
-login_manager.login_view = "login"
-login_manager.init_app(App)
+App.config.from_object(AppConfig)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
+
+# 登录管理模块
+LoginManager = LoginManager()
+LoginManager.login_view = "login"
+LoginManager.init_app(App)
 
 
 @App.after_request
@@ -67,7 +78,7 @@ def add_header(r):
 
 
 # 定义获取登录用户的方法
-@login_manager.user_loader
+@LoginManager.user_loader
 def load_user(user_id):
     return User().get(user_id)
 
