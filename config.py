@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 import ruamel.yaml
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改

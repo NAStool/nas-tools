@@ -1,6 +1,5 @@
 import base64
 import datetime
-import logging
 import os.path
 import shutil
 import sqlite3
@@ -39,31 +38,19 @@ from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
 
-
-# Flask配置
-class AppConfig(object):
-    # App配置
-    SERVER_NAME = "NAStool"
-    JSON_AS_ASCII = False
-    DEBUG = False
-    SECRET_KEY = os.urandom(24)
-    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
-    # 定时任务
-    SCHEDULER_API_ENABLED = True
-    JOBS = []
-
-
-# Flask主程序
+# Flask App
 App = Flask(__name__)
-App.config.from_object(AppConfig)
-
-# API注册
-App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
+App.config['JSON_AS_ASCII'] = False
+App.secret_key = os.urandom(24)
+App.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # 登录管理模块
 LoginManager = LoginManager()
 LoginManager.login_view = "login"
 LoginManager.init_app(App)
+
+# API注册
+App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
 
 @App.after_request

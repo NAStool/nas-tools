@@ -4,7 +4,6 @@ import sys
 import warnings
 from pyvirtualdisplay import Display
 
-
 # 添加第三方库入口
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
@@ -13,7 +12,6 @@ with open(os.path.join(os.path.dirname(__file__),
         sys.path.append(os.path.join(os.path.dirname(__file__),
                                      "third_party",
                                      third_party_lib.strip()).replace("\\", "/"))
-
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
