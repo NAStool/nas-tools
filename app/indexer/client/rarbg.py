@@ -3,7 +3,7 @@ import requests
 import log
 from app.utils.commons import singleton
 from app.utils import RequestUtils
-from config import Config
+from config import CONFIG
 
 
 @singleton
@@ -18,7 +18,7 @@ class Rarbg:
 
     def init_config(self, cookies):
         session = requests.session()
-        self._req = RequestUtils(cookies=cookies, proxies=Config().get_proxies(), session=session, timeout=10)
+        self._req = RequestUtils(cookies=cookies, proxies=CONFIG.get_proxies(), session=session, timeout=10)
         self.__get_token()
 
     def __get_token(self):

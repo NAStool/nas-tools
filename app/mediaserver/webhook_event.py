@@ -2,20 +2,16 @@ import time
 
 from app.message import Message
 from app.mediaserver import MediaServer
-from app.filetransfer import FileTransfer
 from app.utils import WebUtils
 
 
 class WebhookEvent:
-    __json = None
     message = None
     mediaserver = None
-    filetransfer = None
 
     def __init__(self):
         self.message = Message()
         self.mediaserver = MediaServer()
-        self.filetransfer = FileTransfer()
 
     @staticmethod
     def __parse_plex_msg(message):
@@ -92,12 +88,6 @@ class WebhookEvent:
             return
         elif event_info.get("event") in ["playback.start", "playback.stop"]:
             self.send_webhook_message(event_info, 'emby')
-        elif event_info.get("event") == "item.rate":
-            if event_info.get("item_path") and event_info.get('item_type') == "MOV":
-                ret, _ = self.filetransfer.transfer_embyfav(event_info.get("item_path"))
-                if ret:
-                    # 刷新媒体库
-                    self.mediaserver.refresh_root_library()
 
     def send_webhook_message(self, event_info, channel):
         """

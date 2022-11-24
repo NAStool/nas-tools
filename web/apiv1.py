@@ -5,7 +5,7 @@ from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
 from app.sites import Sites
 from app.utils import TokenCache
-from config import Config
+from config import CONFIG
 from web.action import WebAction
 from web.backend.user import User
 from web.security import require_auth, login_required, generate_access_token
@@ -99,7 +99,7 @@ class UserLogin(Resource):
             "success": True,
             "data": {
                 "token": token,
-                "apikey": Config().get_config("security").get("api_key"),
+                "apikey": CONFIG.get_config("security").get("api_key"),
                 "userinfo": {
                     "userid": user_info.id,
                     "username": user_info.username,
@@ -610,7 +610,7 @@ class DownloadConfigList(ClientResource):
         """
         查询下载设置
         """
-        return WebAction.api_action(cmd="get_download_setting", data=self.parser.parse_args())
+        return WebAction().api_action(cmd="get_download_setting", data=self.parser.parse_args())
 
 
 @download.route('/config/directory')
@@ -622,7 +622,7 @@ class DownloadConfigDirectory(ClientResource):
         """
         查询下载保存目录
         """
-        return WebAction.api_action(cmd="get_download_dirs", data=self.parser.parse_args())
+        return WebAction().api_action(cmd="get_download_dirs", data=self.parser.parse_args())
 
 
 @organization.route('/unknown/delete')
@@ -963,7 +963,7 @@ class ConfigInfo(ClientResource):
         return {
             "code": 0,
             "success": True,
-            "data": Config().get_config()
+            "data": CONFIG.get_config()
         }
 
 

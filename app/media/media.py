@@ -16,7 +16,7 @@ from app.media.tmdbv3api.exceptions import TMDbException
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
 from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
-from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
+from config import CONFIG, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
 
 
@@ -29,16 +29,15 @@ class Media:
     person = None
     find = None
     meta = None
-    __rmt_match_mode = None
-    __search_keyword = None
+    _rmt_match_mode = None
+    _search_keyword = None
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        app = config.get_config('app')
-        laboratory = config.get_config('laboratory')
+        app = CONFIG.get_config('app')
+        laboratory = CONFIG.get_config('laboratory')
         if app:
             if app.get('rmt_tmdbkey'):
                 self.tmdb = TMDb()
@@ -49,7 +48,7 @@ class Media:
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'
-                self.tmdb.proxies = config.get_proxies()
+                self.tmdb.proxies = CONFIG.get_proxies()
                 self.tmdb.debug = True
                 self.search = Search()
                 self.movie = Movie()
@@ -63,12 +62,12 @@ class Media:
             else:
                 rmt_match_mode = "NORMAL"
             if rmt_match_mode == "STRICT":
-                self.__rmt_match_mode = MatchMode.STRICT
+                self._rmt_match_mode = MatchMode.STRICT
             else:
-                self.__rmt_match_mode = MatchMode.NORMAL
-        laboratory = config.get_config('laboratory')
+                self._rmt_match_mode = MatchMode.NORMAL
+        laboratory = CONFIG.get_config('laboratory')
         if laboratory:
-            self.__search_keyword = laboratory.get("search_keyword")
+            self._search_keyword = laboratory.get("search_keyword")
 
     @staticmethod
     def __compare_tmdb_names(file_name, tmdb_names):
@@ -640,7 +639,7 @@ class Media:
                                                          media_year=meta_info.year,
                                                          season_number=meta_info.begin_season
                                                          )
-                    if not file_media_info and meta_info.year and self.__rmt_match_mode == MatchMode.NORMAL and not strict:
+                    if not file_media_info and meta_info.year and self._rmt_match_mode == MatchMode.NORMAL and not strict:
                         # 非严格模式下去掉年份再查一次
                         file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
                                                              search_type=meta_info.type
@@ -657,13 +656,13 @@ class Media:
                                                              first_media_year=meta_info.year,
                                                              search_type=MediaType.TV
                                                              )
-                    if not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL and not strict:
+                    if not file_media_info and self._rmt_match_mode == MatchMode.NORMAL and not strict:
                         # 非严格模式下去掉年份和类型再查一次
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
             if not file_media_info:
                 file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
                                                          mtype=meta_info.type)
-            if not file_media_info and self.__search_keyword:
+            if not file_media_info and self._search_keyword:
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                 is_movie = False
                 if not cache_name:
@@ -780,7 +779,7 @@ class Media:
                                                              media_year=meta_info.year,
                                                              season_number=meta_info.begin_season)
                         if not file_media_info:
-                            if self.__rmt_match_mode == MatchMode.NORMAL:
+                            if self._rmt_match_mode == MatchMode.NORMAL:
                                 # 去掉年份再查一次，有可能是年份错误
                                 file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
                                                                      search_type=meta_info.type)
@@ -788,7 +787,7 @@ class Media:
                             # 从网站查询
                             file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
                                                                      mtype=meta_info.type)
-                        if not file_media_info and self.__search_keyword:
+                        if not file_media_info and self._search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                             is_movie = False
                             if not cache_name:

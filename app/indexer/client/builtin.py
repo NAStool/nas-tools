@@ -4,7 +4,7 @@ import time
 import log
 from app.indexer.client.rarbg import Rarbg
 from app.utils.types import SearchType, IndexerType
-from config import Config
+from config import CONFIG
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites import Sites
@@ -31,7 +31,7 @@ class BuiltinIndexer(IIndexer):
     def get_indexers(self, check=True, public=True, indexer_id=None):
         ret_indexers = []
         # 选中站点配置
-        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
+        indexer_sites = CONFIG.get_config("pt").get("indexer_sites") or []
         _indexer_domains = []
         # 私有站点
         for site in Sites().get_sites():
@@ -104,7 +104,7 @@ class BuiltinIndexer(IIndexer):
         if filter_args is None:
             filter_args = {}
         # 不是配置的索引站点过滤掉
-        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
+        indexer_sites = CONFIG.get_config("pt").get("indexer_sites") or []
         if indexer_sites and indexer.id not in indexer_sites:
             return []
         # 不在设定搜索范围的站点过滤掉

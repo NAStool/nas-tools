@@ -1,7 +1,7 @@
 import os.path
 from abc import ABCMeta, abstractmethod
 
-from config import Config
+from config import CONFIG
 
 
 class IDownloadClient(metaclass=ABCMeta):
@@ -146,7 +146,7 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         if not path:
             return ""
-        downloaddir = Config().get_config('downloaddir') or []
+        downloaddir = CONFIG.get_config('downloaddir') or []
         path = os.path.normpath(path)
         for attr in downloaddir:
             if not attr.get("save_path") or not attr.get("container_path"):

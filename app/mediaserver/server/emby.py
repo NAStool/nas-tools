@@ -2,7 +2,7 @@ import os
 import re
 
 import log
-from config import Config
+from config import CONFIG
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
 from app.utils import RequestUtils, SystemUtils
@@ -21,8 +21,7 @@ class Emby(IMediaServer):
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        emby = config.get_config('emby')
+        emby = CONFIG.get_config('emby')
         if emby:
             self._host = emby.get('host')
             if self._host:

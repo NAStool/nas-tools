@@ -12,7 +12,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils.types import SearchType, MediaType
-from config import Config
+from config import CONFIG
 
 lock = Lock()
 
@@ -24,12 +24,12 @@ class DoubanSync:
     downloader = None
     dbhelper = None
     subscribe = None
-    __interval = None
-    __auto_search = None
-    __auto_rss = None
-    __users = None
-    __days = None
-    __types = None
+    _interval = None
+    _auto_search = None
+    _auto_rss = None
+    _users = None
+    _days = None
+    _types = None
 
     def __init__(self):
         self.douban = DouBan()
@@ -42,31 +42,30 @@ class DoubanSync:
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        douban = config.get_config('douban')
+        douban = CONFIG.get_config('douban')
         if douban:
             # 同步间隔
-            self.__interval = int(douban.get('interval')) if str(douban.get('interval')).isdigit() else None
-            self.__auto_search = douban.get('auto_search')
-            self.__auto_rss = douban.get('auto_rss')
+            self._interval = int(douban.get('interval')) if str(douban.get('interval')).isdigit() else None
+            self._auto_search = douban.get('auto_search')
+            self._auto_rss = douban.get('auto_rss')
             # 用户列表
             users = douban.get('users')
             if users:
                 if not isinstance(users, list):
                     users = [users]
-                self.__users = users
+                self._users = users
             # 时间范围
-            self.__days = int(douban.get('days')) if str(douban.get('days')).isdigit() else None
+            self._days = int(douban.get('days')) if str(douban.get('days')).isdigit() else None
             # 类型
             types = douban.get('types')
             if types:
-                self.__types = types.split(',')
+                self._types = types.split(',')
 
     def sync(self):
         """
         同步豆瓣数据
         """
-        if not self.__interval:
+        if not self._interval:
             log.info("【Douban】豆瓣配置：同步间隔未配置或配置不正确")
             return
         try:
@@ -75,7 +74,7 @@ class DoubanSync:
             # 拉取豆瓣数据
             medias = self.__get_all_douban_movies()
             # 开始检索
-            if self.__auto_search:
+            if self._auto_search:
                 # 需要检索
                 for media in medias:
                     if not media:
@@ -102,7 +101,7 @@ class DoubanSync:
                             log.info("【Douban】%s 已存在" % media.get_name())
                             self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
                             continue
-                        if not self.__auto_rss:
+                        if not self._auto_rss:
                             # 合并季
                             media_info.begin_season = media.begin_season
                             # 开始检索
@@ -138,7 +137,7 @@ class DoubanSync:
                         log.info("【Douban】%s %s 已处理过" % (media.get_name(), media.year))
             else:
                 # 不需要检索
-                if self.__auto_rss:
+                if self._auto_rss:
                     # 加入订阅，使状态为R
                     for media in medias:
                         log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
@@ -168,10 +167,10 @@ class DoubanSync:
         获取每一个用户的每一个类型的豆瓣标记
         :return: 检索到的媒体信息列表（不含TMDB信息）
         """
-        if not self.__interval \
-                or not self.__days \
-                or not self.__users \
-                or not self.__types:
+        if not self._interval \
+                or not self._days \
+                or not self._users \
+                or not self._types:
             log.warn("【Douban】豆瓣未配置或配置不正确")
             return []
         # 返回媒体列表
@@ -183,7 +182,7 @@ class DoubanSync:
         # 每页条数
         perpage_number = 15
         # 每一个用户
-        for user in self.__users:
+        for user in self._users:
             if not user:
                 continue
             # 查询用户名称
@@ -193,7 +192,7 @@ class DoubanSync:
                 user_name = userinfo.get("name")
             # 每一个类型成功数量
             user_succnum = 0
-            for mtype in self.__types:
+            for mtype in self._types:
                 if not mtype:
                     continue
                 log.info(f"【Douban】开始获取 {user_name or user} 的 {mtype} 数据...")
@@ -222,7 +221,7 @@ class DoubanSync:
                                 break
                             else:
                                 mark_date = datetime.datetime.strptime(date, '%Y-%m-%d')
-                                if not (datetime.datetime.now() - mark_date).days < int(self.__days):
+                                if not (datetime.datetime.now() - mark_date).days < int(self._days):
                                     continue_next_page = False
                                     break
                             doubanid = item.get("id")

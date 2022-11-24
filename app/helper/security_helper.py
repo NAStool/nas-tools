@@ -1,6 +1,6 @@
 import ipaddress
 
-from config import Config
+from config import CONFIG
 
 
 class SecurityHelper:
@@ -8,8 +8,7 @@ class SecurityHelper:
     telegram_webhook_allow_ip = {}
 
     def __init__(self):
-        config = Config()
-        security = config.get_config('security')
+        security = CONFIG.get_config('security')
         if security:
             self.media_server_webhook_allow_ip = security.get('media_server_webhook_allow_ip') or {}
             self.telegram_webhook_allow_ip = security.get('telegram_webhook_allow_ip') or {}

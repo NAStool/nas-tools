@@ -5,7 +5,7 @@ import cn2an
 import log
 from app.indexer import Prowlarr, Jackett, BuiltinIndexer
 from app.sites import Sites
-from config import Config
+from config import CONFIG
 from app.message import Message
 from app.media.douban import DouBan
 from app.downloader import Downloader
@@ -111,7 +111,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                             "name")
             # 两次搜索名称
             second_search_name = None
-            if Config().get_config("laboratory").get("search_en_title"):
+            if CONFIG.get_config("laboratory").get("search_en_title"):
                 if search_en_name:
                     first_search_name = search_en_name
                     second_search_name = search_cn_name
@@ -266,7 +266,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                                                 } for site in Sites().get_sites(rss=True)])
 
         # 索引器类型
-        indexer_type = Config().get_config("pt").get("search_indexer")
+        indexer_type = CONFIG.get_config("pt").get("search_indexer")
         if indexer_type == "prowlarr":
             indexers = Prowlarr().get_indexers()
         elif indexer_type == "jackett":
@@ -304,7 +304,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             return
 
         # 搜索名称
-        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
+        use_douban_titles = CONFIG.get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
             tmdb_infos = DouBan().search_douban_medias(
                 keyword=media_info.get_name() if not media_info.year else "%s %s" % (
@@ -430,7 +430,7 @@ def __search_media(in_from, media_info, user_id, user_name=None):
                                                media_info.title, search_count),
                                            user_id=user_id)
     # 没有下载完成，且打开了自动添加订阅
-    if not search_result and Config().get_config('pt').get('search_no_result_rss'):
+    if not search_result and CONFIG.get_config('pt').get('search_no_result_rss'):
         # 添加订阅
         __rss_media(in_from=in_from,
                     media_info=media_info,

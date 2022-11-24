@@ -17,8 +17,8 @@ from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
-    DEFAULT_TV_FORMAT
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
+    DEFAULT_TV_FORMAT, CONFIG
 
 lock = Lock()
 
@@ -32,27 +32,27 @@ class FileTransfer:
     threadhelper = None
     dbhelper = None
 
-    __default_rmt_mode = None
-    __movie_path = None
-    __tv_path = None
-    __anime_path = None
-    __movie_category_flag = None
-    __tv_category_flag = None
-    __anime_category_flag = None
-    __unknown_path = None
-    __min_filesize = RMT_MIN_FILESIZE
-    __filesize_cover = False
-    __movie_dir_rmt_format = ""
-    __movie_file_rmt_format = ""
-    __tv_dir_rmt_format = ""
-    __tv_season_rmt_format = ""
-    __tv_file_rmt_format = ""
-    __scraper_flag = False
-    __scraper_nfo = {}
-    __scraper_pic = {}
-    __refresh_mediaserver = False
-    __ignored_paths = []
-    __ignored_files = ''
+    _default_rmt_mode = None
+    _movie_path = None
+    _tv_path = None
+    _anime_path = None
+    _movie_category_flag = None
+    _tv_category_flag = None
+    _anime_category_flag = None
+    _unknown_path = None
+    _min_filesize = RMT_MIN_FILESIZE
+    _filesize_cover = False
+    _movie_dir_rmt_format = ""
+    _movie_file_rmt_format = ""
+    _tv_dir_rmt_format = ""
+    _tv_season_rmt_format = ""
+    _tv_file_rmt_format = ""
+    _scraper_flag = False
+    _scraper_nfo = {}
+    _scraper_pic = {}
+    _refresh_mediaserver = False
+    _ignored_paths = []
+    _ignored_files = ''
 
     def __init__(self):
         self.media = Media()
@@ -65,85 +65,84 @@ class FileTransfer:
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        media = config.get_config('media')
-        self.__scraper_flag = media.get("nfo_poster")
-        self.__scraper_nfo = config.get_config('scraper_nfo')
-        self.__scraper_pic = config.get_config('scraper_pic')
+        media = CONFIG.get_config('media')
+        self._scraper_flag = media.get("nfo_poster")
+        self._scraper_nfo = CONFIG.get_config('scraper_nfo')
+        self._scraper_pic = CONFIG.get_config('scraper_pic')
         if media:
             # 刷新媒体库开关
-            self.__refresh_mediaserver = media.get("refresh_mediaserver")
+            self._refresh_mediaserver = media.get("refresh_mediaserver")
             # 电影目录
-            self.__movie_path = media.get('movie_path')
-            if not isinstance(self.__movie_path, list):
-                if self.__movie_path:
-                    self.__movie_path = [self.__movie_path]
+            self._movie_path = media.get('movie_path')
+            if not isinstance(self._movie_path, list):
+                if self._movie_path:
+                    self._movie_path = [self._movie_path]
                 else:
-                    self.__movie_path = []
+                    self._movie_path = []
             # 电影分类
-            self.__movie_category_flag = self.category.get_movie_category_flag()
+            self._movie_category_flag = self.category.get_movie_category_flag()
             # 电视剧目录
-            self.__tv_path = media.get('tv_path')
-            if not isinstance(self.__tv_path, list):
-                if self.__tv_path:
-                    self.__tv_path = [self.__tv_path]
+            self._tv_path = media.get('tv_path')
+            if not isinstance(self._tv_path, list):
+                if self._tv_path:
+                    self._tv_path = [self._tv_path]
                 else:
-                    self.__tv_path = []
+                    self._tv_path = []
             # 电视剧分类
-            self.__tv_category_flag = self.category.get_tv_category_flag()
+            self._tv_category_flag = self.category.get_tv_category_flag()
             # 动漫目录
-            self.__anime_path = media.get('anime_path')
-            if not isinstance(self.__anime_path, list):
-                if self.__anime_path:
-                    self.__anime_path = [self.__anime_path]
+            self._anime_path = media.get('anime_path')
+            if not isinstance(self._anime_path, list):
+                if self._anime_path:
+                    self._anime_path = [self._anime_path]
                 else:
-                    self.__anime_path = []
+                    self._anime_path = []
             # 动漫分类
-            self.__anime_category_flag = self.category.get_anime_category_flag()
+            self._anime_category_flag = self.category.get_anime_category_flag()
             # 没有动漫目漫切换为电视剧目录和分类
-            if not self.__anime_path:
-                self.__anime_path = self.__tv_path
-                self.__anime_category_flag = self.__tv_category_flag
+            if not self._anime_path:
+                self._anime_path = self._tv_path
+                self._anime_category_flag = self._tv_category_flag
             # 未识别目录
-            self.__unknown_path = media.get('unknown_path')
-            if not isinstance(self.__unknown_path, list):
-                if self.__unknown_path:
-                    self.__unknown_path = [self.__unknown_path]
+            self._unknown_path = media.get('unknown_path')
+            if not isinstance(self._unknown_path, list):
+                if self._unknown_path:
+                    self._unknown_path = [self._unknown_path]
                 else:
-                    self.__unknown_path = []
+                    self._unknown_path = []
             # 最小文件大小
             min_filesize = media.get('min_filesize')
             if isinstance(min_filesize, int):
-                self.__min_filesize = min_filesize * 1024 * 1024
+                self._min_filesize = min_filesize * 1024 * 1024
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
-                self.__min_filesize = int(min_filesize) * 1024 * 1024
+                self._min_filesize = int(min_filesize) * 1024 * 1024
             # 转移文件夹黑名单
             ignored_paths = media.get('ignored_paths')
             if ignored_paths:
-                self.__ignored_paths = ignored_paths.split(';')
+                self._ignored_paths = ignored_paths.split(';')
             # 文件转移忽略词
             ignored_files = media.get('ignored_files')
             if ignored_files:
-                self.__ignored_files = re.compile(r'%s' % re.sub(r';', r'|', ignored_files))
+                self._ignored_files = re.compile(r'%s' % re.sub(r';', r'|', ignored_files))
             # 高质量文件覆盖
-            self.__filesize_cover = media.get('filesize_cover')
+            self._filesize_cover = media.get('filesize_cover')
             # 电影重命名格式
             movie_name_format = media.get('movie_name_format') or DEFAULT_MOVIE_FORMAT
             movie_formats = movie_name_format.split('/')
             if movie_formats:
-                self.__movie_dir_rmt_format = movie_formats[0]
+                self._movie_dir_rmt_format = movie_formats[0]
                 if len(movie_formats) > 1:
-                    self.__movie_file_rmt_format = movie_formats[1]
+                    self._movie_file_rmt_format = movie_formats[1]
             # 电视剧重命名格式
             tv_name_format = media.get('tv_name_format') or DEFAULT_TV_FORMAT
             tv_formats = tv_name_format.split('/')
             if tv_formats:
-                self.__tv_dir_rmt_format = tv_formats[0]
+                self._tv_dir_rmt_format = tv_formats[0]
                 if len(tv_formats) > 1:
-                    self.__tv_season_rmt_format = tv_formats[1]
+                    self._tv_season_rmt_format = tv_formats[1]
                 if len(tv_formats) > 2:
-                    self.__tv_file_rmt_format = tv_formats[2]
-        self.__default_rmt_mode = RMT_MODES.get(config.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
+                    self._tv_file_rmt_format = tv_formats[2]
+        self._default_rmt_mode = RMT_MODES.get(CONFIG.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):
@@ -261,16 +260,16 @@ class FileTransfer:
         """
         if not path:
             return False
-        for tv_path in self.__tv_path:
+        for tv_path in self._tv_path:
             if PathUtils.is_path_in_path(tv_path, path):
                 return True
-        for movie_path in self.__movie_path:
+        for movie_path in self._movie_path:
             if PathUtils.is_path_in_path(movie_path, path):
                 return True
-        for anime_path in self.__anime_path:
+        for anime_path in self._anime_path:
             if PathUtils.is_path_in_path(anime_path, path):
                 return True
-        for unknown_path in self.__unknown_path:
+        for unknown_path in self._unknown_path:
             if PathUtils.is_path_in_path(unknown_path, path):
                 return True
         return False
@@ -411,7 +410,7 @@ class FileTransfer:
             return False, "输入路径错误"
 
         if not rmt_mode:
-            rmt_mode = self.__default_rmt_mode
+            rmt_mode = self._default_rmt_mode
 
         log.info("【Rmt】开始处理：%s，转移方式：%s" % (in_path, rmt_mode.value))
 
@@ -439,7 +438,7 @@ class FileTransfer:
                             min_filesize) * 1024 * 1024
                     else:
                         # 未输入大小限制默认为配置大小限制
-                        now_filesize = self.__min_filesize if not str(min_filesize).isdigit() else int(
+                        now_filesize = self._min_filesize if not str(min_filesize).isdigit() else int(
                             min_filesize) * 1024 * 1024
                     # 查找目录下的文件
                     file_list = PathUtils.get_dir_files(in_path=in_path,
@@ -471,10 +470,10 @@ class FileTransfer:
             file_list = files
 
         #  过滤掉文件列表中上级文件夹在黑名单中的
-        if self.__ignored_paths:
+        if self._ignored_paths:
             try:
                 for file in file_list[:]:
-                    if file.replace('\\', '/').split('/')[-2] in self.__ignored_paths:
+                    if file.replace('\\', '/').split('/')[-2] in self._ignored_paths:
                         log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
@@ -483,10 +482,10 @@ class FileTransfer:
                 log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
 
         #  过滤掉文件列表中包含文件转移忽略词的
-        if self.__ignored_files:
+        if self._ignored_files:
             try:
                 for file in file_list[:]:
-                    if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
+                    if re.findall(self._ignored_files, file.replace('\\', '/').split('/')[-1]):
                         log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
                         file_list.remove(file)
                 if not file_list:
@@ -551,7 +550,7 @@ class FileTransfer:
                     if unknown_dir:
                         log.warn("【Rmt】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_dir))
                         self.__transfer_origin_file(file_item=file_item, target_dir=unknown_dir, rmt_mode=rmt_mode)
-                    elif self.__unknown_path:
+                    elif self._unknown_path:
                         unknown_path = self.__get_best_unknown_path(in_path)
                         if not unknown_path:
                             continue
@@ -600,7 +599,7 @@ class FileTransfer:
                     if file_exist_flag:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
-                            if media.size > os.path.getsize(ret_file_path) and self.__filesize_cover or udf_flag:
+                            if media.size > os.path.getsize(ret_file_path) and self._filesize_cover or udf_flag:
                                 ret_file_path = os.path.splitext(ret_file_path)[0]
                                 new_file = "%s%s" % (ret_file_path, file_ext)
                                 log.info("【Rmt】文件 %s 已存在，覆盖..." % new_file)
@@ -729,7 +728,7 @@ class FileTransfer:
                     self.message.send_transfer_movie_message(in_from,
                                                              media,
                                                              exist_filenum,
-                                                             self.__movie_category_flag)
+                                                             self._movie_category_flag)
                 # 否则登记汇总发消息
                 else:
                     # 按季汇总
@@ -741,11 +740,11 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                if self.__scraper_flag:
+                if self._scraper_flag:
                     # 生成刮削文件
                     self.scraper.gen_scraper_files(media=media,
-                                                   scraper_nfo=self.__scraper_nfo,
-                                                   scraper_pic=self.__scraper_pic,
+                                                   scraper_nfo=self._scraper_nfo,
+                                                   scraper_pic=self._scraper_pic,
                                                    dir_path=ret_dir_path,
                                                    file_name=os.path.basename(ret_file_path))
                 # 移动模式随机休眠（兼容一些网盘挂载目录）
@@ -759,7 +758,7 @@ class FileTransfer:
         if message_medias:
             self.message.send_transfer_tv_message(message_medias, in_from)
         # 刷新媒体库
-        if refresh_library_items and self.__refresh_mediaserver:
+        if refresh_library_items and self._refresh_mediaserver:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
         # 启新进程下载字幕
         if download_subtitle_items:
@@ -832,7 +831,7 @@ class FileTransfer:
             # 默认目录路径
             file_path = os.path.join(media_dest, dir_name)
             # 开启分类时目录路径
-            if self.__movie_category_flag:
+            if self._movie_category_flag:
                 file_path = os.path.join(media_dest, media.category, dir_name)
                 for m_type in [RMT_FAVTYPE, media.category]:
                     type_path = os.path.join(media_dest, m_type, dir_name)
@@ -861,8 +860,8 @@ class FileTransfer:
             # 目录名称
             dir_name, season_name, file_name = self.get_tv_dest_path(media)
             # 剧集目录
-            if (media.type == MediaType.TV and self.__tv_category_flag) or (
-                    media.type == MediaType.ANIME and self.__anime_category_flag):
+            if (media.type == MediaType.TV and self._tv_category_flag) or (
+                    media.type == MediaType.ANIME and self._anime_category_flag):
                 media_path = os.path.join(media_dest, media.category, dir_name)
             else:
                 media_path = os.path.join(media_dest, dir_name)
@@ -898,7 +897,7 @@ class FileTransfer:
         """
         if not item_path:
             return False
-        if not self.__movie_category_flag or not self.__movie_path:
+        if not self._movie_category_flag or not self._movie_path:
             return False
         if os.path.isdir(item_path):
             movie_dir = item_path
@@ -938,13 +937,13 @@ class FileTransfer:
             return None
         if meta_info.type == MediaType.MOVIE:
             dir_name, _ = self.get_moive_dest_path(meta_info)
-            if self.__movie_category_flag:
+            if self._movie_category_flag:
                 return os.path.join(dest, meta_info.category, dir_name)
             else:
                 return os.path.join(dest, dir_name)
         else:
             dir_name, season_name, _ = self.get_tv_dest_path(meta_info)
-            if self.__tv_category_flag:
+            if self._tv_category_flag:
                 return os.path.join(dest, meta_info.category, dir_name, season_name)
             else:
                 return os.path.join(dest, dir_name, season_name)
@@ -960,12 +959,12 @@ class FileTransfer:
         # 电影
         if meta_info.type == MediaType.MOVIE:
             dir_name, _ = self.get_moive_dest_path(meta_info)
-            for dest_path in self.__movie_path:
+            for dest_path in self._movie_path:
                 # 判断精选
                 fav_path = os.path.join(dest_path, RMT_FAVTYPE, dir_name)
                 fav_files = PathUtils.get_dir_files(fav_path, RMT_MEDIAEXT)
                 # 其它分类
-                if self.__movie_category_flag:
+                if self._movie_category_flag:
                     dest_path = os.path.join(dest_path, meta_info.category, dir_name)
                 else:
                     dest_path = os.path.join(dest_path, dir_name)
@@ -979,11 +978,11 @@ class FileTransfer:
             if not season or not total_num:
                 return []
             if meta_info.type == MediaType.ANIME:
-                dest_paths = self.__anime_path
-                category_flag = self.__anime_category_flag
+                dest_paths = self._anime_path
+                category_flag = self._anime_category_flag
             else:
-                dest_paths = self.__tv_path
-                category_flag = self.__tv_category_flag
+                dest_paths = self._tv_path
+                category_flag = self._tv_category_flag
             # 总需要的集
             total_episodes = [episode for episode in range(1, total_num + 1)]
             # 已存在的集
@@ -1018,11 +1017,11 @@ class FileTransfer:
         if not mtype:
             return None
         if mtype == MediaType.MOVIE:
-            dest_paths = self.__movie_path
+            dest_paths = self._movie_path
         elif mtype == MediaType.TV:
-            dest_paths = self.__tv_path
+            dest_paths = self._tv_path
         else:
-            dest_paths = self.__anime_path
+            dest_paths = self._anime_path
         if not dest_paths:
             return None
         if not isinstance(dest_paths, list):
@@ -1059,12 +1058,12 @@ class FileTransfer:
         查找最合适的unknown目录
         :param in_path: 源目录
         """
-        if not self.__unknown_path:
+        if not self._unknown_path:
             return None
-        for unknown_path in self.__unknown_path:
+        for unknown_path in self._unknown_path:
             if os.path.commonpath([in_path, unknown_path]) not in ["/", "\\"]:
                 return unknown_path
-        return self.__unknown_path[0]
+        return self._unknown_path[0]
 
     def link_sync_files(self, src_path, in_file, target_dir, sync_transfer_mode):
         """
@@ -1114,8 +1113,8 @@ class FileTransfer:
         :return: 电影目录、电影名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self.__movie_dir_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self.__movie_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*None", "", self._movie_dir_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*None", "", self._movie_file_rmt_format.format(**format_dict))
         return dir_name, file_name
 
     def get_tv_dest_path(self, media_info):
@@ -1124,9 +1123,9 @@ class FileTransfer:
         :return: 电视剧目录、季目录、集名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self.__tv_dir_rmt_format.format(**format_dict))
-        season_name = re.sub(r"[-_\s.]*None", "", self.__tv_season_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self.__tv_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*None", "", self._tv_dir_rmt_format.format(**format_dict))
+        season_name = re.sub(r"[-_\s.]*None", "", self._tv_season_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*None", "", self._tv_file_rmt_format.format(**format_dict))
         return dir_name, season_name, file_name
 
 

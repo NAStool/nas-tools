@@ -8,7 +8,7 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils, SystemUtils
-from config import Config, DEFAULT_UA
+from config import CONFIG, DEFAULT_UA
 from feapder.utils.tools import urlencode
 from jinja2 import Template
 from pyquery import PyQuery
@@ -74,9 +74,9 @@ class TorrentSpider(feapder.AirSpider):
                             "User-Agent": f"{indexer.ua}"}
         else:
             self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                            "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
-        if indexer.proxy and Config().get_proxies():
-            self.proxies = Config().get_proxies()
+                            "User-Agent": f"{CONFIG.get_config('app').get('user_agent') or DEFAULT_UA}"}
+        if indexer.proxy and CONFIG.get_proxies():
+            self.proxies = CONFIG.get_proxies()
             self.__custom_setting__['WEBDRIVER']['proxy'] = self.proxies.get("http") or None
         else:
             self.proxies = None

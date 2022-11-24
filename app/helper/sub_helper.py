@@ -5,7 +5,7 @@ from pyquery import PyQuery
 
 import log
 from app.helper import ChromeHelper, CHROME_LOCK
-from config import Config
+from config import CONFIG
 
 
 class SubHelper:
@@ -15,7 +15,7 @@ class SubHelper:
     _url_keyword = "https://www.opensubtitles.org/zh/search/moviename-%s/sublanguageid-chi"
 
     def __init__(self):
-        self._ua = Config().get_ua()
+        self._ua = CONFIG.get_ua()
 
     def search_subtitles(self, query):
         if query.get("imdbid"):

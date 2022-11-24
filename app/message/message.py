@@ -4,7 +4,7 @@ from enum import Enum
 
 import log
 from app.utils.commons import singleton
-from config import Config
+from config import CONFIG
 from app.helper import DbHelper
 from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
 from app.utils import StringUtils
@@ -49,7 +49,7 @@ class Message:
     def __init__(self):
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
-        self._domain = Config().get_domain()
+        self._domain = CONFIG.get_domain()
         self.init_config()
 
     def init_config(self):
@@ -115,7 +115,7 @@ class Message:
         """
         获取Emby/Jellyfin不通知的设备清单
         """
-        return self.__webhook_ignore or []
+        return self._webhook_ignore or []
 
     def __sendmsg(self, client, title, text="", image="", url="", user_id=""):
         """

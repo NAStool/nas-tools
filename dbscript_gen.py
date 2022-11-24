@@ -1,11 +1,10 @@
 import os
-from config import Config
+from config import CONFIG
 from alembic.config import Config as alembic_config
 from alembic.command import revision as alembic_revision
 
 db_version = input("请输入版本号：")
-config = Config()
-db_location = os.path.join(config.get_config_path(), 'user.db').replace('\\', '/')
+db_location = os.path.join(CONFIG.get_config_path(), 'user.db').replace('\\', '/')
 script_location = os.path.join(os.path.dirname(__file__), 'db_scripts').replace('\\', '/')
 alembic_cfg = alembic_config()
 alembic_cfg.set_main_option('script_location', script_location)

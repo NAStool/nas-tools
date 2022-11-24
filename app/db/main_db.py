@@ -5,12 +5,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
 from app.db.models import Base
-from config import Config
+from config import CONFIG
 from app.utils import PathUtils
 
 lock = threading.Lock()
 _Engine = create_engine(
-    f"sqlite:///{os.path.join(Config().get_config_path(), 'user.db')}?check_same_thread=False",
+    f"sqlite:///{os.path.join(CONFIG.get_config_path(), 'user.db')}?check_same_thread=False",
     echo=False,
     poolclass=QueuePool,
     pool_pre_ping=True,
@@ -38,9 +38,9 @@ class MainDb:
         """
         读取config目录下的sql文件，并初始化到数据库，只处理一次
         """
-        config = Config().get_config()
-        init_files = Config().get_config("app").get("init_files") or []
-        config_dir = os.path.join(Config().get_root_path(), "config")
+        config = CONFIG.get_config()
+        init_files = CONFIG.get_config("app").get("init_files") or []
+        config_dir = os.path.join(CONFIG.get_root_path(), "config")
         sql_files = PathUtils.get_dir_level1_files(in_path=config_dir, exts=".sql")
         config_flag = False
         for sql_file in sql_files:
@@ -54,7 +54,7 @@ class MainDb:
                 init_files.append(os.path.basename(sql_file))
         if config_flag:
             config['app']['init_files'] = init_files
-            Config().save_config(config)
+            CONFIG.save_config(config)
 
     def insert(self, data):
         """

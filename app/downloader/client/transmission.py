@@ -5,7 +5,7 @@ import transmission_rpc
 
 import log
 from app.utils.types import DownloaderType
-from config import Config
+from config import CONFIG
 from app.downloader.client.client import IDownloadClient
 
 
@@ -20,8 +20,7 @@ class Transmission(IDownloadClient):
 
     def get_config(self):
         # 读取配置文件
-        config = Config()
-        transmission = config.get_config('transmission')
+        transmission = CONFIG.get_config('transmission')
         if transmission:
             self.host = transmission.get('trhost')
             self.port = int(transmission.get('trport')) if str(transmission.get('trport')).isdigit() else 0

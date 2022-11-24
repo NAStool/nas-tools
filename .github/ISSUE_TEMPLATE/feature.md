@@ -3,9 +3,9 @@ name: 功能需求模板
 about: 如有新功能需要需要提交，请按此模板创建issues
 ---
 
-## 你使用的 NASTool 是什么版本，什么环境？
+## 你使用的 NAStool 是什么版本，什么环境？
 
-> NASTool 版本: vx.x.x
+> NAStool 版本: vx.x.x
 >
 > 环境: docker or windows or synology
 

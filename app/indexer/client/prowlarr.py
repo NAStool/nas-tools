@@ -1,5 +1,5 @@
 from app.utils.types import IndexerType
-from config import Config
+from config import CONFIG
 from app.indexer.indexer import IIndexer
 from app.utils import RequestUtils
 from app.helper import IndexerConf
@@ -9,8 +9,7 @@ class Prowlarr(IIndexer):
     index_type = IndexerType.PROWLARR.value
 
     def init_config(self):
-        config = Config()
-        prowlarr = config.get_config('prowlarr')
+        prowlarr = CONFIG.get_config('prowlarr')
         if prowlarr:
             self.api_key = prowlarr.get('api_key')
             self.host = prowlarr.get('host')

@@ -3,9 +3,9 @@ name: 问题模板
 about: 如发现Bug，请按此模板提交issues，不按模板提交的问题将直接关闭
 ---
 
-## 你使用的 NASTool 是什么版本，什么环境？
+## 你使用的 NAStool 是什么版本，什么环境？
 
-> NASTool 版本: vx.x.x
+> NAStool 版本: vx.x.x
 >
 > 环境: docker or windows or Synology
 >

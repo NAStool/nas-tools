@@ -16,7 +16,7 @@
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NASTool">
+  <meta name="apple-mobile-web-app-title" content="NAStool">
   <meta name="description" content="NAS媒体库资源归集整理自动化工具">
   <meta name="format-detection" content="telephone=no">
   <meta name="referrer" content="never">
@@ -25,7 +25,7 @@
   <meta name="theme-color" content="#1e293b"/>
   <meta name="HandheldFriendly" content="True"/>
   <meta name="MobileOptimized" content="320"/>
-  <title>NASTool - 资源归集、整理自动化工具</title>
+  <title>NAStool - 资源归集、整理自动化工具</title>
   <!-- CSS files -->
   <link href="../static/css/font-awesome.min.css" rel="stylesheet">
   <link href="../static/css/tabler.min.css" rel="stylesheet"/>
@@ -109,7 +109,7 @@
       </button>
       <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
         <a href="javascript:ScrollToTop()">
-          <img src="../static/img/logo-blue.png" height="48" alt="NASTool" class="navbar-brand-image">
+          <img src="../static/img/logo-blue.png" height="48" alt="NAStool" class="navbar-brand-image">
         </a>
       </h1>
       <div class="navbar-nav flex-row d-lg-none">
@@ -616,7 +616,7 @@
             <ul class="list-inline list-inline-dots mb-0">
               <li class="list-inline-item">
                 Copyright &copy; 2022
-                <a href="." class="link-secondary">NASTool</a>.
+                <a href="." class="link-secondary">NAStool</a>.
                 All rights reserved.
               </li>
               <li class="list-inline-item">
@@ -2519,7 +2519,7 @@
     CURRENT_PAGE_URI = page;
     $("#page_content").load(page, {}, function (response, status, xhr) {
       hide_wait_process();
-      if ($("#page_content").find("title").first().text() == "登录 - NASTool") {
+      if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
         window.location.reload();
       } else {
         fresh_tooltip();

@@ -3,10 +3,9 @@ import re
 import datetime
 from urllib.parse import quote
 
-import log
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
-from config import Config
+from config import CONFIG
 
 
 class Torrent:
@@ -14,7 +13,7 @@ class Torrent:
     _torrent_path = None
 
     def __init__(self):
-        self._torrent_path = os.path.join(Config().get_config_path(), "temp")
+        self._torrent_path = os.path.join(CONFIG.get_config_path(), "temp")
         if not os.path.exists(self._torrent_path):
             os.makedirs(self._torrent_path)
 

@@ -1,7 +1,7 @@
 import requests
 
 from app.utils.types import IndexerType
-from config import Config
+from config import CONFIG
 from app.indexer.indexer import IIndexer
 from app.utils import RequestUtils
 from app.helper import IndexerConf
@@ -12,8 +12,7 @@ class Jackett(IIndexer):
     _password = None
 
     def init_config(self):
-        config = Config()
-        jackett = config.get_config('jackett')
+        jackett = CONFIG.get_config('jackett')
         if jackett:
             self.api_key = jackett.get('api_key')
             self._password = jackett.get('password')

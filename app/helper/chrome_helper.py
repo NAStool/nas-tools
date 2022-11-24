@@ -124,7 +124,7 @@ class ChromeWithPrefs(uc.Chrome):
                 (undot_key(key, value) for key, value in prefs.items()),
             )
 
-            # create an user_data_dir and add its path to the options
+            # create a user_data_dir and add its path to the options
             user_data_dir = os.path.normpath(tempfile.mkdtemp())
             options.add_argument(f"--user-data-dir={user_data_dir}")
 
