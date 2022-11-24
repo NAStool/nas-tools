@@ -115,7 +115,7 @@ class Message:
         """
         获取Emby/Jellyfin不通知的设备清单
         """
-        return self.__webhook_ignore or []
+        return self._webhook_ignore or []
 
     def __sendmsg(self, client, title, text="", image="", url="", user_id=""):
         """
