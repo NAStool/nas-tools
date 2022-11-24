@@ -21,7 +21,7 @@ from app.db.init import init_db, update_db
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper, IndexerHelper
-from app.helper.config_helper import update_config, check_config
+from check_config import update_config, check_config
 from app.indexer import BuiltinIndexer
 from app.media import MetaInfo
 from app.mediaserver import WebhookEvent
