@@ -158,7 +158,7 @@
               <div class="datagrid-title">包含</div>
               <div class="datagrid-content">
                 {% if Task.include %}
-                <span class="badge badge-outline text-green me-2">{{ Task.include }}</span>
+                <span class="badge badge-outline text-green me-2 text-wrap text-start">{{ Task.include }}</span>
                 {% endif %}
               </div>
             </div>
@@ -166,7 +166,7 @@
               <div class="datagrid-title">排除</div>
               <div class="datagrid-content">
                 {% if Task.exclude %}
-                <span class="badge badge-outline text-red me-2">{{ Task.exclude }}</span>
+                <span class="badge badge-outline text-red me-2 text-wrap text-start">{{ Task.exclude }}</span>
                 {% endif %}
               </div>
             </div>

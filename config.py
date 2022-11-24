@@ -124,7 +124,6 @@ class Config(object):
     def __init__(self):
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         os.environ['TZ'] = 'Asia/Shanghai'
-        print("配置文件地址：%s" % self._config_path)
         self.init_config()
 
     def init_config(self):
@@ -140,7 +139,7 @@ class Config(object):
             with open(self._config_path, mode='r', encoding='utf-8') as cf:
                 try:
                     # 读取配置
-                    print("正在加载配置...")
+                    print("正在加载配置：%s" % self._config_path)
                     self._config = ruamel.yaml.YAML().load(cf)
                 except Exception as e:
                     print("【Config】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))

@@ -1689,8 +1689,13 @@ class WebAction:
                 episode_events.append({
                     "type": "剧集",
                     "title": "%s 第%s季第%s集" % (
-                        name, season, episode.get("episode_number")) if season != 1 else "%s 第%s集" % (
-                        name, episode.get("episode_number")),
+                        name,
+                        season,
+                        episode.get("episode_number")
+                    ) if season != 1 else "%s 第%s集" % (
+                        name,
+                        episode.get("episode_number")
+                    ),
                     "start": episode.get("air_date"),
                     "id": tid,
                     "year": year,
@@ -2285,12 +2290,12 @@ class WebAction:
             rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="下载限速">下载限速: %sB/s</span>'
                               % StringUtils.str_filesize(int(rules.get("downspeed")) * 1024))
         if rules.get("include"):
-            rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: %s</span>'
+            rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1 text-wrap text-start" title="包含规则">包含: %s</span>'
                               % rules.get("include"))
         if rules.get("hr"):
             rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除HR">排除: HR</span>')
         if rules.get("exclude"):
-            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: %s</span>'
+            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start" title="排除规则">排除: %s</span>'
                               % rules.get("exclude"))
         if rules.get("dlcount"):
             rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
