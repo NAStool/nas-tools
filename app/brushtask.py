@@ -99,7 +99,11 @@ class BrushTask(object):
             sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, task.SITE)
             forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
-            scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+            if site_info:
+                scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+                site_url = "%s://%s" % (scheme, netloc)
+            else:
+                site_url = ""
             downloader_info = self.get_downloader_info(task.DOWNLOADER)
             _brush_tasks.append({
                 "id": task.ID,
@@ -125,7 +129,7 @@ class BrushTask(object):
                 "download_size": StringUtils.str_filesize(task.DOWNLOAD_SIZE),
                 "upload_size": StringUtils.str_filesize(task.UPLOAD_SIZE),
                 "lst_mod_date": task.LST_MOD_DATE,
-                "site_url": "%s://%s" % (scheme, netloc)
+                "site_url": site_url
             })
         if taskid:
             for task in _brush_tasks:
