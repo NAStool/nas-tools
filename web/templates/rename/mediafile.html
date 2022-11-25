@@ -98,6 +98,29 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-find-links-dir" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">硬链接查询</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">查找目录</label>
+          <div class="row mb-3">
+            <input type="text" value="" id="find_links_dir" class="form-control filetree-folders-only" placeholder="选择路径">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="find_links_dir_btn" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal modal-blur fade" id="modal-hardlinks" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -273,9 +296,9 @@
   }
 
   // 查询硬链接
-  function find_hardlinks(files) {
+  function find_hardlinks(files, dir) {
     show_wait_process();
-    ajax_post("find_hardlinks", {files: files}, function (ret) {
+    ajax_post("find_hardlinks", {files: files, dir: dir}, function (ret) {
       hide_wait_process();
       $("#table-hardlinks").empty();
       if (ret.code === 0) {
@@ -333,13 +356,29 @@
       return;
     }
     files = JSON.parse(files)
-    find_hardlinks(files);
+    show_findlinks_modal(files);
   }
 
   // 查询硬链接
   function mediafile_findlinks(name, id) {
     let file = $(`#mediafilepath_${id}`).val();
-    find_hardlinks([file]);
+    show_findlinks_modal([file]);
+  }
+
+  // 显示查询目录范围对话框
+  function show_findlinks_modal(files) {
+    $("#find_links_dir_btn").unbind("click").click(function(){
+      let dir = $("#find_links_dir").val();
+      if (!dir) {
+        $("#find_links_dir").addClass("is-invalid");
+        return;
+      }else{
+        $("#find_links_dir").removeClass("is-invalid");
+      }
+      $("#modal-find-links-dir").modal("hide");
+      find_hardlinks(files, dir);
+    });
+    $("#modal-find-links-dir").modal("show");
   }
 
     // 获取选中按钮

@@ -3841,11 +3841,10 @@ class WebAction:
     @staticmethod
     def __find_hardlinks(data):
         files = data.get("files")
+        file_dir = data.get("dir")
         if not files:
             return []
-        if os.name == "nt":
-            file_dir = None
-        else:
+        if not file_dir and os.name != "nt":
             # 取根目录下一级为查找目录
             file_dir = os.path.commonpath(files).replace("\\", "/")
             if file_dir != "/":
