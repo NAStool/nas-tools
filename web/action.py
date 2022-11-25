@@ -3581,6 +3581,7 @@ class WebAction:
                 if not os.path.isdir(d):
                     d = os.path.dirname(d)
                 dirs = [os.path.join(d, f) for f in os.listdir(d)]
+            dirs.sort()
             for ff in dirs:
                 if os.path.isdir(ff):
                     if 'ONLYDIR' in ft or 'ALL' in ft:
@@ -3840,11 +3841,10 @@ class WebAction:
     @staticmethod
     def __find_hardlinks(data):
         files = data.get("files")
+        file_dir = data.get("dir")
         if not files:
             return []
-        if os.name == "nt":
-            file_dir = None
-        else:
+        if not file_dir and os.name != "nt":
             # 取根目录下一级为查找目录
             file_dir = os.path.commonpath(files).replace("\\", "/")
             if file_dir != "/":

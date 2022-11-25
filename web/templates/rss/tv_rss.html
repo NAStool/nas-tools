@@ -85,8 +85,10 @@
                   {% elif Attr.state == 'S' %}
                     <span class="badge bg-orange"></span>  正在搜索
                   {% elif Attr.state == 'R' %}
-                    <span class="badge bg-green"></span>  正在订阅 {% if (Attr.total or -1) > 0 %}(
-                    {{ (Attr.total or -1) - (Attr.lack or -1) }}/{{ (Attr.total or -1) }}){% endif %}
+                    <span class="badge bg-green"></span>  正在订阅
+                    {% if (Attr.total or -1) > 0 %}
+                      ({{ (Attr.total or -1) - (Attr.lack or -1) }}/{{ (Attr.total or -1) }})
+                    {% endif %}
                   {% else %}
                     <span class="badge bg-blue"></span>  完成
                   {% endif %}
