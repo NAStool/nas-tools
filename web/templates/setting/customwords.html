@@ -839,7 +839,7 @@
     }
 
     // 新增/编辑自屏蔽词
-    function add_or_edit_custom_word(group_type) {
+    function add_or_edit_custom_word() {
       $("#custom_word_regex").removeAttr("disabled", "disabled");
       var id = $("#custom_word_id").val();
       var gid = $("#group_id").val();
@@ -932,7 +932,7 @@
         }
         var enabled = $("#custom_word_enabled_1").val();
       }
-      custom_word = {
+      let custom_word = {
         id: id,
         gid: gid,
         group_type: group_type,
