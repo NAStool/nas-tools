@@ -999,6 +999,16 @@ class WebAction:
                 # 退出主进程
                 self.shutdown_server()
         else:
+            # 清除git代理
+            os.system("git config --global --unset http.proxy")
+            os.system("git config --global --unset https.proxy")
+            # 设置git代理
+            proxy = CONFIG.get_proxies() or {}
+            http_proxy = proxy.get("http")
+            https_proxy = proxy.get("https")
+            if http_proxy or https_proxy:
+                os.system(f"git config --global http.proxy {http_proxy or https_proxy}")
+                os.system(f"git config --global https.proxy {https_proxy or http_proxy}")
             # 清理
             os.system("git clean -dffx")
             os.system("git reset --hard HEAD")
