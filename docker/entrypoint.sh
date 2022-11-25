@@ -20,6 +20,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
+        # Python依赖包更新
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
         hash_new=$(sha256sum requirements.txt)
         if [ "$hash_old" != "$hash_new" ]; then
@@ -41,22 +42,23 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                     else
                         echo "第三方组件安装成功..."
                         sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
-                        hash_old=$(cat /tmp/package_list.txt.sha256sum)
-                        hash_new=$(sha256sum package_list.txt)
-                        if [ "$hash_old" != "$hash_new" ]; then
-                            echo "检测到package_list.txt有变化，更新软件包..."
-                            apk add --no-cache libffi-dev
-                            apk add --no-cache $(echo $(cat package_list.txt))
-                            if [ $? -ne 0 ]; then
-                                echo "无法更新软件包，请更新镜像..."
-                            else
-                                apk del libffi-dev
-                                echo "软件包安装成功..."
-                                sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
-                            fi
-                        fi
                     fi
                 fi
+            fi
+        fi
+        # 系统软件包更新
+        hash_old=$(cat /tmp/package_list.txt.sha256sum)
+        hash_new=$(sha256sum package_list.txt)
+        if [ "$hash_old" != "$hash_new" ]; then
+            echo "检测到package_list.txt有变化，更新软件包..."
+            apk add --no-cache libffi-dev
+            apk add --no-cache $(echo $(cat package_list.txt))
+            if [ $? -ne 0 ]; then
+                echo "无法更新软件包，请更新镜像..."
+            else
+                apk del libffi-dev
+                echo "软件包安装成功..."
+                sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
             fi
         fi
     else
