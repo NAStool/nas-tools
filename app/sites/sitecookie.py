@@ -160,13 +160,6 @@ class SiteCookie(object):
                     submit_obj.click()
             except Exception as e:
                 return None, None, "仿真登录失败：%s" % str(e)
-            # 判断是否已签到
-            try:
-                WebDriverWait(driver=self.chrome.browser,
-                              timeout=6).until(es.element_to_be_clickable((By.XPATH,
-                                                                           "//a[@href='login.php']")))
-            except Exception as e:
-                return None, None, "仿真登录失败：%s" % str(e)
             # 登录后的源码
             html_text = self.chrome.get_html()
             if not html_text:
