@@ -454,7 +454,7 @@ class Message:
         """
         发送媒体服务器的消息
         """
-        if not title or not text or image:
+        if not title or not text or not image:
             return
         # 发送消息
         for client in self._active_clients:
