@@ -108,7 +108,7 @@ class MetaVideo(MetaBase):
             self.type = MediaType.MOVIE
         # 去掉名字中不需要的干扰字符，过短的纯数字不要
         self.cn_name = self.__fix_name(self.cn_name)
-        self.en_name = self.__fix_name(self.en_name)
+        self.en_name = StringUtils.str_title(self.__fix_name(self.en_name))
         # 处理part
         if self.part and self.part.upper() == "PART":
             self.part = None
