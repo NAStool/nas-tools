@@ -136,7 +136,7 @@ class SiteCookie(object):
                             # 自动OCR识别验证码
                             captcha = self.get_captcha_text(siteurl=url, imageurl=captcha_img_url)
                             if captcha:
-                                log.info("【Sites】验证码识别结果：%s" % captcha)
+                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (captcha_img_url, captcha))
                             else:
                                 return None, None, "验证码识别失败"
                         else:
@@ -213,6 +213,7 @@ class SiteCookie(object):
         for site in sites:
             if not site.get("signurl") and not site.get("rssurl"):
                 log.info("【Sites】%s 未设置地址，跳过" % site.get("name"))
+                continue
             log.info("【Sites】开始更新 %s Cookie和User-Agent ..." % site.get("name"))
             self.progress.update(ptype='sitecookie',
                                  text="开始更新 %s Cookie和User-Agent ..." % site.get("name"))
@@ -228,14 +229,14 @@ class SiteCookie(object):
             curr_num += 1
             if not cookie:
                 log.error("【Sites】获取 %s 信息失败：%s" % (site.get("name"), msg))
-                messages.append("%s 更新失败：%s" % (site.get("name"), msg))
+                messages.append("%s %s" % (site.get("name"), msg))
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
-                                     text="%s 更新失败：%s" % (site.get("name"), msg))
+                                     text="%s %s" % (site.get("name"), msg))
             else:
                 self.dbhelpter.update_site_cookie_ua(site.get("id"), cookie, ua)
                 log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
-                messages.append("%s 更新成功" % site.get("name"))
+                messages.append("%s 更新Cookie和User-Agent成功" % site.get("name"))
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
                                      text="%s 更新Cookie和User-Agent成功" % site.get("name"))
