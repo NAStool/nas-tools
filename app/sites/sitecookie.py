@@ -204,6 +204,8 @@ class SiteCookie(object):
         更新所有站点Cookie和ua
         """
         sites = self.sites.get_sites(siteid=siteid)
+        if siteid:
+            sites = [sites]
         site_num = len(sites)
         self.progress.start('sitecookie')
         messages = []
