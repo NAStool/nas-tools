@@ -752,7 +752,7 @@
         refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
       }
       if (refresh_sitecookie_fail_count < 5) {
-        setTimeout("refresh_sitecookie_process()", 200);
+        setTimeout("refresh_sitecookie_process()", 1000);
       }
     });
   }

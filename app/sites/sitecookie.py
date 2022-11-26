@@ -142,6 +142,7 @@ class SiteCookie(object):
                                 return None, None, "验证码识别失败"
                         else:
                             # 等待用户输入
+                            captcha = None
                             codeurl = self.__get_captcha_url(url, captcha_img_url)
                             for sec in range(30, 0, -1):
                                 if self.get_code(codeurl):
