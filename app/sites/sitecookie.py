@@ -127,9 +127,9 @@ class SiteCookie(object):
                                                                                         submit_xpath)))
                 if submit_obj:
                     # 输入用户名
-                    self.chrome.browser.find_element_by_xpath(username_xpath).send_keys(username)
+                    self.chrome.browser.find_element(By.XPATH, username_xpath).send_keys(username)
                     # 输入密码
-                    self.chrome.browser.find_element_by_xpath(password_xpath).send_keys(password)
+                    self.chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
                     # 识别验证码
                     if captcha_xpath:
                         if ocrflag:
@@ -155,7 +155,7 @@ class SiteCookie(object):
                             if not captcha:
                                 return None, None, "验证码输入超时"
                         # 输入验证码
-                        self.chrome.browser.find_element_by_xpath(captcha_xpath).send_keys(captcha)
+                        self.chrome.browser.find_element(By.XPATH, captcha_xpath).send_keys(captcha)
                     # 提交登录
                     submit_obj.click()
             except Exception as e:
