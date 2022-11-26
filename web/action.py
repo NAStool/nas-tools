@@ -3893,6 +3893,8 @@ class WebAction:
                                                                 username=username,
                                                                 password=password,
                                                                 ocrflag=ocrflag)
+        if retcode == 0:
+            Sites().init_config()
         return {"code": retcode, "messages": messages}
 
     @staticmethod

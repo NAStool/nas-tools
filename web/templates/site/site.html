@@ -432,7 +432,7 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <label class="form-label required">请输入验证码</label>
+          <label class="form-label required">请在 30秒 内输入验证码</label>
           <div class="row mb-3">
             <div class="col-auto">
               <img id="captcha_code_img" src="" alt="">
@@ -605,13 +605,11 @@
       }
     }
 
-    $("#add_or_edit_site_btn").attr("disabled", true);
-    $("#add_or_edit_site_btn").text("处理中...");
+    $("#add_or_edit_site_btn").text("处理中...").attr("disabled", true);
     // 发送请求
     ajax_post("update_site", data, function (ret) {
-      $("#add_or_edit_site_btn").attr("disabled", false);
+      $("#add_or_edit_site_btn").attr("disabled", false).text("新增");
       $("#modal-site").modal("hide");
-      $("#add_or_edit_site_btn").text("新增");
       //刷新页面
       navmenu('site');
     });
@@ -722,6 +720,7 @@
     // 发送请求
     ajax_post("update_sites_cookie_ua", { siteid: siteid, username: username, password: password, ocrflag: ocrflag }, function (ret) {
       refresh_sitecookie_process_flag = false;
+      $("#sitecookie_process_bar").attr("style", "width: 100%").attr("aria-valuenow", 100);
       $("#sitecookie_action_btn").attr("disabled", false).text("开始更新");
       if (ret.code === 0) {
         $("#cookieua_result").removeClass().addClass("alert alert-success").text(ret.messages);
