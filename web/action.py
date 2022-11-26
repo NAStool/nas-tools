@@ -35,6 +35,7 @@ from app.scheduler import Scheduler
 from app.scheduler import restart_scheduler, stop_scheduler
 from app.searcher import Searcher
 from app.sites import Sites
+from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync
@@ -182,7 +183,9 @@ class WebAction:
             "get_sites": self.__get_sites,
             "get_indexers": self.__get_indexers,
             "get_download_dirs": self.__get_download_dirs,
-            "find_hardlinks": self.__find_hardlinks
+            "find_hardlinks": self.__find_hardlinks,
+            "update_sites_cookie_ua": self.__update_sites_cookie_ua,
+            "set_site_captcha_code": self.__set_site_captcha_code
         }
 
     def action(self, cmd, data=None):
@@ -3876,3 +3879,24 @@ class WebAction:
                 print(str(e))
                 return {"code": 1}
         return {"code": 0, "data": hardlinks}
+
+    @staticmethod
+    def __update_sites_cookie_ua(data):
+        """
+        更新所有站点的Cookie和UA
+        """
+        siteid = data.get("siteid")
+        username = data.get("username")
+        password = data.get("password")
+        messages = SiteCookie().update_sites_cookie_ua(siteid=siteid, username=username, password=password)
+        return {"code": 0, "messages": messages}
+
+    @staticmethod
+    def __set_site_captcha_code(data):
+        """
+        设置站点验证码
+        """
+        code = data.get("code")
+        value = data.get("value")
+        SiteCookie().set_code(code=code, value=value)
+        return {"code": 0}

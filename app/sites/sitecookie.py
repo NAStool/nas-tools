@@ -10,20 +10,42 @@ from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK
 from app.helper.ocr_helper import OcrHelper
 from app.sites import Sites
 from app.utils import StringUtils
+from app.utils.commons import singleton
 from config import SITE_LOGIN_XPATH
 
 
+@singleton
 class SiteCookie(object):
     chrome = None
     progress = None
     sites = None
     ocrhelper = None
+    captcha_code = {}
+
+    # 使用OCR识别的开关
+    _ocrflag = False
 
     def __init__(self):
         self.chrome = ChromeHelper()
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.ocrhelper = OcrHelper()
+        self.init_config()
+
+    def init_config(self):
+        self.captcha_code = {}
+
+    def set_code(self, code, value):
+        """
+        设置验证码的值
+        """
+        self.captcha_code[code] = value
+
+    def get_code(self, code):
+        """
+        获取验证码的值
+        """
+        return self.captcha_code.get(code)
 
     def get_site_cookie_ua(self, url, username, password):
         """
@@ -36,7 +58,7 @@ class SiteCookie(object):
         if not url or not username or not password:
             return None, None, "参数错误"
         if not self.chrome.get_status():
-            return None, None, "需要浏览器内核才能获取站点Cookie和User-Agent"
+            return None, None, "需要浏览器内核"
         # 登录页面
         with CHROME_LOCK:
             try:
@@ -82,12 +104,12 @@ class SiteCookie(object):
                     break
             if captcha_xpath:
                 # 查找验证码图片
-                captcha_img_xpath = None
+                captcha_img_url = None
                 for xpath in SITE_LOGIN_XPATH.get("captcha_img"):
                     if html.xpath(xpath):
-                        captcha_img_xpath = xpath[0]
+                        captcha_img_url = html.xpath(xpath)[0]
                         break
-                if not captcha_img_xpath:
+                if not captcha_img_url:
                     return None, None, "未找到验证码图片"
             # 查找登录按钮
             submit_xpath = None
@@ -109,12 +131,28 @@ class SiteCookie(object):
                     self.chrome.browser.find_element_by_xpath(password_xpath).send_keys(password)
                     # 识别验证码
                     if captcha_xpath:
-                        captcha = self.get_captcha_text(siteurl=url, imageurl=html.xpath(captcha_img_xpath)[0])
-                        if captcha:
-                            log.info("【Sites】验证码识别结果：%s" % captcha)
-                            self.chrome.browser.find_element_by_xpath(captcha_xpath).send_keys(captcha)
+                        if self._ocrflag:
+                            # 自动OCR识别验证码
+                            captcha = self.get_captcha_text(siteurl=url, imageurl=captcha_img_url)
+                            if captcha:
+                                log.info("【Sites】验证码识别结果：%s" % captcha)
+                            else:
+                                return None, None, "验证码识别失败"
                         else:
-                            return None, None, "验证码识别失败"
+                            # 等待用户输入
+                            codeurl = self.__get_captcha_url(url, captcha_img_url)
+                            for sec in range(30, 0, -1):
+                                if self.get_code(codeurl):
+                                    # 用户输入了
+                                    captcha = self.get_code(codeurl)
+                                    log.info("【Sites】接收到验证码：%s" % captcha)
+                                    break
+                                else:
+                                    self.progress.update(ptype='sitecookie',
+                                                         text=f"{codeurl}|等待输入验证码，倒计时 %s 秒 ..." % sec)
+                                    time.sleep(1)
+                            if not captcha:
+                                return None, None, "验证码输入超时"
                         # 输入验证码
                         self.chrome.browser.find_element_by_xpath(captcha_xpath).send_keys(captcha)
                     # 提交登录
@@ -148,43 +186,52 @@ class SiteCookie(object):
         """
         if not siteurl or not imageurl:
             return ""
-        scheme, netloc = StringUtils.get_url_netloc(siteurl)
-        return self.ocrhelper.get_captcha_text(image_url="%s://%s/%s" % (scheme, netloc, imageurl))
+        return self.ocrhelper.get_captcha_text(image_url=self.__get_captcha_url(siteurl, imageurl))
 
-    def update_sites_cookie_ua(self, username, password):
+    @staticmethod
+    def __get_captcha_url(siteurl, imageurl):
+        """
+        获取验证码图片的URL
+        """
+        if not siteurl or not imageurl:
+            return ""
+        scheme, netloc = StringUtils.get_url_netloc(siteurl)
+        return "%s://%s/%s" % (scheme, netloc, imageurl)
+
+    def update_sites_cookie_ua(self, username, password, siteid=None):
         """
         更新所有站点Cookie和ua
         """
-        sites = self.sites.get_sites()
+        sites = self.sites.get_sites(siteid=siteid)
         site_num = len(sites)
         self.progress.start('sitecookie')
         messages = []
         curr_num = 0
         for site in sites:
             if not site.get("signurl") and not site.get("rssurl"):
-                log.info("【Sites】站点【%s】未设置站点地址，跳过" % site.get("name"))
-            log.info("【Sites】开始更新站点 %s 的Cookie和User-Agent ..." % site.get("name"))
+                log.info("【Sites】%s 未设置地址，跳过" % site.get("name"))
+            log.info("【Sites】开始更新 %s Cookie和User-Agent ..." % site.get("name"))
             self.progress.update(ptype='sitecookie',
-                                 text="开始更新站点 %s 的Cookie和User-Agent ..." % site.get("name"))
+                                 text="开始更新 %s Cookie和User-Agent ..." % site.get("name"))
             # 登录页面地址
             scheme, netloc = StringUtils.get_url_netloc(site.get("signurl") or site.get("rssurl"))
             login_url = "%s://%s/login.php" % (scheme, netloc)
-            # 获取站点Cookie和User-Agent
+            # 获取Cookie和User-Agent
             cookie, ua, msg = self.get_site_cookie_ua(login_url, username, password)
             # 更新进度
             curr_num += 1
             if not cookie:
-                log.error("【Sites】获取站点 %s 的Cookie和User-Agent失败：%s" % (site.get("name"), msg))
+                log.error("【Sites】获取 %s 信息失败：%s" % (site.get("name"), msg))
                 messages.append("%s 更新失败：%s" % (site.get("name"), msg))
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
-                                     text="获取站点 %s 的Cookie和User-Agent失败：%s" % (site.get("name"), msg))
+                                     text="%s 更新失败：%s" % (site.get("name"), msg))
             else:
                 self.sites.update_site_cookie_ua(site.get("id"), cookie, ua)
-                log.info("【Sites】更新站点 %s 的Cookie和User-Agent成功" % site.get("name"))
+                log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
                 messages.append("%s 更新成功")
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
-                                     text="更新站点 %s 的Cookie和User-Agent成功" % site.get("name"))
+                                     text="%s 更新Cookie和User-Agent成功" % site.get("name"))
         self.progress.end('sitecookie')
         return messages

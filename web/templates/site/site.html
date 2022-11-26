@@ -72,6 +72,14 @@
                   <line x1="16" y1="5" x2="19" y2="8" />
                 </svg>
               </a>
+              <a href="javascript:update_site_cookie_ua('{{ Site.id }}')" class="btn-action" title="更新站点Cookie和UA">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh-dot" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                   <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                   <circle cx="12" cy="12" r="1"></circle>
+                </svg>
+              </a>
               <a href="javascript:remove_site('{{ Site.name }}', '{{ Site.id }}')" class="btn-action" title="删除站点">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -593,6 +601,11 @@
         $(`#sitetest_item${siteid}_msg`).html(`<span class="text-muted">${ret.msg}</span>`);
       }
     });
+  }
+
+  // 更新站点Cookie和UA
+  function update_site_cookie_ua(siteid){
+
   }
 
   // 站点测试按钮
