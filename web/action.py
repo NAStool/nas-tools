@@ -3889,11 +3889,11 @@ class WebAction:
         username = data.get("username")
         password = data.get("password")
         ocrflag = data.get("ocrflag")
-        messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
-                                                       username=username,
-                                                       password=password,
-                                                       ocrflag=ocrflag)
-        return {"code": 0, "messages": messages}
+        retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
+                                                                username=username,
+                                                                password=password,
+                                                                ocrflag=ocrflag)
+        return {"code": retcode, "messages": messages}
 
     @staticmethod
     def __set_site_captcha_code(data):

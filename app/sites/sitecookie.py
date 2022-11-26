@@ -59,7 +59,7 @@ class SiteCookie(object):
         if not url or not username or not password:
             return None, None, "参数错误"
         if not self.chrome.get_status():
-            return None, None, "需要浏览器内核"
+            return None, None, "需要浏览器内核才能更新站点信息"
         # 登录页面
         with CHROME_LOCK:
             try:
@@ -161,6 +161,13 @@ class SiteCookie(object):
             except Exception as e:
                 return None, None, "仿真登录失败：%s" % str(e)
             # 判断是否已签到
+            try:
+                WebDriverWait(driver=self.chrome.browser,
+                              timeout=6).until(es.element_to_be_clickable((By.XPATH,
+                                                                           "//a[@href='login.php']")))
+            except Exception as e:
+                return None, None, "仿真登录失败：%s" % str(e)
+            # 登录后的源码
             html_text = self.chrome.get_html()
             if not html_text:
                 return None, None, "获取源码失败"
@@ -178,7 +185,7 @@ class SiteCookie(object):
                 if not error_xpath:
                     return None, None, "登录失败"
                 else:
-                    error_msg = str(html.xpath(error_xpath)[0]).split("\n")[0]
+                    error_msg = html.xpath(error_xpath)[0]
                     return None, None, error_msg
 
     def get_captcha_text(self, siteurl, imageurl):
@@ -210,6 +217,7 @@ class SiteCookie(object):
         self.progress.start('sitecookie')
         messages = []
         curr_num = 0
+        retcode = 0
         for site in sites:
             if not site.get("signurl") and not site.get("rssurl"):
                 log.info("【Sites】%s 未设置地址，跳过" % site.get("name"))
@@ -233,6 +241,7 @@ class SiteCookie(object):
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
                                      text="%s %s" % (site.get("name"), msg))
+                retcode = 1
             else:
                 self.dbhelpter.update_site_cookie_ua(site.get("id"), cookie, ua)
                 log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
@@ -241,4 +250,4 @@ class SiteCookie(object):
                                      value=round(100 * (curr_num / site_num)),
                                      text="%s 更新Cookie和User-Agent成功" % site.get("name"))
         self.progress.end('sitecookie')
-        return messages
+        return retcode, messages
