@@ -304,7 +304,7 @@ class Sites:
                 html_text = chrome.get_html()
                 if not html_text:
                     return False, "获取站点源码失败", 0
-                if self.__is_signin_success(html_text):
+                if self.is_signin_success(html_text):
                     return True, "连接成功", seconds
                 else:
                     return False, "Cookie失效", seconds
@@ -318,7 +318,7 @@ class Sites:
                                ).get_res(url=site_url)
             seconds = int((datetime.now() - start_time).microseconds / 1000)
             if res and res.status_code == 200:
-                if not self.__is_signin_success(res.text):
+                if not self.is_signin_success(res.text):
                     return False, "Cookie失效", seconds
                 else:
                     return True, "连接成功", seconds
@@ -387,7 +387,7 @@ class Sites:
                             status.append("【%s】今日已签到" % site)
                             continue
                         if not xpath_str:
-                            if self.__is_signin_success(html_text):
+                            if self.is_signin_success(html_text):
                                 log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
                                 status.append("【%s】模拟登录成功" % site)
                             else:
@@ -420,7 +420,7 @@ class Sites:
                                        proxies=proxies
                                        ).get_res(url=site_url)
                     if res and res.status_code == 200:
-                        if not self.__is_signin_success(res.text):
+                        if not self.is_signin_success(res.text):
                             log.warn(f"【Sites】{site} {checkin_text}失败，请检查cookie")
                             status.append(f"【{site}】{checkin_text}失败，请检查cookie！")
                         else:
@@ -438,7 +438,7 @@ class Sites:
             self.message.send_site_signin_message(status)
 
     @staticmethod
-    def __is_signin_success(html_text):
+    def is_signin_success(html_text):
         """
         检进是否成功进入站点而不是登录界面
         """

@@ -116,6 +116,25 @@ SITE_SUBTITLE_XPATH = [
     '//td[@class="rowhead"][text()="字幕"]/following-sibling::td//a/@href',
 ]
 
+# 站点登录界面元素XPATH
+SITE_LOGIN_XPATH = {
+    "username": [
+        '//input[@name="username"]'
+    ],
+    "password": [
+        '//input[@name="password"]'
+    ],
+    "captcha": [
+        '//input[@name="imagestring"]'
+    ],
+    "captcha_img": [
+        '//img[@alt="CAPTCHA"]/@src'
+    ],
+    "submit": [
+        '//input[@type="submit"]'
+    ]
+}
+
 
 class Config(object):
     _config = {}
