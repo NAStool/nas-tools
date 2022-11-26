@@ -22,8 +22,6 @@ class SiteCookie(object):
     ocrhelper = None
     dbhelpter = None
 
-    # 使用OCR识别的开关
-    _ocrflag = False
     captcha_code = {}
 
     def __init__(self):
@@ -49,12 +47,13 @@ class SiteCookie(object):
         """
         return self.captcha_code.get(code)
 
-    def get_site_cookie_ua(self, url, username, password):
+    def get_site_cookie_ua(self, url, username, password, ocrflag=False):
         """
         获取站点cookie和ua
         :param url: 站点地址
         :param username: 用户名
         :param password: 密码
+        :param ocrflag: 是否开启OCR识别
         :return: cookie、ua、message
         """
         if not url or not username or not password:
@@ -133,7 +132,7 @@ class SiteCookie(object):
                     self.chrome.browser.find_element_by_xpath(password_xpath).send_keys(password)
                     # 识别验证码
                     if captcha_xpath:
-                        if self._ocrflag:
+                        if ocrflag:
                             # 自动OCR识别验证码
                             captcha = self.get_captcha_text(siteurl=url, imageurl=captcha_img_url)
                             if captcha:
@@ -200,7 +199,7 @@ class SiteCookie(object):
         scheme, netloc = StringUtils.get_url_netloc(siteurl)
         return "%s://%s/%s" % (scheme, netloc, imageurl)
 
-    def update_sites_cookie_ua(self, username, password, siteid=None):
+    def update_sites_cookie_ua(self, username, password, siteid=None, ocrflag=False):
         """
         更新所有站点Cookie和ua
         """
@@ -219,7 +218,10 @@ class SiteCookie(object):
             scheme, netloc = StringUtils.get_url_netloc(site.get("signurl") or site.get("rssurl"))
             login_url = "%s://%s/login.php" % (scheme, netloc)
             # 获取Cookie和User-Agent
-            cookie, ua, msg = self.get_site_cookie_ua(login_url, username, password)
+            cookie, ua, msg = self.get_site_cookie_ua(url=login_url,
+                                                      username=username,
+                                                      password=password,
+                                                      ocrflag=ocrflag)
             # 更新进度
             curr_num += 1
             if not cookie:
