@@ -6,7 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
 
 import log
-from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK
+from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
 from app.helper.ocr_helper import OcrHelper
 from app.sites import Sites
 from app.utils import StringUtils
@@ -20,16 +20,18 @@ class SiteCookie(object):
     progress = None
     sites = None
     ocrhelper = None
-    captcha_code = {}
+    dbhelpter = None
 
     # 使用OCR识别的开关
     _ocrflag = False
+    captcha_code = {}
 
     def __init__(self):
         self.chrome = ChromeHelper()
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.ocrhelper = OcrHelper()
+        self.dbhelpter = DbHelper()
         self.init_config()
 
     def init_config(self):
@@ -227,7 +229,7 @@ class SiteCookie(object):
                                      value=round(100 * (curr_num / site_num)),
                                      text="%s 更新失败：%s" % (site.get("name"), msg))
             else:
-                self.sites.update_site_cookie_ua(site.get("id"), cookie, ua)
+                self.dbhelpter.update_site_cookie_ua(site.get("id"), cookie, ua)
                 log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
                 messages.append("%s 更新成功")
                 self.progress.update(ptype='sitecookie',

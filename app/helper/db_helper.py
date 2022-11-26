@@ -469,6 +469,25 @@ class DbHelper:
             }
         )
 
+    @DbPersist(_db)
+    def update_site_cookie_ua(self, tid, cookie, ua):
+        """
+        更新站点Cookie和ua
+        """
+        if not tid:
+            return
+        rec = self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).first()
+        if not rec.NOTE:
+            return
+        note = json.loads(rec.NOTE)
+        note['ua'] = ua
+        self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
+            {
+                "COOKIE": cookie,
+                "NOTE": json.dumps(note)
+            }
+        )
+
     def get_config_filter_group(self, gid=None):
         """
         查询过滤规则组
