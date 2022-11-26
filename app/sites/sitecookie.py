@@ -16,7 +16,6 @@ from config import SITE_LOGIN_XPATH
 
 @singleton
 class SiteCookie(object):
-    chrome = None
     progress = None
     sites = None
     ocrhelper = None
@@ -25,7 +24,6 @@ class SiteCookie(object):
     captcha_code = {}
 
     def __init__(self):
-        self.chrome = ChromeHelper()
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.ocrhelper = OcrHelper()
@@ -47,37 +45,40 @@ class SiteCookie(object):
         """
         return self.captcha_code.get(code)
 
-    def get_site_cookie_ua(self, url, username, password, ocrflag=False):
+    def __get_site_cookie_ua(self, url, username, password, ocrflag=False, chrome=None):
         """
         获取站点cookie和ua
         :param url: 站点地址
         :param username: 用户名
         :param password: 密码
         :param ocrflag: 是否开启OCR识别
+        :param chrome: ChromeHelper
         :return: cookie、ua、message
         """
         if not url or not username or not password:
             return None, None, "参数错误"
-        if not self.chrome.get_status():
-            return None, None, "需要浏览器内核才能更新站点信息"
-        # 登录页面
+        if not chrome:
+            chrome = ChromeHelper()
+            if not chrome.get_status():
+                return None, None, "需要浏览器内核环境才能更新站点信息"
+        # 全局锁
         with CHROME_LOCK:
             try:
-                self.chrome.visit(url=url)
+                chrome.visit(url=url)
             except Exception as err:
                 print(str(err))
                 return None, None, "Chrome模拟访问失败"
             # 循环检测是否过cf
             cloudflare = False
             for i in range(0, 10):
-                if self.chrome.get_title() != "Just a moment...":
+                if chrome.get_title() != "Just a moment...":
                     cloudflare = True
                     break
                 time.sleep(1)
             if not cloudflare:
                 return None, None, "跳转站点失败，无法通过Cloudflare验证"
             # 登录页面代码
-            html_text = self.chrome.get_html()
+            html_text = chrome.get_html()
             if not html_text:
                 return None, None, "获取源码失败"
             # 查找用户名输入框
@@ -122,14 +123,14 @@ class SiteCookie(object):
                 return None, None, "未找到登录按钮"
             # 点击登录按钮
             try:
-                submit_obj = WebDriverWait(driver=self.chrome.browser,
+                submit_obj = WebDriverWait(driver=chrome.browser,
                                            timeout=6).until(es.element_to_be_clickable((By.XPATH,
                                                                                         submit_xpath)))
                 if submit_obj:
                     # 输入用户名
-                    self.chrome.browser.find_element(By.XPATH, username_xpath).send_keys(username)
+                    chrome.browser.find_element(By.XPATH, username_xpath).send_keys(username)
                     # 输入密码
-                    self.chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
+                    chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
                     # 识别验证码
                     if captcha_xpath:
                         if ocrflag:
@@ -155,7 +156,7 @@ class SiteCookie(object):
                             if not captcha:
                                 return None, None, "验证码输入超时"
                         # 输入验证码
-                        self.chrome.browser.find_element(By.XPATH, captcha_xpath).send_keys(captcha)
+                        chrome.browser.find_element(By.XPATH, captcha_xpath).send_keys(captcha)
                     # 提交登录
                     submit_obj.click()
                 else:
@@ -163,12 +164,12 @@ class SiteCookie(object):
             except Exception as e:
                 return None, None, "仿真登录失败：%s" % str(e)
             # 登录后的源码
-            html_text = self.chrome.get_html()
+            html_text = chrome.get_html()
             if not html_text:
                 return None, None, "获取源码失败"
             if self.sites.is_signin_success(html_text):
-                cookie = self.chrome.get_cookies()
-                ua = self.chrome.get_ua()
+                cookie = chrome.get_cookies()
+                ua = chrome.get_ua()
                 return cookie, ua, ""
             else:
                 # 读取错误信息
@@ -205,14 +206,22 @@ class SiteCookie(object):
         """
         更新所有站点Cookie和ua
         """
+        chrome = ChromeHelper()
+        if not chrome.get_status():
+            return -1, ["需要浏览器内核环境才能更新站点信息"]
+        # 获取站点列表
         sites = self.sites.get_sites(siteid=siteid)
         if siteid:
             sites = [sites]
+        # 总数量
         site_num = len(sites)
-        self.progress.start('sitecookie')
-        messages = []
+        # 当前数量
         curr_num = 0
+        # 返回码、返回消息
         retcode = 0
+        messages = []
+        # 开始进度
+        self.progress.start('sitecookie')
         for site in sites:
             if not site.get("signurl") and not site.get("rssurl"):
                 log.info("【Sites】%s 未设置地址，跳过" % site.get("name"))
@@ -224,10 +233,11 @@ class SiteCookie(object):
             scheme, netloc = StringUtils.get_url_netloc(site.get("signurl") or site.get("rssurl"))
             login_url = "%s://%s/login.php" % (scheme, netloc)
             # 获取Cookie和User-Agent
-            cookie, ua, msg = self.get_site_cookie_ua(url=login_url,
-                                                      username=username,
-                                                      password=password,
-                                                      ocrflag=ocrflag)
+            cookie, ua, msg = self.__get_site_cookie_ua(url=login_url,
+                                                        username=username,
+                                                        password=password,
+                                                        ocrflag=ocrflag,
+                                                        chrome=chrome)
             # 更新进度
             curr_num += 1
             if not cookie:
