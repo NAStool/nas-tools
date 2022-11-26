@@ -7,7 +7,7 @@ import log
 from app.downloader.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper
-from app.media import Media
+from app.media import Media, MetaInfo
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import DomUtils, RequestUtils, StringUtils
@@ -140,14 +140,17 @@ class Rss:
                         if self.dbhelper.is_torrent_rssd(enclosure):
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
-                        # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=title, subtitle=description)
-                        if not media_info:
-                            log.warn(f"【Rss】{title} 识别媒体信息出错！")
-                            continue
-                        elif not media_info.tmdb_info:
-                            log.info(f"【Rss】{title} 识别为 {media_info.get_name()} 未匹配到媒体信息")
-                            continue
+                        if not match_info.get("fuzzy_match"):
+                            # 识别种子名称，开始检索TMDB
+                            media_info = self.media.get_media_info(title=title, subtitle=description)
+                            if not media_info:
+                                log.warn(f"【Rss】{title} 识别媒体信息出错！")
+                                continue
+                            elif not media_info.tmdb_info:
+                                log.info(f"【Rss】{title} 识别为 {media_info.get_name()} 未匹配到媒体信息")
+                                continue
+                        else:
+                            media_info = MetaInfo(title=title, subtitle=description)
                         # 大小及种子页面
                         media_info.set_torrent_info(size=size,
                                                     page_url=page_url,
