@@ -235,7 +235,7 @@ class SiteCookie(object):
             else:
                 self.dbhelpter.update_site_cookie_ua(site.get("id"), cookie, ua)
                 log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
-                messages.append("%s 更新成功")
+                messages.append("%s 更新成功" % site.get("name"))
                 self.progress.update(ptype='sitecookie',
                                      value=round(100 * (curr_num / site_num)),
                                      text="%s 更新Cookie和User-Agent成功" % site.get("name"))
