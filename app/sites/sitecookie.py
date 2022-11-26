@@ -158,6 +158,8 @@ class SiteCookie(object):
                         self.chrome.browser.find_element(By.XPATH, captcha_xpath).send_keys(captcha)
                     # 提交登录
                     submit_obj.click()
+                else:
+                    return None, None, "未找到登录按钮"
             except Exception as e:
                 return None, None, "仿真登录失败：%s" % str(e)
             # 登录后的源码
