@@ -64,7 +64,8 @@ class MetaAnime(MetaBase):
                         self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name, flags=re.IGNORECASE).strip()
                         self.cn_name = zhconv.convert(self.cn_name, "zh-hans")
                 if self.en_name:
-                    self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name, flags=re.IGNORECASE).strip()
+                    self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name, flags=re.IGNORECASE).strip().title()
+                    self._name = StringUtils.str_title(self.en_name)
                 # 年份
                 year = anitopy_info.get("anime_year")
                 if str(year).isdigit():
