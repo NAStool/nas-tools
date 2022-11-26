@@ -56,7 +56,7 @@ class SiteCookie(object):
             # 登录页面代码
             html_text = self.chrome.get_html()
             if not html_text:
-                return None, None, "获取站点源码失败"
+                return None, None, "获取源码失败"
             # 查找用户名输入框
             html = etree.HTML(html_text)
             username_xpath = None
@@ -124,13 +124,23 @@ class SiteCookie(object):
             # 判断是否已签到
             html_text = self.chrome.get_html()
             if not html_text:
-                return None, None, "获取站点源码失败"
+                return None, None, "获取源码失败"
             if self.sites.is_signin_success(html_text):
                 cookie = self.chrome.get_cookies()
                 ua = self.chrome.get_ua()
-                return cookie, ua, "获取站点Cookie和User-Agent成功"
+                return cookie, ua, ""
             else:
-                return None, None, "站点登录失败"
+                # 读取错误信息
+                error_xpath = None
+                for xpath in SITE_LOGIN_XPATH.get("error"):
+                    if html.xpath(xpath):
+                        error_xpath = xpath
+                        break
+                if not error_xpath:
+                    return None, None, "登录失败"
+                else:
+                    error_msg = str(html.xpath(error_xpath)[0]).split("\n")[0]
+                    return None, None, error_msg
 
     def get_captcha_text(self, siteurl, imageurl):
         """

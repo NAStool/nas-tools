@@ -5,7 +5,7 @@ import json
 import os.path
 import re
 import shutil
-import sys
+import signal
 from math import floor
 from urllib.parse import unquote
 
@@ -227,10 +227,14 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
-        # 关闭虚拟显示
-        os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
-        # 杀进程
-        os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
+        # 退出
+        if SystemUtils.is_synology():
+            os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $2}'|xargs kill -9")
+        elif SystemUtils.is_docker():
+            os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
+        else:
+            os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
     @staticmethod
     def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
@@ -838,7 +842,8 @@ class WebAction:
             return {"text": text + "<br/>"}
         return {"text": ""}
 
-    def __version(self, data):
+    @staticmethod
+    def __version(data):
         """
         检查新版本
         """
@@ -992,7 +997,7 @@ class WebAction:
         更新
         """
         # 升级
-        if "synology" in SystemUtils.execute('uname -a'):
+        if SystemUtils.is_synology():
             if SystemUtils.execute('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l') == '0':
                 # 调用群晖套件内置命令升级
                 os.system('nastool update')
@@ -1481,7 +1486,8 @@ class WebAction:
             "seasons": seasons
         }
 
-    def __test_connection(self, data):
+    @staticmethod
+    def __test_connection(data):
         """
         测试连通性
         """

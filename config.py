@@ -132,7 +132,8 @@ SITE_LOGIN_XPATH = {
     ],
     "submit": [
         '//input[@type="submit"]'
-    ]
+    ],
+    "error": ["//table[@class='main']//td[@class='text']/text()"]
 }
 
 
