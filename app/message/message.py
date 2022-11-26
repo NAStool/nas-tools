@@ -104,7 +104,7 @@ class Message:
             return ServerChan(conf)
         elif ctype == "bark":
             return Bark(conf)
-        elif ctype == "pushpush":
+        elif ctype == "pushplus":
             return PushPlus(conf)
         elif ctype == "iyuu":
             return IyuuMsg(conf)
