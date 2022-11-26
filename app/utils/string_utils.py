@@ -349,3 +349,12 @@ class StringUtils:
                 id_list.append(dic.get('id'))
                 content = content.replace(dic.get('name'), '')
         return id_list, re.sub(r'\s+', ' ', content).strip()
+
+    @staticmethod
+    def str_title(s):
+        """
+        讲英文的首字母大写
+        :param s: en_name string
+        :return: string title
+        """
+        return s.title() if s else s

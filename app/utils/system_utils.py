@@ -90,6 +90,10 @@ class SystemUtils:
         return os.path.exists('/.dockerenv')
 
     @staticmethod
+    def is_synology():
+        return True if "synology" in SystemUtils.execute('uname -a') else False
+
+    @staticmethod
     def copy(src, dest):
         """
         复制

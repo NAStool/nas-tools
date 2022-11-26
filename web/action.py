@@ -5,7 +5,7 @@ import json
 import os.path
 import re
 import shutil
-import sys
+import signal
 from math import floor
 from urllib.parse import unquote
 
@@ -35,6 +35,7 @@ from app.scheduler import Scheduler
 from app.scheduler import restart_scheduler, stop_scheduler
 from app.searcher import Searcher
 from app.sites import Sites
+from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync
@@ -182,7 +183,9 @@ class WebAction:
             "get_sites": self.__get_sites,
             "get_indexers": self.__get_indexers,
             "get_download_dirs": self.__get_download_dirs,
-            "find_hardlinks": self.__find_hardlinks
+            "find_hardlinks": self.__find_hardlinks,
+            "update_sites_cookie_ua": self.__update_sites_cookie_ua,
+            "set_site_captcha_code": self.__set_site_captcha_code
         }
 
     def action(self, cmd, data=None):
@@ -227,10 +230,14 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
-        # 关闭虚拟显示
-        os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
-        # 杀进程
-        os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
+        # 退出
+        if SystemUtils.is_synology():
+            os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $2}'|xargs kill -9")
+        elif SystemUtils.is_docker():
+            os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
+        else:
+            os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
     @staticmethod
     def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
@@ -838,7 +845,8 @@ class WebAction:
             return {"text": text + "<br/>"}
         return {"text": ""}
 
-    def __version(self, data):
+    @staticmethod
+    def __version(data):
         """
         检查新版本
         """
@@ -992,7 +1000,7 @@ class WebAction:
         更新
         """
         # 升级
-        if "synology" in SystemUtils.execute('uname -a'):
+        if SystemUtils.is_synology():
             if SystemUtils.execute('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l') == '0':
                 # 调用群晖套件内置命令升级
                 os.system('nastool update')
@@ -1481,7 +1489,8 @@ class WebAction:
             "seasons": seasons
         }
 
-    def __test_connection(self, data):
+    @staticmethod
+    def __test_connection(data):
         """
         测试连通性
         """
@@ -3870,3 +3879,30 @@ class WebAction:
                 print(str(e))
                 return {"code": 1}
         return {"code": 0, "data": hardlinks}
+
+    @staticmethod
+    def __update_sites_cookie_ua(data):
+        """
+        更新所有站点的Cookie和UA
+        """
+        siteid = data.get("siteid")
+        username = data.get("username")
+        password = data.get("password")
+        ocrflag = data.get("ocrflag")
+        retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
+                                                                username=username,
+                                                                password=password,
+                                                                ocrflag=ocrflag)
+        if retcode == 0:
+            Sites().init_config()
+        return {"code": retcode, "messages": messages}
+
+    @staticmethod
+    def __set_site_captcha_code(data):
+        """
+        设置站点验证码
+        """
+        code = data.get("code")
+        value = data.get("value")
+        SiteCookie().set_code(code=code, value=value)
+        return {"code": 0}
