@@ -1,7 +1,6 @@
 import os
 import shutil
 from threading import Lock
-
 import ruamel.yaml
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
@@ -144,23 +143,29 @@ SITE_LOGIN_XPATH = {
 lock = Lock()
 
 
+# 全局实例
+_CONFIG = None
+
+
+# 单例模式注解
+def singleconfig(cls):
+    def _singleconfig(*args, **kwargs):
+        global _CONFIG
+        # 先判断这个类有没有对象
+        if not _CONFIG:
+            with lock:
+                _CONFIG = cls(*args, **kwargs)
+        # 将实例对象返回
+        return _CONFIG
+    return _singleconfig
+
+
+@singleconfig
 class Config(object):
-    _INSTANSE = None
-    _INSTANSE_FLAG = False
     _config = {}
     _config_path = None
 
-    def __new__(cls, *args, **kwargs):
-        with lock:
-            if not cls._INSTANSE:
-                cls._INSTANSE = super().__new__(cls)
-            return cls._INSTANSE
-
     def __init__(self):
-        with lock:
-            if Config._INSTANSE_FLAG:
-                return
-            Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         os.environ['TZ'] = 'Asia/Shanghai'
         self.init_config()
