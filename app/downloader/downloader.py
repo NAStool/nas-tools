@@ -994,7 +994,7 @@ class Downloader:
         if not type_name:
             return None
         for dict_type in DownloaderType:
-            if dict_type.name == type_name:
+            if dict_type.name == type_name or dict_type.value == type_name:
                 return dict_type
 
     def get_torrent_episodes(self, url, page_url=None):
