@@ -232,10 +232,10 @@ class WebAction:
         logout_user()
         # 退出
         if SystemUtils.is_synology():
-            os.system("ps -ef|grep -w 'run:App'|grep -v grep|grep -v 0:00|awk '{print $2}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'run:App' -m 1|grep -v grep|awk '{print $2}'|xargs kill -HUP")
         elif SystemUtils.is_docker():
             os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
-            os.system("ps -ef|grep -w 'run:App'|grep -v grep|grep -v 0:00|awk '{print $1}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'run:App' -m 1|grep -v grep|awk '{print $1}'|xargs kill -HUP")
         else:
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 

@@ -1,10 +1,8 @@
-import datetime
 import os
 import shutil
 from multiprocessing import Lock
-from watchdog.observers import Observer
+
 import ruamel.yaml
-from watchdog.events import FileSystemEventHandler
 
 ConfigLock = Lock()
 
@@ -212,36 +210,3 @@ class Config(object):
 
 # 配置实例
 CONFIG = Config()
-
-
-# 配置文件加载时间
-LST_CONFIG_LOAD_TIME = datetime.datetime.now()
-
-
-class ConfigHandler(FileSystemEventHandler):
-    """
-    配置文件变化响应
-    """
-
-    def __init__(self):
-        FileSystemEventHandler.__init__(self)
-
-    def on_modified(self, event):
-        global ConfigLock
-        global LST_CONFIG_LOAD_TIME
-        global CONFIG
-        if not event.is_directory \
-                and os.path.basename(event.src_path) == "config.yaml":
-            with ConfigLock:
-                if (datetime.datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
-                    return
-                print("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
-                CONFIG = Config()
-                LST_CONFIG_LOAD_TIME = datetime.datetime.now()
-
-
-# 配置文件监听
-ConfigObserver = Observer(timeout=10)
-ConfigObserver.schedule(ConfigHandler(), path=CONFIG.get_config_path(), recursive=False)
-ConfigObserver.setDaemon(True)
-ConfigObserver.start()
