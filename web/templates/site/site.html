@@ -692,6 +692,7 @@
   }
 
   // 更新站点Cookie和UA
+  var sitecookie_update_finish = false;
   function update_site_cookie_ua(){
     let siteid = $("#cookieua_siteid").val();
     let username = $("#cookieua_username").val();
@@ -711,13 +712,13 @@
     $("#sitecookie_action_btn").text("正在更新...").attr("disabled", true);
     let ocrflag = $("#cookieua_ocrflag").prop("checked");
     // 刷新进度
+    sitecookie_update_finish = false;
     refresh_sitecookie_process_flag = true;
     refresh_sitecookie_fail_count = 0;
     refresh_sitecookie_process();
     // 发送请求
     ajax_post("update_sites_cookie_ua", { siteid: siteid, username: username, password: password, ocrflag: ocrflag }, function (ret) {
-      refresh_sitecookie_process_flag = false;
-      refresh_sitecookie_fail_count = 0;
+      sitecookie_update_finish = true;
       $("#sitecookie_process_bar").attr("style", "width: 100%").attr("aria-valuenow", 100);
       $("#sitecookie_action_btn").attr("disabled", false).text("开始更新");
       if (ret.code === 0) {
@@ -735,6 +736,9 @@
   var refresh_sitecookie_fail_count = 0;
   function refresh_sitecookie_process() {
     if (!refresh_sitecookie_process_flag) {
+      return;
+    }
+    if (sitecookie_update_finish) {
       return;
     }
     $("#sitecookie_process_bar_div").show();
