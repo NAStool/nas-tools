@@ -127,10 +127,17 @@ release_groups = []
 for site in sites:
     for release_group in site:
         release_groups.append(release_group)
-release_groups = '|'.join(release_groups)
-release_groups = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % release_groups, re.I)
+RELEASE_GROUPS = '|'.join(release_groups)
 
 
 #  忽略大小写
-def rg_match(name, groups):
-    return '@'.join(re.findall(groups, name))
+def rg_match(title=None, groups=None):
+    """
+    :param title: 资源标题或文件名
+    :param groups: 制作组/字幕组
+    :return: 匹配结果
+    """
+    if not title or not groups:
+        return ""
+    groups_re = re.compile(r"(?<=[-@\[￡])%s(?=[@.\s\]\[])" % groups, re.I)
+    return '@'.join(re.findall(groups_re, title))
