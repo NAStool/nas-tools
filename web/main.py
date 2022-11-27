@@ -73,13 +73,14 @@ class ConfigHandler(FileSystemEventHandler):
     def on_modified(self, event):
         global ConfigLock
         global LST_CONFIG_LOAD_TIME
-        if (datetime.datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
-            return
         if not event.is_directory \
                 and os.path.basename(event.src_path) == "config.yaml":
             with ConfigLock:
+                if (datetime.datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
+                    return
                 log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
                 CONFIG.init_config()
+                LST_CONFIG_LOAD_TIME = datetime.datetime.now()
 
 
 # 配置文件监听
