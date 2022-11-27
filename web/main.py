@@ -12,8 +12,6 @@ from pathlib import Path
 from threading import Lock
 from urllib import parse
 
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, login_user, login_required, current_user
 
@@ -57,37 +55,6 @@ LoginManager.init_app(App)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
-
-# 配置文件加载时间
-LST_CONFIG_LOAD_TIME = datetime.datetime.now()
-
-
-class ConfigHandler(FileSystemEventHandler):
-    """
-    配置文件变化响应
-    """
-
-    def __init__(self):
-        FileSystemEventHandler.__init__(self)
-
-    def on_modified(self, event):
-        global ConfigLock
-        global LST_CONFIG_LOAD_TIME
-        if not event.is_directory \
-                and os.path.basename(event.src_path) == "config.yaml":
-            with ConfigLock:
-                if (datetime.datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
-                    return
-                log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
-                CONFIG.init_config()
-                LST_CONFIG_LOAD_TIME = datetime.datetime.now()
-
-
-# 配置文件监听
-ConfigObserver = Observer(timeout=10)
-ConfigObserver.schedule(ConfigHandler(), path=CONFIG.get_config_path(), recursive=False)
-ConfigObserver.setDaemon(True)
-ConfigObserver.start()
 
 
 @App.after_request
