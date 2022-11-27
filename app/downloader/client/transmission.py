@@ -69,14 +69,20 @@ class Transmission(IDownloadClient):
             return [], True
         if status and not isinstance(status, list):
             status = [status]
+        if tag and not isinstance(tag, list):
+            tag = [tag]
         ret_torrents = []
         for torrent in torrents:
             if status and torrent.status not in status:
                 continue
             labels = torrent.labels if hasattr(torrent, "labels") else []
-            if tag and tag not in labels:
-                continue
-            ret_torrents.append(torrent)
+            include_flag = True
+            for t in tag:
+                if t and t not in labels:
+                    include_flag = False
+                    break
+            if include_flag:
+                ret_torrents.append(torrent)
         return ret_torrents, False
 
     def get_completed_torrents(self, tag=None):
