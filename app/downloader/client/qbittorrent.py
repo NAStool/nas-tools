@@ -118,7 +118,7 @@ class Qbittorrent(IDownloadClient):
             return
         try:
             # 打标签
-            self.qbc.torrents_add_tags(tags=tags, torrent_hashes=ids)
+            self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
             # 超级做种
             if self._force_upload:
                 self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
