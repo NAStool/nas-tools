@@ -10,6 +10,7 @@ RUN apk add --no-cache libffi-dev \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && apk del libffi-dev \
+    && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \

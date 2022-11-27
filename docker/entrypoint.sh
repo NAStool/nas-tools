@@ -73,4 +73,4 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 mkdir -p /.local
 chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/chromium /.local
 export PATH=$PATH:/usr/lib/chromium
-exec su-exec ${PUID}:${PGID} gunicorn run:App
+exec su-exec ${PUID}:${PGID} pm2 start run.py -n NAStool --interpreter python3
