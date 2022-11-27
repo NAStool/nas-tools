@@ -234,8 +234,8 @@ class WebAction:
         if SystemUtils.is_synology():
             os.system("ps -ef|grep -w 'run:App'|grep -v grep|grep -v 0:00|awk '{print $2}'|xargs kill -9")
         elif SystemUtils.is_docker():
-            os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|grep -v 0:00|awk '{print $1}'|xargs kill -9")
-            os.system("ps -ef|grep -w 'run:App'|grep -v grep|awk '{print $1}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
+            os.system("ps -ef|grep -w 'run:App'|grep -v grep|grep -v 0:00|awk '{print $1}'|xargs kill -9")
         else:
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
