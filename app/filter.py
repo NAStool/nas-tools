@@ -14,10 +14,10 @@ class Filter:
     _rules = []
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self._groups = self.dbhelper.get_config_filter_group()
         self._rules = self.dbhelper.get_config_filter_rule()
 

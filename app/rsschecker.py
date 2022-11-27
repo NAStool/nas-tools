@@ -40,10 +40,10 @@ class RssChecker(object):
     }
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.searcher = Searcher()
         self.filter = Filter()

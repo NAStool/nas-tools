@@ -27,11 +27,11 @@ class DouBan:
     _tv_num = 30
 
     def __init__(self):
-        self.doubanapi = DoubanApi()
-        self.doubanweb = DoubanWeb()
         self.init_config()
 
     def init_config(self):
+        self.doubanapi = DoubanApi()
+        self.doubanweb = DoubanWeb()
         douban = CONFIG.get_config('douban')
         if douban:
             # Cookie

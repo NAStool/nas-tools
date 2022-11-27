@@ -64,10 +64,10 @@ class Sync(object):
     }
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.filetransfer = FileTransfer()
         sync = CONFIG.get_config('sync')
         sync_paths = self.dbhelper.get_config_sync_paths()

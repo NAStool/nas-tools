@@ -47,12 +47,12 @@ class Message:
     }
 
     def __init__(self):
-        self.dbhelper = DbHelper()
-        self.messagecenter = MessageCenter()
-        self._domain = CONFIG.get_domain()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
+        self.messagecenter = MessageCenter()
+        self._domain = CONFIG.get_domain()
         # 初始化消息客户端
         if self._active_clients:
             for active_client in self._active_clients:

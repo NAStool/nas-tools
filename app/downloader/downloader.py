@@ -39,15 +39,15 @@ class Downloader:
     dbhelper = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.mediaserver = MediaServer()
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.sites = Sites()
-        self.dbhelper = DbHelper()
-        self.init_config()
-
-    def init_config(self):
         # 下载器配置
         pt = CONFIG.get_config('pt')
         if pt:

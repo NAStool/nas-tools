@@ -25,10 +25,10 @@ class Subtitle:
     _opensubtitles_enable = False
 
     def __init__(self):
-        self.subhelper = SubHelper()
         self.init_config()
 
     def init_config(self):
+        self.subhelper = SubHelper()
         self._save_tmp_path = os.path.join(CONFIG.get_config_path(), "temp")
         if not os.path.exists(self._save_tmp_path):
             os.makedirs(self._save_tmp_path)

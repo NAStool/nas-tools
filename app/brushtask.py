@@ -34,10 +34,10 @@ class BrushTask(object):
     _tr_client = "transmission"
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.sites = Sites()
         self.filter = Filter()
