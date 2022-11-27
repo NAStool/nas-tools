@@ -177,8 +177,6 @@ class DoubanSync:
         media_list = []
         # 豆瓣ID列表
         douban_ids = {}
-        # 开始序号
-        start_number = 0
         # 每页条数
         perpage_number = 15
         # 每一个用户
@@ -196,6 +194,8 @@ class DoubanSync:
                 if not mtype:
                     continue
                 log.info(f"【Douban】开始获取 {user_name or user} 的 {mtype} 数据...")
+                # 开始序号
+                start_number = 0
                 # 类型成功数量
                 user_type_succnum = 0
                 # 每一页
