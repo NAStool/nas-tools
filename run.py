@@ -8,6 +8,8 @@ from pyvirtualdisplay import Display
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+from app.utils.cache_manager import ConfigLoadCache
+
 warnings.filterwarnings('ignore')
 
 
@@ -73,8 +75,6 @@ from app.utils.commons import INSTANCES
 from check_config import update_config, check_config
 from version import APP_VERSION
 
-ConfigLock = Lock()
-
 
 def sigal_handler(num, stack):
     """
@@ -131,7 +131,7 @@ def init_system():
 
 
 def start_service():
-    log.console("开始启动进程...")
+    log.console("开始启动服务...")
     # 启动定时服务
     run_scheduler()
     # 启动监控服务
@@ -155,13 +155,16 @@ def monitor_config():
         def on_modified(self, event):
             if not event.is_directory \
                     and os.path.basename(event.src_path) == "config.yaml":
-                print("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
-                with ConfigLock:
-                    time.sleep(1)
-                    Config().init_config()
-                    for instance in INSTANCES:
-                        if hasattr(instance, "init_config"):
-                            instance().init_config()
+                if ConfigLoadCache.get(event.src_path):
+                    return
+                # 重新加载配置
+                log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
+                time.sleep(1)
+                Config().init_config()
+                for instance in INSTANCES.values():
+                    if hasattr(instance, "init_config"):
+                        instance.init_config()
+                ConfigLoadCache.set(event.src_path, True)
 
     # 配置文件监听
     _observer = Observer(timeout=10)
