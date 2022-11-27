@@ -232,6 +232,8 @@ class WebAction:
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         else:
+            if SystemUtils.is_docker():
+                os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
             os.system("pm2 restart NAStool")
 
     @staticmethod
