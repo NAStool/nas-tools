@@ -1,10 +1,11 @@
 import os
-from datetime import datetime
+import time
 from threading import Lock
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
+from app.utils.commons import INSTANCES
 from config import Config
 from .apiv1 import apiv1_bp
 from .main import App
@@ -51,13 +52,8 @@ def start_service():
 # 系统初始化
 init_system()
 
-
 # 启动服务
 start_service()
-
-
-# 配置文件加载时间
-LST_CONFIG_LOAD_TIME = datetime.now()
 
 
 class ConfigHandler(FileSystemEventHandler):
@@ -69,16 +65,15 @@ class ConfigHandler(FileSystemEventHandler):
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
-        global ConfigLock
-        global LST_CONFIG_LOAD_TIME
         if not event.is_directory \
                 and os.path.basename(event.src_path) == "config.yaml":
+            print("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
             with ConfigLock:
-                if (datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
-                    return
-                print("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
+                time.sleep(1)
                 Config().init_config()
-                LST_CONFIG_LOAD_TIME = datetime.now()
+                for instance in INSTANCES:
+                    if hasattr(instance, "init_config"):
+                        instance().init_config()
 
 
 # 配置文件监听

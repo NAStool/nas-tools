@@ -147,15 +147,12 @@ lock = Lock()
 _CONFIG = None
 
 
-# 单例模式注解
 def singleconfig(cls):
     def _singleconfig(*args, **kwargs):
         global _CONFIG
-        # 先判断这个类有没有对象
         if not _CONFIG:
             with lock:
                 _CONFIG = cls(*args, **kwargs)
-        # 将实例对象返回
         return _CONFIG
     return _singleconfig
 
