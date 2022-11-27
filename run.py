@@ -3,7 +3,7 @@ import signal
 import sys
 import time
 import warnings
-from threading import Lock
+
 from pyvirtualdisplay import Display
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -69,8 +69,8 @@ from app.brushtask import BrushTask
 from app.db import init_db, update_db
 from app.helper import IndexerHelper
 from app.rsschecker import RssChecker
-from app.scheduler import run_scheduler
-from app.sync import run_monitor
+from app.scheduler import run_scheduler, restart_scheduler
+from app.sync import run_monitor, restart_monitor
 from app.utils.commons import INSTANCES
 from check_config import update_config, check_config
 from version import APP_VERSION
@@ -155,16 +155,22 @@ def monitor_config():
         def on_modified(self, event):
             if not event.is_directory \
                     and os.path.basename(event.src_path) == "config.yaml":
+                # 10秒内只能加载一次
                 if ConfigLoadCache.get(event.src_path):
                     return
-                # 重新加载配置
+                ConfigLoadCache.set(event.src_path, True)
                 log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
                 time.sleep(1)
+                # 重新加载配置
                 Config().init_config()
+                # 重载singleton服务
                 for instance in INSTANCES.values():
                     if hasattr(instance, "init_config"):
                         instance.init_config()
-                ConfigLoadCache.set(event.src_path, True)
+                # 重启定时服务
+                restart_scheduler()
+                # 重启监控服务
+                restart_monitor()
 
     # 配置文件监听
     _observer = Observer(timeout=10)
