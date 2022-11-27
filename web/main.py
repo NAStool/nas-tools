@@ -32,7 +32,6 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import DomUtils, SystemUtils, WebUtils
-from app.utils.commons import INSTANCES
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, CONFIG
 from web.action import WebAction
@@ -59,6 +58,9 @@ LoginManager.init_app(App)
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
+# 配置文件加载时间
+LST_CONFIG_LOAD_TIME = datetime.datetime.now()
+
 
 class ConfigHandler(FileSystemEventHandler):
     """
@@ -69,17 +71,15 @@ class ConfigHandler(FileSystemEventHandler):
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
+        global ConfigLock
+        global LST_CONFIG_LOAD_TIME
+        if (datetime.datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
+            return
         if not event.is_directory \
                 and os.path.basename(event.src_path) == "config.yaml":
             with ConfigLock:
                 log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
                 CONFIG.init_config()
-                for instance in INSTANCES:
-                    if hasattr(instance, "init_config"):
-                        try:
-                            instance().init_config()
-                        except Exception as e:
-                            print(str(e))
 
 
 # 配置文件监听
