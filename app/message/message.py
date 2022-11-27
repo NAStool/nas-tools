@@ -4,7 +4,7 @@ from enum import Enum
 
 import log
 from app.utils.commons import singleton
-from config import CONFIG
+from config import Config
 from app.helper import DbHelper
 from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
 from app.utils import StringUtils
@@ -52,7 +52,7 @@ class Message:
     def init_config(self):
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
-        self._domain = CONFIG.get_domain()
+        self._domain = Config().get_domain()
         # 初始化消息客户端
         if self._active_clients:
             for active_client in self._active_clients:

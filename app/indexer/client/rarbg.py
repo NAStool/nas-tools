@@ -2,7 +2,7 @@ import requests
 
 import log
 from app.utils import RequestUtils
-from config import CONFIG
+from config import Config
 
 
 class Rarbg:
@@ -16,7 +16,7 @@ class Rarbg:
 
     def init_config(self):
         session = requests.session()
-        self._req = RequestUtils(proxies=CONFIG.get_proxies(), session=session, timeout=10)
+        self._req = RequestUtils(proxies=Config().get_proxies(), session=session, timeout=10)
         self.__get_token()
 
     def __get_token(self):

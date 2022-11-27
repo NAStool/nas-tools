@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from app.media import Media
 from app.utils import RequestUtils
-from config import CONFIG
+from config import Config
 
 
 @lru_cache(maxsize=1)
@@ -12,8 +12,8 @@ def get_login_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now()
     """
     获取Base64编码的壁纸图片
     """
-    wallpaper = CONFIG.get_config('app').get('wallpaper')
-    tmdbkey = CONFIG.get_config('app').get('rmt_tmdbkey')
+    wallpaper = Config().get_config('app').get('wallpaper')
+    tmdbkey = Config().get_config('app').get('rmt_tmdbkey')
     if (not wallpaper or wallpaper == "themoviedb") and tmdbkey:
         img_url = __get_themoviedb_wallpaper(today)
     else:

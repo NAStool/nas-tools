@@ -7,7 +7,7 @@ import log
 from app.helper.thread_helper import ThreadHelper
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
-from config import CONFIG
+from config import Config
 
 lock = Lock()
 WEBHOOK_STATUS = False
@@ -27,7 +27,7 @@ class Telegram(IMessageChannel):
     enabled = True
 
     def __init__(self, config, interactive=False):
-        self._config = CONFIG
+        self._config = Config()
         self._client_config = config
         self._interactive = interactive
         self._domain = self._config.get_domain()
@@ -257,7 +257,7 @@ class Telegram(IMessageChannel):
 
         offset = 0
         while True:
-            _config = CONFIG
+            _config = Config()
             web_port = _config.get_config("app").get("web_port")
             sc_url = "https://api.telegram.org/bot%s/getUpdates?" % self._telegram_token
             ds_url = "http://127.0.0.1:%s/telegram" % web_port

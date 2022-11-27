@@ -4,7 +4,7 @@ import log
 from app.db import MediaDb
 from app.helper import ProgressHelper
 from app.utils.types import MediaServerType
-from config import CONFIG
+from config import Config
 from app.mediaserver import Emby, Jellyfin, Plex
 
 lock = threading.Lock()
@@ -23,7 +23,7 @@ class MediaServer:
         self.init_config()
 
     def init_config(self):
-        _type = CONFIG.get_config('media').get('media_server')
+        _type = Config().get_config('media').get('media_server')
         if _type == "jellyfin":
             self._server_type = MediaServerType.JELLYFIN
         elif _type == "plex":

@@ -1,10 +1,8 @@
 import os
 import shutil
-from multiprocessing import Lock
+from threading import Lock
 
 import ruamel.yaml
-
-ConfigLock = Lock()
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
@@ -142,12 +140,27 @@ SITE_LOGIN_XPATH = {
     ]
 }
 
+# 线程锁
+lock = Lock()
+
 
 class Config(object):
+    _INSTANSE = None
+    _INSTANSE_FLAG = False
     _config = {}
     _config_path = None
 
+    def __new__(cls, *args, **kwargs):
+        with lock:
+            if not cls._INSTANSE:
+                cls._INSTANSE = super().__new__(cls)
+            return cls._INSTANSE
+
     def __init__(self):
+        with lock:
+            if Config._INSTANSE_FLAG:
+                return
+            Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         os.environ['TZ'] = 'Asia/Shanghai'
         self.init_config()
@@ -206,7 +219,3 @@ class Config(object):
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
         return domain
-
-
-# 配置实例
-CONFIG = Config()

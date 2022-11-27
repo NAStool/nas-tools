@@ -16,7 +16,7 @@ from app.media.tmdbv3api.exceptions import TMDbException
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
 from app.utils import cacheman
 from app.utils.types import MediaType, MatchMode
-from config import CONFIG, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
+from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
 
 
@@ -36,8 +36,8 @@ class Media:
         self.init_config()
 
     def init_config(self):
-        app = CONFIG.get_config('app')
-        laboratory = CONFIG.get_config('laboratory')
+        app = Config().get_config('app')
+        laboratory = Config().get_config('laboratory')
         if app:
             if app.get('rmt_tmdbkey'):
                 self.tmdb = TMDb()
@@ -48,7 +48,7 @@ class Media:
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'
-                self.tmdb.proxies = CONFIG.get_proxies()
+                self.tmdb.proxies = Config().get_proxies()
                 self.tmdb.debug = True
                 self.search = Search()
                 self.movie = Movie()
@@ -65,7 +65,7 @@ class Media:
                 self._rmt_match_mode = MatchMode.STRICT
             else:
                 self._rmt_match_mode = MatchMode.NORMAL
-        laboratory = CONFIG.get_config('laboratory')
+        laboratory = Config().get_config('laboratory')
         if laboratory:
             self._search_keyword = laboratory.get("search_keyword")
 

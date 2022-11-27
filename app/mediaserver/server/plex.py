@@ -2,7 +2,7 @@ from app.utils.types import MediaServerType
 from plexapi.myplex import MyPlexAccount
 
 import log
-from config import CONFIG
+from config import Config
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
 from plexapi.server import PlexServer
@@ -23,7 +23,7 @@ class Plex(IMediaServer):
         self.init_config()
 
     def init_config(self):
-        plex = CONFIG.get_config('plex')
+        plex = Config().get_config('plex')
         if plex:
             self._host = plex.get('host')
             self._token = plex.get('token')

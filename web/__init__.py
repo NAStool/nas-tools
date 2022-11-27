@@ -5,7 +5,7 @@ from threading import Lock
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from config import CONFIG
+from config import Config
 from .apiv1 import apiv1_bp
 from .main import App
 import log
@@ -77,12 +77,12 @@ class ConfigHandler(FileSystemEventHandler):
                 if (datetime.now() - LST_CONFIG_LOAD_TIME).seconds <= 1:
                     return
                 print("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
-                CONFIG.init_config()
+                Config().init_config()
                 LST_CONFIG_LOAD_TIME = datetime.now()
 
 
 # 配置文件监听
 ConfigObserver = Observer(timeout=10)
-ConfigObserver.schedule(ConfigHandler(), path=CONFIG.get_config_path(), recursive=False)
+ConfigObserver.schedule(ConfigHandler(), path=Config().get_config_path(), recursive=False)
 ConfigObserver.setDaemon(True)
 ConfigObserver.start()

@@ -5,7 +5,7 @@ from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
 from app.sites import Sites
 from app.utils import TokenCache
-from config import CONFIG
+from config import Config
 from web.action import WebAction
 from web.backend.user import User
 from web.security import require_auth, login_required, generate_access_token
@@ -99,7 +99,7 @@ class UserLogin(Resource):
             "success": True,
             "data": {
                 "token": token,
-                "apikey": CONFIG.get_config("security").get("api_key"),
+                "apikey": Config().get_config("security").get("api_key"),
                 "userinfo": {
                     "userid": user_info.id,
                     "username": user_info.username,
@@ -963,7 +963,7 @@ class ConfigInfo(ClientResource):
         return {
             "code": 0,
             "success": True,
-            "data": CONFIG.get_config()
+            "data": Config().get_config()
         }
 
 

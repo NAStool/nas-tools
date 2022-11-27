@@ -55,7 +55,7 @@ if is_docker:
 else:
     display = None
 
-from config import CONFIG
+from config import Config
 import log
 from web import App
 
@@ -105,9 +105,9 @@ signal.signal(signal.SIGTERM, sigal_handler)
 if __name__ == '__main__':
     # Windows启动托盘
     if is_windows_exe:
-        homepage = CONFIG.get_config('app').get('domain')
+        homepage = Config().get_config('app').get('domain')
         if not homepage:
-            homepage = "http://localhost:%s" % str(CONFIG.get_config('app').get('web_port'))
+            homepage = "http://localhost:%s" % str(Config().get_config('app').get('web_port'))
         log_path = os.environ.get("NASTOOL_LOG")
 
 
@@ -120,4 +120,4 @@ if __name__ == '__main__':
             p1.start()
 
     # gunicorn 启动
-    App.run(**get_run_config(CONFIG))
+    App.run(**get_run_config(Config()))
