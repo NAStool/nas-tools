@@ -113,12 +113,10 @@ class Qbittorrent(IDownloadClient):
             print(str(err))
             return False
 
-    def set_torrents_status(self, ids):
+    def set_torrents_status(self, ids, tags=None):
         if not self.qbc:
             return
         try:
-            # 删除标签
-            self.qbc.torrents_remove_tags(tags=PT_TAG, torrent_hashes=ids)
             # 打标签
             self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
             # 超级做种

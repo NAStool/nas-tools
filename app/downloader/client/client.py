@@ -80,10 +80,11 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def set_torrents_status(self, ids):
+    def set_torrents_status(self, ids, tags=None):
         """
         迁移完成后设置种子标签为 已整理
         :param ids: 种子ID列表
+        :param tags: 种子标签列表
         """
         pass
 

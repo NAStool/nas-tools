@@ -60,7 +60,7 @@ class Aria2(IDownloadClient):
     def get_completed_torrents(self, **kwargs):
         return self.get_torrents(status="completed")
 
-    def set_torrents_status(self, ids):
+    def set_torrents_status(self, ids, tags=None):
         return self.delete_torrents(ids=ids, delete_file=False)
 
     def get_transfer_task(self, tag):

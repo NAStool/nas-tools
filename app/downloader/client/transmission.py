@@ -113,16 +113,24 @@ class Transmission(IDownloadClient):
             print(str(err))
             return []
 
-    def set_torrents_status(self, ids):
+    def set_torrents_status(self, ids, tags=None):
         if not self.trc:
             return
         if isinstance(ids, list):
             ids = [int(x) for x in ids if str(x).isdigit()]
         elif str(ids).isdigit():
             ids = int(ids)
+        # 合成标签
+        if tags:
+            if not isinstance(tags, list):
+                tags = [tags, "已整理"]
+            else:
+                tags = tags.append("已整理")
+        else:
+            tags = ["已整理"]
         # 打标签
         try:
-            self.trc.change_torrent(labels=["已整理"], ids=ids)
+            self.trc.change_torrent(labels=tags, ids=ids)
             log.info(f"【{self.client_type}】设置transmission种子标签成功")
         except Exception as err:
             print(str(err))
@@ -216,7 +224,11 @@ class Transmission(IDownloadClient):
             if not path:
                 continue
             true_path = self.get_replace_path(path)
-            trans_tasks.append({'path': os.path.join(true_path, torrent.name).replace("\\", "/"), 'id': torrent.id})
+            trans_tasks.append({
+                'path': os.path.join(true_path, torrent.name).replace("\\", "/"),
+                'id': torrent.id,
+                'tags': torrent.labels
+            })
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
