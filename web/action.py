@@ -1043,16 +1043,8 @@ class WebAction:
         """
         cfg = Config().get_config()
         cfgs = dict(data).items()
-        # 重载配置标志
+        # 仅测试不保存
         config_test = False
-        scheduler_reload = False
-        emby_reload = False
-        jellyfin_reload = False
-        plex_reload = False
-        category_reload = False
-        subtitle_reload = False
-        sites_reload = False
-        downloader_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -1060,54 +1052,10 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key in ['douban.interval',
-                       'media.mediasync_interval',
-                       'pt.pt_check_interval',
-                       'pt.ptsignin_cron',
-                       'pt.search_rss_interval']:
-                scheduler_reload = True
-            if key.startswith("emby."):
-                emby_reload = True
-            if key.startswith("jellyfin."):
-                jellyfin_reload = True
-            if key.startswith("plex."):
-                plex_reload = True
-            if key.startswith("media.category"):
-                category_reload = True
-            if key.startswith("subtitle."):
-                subtitle_reload = True
-            if key.startswith('pt.') \
-                    or key in ["downloaddir."]:
-                downloader_reload = True
 
         # 保存配置
         if not config_test:
             Config().save_config(cfg)
-        # 重启定时服务
-        if scheduler_reload:
-            Scheduler().init_config()
-            restart_scheduler()
-        # 重载emby
-        if emby_reload:
-            Emby().init_config()
-        # 重载Jellyfin
-        if jellyfin_reload:
-            Jellyfin().init_config()
-        # 重载Plex
-        if plex_reload:
-            Plex().init_config()
-        # 重载二级分类
-        if category_reload:
-            Category().init_config()
-        # 重载字幕
-        if subtitle_reload:
-            Subtitle().init_config()
-        # 重载站点
-        if sites_reload:
-            Sites().init_config()
-        # 重载下载器
-        if downloader_reload:
-            Downloader().init_config()
 
         return {"code": 0}
 

@@ -73,7 +73,7 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
-def get_run_config(cfg):
+def get_run_config():
     """
     获取运行配置
     """
@@ -82,7 +82,7 @@ def get_run_config(cfg):
     _ssl_cert = None
     _ssl_key = None
 
-    app_conf = cfg.get_config('app')
+    app_conf = Config().get_config('app')
     if app_conf:
         if app_conf.get("web_host"):
             _web_host = app_conf.get("web_host").replace('[', '').replace(']', '')
@@ -120,4 +120,4 @@ if __name__ == '__main__':
             p1.start()
 
     # gunicorn 启动
-    App.run(**get_run_config(Config()))
+    App.run(**get_run_config())
