@@ -124,7 +124,7 @@ class BuiltinIndexer(IIndexer):
             return []
         if indexer.parser == "rarbg":
             imdb_id = match_media.imdb_id if match_media else None
-            result_array = Rarbg(cookies=indexer.cookie).search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
+            result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
         else:
             result_array = self.__spider_search(keyword=search_word, indexer=indexer)
         if len(result_array) == 0:

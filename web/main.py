@@ -41,7 +41,7 @@ from web.security import require_auth
 # Flask App
 App = Flask(__name__)
 App.config['JSON_AS_ASCII'] = False
-App.secret_key = os.urandom(24)
+App.secret_key = CONFIG.get_config('security').get("api_key")
 App.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # 登录管理模块

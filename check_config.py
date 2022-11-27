@@ -225,19 +225,6 @@ def update_config():
             _config['security'].pop('subscribe_token')
         overwrite_cofig = True
 
-    # 消息推送开关初始化
-    if not _config.get("message", {}).get("switch"):
-        _config['message']['switch'] = {
-            "download_start": True,
-            "download_fail": True,
-            "transfer_finished": True,
-            "transfer_fail": True,
-            "rss_added": True,
-            "rss_finished": True,
-            "site_signin": True
-        }
-        overwrite_cofig = True
-
     # 刮削NFO配置初始化
     if not _config.get("scraper_nfo"):
         _config['scraper_nfo'] = {
