@@ -365,7 +365,7 @@ class Downloader:
             log.info("【Downloader】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self._seeding_time))
             torrents = self.default_client.get_remove_torrents(seeding_time=self._seeding_time, tag=tag)
             for torrent in torrents:
-                self.default_client.delete_torrents(ids=torrent)
+                self.default_client.delete_torrents(delete_file=True, ids=torrent)
             log.info("【Downloader】做种清理完成")
         finally:
             lock.release()
