@@ -9,8 +9,11 @@ import urllib
 import xml.dom.minidom
 from math import floor
 from pathlib import Path
+from threading import Lock
 from urllib import parse
 
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, login_user, login_required, current_user
 
@@ -29,6 +32,7 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import DomUtils, SystemUtils, WebUtils
+from app.utils.commons import INSTANCES
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, CONFIG
 from web.action import WebAction
@@ -37,6 +41,9 @@ from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
+
+# 配置文件锁
+ConfigLock = Lock()
 
 # Flask App
 App = Flask(__name__)
@@ -51,6 +58,35 @@ LoginManager.init_app(App)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
+
+
+class ConfigHandler(FileSystemEventHandler):
+    """
+    配置文件变化响应
+    """
+
+    def __init__(self):
+        FileSystemEventHandler.__init__(self)
+
+    def on_modified(self, event):
+        if not event.is_directory \
+                and os.path.basename(event.src_path) == "config.yaml":
+            with ConfigLock:
+                log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
+                CONFIG.init_config()
+                for instance in INSTANCES:
+                    if hasattr(instance, "init_config"):
+                        try:
+                            instance().init_config()
+                        except Exception as e:
+                            print(str(e))
+
+
+# 配置文件监听
+ConfigObserver = Observer(timeout=10)
+ConfigObserver.schedule(ConfigHandler(), path=CONFIG.get_config_path(), recursive=False)
+ConfigObserver.setDaemon(True)
+ConfigObserver.start()
 
 
 @App.after_request
