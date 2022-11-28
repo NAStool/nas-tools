@@ -210,12 +210,20 @@ class FileTransfer:
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
                     sub_language = os.path.basename(file_item).split(".")[-2]
+                    #增加字幕判断条件, 识别非[-2]位置的字幕语言标识
+                    lower_file_item = file_item.lower()
                     if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
                                          or "简" in sub_language
                                          or "中" in sub_language
                                          or "双" in sub_language
                                          or "chs" in sub_language.lower()
-                                         or "cht" in sub_language.lower()):
+                                         or "cht" in sub_language.lower()
+                                         or ".zh-cn." in lower_file_item
+                                         or ".cn." in lower_file_item
+                                         or ".zh." in lower_file_item
+                                         or ".zh_cn" in lower_file_item
+                                         or ".chs." in lower_file_item
+                                         or ".cht." in lower_file_item):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
