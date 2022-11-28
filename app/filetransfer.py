@@ -209,22 +209,10 @@ class FileTransfer:
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
-                    sub_language = os.path.basename(file_item).split(".")[-2]
-                    # 增加字幕判断条件, 识别非[-2]位置的字幕语言标识
-                    lower_file_item = file_item.lower()
-                    if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
-                                         or "简" in sub_language
-                                         or "中" in sub_language
-                                         or "双" in sub_language
-                                         or "chs" in sub_language.lower()
-                                         or "cht" in sub_language.lower()
-                                         or ".zh-cn." in lower_file_item
-                                         or ".cn." in lower_file_item
-                                         or ".zh." in lower_file_item
-                                         or ".zh_cn." in lower_file_item
-                                         or ".chs." in lower_file_item
-                                         or ".cht." in lower_file_item):
+                    if re.search("\.(((zh[-_])?(cn|chs|sg))|zh|zho|chinese|chs[-_]eng|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.", file_item, re.I):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
+                    elif re.search("\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item, re.I):
+                        new_file = os.path.splitext(new_name)[0] + ".zh-tw" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
                     if not os.path.exists(new_file):
