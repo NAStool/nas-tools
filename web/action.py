@@ -26,13 +26,11 @@ from app.indexer import BuiltinIndexer
 from app.media import Category, Media, MetaInfo
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
-from app.mediaserver import Emby, Jellyfin, Plex
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
 from app.rss import Rss
 from app.rsschecker import RssChecker
-from app.scheduler import Scheduler
-from app.scheduler import restart_scheduler, stop_scheduler
+from app.scheduler import stop_scheduler
 from app.searcher import Searcher
 from app.sites import Sites
 from app.sites.sitecookie import SiteCookie
@@ -220,7 +218,7 @@ class WebAction:
         }
 
     @staticmethod
-    def shutdown_server():
+    def restart_server():
         """
         停止进程
         """
@@ -230,14 +228,13 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
-        # 退出
-        if SystemUtils.is_synology():
-            os.system("ps -ef|grep -w 'run:App' -m 1|grep -v grep|awk '{print $2}'|xargs kill -HUP")
-        elif SystemUtils.is_docker():
-            os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
-            os.system("ps -ef|grep -w 'run:App' -m 1|grep -v grep|awk '{print $1}'|xargs kill -HUP")
-        else:
+        # 重启进程
+        if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
+        else:
+            if SystemUtils.is_docker():
+                os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
+            os.system("pm2 restart NAStool")
 
     @staticmethod
     def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
@@ -992,7 +989,7 @@ class WebAction:
         重启
         """
         # 退出主进程
-        self.shutdown_server()
+        self.restart_server()
         return {"code": 0}
 
     def __update_system(self, data):
@@ -1004,8 +1001,8 @@ class WebAction:
             if SystemUtils.execute('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l') == '0':
                 # 调用群晖套件内置命令升级
                 os.system('nastool update')
-                # 退出主进程
-                self.shutdown_server()
+                # 重启
+                self.restart_server()
         else:
             # 清除git代理
             os.system("git config --global --unset http.proxy")
@@ -1025,8 +1022,8 @@ class WebAction:
             os.system("git submodule update --init --recursive")
             # 安装依赖
             os.system('pip install -r /nas-tools/requirements.txt')
-            # 退出主进程
-            self.shutdown_server()
+            # 重启
+            self.restart_server()
         return {"code": 0}
 
     @staticmethod
@@ -1043,16 +1040,8 @@ class WebAction:
         """
         cfg = Config().get_config()
         cfgs = dict(data).items()
-        # 重载配置标志
+        # 仅测试不保存
         config_test = False
-        scheduler_reload = False
-        emby_reload = False
-        jellyfin_reload = False
-        plex_reload = False
-        category_reload = False
-        subtitle_reload = False
-        sites_reload = False
-        downloader_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -1060,54 +1049,10 @@ class WebAction:
                 continue
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
-            if key in ['douban.interval',
-                       'media.mediasync_interval',
-                       'pt.pt_check_interval',
-                       'pt.ptsignin_cron',
-                       'pt.search_rss_interval']:
-                scheduler_reload = True
-            if key.startswith("emby."):
-                emby_reload = True
-            if key.startswith("jellyfin."):
-                jellyfin_reload = True
-            if key.startswith("plex."):
-                plex_reload = True
-            if key.startswith("media.category"):
-                category_reload = True
-            if key.startswith("subtitle."):
-                subtitle_reload = True
-            if key.startswith('pt.') \
-                    or key in ["downloaddir."]:
-                downloader_reload = True
 
         # 保存配置
         if not config_test:
             Config().save_config(cfg)
-        # 重启定时服务
-        if scheduler_reload:
-            Scheduler().init_config()
-            restart_scheduler()
-        # 重载emby
-        if emby_reload:
-            Emby().init_config()
-        # 重载Jellyfin
-        if jellyfin_reload:
-            Jellyfin().init_config()
-        # 重载Plex
-        if plex_reload:
-            Plex().init_config()
-        # 重载二级分类
-        if category_reload:
-            Category().init_config()
-        # 重载字幕
-        if subtitle_reload:
-            Subtitle().init_config()
-        # 重载站点
-        if sites_reload:
-            Sites().init_config()
-        # 重载下载器
-        if downloader_reload:
-            Downloader().init_config()
 
         return {"code": 0}
 
