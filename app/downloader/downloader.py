@@ -78,7 +78,7 @@ class Downloader:
                 "id": -1,
                 "name": "默认",
                 "category": '',
-                "tags": 'NASTOOL',
+                "tags": PT_TAG,
                 "content_layout": 0,
                 "is_paused": 0,
                 "upload_limit": 0,

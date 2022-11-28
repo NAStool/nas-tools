@@ -77,10 +77,11 @@ class Transmission(IDownloadClient):
                 continue
             labels = torrent.labels if hasattr(torrent, "labels") else []
             include_flag = True
-            for t in tag:
-                if t and t not in labels:
-                    include_flag = False
-                    break
+            if tag:
+                for t in tag:
+                    if t and t not in labels:
+                        include_flag = False
+                        break
             if include_flag:
                 ret_torrents.append(torrent)
         return ret_torrents, False
@@ -176,25 +177,25 @@ class Transmission(IDownloadClient):
             uploadLimit = int(upload_limit)
         else:
             uploadLimited = False
-            uploadLimit = None
+            uploadLimit = 0
         if download_limit:
             downloadLimited = True
             downloadLimit = int(download_limit)
         else:
             downloadLimited = False
-            downloadLimit = None
+            downloadLimit = 0
         if ratio_limit:
             seedRatioMode = 1
             seedRatioLimit = round(float(ratio_limit), 2)
         else:
             seedRatioMode = 2
-            seedRatioLimit = None
+            seedRatioLimit = 0
         if seeding_time_limit:
             seedIdleMode = 1
             seedIdleLimit = int(seeding_time_limit)
         else:
             seedIdleMode = 2
-            seedIdleLimit = None
+            seedIdleLimit = 0
         try:
             self.trc.change_torrent(ids=ids,
                                     labels=labels,
