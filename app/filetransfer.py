@@ -1094,6 +1094,7 @@ class FileTransfer:
             "en_title": StringUtils.clear_file_name(media.en_name),
             "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
             "original_title": StringUtils.clear_file_name(media.original_title),
+            "name": StringUtils.clear_file_name(media.get_name()),
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
