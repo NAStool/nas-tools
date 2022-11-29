@@ -482,9 +482,9 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if (currType == "qbittorrent") {
-        command = ["Qbittorrent().get_status()"];
+        command = "app.downloader.client.qbittorrent|Qbittorrent";
       } else if (currType == "transmission") {
-        command = ["Transmission().get_status()"];
+        command = "app.downloader.client.transmission|Transmission";
       } else if (currType == "client115") {
         command = "app.downloader.client.client115|Client115";
       } else if (currType == "aria2") {

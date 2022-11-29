@@ -240,9 +240,9 @@
       if (currType == "emby") {
         command = "app.mediaserver.server.emby|Emby";
       } else if (currType == "jellyfin") {
-        command = ["Jellyfin().get_status()"];
+        command = "app.mediaserver.server.jellyfin|Jellyfin";
       } else if (currType == "plex") {
-        command = ["Plex().get_status()"];
+        command = "app.mediaserver.server.plex|Plex";
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code == 0) {
