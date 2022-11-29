@@ -1,5 +1,6 @@
 import datetime
 import os
+import platform
 import shutil
 import subprocess
 
@@ -40,8 +41,10 @@ class SystemUtils:
         """
         获取操作系统类型
         """
-        if os.name == 'nt':
+        if SystemUtils.is_windows():
             return OsType.WINDOWS
+        elif SystemUtils.is_synology():
+            return OsType.SYNOLOGY
         else:
             return OsType.LINUX
 

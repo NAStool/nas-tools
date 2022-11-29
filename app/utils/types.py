@@ -50,6 +50,7 @@ class MatchMode(Enum):
 class OsType(Enum):
     WINDOWS = "Windows"
     LINUX = "Linux"
+    SYNOLOGY = "Synology"
 
 
 class IndexerType(Enum):
