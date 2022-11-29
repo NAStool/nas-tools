@@ -1,5 +1,6 @@
 import os
 import shutil
+from threading import Lock
 import ruamel.yaml
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
@@ -138,7 +139,25 @@ SITE_LOGIN_XPATH = {
     ]
 }
 
+# 线程锁
+lock = Lock()
 
+
+# 全局实例
+_CONFIG = None
+
+
+def singleconfig(cls):
+    def _singleconfig(*args, **kwargs):
+        global _CONFIG
+        if not _CONFIG:
+            with lock:
+                _CONFIG = cls(*args, **kwargs)
+        return _CONFIG
+    return _singleconfig
+
+
+@singleconfig
 class Config(object):
     _config = {}
     _config_path = None
@@ -202,7 +221,3 @@ class Config(object):
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
         return domain
-
-
-# 配置实例
-CONFIG = Config()

@@ -14,7 +14,7 @@ from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
 from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
 from app.utils import RequestUtils
-from config import CONFIG
+from config import Config
 
 
 class SiteUserInfoFactory(object):
@@ -47,7 +47,7 @@ class SiteUserInfoFactory(object):
                 # 判断是否已签到
                 html_text = chrome.get_html()
         else:
-            proxies = CONFIG.get_proxies() if proxy else None
+            proxies = Config().get_proxies() if proxy else None
             res = RequestUtils(cookies=site_cookie,
                                session=session,
                                headers=ua,

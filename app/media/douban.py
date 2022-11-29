@@ -8,7 +8,7 @@ from app.utils.commons import singleton
 from app.utils.string_utils import StringUtils
 
 import log
-from config import CONFIG
+from config import Config
 from app.media.doubanapi import DoubanApi, DoubanWeb
 from app.media import MetaInfo
 from app.utils import RequestUtils
@@ -27,12 +27,12 @@ class DouBan:
     _tv_num = 30
 
     def __init__(self):
-        self.doubanapi = DoubanApi()
-        self.doubanweb = DoubanWeb()
         self.init_config()
 
     def init_config(self):
-        douban = CONFIG.get_config('douban')
+        self.doubanapi = DoubanApi()
+        self.doubanweb = DoubanWeb()
+        douban = Config().get_config('douban')
         if douban:
             # Cookie
             self.cookie = douban.get('cookie')

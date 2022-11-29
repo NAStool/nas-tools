@@ -34,10 +34,10 @@ class BrushTask(object):
     _tr_client = "transmission"
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.sites = Sites()
         self.filter = Filter()
@@ -253,12 +253,12 @@ class BrushTask(object):
         由定时服务调用
         """
 
-        def __send_message(_task_name, _delete_type, _torrent):
+        def __send_message(_task_name, _delete_type, _torrent_name):
             """
             发送删种消息
             """
             _msg_title = "【刷流任务 {} 删除做种】".format(_task_name)
-            _msg_text = "删除原因：{}\n种子名称：{}".format(_delete_type.value, _torrent.get('name'))
+            _msg_text = "删除原因：{}\n种子名称：{}".format(_delete_type.value, _torrent_name)
             self.message.send_brushtask_remove_message(title=_msg_title, text=_msg_text)
 
         # 遍历所有任务
@@ -329,7 +329,7 @@ class BrushTask(object):
                             log.info(
                                 "【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.get('name'), delete_type.value))
                             if sendmessage:
-                                __send_message(task_name, delete_type, torrent)
+                                __send_message(task_name, delete_type, torrent.get('name'))
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -362,7 +362,7 @@ class BrushTask(object):
                             log.info(
                                 "【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.get('name'), delete_type.value))
                             if sendmessage:
-                                __send_message(task_name, delete_type, torrent)
+                                __send_message(task_name, delete_type, torrent.get('name'))
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -404,7 +404,7 @@ class BrushTask(object):
                         if need_delete:
                             log.info("【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.name, delete_type.value))
                             if sendmessage:
-                                __send_message(task_name, delete_type, torrent)
+                                __send_message(task_name, delete_type, torrent.name)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -437,7 +437,7 @@ class BrushTask(object):
                         if need_delete:
                             log.info("【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.name, delete_type.value))
                             if sendmessage:
-                                __send_message(task_name, delete_type, torrent)
+                                __send_message(task_name, delete_type, torrent.name)
 
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)

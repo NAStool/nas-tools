@@ -10,7 +10,7 @@ from app.helper.sub_helper import SubHelper
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType
-from config import CONFIG, RMT_SUBEXT, SITE_SUBTITLE_XPATH
+from config import Config, RMT_SUBEXT, SITE_SUBTITLE_XPATH
 
 
 @singleton
@@ -25,14 +25,14 @@ class Subtitle:
     _opensubtitles_enable = False
 
     def __init__(self):
-        self.subhelper = SubHelper()
         self.init_config()
 
     def init_config(self):
-        self._save_tmp_path = os.path.join(CONFIG.get_config_path(), "temp")
+        self.subhelper = SubHelper()
+        self._save_tmp_path = os.path.join(Config().get_config_path(), "temp")
         if not os.path.exists(self._save_tmp_path):
             os.makedirs(self._save_tmp_path)
-        subtitle = CONFIG.get_config('subtitle')
+        subtitle = Config().get_config('subtitle')
         if subtitle:
             self._server = subtitle.get("server")
             if self._server == "chinesesubfinder":

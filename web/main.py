@@ -9,6 +9,7 @@ import urllib
 import xml.dom.minidom
 from math import floor
 from pathlib import Path
+from threading import Lock
 from urllib import parse
 
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
@@ -30,7 +31,7 @@ from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import DomUtils, SystemUtils, WebUtils
 from app.utils.types import *
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, CONFIG
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -38,10 +39,13 @@ from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
 
+# 配置文件锁
+ConfigLock = Lock()
+
 # Flask App
 App = Flask(__name__)
 App.config['JSON_AS_ASCII'] = False
-App.secret_key = os.urandom(24)
+App.secret_key = Config().get_config('security').get("api_key")
 App.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # 登录管理模块
@@ -91,8 +95,8 @@ def login():
         """
         # 判断当前的运营环境
         SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
-        SyncMod = CONFIG.get_config('pt').get('rmt_mode')
-        TMDBFlag = 1 if CONFIG.get_config('app').get('rmt_tmdbkey') else 0
+        SyncMod = Config().get_config('pt').get('rmt_mode')
+        TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
         RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
@@ -161,7 +165,7 @@ def login():
 @login_required
 def index():
     # 媒体服务器类型
-    MSType = CONFIG.get_config('media').get('media_server')
+    MSType = Config().get_config('media').get('media_server')
     # 获取媒体数量
     MediaCounts = WebAction().get_library_mediacount()
     if MediaCounts.get("code") == 0:
@@ -460,7 +464,7 @@ def downloading():
     return render_template("download/downloading.html",
                            DownloadCount=len(DispTorrents),
                            Torrents=DispTorrents,
-                           Client=CONFIG.get_config("pt").get("pt_client"))
+                           Client=Config().get_config("pt").get("pt_client"))
 
 
 # 近期下载页面
@@ -576,7 +580,7 @@ def userdownloader():
 def service():
     scheduler_cfg_list = []
     RuleGroups = Filter().get_rule_groups()
-    pt = CONFIG.get_config('pt')
+    pt = Config().get_config('pt')
     if pt:
         # RSS订阅
         pt_check_interval = pt.get('pt_check_interval')
@@ -692,7 +696,7 @@ def service():
             {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
              'color': "orange"})
     # 豆瓣同步
-    douban_cfg = CONFIG.get_config('douban')
+    douban_cfg = Config().get_config('douban')
     if douban_cfg:
         interval = douban_cfg.get('interval')
         if interval:
@@ -911,11 +915,11 @@ def mediafile():
 @App.route('/basic', methods=['POST', 'GET'])
 @login_required
 def basic():
-    proxy = CONFIG.get_config('app').get("proxies", {}).get("http")
+    proxy = Config().get_config('app').get("proxies", {}).get("http")
     if proxy:
         proxy = proxy.replace("http://", "")
     return render_template("setting/basic.html",
-                           Config=CONFIG.get_config(),
+                           Config=Config().get_config(),
                            Proxy=proxy)
 
 
@@ -943,7 +947,7 @@ def directorysync():
 @App.route('/douban', methods=['POST', 'GET'])
 @login_required
 def douban():
-    return render_template("setting/douban.html", Config=CONFIG.get_config())
+    return render_template("setting/douban.html", Config=Config().get_config())
 
 
 # 下载器页面
@@ -951,7 +955,7 @@ def douban():
 @login_required
 def downloader():
     return render_template("setting/downloader.html",
-                           Config=CONFIG.get_config())
+                           Config=Config().get_config())
 
 
 # 下载设置页面
@@ -974,7 +978,7 @@ def indexer():
     private_count = len([item.id for item in indexers if not item.public])
     public_count = len([item.id for item in indexers if item.public])
     return render_template("setting/indexer.html",
-                           Config=CONFIG.get_config(),
+                           Config=Config().get_config(),
                            PrivateCount=private_count,
                            PublicCount=public_count,
                            Indexers=indexers)
@@ -984,14 +988,14 @@ def indexer():
 @App.route('/library', methods=['POST', 'GET'])
 @login_required
 def library():
-    return render_template("setting/library.html", Config=CONFIG.get_config())
+    return render_template("setting/library.html", Config=Config().get_config())
 
 
 # 媒体服务器页面
 @App.route('/mediaserver', methods=['POST', 'GET'])
 @login_required
 def mediaserver():
-    return render_template("setting/mediaserver.html", Config=CONFIG.get_config())
+    return render_template("setting/mediaserver.html", Config=Config().get_config())
 
 
 # 通知消息页面
@@ -1013,7 +1017,7 @@ def notification():
 @App.route('/subtitle', methods=['POST', 'GET'])
 @login_required
 def subtitle():
-    return render_template("setting/subtitle.html", Config=CONFIG.get_config())
+    return render_template("setting/subtitle.html", Config=Config().get_config())
 
 
 # 用户管理页面
@@ -1397,7 +1401,7 @@ def backup():
     """
     try:
         # 创建备份文件夹
-        config_path = Path(CONFIG.get_config_path())
+        config_path = Path(Config().get_config_path())
         backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
         backup_path = config_path / "backup_file" / backup_file
         backup_path.mkdir(parents=True)
@@ -1439,7 +1443,7 @@ def backup():
 def upload():
     try:
         files = request.files['file']
-        zip_file = Path(CONFIG.get_config_path()) / files.filename
+        zip_file = Path(Config().get_config_path()) / files.filename
         files.save(str(zip_file))
         return {"code": 0, "filepath": str(zip_file)}
     except Exception as e:

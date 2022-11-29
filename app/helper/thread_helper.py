@@ -11,5 +11,8 @@ class ThreadHelper:
     def __init__(self):
         self.executor = ThreadPoolExecutor(max_workers=self._thread_num)
 
+    def init_config(self):
+        pass
+
     def start_thread(self, func, kwargs):
         self.executor.submit(func, *kwargs)

@@ -22,7 +22,7 @@ from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import DbHelper
-from config import SITE_CHECKIN_XPATH, CONFIG
+from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
 
@@ -47,10 +47,10 @@ class Sites:
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.siteconf = SiteConf()
         # 原始站点列表
@@ -311,7 +311,7 @@ class Sites:
         else:
             # 计时
             start_time = datetime.now()
-            proxies = CONFIG.get_proxies() if site_info.get("proxy") == "Y" else None
+            proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
             res = RequestUtils(cookies=site_cookie,
                                headers=ua,
                                proxies=proxies
@@ -408,7 +408,7 @@ class Sites:
                             continue
                 # 模拟登录
                 else:
-                    proxies = CONFIG.get_proxies() if site_info.get("proxy") == "Y" else None
+                    proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
                     if site_url.find("attendance.php") != -1:
                         checkin_text = "签到"
                     else:

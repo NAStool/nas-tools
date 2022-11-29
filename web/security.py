@@ -5,7 +5,7 @@ import jwt
 from flask import request
 
 from app.utils import TokenCache
-from config import CONFIG
+from config import Config
 
 
 def require_auth(func):
@@ -18,7 +18,7 @@ def require_auth(func):
         auth = request.headers.get("Authorization")
         if auth:
             auth = str(auth).split()[-1]
-            if auth == CONFIG.get_config("security").get("api_key"):
+            if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
         return {
             "code": 401,
@@ -46,7 +46,7 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
         'username': username
     }
     access_token = jwt.encode(access_payload,
-                              CONFIG.get_config("security").get("api_key"),
+                              Config().get_config("security").get("api_key"),
                               algorithm=algorithm)
     return access_token
 
@@ -57,7 +57,7 @@ def __decode_auth_token(token: str, algorithms='HS256'):
     :param token:token字符串
     :return: 是否有效，playload
     """
-    key = CONFIG.get_config("security").get("api_key")
+    key = Config().get_config("security").get("api_key")
     try:
         payload = jwt.decode(token,
                              key=key,

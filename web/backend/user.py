@@ -2,7 +2,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash
 
 from app.helper import DbHelper
-from config import CONFIG
+from config import Config
 
 
 class User(UserMixin):
@@ -21,8 +21,8 @@ class User(UserMixin):
             self.pris = user.get('pris')
         self.admin_users = [{
             "id": 0,
-            "name": CONFIG.get_config('app').get('login_user'),
-            "password": CONFIG.get_config('app').get('login_password')[6:],
+            "name": Config().get_config('app').get('login_user'),
+            "password": Config().get_config('app').get('login_password')[6:],
             "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
         }]
 

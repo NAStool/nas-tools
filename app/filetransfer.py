@@ -18,7 +18,7 @@ from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
-    DEFAULT_TV_FORMAT, CONFIG
+    DEFAULT_TV_FORMAT, Config
 
 lock = Lock()
 
@@ -65,10 +65,10 @@ class FileTransfer:
         self.init_config()
 
     def init_config(self):
-        media = CONFIG.get_config('media')
+        media = Config().get_config('media')
         self._scraper_flag = media.get("nfo_poster")
-        self._scraper_nfo = CONFIG.get_config('scraper_nfo')
-        self._scraper_pic = CONFIG.get_config('scraper_pic')
+        self._scraper_nfo = Config().get_config('scraper_nfo')
+        self._scraper_pic = Config().get_config('scraper_pic')
         if media:
             # 刷新媒体库开关
             self._refresh_mediaserver = media.get("refresh_mediaserver")
@@ -142,7 +142,7 @@ class FileTransfer:
                     self._tv_season_rmt_format = tv_formats[1]
                 if len(tv_formats) > 2:
                     self._tv_file_rmt_format = tv_formats[2]
-        self._default_rmt_mode = RMT_MODES.get(CONFIG.get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
+        self._default_rmt_mode = RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):
@@ -209,22 +209,10 @@ class FileTransfer:
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
-                    sub_language = os.path.basename(file_item).split(".")[-2]
-                    # 增加字幕判断条件, 识别非[-2]位置的字幕语言标识
-                    lower_file_item = file_item.lower()
-                    if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
-                                         or "简" in sub_language
-                                         or "中" in sub_language
-                                         or "双" in sub_language
-                                         or "chs" in sub_language.lower()
-                                         or "cht" in sub_language.lower()
-                                         or ".zh-cn." in lower_file_item
-                                         or ".cn." in lower_file_item
-                                         or ".zh." in lower_file_item
-                                         or ".zh_cn." in lower_file_item
-                                         or ".chs." in lower_file_item
-                                         or ".cht." in lower_file_item):
+                    if re.search("\.(((zh[-_])?(cn|chs|sg))|zh|zho|chinese|chs[-_]eng|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.", file_item, re.I):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
+                    elif re.search("\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item, re.I):
+                        new_file = os.path.splitext(new_name)[0] + ".zh-tw" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
                     if not os.path.exists(new_file):
@@ -1102,6 +1090,7 @@ class FileTransfer:
             "en_title": StringUtils.clear_file_name(media.en_name),
             "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
             "original_title": StringUtils.clear_file_name(media.original_title),
+            "name": StringUtils.clear_file_name(media.get_name()),
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,

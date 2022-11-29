@@ -1,6 +1,6 @@
 import log
 from app.helper import DbHelper
-from config import CONFIG
+from config import Config
 from app.message import Message
 from app.downloader import Downloader
 from app.indexer import BuiltinIndexer, Jackett, Prowlarr
@@ -28,10 +28,10 @@ class Searcher:
         self.init_config()
 
     def init_config(self):
-        self._search_auto = CONFIG.get_config("pt").get('search_auto', True)
-        if CONFIG.get_config("pt").get('search_indexer') == "prowlarr":
+        self._search_auto = Config().get_config("pt").get('search_auto', True)
+        if Config().get_config("pt").get('search_indexer') == "prowlarr":
             self.indexer = Prowlarr()
-        elif CONFIG.get_config("pt").get('search_indexer') == "jackett":
+        elif Config().get_config("pt").get('search_indexer') == "jackett":
             self.indexer = Jackett()
         else:
             self.indexer = BuiltinIndexer()
@@ -124,7 +124,7 @@ class Searcher:
                     search_en_name = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
         # 两次搜索名称
         second_search_name = None
-        if CONFIG.get_config("laboratory").get("search_en_title"):
+        if Config().get_config("laboratory").get("search_en_title"):
             if search_en_name:
                 first_search_name = search_en_name
                 second_search_name = search_cn_name

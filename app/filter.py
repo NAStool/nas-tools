@@ -1,6 +1,7 @@
 import re
 
 from app.helper import DbHelper
+from app.media.meta.release_groups import rg_match
 from app.utils import StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType
@@ -14,10 +15,10 @@ class Filter:
     _rules = []
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self._groups = self.dbhelper.get_config_filter_group()
         self._rules = self.dbhelper.get_config_filter_rule()
 
@@ -252,8 +253,12 @@ class Filter:
         if filter_args.get("team"):
             team = filter_args.get("team")
             if not meta_info.resource_team:
-                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
-            if team and not re.search(r"%s" % team, meta_info.resource_team, re.I):
+                resource_team = rg_match(f"{meta_info.org_string} ", team)
+                if not resource_team:
+                    return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
+                else:
+                    meta_info.resource_team = resource_team
+            elif not re.search(r"%s" % team, meta_info.resource_team, re.I):
                 return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
         # 过滤促销
         if filter_args.get("sp_state"):

@@ -1,6 +1,6 @@
 import os
 import log
-from config import CONFIG
+from config import Config
 from .main_db import MainDb
 from .media_db import MediaDb
 from alembic.config import Config as AlembicConfig
@@ -22,8 +22,8 @@ def update_db():
     """
     更新数据库
     """
-    db_location = os.path.join(CONFIG.get_config_path(), 'user.db')
-    script_location = os.path.join(CONFIG.get_root_path(), 'db_scripts')
+    db_location = os.path.join(Config().get_config_path(), 'user.db')
+    script_location = os.path.join(Config().get_root_path(), 'db_scripts')
     log.console('开始更新数据库...')
     try:
         alembic_cfg = AlembicConfig()

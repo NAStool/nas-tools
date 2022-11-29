@@ -8,6 +8,9 @@ class ProgressHelper(object):
     def __init__(self):
         self._process_detail = {}
 
+    def init_config(self):
+        pass
+
     def reset(self, ptype="search"):
         self._process_detail[ptype] = {
             "enable": False,

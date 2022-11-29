@@ -1,7 +1,7 @@
 import requests
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
-from config import CONFIG
+from config import Config
 
 urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -31,7 +31,7 @@ class RequestUtils:
         else:
             self._headers = {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "User-Agent": CONFIG.get_ua()
+                "User-Agent": Config().get_ua()
             }
         if referer:
             self._headers.update({

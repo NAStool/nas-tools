@@ -15,10 +15,10 @@ class WordsHelper:
     offset_words_info = []
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.ignored_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
         self.ignored_words_noregex_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
         self.replaced_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)

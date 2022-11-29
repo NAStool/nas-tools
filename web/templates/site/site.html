@@ -765,7 +765,9 @@
     refresh_sitecookie_process_flag = true;
     refresh_sitecookie_fail_count = 0;
     refresh_sitecookie_process();
-    $("#modal-update-site-cookie").modal("show");
+    if (!sitecookie_update_finish){
+      $("#modal-update-site-cookie").modal("show");
+    }
   }
 
   // 显示验证码输入框

@@ -7,7 +7,7 @@ from app.helper import DbHelper, ThreadHelper
 from app.media import MetaInfo, Media
 from app.subtitle import Subtitle
 from app.utils.commons import singleton
-from config import CONFIG, PT_TAG, RMT_MEDIAEXT
+from config import Config, PT_TAG, RMT_MEDIAEXT
 from app.message import Message
 from app.downloader import Aria2, Client115, Qbittorrent, Transmission
 from app.mediaserver import MediaServer
@@ -39,17 +39,17 @@ class Downloader:
     dbhelper = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.mediaserver = MediaServer()
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.sites = Sites()
-        self.dbhelper = DbHelper()
-        self.init_config()
-
-    def init_config(self):
         # 下载器配置
-        pt = CONFIG.get_config('pt')
+        pt = Config().get_config('pt')
         if pt:
             pt_client = pt.get('pt_client')
             if pt_client == "qbittorrent":
@@ -71,14 +71,14 @@ class Downloader:
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
         # 下载目录配置
-        self._downloaddir = CONFIG.get_config('downloaddir') or []
+        self._downloaddir = Config().get_config('downloaddir') or []
         # 下载设置
         self._download_setting = {
             "-1": {
                 "id": -1,
                 "name": "默认",
                 "category": '',
-                "tags": 'NASTOOL',
+                "tags": PT_TAG,
                 "content_layout": 0,
                 "is_paused": 0,
                 "upload_limit": 0,
@@ -925,13 +925,13 @@ class Downloader:
         # 下载设置为QB
         if download_setting \
                 and download_setting.get('downloader') == "Qbittorrent" \
-                and CONFIG.get_config("qbittorrent").get("auto_management"):
+                and Config().get_config("qbittorrent").get("auto_management"):
             return []
         # 默认下载器为QB
         if download_setting \
                 and not download_setting.get('downloader') \
-                and CONFIG.get_config("pt").get("pt_client") == "qbittorrent" \
-                and CONFIG.get_config("qbittorrent").get("auto_management"):
+                and Config().get_config("pt").get("pt_client") == "qbittorrent" \
+                and Config().get_config("qbittorrent").get("auto_management"):
             return []
         # 查询目录
         save_path_list = [attr.get("save_path") for attr in self._downloaddir if attr.get("save_path")]
@@ -994,7 +994,7 @@ class Downloader:
         if not type_name:
             return None
         for dict_type in DownloaderType:
-            if dict_type.name == type_name:
+            if dict_type.name == type_name or dict_type.value == type_name:
                 return dict_type
 
     def get_torrent_episodes(self, url, page_url=None):

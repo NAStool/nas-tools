@@ -24,13 +24,13 @@ class SiteCookie(object):
     captcha_code = {}
 
     def __init__(self):
-        self.progress = ProgressHelper()
-        self.sites = Sites()
-        self.ocrhelper = OcrHelper()
-        self.dbhelpter = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelpter = DbHelper()
+        self.progress = ProgressHelper()
+        self.sites = Sites()
+        self.ocrhelper = OcrHelper()
         self.captcha_code = {}
 
     def set_code(self, code, value):

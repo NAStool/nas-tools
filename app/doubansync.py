@@ -12,7 +12,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils.types import SearchType, MediaType
-from config import CONFIG
+from config import Config
 
 lock = Lock()
 
@@ -42,7 +42,7 @@ class DoubanSync:
         self.init_config()
 
     def init_config(self):
-        douban = CONFIG.get_config('douban')
+        douban = Config().get_config('douban')
         if douban:
             # 同步间隔
             self._interval = int(douban.get('interval')) if str(douban.get('interval')).isdigit() else None

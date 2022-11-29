@@ -16,7 +16,7 @@ from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
-from config import CONFIG
+from config import Config
 
 
 @singleton
@@ -40,10 +40,10 @@ class RssChecker(object):
     }
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
+        self.dbhelper = DbHelper()
         self.message = Message()
         self.searcher = Searcher()
         self.filter = Filter()
@@ -355,7 +355,7 @@ class RssChecker(object):
             return []
         if rss_parser.get("params"):
             _dict = {
-                "TMDBKEY": CONFIG.get_config("app").get("rmt_tmdbkey")
+                "TMDBKEY": Config().get_config("app").get("rmt_tmdbkey")
             }
             try:
                 param_url = rss_parser.get("params").format(**_dict)

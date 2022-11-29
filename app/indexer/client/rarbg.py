@@ -1,24 +1,22 @@
 import requests
 
 import log
-from app.utils.commons import singleton
 from app.utils import RequestUtils
-from config import CONFIG
+from config import Config
 
 
-@singleton
 class Rarbg:
     _appid = "nastool"
     _req = None
     _token = None
     _api_url = "http://torrentapi.org/pubapi_v2.php"
 
-    def __init__(self, cookies):
-        self.init_config(cookies)
+    def __init__(self):
+        self.init_config()
 
-    def init_config(self, cookies):
+    def init_config(self):
         session = requests.session()
-        self._req = RequestUtils(cookies=cookies, proxies=CONFIG.get_proxies(), session=session, timeout=10)
+        self._req = RequestUtils(proxies=Config().get_proxies(), session=session, timeout=10)
         self.__get_token()
 
     def __get_token(self):
