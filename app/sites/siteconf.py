@@ -195,7 +195,7 @@ class SiteConf:
         },
         'hdchina.org': {
             'FREE': ["//img[@class='pro_free']"],
-            '2XFREE': ["//img[@class='pro_free2up"],
+            '2XFREE': ["//img[@class='pro_free2up']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
