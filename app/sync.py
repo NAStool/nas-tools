@@ -12,7 +12,7 @@ from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
 from app.utils import PathUtils
-from app.utils.types import SyncType, OsType, RmtMode
+from app.utils.types import SyncType, OsType, RMT_MODES
 
 lock = threading.Lock()
 
@@ -45,23 +45,11 @@ class Sync(object):
     dbhelper = None
 
     sync_dir_config = {}
-    __observer = []
-    __sync_paths = []
-    __sync_sys = OsType.LINUX
-    __synced_files = []
-    __need_sync_paths = {}
-
-    # 转移模式
-    __sync_mode_dict = {
-        "copy": RmtMode.COPY,
-        "link": RmtMode.LINK,
-        "softlink": RmtMode.SOFTLINK,
-        "move": RmtMode.MOVE,
-        "rclone": RmtMode.RCLONE,
-        "rclonecopy": RmtMode.RCLONECOPY,
-        "minio": RmtMode.MINIO,
-        "rminiocopy": RmtMode.MINIOCOPY
-    }
+    _observer = []
+    _sync_paths = []
+    _sync_sys = OsType.LINUX
+    _synced_files = []
+    _need_sync_paths = {}
 
     def __init__(self):
         self.init_config()
@@ -73,8 +61,8 @@ class Sync(object):
         sync_paths = self.dbhelper.get_config_sync_paths()
         if sync and sync_paths:
             if sync.get('nas_sys') == "windows":
-                self.__sync_sys = OsType.WINDOWS
-            self.__sync_paths = sync_paths
+                self._sync_sys = OsType.WINDOWS
+            self._sync_paths = sync_paths
             self.init_sync_dirs()
 
     def init_sync_dirs(self):
@@ -82,8 +70,8 @@ class Sync(object):
         初始化监控文件配置
         """
         self.sync_dir_config = {}
-        if self.__sync_paths:
-            for sync_item in self.__sync_paths:
+        if self._sync_paths:
+            for sync_item in self._sync_paths:
                 if not sync_item:
                     continue
                 # 启用标志
@@ -91,7 +79,7 @@ class Sync(object):
                 # 仅硬链接标志
                 only_link = False if sync_item.RENAME else True
                 # 转移方式
-                path_syncmode = self.__sync_mode_dict.get(sync_item.MODE)
+                path_syncmode = RMT_MODES.get(sync_item.MODE)
                 # 源目录|目的目录|未知目录
                 monpath = sync_item.SOURCE
                 target_path = sync_item.DEST
@@ -100,7 +88,8 @@ class Sync(object):
                     log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
                         monpath, target_path, unknown_path, path_syncmode.value))
                 elif target_path:
-                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
+                    log.info(
+                        "【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
                 else:
                     log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
                 if not enabled:
@@ -146,8 +135,8 @@ class Sync(object):
                 need_handler_flag = False
                 try:
                     lock.acquire()
-                    if event_path not in self.__synced_files:
-                        self.__synced_files.append(event_path)
+                    if event_path not in self._synced_files:
+                        self._synced_files.append(event_path)
                         need_handler_flag = True
                 finally:
                     lock.release()
@@ -230,8 +219,8 @@ class Sync(object):
                     else:
                         try:
                             lock.acquire()
-                            if self.__need_sync_paths.get(from_dir):
-                                files = self.__need_sync_paths[from_dir].get('files')
+                            if self._need_sync_paths.get(from_dir):
+                                files = self._need_sync_paths[from_dir].get('files')
                                 if not files:
                                     files = [event_path]
                                 else:
@@ -239,12 +228,12 @@ class Sync(object):
                                         files.append(event_path)
                                     else:
                                         return
-                                self.__need_sync_paths[from_dir].update({'files': files})
+                                self._need_sync_paths[from_dir].update({'files': files})
                             else:
-                                self.__need_sync_paths[from_dir] = {'target': target_path,
-                                                                    'unknown': unknown_path,
-                                                                    'syncmod': sync_mode,
-                                                                    'files': [event_path]}
+                                self._need_sync_paths[from_dir] = {'target': target_path,
+                                                                   'unknown': unknown_path,
+                                                                   'syncmod': sync_mode,
+                                                                   'files': [event_path]}
                         finally:
                             lock.release()
             except Exception as e:
@@ -257,10 +246,10 @@ class Sync(object):
         try:
             lock.acquire()
             finished_paths = []
-            for path in list(self.__need_sync_paths):
+            for path in list(self._need_sync_paths):
                 if not PathUtils.is_invalid_path(path) and os.path.exists(path):
                     log.info("【Sync】开始转移监控目录文件...")
-                    target_info = self.__need_sync_paths.get(path)
+                    target_info = self._need_sync_paths.get(path)
                     bluray_dir = PathUtils.get_bluray_dir(path)
                     if not bluray_dir:
                         src_path = path
@@ -283,7 +272,7 @@ class Sync(object):
                                                                     rmt_mode=sync_mode)
                     if not ret:
                         log.warn("【Sync】%s转移失败：%s" % (path, ret_msg))
-                self.__need_sync_paths.pop(path)
+                self._need_sync_paths.pop(path)
         finally:
             lock.release()
 
@@ -291,17 +280,17 @@ class Sync(object):
         """
         启动监控服务
         """
-        self.__observer = []
+        self._observer = []
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
                 try:
-                    if self.__sync_sys == OsType.WINDOWS:
+                    if self._sync_sys == OsType.WINDOWS:
                         # 考虑到windows的docker需要直接指定才能生效(修改配置文件为windows)
                         observer = PollingObserver(timeout=10)
                     else:
                         # 内部处理系统操作类型选择最优解
                         observer = Observer(timeout=10)
-                    self.__observer.append(observer)
+                    self._observer.append(observer)
                     observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
                     observer.setDaemon(True)
                     observer.start()
@@ -313,10 +302,10 @@ class Sync(object):
         """
         关闭监控服务
         """
-        if self.__observer:
-            for observer in self.__observer:
+        if self._observer:
+            for observer in self._observer:
                 observer.stop()
-        self.__observer = []
+        self._observer = []
 
     def transfer_all_sync(self):
         """
