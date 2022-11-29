@@ -7,22 +7,23 @@ from threading import Lock
 from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver.v2 as uc
 
+from config import WEBDRIVER_PATH
+
 CHROME_LOCK = Lock()
 lock = Lock()
 
 
 class ChromeHelper(object):
 
-    _executable_path = "/usr/lib/chromium/chromedriver"
-    if SystemUtils.is_synology():
-        _executable_path = "/var/packages/NASTool/target/bin/chromedriver"
-    elif SystemUtils.is_windows():
-        _executable_path = None
+    _executable_path = None
         
     _chrome = None
     _headless = False
 
     def __init__(self, headless=False):
+
+        self._executable_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+
         if not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
         else:

@@ -8,7 +8,7 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils, SystemUtils
-from config import Config, DEFAULT_UA
+from config import Config, DEFAULT_UA, WEBDRIVER_PATH
 from feapder.utils.tools import urlencode
 from jinja2 import Template
 from pyquery import PyQuery
@@ -33,7 +33,7 @@ class TorrentSpider(feapder.AirSpider):
             driver_type="CHROME",
             timeout=15,
             window_size=(1024, 800),
-            executable_path="/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None,
+            executable_path=WEBDRIVER_PATH.get(SystemUtils.get_system().value),
             render_time=5,
             custom_argument=["--ignore-certificate-errors"],
         )
