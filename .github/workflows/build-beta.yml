@@ -8,6 +8,7 @@ on:
       - version.py
       - docker/Dockerfile.beta
       - .github/workflows/build-beta.yml
+      - requirements.txt
 jobs:
   build:
     runs-on: ubuntu-latest
