@@ -209,9 +209,11 @@ class FileTransfer:
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
-                    if re.search("\.(((zh[-_])?(cn|chs|sg))|zh|zho|chinese|chs[-_]eng|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.", file_item, re.I):
+                    if re.search(
+                            r"\.(((zh[-_])?(cn|chs|sg))|zh|zho|chinese|chs[-_]eng|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
+                            file_item, re.I):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
-                    elif re.search("\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item, re.I):
+                    elif re.search(r"\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item, re.I):
                         new_file = os.path.splitext(new_name)[0] + ".zh-tw" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
@@ -444,8 +446,10 @@ class FileTransfer:
                     log.debug("【Rmt】文件清单：" + str(file_list))
                     if len(file_list) == 0:
                         log.warn(
-                            "【Rmt】%s 目录下未找到媒体文件，当前最小文件大小限制为 %s" % (in_path, StringUtils.str_filesize(now_filesize)))
-                        return False, "目录下未找到媒体文件，当前最小文件大小限制为 %s" % StringUtils.str_filesize(now_filesize)
+                            "【Rmt】%s 目录下未找到媒体文件，当前最小文件大小限制为 %s" % (
+                            in_path, StringUtils.str_filesize(now_filesize)))
+                        return False, "目录下未找到媒体文件，当前最小文件大小限制为 %s" % StringUtils.str_filesize(
+                            now_filesize)
             # 传入的是个文件
             else:
                 if not os.path.exists(in_path):
