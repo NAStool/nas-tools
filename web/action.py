@@ -3291,7 +3291,10 @@ class WebAction:
             elif Client == DownloaderType.Aria2:
                 name = torrent.get('bittorrent', {}).get('info', {}).get("name")
                 # 进度
-                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
+                try:
+                    progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
+                except ZeroDivisionError:
+                    progress = 0.0
                 state = "Downloading"
                 dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
                 upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
