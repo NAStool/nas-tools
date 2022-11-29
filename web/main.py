@@ -45,7 +45,7 @@ ConfigLock = Lock()
 # Flask App
 App = Flask(__name__)
 App.config['JSON_AS_ASCII'] = False
-App.secret_key = Config().get_config('security').get("api_key")
+App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
 
 # 登录管理模块
