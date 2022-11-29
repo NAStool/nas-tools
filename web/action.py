@@ -232,7 +232,7 @@ class WebAction:
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         elif SystemUtils.is_synology():
-            os.system("ps -ef | grep -v grep | grep 'python run.py'")
+            os.system("ps -ef | grep -v grep | grep 'python run.py'|awk '{print $2}'|xargs kill -9")
         else:
             if SystemUtils.is_docker():
                 os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
