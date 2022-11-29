@@ -13,7 +13,12 @@ lock = Lock()
 
 class ChromeHelper(object):
 
-    _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
+    _executable_path = "/usr/lib/chromium/chromedriver"
+    if SystemUtils.is_synology():
+        _executable_path = "/var/packages/NASTool/target/bin/chromedriver"
+    elif SystemUtils.is_windows():
+        _executable_path = None
+        
     _chrome = None
     _headless = False
 
