@@ -9,5 +9,5 @@ if [  "$?" == "0" ]; then #"$?"是上一执行命令的返回值。
     yq -i '.name="Build NAStool Windows-2"' build-windows-2.yml
     cat build-windows-2.yml
     git add .
-    git commit -m "update build-2.yml"
+    git commit -m "update build-windows-2.yml"
     fi
