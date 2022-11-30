@@ -51,6 +51,7 @@ class OsType(Enum):
     WINDOWS = "Windows"
     LINUX = "Linux"
     SYNOLOGY = "Synology"
+    MACOS = "MACOS"
 
 
 class IndexerType(Enum):

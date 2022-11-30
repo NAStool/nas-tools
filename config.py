@@ -143,7 +143,8 @@ SITE_LOGIN_XPATH = {
 WEBDRIVER_PATH = {
     "Windows": None,
     "Linux": "/usr/lib/chromium/chromedriver",
-    "Synology": "/var/packages/NASTool/target/bin/chromedriver"
+    "Synology": "/var/packages/NASTool/target/bin/chromedriver",
+    "MACOS": "/Users/tzp/git/chromedriver",
 }
 
 # 线程锁

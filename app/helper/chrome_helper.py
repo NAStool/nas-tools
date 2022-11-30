@@ -22,7 +22,8 @@ class ChromeHelper(object):
 
     def __init__(self, headless=False):
 
-        self._executable_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+        chrome_path = SystemUtils.get_system().value
+        self._executable_path = WEBDRIVER_PATH.get(chrome_path)
 
         if not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
