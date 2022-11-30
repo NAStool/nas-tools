@@ -2200,3 +2200,46 @@ class DbHelper:
                     "INTERACTIVE": 0
                 }
             )
+
+    @DbPersist(_db)
+    def delete_torrent_remove_task(self, tid):
+        """
+        删除自动删种策略
+        """
+        if not tid:
+            return
+        self._db.query(TORRENTREMOVETASK).filter(TORRENTREMOVETASK.ID == int(tid)).delete()
+
+    def get_torrent_remove_tasks(self, tid=None):
+        """
+        查询自动删种策略
+        """
+        if tid:
+            return self._db.query(TORRENTREMOVETASK).filter(TORRENTREMOVETASK.ID == int(tid)).all()
+        return self._db.query(TORRENTREMOVETASK).order_by(TORRENTREMOVETASK.NAME).all()
+
+    @DbPersist(_db)
+    def insert_torrent_remove_task(self,
+                                   name,
+                                   action,
+                                   interval,
+                                   enabled,
+                                   samedata,
+                                   onlynastool,
+                                   downloader,
+                                   config: dict,
+                                   note=None):
+        """
+        设置自动删种策略
+        """
+        self._db.insert(TORRENTREMOVETASK(
+            NAME=name,
+            ACTION=int(action),
+            INTERVAL=int(interval),
+            ENABLED=int(enabled),
+            SAMEDATA=int(samedata),
+            ONLYNASTOOL=int(onlynastool),
+            DOWNLOADER=downloader,
+            CONFIG=json.dumps(config),
+            NOTE=note
+        ))

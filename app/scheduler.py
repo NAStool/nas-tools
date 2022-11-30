@@ -44,14 +44,6 @@ class Scheduler:
         if not self.SCHEDULER:
             return
         if self._pt:
-            # 种子清理
-            pt_seeding_time = self._pt.get('pt_seeding_time')
-            if pt_seeding_time:
-                self.SCHEDULER.add_job(Downloader().remove_torrents,
-                                       'interval',
-                                       seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
-                log.info("下载器自动删种服务启动")
-
             # 站点签到
             ptsignin_cron = str(self._pt.get('ptsignin_cron'))
             if ptsignin_cron:

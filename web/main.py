@@ -29,6 +29,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
+from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, WebUtils
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
@@ -477,6 +478,17 @@ def downloaded():
                            Items=Items)
 
 
+@App.route('/torrent_remove', methods=['POST', 'GET'])
+@login_required
+def torrent_remove():
+    TorrentRemoveTasks = TorrentRemover().get_torrent_remove_tasks()
+    DownloaderConfig = TorrentRemover().TORRENTREMOVER_DICT
+    return render_template("download/torrent_remove.html",
+                           DownloaderConfig=DownloaderConfig,
+                           Count=len(TorrentRemoveTasks),
+                           TorrentRemoveTasks=TorrentRemoveTasks)
+
+
 # 数据统计页面
 @App.route('/statistics', methods=['POST', 'GET'])
 @login_required
@@ -645,9 +657,8 @@ def service():
              'color': "green"})
 
         # 删种
-        pt_seeding_config_time = pt.get('pt_seeding_time')
-        if pt_seeding_config_time and pt_seeding_config_time != '0':
-            pt_seeding_time = "%s 天" % pt_seeding_config_time
+        torrent_remove_tasks = TorrentRemover().get_torrent_remove_tasks()
+        if torrent_remove_tasks:
             sta_autoremovetorrents = 'ON'
             svg = '''
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -660,7 +671,7 @@ def service():
             </svg>
             '''
             scheduler_cfg_list.append(
-                {'name': '删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+                {'name': '自动删种', 'state': sta_autoremovetorrents,
                  'id': 'autoremovetorrents', 'svg': svg, 'color': "twitter"})
 
         # 自动签到

@@ -131,9 +131,13 @@ class RssChecker(object):
         获取单个RSS任务详细信息
         """
         if taskid:
-            for task in self._rss_tasks:
-                if task.get("id") == int(taskid):
-                    return task
+            if str(taskid).isdigit():
+                taskid = int(taskid)
+                for task in self._rss_tasks:
+                    if task.get("id") == taskid:
+                        return task
+            else:
+                return {}
         return self._rss_tasks
 
     def check_task_rss(self, taskid):
