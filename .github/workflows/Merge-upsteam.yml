@@ -58,7 +58,7 @@ jobs:
       - name: Invoke workflow without inputs. Wait for result-BUILD DOCKER
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Build Nas-tools Image
+          workflow: Build NAStool Image
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
           wait-for-completion: false
 
@@ -67,7 +67,7 @@ jobs:
       - name: Invoke workflow without inputs. Wait for result-BUILD SPK
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Nas-tools Build-2
+          workflow: Build NAStool Windows-2
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
           wait-for-completion: false
 
