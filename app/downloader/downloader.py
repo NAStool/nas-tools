@@ -360,6 +360,7 @@ class Downloader:
         if config.get("onlynastool"):
             config.get("tags").append(PT_TAG)
         torrents = _client.get_remove_torrents(config=config)
+        torrents.sort(key=lambda x: x.get("name"))
         return torrents
 
     def get_downloading_torrents(self):

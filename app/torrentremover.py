@@ -340,5 +340,4 @@ class TorrentRemover(object):
                 downloader=self.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type"),
                 config=task.get("config")
             )
-            torrents.sort(key=lambda x: x.get("name"))
             return True, torrents
