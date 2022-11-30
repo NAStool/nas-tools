@@ -662,9 +662,10 @@
         $("#table-remove-torrents").empty().append(`${thead}${tbody}`);
         $("#modal-remove-torrents").modal('show');
       } else {
-        show_fail_modal(ret.msg);
+        let content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        $("#table-remove-torrents").empty().append(content);
+        $("#modal-remove-torrents").modal('show');
       }
-
     });
   }
 

@@ -3903,8 +3903,8 @@ class WebAction:
         """
         tid = data.get("tid")
         flag, torrents = TorrentRemover().get_remove_torrents(taskid=tid)
-        if not flag:
-            return {"code": 1, "msg": "获取种子失败"}
+        if not flag or not torrents:
+            return {"code": 1, "msg": "未获取到符合处理条件种子"}
         return {"code": 0, "data": torrents}
 
     @staticmethod

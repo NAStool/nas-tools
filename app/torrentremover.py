@@ -333,7 +333,7 @@ class TorrentRemover(object):
         """
         task = self._remove_tasks.get(str(taskid))
         if not task:
-            return False, "任务不存在"
+            return False, []
         else:
             task.get("config")["samedata"] = task.get("samedata")
             torrents = self.downloader.get_remove_torrents(
