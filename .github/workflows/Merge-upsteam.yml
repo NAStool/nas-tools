@@ -54,7 +54,7 @@ jobs:
         
 
 
-# 激活Nas-tools Build Docker Image 工作流的workflow-dispatch，以便运行
+# 激活Build NAStool Image 工作流的workflow-dispatch，以便运行
       - name: Invoke workflow without inputs. Wait for result-BUILD DOCKER
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
@@ -62,9 +62,9 @@ jobs:
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
           wait-for-completion: false
 
-# 激活Nas-tools Build-1 工作流的workflow-dispatch，以便运行
+# 激活Build NAStool Windows-2 工作流的workflow-dispatch，以便运行
 
-      - name: Invoke workflow without inputs. Wait for result-BUILD SPK
+      - name: Invoke workflow without inputs. Wait for result-BUILD EXE
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
           workflow: Build NAStool Windows-2
