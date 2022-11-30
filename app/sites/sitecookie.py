@@ -133,26 +133,26 @@ class SiteCookie(object):
                     chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
                     # 识别验证码
                     if captcha_xpath:
+                        code_url = self.__get_captcha_url(url, captcha_img_url)
                         if ocrflag:
                             # 自动OCR识别验证码
-                            captcha = self.get_captcha_text(siteurl=url, imageurl=captcha_img_url)
+                            captcha = self.get_captcha_text(code_url)
                             if captcha:
-                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (captcha_img_url, captcha))
+                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (code_url, captcha))
                             else:
                                 return None, None, "验证码识别失败"
                         else:
                             # 等待用户输入
                             captcha = None
-                            codeurl = self.__get_captcha_url(url, captcha_img_url)
                             for sec in range(30, 0, -1):
-                                if self.get_code(codeurl):
+                                if self.get_code(code_url):
                                     # 用户输入了
-                                    captcha = self.get_code(codeurl)
+                                    captcha = self.get_code(code_url)
                                     log.info("【Sites】接收到验证码：%s" % captcha)
                                     break
                                 else:
                                     self.progress.update(ptype='sitecookie',
-                                                         text=f"{codeurl}|等待输入验证码，倒计时 %s 秒 ..." % sec)
+                                                         text=f"{code_url}|等待输入验证码，倒计时 %s 秒 ..." % sec)
                                     time.sleep(1)
                             if not captcha:
                                 return None, None, "验证码输入超时"
@@ -185,13 +185,13 @@ class SiteCookie(object):
                     error_msg = html.xpath(error_xpath)[0]
                     return None, None, error_msg
 
-    def get_captcha_text(self, siteurl, imageurl):
+    def get_captcha_text(self, code_url):
         """
         识别验证码图片的内容
         """
-        if not siteurl or not imageurl:
+        if not code_url:
             return ""
-        return self.ocrhelper.get_captcha_text(image_url=self.__get_captcha_url(siteurl, imageurl))
+        return self.ocrhelper.get_captcha_text(image_url=code_url)
 
     @staticmethod
     def __get_captcha_url(siteurl, imageurl):

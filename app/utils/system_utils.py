@@ -45,6 +45,8 @@ class SystemUtils:
             return OsType.WINDOWS
         elif SystemUtils.is_synology():
             return OsType.SYNOLOGY
+        elif platform.system() == 'Darwin':
+            return OsType.MACOS
         else:
             return OsType.LINUX
 
