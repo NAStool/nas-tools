@@ -105,6 +105,8 @@ jobs:
             /home/runner/work/nas-tools/nas-tools/releases/
       - name: shorten the commits message_file
         run: head -120 commit.txt >commit2.txt
+      - name: Compress large nastool_win.exe into volumes
+        run: tar czf - /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe | split -b 40m - /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.tar.gz
       - name: Send telegram message (release informations)
         uses: appleboy/telegram-action@master
         with:
@@ -115,4 +117,5 @@ jobs:
             *v${{ env.app_version }}*
             ${{ github.event.commits[0].message }}
           message_file: commit2.txt
-          document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+          # document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+          document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.tar.gz*
