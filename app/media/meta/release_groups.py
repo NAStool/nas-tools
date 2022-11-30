@@ -139,5 +139,5 @@ def rg_match(title=None, groups=None):
     """
     if not title or not groups:
         return ""
-    groups_re = re.compile(r"(?<=[-@\[￡])%s(?=[@.\s\]\[])" % groups, re.I)
+    groups_re = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % groups, re.I)
     return '@'.join(re.findall(groups_re, title))
