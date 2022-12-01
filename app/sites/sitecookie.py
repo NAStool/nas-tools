@@ -71,12 +71,7 @@ class SiteCookie(object):
                 print(str(err))
                 return None, None, "Chrome模拟访问失败"
             # 循环检测是否过cf
-            cloudflare = False
-            for i in range(0, 10):
-                if chrome.get_title() != "Just a moment...":
-                    cloudflare = True
-                    break
-                time.sleep(1)
+            cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
                 return None, None, "跳转站点失败，无法通过Cloudflare验证"
             # 登录页面代码

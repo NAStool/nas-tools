@@ -1,6 +1,7 @@
 import json
 import os.path
 import tempfile
+import time
 from functools import reduce
 from threading import Lock
 
@@ -78,6 +79,15 @@ class ChromeHelper(object):
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
+
+    def pass_cloudflare(self, waittime=10):
+        cloudflare = False
+        for i in range(0, waittime):
+            if self.get_title() != "Just a moment...":
+                cloudflare = True
+                break
+            time.sleep(1)
+        return cloudflare
 
     def get_title(self):
         if not self.browser:
