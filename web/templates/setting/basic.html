@@ -367,15 +367,6 @@
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">保种时间(天) <span class="form-help"
-                                                               title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能；仅支持Qbittorrent、Transmission下载器"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control"
-                         id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-xl">
-                <div class="mb-3">
                   <label class="form-label">媒体库同步周期(小时) <span class="form-help"
                                                                        title="定时同步媒体服务器数据到本地，用于展示媒体是否存在，留空则不启用同步服务"
                                                                        data-bs-toggle="tooltip">?</span></label>

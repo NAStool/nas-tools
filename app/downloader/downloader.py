@@ -24,7 +24,6 @@ client_lock = Lock()
 class Downloader:
     clients = {}
     _default_client_type = None
-    _seeding_time = None
     _pt_monitor_only = None
     _download_order = None
     _pt_rmt_mode = None
@@ -60,13 +59,6 @@ class Downloader:
                 self._default_client_type = DownloaderType.Client115
             elif pt_client == "aria2":
                 self._default_client_type = DownloaderType.Aria2
-            self._seeding_time = pt.get('pt_seeding_time')
-            if self._seeding_time:
-                try:
-                    self._seeding_time = round(float(self._seeding_time) * 24 * 3600)
-                except Exception as e:
-                    log.error("【pt.pt_seeding_time 格式错误：%s" % str(e))
-                    self._seeding_time = None
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
