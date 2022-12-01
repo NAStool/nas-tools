@@ -813,7 +813,7 @@
         // 重新刷新状态
         refresh_sitecookie_process_flag = true;
         refresh_sitecookie_fail_count = 0;
-        refresh_sitecookie_process(refresh_sitecookie_current);
+        setTimeout("refresh_sitecookie_process("+refresh_sitecookie_current+")", 2000);
         // 关闭框
         $("#modal-captcha-code").modal("hide");
         // 显示原框

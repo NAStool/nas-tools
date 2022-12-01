@@ -156,6 +156,8 @@ class SiteCookie(object):
                                 else:
                                     # 获取验证码图片
                                     code_bin = self.get_captcha_base64(code_url)
+                                    if not code_bin:
+                                        return None, None, "获取验证码图片数据失败"
                                     # 推送到前端
                                     self.progress.update(ptype='sitecookie',
                                                          text=f"{code_bin}|{code_key}")
