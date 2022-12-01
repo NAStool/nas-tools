@@ -146,10 +146,11 @@ class SiteCookie(object):
                         else:
                             # 等待用户输入
                             captcha = None
+                            code_key = StringUtils.generate_random_str(5)
                             for sec in range(30, 0, -1):
-                                if self.get_code(code_url):
+                                if self.get_code(code_key):
                                     # 用户输入了
-                                    captcha = self.get_code(code_url)
+                                    captcha = self.get_code(code_key)
                                     log.info("【Sites】接收到验证码：%s" % captcha)
                                     break
                                 else:
@@ -157,7 +158,7 @@ class SiteCookie(object):
                                     code_bin = self.get_captcha_base64(code_url)
                                     # 推送到前端
                                     self.progress.update(ptype='sitecookie',
-                                                         text=code_bin)
+                                                         text=f"{code_bin}|{code_key}")
                                     time.sleep(1)
                             if not captcha:
                                 return None, None, "验证码输入超时"

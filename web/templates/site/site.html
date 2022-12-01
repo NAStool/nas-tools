@@ -431,6 +431,7 @@
           <label class="form-label required">请在 30秒 内输入验证码</label>
           <div class="row mb-3">
             <div class="col-auto">
+              <input type="hidden" id="captcha_key" value="">
               <img id="captcha_code_img" src="" alt="">
             </div>
             <div class="col">
@@ -727,6 +728,7 @@
         $("#cookieua_result").removeClass().addClass("alert alert-warning").text(ret.messages);
       }
       $("#cookieua_result_div").show();
+      refresh_sitecookie_current = "";
     });
 
   }
@@ -750,8 +752,14 @@
         $("#sitecookie_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
         // 判断是否要输入验证码
         if(ret.text.startsWith("data:image")){
-          show_captcha_code_modal(ret.text, siteid);
+          let code_img = ret.text.split("|")[0]
+          let code_key = ret.text.split("|")[1]
+          show_captcha_code_modal(code_img, code_key, siteid);
         }
+        if (ret.value === 100) {
+          refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
+        }
+
       } else {
         refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
       }
@@ -775,15 +783,16 @@
   }
 
   // 显示验证码输入框
-  function show_captcha_code_modal(imgbin, siteid) {
+  function show_captcha_code_modal(code_img, code_key, siteid) {
     // 关闭上一个框
     $("#modal-update-site-cookie").modal("hide");
     // 暂停获取状态
     refresh_sitecookie_process_flag = false;
     refresh_sitecookie_fail_count = 0;
     // 显示新框
+    $("#captcha_key").val(code_key);
+    $("#captcha_code_img").attr("src", code_img);
     $("#captcha_code").val("");
-    $("#captcha_code_img").attr("src", imgbin);
     $("#modal-captcha-code").modal("show");
     // 超时关闭
     setTimeout("sitecookie_captcha_timeout("+siteid+")", 30000);
@@ -791,7 +800,7 @@
 
   // 输入验证码
   function submit_captcha_code(){
-    let code = $("#captcha_code_img").attr("src");
+    let code = $("#captcha_key").val();
     let value = $("#captcha_code").val();
     if (!value) {
       $("#captcha_code").addClass("is-invalid");
