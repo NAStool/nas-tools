@@ -215,7 +215,7 @@
           </div>
           <div class="col-md">
             <div class="mb-3">
-              <label class="form-label">标签 <span class="form-help" title="若启用只管理NASTool添加的下载且该下载设置需要被管理，请添加NASTOOL标签"
+              <label class="form-label">标签 <span class="form-help" title="若启用只管理NASTool添加的下载且应用该下载设置的种子需要被管理，请添加NASTOOL标签"
                 data-bs-toggle="tooltip">?</span></label>
               <input type="text" id="tags" class="form-control" placeholder="多个标签用;分隔">
             </div>
@@ -293,7 +293,7 @@
   }
 
   // 显示新增下载设置
-  function  show_add_download_setting_modal(){
+  function show_add_download_setting_modal(){
     $("#download_setting_id").val('');
     $("#modal-download-setting-title").val('新增下载设置');
     $("#name").val('');
@@ -389,7 +389,7 @@
     $("#add_or_edit_download_setting_btn").text("保存中").attr("disabled", true);
     ajax_post("update_download_setting", params, function (ret) {
       $("#modal-download-setting").modal('hide');
-      $("#add_or_edit_download_setting_btn").attr("disabled", false);
+      $("#add_or_edit_download_setting_btn").text("保存").attr("disabled", false);
       navmenu('download_setting');
     });
   }
