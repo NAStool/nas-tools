@@ -1,8 +1,6 @@
 FROM alpine
 RUN apk add --no-cache libffi-dev \
-    && apk add --no-cache py3-numpy \
-    && apk add --no-cache py3-scipy \
-    && apk add --no-cache py3-scikit-learn \
+    && apk add --no-cache py3-opencv --repository https://pkgs.alpinelinux.org/package/edge/community \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/dev/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
