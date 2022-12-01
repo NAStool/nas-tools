@@ -144,7 +144,7 @@ WEBDRIVER_PATH = {
     "Windows": None,
     "Linux": "/usr/lib/chromium/chromedriver",
     "Synology": "/var/packages/NASTool/target/bin/chromedriver",
-    "MACOS": "/Users/nastools/git/chromedriver",
+    "MACOS": "/Users/nastool/chromedriver",
 }
 
 # 线程锁

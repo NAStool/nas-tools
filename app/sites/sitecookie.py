@@ -1,3 +1,4 @@
+import base64
 import time
 
 from lxml import etree
@@ -9,7 +10,7 @@ import log
 from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
 from app.helper.ocr_helper import OcrHelper
 from app.sites import Sites
-from app.utils import StringUtils
+from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton
 from config import SITE_LOGIN_XPATH
 
@@ -20,7 +21,7 @@ class SiteCookie(object):
     sites = None
     ocrhelper = None
     dbhelpter = None
-
+    req = None
     captcha_code = {}
 
     def __init__(self):
@@ -31,6 +32,7 @@ class SiteCookie(object):
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.ocrhelper = OcrHelper()
+        self.req = RequestUtils()
         self.captcha_code = {}
 
     def set_code(self, code, value):
@@ -151,8 +153,11 @@ class SiteCookie(object):
                                     log.info("【Sites】接收到验证码：%s" % captcha)
                                     break
                                 else:
+                                    # 获取验证码图片
+                                    code_bin = self.get_captcha_base64(code_url)
+                                    # 推送到前端
                                     self.progress.update(ptype='sitecookie',
-                                                         text=f"{code_url}|等待输入验证码，倒计时 %s 秒 ..." % sec)
+                                                         text=code_bin)
                                     time.sleep(1)
                             if not captcha:
                                 return None, None, "验证码输入超时"
@@ -257,3 +262,17 @@ class SiteCookie(object):
                                      text="%s 更新Cookie和User-Agent成功" % site.get("name"))
         self.progress.end('sitecookie')
         return retcode, messages
+
+    def get_captcha_base64(self, image_url):
+        """
+        根据图片地址，获取验证码图片base64编码
+        """
+        if not image_url:
+            return ""
+        text = ""
+        ret = self.req.get_res(image_url)
+        if ret and ret.status_code == 200:
+            image_base64 = base64.b64encode(ret.content).decode()
+            if image_base64:
+                return "data:image/png;base64,%s" % image_base64
+        return text
