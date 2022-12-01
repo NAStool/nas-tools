@@ -756,6 +756,10 @@
           let code_key = ret.text.split("|")[1]
           show_captcha_code_modal(code_img, code_key, siteid);
         }
+        if (ret.value === 100) {
+          refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
+        }
+
       } else {
         refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
       }
