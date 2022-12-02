@@ -1,17 +1,18 @@
-FROM alpine
-RUN apk add --no-cache libffi-dev \
-    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/master/package_list.txt)) \
+FROM debian:bullseye-slim
+  
+RUN apt-get update \
+    && apt-get install -y git gcc python3-pip python3-dev libxml2-dev libxslt1-dev tzdata zip curl bash fuse xvfb inotify-tools chromium-driver \
+         npm python3-cryptography python3-bs4 python3-cffi python3-lxml python3-pycryptodome python3-selenium python3-urllib3 python3-websocket \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
-    && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc \
+    && curl https://dl.min.io/client/mc/release/linux-arm/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
-    && apk del libffi-dev \
-    && npm install pm2 -g \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+    && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /root/.cache
+    
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
