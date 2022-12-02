@@ -80,6 +80,19 @@ class ChromeHelper(object):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
 
+    def new_tab(self, url, ua=None, cookie=None):
+        if not self.browser:
+            return
+        # 新开一个标签页
+        self.browser.execute_script('window.open("","_blank");')
+        # 切换新标签页
+        self.browser.switch_to.window(self.browser.window_handles[-1])
+        # 访问URL
+        self.visit(url=url, ua=ua, cookie=cookie)
+
+    def close_tab(self):
+        self.browser.close()
+
     def pass_cloudflare(self, waittime=10):
         cloudflare = False
         for i in range(0, waittime):

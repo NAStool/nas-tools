@@ -1,10 +1,9 @@
-import base64
 import time
 
 from lxml import etree
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
+from selenium.webdriver.support.wait import WebDriverWait
 
 import log
 from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
@@ -133,7 +132,7 @@ class SiteCookie(object):
                         code_url = self.__get_captcha_url(url, captcha_img_url)
                         if ocrflag:
                             # 自动OCR识别验证码
-                            captcha = self.get_captcha_text(code_url)
+                            captcha = self.get_captcha_text(chrome, code_url)
                             if captcha:
                                 log.info("【Sites】验证码地址为：%s，识别结果：%s" % (code_url, captcha))
                             else:
@@ -149,10 +148,12 @@ class SiteCookie(object):
                                     log.info("【Sites】接收到验证码：%s" % captcha)
                                     break
                                 else:
-                                    # 获取验证码图片
-                                    code_bin = self.get_captcha_base64(code_url)
+                                    # 获取验证码图片base64
+                                    code_bin = self.get_captcha_base64(chrome, code_url)
                                     if not code_bin:
                                         return None, None, "获取验证码图片数据失败"
+                                    else:
+                                        code_bin = f"data:image/png;base64,{code_bin}"
                                     # 推送到前端
                                     self.progress.update(ptype='sitecookie',
                                                          text=f"{code_bin}|{code_key}")
@@ -188,13 +189,15 @@ class SiteCookie(object):
                     error_msg = html.xpath(error_xpath)[0]
                     return None, None, error_msg
 
-    def get_captcha_text(self, code_url):
+    def get_captcha_text(self, chrome, code_url):
         """
         识别验证码图片的内容
         """
-        if not code_url:
+        code_b64 = self.get_captcha_base64(chrome=chrome,
+                                           image_url=code_url)
+        if not code_b64:
             return ""
-        return self.ocrhelper.get_captcha_text(image_url=code_url)
+        return self.ocrhelper.get_captcha_text(image_b64=code_b64)
 
     @staticmethod
     def __get_captcha_url(siteurl, imageurl):
@@ -261,16 +264,20 @@ class SiteCookie(object):
         self.progress.end('sitecookie')
         return retcode, messages
 
-    def get_captcha_base64(self, image_url):
+    @staticmethod
+    def get_captcha_base64(chrome, image_url):
         """
         根据图片地址，获取验证码图片base64编码
         """
         if not image_url:
             return ""
-        text = ""
-        ret = self.req.get_res(image_url)
-        if ret and ret.status_code == 200:
-            image_base64 = base64.b64encode(ret.content).decode()
-            if image_base64:
-                return "data:image/png;base64,%s" % image_base64
-        return text
+        # 使用浏览器新标签页获取验证码图片的B64
+        chrome.new_tab(url=image_url)
+        cloudflare = chrome.pass_cloudflare()
+        chrome.close_tab()
+        if not cloudflare:
+            return ""
+        image_base64 = chrome.get_html()
+        if image_base64:
+            return image_base64
+        return ""
