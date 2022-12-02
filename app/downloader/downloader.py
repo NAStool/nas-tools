@@ -660,7 +660,7 @@ class Downloader:
                             selected_episodes = self.set_files_status(torrent_id, need_episodes, downloader)
                             if not selected_episodes:
                                 log.info("【Downloader】种子 %s 没有需要的集，删除下载任务..." % item.org_string)
-                                _client.delete_torrents(delete_file=True, ids=torrent_id)
+                                _client.delete_torrents(delete_file=False, ids=torrent_id)
                                 continue
                             else:
                                 log.info("【Downloader】%s 选取文件完成，选中集数：%s" % (
