@@ -133,10 +133,18 @@
                             {% if History.TMDBID %}
                               <a href="https://www.themoviedb.org/{% if History.TYPE == "电影" %}movie{% else %}tv{% endif %}/{{ History.TMDBID }}"
                                  target="_blank">
-                              {{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}
+                              {{ History.TITLE }} ({{ History.YEAR }})
                               </a>
+                              {% if History.SEASON_EPISODE %}
+                              <br><a href="https://www.themoviedb.org/tv/{{ History.TMDBID }}{{ History.SEASON_EPISODE.replace('S', '/season/').replace('E', '/episode/')  }}"
+                               target="_blank">
+                              <span class="text-orange">{{ History.SEASON_EPISODE }}</span></a>
+                              {% endif %}
                             {% else %}
-                              {{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}
+                              {{ History.TITLE }} ({{ History.YEAR }})
+                              {% if History.SEASON_EPISODE %}
+                              <span class="text-orange">{{ History.SEASON_EPISODE }}</span>
+                              {% endif %}
                             {% endif %}
                           </div>
                           {% if History.CATEGORY %}
