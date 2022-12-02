@@ -1,3 +1,4 @@
+import base64
 import time
 
 from lxml import etree
@@ -271,13 +272,8 @@ class SiteCookie(object):
         """
         if not image_url:
             return ""
-        # 使用浏览器新标签页获取验证码图片的B64
-        chrome.new_tab(url=image_url)
-        cloudflare = chrome.pass_cloudflare()
-        chrome.close_tab()
-        if not cloudflare:
-            return ""
-        image_base64 = chrome.get_html()
-        if image_base64:
-            return image_base64
+        ret = RequestUtils(headers=chrome.get_ua(),
+                           cookies=chrome.get_cookies()).get_res(image_url)
+        if ret:
+            return base64.b64encode(ret.content).decode()
         return ""
