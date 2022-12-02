@@ -11,9 +11,10 @@ RUN apt-get update \
 
 RUN apt-get install -y python3-cryptography python3-bs4 python3-cffi python3-lxml python3-pycryptodome python3-selenium python3-urllib3 python3-websocket
 
-RUN pip install --upgrade pip setuptools wheel \
-    && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /root/.cache
+RUN npm install pm2 -g \
+    && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt
+    
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /root/.cache
     
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
