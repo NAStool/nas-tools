@@ -3844,10 +3844,12 @@ class WebAction:
         siteid = data.get("siteid")
         username = data.get("username")
         password = data.get("password")
+        twostepcode = data.get("two_step_code")
         ocrflag = data.get("ocrflag")
         retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
                                                                 username=username,
                                                                 password=password,
+                                                                twostepcode=twostepcode,
                                                                 ocrflag=ocrflag)
         if retcode == 0:
             Sites().init_config()

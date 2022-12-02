@@ -45,12 +45,19 @@ class SiteCookie(object):
         """
         return self.captcha_code.get(code)
 
-    def __get_site_cookie_ua(self, url, username, password, ocrflag=False, chrome=None):
+    def __get_site_cookie_ua(self,
+                             url,
+                             username,
+                             password,
+                             twostepcode=None,
+                             ocrflag=False,
+                             chrome=None):
         """
         获取站点cookie和ua
         :param url: 站点地址
         :param username: 用户名
         :param password: 密码
+        :param twostepcode: 两步验证
         :param ocrflag: 是否开启OCR识别
         :param chrome: ChromeHelper
         :return: cookie、ua、message
@@ -93,6 +100,12 @@ class SiteCookie(object):
                     break
             if not password_xpath:
                 return None, None, "未找到密码输入框"
+            # 查找两步验证码
+            twostepcode_xpath = None
+            for xpath in SITE_LOGIN_XPATH.get("twostep"):
+                if html.xpath(xpath):
+                    twostepcode_xpath = xpath
+                    break
             # 查找验证码输入框
             captcha_xpath = None
             for xpath in SITE_LOGIN_XPATH.get("captcha"):
@@ -126,6 +139,9 @@ class SiteCookie(object):
                     chrome.browser.find_element(By.XPATH, username_xpath).send_keys(username)
                     # 输入密码
                     chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
+                    # 输入两步验证码
+                    if twostepcode and twostepcode_xpath:
+                        chrome.browser.find_element(By.XPATH, twostepcode_xpath).send_keys(twostepcode)
                     # 识别验证码
                     if captcha_xpath:
                         code_url = self.__get_captcha_url(url, captcha_img_url)
@@ -210,7 +226,12 @@ class SiteCookie(object):
         scheme, netloc = StringUtils.get_url_netloc(siteurl)
         return "%s://%s/%s" % (scheme, netloc, imageurl)
 
-    def update_sites_cookie_ua(self, username, password, siteid=None, ocrflag=False):
+    def update_sites_cookie_ua(self,
+                               username,
+                               password,
+                               twostepcode=None,
+                               siteid=None,
+                               ocrflag=False):
         """
         更新所有站点Cookie和ua
         """
@@ -244,6 +265,7 @@ class SiteCookie(object):
             cookie, ua, msg = self.__get_site_cookie_ua(url=login_url,
                                                         username=username,
                                                         password=password,
+                                                        twostepcode=twostepcode,
                                                         ocrflag=ocrflag,
                                                         chrome=chrome)
             # 更新进度

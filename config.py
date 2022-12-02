@@ -136,6 +136,9 @@ SITE_LOGIN_XPATH = {
     ],
     "error": [
         "//table[@class='main']//td[@class='text']/text()"
+    ],
+    "twostep": [
+        '//input[@name="two_step_code"]'
     ]
 }
 
