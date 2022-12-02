@@ -197,7 +197,7 @@ class TorrentRemover(object):
                         self.downloader.delete_torrents(downloader=downloader_type,
                                                         delete_file=True,
                                                         ids=[torrent.get("id")])
-                if torrents:
+                if torrents and title and text:
                     self.message.send_brushtask_remove_message(title=title, text=text)
             except Exception as e:
                 log.error(f"【TorrentRemover】自动删种任务：{task.get('name')}异常：{str(e)}")
