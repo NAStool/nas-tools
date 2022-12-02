@@ -79,6 +79,7 @@ class ChromeHelper(object):
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
+        self.browser.implicitly_wait(10)
 
     def new_tab(self, url, ua=None, cookie=None):
         if not self.browser:
