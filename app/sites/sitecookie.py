@@ -21,7 +21,6 @@ class SiteCookie(object):
     sites = None
     ocrhelper = None
     dbhelpter = None
-    req = None
     captcha_code = {}
 
     def __init__(self):
@@ -32,7 +31,6 @@ class SiteCookie(object):
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.ocrhelper = OcrHelper()
-        self.req = RequestUtils()
         self.captcha_code = {}
 
     def set_code(self, code, value):
