@@ -702,6 +702,8 @@
   var refresh_sitecookie_current = "";
   // 更新站点Cookie和UA
   function update_site_cookie_ua(){
+    $("#cookieua_result_div").hide();
+    $("#sitecookie_process_bar").attr("style", "width: 0").attr("aria-valuenow", 0);
     let siteid = $("#cookieua_siteid").val();
     let username = $("#cookieua_username").val();
     if (!username) {
