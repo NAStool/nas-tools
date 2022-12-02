@@ -1,15 +1,15 @@
 FROM debian:bullseye-slim
 
-RUN ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
+RUN apt-get update \
+    && apt-get install -y git gcc python3-pip python3-dev libxml2-dev libxslt1-dev tzdata zip curl bash fuse xvfb inotify-tools chromium-driver npm \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && curl https://rclone.org/install.sh | bash \
     && curl https://dl.min.io/client/mc/release/linux-arm/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc
 
-RUN apt-get update \
-    && apt-get install -y git gcc python3-pip python3-dev libxml2-dev libxslt1-dev tzdata zip curl bash fuse xvfb inotify-tools chromium-driver \
-         npm python3-cryptography python3-bs4 python3-cffi python3-lxml python3-pycryptodome python3-selenium python3-urllib3 python3-websocket \
-    && ln -sf /usr/bin/python3 /usr/bin/python \
+RUN apt-get install -y python3-cryptography python3-bs4 python3-cffi python3-lxml python3-pycryptodome python3-selenium python3-urllib3 python3-websocket
 
 RUN pip install --upgrade pip setuptools wheel \
     && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt \
