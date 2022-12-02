@@ -73,7 +73,12 @@
       {% for Task in Tasks %}
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ Task.name }}</h3>
+          {% if Task.state == 'Y' %}
+          <span class="badge bg-green"></span>
+          {% else %}
+          <span class="badge bg-red"></span>
+          {% endif %}
+          <div class="ms-2"><h3 class="card-title">{{ Task.name }}</h3></div>
           <div class="ms-2">
             <a href="javascript:run_userrss_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
               data-bs-toggle="tooltip">
