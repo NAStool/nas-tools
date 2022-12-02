@@ -147,6 +147,8 @@ class SiteCookie(object):
                                     # 用户输入了
                                     captcha = self.get_code(code_key)
                                     log.info("【Sites】接收到验证码：%s" % captcha)
+                                    self.progress.update(ptype='sitecookie',
+                                                         text="接收到验证码：%s" % captcha)
                                     break
                                 else:
                                     # 获取验证码图片base64
