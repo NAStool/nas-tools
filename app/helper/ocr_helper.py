@@ -19,11 +19,12 @@ class OcrHelper:
             return ""
         text = ""
         ret = RequestUtils(cookies=cookie, headers=ua).get_res(image_url)
-        if ret and ret.status_code == 200:
+        if ret is not None:
             image_bin = ret.content
             if not image_bin:
                 return ""
-            ret = RequestUtils().post_res(url=self._ocr_b64_url, params=base64.b64encode(image_bin).decode())
-            if ret and ret.status_code == 200:
-                return ret.text
+            ret = RequestUtils().post_res(url=self._ocr_b64_url,
+                                          json={"base64_img": base64.b64encode(image_bin).decode()})
+            if ret:
+                return ret.json().get("result")
         return text
