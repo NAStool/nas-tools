@@ -1,6 +1,7 @@
 import json
 import os.path
 import tempfile
+import time
 from functools import reduce
 from threading import Lock
 
@@ -22,7 +23,8 @@ class ChromeHelper(object):
 
     def __init__(self, headless=False):
 
-        self._executable_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+        chrome_path = SystemUtils.get_system().value
+        self._executable_path = WEBDRIVER_PATH.get(chrome_path)
 
         if not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
@@ -77,6 +79,28 @@ class ChromeHelper(object):
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
+        self.browser.implicitly_wait(10)
+
+    def new_tab(self, url, ua=None, cookie=None):
+        if not self.browser:
+            return
+        # 新开一个标签页
+        self.browser.switch_to.new_window('tab')
+        # 访问URL
+        self.visit(url=url, ua=ua, cookie=cookie)
+
+    def close_tab(self):
+        self.browser.close()
+        self.browser.switch_to.window(self.browser.window_handles[0])
+
+    def pass_cloudflare(self, waittime=10):
+        cloudflare = False
+        for i in range(0, waittime):
+            if self.get_title() != "Just a moment...":
+                cloudflare = True
+                break
+            time.sleep(1)
+        return cloudflare
 
     def get_title(self):
         if not self.browser:

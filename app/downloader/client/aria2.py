@@ -79,7 +79,7 @@ class Aria2(IDownloadClient):
             trans_tasks.append({'path': os.path.join(true_path, name), 'id': torrent.get("gid")})
         return trans_tasks
 
-    def get_remove_torrents(self, seeding_time, **kwargs):
+    def get_remove_torrents(self, **kwargs):
         return []
 
     def add_torrent(self, content, download_dir=None, **kwargs):

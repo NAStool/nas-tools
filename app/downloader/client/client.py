@@ -96,11 +96,10 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_remove_torrents(self, seeding_time, tag):
+    def get_remove_torrents(self, config):
         """
         获取需要清理的种子清单
-        :param seeding_time: 保种时间，单位秒
-        :param tag: 种子标签
+        :param config: 删种策略
         :return: 种子ID列表
         """
         pass

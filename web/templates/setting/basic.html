@@ -92,7 +92,7 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">代理服务器 <span class="form-help"
-                                                             title="将使用代理访服务器访问themoviedb、telegram、公开bt站等境外网站，站点默认不使用代理，如需使用需在站点维护中开启；配置格式示例：127.0.0.1:7890（Http协议）、socks5://127.0.0.1:8018"
+                                                             title="将使用代理访服务器访问themoviedb、telegram、公开bt站等境外网站及程序更新(git)，站点默认不使用代理，如需使用需在站点维护中开启；配置格式示例：127.0.0.1:7890（Http协议）、socks5://127.0.0.1:8018"
                                                              data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies"
                          placeholder="127.0.0.1:7890" autocomplete="off">
@@ -363,15 +363,6 @@
                                                                    data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.pt.search_rss_interval or '' }}" class="form-control"
                          id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-xl">
-                <div class="mb-3">
-                  <label class="form-label">保种时间(天) <span class="form-help"
-                                                               title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能；仅支持Qbittorrent、Transmission下载器"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control"
-                         id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl">

@@ -1,4 +1,5 @@
 import os.path
+import re
 from datetime import datetime
 
 import transmission_rpc
@@ -14,7 +15,7 @@ class Transmission(IDownloadClient):
     _trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
-              "error", "errorString", "doneDate", "queuePosition", "activityDate"]
+              "error", "errorString", "doneDate", "queuePosition", "activityDate", "trackers"]
     trc = None
     client_type = DownloaderType.TR
 
@@ -232,22 +233,75 @@ class Transmission(IDownloadClient):
             })
         return trans_tasks
 
-    def get_remove_torrents(self, seeding_time, tag):
-        if not seeding_time:
+    def get_remove_torrents(self, config=None):
+        if not config:
             return []
-        torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
+        remove_torrents_ids = []
+        torrents, error_flag = self.get_torrents()
+        if error_flag:
+            return []
+        tags = config.get("tags")
+        ratio = config.get("ratio")
+        # 做种时间 单位：小时
+        seeding_time = config.get("seeding_time")
+        # 大小 单位：GB
+        size = config.get("size")
+        minsize = size[0]*1024*1024*1024 if size else 0
+        maxsize = size[-1]*1024*1024*1024 if size else 0
+        # 平均上传速度 单位 KB/s
+        upload_avs = config.get("upload_avs")
+        savepath_key = config.get("savepath_key")
+        tracker_key = config.get("tracker_key")
+        tr_state = config.get("tr_state")
+        tr_error_key = config.get("tr_error_key")
         for torrent in torrents:
-            date_done = torrent.date_done
-            if not date_done:
-                date_done = torrent.date_added
-            if not date_done:
-                continue
+            date_done = torrent.date_done or torrent.date_added
             date_now = datetime.now().astimezone()
-            torrent_time = (date_now - date_done).seconds
-            if torrent_time > int(seeding_time):
-                log.info(f"【{self.client_type}】{torrent.name}做种时间：{torrent_time}（秒），已达清理条件，进行清理...")
-                remove_torrents.append(torrent.id)
+            torrent_seeding_time = (date_now - date_done).seconds if date_done else 0
+            torrent_uploaded = torrent.ratio * torrent.total_size
+            torrent_upload_avs = torrent_uploaded / torrent_seeding_time if torrent_seeding_time else 0
+            if ratio and torrent.ratio <= ratio:
+                continue
+            if seeding_time and torrent_seeding_time <= seeding_time*3600:
+                continue
+            if size and (torrent.total_size >= maxsize or torrent.total_size <= minsize):
+                continue
+            if upload_avs and torrent_upload_avs <= upload_avs*1024:
+                continue
+            if savepath_key and not re.findall(savepath_key, torrent.download_dir, re.I):
+                continue
+            if tracker_key and not re.findall(tracker_key, torrent.trackers, re.I):
+                continue
+            if tr_state and not torrent.status not in tr_state:
+                continue
+            if tr_error_key and not re.findall(tr_error_key, torrent.error_string, re.I):
+                continue
+            labels = set(torrent.labels)
+            if tags and (not labels or not set(tags).issubset(labels)):
+                continue
+            remove_torrents.append({
+                "id": torrent.id,
+                "name": torrent.name,
+                "site": torrent.trackers[0].get("sitename"),
+                "size": torrent.total_size
+            })
+            remove_torrents_ids.append(torrent.id)
+        if config.get("samedata") and remove_torrents:
+            remove_torrents_plus = []
+            for remove_torrent in remove_torrents:
+                name = remove_torrent.get("name")
+                size = remove_torrent.get("size")
+                for torrent in torrents:
+                    if torrent.name == name and torrent.total_size == size and torrent.id not in remove_torrents_ids:
+                        remove_torrents_plus.append({
+                            "id": torrent.id,
+                            "name": torrent.name,
+                            "site": torrent.trackers[0].get("sitename") if torrent.trackers else "",
+                            "size": torrent.total_size
+                        })
+            remove_torrents_plus += remove_torrents
+            return remove_torrents_plus
         return remove_torrents
 
     def add_torrent(self, content,

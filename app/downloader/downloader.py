@@ -24,7 +24,6 @@ client_lock = Lock()
 class Downloader:
     clients = {}
     _default_client_type = None
-    _seeding_time = None
     _pt_monitor_only = None
     _download_order = None
     _pt_rmt_mode = None
@@ -60,13 +59,6 @@ class Downloader:
                 self._default_client_type = DownloaderType.Client115
             elif pt_client == "aria2":
                 self._default_client_type = DownloaderType.Aria2
-            self._seeding_time = pt.get('pt_seeding_time')
-            if self._seeding_time:
-                try:
-                    self._seeding_time = round(float(self._seeding_time) * 24 * 3600)
-                except Exception as e:
-                    log.error("【pt.pt_seeding_time 格式错误：%s" % str(e))
-                    self._seeding_time = None
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
@@ -349,28 +341,19 @@ class Downloader:
             finally:
                 lock.release()
 
-    def remove_torrents(self):
+    def get_remove_torrents(self, downloader=None, config=None):
         """
-        做种清理，保种时间为空或0时，不进行清理操作
+        查询符合删种策略的种子信息
+        :return: 符合删种策略的种子信息列表
         """
-        if not self.default_client:
-            return False
-        # 空或0不处理
-        if not self._seeding_time:
-            return
-        try:
-            lock.acquire()
-            if self._pt_monitor_only:
-                tag = [PT_TAG]
-            else:
-                tag = None
-            log.info("【Downloader】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self._seeding_time))
-            torrents = self.default_client.get_remove_torrents(seeding_time=self._seeding_time, tag=tag)
-            for torrent in torrents:
-                self.default_client.delete_torrents(delete_file=True, ids=torrent)
-            log.info("【Downloader】做种清理完成")
-        finally:
-            lock.release()
+        if not downloader or not config:
+            return []
+        _client = self.__get_client(downloader)
+        if config.get("onlynastool"):
+            config.get("tags").append(PT_TAG)
+        torrents = _client.get_remove_torrents(config=config)
+        torrents.sort(key=lambda x: x.get("name"))
+        return torrents
 
     def get_downloading_torrents(self):
         """
@@ -400,35 +383,57 @@ class Downloader:
         torrent_list, _ = self.default_client.get_torrents(ids=torrent_ids)
         return self._default_client_type, torrent_list
 
-    def start_torrents(self, ids):
+    def start_torrents(self, downloader=None, ids=None):
         """
         下载控制：开始
+        :param downloader: 下载器类型
         :param ids: 种子ID列表
         :return: 处理状态
         """
-        if not self.default_client:
+        if not ids:
             return False
-        return self.default_client.start_torrents(ids)
+        if not downloader:
+            if not self.default_client:
+                return False
+            return self.default_client.start_torrents(ids)
+        else:
+            _client = self.__get_client(downloader)
+            return _client.start_torrents(ids)
 
-    def stop_torrents(self, ids):
+    def stop_torrents(self, downloader=None, ids=None):
         """
         下载控制：停止
+        :param downloader: 下载器类型
         :param ids: 种子ID列表
         :return: 处理状态
         """
-        if not self.default_client:
+        if not ids:
             return False
-        return self.default_client.stop_torrents(ids)
+        if not downloader:
+            if not self.default_client:
+                return False
+            return self.default_client.stop_torrents(ids)
+        else:
+            _client = self.__get_client(downloader)
+            return _client.stop_torrents(ids)
 
-    def delete_torrents(self, ids):
+    def delete_torrents(self, downloader=None, ids=None, delete_file=False):
         """
         删除种子
+        :param downloader: 下载器类型
         :param ids: 种子ID列表
+        :param delete_file: 是否删除文件
         :return: 处理状态
         """
-        if not self.default_client:
+        if not ids:
             return False
-        return self.default_client.delete_torrents(delete_file=True, ids=ids)
+        if not downloader:
+            if not self.default_client:
+                return False
+            return self.default_client.delete_torrents(delete_file=delete_file, ids=ids)
+        else:
+            _client = self.__get_client(downloader)
+            return _client.delete_torrents(delete_file=delete_file, ids=ids)
 
     def batch_download(self,
                        in_from: SearchType,

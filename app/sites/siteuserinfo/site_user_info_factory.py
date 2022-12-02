@@ -35,12 +35,7 @@ class SiteUserInfoFactory(object):
                     log.error("【Sites】%s 无法打开网站" % site_name)
                     return None
                 # 循环检测是否过cf
-                cloudflare = False
-                for i in range(0, 10):
-                    if chrome.get_title() != "Just a moment...":
-                        cloudflare = True
-                        break
-                    time.sleep(1)
+                cloudflare = chrome.pass_cloudflare()
                 if not cloudflare:
                     log.error("【Sites】%s 跳转站点失败" % site_name)
                     return None

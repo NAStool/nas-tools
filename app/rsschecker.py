@@ -131,9 +131,13 @@ class RssChecker(object):
         获取单个RSS任务详细信息
         """
         if taskid:
-            for task in self._rss_tasks:
-                if task.get("id") == int(taskid):
-                    return task
+            if str(taskid).isdigit():
+                taskid = int(taskid)
+                for task in self._rss_tasks:
+                    if task.get("id") == taskid:
+                        return task
+            else:
+                return {}
         return self._rss_tasks
 
     def check_task_rss(self, taskid):
@@ -297,10 +301,9 @@ class RssChecker(object):
                     # 下载类型的 这里下载成功了 插入数据库
                     self.dbhelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
-                    # FIXME 自定义RSS任务下载记录 里面缺少必要字段无法进行种子是否已下载去重 需要进行表结构升级
-                    downloader = Downloader().get_default_client_type().value
+                    downloader = self.downloader.get_default_client_type().value
                     if media.download_setting:
-                        download_attr = self.get_download_setting(media.download_setting)
+                        download_attr = self.downloader.get_download_setting(media.download_setting)
                         if download_attr.get("downloader"):
                             downloader = download_attr.get("downloader")
                     self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)

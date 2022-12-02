@@ -291,12 +291,7 @@ class Sites:
                     print(str(err))
                     return False, "Chrome模拟访问失败", 0
                 # 循环检测是否过cf
-                cloudflare = False
-                for i in range(0, 10):
-                    if chrome.get_title() != "Just a moment...":
-                        cloudflare = True
-                        break
-                    time.sleep(1)
+                cloudflare = chrome.pass_cloudflare()
                 seconds = int((datetime.now() - start_time).microseconds / 1000)
                 if not cloudflare:
                     return False, "跳转站点失败", seconds
@@ -359,12 +354,7 @@ class Sites:
                             status.append("【%s】无法打开网站！" % site)
                             continue
                         # 循环检测是否过cf
-                        cloudflare = False
-                        for i in range(0, 10):
-                            if chrome.get_title() != "Just a moment...":
-                                cloudflare = True
-                                break
-                            time.sleep(1)
+                        cloudflare = chrome.pass_cloudflare()
                         if not cloudflare:
                             log.warn("【Sites】%s 跳转站点失败" % site)
                             status.append("【%s】跳转站点失败！" % site)

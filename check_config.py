@@ -77,14 +77,22 @@ def check_config():
                 if not Config().get_config('jellyfin'):
                     print("jellyfin未配置")
                 else:
-                    if not Config().get_config('jellyfin').get('host') or not Config().get_config('jellyfin').get(
-                            'api_key'):
+                    if not Config().get_config('jellyfin').get('host') \
+                            or not Config().get_config('jellyfin').get('api_key'):
                         print("jellyfin配置不完整")
+            elif media_server == "plex":
+                if not Config().get_config('plex'):
+                    print("plex未配置")
+                else:
+                    if not Config().get_config('plex').get('token') \
+                            and not Config().get_config('plex').get('username'):
+                        print("plex配置不完整")
             else:
                 if not Config().get_config('emby'):
                     print("emby未配置")
                 else:
-                    if not Config().get_config('emby').get('host') or not Config().get_config('emby').get('api_key'):
+                    if not Config().get_config('emby').get('host') \
+                            or not Config().get_config('emby').get('api_key'):
                         print("emby配置不完整")
 
         movie_paths = Config().get_config('media').get('movie_path')
@@ -152,12 +160,6 @@ def check_config():
         if not ptsignin_cron:
             print("站点自动签到时间未配置，站点签到功能已关闭")
 
-        pt_seeding_time = Config().get_config('pt').get('pt_seeding_time')
-        if not pt_seeding_time or pt_seeding_time == '0':
-            print("保种时间未配置，自动删种功能已关闭")
-        else:
-            print("保种时间设置为：%s 天" % pt_seeding_time)
-
         pt_check_interval = Config().get_config('pt').get('pt_check_interval')
         if not pt_check_interval:
             print("RSS订阅周期未配置，RSS订阅功能已关闭")
@@ -172,8 +174,9 @@ def check_config():
     if not Config().get_config('douban'):
         print("豆瓣未配置")
     else:
-        if not Config().get_config('douban').get('users') or not Config().get_config('douban').get(
-                'types') or not Config().get_config('douban').get('days'):
+        if not Config().get_config('douban').get('users') \
+                or not Config().get_config('douban').get('types') \
+                or not Config().get_config('douban').get('days'):
             print("豆瓣配置不完整")
 
 

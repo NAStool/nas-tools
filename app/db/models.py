@@ -295,6 +295,21 @@ class RSSTVEPISODES(Base):
     EPISODES = Column(Text)
 
 
+class TORRENTREMOVETASK(Base):
+    __tablename__ = 'TORRENT_REMOVE_TASK'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    NAME = Column(Text)
+    ACTION = Column(Integer)
+    INTERVAL = Column(Integer)
+    ENABLED = Column(Integer)
+    SAMEDATA = Column(Integer)
+    ONLYNASTOOL = Column(Integer)
+    DOWNLOADER = Column(Text)
+    CONFIG = Column(Text)
+    NOTE = Column(Text)
+
+
 class SEARCHRESULTINFO(Base):
     __tablename__ = 'SEARCH_RESULT_INFO'
 

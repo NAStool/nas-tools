@@ -376,16 +376,22 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
               <input type="text" value="" id="cookieua_username" class="form-control" placeholder="站点登录用户名">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">密码</label>
               <input type="password" value="" id="cookieua_password" class="form-control" placeholder="登录密码">
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">两步验证</label>
+              <input type="text" value="" id="cookieua_two_step_code" class="form-control" placeholder="如有设置必须填写">
             </div>
           </div>
         </div>
@@ -395,7 +401,7 @@
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="cookieua_ocrflag">
                 <span class="form-check-label">自动识别验证码 <span class="form-help"
-                                                              title="开启时将自动识别验证码并填入，关闭时将显示验证码图片并要求手动填入，自动识别成功率目前可能较低"
+                                                              title="开启时将自动识别验证码并填入，关闭时将显示验证码图片并要求手动填入"
                                                               data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
@@ -431,6 +437,7 @@
           <label class="form-label required">请在 30秒 内输入验证码</label>
           <div class="row mb-3">
             <div class="col-auto">
+              <input type="hidden" id="captcha_key" value="">
               <img id="captcha_code_img" src="" alt="">
             </div>
             <div class="col">
@@ -691,9 +698,12 @@
     $("#modal-update-site-cookie").modal("show");
   }
 
+  // 当前正在处理的站点
+  var refresh_sitecookie_current = "";
   // 更新站点Cookie和UA
-  var sitecookie_update_finish = false;
   function update_site_cookie_ua(){
+    $("#cookieua_result_div").hide();
+    $("#sitecookie_process_bar").attr("style", "width: 0").attr("aria-valuenow", 0);
     let siteid = $("#cookieua_siteid").val();
     let username = $("#cookieua_username").val();
     if (!username) {
@@ -709,16 +719,22 @@
     }else{
       $("#cookieua_password").removeClass("is-invalid");
     }
+    let cookieua_two_step_code = $("#cookieua_two_step_code").val();
+
     $("#sitecookie_action_btn").text("正在更新...").attr("disabled", true);
     let ocrflag = $("#cookieua_ocrflag").prop("checked");
     // 刷新进度
-    sitecookie_update_finish = false;
+    refresh_sitecookie_current = siteid;
     refresh_sitecookie_process_flag = true;
     refresh_sitecookie_fail_count = 0;
-    refresh_sitecookie_process();
+    refresh_sitecookie_process(siteid);
     // 发送请求
-    ajax_post("update_sites_cookie_ua", { siteid: siteid, username: username, password: password, ocrflag: ocrflag }, function (ret) {
-      sitecookie_update_finish = true;
+    ajax_post("update_sites_cookie_ua", { siteid: siteid,
+                                          username: username,
+                                          password: password,
+                                          ocrflag: ocrflag,
+                                          two_step_code: cookieua_two_step_code
+                                          }, function (ret) {
       $("#sitecookie_process_bar").attr("style", "width: 100%").attr("aria-valuenow", 100);
       $("#sitecookie_action_btn").attr("disabled", false).text("开始更新");
       if (ret.code === 0) {
@@ -727,18 +743,21 @@
         $("#cookieua_result").removeClass().addClass("alert alert-warning").text(ret.messages);
       }
       $("#cookieua_result_div").show();
+      refresh_sitecookie_current = "";
     });
 
   }
 
-  // 刷新站点更新进度，显示验证码
+  // 刷新进度标志
   var refresh_sitecookie_process_flag = false;
+  // 刷新进度失败次数
   var refresh_sitecookie_fail_count = 0;
-  function refresh_sitecookie_process() {
+  // 刷新站点更新进度，显示验证码
+  function refresh_sitecookie_process(siteid) {
     if (!refresh_sitecookie_process_flag) {
       return;
     }
-    if (sitecookie_update_finish) {
+    if (siteid != refresh_sitecookie_current) {
       return;
     }
     $("#sitecookie_process_bar_div").show();
@@ -747,47 +766,56 @@
         // 更新进度条
         $("#sitecookie_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
         // 判断是否要输入验证码
-        if(ret.text.startsWith("http")){
-          show_captcha_code_modal(ret.text.split("|")[0]);
+        if(ret.text.startsWith("data:image")){
+          let code_img = ret.text.split("|")[0]
+          let code_key = ret.text.split("|")[1]
+          show_captcha_code_modal(code_img, code_key, siteid);
         }
+        if (ret.value === 100) {
+          refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
+        }
+
       } else {
         refresh_sitecookie_fail_count = refresh_sitecookie_fail_count + 1;
       }
       if (refresh_sitecookie_fail_count < 5) {
-        setTimeout("refresh_sitecookie_process()", 1000);
+        setTimeout("refresh_sitecookie_process("+siteid+")", 1000);
       }
     });
   }
 
   // 超时隐藏验证码对话框并恢复更新进度
-  function sitecookie_captcha_timeout() {
+  function sitecookie_captcha_timeout(siteid) {
     $("#modal-captcha-code").modal("hide");
+    if (siteid != refresh_sitecookie_current) {
+      return;
+    }
+    // 恢复刷新
     refresh_sitecookie_process_flag = true;
     refresh_sitecookie_fail_count = 0;
-    refresh_sitecookie_process();
-    if (!sitecookie_update_finish){
-      $("#modal-update-site-cookie").modal("show");
-    }
+    refresh_sitecookie_process(siteid);
+    $("#modal-update-site-cookie").modal("show");
   }
 
   // 显示验证码输入框
-  function show_captcha_code_modal(imgurl) {
+  function show_captcha_code_modal(code_img, code_key, siteid) {
     // 关闭上一个框
     $("#modal-update-site-cookie").modal("hide");
     // 暂停获取状态
     refresh_sitecookie_process_flag = false;
     refresh_sitecookie_fail_count = 0;
     // 显示新框
+    $("#captcha_key").val(code_key);
+    $("#captcha_code_img").attr("src", code_img);
     $("#captcha_code").val("");
-    $("#captcha_code_img").attr("src", imgurl);
     $("#modal-captcha-code").modal("show");
     // 超时关闭
-    setTimeout("sitecookie_captcha_timeout()", 30000);
+    setTimeout("sitecookie_captcha_timeout("+siteid+")", 30000);
   }
 
   // 输入验证码
   function submit_captcha_code(){
-    let code = $("#captcha_code_img").attr("src");
+    let code = $("#captcha_key").val();
     let value = $("#captcha_code").val();
     if (!value) {
       $("#captcha_code").addClass("is-invalid");
@@ -800,7 +828,7 @@
         // 重新刷新状态
         refresh_sitecookie_process_flag = true;
         refresh_sitecookie_fail_count = 0;
-        refresh_sitecookie_process();
+        setTimeout("refresh_sitecookie_process("+refresh_sitecookie_current+")", 2000);
         // 关闭框
         $("#modal-captcha-code").modal("hide");
         // 显示原框

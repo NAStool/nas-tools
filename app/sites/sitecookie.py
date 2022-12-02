@@ -1,15 +1,16 @@
+import base64
 import time
 
 from lxml import etree
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
+from selenium.webdriver.support.wait import WebDriverWait
 
 import log
 from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
 from app.helper.ocr_helper import OcrHelper
 from app.sites import Sites
-from app.utils import StringUtils
+from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton
 from config import SITE_LOGIN_XPATH
 
@@ -20,7 +21,6 @@ class SiteCookie(object):
     sites = None
     ocrhelper = None
     dbhelpter = None
-
     captcha_code = {}
 
     def __init__(self):
@@ -45,12 +45,19 @@ class SiteCookie(object):
         """
         return self.captcha_code.get(code)
 
-    def __get_site_cookie_ua(self, url, username, password, ocrflag=False, chrome=None):
+    def __get_site_cookie_ua(self,
+                             url,
+                             username,
+                             password,
+                             twostepcode=None,
+                             ocrflag=False,
+                             chrome=None):
         """
         获取站点cookie和ua
         :param url: 站点地址
         :param username: 用户名
         :param password: 密码
+        :param twostepcode: 两步验证
         :param ocrflag: 是否开启OCR识别
         :param chrome: ChromeHelper
         :return: cookie、ua、message
@@ -69,12 +76,7 @@ class SiteCookie(object):
                 print(str(err))
                 return None, None, "Chrome模拟访问失败"
             # 循环检测是否过cf
-            cloudflare = False
-            for i in range(0, 10):
-                if chrome.get_title() != "Just a moment...":
-                    cloudflare = True
-                    break
-                time.sleep(1)
+            cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
                 return None, None, "跳转站点失败，无法通过Cloudflare验证"
             # 登录页面代码
@@ -98,6 +100,12 @@ class SiteCookie(object):
                     break
             if not password_xpath:
                 return None, None, "未找到密码输入框"
+            # 查找两步验证码
+            twostepcode_xpath = None
+            for xpath in SITE_LOGIN_XPATH.get("twostep"):
+                if html.xpath(xpath):
+                    twostepcode_xpath = xpath
+                    break
             # 查找验证码输入框
             captcha_xpath = None
             for xpath in SITE_LOGIN_XPATH.get("captcha"):
@@ -131,28 +139,41 @@ class SiteCookie(object):
                     chrome.browser.find_element(By.XPATH, username_xpath).send_keys(username)
                     # 输入密码
                     chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
+                    # 输入两步验证码
+                    if twostepcode and twostepcode_xpath:
+                        chrome.browser.find_element(By.XPATH, twostepcode_xpath).send_keys(twostepcode)
                     # 识别验证码
                     if captcha_xpath:
+                        code_url = self.__get_captcha_url(url, captcha_img_url)
                         if ocrflag:
                             # 自动OCR识别验证码
-                            captcha = self.get_captcha_text(siteurl=url, imageurl=captcha_img_url)
+                            captcha = self.get_captcha_text(chrome, code_url)
                             if captcha:
-                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (captcha_img_url, captcha))
+                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (code_url, captcha))
                             else:
                                 return None, None, "验证码识别失败"
                         else:
                             # 等待用户输入
                             captcha = None
-                            codeurl = self.__get_captcha_url(url, captcha_img_url)
+                            code_key = StringUtils.generate_random_str(5)
                             for sec in range(30, 0, -1):
-                                if self.get_code(codeurl):
+                                if self.get_code(code_key):
                                     # 用户输入了
-                                    captcha = self.get_code(codeurl)
+                                    captcha = self.get_code(code_key)
                                     log.info("【Sites】接收到验证码：%s" % captcha)
+                                    self.progress.update(ptype='sitecookie',
+                                                         text="接收到验证码：%s" % captcha)
                                     break
                                 else:
+                                    # 获取验证码图片base64
+                                    code_bin = self.get_captcha_base64(chrome, code_url)
+                                    if not code_bin:
+                                        return None, None, "获取验证码图片数据失败"
+                                    else:
+                                        code_bin = f"data:image/png;base64,{code_bin}"
+                                    # 推送到前端
                                     self.progress.update(ptype='sitecookie',
-                                                         text=f"{codeurl}|等待输入验证码，倒计时 %s 秒 ..." % sec)
+                                                         text=f"{code_bin}|{code_key}")
                                     time.sleep(1)
                             if not captcha:
                                 return None, None, "验证码输入超时"
@@ -185,13 +206,15 @@ class SiteCookie(object):
                     error_msg = html.xpath(error_xpath)[0]
                     return None, None, error_msg
 
-    def get_captcha_text(self, siteurl, imageurl):
+    def get_captcha_text(self, chrome, code_url):
         """
         识别验证码图片的内容
         """
-        if not siteurl or not imageurl:
+        code_b64 = self.get_captcha_base64(chrome=chrome,
+                                           image_url=code_url)
+        if not code_b64:
             return ""
-        return self.ocrhelper.get_captcha_text(image_url=self.__get_captcha_url(siteurl, imageurl))
+        return self.ocrhelper.get_captcha_text(image_b64=code_b64)
 
     @staticmethod
     def __get_captcha_url(siteurl, imageurl):
@@ -203,7 +226,12 @@ class SiteCookie(object):
         scheme, netloc = StringUtils.get_url_netloc(siteurl)
         return "%s://%s/%s" % (scheme, netloc, imageurl)
 
-    def update_sites_cookie_ua(self, username, password, siteid=None, ocrflag=False):
+    def update_sites_cookie_ua(self,
+                               username,
+                               password,
+                               twostepcode=None,
+                               siteid=None,
+                               ocrflag=False):
         """
         更新所有站点Cookie和ua
         """
@@ -237,6 +265,7 @@ class SiteCookie(object):
             cookie, ua, msg = self.__get_site_cookie_ua(url=login_url,
                                                         username=username,
                                                         password=password,
+                                                        twostepcode=twostepcode,
                                                         ocrflag=ocrflag,
                                                         chrome=chrome)
             # 更新进度
@@ -257,3 +286,16 @@ class SiteCookie(object):
                                      text="%s 更新Cookie和User-Agent成功" % site.get("name"))
         self.progress.end('sitecookie')
         return retcode, messages
+
+    @staticmethod
+    def get_captcha_base64(chrome, image_url):
+        """
+        根据图片地址，获取验证码图片base64编码
+        """
+        if not image_url:
+            return ""
+        ret = RequestUtils(headers=chrome.get_ua(),
+                           cookies=chrome.get_cookies()).get_res(image_url)
+        if ret:
+            return base64.b64encode(ret.content).decode()
+        return ""
