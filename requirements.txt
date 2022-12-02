@@ -50,7 +50,6 @@ proces==0.1.2
 prompt-toolkit==3.0.31
 ptyprocess==0.7.0
 pure-eval==0.2.2
-pycparser==2.21
 Pygments==2.13.0
 PyJWT==2.5.0
 pymongo==4.2.0
