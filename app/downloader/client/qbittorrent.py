@@ -247,8 +247,6 @@ class Qbittorrent(IDownloadClient):
         """
         通过标签多次尝试获取刚添加的种子ID，并移除标签
         """
-        if status is None:
-            status = ["paused"]
         torrent_id = None
         # QB添加下载后需要时间，重试5次每次等待5秒
         for i in range(1, 6):

@@ -131,7 +131,7 @@ class Sites:
         获取站点配置
         """
         if siteid:
-            return self._siteByIds.get(int(siteid))
+            return self._siteByIds.get(int(siteid)) or {}
         if siteurl:
             return self._siteByUrls.get(StringUtils.get_url_domain(siteurl)) or {}
 

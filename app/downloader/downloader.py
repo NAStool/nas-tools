@@ -655,7 +655,7 @@ class Downloader:
                             if downloader == DownloaderType.TR:
                                 torrent_id = ret.id
                             elif downloader == DownloaderType.QB:
-                                torrent_id = _client.get_torrent_id_by_tag(torrent_tag)
+                                torrent_id = _client.get_torrent_id_by_tag(tag=torrent_tag, status=["paused"])
                             else:
                                 continue
                             if not torrent_id:
