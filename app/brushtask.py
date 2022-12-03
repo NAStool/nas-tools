@@ -3,21 +3,20 @@ import sys
 import time
 import traceback
 from datetime import datetime
-from time import sleep
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.helper import DbHelper, DictHelper
-from app.sites import Sites
-from app.filter import Filter
-from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
+from app.filter import Filter
+from app.helper import DbHelper, DictHelper
 from app.message import Message
 from app.rss import Rss
+from app.sites import Sites
 from app.utils import StringUtils
-from app.utils.types import BrushDeleteType, SystemDictType
 from app.utils.commons import singleton
+from app.utils.types import BrushDeleteType, SystemDictType
+from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 
 
 @singleton
@@ -100,8 +99,7 @@ class BrushTask(object):
             forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             if site_info:
-                scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-                site_url = "%s://%s" % (scheme, netloc)
+                site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
             else:
                 site_url = ""
             downloader_info = self.get_downloader_info(task.DOWNLOADER)
@@ -160,18 +158,20 @@ class BrushTask(object):
         cookie = taskinfo.get("cookie")
         rss_free = taskinfo.get("free")
         ua = taskinfo.get("ua")
-        downloader_id = taskinfo.get("downloader")
         log.info("【Brush】开始站点 %s 的刷流任务：%s..." % (site_name, task_name))
+        if not site_id:
+            log.error("【Brush】刷流任务 %s 的站点已不存在，无法刷流！" % task_name)
+            return
         if not rss_url:
-            log.warn("【Brush】站点 %s 未配置RSS订阅地址，无法刷流" % site_name)
+            log.error("【Brush】站点 %s 未配置RSS订阅地址，无法刷流！" % site_name)
             return
         if rss_free and not cookie:
             log.warn("【Brush】站点 %s 未配置Cookie，无法开启促销刷流" % site_name)
             return
         # 下载器参数
-        downloader_cfg = self.get_downloader_info(downloader_id)
+        downloader_cfg = self.get_downloader_info(taskinfo.get("downloader"))
         if not downloader_cfg:
-            log.warn("【Brush】任务 %s 下载器不存在，无法刷流" % task_name)
+            log.error("【Brush】任务 %s 下载器不存在，无法刷流！" % task_name)
             return
         # 检查是否达到保种体积
         if not self.__is_allow_new_torrent(taskid=taskid,
@@ -558,7 +558,7 @@ class BrushTask(object):
         # 下载任务ID
         download_id = None
         # 查询站点信息
-        site_info = self.sites.get_sites(siteid=site_id) or {}
+        site_info = self.sites.get_sites(siteid=site_id)
         # 添加下载
         if downloadercfg.get("type") == self._qb_client:
             # 初始化下载器
@@ -579,18 +579,13 @@ class BrushTask(object):
                                          cookie=site_info.get("cookie"))
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
-                for i in range(1, 6):
-                    sleep(5)
-                    download_id = downloader.get_last_add_torrentid_by_tag(tag)
-                    if download_id is None:
-                        continue
-                    else:
-                        downloader.remove_torrents_tag(download_id, torrent_tag)
-                        downloader.start_torrents(download_id)
-                        # 强制做种
-                        if forceupload:
-                            downloader.torrents_set_force_start(download_id)
-                        break
+                download_id = downloader.get_torrent_id_by_tag(tag)
+                if download_id:
+                    # 开始下载
+                    downloader.start_torrents(download_id)
+                    # 强制做种
+                    if forceupload:
+                        downloader.torrents_set_force_start(download_id)
         else:
             # 初始化下载器
             downloader = Transmission(user_config=downloadercfg)

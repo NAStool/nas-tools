@@ -281,11 +281,11 @@ class Subtitle:
                 if sublinks:
                     sublink = sublinks[0]
                     if not sublink.startswith("http"):
-                        scheme, netloc = StringUtils.get_url_netloc(media_info.page_url)
+                        base_url = StringUtils.get_base_url(media_info.page_url)
                         if sublink.startswith("/"):
-                            sublink = "%s://%s%s" % (scheme, netloc, sublink)
+                            sublink = "%s%s" % (base_url, sublink)
                         else:
-                            sublink = "%s://%s/%s" % (scheme, netloc, sublink)
+                            sublink = "%s/%s" % (base_url, sublink)
                     break
             if sublink:
                 log.info(f"【Subtitle】找到字幕下载链接: {sublink}，开始下载...")

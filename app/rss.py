@@ -315,7 +315,7 @@ class Rss:
         ret_array = []
         if not url:
             return []
-        _, netloc = StringUtils.get_url_netloc(url)
+        site_domain = StringUtils.get_url_domain(url)
         try:
             ret = RequestUtils().get_res(url)
             if not ret:
@@ -338,8 +338,8 @@ class Rss:
                         if not title:
                             continue
                         # 标题特殊处理
-                        if netloc and netloc in _special_title_sites:
-                            title = _special_title_sites.get(netloc)(title)
+                        if site_domain and site_domain in _special_title_sites:
+                            title = _special_title_sites.get(site_domain)(title)
                         # 描述
                         description = DomUtils.tag_value(item, "description", default="")
                         # 种子页面

@@ -2,15 +2,15 @@ import os
 import re
 import time
 from datetime import datetime
-
-import qbittorrentapi
-
 from urllib import parse
-import log
-from app.utils.types import DownloaderType
-from config import Config, PT_TAG
-from app.downloader.client.client import IDownloadClient
+
 from pkg_resources import parse_version as v
+
+import log
+import qbittorrentapi
+from app.downloader.client.client import IDownloadClient
+from app.utils.types import DownloaderType
+from config import Config
 
 
 class Qbittorrent(IDownloadClient):
@@ -158,7 +158,8 @@ class Qbittorrent(IDownloadClient):
             else:
                 trans_name = torrent.get('name')
             true_path = self.get_replace_path(path)
-            trans_tasks.append({'path': os.path.join(true_path, trans_name).replace("\\", "/"), 'id': torrent.get('hash')})
+            trans_tasks.append(
+                {'path': os.path.join(true_path, trans_name).replace("\\", "/"), 'id': torrent.get('hash')})
         return trans_tasks
 
     def get_remove_torrents(self, config=None):
@@ -174,8 +175,8 @@ class Qbittorrent(IDownloadClient):
         seeding_time = config.get("seeding_time")
         # 大小 单位：GB
         size = config.get("size")
-        minsize = size[0]*1024*1024*1024 if size else 0
-        maxsize = size[-1]*1024*1024*1024 if size else 0
+        minsize = size[0] * 1024 * 1024 * 1024 if size else 0
+        maxsize = size[-1] * 1024 * 1024 * 1024 if size else 0
         # 平均上传速度 单位 KB/s
         upload_avs = config.get("upload_avs")
         savepath_key = config.get("savepath_key")
@@ -186,14 +187,14 @@ class Qbittorrent(IDownloadClient):
             date_done = torrent.completion_on or torrent.added_on
             date_now = int(time.mktime(datetime.now().timetuple()))
             torrent_seeding_time = date_now - date_done if date_done else 0
-            torrent_upload_avs = torrent.uploaded/torrent_seeding_time if torrent_seeding_time else 0
+            torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
             if ratio and torrent.ratio <= ratio:
                 continue
-            if seeding_time and torrent_seeding_time <= seeding_time*3600:
+            if seeding_time and torrent_seeding_time <= seeding_time * 3600:
                 continue
             if size and (torrent.size >= maxsize or torrent.size <= minsize):
                 continue
-            if upload_avs and torrent_upload_avs <= upload_avs*1024:
+            if upload_avs and torrent_upload_avs <= upload_avs * 1024:
                 continue
             if savepath_key and not re.findall(savepath_key, torrent.save_path, re.I):
                 continue
@@ -227,7 +228,7 @@ class Qbittorrent(IDownloadClient):
             return remove_torrents_plus
         return remove_torrents
 
-    def get_last_add_torrentid_by_tag(self, tag, status=None):
+    def __get_last_add_torrentid_by_tag(self, tag, status=None):
         """
         根据种子的下载链接获取下载中或暂停的钟子的ID
         :return: 种子ID
@@ -241,6 +242,23 @@ class Qbittorrent(IDownloadClient):
             return torrents[0].get("hash")
         else:
             return None
+
+    def get_torrent_id_by_tag(self, tag, status=None):
+        """
+        通过标签多次尝试获取刚添加的种子ID，并移除标签
+        """
+        torrent_id = None
+        # QB添加下载后需要时间，重试5次每次等待5秒
+        for i in range(1, 6):
+            time.sleep(5)
+            torrent_id = self.__get_last_add_torrentid_by_tag(tag=tag,
+                                                              status=status)
+            if torrent_id is None:
+                continue
+            else:
+                self.remove_torrents_tag(torrent_id, tag)
+                break
+        return torrent_id
 
     def add_torrent(self,
                     content,
