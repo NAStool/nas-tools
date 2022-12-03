@@ -16,8 +16,7 @@ class Bark(IMessageChannel):
 
     def init_config(self):
         if self._client_config:
-            scheme, netloc = StringUtils.get_url_netloc(self._client_config.get('server'))
-            self._server = f"{scheme}://{netloc}"
+            self._server = StringUtils.get_base_url(self._client_config.get('server'))
             self._apikey = self._client_config.get('apikey')
 
     def get_status(self):

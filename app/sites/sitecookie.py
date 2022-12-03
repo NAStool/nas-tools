@@ -223,8 +223,7 @@ class SiteCookie(object):
         """
         if not siteurl or not imageurl:
             return ""
-        scheme, netloc = StringUtils.get_url_netloc(siteurl)
-        return "%s://%s/%s" % (scheme, netloc, imageurl)
+        return "%s/%s" % (StringUtils.get_base_url(siteurl), imageurl)
 
     def update_sites_cookie_ua(self,
                                username,
@@ -259,8 +258,7 @@ class SiteCookie(object):
             self.progress.update(ptype='sitecookie',
                                  text="开始更新 %s Cookie和User-Agent ..." % site.get("name"))
             # 登录页面地址
-            scheme, netloc = StringUtils.get_url_netloc(site.get("signurl") or site.get("rssurl"))
-            login_url = "%s://%s/login.php" % (scheme, netloc)
+            login_url = "%s/login.php" % StringUtils.get_base_url(site.get("signurl") or site.get("rssurl"))
             # 获取Cookie和User-Agent
             cookie, ua, msg = self.__get_site_cookie_ua(url=login_url,
                                                         username=username,
