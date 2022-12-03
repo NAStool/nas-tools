@@ -100,8 +100,7 @@ class BrushTask(object):
             forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             if site_info:
-                scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-                site_url = "%s://%s" % (scheme, netloc)
+                site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
             else:
                 site_url = ""
             downloader_info = self.get_downloader_info(task.DOWNLOADER)

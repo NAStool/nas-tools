@@ -78,8 +78,6 @@ class Sites:
         for site in self._sites:
             # 站点属性
             site_note = self.__get_site_note_items(site.NOTE)
-            # 站点地址ID
-            _, site_strict_url = StringUtils.get_url_netloc(site.SIGNURL or site.RSSURL)
             # 站点用途：Q签到、D订阅、S刷流
             site_rssurl = site.RSSURL
             site_signurl = site.SIGNURL
@@ -118,6 +116,7 @@ class Sites:
             # 以ID存储
             self._siteByIds[site.ID] = site_info
             # 以域名存储
+            site_strict_url = StringUtils.get_url_domain(site.SIGNURL or site.RSSURL)
             if site_strict_url:
                 self._siteByUrls[site_strict_url] = site_info
 
@@ -134,8 +133,7 @@ class Sites:
         if siteid:
             return self._siteByIds.get(int(siteid))
         if siteurl:
-            _, url = StringUtils.get_url_netloc(siteurl)
-            return self._siteByUrls.get(url)
+            return self._siteByUrls.get(StringUtils.get_url_domain(siteurl)) or {}
 
         ret_sites = []
         for site in self._siteByIds.values():
@@ -275,7 +273,7 @@ class Sites:
         if not site_cookie:
             return False, "未配置站点Cookie", 0
         ua = site_info.get("ua")
-        site_url = "%s://%s" % StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+        site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
         if not site_url:
             return False, "未配置站点地址", 0
         emulate = site_info.get("chrome")
@@ -344,7 +342,7 @@ class Sites:
                 if emulate == "Y" and chrome.get_status():
                     # 首页
                     log.info("【Sites】开始站点仿真签到：%s" % site)
-                    home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
+                    home_url = StringUtils.get_base_url(site_url)
                     with CHROME_LOCK:
                         try:
                             chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
@@ -555,8 +553,7 @@ class Sites:
             return
         site_url = site.get("signurl") or site.get("rssurl")
         if site_url:
-            site_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
-            return site_url
+            return StringUtils.get_base_url(site_url)
         return ""
 
     def get_site_attr(self, url):

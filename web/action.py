@@ -1814,7 +1814,6 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         site_info = Sites().get_sites(siteid=brushtask.SITE)
-        scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
         sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
         forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
         task = {
@@ -1834,7 +1833,7 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask.DOWNLOAD_SIZE),
             "upload_size": StringUtils.str_filesize(brushtask.UPLOAD_SIZE),
             "lst_mod_date": brushtask.LST_MOD_DATE,
-            "site_url": "%s://%s" % (scheme, netloc),
+            "site_url": StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl")),
             "sendmessage": sendmessage_switch,
             "forceupload": forceupload_switch
         }
