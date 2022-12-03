@@ -56,7 +56,7 @@ DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn'
 # TMDB图片地址
 TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original/%s'
-# 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
+# 添加下载时增加的标签，开启只监控NASTool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 搜索种子过滤属性
 TORRENT_SEARCH_PARAMS = {

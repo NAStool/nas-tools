@@ -10,13 +10,14 @@ from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper
 from app.media import Media
+from app.media.meta.metainfo import MetaInfo
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
-from config import Config
+from config import Config, PT_TAG
 
 
 @singleton
@@ -196,37 +197,45 @@ class RssChecker(object):
                 if self.dbhelper.is_userrss_finished(meta_name, enclosure):
                     log.info("【RssChecker】%s 已处理过" % title)
                     continue
-                # 识别种子名称，开始检索TMDB
-                media_info = self.media.get_media_info(title=meta_name,
-                                                       subtitle=description,
-                                                       mtype=mediatype)
-                if not media_info:
-                    log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
-                    continue
-                # 检查是否已存在
-                if not media_info.tmdb_info:
-                    log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                    continue
-                if media_info.type == MediaType.MOVIE:
-                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                   no_exists=no_exists)
-                    if exist_flag:
-                        log.info("【RssChecker】电影 %s 已存在" % media_info.get_title_string())
+                # 初始化媒体信息
+                media_info = MetaInfo(title=meta_name, subtitle=description, mtype=mediatype)
+
+                # 动作为下载时，当启用只管理 NASTOOL添加的下载时，需设置有 PT_TAG 标签才进行 TMDB查询及媒体库检查
+                if (taskinfo.get("uses") != "D" or
+                    (not Config().get_config("pt").get("pt_monitor_only")) or
+                    PT_TAG in self.downloader.get_download_setting(taskinfo.get("download_setting")).get("tags")):
+                    # 识别种子名称，开始检索TMDB
+                    media_info = self.media.get_media_info(title=meta_name,
+                                                           subtitle=description,
+                                                           mtype=mediatype)
+                    if not media_info:
+                        log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
                         continue
-                else:
-                    exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                   no_exists=no_exists)
-                    # 当前剧集已存在，跳过
-                    if exist_flag:
-                        # 已全部存在
-                        if not no_exists or not no_exists.get(
-                                media_info.tmdb_id):
-                            log.info("【RssChecker】电视剧 %s %s 已存在" % (
-                                media_info.get_title_string(), media_info.get_season_episode_string()))
+                    if not media_info.tmdb_info:
+                        log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
                         continue
-                    if no_exists.get(media_info.tmdb_id):
-                        log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                             no_exists.get(media_info.tmdb_id)))
+
+                    # 检查是否已存在
+                    if media_info.type == MediaType.MOVIE:
+                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                       no_exists=no_exists)
+                        if exist_flag:
+                            log.info("【RssChecker】电影 %s 已存在" % media_info.get_title_string())
+                            continue
+                    else:
+                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                       no_exists=no_exists)
+                        # 当前剧集已存在，跳过
+                        if exist_flag:
+                            # 已全部存在
+                            if not no_exists or not no_exists.get(
+                                    media_info.tmdb_id):
+                                log.info("【RssChecker】电视剧 %s %s 已存在" % (
+                                    media_info.get_title_string(), media_info.get_season_episode_string()))
+                            continue
+                        if no_exists.get(media_info.tmdb_id):
+                            log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                                 no_exists.get(media_info.tmdb_id)))
                 if taskinfo.get("uses") == "D":
                     if not enclosure:
                         log.warn("【RssChecker】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
