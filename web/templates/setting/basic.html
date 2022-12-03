@@ -564,6 +564,11 @@
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
+              <div class="col-auto">
+                <a href="javascript:void(0)" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-release-groups">
+                  自定义制作组/字幕组设置
+                </a>
+              </div>
               <div class="col"></div>
               <div class="col-auto">
                 <a id="laboratory_btn" href="javascript:save_basic_config('laboratory')" class="btn btn-primary">
@@ -907,6 +912,31 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-release-groups" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">自定义制作组/字幕组 <span class="form-help" title="无法识别的制作组/字幕组在此添加" data-bs-toggle="tooltip">?</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class='row'>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <textarea class="form-control" id="release_groups" rows="5" placeholder="多个制作组/字幕组请用;分隔，支持正则表达式，特殊字符注意转义">{{ Config.laboratory.release_groups or '' }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="release_groups_save_btn" href="javascript:save_release_groups_config()" class="btn btn-primary">
+          保存
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
@@ -926,13 +956,11 @@
       params[key] = value;
     });
     if (type != "modal-scraper") {
-      $("#" + type + "_btn").attr("disabled", true);
-      $("#" + type + "_btn").text("保存中...");
+      $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
     ajax_post("update_config", params, function (ret) {
       if (type != "modal-scraper") {
-        $("#" + type + "_btn").attr("disabled", false);
-        $("#" + type + "_btn").text("保存");
+        $("#" + type + "_btn").text("保存").attr("disabled", false);
       }
     });
   }
@@ -941,6 +969,17 @@
   function save_scraper_config() {
     save_basic_config('modal-scraper');
     $("#modal-scraper").modal("hide");
+  }
+
+    // 保存自定义识别屏蔽词配置
+  function save_release_groups_config(){
+    let params = {};
+    params['laboratory.release_groups'] = $("#release_groups").val().replace(/;$/g, '');
+    $("#release_groups_save_btn").text("保存中...").attr("disabled", true);
+    ajax_post("update_config", params, function (ret) {
+      $("#release_groups_save_btn").text("保存").attr("disabled", false);
+    });
+    $("#modal-customized-words").modal("hide");
   }
 
 </script>
