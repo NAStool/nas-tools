@@ -6,6 +6,7 @@ import zhconv
 
 from app.utils import StringUtils
 from app.media.meta.metabase import MetaBase
+from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils.types import MediaType
 
 
@@ -22,6 +23,7 @@ class MetaAnime(MetaBase):
             return
         # 调用第三方模块识别动漫
         try:
+            original_title = title
             # 字幕组信息会被预处理掉
             anitopy_info_origin = anitopy.parse(title)
             title = self.__prepare_title(title)
@@ -135,7 +137,9 @@ class MetaAnime(MetaBase):
                     else:
                         self.resource_pix = self.resource_pix.lower()
                 # 制作组/字幕组
-                self.resource_team = anitopy_info_origin.get("release_group")
+                self.resource_team = \
+                    anitopy_info_origin.get("release_group") or \
+                    ReleaseGroupsMatcher().match(title=f"{original_title}") or None
                 # 视频编码
                 self.video_encode = anitopy_info.get("video_term")
                 if isinstance(self.video_encode, list):
