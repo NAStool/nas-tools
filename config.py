@@ -103,7 +103,7 @@ NETTEST_TARGETS = ["www.themoviedb.org",
 # 站点签到支持的识别XPATH
 SITE_CHECKIN_XPATH = [
     '//a[@id="signed"]',
-    '//a[contains(@href, "attendance.php")]',
+    '//a[contains(@href, "attendance")]',
     '//a[contains(text(), "签到")]',
     '//a/b[contains(text(), "签 到")]',
     '//span[@id="sign_in"]/a',
