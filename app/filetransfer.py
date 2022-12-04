@@ -208,28 +208,46 @@ class FileTransfer:
                     if metainfo.get_episode_string() \
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
-                    file_ext = os.path.splitext(file_item)[-1]
+                    new_file_type = ""
                     if re.search(
-                            r"\.(((zh[-_])?(cn|chs|sg))|zh|zho|chi|chinese|chs[-_]eng|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
+                            r"\.(((zh[-_])?(cn|ch[si]|sg))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
                             file_item, re.I):
-                        new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
+                        new_file_type = ".zh-cn"
                     elif re.search(r"\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item,
                                    re.I):
-                        new_file = os.path.splitext(new_name)[0] + ".zh-tw" + file_ext
-                    else:
-                        new_file = os.path.splitext(new_name)[0] + file_ext
-                    if not os.path.exists(new_file):
-                        log.debug("【Rmt】正在处理字幕：%s" % os.path.basename(file_item))
-                        retcode = self.__transfer_command(file_item=file_item,
-                                                          target_file=new_file,
-                                                          rmt_mode=rmt_mode)
-                        if retcode == 0:
-                            log.info("【Rmt】字幕 %s %s完成" % (os.path.basename(file_item), rmt_mode.value))
-                        else:
-                            log.error("【Rmt】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
-                            return retcode
-                    else:
-                        log.info("【Rmt】字幕 %s 已存在" % new_file)
+                        new_file_type = ".zh-tw"
+                    elif re.search(r"\.eng\.", file_item,
+                                   re.I):
+                        new_file_type = ".eng"
+                    # 通过对比字幕文件大小  尽量转移所有存在的字幕
+                    file_ext = os.path.splitext(file_item)[-1]
+                    file_item_size = os.path.getsize(file_item)
+                    new_sub_tag_dict = {
+                        "":".未知语言",
+                        ".eng":".英文",
+                        ".zh-cn":".简体中文",
+                        ".zh-tw":".繁体中文"
+                    }
+                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)"%(new_sub_tag_dict[new_file_type], t) for t in range(6)]
+                    for new_sub_tag in new_sub_tag_list:
+                        new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
+                        # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
+                        if not os.path.exists(new_file):
+                            log.debug("【Rmt】正在处理字幕：%s" % os.path.basename(file_item))
+                            retcode = self.__transfer_command(file_item=file_item,
+                                                              target_file=new_file,
+                                                              rmt_mode=rmt_mode)
+                            if retcode == 0:
+                                log.info("【Rmt】字幕 %s %s完成" % (os.path.basename(file_item), rmt_mode.value))
+                                break
+                            else:
+                                log.error("【Rmt】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
+                                return retcode
+                        # 如果字幕文件的大小与已存在文件相同, 说明已经转移过了, 则跳出循环
+                        elif os.path.getsize(new_file) == file_item_size:
+                            log.info("【Rmt】字幕 %s 已存在" % new_file)
+                            break
+                        # 否则 循环继续 > 通过new_sub_tag_list 获取新的tag附加到字幕文件名, 继续检查是否能转移
         return 0
 
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
