@@ -47,6 +47,8 @@ docker pull jxxghp/nas-tools:latest
 ```
 教程见 [这里](docker/readme.md) ，如无法连接Github，注意不要开启自动更新开关(NASTOOL_AUTO_UPDATE=false)。
 
+视频教程： https://www.youtube.com/watch?v=fJsArkLN5ik
+
 ### 2、本地运行
 python3版本，如发现缺少依赖包需额外安装
 ```
