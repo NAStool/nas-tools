@@ -1142,11 +1142,7 @@ def robots():
 @App.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     # 当前在用的交互渠道
-    interactive_client = None
-    for client in Message().get_interactive_client():
-        if client.get("search_type") == SearchType.WX:
-            interactive_client = client
-            break
+    interactive_client = Message().get_interactive_client(SearchType.WX)
     if not interactive_client:
         return make_response("NAStool没有启用微信交互", 200)
     conf = interactive_client.get("config")
@@ -1272,7 +1268,7 @@ def emby_webhook():
     return 'Success'
 
 
-# Telegram消息
+# Telegram消息响应
 @App.route('/telegram', methods=['POST', 'GET'])
 def telegram():
     """
@@ -1299,11 +1295,7 @@ def telegram():
     }
     """
     # 当前在用的交互渠道
-    interactive_client = None
-    for client in Message().get_interactive_client():
-        if client.get("search_type") == SearchType.TG:
-            interactive_client = client
-            break
+    interactive_client = Message().get_interactive_client(SearchType.TG)
     if not interactive_client:
         return 'NAStool未启用Telegram交互'
     msg_json = request.get_json()
@@ -1324,6 +1316,29 @@ def telegram():
                                            user_id=user_id,
                                            user_name=user_name)
     return 'Success'
+
+
+# Slack消息响应
+@App.route('/slack', methods=['POST'])
+def slack():
+    """
+    {
+        "token": "Jhj5dZrVaK7ZwHHjRyZWjbDl",
+        "challenge": "3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P",
+        "type": "url_verification"
+    }
+    """
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client(SearchType.SLACK)
+    if not interactive_client:
+        return 'NAStool未启用Slack交互'
+    conf = interactive_client.get("config")
+    verification_token = conf.get("verification_token")
+    msg_json = request.get_json()
+    if msg_json.get("challenge") and msg_json.get("token") == verification_token:
+        return {"challenge": msg_json.get("challenge")}
+    log.info(msg_json)
+    return "非法请求"
 
 
 # Jellyseerr Overseerr订阅接口
