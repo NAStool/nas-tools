@@ -297,7 +297,7 @@ class Subtitle:
                     if not file_name:
                         log.warn(f"【Subtitle】链接不是字幕文件：{sublink}")
                         return
-                    if file_name.endswith(".zip"):
+                    if file_name.lower().endswith(".zip"):
                         # ZIP包
                         zip_file = os.path.join(self._save_tmp_path, file_name)
                         # 解压路径
