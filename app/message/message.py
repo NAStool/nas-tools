@@ -29,7 +29,8 @@ class Message:
             "serverchan": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
-            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"}
+            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"},
+            "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK}
         },
         "switch": {
             "download_start": {"name": "新增下载", "fuc_name": "download_start"},
@@ -506,15 +507,21 @@ class Message:
             return self._client_configs.get(str(cid))
         return self._client_configs
 
-    def get_interactive_client(self):
+    def get_interactive_client(self, client_type=None):
         """
         查询当前可以交互的渠道
         """
-        ret_clients = []
-        for client in self._active_clients:
-            if client.get('interactive'):
-                ret_clients.append(client)
-        return ret_clients
+        if client_type:
+            for client in Message().get_interactive_client():
+                if client.get("search_type") == client_type:
+                    return client
+            return None
+        else:
+            ret_clients = []
+            for client in self._active_clients:
+                if client.get('interactive'):
+                    ret_clients.append(client)
+            return ret_clients
 
     def get_status(self, ctype=None, config=None):
         """
