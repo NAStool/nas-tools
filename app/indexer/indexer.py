@@ -267,6 +267,7 @@ class IIndexer(metaclass=ABCMeta):
         index_sucess = 0
         index_rule_fail = 0
         index_match_fail = 0
+        index_error = 0
         for item in result_array:
             # 这此站标题和副标题相反
             if indexer.id in self._reverse_title_sites:
@@ -279,6 +280,7 @@ class IIndexer(metaclass=ABCMeta):
             if indexer.id in self._invalid_description_sites:
                 description = ""
             if not torrent_name:
+                index_error += 1
                 continue
             enclosure = item.get('enclosure')
             size = item.get('size')
@@ -336,7 +338,7 @@ class IIndexer(metaclass=ABCMeta):
                     media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
                     if not media_info:
                         log.warn(f"【{self.index_type}】{torrent_name} 识别媒体信息出错！")
-                        index_match_fail += 1
+                        index_error += 1
                         continue
                     elif not media_info.tmdb_info:
                         log.info(f"【{self.index_type}】{torrent_name} 识别为 {media_info.get_name()} 未匹配到媒体信息")
@@ -400,7 +402,7 @@ class IIndexer(metaclass=ABCMeta):
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(
-            f"【{self.index_type}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+            f"【{self.index_type}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         self.progress.update(ptype='search',
-                             text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+                             text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array
