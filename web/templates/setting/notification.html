@@ -90,14 +90,14 @@
                       <label class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %}
                                checked {% endif %}
-                               onclick="check_message_client('interactive', '{{ Id }}', this.checked)">
+                               onclick="check_message_client('interactive', '{{ Id }}', this.checked, '{{ Attr.type }}')">
                       </label>
                     {% endif %}
                   </td>
                   <td>
                     <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %} checked {% endif %}
-                             onclick="check_message_client('enable', '{{ Id }}', this.checked)">
+                             onclick="check_message_client('enable', '{{ Id }}', this.checked, '{{ Attr.type }}')">
                     </label>
                   </td>
                   <td>
@@ -682,9 +682,9 @@
 
 
   // 打开推送设置框
-  function check_message_client(flag, cid, checked) {
+  function check_message_client(flag, cid, checked, type) {
     show_wait_process();
-    ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked}, function (ret) {
+    ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked, type: type}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
         navmenu('notification');

@@ -2179,7 +2179,7 @@ class DbHelper:
         ))
 
     @DbPersist(_db)
-    def check_message_client(self, cid=None, interactive=None, enabled=None):
+    def check_message_client(self, cid=None, interactive=None, enabled=None, ctype=None):
         """
         设置目录同步状态
         """
@@ -2195,8 +2195,9 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-        elif not cid and int(interactive) == 0:
-            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1).update(
+        elif not cid and int(interactive) == 0 and ctype:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1,
+                                                 MESSAGECLIENT.TYPE == ctype).update(
                 {
                     "INTERACTIVE": 0
                 }

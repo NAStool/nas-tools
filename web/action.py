@@ -3755,11 +3755,12 @@ class WebAction:
         """
         flag = data.get("flag")
         cid = data.get("cid")
+        ctype = data.get("type")
         checked = data.get("checked")
         if flag == "interactive":
-            # 最多开启一个交互
+            # TG/WX只能开启一个交互
             if checked:
-                self.dbhelper.check_message_client(interactive=0)
+                self.dbhelper.check_message_client(interactive=0, ctype=ctype)
             self.dbhelper.check_message_client(cid=cid,
                                                interactive=1 if checked else 0)
             Message().init_config()
