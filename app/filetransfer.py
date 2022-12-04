@@ -223,12 +223,11 @@ class FileTransfer:
                     file_ext = os.path.splitext(file_item)[-1]
                     file_item_size = os.path.getsize(file_item)
                     new_sub_tag_dict = {
-                        "":".未知语言",
                         ".eng":".英文",
                         ".zh-cn":".简体中文",
                         ".zh-tw":".繁体中文"
                     }
-                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)"%(new_sub_tag_dict[new_file_type], t) for t in range(6)]
+                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)"%(new_sub_tag_dict.get(new_file_type, ".未知语言"), t) for t in range(6)]
                     for new_sub_tag in new_sub_tag_list:
                         new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
                         # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
