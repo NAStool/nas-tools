@@ -2107,9 +2107,9 @@ class TorrentRemoverTaskUpdate(ClientResource):
     parser.add_argument('savepath_key', type=str, help='保存路径关键词', location='form')
     parser.add_argument('tracker_key', type=str, help='tracker关键词', location='form')
     parser.add_argument('downloader', type=str, help='下载器（Qb/Tr）', location='form')
-    parser.add_argument('qb_state', type=str, help='Qb种子状态（用个用;分隔）', location='form')
-    parser.add_argument('qb_category', type=str, help='Qb分类（用个用;分隔）', location='form')
-    parser.add_argument('tr_state', type=str, help='Tr种子状态（用个用;分隔）', location='form')
+    parser.add_argument('qb_state', type=str, help='Qb种子状态（多个用;分隔）', location='form')
+    parser.add_argument('qb_category', type=str, help='Qb分类（多个用;分隔）', location='form')
+    parser.add_argument('tr_state', type=str, help='Tr种子状态（多个用;分隔）', location='form')
     parser.add_argument('tr_error_key', type=str, help='Tr错误信息关键词', location='form')
 
     @torrentremover.doc(parser=parser)
