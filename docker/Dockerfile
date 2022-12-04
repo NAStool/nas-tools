@@ -14,7 +14,9 @@ RUN apt-get install -y python3-cryptography python3-bs4 python3-cffi python3-lxm
 RUN npm install pm2 -g \
     && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt
     
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /root/.cache
+RUN useradd -u 911 -U -d /config -s /bin/false abc && \
+ usermod -G users abc
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
     
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
