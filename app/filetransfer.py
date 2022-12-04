@@ -209,10 +209,11 @@ class FileTransfer:
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     new_file_type = ".未知语言"
+                    # 兼容jellyfin字幕识别(多重识别), emby则会识别最后一个后缀
                     if re.search(
                             r"\.(((zh[-_])?(cn|ch[si]|sg))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
                             file_item, re.I):
-                        new_file_type = ".zh-cn"
+                        new_file_type = ".chi.zh-cn"
                     elif re.search(r"\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item,
                                    re.I):
                         new_file_type = ".zh-tw"
@@ -224,10 +225,10 @@ class FileTransfer:
                     file_item_size = os.path.getsize(file_item)
                     new_sub_tag_dict = {
                         ".eng":".英文",
-                        ".zh-cn":".简体中文",
+                        ".chi.zh-cn":".简体中文",
                         ".zh-tw":".繁体中文"
                     }
-                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)" % (new_sub_tag_dict.get(new_file_type, ".未知语言"), t) for t in range(6)]
+                    new_sub_tag_list = [new_file_type if t == 0 else "%s%s(%s)" % (new_file_type, new_sub_tag_dict.get(new_file_type, ""), t) for t in range(6)]
                     for new_sub_tag in new_sub_tag_list:
                         new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
                         # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
