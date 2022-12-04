@@ -208,7 +208,7 @@ class FileTransfer:
                     if metainfo.get_episode_string() \
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
-                    new_file_type = ""
+                    new_file_type = ".未知语言"
                     if re.search(
                             r"\.(((zh[-_])?(cn|ch[si]|sg))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
                             file_item, re.I):
@@ -227,7 +227,7 @@ class FileTransfer:
                         ".zh-cn":".简体中文",
                         ".zh-tw":".繁体中文"
                     }
-                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)"%(new_sub_tag_dict.get(new_file_type, ".未知语言"), t) for t in range(6)]
+                    new_sub_tag_list = [new_file_type if t==0 else "%s(%s)" % (new_sub_tag_dict.get(new_file_type, ".未知语言"), t) for t in range(6)]
                     for new_sub_tag in new_sub_tag_list:
                         new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
                         # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
