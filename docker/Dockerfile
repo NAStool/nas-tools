@@ -14,14 +14,14 @@ RUN apt-get install -y python3-cryptography python3-bs4 python3-cffi python3-lxm
 RUN npm install pm2 -g \
     && pip install -r https://github.com/geziang/nas-tools/raw/master/requirements.txt
     
-RUN useradd -u 911 -U -d /config -s /bin/false abc && \
+RUN useradd -u 911 -U -d /config abc && \
  usermod -G users abc
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
     
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
-    NASTOOL_AUTO_UPDATE=true \
+    NASTOOL_AUTO_UPDATE=false \
     PS1="\u@\h:\w \$ " \
     REPO_URL="https://github.com/geziang/nas-tools.git" \
     PUID=0 \
