@@ -1237,11 +1237,11 @@ def wechat():
 def plex_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
     WebhookEvent().plex_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 # Emby Webhook
@@ -1249,11 +1249,11 @@ def plex_webhook():
 def jellyfin_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
     WebhookEvent().jellyfin_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 @App.route('/emby', methods=['POST'])
@@ -1261,11 +1261,11 @@ def jellyfin_webhook():
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     WebhookEvent().emby_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 # Telegram消息响应
@@ -1315,7 +1315,54 @@ def telegram():
                                            in_from=SearchType.TG,
                                            user_id=user_id,
                                            user_name=user_name)
-    return 'Success'
+    return 'Ok'
+
+
+# Slack消息响应
+@App.route('/slack', methods=['POST'])
+def slack():
+    """
+    {
+        'client_msg_id': '',
+        'type': 'message',
+        'text': 'hello',
+        'user': '',
+        'ts': '1670143568.444289',
+        'blocks': [{
+            'type': 'rich_text',
+            'block_id': 'i2j+',
+            'elements': [{
+                'type': 'rich_text_section',
+                'elements': [{
+                    'type': 'text',
+                    'text': 'hello'
+                }]
+            }]
+        }],
+        'team': '',
+        'channel': '',
+        'event_ts': '1670143568.444289',
+        'channel_type': 'im'
+    }
+    """
+    # 只有本地转发请求能访问
+    if not SecurityHelper().check_slack_ip(request.remote_addr):
+        log.warn(f"非法IP地址的Slack消息通知：{request.remote_addr}")
+        return '不允许的IP地址请求'
+
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client(SearchType.SLACK)
+    if not interactive_client:
+        return 'NAStool未启用Slack交互'
+    msg_json = request.get_json()
+    if msg_json:
+        text = msg_json.get("text")
+        channel = msg_json.get("channel")
+        WebAction().handle_message_job(msg=text,
+                                       client=interactive_client,
+                                       in_from=SearchType.SLACK,
+                                       user_id=channel)
+    return "Ok"
 
 
 # Jellyseerr Overseerr订阅接口

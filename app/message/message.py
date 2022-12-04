@@ -54,13 +54,18 @@ class Message:
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
         self._domain = Config().get_domain()
-        # 初始化消息客户端
+        # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
                 if active_client.get("search_type") == SearchType.TG:
                     tg_client = active_client.get("client")
                     if tg_client:
                         tg_client.enabled = False
+                elif active_client.get("search_type") == SearchType.SLACK:
+                    slack_client = active_client.get("client")
+                    if slack_client:
+                        slack_client.stop_service()
+        # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
@@ -110,7 +115,7 @@ class Message:
         elif ctype == "iyuu":
             return IyuuMsg(conf)
         elif ctype == "slack":
-            return Slack(conf)
+            return Slack(conf, interactive)
         else:
             return None
 
