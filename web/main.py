@@ -1329,15 +1329,16 @@ def slack():
     }
     """
     # 当前在用的交互渠道
-    """
     interactive_client = Message().get_interactive_client(SearchType.SLACK)
     if not interactive_client:
         return 'NAStool未启用Slack交互'
-    """
+    conf = interactive_client.get("config")
+    verification_token = conf.get("verification_token")
     msg_json = request.get_json()
-    if msg_json.get("challenge"):
+    if msg_json.get("challenge") and msg_json.get("token") == verification_token:
         return {"challenge": msg_json.get("challenge")}
     log.info(msg_json)
+    return "非法请求"
 
 
 # Jellyseerr Overseerr订阅接口
