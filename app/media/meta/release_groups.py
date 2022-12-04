@@ -97,5 +97,5 @@ class ReleaseGroupsMatcher(object):
             return ""
         if not groups:
             groups = self.__release_groups
-        groups_re = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % groups, re.I)
+        groups_re = re.compile(r"(?<=[-@\[￡【])(?:%s)(?=[@.\s\]\[】])" % groups, re.I)
         return '@'.join(re.findall(groups_re, title))
