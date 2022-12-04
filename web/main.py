@@ -1142,10 +1142,13 @@ def robots():
 @App.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     # 当前在用的交互渠道
-    interactive_client = Message().get_interactive_client()
-    if not interactive_client or interactive_client.get("search_type") != SearchType.WX:
-        return
-    # 读取配置
+    interactive_client = None
+    for client in Message().get_interactive_client():
+        if client.get("search_type") == SearchType.WX:
+            interactive_client = client
+            break
+    if not interactive_client:
+        return make_response("NAStool没有启用微信交互", 200)
     conf = interactive_client.get("config")
     sToken = conf.get('token')
     sEncodingAESKey = conf.get('encodingAESKey')
@@ -1159,7 +1162,7 @@ def wechat():
 
     if request.method == 'GET':
         if not sVerifyMsgSig and not sVerifyTimeStamp and not sVerifyNonce:
-            return "放心吧，服务是正常的！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
+            return "NAStool微信交互服务正常！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项，打开微信交互开关。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
         sVerifyEchoStr = request.args.get("echostr")
         log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
@@ -1296,13 +1299,17 @@ def telegram():
     }
     """
     # 当前在用的交互渠道
-    interactive_client = Message().get_interactive_client()
-    if not interactive_client or interactive_client.get("search_type") != SearchType.TG:
-        return 'Reject'
+    interactive_client = None
+    for client in Message().get_interactive_client():
+        if client.get("search_type") == SearchType.TG:
+            interactive_client = client
+            break
+    if not interactive_client:
+        return 'NAStool未启用Telegram交互'
     msg_json = request.get_json()
     if not SecurityHelper().check_telegram_ip(request.remote_addr):
         log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
-        return 'Reject'
+        return '不允许的IP地址请求'
     if msg_json:
         message = msg_json.get("message", {})
         text = message.get("text")

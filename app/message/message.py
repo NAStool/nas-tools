@@ -510,10 +510,11 @@ class Message:
         """
         查询当前可以交互的渠道
         """
+        ret_clients = []
         for client in self._active_clients:
             if client.get('interactive'):
-                return client
-        return {}
+                ret_clients.append(client)
+        return ret_clients
 
     def get_status(self, ctype=None, config=None):
         """
