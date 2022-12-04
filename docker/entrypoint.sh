@@ -81,4 +81,4 @@ PGID=${PGID:-911}
 
 groupmod -o -g "$PGID" abc
 usermod -o -u "$PUID" abc
-exec su abc pm2-runtime start run.py -n NAStool --interpreter python3
+exec su abc -c 'pm2-runtime start run.py -n NAStool --interpreter python3'
