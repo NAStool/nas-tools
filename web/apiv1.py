@@ -18,7 +18,7 @@ apiv1_bp = Blueprint("apiv1",
 Apiv1 = Api(apiv1_bp,
             version="1.0",
             title="NAStool Api",
-            description="POST接口调用/user/login获取Token，GET接口使用Api Key",
+            description="POST接口调用 /user/login 获取Token，GET接口使用 基础设置->安全->Api Key 调用",
             doc="/",
             security='Bearer Auth',
             authorizations={"Bearer Auth": {"type": "apiKey", "name": "Authorization", "in": "header"}},
@@ -35,6 +35,7 @@ recommend = Apiv1.namespace('recommend', description='推荐')
 search = Apiv1.namespace('search', description='搜索')
 download = Apiv1.namespace('download', description='下载')
 organization = Apiv1.namespace('organization', description='整理')
+torrentremover = Apiv1.namespace('torrentremover', description='自动删种')
 library = Apiv1.namespace('library', description='媒体库')
 brushtask = Apiv1.namespace('brushtask', description='刷流')
 media = Apiv1.namespace('media', description='媒体')
@@ -572,8 +573,8 @@ class DownloadConfigUpdate(ClientResource):
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
     parser.add_argument('category', type=str, help='分类', location='form')
     parser.add_argument('tags', type=str, help='标签', location='form')
-    parser.add_argument('content_layout', type=int, help='布局', location='form')
-    parser.add_argument('is_paused', type=int, help='动作', location='form')
+    parser.add_argument('content_layout', type=int, help='布局（0-全局/1-原始/2-创建子文件夹/3-不建子文件夹）', location='form')
+    parser.add_argument('is_paused', type=int, help='动作（0-添加后开始/1-添加后暂停）', location='form')
     parser.add_argument('upload_limit', type=int, help='上传速度限制', location='form')
     parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
     parser.add_argument('ratio_limit', type=int, help='分享率限制', location='form')
@@ -1797,17 +1798,17 @@ class WordItemUpdate(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('id', type=int, help='识别词ID', location='form', required=True)
     parser.add_argument('gid', type=int, help='识别词组ID', location='form', required=True)
-    parser.add_argument('group_type', type=str, help='媒体类型（1/2）', location='form', required=True)
+    parser.add_argument('group_type', type=str, help='媒体类型（1-电影/2-电视剧）', location='form', required=True)
     parser.add_argument('new_replaced', type=str, help='被替换词', location='form')
     parser.add_argument('new_replace', type=str, help='替换词', location='form')
     parser.add_argument('new_front', type=str, help='前定位词', location='form')
     parser.add_argument('new_back', type=str, help='后定位词', location='form')
     parser.add_argument('new_offset', type=str, help='偏移集数', location='form')
     parser.add_argument('new_help', type=str, help='备注', location='form')
-    parser.add_argument('type', type=str, help='识别词类型（1/2/3/4）', location='form', required=True)
+    parser.add_argument('type', type=str, help='识别词类型（1-屏蔽/2-替换/3-替换+集偏移/4-集偏移）', location='form', required=True)
     parser.add_argument('season', type=str, help='季', location='form')
-    parser.add_argument('enabled', type=str, help='状态（1/0）', location='form', required=True)
-    parser.add_argument('regex', type=str, help='正则表达式（1/0）', location='form')
+    parser.add_argument('enabled', type=str, help='状态（1-启用/0-停用）', location='form', required=True)
+    parser.add_argument('regex', type=str, help='正则表达式（1-使用/0-不使用）', location='form')
 
     @words.doc(parser=parser)
     def post(self):
@@ -1990,7 +1991,7 @@ class MessageClientUpdate(ClientResource):
     parser.add_argument('interactive', type=int, help='是否开启交互（0/1）', location='form', required=True)
     parser.add_argument('enabled', type=int, help='是否启用（0/1）', location='form', required=True)
 
-    @sync.doc(parser=parser)
+    @message.doc(parser=parser)
     def post(self):
         """
         新增/修改通知消息服务渠道
@@ -2003,7 +2004,7 @@ class MessageClientDelete(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('cid', type=int, help='ID', location='form', required=True)
 
-    @sync.doc(parser=parser)
+    @message.doc(parser=parser)
     def post(self):
         """
         删除通知消息服务渠道
@@ -2017,7 +2018,7 @@ class MessageClientStatus(ClientResource):
     parser.add_argument('flag', type=str, help='操作类型（interactive/enable）', location='form', required=True)
     parser.add_argument('cid', type=int, help='ID', location='form', required=True)
 
-    @sync.doc(parser=parser)
+    @message.doc(parser=parser)
     def post(self):
         """
         设置通知消息服务渠道状态
@@ -2030,7 +2031,7 @@ class MessageClientInfo(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('cid', type=int, help='ID', location='form', required=True)
 
-    @sync.doc(parser=parser)
+    @message.doc(parser=parser)
     def post(self):
         """
         查询通知消息服务渠道设置
@@ -2044,9 +2045,76 @@ class MessageClientTest(ClientResource):
     parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）', location='form', required=True)
     parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
 
-    @sync.doc(parser=parser)
+    @message.doc(parser=parser)
     def post(self):
         """
         测试通知消息服务配置正确性
         """
         return WebAction().api_action(cmd='test_message_client', data=self.parser.parse_args())
+
+
+@torrentremover.route('/task/info')
+class TorrentRemoverTaskInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('tid', type=int, help='任务ID', location='form', required=True)
+
+    @torrentremover.doc(parser=parser)
+    def post(self):
+        """
+        查询自动删种任务详情
+        """
+        return WebAction().api_action(cmd='get_torrent_remove_task', data=self.parser.parse_args())
+
+
+@torrentremover.route('/task/list')
+class TorrentRemoverTaskList(ClientResource):
+    @staticmethod
+    @torrentremover.doc()
+    def post():
+        """
+        查询所有自动删种任务
+        """
+        return WebAction().api_action(cmd='get_torrent_remove_task')
+
+
+@torrentremover.route('/task/delete')
+class TorrentRemoverTaskDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('tid', type=int, help='任务ID', location='form', required=True)
+
+    @torrentremover.doc(parser=parser)
+    def post(self):
+        """
+        删除自动删种任务
+        """
+        return WebAction().api_action(cmd='delete_torrent_remove_task', data=self.parser.parse_args())
+
+
+@torrentremover.route('/task/update')
+class TorrentRemoverTaskUpdate(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('tid', type=int, help='任务ID', location='form')
+    parser.add_argument('name', type=str, help='名称', location='form', required=True)
+    parser.add_argument('action', type=int, help='动作(1-暂停/2-删除种子/3-删除种子及文件)', location='form', required=True)
+    parser.add_argument('interval', type=int, help='运行间隔（分钟）', location='form', required=True)
+    parser.add_argument('enabled', type=int, help='状态（0-停用/1-启用）', location='form', required=True)
+    parser.add_argument('samedata', type=int, help='处理辅种（0-否/1-是）', location='form', required=True)
+    parser.add_argument('onlynastool', type=int, help='只管理NASTool添加的下载（0-否/1-是）', location='form', required=True)
+    parser.add_argument('ratio', type=float, help='分享率', location='form')
+    parser.add_argument('seeding_time', type=int, help='做种时间（小时）', location='form')
+    parser.add_argument('upload_avs', type=int, help='平均上传速度（KB/S）', location='form')
+    parser.add_argument('size', type=str, help='种子大小（GB）', location='form')
+    parser.add_argument('savepath_key', type=str, help='保存路径关键词', location='form')
+    parser.add_argument('tracker_key', type=str, help='tracker关键词', location='form')
+    parser.add_argument('downloader', type=str, help='下载器（Qb/Tr）', location='form')
+    parser.add_argument('qb_state', type=str, help='Qb种子状态（用个用;分隔）', location='form')
+    parser.add_argument('qb_category', type=str, help='Qb分类（用个用;分隔）', location='form')
+    parser.add_argument('tr_state', type=str, help='Tr种子状态（用个用;分隔）', location='form')
+    parser.add_argument('tr_error_key', type=str, help='Tr错误信息关键词', location='form')
+
+    @torrentremover.doc(parser=parser)
+    def post(self):
+        """
+        新增/修改自动删种任务
+        """
+        return WebAction().api_action(cmd='update_torrent_remove_task', data=self.parser.parse_args())

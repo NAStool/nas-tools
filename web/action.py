@@ -3877,11 +3877,14 @@ class WebAction:
             return {"code": 0}
 
     @staticmethod
-    def __get_torrent_remove_task(data):
+    def __get_torrent_remove_task(data=None):
         """
         获取自动删种任务
         """
-        tid = data.get("tid")
+        if data:
+            tid = data.get("tid")
+        else:
+            tid = None
         return {"code": 0, "detail": TorrentRemover().get_torrent_remove_tasks(taskid=tid)}
 
     @staticmethod
