@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
+from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -109,6 +109,8 @@ class Message:
             return PushPlus(conf)
         elif ctype == "iyuu":
             return IyuuMsg(conf)
+        elif ctype == "slack":
+            return Slack(conf)
         else:
             return None
 
