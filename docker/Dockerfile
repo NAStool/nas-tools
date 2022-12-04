@@ -32,6 +32,7 @@ WORKDIR ${WORKDIR}
 RUN python_ver=$(python3 -V | awk '{print $2}') \
     && mkdir /usr/lib/python${python_ver%.*}/site-packages \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
+    && ln -s /usr/lib/python3/dist-packages/Cryptodome /usr/lib/python3/dist-packages/Crypto \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
