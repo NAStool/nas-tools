@@ -293,6 +293,7 @@ class IIndexer(metaclass=ABCMeta):
             # 全匹配模式下，非公开站点，过滤掉做种数为0的
             if filter_args.get("seeders") and not indexer.public and str(seeders) == "0":
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
+                index_rule_fail += 1
                 continue
             # 识别种子名称
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
@@ -310,6 +311,7 @@ class IIndexer(metaclass=ABCMeta):
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
+                index_rule_fail += 1
                 continue
             # 检查订阅过滤规则匹配
             match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
@@ -334,6 +336,7 @@ class IIndexer(metaclass=ABCMeta):
                     media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
                     if not media_info:
                         log.warn(f"【{self.index_type}】{torrent_name} 识别媒体信息出错！")
+                        index_match_fail += 1
                         continue
                     elif not media_info.tmdb_info:
                         log.info(f"【{self.index_type}】{torrent_name} 识别为 {media_info.get_name()} 未匹配到媒体信息")
@@ -391,6 +394,8 @@ class IIndexer(metaclass=ABCMeta):
             if media_info not in ret_array:
                 index_sucess += 1
                 ret_array.append(media_info)
+            else:
+                index_rule_fail += 1
         # 循环结束
         # 计算耗时
         end_time = datetime.datetime.now()

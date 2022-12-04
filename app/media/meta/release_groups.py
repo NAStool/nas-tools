@@ -1,143 +1,101 @@
 import re
-
-#  官组
-rg_0ff = ['FF(?:(?:A|WE)B|CD|E(?:DU|B)|TV)']
-rg_1pt = []
-rg_52pt = []
-rg_audiences = ['Audies', 'AD(?:Audio|E(?:|book)|Music|Web)']
-rg_azusa = []
-rg_beitai = ['BeiTai']
-rg_btschool = ['Bts(?:CHOOL|HD|PAD|TV)', 'Zone']
-rg_carpt = ['CarPT']
-rg_chdbits = ['CHD(?:|Bits|PAD|(?:|HK)TV|WEB)', 'StBOX', 'OneHD', 'Lee', 'xiaopie']
-rg_discfan = []
-rg_dragonhd = []
-rg_eastgame = ['(?:(?:iNT|(?:HALFC|Mini(?:S|H|FH)D))-|)TLF']
-rg_filelist = []
-rg_gainbound = ['(?:DG|GBWE)B']
-rg_hares = ['Hares(?:|(?:M|T)V|Web)']
-rg_hd4fans = []
-rg_hdarea = ['HDA(?:pad|rea|TV)', 'EPiC']
-rg_hdatmos = []
-rg_hdbd = []
-rg_hdchina = ['HDC(?:|hina|TV)', 'k9611', 'tudou', 'iHD']
-rg_hddolby = ['D(?:ream|BTV)', '(?:HD|QHstudI)o']
-rg_hdfans = ['beAst(?:|TV)']
-rg_hdhome = ['HDH(?:|ome|Pad|TV|WEB)']
-rg_hdpt = ['HDPT(?:|Web)']
-rg_hdsky = ['HDS(?:|ky|TV|Pad|WEB)', 'AQLJ']
-rg_hdtime = []
-rg_HDU = []
-rg_hdvideo = []
-rg_hdzone = ['HDZ(?:|one)']
-rg_hhanclub = ['HHWEB']
-rg_hitpt = []
-rg_htpt = ['HTPT']
-rg_iptorrents = []
-rg_joyhd = []
-rg_keepfrds = ['FRDS', 'Yumi', 'cXcY']
-rg_lemonhd = ['L(?:eague(?:(?:C|H)D|(?:M|T)V|NF)|WEB)', 'i18n', 'CiNT']
-rg_mteam = ['MTeam(?:|TV)', 'MPAD']
-rg_nanyangpt = []
-rg_nicept = []
-rg_oshen = []
-rg_ourbits = ['Our(?:Bits|TV)', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLove(?:HD|TV)']
-rg_piggo = ['PiGo(?:NF|(?:H|WE)B)']
-rg_ptchina = []
-rg_pterclub = ['PTer(?:|DIY|Game|(?:M|T)V|WEB)']
-rg_pthome = ['PTH(?:|Audio|eBook|music|ome|tv|WEB)']
-rg_ptmsg = []
-rg_ptsbao = ['PTsbao', 'OPS', 'F(?:Fans(?:AIeNcE|BD|D(?:VD|IY)|TV|WEB)|HDMv)', 'SGXT']
-rg_pttime = []
-rg_putao = ['PuTao']
-rg_soulvoice = []
-rg_springsunday = ['CMCT(?:|V)']
-rg_tccf = []
-rg_tjupt = ['TJUPT']
-rg_totheglory = ['TTG', 'WiKi', 'NGB', 'DoA', '(?:ARi|ExRE)N']
-rg_U2 = []
-rg_ultrahd = []
-
-#  其他常见组
-rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)',
-            'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )']
-rg_anime = ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组']
-
-sites = [rg_0ff,
-         rg_1pt,
-         rg_52pt,
-         rg_audiences,
-         rg_azusa,
-         rg_beitai,
-         rg_btschool,
-         rg_carpt,
-         rg_chdbits,
-         rg_discfan,
-         rg_dragonhd,
-         rg_eastgame,
-         rg_filelist,
-         rg_gainbound,
-         rg_hares,
-         rg_hd4fans,
-         rg_hdarea,
-         rg_hdatmos,
-         rg_hdbd,
-         rg_hdchina,
-         rg_hddolby,
-         rg_hdfans,
-         rg_hdhome,
-         rg_hdpt,
-         rg_hdsky,
-         rg_hdtime,
-         rg_HDU,
-         rg_hdvideo,
-         rg_hdzone,
-         rg_hhanclub,
-         rg_hitpt,
-         rg_htpt,
-         rg_iptorrents,
-         rg_joyhd,
-         rg_keepfrds,
-         rg_lemonhd,
-         rg_mteam,
-         rg_nanyangpt,
-         rg_nicept,
-         rg_oshen,
-         rg_ourbits,
-         rg_piggo,
-         rg_ptchina,
-         rg_pterclub,
-         rg_pthome,
-         rg_ptmsg,
-         rg_ptsbao,
-         rg_pttime,
-         rg_putao,
-         rg_soulvoice,
-         rg_springsunday,
-         rg_tccf,
-         rg_tjupt,
-         rg_totheglory,
-         rg_U2,
-         rg_ultrahd,
-         rg_other,
-         rg_anime]
-
-#  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
-release_groups = []
-for site in sites:
-    for release_group in site:
-        release_groups.append(release_group)
-RELEASE_GROUPS = '|'.join(release_groups)
+from config import Config
 
 
-#  忽略大小写
-def rg_match(title=None, groups=None):
+class ReleaseGroupsMatcher(object):
     """
-    :param title: 资源标题或文件名
-    :param groups: 制作组/字幕组
-    :return: 匹配结果
+    识别制作组、字幕组
     """
-    if not title or not groups:
-        return ""
-    groups_re = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % groups, re.I)
-    return '@'.join(re.findall(groups_re, title))
+    __config = None
+    __release_groups = None
+    RELEASE_GROUPS = {
+        "0ff": ['FF(?:(?:A|WE)B|CD|E(?:DU|B)|TV)'],
+        "1pt": [],
+        "52pt": [],
+        "audiences": ['Audies', 'AD(?:Audio|E(?:|book)|Music|Web)'],
+        "azusa": [],
+        "beitai": ['BeiTai'],
+        "btschool": ['Bts(?:CHOOL|HD|PAD|TV)', 'Zone'],
+        "carpt": ['CarPT'],
+        "chdbits": ['CHD(?:|Bits|PAD|(?:|HK)TV|WEB)', 'StBOX', 'OneHD', 'Lee', 'xiaopie'],
+        "discfan": [],
+        "dragonhd": [],
+        "eastgame": ['(?:(?:iNT|(?:HALFC|Mini(?:S|H|FH)D))-|)TLF'],
+        "filelist": [],
+        "gainbound": ['(?:DG|GBWE)B'],
+        "hares": ['Hares(?:|(?:M|T)V|Web)'],
+        "hd4fans": [],
+        "hdarea": ['HDA(?:pad|rea|TV)', 'EPiC'],
+        "hdatmos": [],
+        "hdbd": [],
+        "hdchina": ['HDC(?:|hina|TV)', 'k9611', 'tudou', 'iHD'],
+        "hddolby": ['D(?:ream|BTV)', '(?:HD|QHstudI)o'],
+        "hdfans": ['beAst(?:|TV)'],
+        "hdhome": ['HDH(?:|ome|Pad|TV|WEB)'],
+        "hdpt": ['HDPT(?:|Web)'],
+        "hdsky": ['HDS(?:|ky|TV|Pad|WEB)', 'AQLJ'],
+        "hdtime": [],
+        "HDU": [],
+        "hdvideo": [],
+        "hdzone": ['HDZ(?:|one)'],
+        "hhanclub": ['HHWEB'],
+        "hitpt": [],
+        "htpt": ['HTPT'],
+        "iptorrents": [],
+        "joyhd": [],
+        "keepfrds": ['FRDS', 'Yumi', 'cXcY'],
+        "lemonhd": ['L(?:eague(?:(?:C|H)D|(?:M|T)V|NF)|WEB)', 'i18n', 'CiNT'],
+        "mteam": ['MTeam(?:|TV)', 'MPAD'],
+        "nanyangpt": [],
+        "nicept": [],
+        "oshen": [],
+        "ourbits": ['Our(?:Bits|TV)', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLove(?:HD|TV)'],
+        "piggo": ['PiGo(?:NF|(?:H|WE)B)'],
+        "ptchina": [],
+        "pterclub": ['PTer(?:|DIY|Game|(?:M|T)V|WEB)'],
+        "pthome": ['PTH(?:|Audio|eBook|music|ome|tv|WEB)'],
+        "ptmsg": [],
+        "ptsbao": ['PTsbao', 'OPS', 'F(?:Fans(?:AIeNcE|BD|D(?:VD|IY)|TV|WEB)|HDMv)', 'SGXT'],
+        "pttime": [],
+        "putao": ['PuTao'],
+        "soulvoice": [],
+        "springsunday": ['CMCT(?:|V)'],
+        "tccf": [],
+        "tjupt": ['TJUPT'],
+        "totheglory": ['TTG', 'WiKi', 'NGB', 'DoA', '(?:ARi|ExRE)N'],
+        "U2": [],
+        "ultrahd": [],
+        "others": ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)',
+                   'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )'],
+        "anime": ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组']
+    }
+
+    def __init__(self):
+        self.__config = Config()
+        release_groups = []
+        for site_groups in self.RELEASE_GROUPS.values():
+            for release_group in site_groups:
+                release_groups.append(release_group)
+        custom_release_groups = (self.__config.get_config('laboratory') or {}).get('release_groups')
+        if custom_release_groups:
+            if custom_release_groups.startswith(';'):
+                custom_release_groups = custom_release_groups[1:]
+            if custom_release_groups.endswith(';'):
+                custom_release_groups = custom_release_groups[:-1]
+            custom_release_groups = custom_release_groups.replace(";", "|")
+            self.__release_groups = f"{'|'.join(release_groups)}|{custom_release_groups}"
+        else:
+            self.__release_groups = '|'.join(release_groups)
+
+    def match(self, title=None, groups=None):
+        """
+        :param title: 资源标题或文件名
+        :param groups: 制作组/字幕组
+        :return: 匹配结果
+        """
+        if not title:
+            return ""
+        if not groups:
+            groups = self.__release_groups
+        groups_re = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % groups, re.I)
+        return '@'.join(re.findall(groups_re, title))
