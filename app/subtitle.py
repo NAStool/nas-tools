@@ -202,7 +202,7 @@ class Subtitle:
 
             # 路径替换
             if self._local_path and self._remote_path and file_path.startswith(self._local_path):
-                file_path = file_path.replace(self._local_path, self._remote_path)
+                file_path = file_path.replace(self._local_path, self._remote_path).replace('\\', '/')
 
             # 一个名称只建一个任务
             if file_path not in notify_items:
