@@ -24,7 +24,7 @@ class Telegram(IMessageChannel):
     _message_proxy_event = None
     _client_config = {}
     _interactive = False
-    enabled = True
+    _enabled = True
 
     def __init__(self, config, interactive=False):
         self._config = Config()
@@ -261,7 +261,7 @@ class Telegram(IMessageChannel):
             web_port = _config.get_config("app").get("web_port")
             sc_url = "https://api.telegram.org/bot%s/getUpdates?" % self._telegram_token
             ds_url = "http://127.0.0.1:%s/telegram" % web_port
-            if not self.enabled:
+            if not self._enabled:
                 log.info("Telegram消息接收服务已停止")
                 break
 
@@ -269,3 +269,9 @@ class Telegram(IMessageChannel):
             while i < 20 and not event.is_set():
                 offset = consume_messages(_config, offset, sc_url, ds_url)
                 i = i + 1
+
+    def stop_service(self):
+        """
+        停止服务
+        """
+        self._enabled = False
