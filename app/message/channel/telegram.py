@@ -128,16 +128,18 @@ class Telegram(IMessageChannel):
                 if not image:
                     image = media.get_message_image()
                 if media.get_vote_string():
-                    caption = "%s\n%s. %s\n%s，%s" % (caption,
-                                                     index,
-                                                     media.get_title_string(),
-                                                     media.get_type_string(),
-                                                     media.get_vote_string())
+                    caption = "%s\n%s. [%s](%s)\n%s，%s" % (caption,
+                                                           index,
+                                                           media.get_title_string(),
+                                                           media.get_detail_url(),
+                                                           media.get_type_string(),
+                                                           media.get_vote_string())
                 else:
-                    caption = "%s\n%s. %s\n%s" % (caption,
-                                                  index,
-                                                  media.get_title_string(),
-                                                  media.get_type_string())
+                    caption = "%s\n%s. [%s](%s)\n%s" % (caption,
+                                                        index,
+                                                        media.get_title_string(),
+                                                        media.get_detail_url(),
+                                                        media.get_type_string())
                 index += 1
 
             if user_id:
