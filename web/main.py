@@ -1323,6 +1323,7 @@ def telegram():
 @App.route('/slack', methods=['POST'])
 def slack():
     """
+    # 消息
     {
         'client_msg_id': '',
         'type': 'message',
@@ -1344,6 +1345,74 @@ def slack():
         'channel': '',
         'event_ts': '1670143568.444289',
         'channel_type': 'im'
+    }
+    # 快捷方式
+    {
+      "type": "shortcut",
+      "token": "XXXXXXXXXXXXX",
+      "action_ts": "1581106241.371594",
+      "team": {
+        "id": "TXXXXXXXX",
+        "domain": "shortcuts-test"
+      },
+      "user": {
+        "id": "UXXXXXXXXX",
+        "username": "aman",
+        "team_id": "TXXXXXXXX"
+      },
+      "callback_id": "shortcut_create_task",
+      "trigger_id": "944799105734.773906753841.38b5894552bdd4a780554ee59d1f3638"
+    }
+    # 按钮点击
+    {
+      "type": "block_actions",
+      "team": {
+        "id": "T9TK3CUKW",
+        "domain": "example"
+      },
+      "user": {
+        "id": "UA8RXUSPL",
+        "username": "jtorrance",
+        "team_id": "T9TK3CUKW"
+      },
+      "api_app_id": "AABA1ABCD",
+      "token": "9s8d9as89d8as9d8as989",
+      "container": {
+        "type": "message_attachment",
+        "message_ts": "1548261231.000200",
+        "attachment_id": 1,
+        "channel_id": "CBR2V3XEX",
+        "is_ephemeral": false,
+        "is_app_unfurl": false
+      },
+      "trigger_id": "12321423423.333649436676.d8c1bb837935619ccad0f624c448ffb3",
+      "channel": {
+        "id": "CBR2V3XEX",
+        "name": "review-updates"
+      },
+      "message": {
+        "bot_id": "BAH5CA16Z",
+        "type": "message",
+        "text": "This content can't be displayed.",
+        "user": "UAJ2RU415",
+        "ts": "1548261231.000200",
+        ...
+      },
+      "response_url": "https://hooks.slack.com/actions/AABA1ABCD/1232321423432/D09sSasdasdAS9091209",
+      "actions": [
+        {
+          "action_id": "WaXA",
+          "block_id": "=qXel",
+          "text": {
+            "type": "plain_text",
+            "text": "View",
+            "emoji": true
+          },
+          "value": "click_me_123",
+          "type": "button",
+          "action_ts": "1548426417.840180"
+        }
+      ]
     }
     """
     # 只有本地转发请求能访问
@@ -1369,6 +1438,10 @@ def slack():
             channel = msg_json.get("event", {}).get("channel")
             text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
             username = ""
+        elif msg_json.get("type") == "shortcut":
+            channel = ""
+            text = msg_json.get("callback_id")
+            username = msg_json.get("user", {}).get("username")
         else:
             return "Error"
         WebAction().handle_message_job(msg=text,

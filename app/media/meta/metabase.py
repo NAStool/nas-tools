@@ -163,11 +163,16 @@ class MetaBase(object):
         else:
             return ""
 
+    def get_type_string(self):
+        if not self.type:
+            return ""
+        return "类型：%s" % self.type.value
+
     def get_title_vote_string(self):
         if not self.vote_average:
             return self.get_title_string()
         else:
-            return "%s %s" % (self.get_title_string(), self.get_vote_string())
+            return "%s\n%s" % (self.get_title_string(), self.get_vote_string())
 
     def get_title_ep_string(self):
         string = self.get_title_string()

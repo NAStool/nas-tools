@@ -464,12 +464,12 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                               search_sites=media_info.search_sites)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
-        if in_from in [SearchType.WX, SearchType.TG]:
+        if in_from in [SearchType.WX, SearchType.TG, SearchType.SLACK]:
             media_info.user_name = user_name
             Message().send_rss_success_message(in_from=in_from,
                                                media_info=media_info)
     else:
-        if in_from in [SearchType.WX, SearchType.TG]:
+        if in_from in [SearchType.WX, SearchType.TG, SearchType.SLACK]:
             log.info("【Web】%s 添加订阅失败：%s" % (media_info.title, msg))
             Message().send_channel_msg(channel=in_from,
                                        title="%s 添加订阅失败：%s" % (media_info.title, msg),
