@@ -127,7 +127,7 @@ class Telegram(IMessageChannel):
             for media in medias:
                 if not image:
                     image = media.get_message_image()
-                caption = f"{caption}\n{index}. {media.get_title_string()}\n   {media.get_type_string()}\n   {media.get_vote_string()}",
+                caption = "%s\n%s. %s\n   %s" % (caption, index, media.get_title_string(), media.get_stars())
                 index += 1
 
             if user_id:

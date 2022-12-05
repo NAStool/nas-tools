@@ -1323,6 +1323,7 @@ def telegram():
 @App.route('/slack', methods=['POST'])
 def slack():
     """
+    # 消息
     {
         'client_msg_id': '',
         'type': 'message',
@@ -1345,6 +1346,7 @@ def slack():
         'event_ts': '1670143568.444289',
         'channel_type': 'im'
     }
+    # 快捷方式
     {
       "type": "shortcut",
       "token": "XXXXXXXXXXXXX",
@@ -1361,6 +1363,7 @@ def slack():
       "callback_id": "shortcut_create_task",
       "trigger_id": "944799105734.773906753841.38b5894552bdd4a780554ee59d1f3638"
     }
+    # 按钮点击
     {
       "type": "block_actions",
       "team": {
@@ -1435,6 +1438,10 @@ def slack():
             channel = msg_json.get("event", {}).get("channel")
             text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
             username = ""
+        elif msg_json.get("type") == "shortcut":
+            channel = ""
+            text = msg_json.get("callback_id")
+            username = msg_json.get("user", {}).get("username")
         else:
             return "Error"
         WebAction().handle_message_job(msg=text,

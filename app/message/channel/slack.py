@@ -50,6 +50,12 @@ class Slack(IMessageChannel):
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
+            @slack_app.shortcut(re.compile(r"/*"))
+            def slack_shortcut(ack, body):
+                ack()
+                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
+
             # 启动服务
             if self._interactive:
                 self._service = SocketModeHandler(
