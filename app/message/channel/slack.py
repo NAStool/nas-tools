@@ -1,15 +1,14 @@
-import json
 import re
 from threading import Lock
 
 import requests
-
-from slack_bolt import App
-from slack_bolt.adapter.socket_mode import SocketModeHandler
+from slack_sdk.errors import SlackApiError
 
 import log
 from app.message.channel.channel import IMessageChannel
 from config import Config
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 lock = Lock()
 
@@ -42,6 +41,12 @@ class Slack(IMessageChannel):
             @slack_app.action(re.compile(r"actionId-\d+"))
             def slack_action(ack, body):
                 ack()
+                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
+
+            @slack_app.event("app_mention")
+            def slack_mention(say, body):
+                say(f"好的，请稍等... <@{body.get('event', {}).get('user')}>!")
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
@@ -87,11 +92,18 @@ class Slack(IMessageChannel):
                 channel = user_id
             else:
                 # 消息广播
-                channel = "#全体"
+                channel = self.__find_public_channel()
             # 拼装消息内容
+            if len(title.split('\n')) > 0 and not text:
+                titles = title.split('\n')
+                title = titles[0]
+                text = "\n".join(titles[1:])
             block = {
                 "type": "section",
-                "text": f"*{title}*\n{text}"
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*{title}*\n{text}"
+                }
             }
             # 消息图片
             if image:
@@ -102,7 +114,7 @@ class Slack(IMessageChannel):
                 }
             blocks = [block]
             # 链接
-            if url:
+            if image and url:
                 blocks.append({
                     "type": "actions",
                     "elements": [
@@ -128,16 +140,21 @@ class Slack(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, medias: list, user_id="", title="", url=""):
+    def send_list_msg(self, medias: list, user_id="", **kwargs):
         """
         发送列表类消息
         """
+        if not medias:
+            return False, "参数有误"
+        if not self._client:
+            return False, "消息客户端未就绪"
         try:
             if user_id:
                 channel = user_id
             else:
                 # 消息广播
-                channel = "#全体"
+                channel = self.__find_public_channel()
+            title = f"共找到{len(medias)}条相关信息，请选择"
             # 消息主体
             title_section = {
                 "type": "section",
@@ -159,7 +176,7 @@ class Slack(IMessageChannel):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": f"*<{media.get_detail_url()}|{index}.{media.get_title_string()}>*\n{media.get_stars()}\n{media.type.value}"
+                                "text": f"*<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_stars()}\n{media.overview}"
                             },
                             "accessory": {
                                 "type": "image",
@@ -186,30 +203,6 @@ class Slack(IMessageChannel):
                         }
                     )
                     index += 1
-            # 链接
-            if url:
-                blocks.append(
-                    {
-                        "type": "divider"
-                    }
-                )
-                blocks.append(
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "emoji": True,
-                                    "text": "查看详情"
-                                },
-                                "value": "click_me_url",
-                                "url": f"{url}",
-                            }
-                        ]
-                    }
-                )
             # 发送
             result = self._client.chat_postMessage(
                 channel=channel,
@@ -218,3 +211,22 @@ class Slack(IMessageChannel):
             return True, result
         except Exception as msg_e:
             return False, str(msg_e)
+
+    def __find_public_channel(self):
+        """
+        查找公共频道
+        """
+        if not self._client:
+            return ""
+        conversation_id = ""
+        try:
+            for result in self._client.conversations_list():
+                if conversation_id:
+                    break
+                for channel in result["channels"]:
+                    if channel.get("name") == "全体":
+                        conversation_id = channel.get("id")
+                        break
+        except SlackApiError as e:
+            print(f"Slack Error: {e}")
+        return conversation_id
