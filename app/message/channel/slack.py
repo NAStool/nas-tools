@@ -1,4 +1,11 @@
+import json
+import re
 from threading import Lock
+
+import requests
+
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 import log
 from app.message.channel.channel import IMessageChannel
@@ -11,7 +18,8 @@ class Slack(IMessageChannel):
     _client_config = {}
     _interactive = False
     _ds_url = None
-    enabled = True
+    _service = None
+    _client = None
 
     def __init__(self, config, interactive=False):
         self._config = Config()
@@ -22,7 +30,34 @@ class Slack(IMessageChannel):
     def init_config(self):
         self._ds_url = "http://127.0.0.1:%s/slack" % self._config.get_config("app").get("web_port")
         if self._client_config:
-            pass
+            slack_app = App(token=self._client_config.get("bot_token"))
+            self._client = slack_app.client
+
+            # 注册消息响应
+            @slack_app.event("message")
+            def slack_message(message):
+                local_res = requests.post(self._ds_url, json=message, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (message, local_res.text))
+
+            @slack_app.action(re.compile(r"actionId-\d+"))
+            def slack_action(ack, body):
+                ack()
+                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
+
+            # 启动服务
+            if self._interactive:
+                self._service = SocketModeHandler(
+                    slack_app,
+                    self._client_config.get("app_token")
+                )
+                self._service.connect()
+                log.info("Slack消息接收服务启动")
+
+    def stop_service(self):
+        if self._service:
+            self._service.close()
+            log.info("Slack消息接收服务已停止")
 
     def get_status(self):
         """
@@ -45,9 +80,51 @@ class Slack(IMessageChannel):
         """
         if not title and not text:
             return False, "标题和内容不能同时为空"
+        if not self._client:
+            return False, "消息客户端未就绪"
         try:
-            pass
-
+            if user_id:
+                channel = user_id
+            else:
+                # 消息广播
+                channel = "#全体"
+            # 拼装消息内容
+            block = {
+                "type": "section",
+                "text": f"*{title}*\n{text}"
+            }
+            # 消息图片
+            if image:
+                block['accessory'] = {
+                    "type": "image",
+                    "image_url": f"{image}",
+                    "alt_text": f"{title}"
+                }
+            blocks = [block]
+            # 链接
+            if url:
+                blocks.append({
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "查看详情",
+                                "emoji": True
+                            },
+                            "value": "click_me_url",
+                            "url": f"{url}",
+                            "action_id": "actionId-url"
+                        }
+                    ]
+                })
+            # 发送
+            result = self._client.chat_postMessage(
+                channel=channel,
+                blocks=blocks
+            )
+            return True, result
         except Exception as msg_e:
             return False, str(msg_e)
 
@@ -56,7 +133,88 @@ class Slack(IMessageChannel):
         发送列表类消息
         """
         try:
-            pass
-
+            if user_id:
+                channel = user_id
+            else:
+                # 消息广播
+                channel = "#全体"
+            # 消息主体
+            title_section = {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*{title}*"
+                }
+            }
+            blocks = [title_section]
+            # 列表
+            if medias:
+                blocks.append({
+                    "type": "divider"
+                })
+                index = 1
+                for media in medias:
+                    blocks.append(
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": f"*<{media.get_detail_url()}|{index}.{media.get_title_string()}>*\n{media.get_stars()}\n{media.type.value}"
+                            },
+                            "accessory": {
+                                "type": "image",
+                                "image_url": f"{media.get_poster_image()}",
+                                "alt_text": f"{media.get_title_string()}"
+                            }
+                        }
+                    )
+                    blocks.append(
+                        {
+                            "type": "actions",
+                            "elements": [
+                                {
+                                    "type": "button",
+                                    "text": {
+                                        "type": "plain_text",
+                                        "text": "选择",
+                                        "emoji": True
+                                    },
+                                    "value": f"{index}",
+                                    "action_id": f"actionId-{index}"
+                                }
+                            ]
+                        }
+                    )
+                    index += 1
+            # 链接
+            if url:
+                blocks.append(
+                    {
+                        "type": "divider"
+                    }
+                )
+                blocks.append(
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "emoji": True,
+                                    "text": "查看详情"
+                                },
+                                "value": "click_me_url",
+                                "url": f"{url}",
+                            }
+                        ]
+                    }
+                )
+            # 发送
+            result = self._client.chat_postMessage(
+                channel=channel,
+                blocks=blocks
+            )
+            return True, result
         except Exception as msg_e:
             return False, str(msg_e)

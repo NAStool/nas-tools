@@ -377,12 +377,20 @@ class MetaBase(object):
 
     # 查询TMDB详情页URL
     def get_detail_url(self):
-        if not self.tmdb_id:
+        if self.tmdb_id:
+            if self.type == MediaType.MOVIE:
+                return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
+            else:
+                return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+        elif self.douban_id:
+            return "https://movie.douban.com/subject/%s" % str(self.douban_id).replace("DB:", "")
+        return ""
+
+    # 返回评分星星个数
+    def get_stars(self):
+        if not self.vote_average:
             return ""
-        if self.type == MediaType.MOVIE:
-            return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
-        else:
-            return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+        return "".rjust(int(self.vote_average), "★")
 
     # 返回促销信息
     def get_volume_factor_string(self):

@@ -236,7 +236,7 @@ class Telegram(IMessageChannel):
         return self._telegram_user_ids
 
     def __start_telegram_message_proxy(self, event: Event):
-        log.info("【Telegram】消息接收服务启动")
+        log.info("Telegram消息接收服务启动")
 
         long_poll_timeout = 5
 
@@ -262,7 +262,7 @@ class Telegram(IMessageChannel):
             sc_url = "https://api.telegram.org/bot%s/getUpdates?" % self._telegram_token
             ds_url = "http://127.0.0.1:%s/telegram" % web_port
             if not self.enabled:
-                log.info("【Telegram】消息接收服务已停止")
+                log.info("Telegram消息接收服务已停止")
                 break
 
             i = 0
