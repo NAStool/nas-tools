@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
+from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -54,13 +54,14 @@ class Message:
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
         self._domain = Config().get_domain()
-        # 初始化消息客户端
+        # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") == SearchType.TG:
-                    tg_client = active_client.get("client")
-                    if tg_client:
-                        tg_client.enabled = False
+                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                    client = active_client.get("client")
+                    if client:
+                        client.stop_service()
+        # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
@@ -109,6 +110,8 @@ class Message:
             return PushPlus(conf)
         elif ctype == "iyuu":
             return IyuuMsg(conf)
+        elif ctype == "slack":
+            return Slack(conf, interactive)
         else:
             return None
 
@@ -213,7 +216,7 @@ class Message:
         :return: 发送状态、错误信息
         """
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
-        msg_text = f"{can_item.get_vote_string()}"
+        msg_text = f"{can_item.get_star_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.user_name:
             msg_text = f"{msg_text}\n用户：{can_item.user_name}"

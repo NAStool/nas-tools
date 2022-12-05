@@ -1,6 +1,7 @@
 import base64
 import datetime
 import os.path
+import re
 import shutil
 import sqlite3
 import time
@@ -1237,11 +1238,11 @@ def wechat():
 def plex_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
     WebhookEvent().plex_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 # Emby Webhook
@@ -1249,11 +1250,11 @@ def plex_webhook():
 def jellyfin_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
     WebhookEvent().jellyfin_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 @App.route('/emby', methods=['POST'])
@@ -1261,11 +1262,11 @@ def jellyfin_webhook():
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     WebhookEvent().emby_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 # Telegram消息响应
@@ -1315,30 +1316,140 @@ def telegram():
                                            in_from=SearchType.TG,
                                            user_id=user_id,
                                            user_name=user_name)
-    return 'Success'
+    return 'Ok'
 
 
 # Slack消息响应
 @App.route('/slack', methods=['POST'])
 def slack():
     """
+    # 消息
     {
-        "token": "Jhj5dZrVaK7ZwHHjRyZWjbDl",
-        "challenge": "3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P",
-        "type": "url_verification"
+        'client_msg_id': '',
+        'type': 'message',
+        'text': 'hello',
+        'user': '',
+        'ts': '1670143568.444289',
+        'blocks': [{
+            'type': 'rich_text',
+            'block_id': 'i2j+',
+            'elements': [{
+                'type': 'rich_text_section',
+                'elements': [{
+                    'type': 'text',
+                    'text': 'hello'
+                }]
+            }]
+        }],
+        'team': '',
+        'channel': '',
+        'event_ts': '1670143568.444289',
+        'channel_type': 'im'
+    }
+    # 快捷方式
+    {
+      "type": "shortcut",
+      "token": "XXXXXXXXXXXXX",
+      "action_ts": "1581106241.371594",
+      "team": {
+        "id": "TXXXXXXXX",
+        "domain": "shortcuts-test"
+      },
+      "user": {
+        "id": "UXXXXXXXXX",
+        "username": "aman",
+        "team_id": "TXXXXXXXX"
+      },
+      "callback_id": "shortcut_create_task",
+      "trigger_id": "944799105734.773906753841.38b5894552bdd4a780554ee59d1f3638"
+    }
+    # 按钮点击
+    {
+      "type": "block_actions",
+      "team": {
+        "id": "T9TK3CUKW",
+        "domain": "example"
+      },
+      "user": {
+        "id": "UA8RXUSPL",
+        "username": "jtorrance",
+        "team_id": "T9TK3CUKW"
+      },
+      "api_app_id": "AABA1ABCD",
+      "token": "9s8d9as89d8as9d8as989",
+      "container": {
+        "type": "message_attachment",
+        "message_ts": "1548261231.000200",
+        "attachment_id": 1,
+        "channel_id": "CBR2V3XEX",
+        "is_ephemeral": false,
+        "is_app_unfurl": false
+      },
+      "trigger_id": "12321423423.333649436676.d8c1bb837935619ccad0f624c448ffb3",
+      "channel": {
+        "id": "CBR2V3XEX",
+        "name": "review-updates"
+      },
+      "message": {
+        "bot_id": "BAH5CA16Z",
+        "type": "message",
+        "text": "This content can't be displayed.",
+        "user": "UAJ2RU415",
+        "ts": "1548261231.000200",
+        ...
+      },
+      "response_url": "https://hooks.slack.com/actions/AABA1ABCD/1232321423432/D09sSasdasdAS9091209",
+      "actions": [
+        {
+          "action_id": "WaXA",
+          "block_id": "=qXel",
+          "text": {
+            "type": "plain_text",
+            "text": "View",
+            "emoji": true
+          },
+          "value": "click_me_123",
+          "type": "button",
+          "action_ts": "1548426417.840180"
+        }
+      ]
     }
     """
+    # 只有本地转发请求能访问
+    if not SecurityHelper().check_slack_ip(request.remote_addr):
+        log.warn(f"非法IP地址的Slack消息通知：{request.remote_addr}")
+        return '不允许的IP地址请求'
+
     # 当前在用的交互渠道
     interactive_client = Message().get_interactive_client(SearchType.SLACK)
     if not interactive_client:
         return 'NAStool未启用Slack交互'
-    conf = interactive_client.get("config")
-    verification_token = conf.get("verification_token")
     msg_json = request.get_json()
-    if msg_json.get("challenge") and msg_json.get("token") == verification_token:
-        return {"challenge": msg_json.get("challenge")}
-    log.info(msg_json)
-    return "非法请求"
+    if msg_json:
+        if msg_json.get("type") == "message":
+            channel = msg_json.get("channel")
+            text = msg_json.get("text")
+            username = ""
+        elif msg_json.get("type") == "block_actions":
+            channel = msg_json.get("channel", {}).get("id")
+            text = msg_json.get("actions")[0].get("value")
+            username = msg_json.get("user", {}).get("name")
+        elif msg_json.get("type") == "event_callback":
+            channel = msg_json.get("event", {}).get("channel")
+            text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
+            username = ""
+        elif msg_json.get("type") == "shortcut":
+            channel = ""
+            text = msg_json.get("callback_id")
+            username = msg_json.get("user", {}).get("username")
+        else:
+            return "Error"
+        WebAction().handle_message_job(msg=text,
+                                       client=interactive_client,
+                                       in_from=SearchType.SLACK,
+                                       user_id=channel,
+                                       user_name=username)
+    return "Ok"
 
 
 # Jellyseerr Overseerr订阅接口

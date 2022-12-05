@@ -86,7 +86,7 @@
                     </small>
                   </td>
                   <td>
-                    {% if Attr.type in ['telegram', 'wechat'] %}
+                    {% if Attr.type in ['telegram', 'wechat', 'slack'] %}
                       <label class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %}
                                checked {% endif %}
@@ -380,6 +380,22 @@
             </div>
           </div>
         </div>
+        <div id="div_client_config_slack">
+          <div class="row">
+            <div class="col-lg">
+              <div class="mb-3">
+                <label class="form-label required">Bot User OAuth Token </label>
+                <input type="text" id="slack_bot_token" class="form-control" placeholder="xoxb-****">
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="mb-3">
+                <label class="form-label required">App-Level Token</label>
+                <input type="text" id="slack_app_token" class="form-control" placeholder="xapp-****">
+              </div>
+            </div>
+          </div>
+        </div>
         <details>
           <summary class="summary">推送设置</summary>
           <div class="row mt-2">
@@ -431,10 +447,12 @@
     $("#pushplus_topic").val('');
     $("#pushplus_webhook").val('');
     $("#iyuumsg_token").val('');
+    $("#slack_bot_token").val('');
+    $("#slack_app_token").val('');
     show_client_type('telegram');
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
+      $(this).prop("checked", true);
     });
     $("#modal-message-client").modal("show");
   }
@@ -469,7 +487,9 @@
         $("#pushplus_topic").val('');
         $("#pushplus_webhook").val('');
         $("#iyuumsg_token").val('');
-        var type = ret.detail.type;
+        $("#slack_bot_token").val('');
+        $("#slack_app_token").val('');
+        let type = ret.detail.type;
         if (type == "telegram") {
           $("#telegram_token").val(ret.detail.config.token);
           $("#telegram_chat_id").val(ret.detail.config.chat_id);
@@ -498,6 +518,9 @@
           $("#pushplus_webhook").val(ret.detail.config.webhook);
         } else if (type == "iyuu") {
           $("#iyuumsg_token").val(ret.detail.config.token);
+        } else if (type == "slack") {
+          $("#slack_bot_token").val(ret.detail.config.bot_token);
+          $("#slack_app_token").val(ret.detail.config.app_token);
         }
         show_client_type(type);
         $("#test_message_client_btn").text("测试").attr("disabled", false);
@@ -515,16 +538,16 @@
 
   // 新增/编辑消息
   function add_or_edit_or_test_message_client(action) {
-    var type = $('input:radio[name=client_type]:checked').val();
-    var interactive = $("#client_interactive").val();
+    let type = $('input:radio[name=client_type]:checked').val();
+    let interactive = $("#client_interactive").val();
+    let config = {}
     if (type == "telegram") {
-      var token = $("#telegram_token").val();
-      var chat_id = $("#telegram_chat_id").val();
-      var user_ids = $("#telegram_user_ids").val();
+      let token = $("#telegram_token").val();
+      let chat_id = $("#telegram_chat_id").val();
+      let user_ids = $("#telegram_user_ids").val();
+      let webhook = 0;
       if ($("#telegram_webhook").prop("checked")) {
-        var webhook = 1;
-      } else {
-        var webhook = 0;
+        webhook = 1;
       }
       if (!token) {
         $("#telegram_token").addClass("is-invalid");
@@ -538,19 +561,19 @@
       } else {
         $("#telegram_chat_id").removeClass("is-invalid");
       }
-      var config = JSON.stringify({
+      config = JSON.stringify({
         token: token,
         chat_id: chat_id,
         user_ids: user_ids,
         webhook: webhook
       });
     } else if (type == "wechat") {
-      var corpid = $("#wechat_corpid").val();
-      var corpsecret = $("#wechat_corpsecret").val();
-      var agentid = $("#wechat_agentid").val();
-      var default_proxy = $("#wechat_default_proxy").val();
-      var token = $("#wechat_token").val();
-      var encodingAESKey = $("#wechat_encodingAESKey").val();
+      let corpid = $("#wechat_corpid").val();
+      let corpsecret = $("#wechat_corpsecret").val();
+      let agentid = $("#wechat_agentid").val();
+      let default_proxy = $("#wechat_default_proxy").val();
+      let token = $("#wechat_token").val();
+      let encodingAESKey = $("#wechat_encodingAESKey").val();
       if (!corpid) {
         $("#wechat_corpid").addClass("is-invalid");
         return;
@@ -578,7 +601,7 @@
         encodingAESKey: encodingAESKey
       });
     } else if (type == "serverchan") {
-      var sckey = $("#serverchan_sckey").val();
+      let sckey = $("#serverchan_sckey").val();
       interactive = "0";
       if (!sckey) {
         $("#serverchan_sckey").addClass("is-invalid");
@@ -586,12 +609,12 @@
       } else {
         $("#serverchan_sckey").removeClass("is-invalid");
       }
-      var config = JSON.stringify({
+      config = JSON.stringify({
         sckey: sckey
       });
     } else if (type == "bark") {
-      var server = $("#bark_server").val();
-      var apikey = $("#bark_apikey").val();
+      let server = $("#bark_server").val();
+      let apikey = $("#bark_apikey").val();
       interactive = "0";
       if (!server) {
         $("#bark_server").addClass("is-invalid");
@@ -605,15 +628,15 @@
       } else {
         $("#bark_apikey").removeClass("is-invalid");
       }
-      var config = JSON.stringify({
+      config = JSON.stringify({
         server: server,
         apikey: apikey
       });
     } else if (type == "pushplus") {
-      var token = $("#pushplus_token").val();
-      var channel = $("#pushplus_channel").val();
-      var topic = $("#pushplus_topic").val();
-      var webhook = $("#pushplus_webhook").val();
+      let token = $("#pushplus_token").val();
+      let channel = $("#pushplus_channel").val();
+      let topic = $("#pushplus_topic").val();
+      let webhook = $("#pushplus_webhook").val();
       interactive = "0";
       if (!token) {
         $("#pushplus_token").addClass("is-invalid");
@@ -621,14 +644,14 @@
       } else {
         $("#pushplus_token").removeClass("is-invalid");
       }
-      var config = JSON.stringify({
+      config = JSON.stringify({
         token: token,
         channel: channel,
         topic: topic,
         webhook: webhook
       });
     } else if (type == "iyuu") {
-      var token = $("#iyuumsg_token").val();
+      let token = $("#iyuumsg_token").val();
       interactive = "0";
       if (!token) {
         $("#iyuumsg_token").addClass("is-invalid");
@@ -639,18 +662,37 @@
       config = JSON.stringify({
         token: token
       });
+    } else if (type == "slack") {
+      let bot_token = $("#slack_bot_token").val();
+      if (!bot_token) {
+        $("#slack_bot_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#slack_bot_token").removeClass("is-invalid");
+      }
+      let app_token = $("#slack_app_token").val();
+      if (!app_token) {
+        $("#slack_app_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#slack_app_token").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        bot_token: bot_token,
+        app_token: app_token
+      });
     }
-    var cid = $("#client_id").val();
-    var name = $("#client_name").val();
-    var enabled = $("#client_enabled").val();
+    let cid = $("#client_id").val();
+    let name = $("#client_name").val();
+    let enabled = $("#client_enabled").val();
     // 推送设置
-    var switchs = [];
+    let switchs = [];
     $("input[name=message_switchs]").each(function () {
       if ($(this).prop("checked")) {
         switchs.push($(this).val());
       }
     });
-    var params = {
+    const params = {
       cid: cid,
       name: name,
       type: type,
@@ -704,7 +746,7 @@
 
   // 单选框事件
   $('input[type=radio][name=client_type]').change(function () {
-    var type = this.value;
+    let type = this.value;
     show_client_type(type);
   });
 
@@ -758,6 +800,14 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_iyuumsg").prop("checked", true);
+    } else if (type == 'slack') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_slack").show();
+      $("#div_client_name").attr('class', 'col-lg-6');
+      $("#div_client_interactive").show();
+      $("#type_slack").prop("checked", true);
     }
   }
 

@@ -166,7 +166,7 @@ class WeChat(IMessageChannel):
             ret_code, ret_msg = self.__send_message(title, text, user_id)
         return ret_code, ret_msg
 
-    def send_list_msg(self, medias: list, user_id="", title="", url=""):
+    def send_list_msg(self, medias: list, user_id="", title="", **kwargs):
         """
         发送列表类消息
         """
@@ -180,11 +180,15 @@ class WeChat(IMessageChannel):
         articles = []
         index = 1
         for media in medias:
+            if media.get_vote_string():
+                title = f"{index}. {media.get_title_string()}\n{media.get_type_string()}，{media.get_vote_string()}"
+            else:
+                title = f"{index}. {media.get_title_string()}\n{media.get_type_string()}"
             articles.append({
-                "title": "%s. %s" % (index, media.get_title_vote_string()),
+                "title": title,
                 "description": "",
                 "picurl": media.get_message_image() if index == 1 else media.get_poster_image(),
-                "url": url
+                "url": media.get_detail_url()
             })
             index += 1
         req_json = {

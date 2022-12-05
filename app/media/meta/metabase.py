@@ -157,17 +157,28 @@ class MetaBase(object):
         else:
             return ""
 
-    def get_vote_string(self):
+    def get_star_string(self):
         if self.vote_average:
-            return "评分：%s" % self.vote_average
+            return "评分：%s" % self.get_stars()
         else:
             return ""
+
+    def get_vote_string(self):
+        if self.vote_average:
+            return "评分：%s" % round(float(self.vote_average), 1)
+        else:
+            return ""
+
+    def get_type_string(self):
+        if not self.type:
+            return ""
+        return "类型：%s" % self.type.value
 
     def get_title_vote_string(self):
         if not self.vote_average:
             return self.get_title_string()
         else:
-            return "%s %s" % (self.get_title_string(), self.get_vote_string())
+            return "%s\n%s" % (self.get_title_string(), self.get_vote_string())
 
     def get_title_ep_string(self):
         string = self.get_title_string()
@@ -377,12 +388,20 @@ class MetaBase(object):
 
     # 查询TMDB详情页URL
     def get_detail_url(self):
-        if not self.tmdb_id:
+        if self.tmdb_id:
+            if self.type == MediaType.MOVIE:
+                return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
+            else:
+                return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+        elif self.douban_id:
+            return "https://movie.douban.com/subject/%s" % str(self.douban_id).replace("DB:", "")
+        return ""
+
+    # 返回评分星星个数
+    def get_stars(self):
+        if not self.vote_average:
             return ""
-        if self.type == MediaType.MOVIE:
-            return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
-        else:
-            return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+        return "".rjust(int(self.vote_average), "★")
 
     # 返回促销信息
     def get_volume_factor_string(self):
