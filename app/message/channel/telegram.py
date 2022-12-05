@@ -92,29 +92,29 @@ class Telegram(IMessageChannel):
                 return False, "参数未配置"
 
             if text:
-                caption = "<b>%s</b>\n%s" % (title, text.replace("\n\n", "\n"))
+                caption = "*%s*\n%s" % (title, text.replace("\n\n", "\n"))
             else:
                 caption = title
             if image and url:
-                caption = "%s\n\n<a href='%s'>查看详情</a>" % (caption, url)
+                caption = "%s\n\n[查看详情](%s)" % (caption, url)
             if user_id:
                 chat_id = user_id
             else:
                 chat_id = self._telegram_chat_id
             if image:
                 # 发送图文消息
-                values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
+                values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
                 sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
             else:
                 # 发送文本
-                values = {"chat_id": chat_id, "text": caption, "parse_mode": "HTML"}
+                values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
             return self.__send_request(sc_url, values)
 
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def send_list_msg(self, medias: list, user_id="", title="", url=""):
+    def send_list_msg(self, medias: list, user_id="", title="", **kwargs):
         """
         发送列表类消息
         """
@@ -123,7 +123,7 @@ class Telegram(IMessageChannel):
                 return False, "参数未配置"
             if not title or not isinstance(medias, list):
                 return False, "数据错误"
-            index, image, caption = 1, "", "<b>%s</b>" % title
+            index, image, caption = 1, "", "*%s*" % title
             for media in medias:
                 if not image:
                     image = media.get_message_image()
@@ -146,7 +146,7 @@ class Telegram(IMessageChannel):
                 chat_id = self._telegram_chat_id
 
             # 发送图文消息
-            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
+            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
             sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
             return self.__send_request(sc_url, values)
 
