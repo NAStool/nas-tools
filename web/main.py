@@ -1356,12 +1356,19 @@ def slack():
         return 'NAStool未启用Slack交互'
     msg_json = request.get_json()
     if msg_json:
-        text = msg_json.get("text")
-        channel = msg_json.get("channel")
+        if msg_json.get("type") == "message":
+            channel = msg_json.get("channel")
+            text = msg_json.get("text")
+            username = ""
+        elif msg_json.get("type") == "block_actions":
+            channel = msg_json.get("channel", {}).get("id")
+            text = msg_json.get("actions")[0].get("value")
+            username = msg_json.get("user", {}).get("name")
         WebAction().handle_message_job(msg=text,
                                        client=interactive_client,
                                        in_from=SearchType.SLACK,
-                                       user_id=channel)
+                                       user_id=channel,
+                                       user_name=username)
     return "Ok"
 
 
