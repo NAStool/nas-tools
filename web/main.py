@@ -1,6 +1,7 @@
 import base64
 import datetime
 import os.path
+import re
 import shutil
 import sqlite3
 import time
@@ -1364,6 +1365,12 @@ def slack():
             channel = msg_json.get("channel", {}).get("id")
             text = msg_json.get("actions")[0].get("value")
             username = msg_json.get("user", {}).get("name")
+        elif msg_json.get("type") == "event_callback":
+            channel = msg_json.get("event", {}).get("channel")
+            text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
+            username = ""
+        else:
+            return "Error"
         WebAction().handle_message_job(msg=text,
                                        client=interactive_client,
                                        in_from=SearchType.SLACK,

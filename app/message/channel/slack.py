@@ -44,6 +44,12 @@ class Slack(IMessageChannel):
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
+            @slack_app.event("app_mention")
+            def slack_mention(say, body):
+                say(f"好的，请稍等... <@{body.get('event', {}).get('user')}>!")
+                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
+
             # 启动服务
             if self._interactive:
                 self._service = SocketModeHandler(

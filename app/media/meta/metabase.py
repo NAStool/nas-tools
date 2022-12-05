@@ -159,7 +159,7 @@ class MetaBase(object):
 
     def get_vote_string(self):
         if self.vote_average:
-            return "评分：%s" % self.vote_average
+            return "评分：%s" % self.get_stars()
         else:
             return ""
 
