@@ -220,7 +220,7 @@ class Message:
         :return: 发送状态、错误信息
         """
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
-        msg_text = f"{can_item.get_vote_string()}"
+        msg_text = f"{can_item.get_star_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.user_name:
             msg_text = f"{msg_text}\n用户：{can_item.user_name}"

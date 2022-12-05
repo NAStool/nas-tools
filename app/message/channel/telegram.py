@@ -127,11 +127,17 @@ class Telegram(IMessageChannel):
             for media in medias:
                 if not image:
                     image = media.get_message_image()
-                caption = "%s\n%s. %s\n    %s，%s" % (caption,
+                if media.get_vote_string():
+                    caption = "%s\n%s. %s\n%s，%s" % (caption,
                                                      index,
                                                      media.get_title_string(),
                                                      media.get_type_string(),
                                                      media.get_vote_string())
+                else:
+                    caption = "%s\n%s. %s\n%s" % (caption,
+                                                  index,
+                                                  media.get_title_string(),
+                                                  media.get_type_string())
                 index += 1
 
             if user_id:
@@ -211,7 +217,8 @@ class Telegram(IMessageChannel):
                 pending_update_count = result.get("pending_update_count")
                 last_error_message = result.get("last_error_message")
                 if pending_update_count and last_error_message:
-                    log.warn("【Telegram】Webhook 有 %s 条消息挂起，最后一次失败原因为：%s" % (pending_update_count, last_error_message))
+                    log.warn("【Telegram】Webhook 有 %s 条消息挂起，最后一次失败原因为：%s" % (
+                        pending_update_count, last_error_message))
                 if webhook_url == self._webhook_url:
                     return 1
                 else:

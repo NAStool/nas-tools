@@ -180,8 +180,12 @@ class WeChat(IMessageChannel):
         articles = []
         index = 1
         for media in medias:
+            if media.get_vote_string():
+                title = f"{index}. {media.get_title_string()}\n{media.get_type_string()}，{media.get_vote_string()}"
+            else:
+                title = f"{index}. {media.get_title_string()}\n{media.get_type_string()}"
             articles.append({
-                "title": f"{index}. {media.get_title_string()}\n{media.get_vote_string()}",
+                "title": title,
                 "description": "",
                 "picurl": media.get_message_image() if index == 1 else media.get_poster_image(),
                 "url": url

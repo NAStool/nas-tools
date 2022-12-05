@@ -183,7 +183,7 @@ class Slack(IMessageChannel):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_type_string()}\n{media.get_vote_string()}\n{overview}"
+                                "text": f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_type_string()}\n{media.get_star_string()}\n{overview}"
                             },
                             "accessory": {
                                 "type": "image",

@@ -157,9 +157,15 @@ class MetaBase(object):
         else:
             return ""
 
-    def get_vote_string(self):
+    def get_star_string(self):
         if self.vote_average:
             return "评分：%s" % self.get_stars()
+        else:
+            return ""
+
+    def get_vote_string(self):
+        if self.vote_average:
+            return "评分：%s" % round(float(self.vote_average), 1)
         else:
             return ""
 
