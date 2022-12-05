@@ -2284,6 +2284,8 @@
         }
         if (ret.data.title) {
           $("#" + result_div).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
+        } else {
+          $("#" + result_div).append(`<span class="badge me-1 mb-1" title="标题">TMDB无匹配</span>`);
         }
         if (ret.data.year) {
           $("#" + result_div).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
