@@ -265,12 +265,15 @@ class Scraper:
         if os.path.exists(os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))):
             return
         try:
-            log.info("【Meta】正在保存 %s 图片：%s" % (itype, out_path))
+            log.info("【Meta】正在下载 %s 图片")
             r = RequestUtils().get_res(url)
             if r:
                 with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
                           mode="wb") as img:
                     img.write(r.content)
+                log.info(f"【Meta】 %s 图片已保存：{itype, out_path}")
+            else:
+                log.info("【Meta】 %s 图片下载失败：请检查网络连通性")
         except Exception as err:
             print(str(err))
 

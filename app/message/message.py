@@ -57,14 +57,10 @@ class Message:
         # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") == SearchType.TG:
-                    tg_client = active_client.get("client")
-                    if tg_client:
-                        tg_client.enabled = False
-                elif active_client.get("search_type") == SearchType.SLACK:
-                    slack_client = active_client.get("client")
-                    if slack_client:
-                        slack_client.stop_service()
+                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                    client = active_client.get("client")
+                    if client:
+                        client.stop_service()
         # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
