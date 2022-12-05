@@ -166,7 +166,7 @@ class WeChat(IMessageChannel):
             ret_code, ret_msg = self.__send_message(title, text, user_id)
         return ret_code, ret_msg
 
-    def send_list_msg(self, medias: list, user_id="", title="", url=""):
+    def send_list_msg(self, medias: list, user_id="", title="", **kwargs):
         """
         发送列表类消息
         """
