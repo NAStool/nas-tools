@@ -188,7 +188,7 @@ class WeChat(IMessageChannel):
                 "title": title,
                 "description": "",
                 "picurl": media.get_message_image() if index == 1 else media.get_poster_image(),
-                "url": url
+                "url": media.get_detail_url()
             })
             index += 1
         req_json = {
