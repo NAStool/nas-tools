@@ -167,7 +167,7 @@ class MetaBase(object):
         if not self.vote_average:
             return self.get_title_string()
         else:
-            return "%s %s" % (self.get_title_string(), self.get_vote_string())
+            return "%s\n%s" % (self.get_title_string(), self.get_vote_string())
 
     def get_title_ep_string(self):
         string = self.get_title_string()
