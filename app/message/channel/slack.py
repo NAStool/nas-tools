@@ -46,7 +46,7 @@ class Slack(IMessageChannel):
 
             @slack_app.event("app_mention")
             def slack_mention(say, body):
-                say(f"好的，请稍等... <@{body.get('event', {}).get('user')}>!")
+                say(f"收到，请稍等... <@{body.get('event', {}).get('user')}>!")
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
@@ -177,7 +177,7 @@ class Slack(IMessageChannel):
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_vote_string()}\n{overview}"
+                                "text": f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_type_string()}\n{media.get_vote_string()}\n{overview}"
                             },
                             "accessory": {
                                 "type": "image",
