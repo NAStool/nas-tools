@@ -100,10 +100,13 @@ class Slack(IMessageChannel):
                 # 消息广播
                 channel = self.__find_public_channel()
             # 拼装消息内容
-            if len(title.split('\n')) > 0 and not text:
-                titles = title.split('\n')
+            titles = title.split('\n')
+            if len(titles) > 1:
                 title = titles[0]
-                text = "\n".join(titles[1:])
+                if not text:
+                    text = "\n".join(titles[1:])
+                else:
+                    text = "%s\n%s" % ("\n".join(titles[1:]), text)
             block = {
                 "type": "section",
                 "text": {
