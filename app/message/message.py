@@ -25,11 +25,11 @@ class Message:
     MESSAGE_DICT = {
         "channel": {
             "telegram": {"name": "Telegram", "img_url": "../static/img/telegram.png", "search_type": SearchType.TG},
-            "wechat": {"name": "WeChat", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
-            "serverchan": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
+            "wechat": {"name": "微信", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
+            "serverchan": {"name": "Server酱", "img_url": "../static/img/serverchan.png"},
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
-            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"},
+            "iyuu": {"name": "爱语飞飞", "img_url": "../static/img/iyuu.png"},
             "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK}
         },
         "switch": {
@@ -57,14 +57,10 @@ class Message:
         # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") == SearchType.TG:
-                    tg_client = active_client.get("client")
-                    if tg_client:
-                        tg_client.enabled = False
-                elif active_client.get("search_type") == SearchType.SLACK:
-                    slack_client = active_client.get("client")
-                    if slack_client:
-                        slack_client.stop_service()
+                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                    client = active_client.get("client")
+                    if client:
+                        client.stop_service()
         # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
@@ -220,7 +216,7 @@ class Message:
         :return: 发送状态、错误信息
         """
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
-        msg_text = f"{can_item.get_vote_string()}"
+        msg_text = f"{can_item.get_star_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.user_name:
             msg_text = f"{msg_text}\n用户：{can_item.user_name}"

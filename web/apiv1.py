@@ -218,7 +218,10 @@ class ServiceNetworkTest(ClientResource):
 @service.route('/run')
 class ServiceRun(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('item', type=str, help='服务ID', location='form', required=True)
+    parser.add_argument('item', type=str,
+                        help='服务名称（autoremovetorrents、pttransfer、ptsignin、sync、rssdownload、douban、subscribe_search_all）',
+                        location='form',
+                        required=True)
 
     @service.doc(parser=parser)
     def post(self):
@@ -226,6 +229,17 @@ class ServiceRun(ClientResource):
         运行服务
         """
         return WebAction().api_action(cmd='sch', data=self.parser.parse_args())
+
+
+@service.route('/sync')
+class ServiceSync(ApiResource):
+    @staticmethod
+    def get():
+        """
+        立即运行目录同步服务（密钥认证）
+        """
+        # 返回站点信息
+        return WebAction().api_action(cmd='sch', data={"item": "sync"})
 
 
 @site.route('/statistics')

@@ -157,17 +157,28 @@ class MetaBase(object):
         else:
             return ""
 
-    def get_vote_string(self):
+    def get_star_string(self):
         if self.vote_average:
             return "评分：%s" % self.get_stars()
         else:
             return ""
 
+    def get_vote_string(self):
+        if self.vote_average:
+            return "评分：%s" % round(float(self.vote_average), 1)
+        else:
+            return ""
+
+    def get_type_string(self):
+        if not self.type:
+            return ""
+        return "类型：%s" % self.type.value
+
     def get_title_vote_string(self):
         if not self.vote_average:
             return self.get_title_string()
         else:
-            return "%s %s" % (self.get_title_string(), self.get_vote_string())
+            return "%s\n%s" % (self.get_title_string(), self.get_star_string())
 
     def get_title_ep_string(self):
         string = self.get_title_string()
@@ -187,7 +198,7 @@ class MetaBase(object):
         if not hasattr(self, "overview"):
             return ""
 
-        overview = self.overview
+        overview = str(self.overview).strip()
         placeholder = ' ...'
         max_len = max(len(placeholder), max_len - len(placeholder))
         overview = (overview[:max_len] + placeholder) if len(overview) > max_len else overview

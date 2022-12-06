@@ -408,8 +408,8 @@
           </div>
         </div>
       </div>
-      <div class="progress rounded-0" id="sitecookie_process_bar_div">
-        <div class="progress-bar progress-bar-animated bg-green" id="sitecookie_process_bar"
+      <div class="progress progress-sm rounded-0" id="sitecookie_process_bar_div">
+        <div class="progress-bar progress-bar-animated progress-bar-indeterminate" id="sitecookie_process_bar"
              style="width: 0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
         </div>
       </div>
@@ -578,12 +578,6 @@
       return;
     } else {
       $("#site_rssurl").removeClass("is-invalid");
-    };
-    if (site_uses.match(/T/) && !site_cookie) {
-      $("#site_cookie").addClass("is-invalid");
-      return;
-    } else {
-      $("#site_cookie").removeClass("is-invalid");
     };
     let ua = $("#site_ua").val();
     let chrome = $("#site_chrome").val();

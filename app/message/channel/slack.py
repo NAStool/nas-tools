@@ -41,12 +41,18 @@ class Slack(IMessageChannel):
             @slack_app.action(re.compile(r"actionId-\d+"))
             def slack_action(ack, body):
                 ack()
-                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                local_res = requests.post(self._ds_url, json=body, timeout=60)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
             @slack_app.event("app_mention")
             def slack_mention(say, body):
-                say(f"好的，请稍等... <@{body.get('event', {}).get('user')}>!")
+                say(f"收到，请稍等... <@{body.get('event', {}).get('user')}>")
+                local_res = requests.post(self._ds_url, json=body, timeout=10)
+                log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
+
+            @slack_app.shortcut(re.compile(r"/*"))
+            def slack_shortcut(ack, body):
+                ack()
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
@@ -94,10 +100,13 @@ class Slack(IMessageChannel):
                 # 消息广播
                 channel = self.__find_public_channel()
             # 拼装消息内容
-            if len(title.split('\n')) > 0 and not text:
-                titles = title.split('\n')
+            titles = str(title).split('\n')
+            if len(titles) > 1:
                 title = titles[0]
-                text = "\n".join(titles[1:])
+                if not text:
+                    text = "\n".join(titles[1:])
+                else:
+                    text = "%s\n%s" % ("\n".join(titles[1:]), text)
             block = {
                 "type": "section",
                 "text": {
@@ -171,12 +180,21 @@ class Slack(IMessageChannel):
                 })
                 index = 1
                 for media in medias:
+                    if media.get_star_string():
+                        text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
+                               f"\n{media.get_type_string()}" \
+                               f"\n{media.get_star_string()}" \
+                               f"\n{media.get_overview_string(50)}"
+                    else:
+                        text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
+                               f"\n{media.get_type_string()}" \
+                               f"\n{media.get_overview_string(50)}"
                     blocks.append(
                         {
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": f"*<{media.get_detail_url()}|{media.get_title_string()}>*\n{media.get_stars()}\n{media.overview}"
+                                "text": text
                             },
                             "accessory": {
                                 "type": "image",

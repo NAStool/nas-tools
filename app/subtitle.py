@@ -202,7 +202,7 @@ class Subtitle:
 
             # 路径替换
             if self._local_path and self._remote_path and file_path.startswith(self._local_path):
-                file_path = file_path.replace(self._local_path, self._remote_path)
+                file_path = file_path.replace(self._local_path, self._remote_path).replace('\\', '/')
 
             # 一个名称只建一个任务
             if file_path not in notify_items:
@@ -297,7 +297,7 @@ class Subtitle:
                     if not file_name:
                         log.warn(f"【Subtitle】链接不是字幕文件：{sublink}")
                         return
-                    if file_name.endswith(".zip"):
+                    if file_name.lower().endswith(".zip"):
                         # ZIP包
                         zip_file = os.path.join(self._save_tmp_path, file_name)
                         # 解压路径
