@@ -127,9 +127,12 @@ class ChromeHelper(object):
     def get_ua(self):
         return self.browser.execute_script("return navigator.userAgent")
 
-    def __del__(self):
+    def quit(self):
         if self._chrome:
             self._chrome.quit()
+
+    def __del__(self):
+        self.quit()
 
 
 class ChromeWithPrefs(uc.Chrome):
