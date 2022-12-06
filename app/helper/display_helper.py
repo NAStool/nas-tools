@@ -29,7 +29,7 @@ class DisplayHelper(object):
 
     @staticmethod
     def can_display():
-        if os.path.exists("usr/bin/Xvfb"):
+        if os.path.exists("/usr/bin/Xvfb"):
             return True
         return False
 
