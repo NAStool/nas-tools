@@ -11,9 +11,10 @@ class Client115(IDownloadClient):
     lasthash = None
     client_type = DownloaderType.Client115.value
 
-    def get_config(self):
+    def get_config(self, cloudconfig = None):
         # 读取配置文件
-        cloudconfig = Config().get_config('client115')
+        if not cloudconfig:
+            cloudconfig = Config().get_config('client115')
         if cloudconfig:
             self.downclient = Py115(cloudconfig.get("cookie"))
 
@@ -21,13 +22,20 @@ class Client115(IDownloadClient):
         self.downclient.login()
 
     def get_status(self):
-        if not self.downclient:
-            return False
-        ret = self.downclient.login()
-        if not ret:
-            log.info(self.downclient.err)
-            return False
-        return True
+        """
+        测试连通性
+        """
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('client115'))
+        ret = False
+        if self.downclient:
+            ret = self.downclient.login()
+            if not ret:
+                log.info(self.downclient.err)
+        # 重置配置
+        self.init_config()
+        return ret
 
     def get_torrents(self, ids=None, status=None, tag=None):
         tlist = []

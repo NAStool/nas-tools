@@ -212,14 +212,44 @@ class Config(object):
             return self._config
         return self._config.get(node, {})
 
-    def save_config(self, new_cfg):
+    def save_config(self, new_cfg, test = False):
         self._config = new_cfg
-        with open(self._config_path, mode='w', encoding='utf-8') as sf:
+        path = self._config_path
+        if test:
+            path = self.get_test_config_path()
+            path_folder = os.path.dirname(path)
+            if not os.path.exists(path_folder):
+                os.mkdir(path_folder)
+        with open(path, mode='w', encoding='utf-8') as sf:
             yaml = ruamel.yaml.YAML()
             return yaml.dump(new_cfg, sf)
 
     def get_config_path(self):
         return os.path.dirname(self._config_path)
+
+    def get_test_config(self, node=None):
+        test_config = {}
+        try:
+            test_config_path = self.get_test_config_path()
+            if not os.path.exists(test_config_path):
+                print("【test】测试配置文件 test_config.yaml 不存在, 请重新发起测试...")
+                return False
+            with open(test_config_path, mode='r', encoding='utf-8') as cf:
+                try:
+                    print("【test】正在加载配置：%s" % test_config_path)
+                    test_config = ruamel.yaml.YAML().load(cf)
+                except Exception as e:
+                    print("【test】测试配置文件 test_config.yaml 格式出现严重错误！请检查：%s" % str(e))
+                    return False
+        except Exception as err:
+            print("【test】测试配置文件加载 test_config.yaml 配置出错：%s" % str(err))
+            return False
+        if not node:
+            return test_config
+        return test_config.get(node, {})
+
+    def get_test_config_path(self):
+        return os.path.join(self.get_config_path(), "temp", "test_config.yaml")
 
     @staticmethod
     def get_root_path():

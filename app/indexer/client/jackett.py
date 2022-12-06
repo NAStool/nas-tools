@@ -11,8 +11,9 @@ class Jackett(IIndexer):
     index_type = IndexerType.JACKETT.value
     _password = None
 
-    def init_config(self):
-        jackett = Config().get_config('jackett')
+    def init_config(self, jackett = None):
+        if not jackett:
+            jackett = Config().get_config('jackett')
         if jackett:
             self.api_key = jackett.get('api_key')
             self._password = jackett.get('password')
@@ -25,12 +26,17 @@ class Jackett(IIndexer):
 
     def get_status(self):
         """
-        检查连通性
-        :return: True、False
+        测试连通性
         """
-        if not self.api_key or not self.host:
-            return False
-        return True if self.get_indexers() else False
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('jackett'))
+        ret = False
+        if self.api_key and self.host:
+            ret = True if self.get_indexers() else False
+        # 重置配置
+        self.init_config()
+        return ret
 
     def get_indexers(self):
         """

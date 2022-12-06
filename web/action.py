@@ -1048,7 +1048,7 @@ class WebAction:
         """
         cfg = Config().get_config()
         cfgs = dict(data).items()
-        # 仅测试不保存
+        # 仅保存测试配置
         config_test = False
         # 修改配置
         for key, value in cfgs:
@@ -1059,8 +1059,7 @@ class WebAction:
             cfg = self.set_config_value(cfg, key, value)
 
         # 保存配置
-        if not config_test:
-            Config().save_config(cfg)
+        Config().save_config(cfg, config_test)
 
         return {"code": 0}
 

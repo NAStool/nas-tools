@@ -20,9 +20,10 @@ class Qbittorrent(IDownloadClient):
     ver = None
     client_type = DownloaderType.QB
 
-    def get_config(self):
+    def get_config(self, qbittorrent = None):
         # 读取配置文件
-        qbittorrent = Config().get_config('qbittorrent')
+        if not qbittorrent:
+            qbittorrent = Config().get_config('qbittorrent')
         if qbittorrent:
             self.host = qbittorrent.get('qbhost')
             self.port = int(qbittorrent.get('qbport')) if str(qbittorrent.get('qbport')).isdigit() else 0
@@ -61,13 +62,21 @@ class Qbittorrent(IDownloadClient):
             return None
 
     def get_status(self):
-        if not self.qbc:
-            return False
-        try:
-            return True if self.qbc.transfer_info() else False
-        except Exception as err:
-            print(str(err))
-            return False
+        """
+        测试连通性
+        """
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('qbittorrent'))
+        ret = False
+        if self.qbc:
+            try:
+                ret = True if self.qbc.transfer_info() else False
+            except Exception as err:
+                print(str(err))
+        # 重置配置
+        self.init_config()
+        return ret
 
     def get_torrents(self, ids=None, status=None, tag=None):
         """

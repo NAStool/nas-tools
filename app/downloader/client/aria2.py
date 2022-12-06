@@ -13,9 +13,10 @@ class Aria2(IDownloadClient):
     _client = None
     client_type = DownloaderType.Aria2.value
 
-    def get_config(self):
+    def get_config(self, aria2config = None):
         # 读取配置文件
-        aria2config = Config().get_config('aria2')
+        if not aria2config:
+            aria2config = Config().get_config('aria2')
         if aria2config:
             self.host = aria2config.get("host")
             if self.host:
@@ -32,10 +33,18 @@ class Aria2(IDownloadClient):
         pass
 
     def get_status(self):
-        if not self._client:
-            return False
-        ver = self._client.getVersion()
-        return True if ver else False
+        """
+        测试连通性
+        """
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('aria2'))
+        ret = False
+        if self._client:
+            ret = True if self._client.getVersion() else False
+        # 重置配置
+        self.init_config()
+        return ret
 
     def get_torrents(self, ids=None, status=None, **kwargs):
         if not self._client:

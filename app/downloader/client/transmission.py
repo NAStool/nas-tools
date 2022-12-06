@@ -19,9 +19,10 @@ class Transmission(IDownloadClient):
     trc = None
     client_type = DownloaderType.TR
 
-    def get_config(self):
+    def get_config(self, transmission = None):
         # 读取配置文件
-        transmission = Config().get_config('transmission')
+        if not transmission:
+            transmission = Config().get_config('transmission')
         if transmission:
             self.host = transmission.get('trhost')
             self.port = int(transmission.get('trport')) if str(transmission.get('trport')).isdigit() else 0
@@ -50,7 +51,16 @@ class Transmission(IDownloadClient):
             return None
 
     def get_status(self):
-        return True if self.trc else False
+        """
+        测试连通性
+        """
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('transmission'))
+        ret = True if self.trc else False
+        # 重置配置
+        self.init_config()
+        return ret
 
     def get_torrents(self, ids=None, status=None, tag=None):
         """

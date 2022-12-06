@@ -20,8 +20,9 @@ class Emby(IMediaServer):
     def __init__(self):
         self.init_config()
 
-    def init_config(self):
-        emby = Config().get_config('emby')
+    def init_config(self, emby = None):
+        if not emby:
+            emby = Config().get_config('emby')
         if emby:
             self._host = emby.get('host')
             if self._host:
@@ -38,7 +39,13 @@ class Emby(IMediaServer):
         """
         测试连通性
         """
-        return True if self.get_medias_count() else False
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('emby'))
+        ret = True if self.get_medias_count() else False
+        # 重置配置
+        self.init_config()
+        return ret
 
     def __get_emby_librarys(self):
         """

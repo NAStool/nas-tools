@@ -22,8 +22,9 @@ class Plex(IMediaServer):
     def __init__(self):
         self.init_config()
 
-    def init_config(self):
-        plex = Config().get_config('plex')
+    def init_config(self, plex = None):
+        if not plex:
+            plex = Config().get_config('plex')
         if plex:
             self._host = plex.get('host')
             self._token = plex.get('token')
@@ -52,7 +53,13 @@ class Plex(IMediaServer):
         """
         测试连通性
         """
-        return True if self._plex else False
+        # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
+        # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
+        self.init_config(Config().get_test_config('jellyfin'))
+        ret = True if self._plex else False
+        # 重置配置
+        self.init_config()
+        return ret
 
     @staticmethod
     def get_user_count(**kwargs):
