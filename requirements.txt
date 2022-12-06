@@ -92,12 +92,12 @@ trio-websocket==0.9.2
 typing_extensions==4.3.0
 tzdata==2022.2
 tzlocal==4.2
-undetected-chromedriver==3.1.7
+undetected-chromedriver==3.1.5.post4
 urllib3==1.26.12
 w3lib==2.0.1
 watchdog==2.1.9
 wcwidth==0.2.5
-webdriver-manager==3.8.3
+webdriver-manager==3.8.5
 websockets==10.3
 Werkzeug==2.1.2
 wsproto==1.2.0
