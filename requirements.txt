@@ -97,7 +97,7 @@ urllib3==1.26.12
 w3lib==2.0.1
 watchdog==2.1.9
 wcwidth==0.2.5
-webdriver-manager==3.8.5
+webdriver-manager==3.8.3
 websockets==10.3
 Werkzeug==2.1.2
 wsproto==1.2.0
