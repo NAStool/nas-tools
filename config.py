@@ -138,7 +138,8 @@ SITE_LOGIN_XPATH = {
         "//table[@class='main']//td[@class='text']/text()"
     ],
     "twostep": [
-        '//input[@name="two_step_code"]'
+        '//input[@name="two_step_code"]',
+        '//input[@name="2fa_secret"]'
     ]
 }
 

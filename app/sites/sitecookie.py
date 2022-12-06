@@ -141,44 +141,51 @@ class SiteCookie(object):
                     chrome.browser.find_element(By.XPATH, password_xpath).send_keys(password)
                     # 输入两步验证码
                     if twostepcode and twostepcode_xpath:
-                        chrome.browser.find_element(By.XPATH, twostepcode_xpath).send_keys(twostepcode)
+                        twostepcode_element = chrome.browser.find_element(By.XPATH, twostepcode_xpath)
+                        if twostepcode_element.is_displayed():
+                            twostepcode_element.send_keys(twostepcode)
                     # 识别验证码
                     if captcha_xpath:
-                        code_url = self.__get_captcha_url(url, captcha_img_url)
-                        if ocrflag:
-                            # 自动OCR识别验证码
-                            captcha = self.get_captcha_text(chrome, code_url)
-                            if captcha:
-                                log.info("【Sites】验证码地址为：%s，识别结果：%s" % (code_url, captcha))
-                            else:
-                                return None, None, "验证码识别失败"
-                        else:
-                            # 等待用户输入
-                            captcha = None
-                            code_key = StringUtils.generate_random_str(5)
-                            for sec in range(30, 0, -1):
-                                if self.get_code(code_key):
-                                    # 用户输入了
-                                    captcha = self.get_code(code_key)
-                                    log.info("【Sites】接收到验证码：%s" % captcha)
-                                    self.progress.update(ptype='sitecookie',
-                                                         text="接收到验证码：%s" % captcha)
-                                    break
+                        captcha_element = chrome.browser.find_element(By.XPATH, captcha_xpath)
+                        if captcha_element.is_displayed():
+                            code_url = self.__get_captcha_url(url, captcha_img_url)
+                            if ocrflag:
+                                # 自动OCR识别验证码
+                                captcha = self.get_captcha_text(chrome, code_url)
+                                if captcha:
+                                    log.info("【Sites】验证码地址为：%s，识别结果：%s" % (code_url, captcha))
                                 else:
-                                    # 获取验证码图片base64
-                                    code_bin = self.get_captcha_base64(chrome, code_url)
-                                    if not code_bin:
-                                        return None, None, "获取验证码图片数据失败"
+                                    return None, None, "验证码识别失败"
+                            else:
+                                # 等待用户输入
+                                captcha = None
+                                code_key = StringUtils.generate_random_str(5)
+                                for sec in range(30, 0, -1):
+                                    if self.get_code(code_key):
+                                        # 用户输入了
+                                        captcha = self.get_code(code_key)
+                                        log.info("【Sites】接收到验证码：%s" % captcha)
+                                        self.progress.update(ptype='sitecookie',
+                                                             text="接收到验证码：%s" % captcha)
+                                        break
                                     else:
-                                        code_bin = f"data:image/png;base64,{code_bin}"
-                                    # 推送到前端
-                                    self.progress.update(ptype='sitecookie',
-                                                         text=f"{code_bin}|{code_key}")
-                                    time.sleep(1)
-                            if not captcha:
-                                return None, None, "验证码输入超时"
-                        # 输入验证码
-                        chrome.browser.find_element(By.XPATH, captcha_xpath).send_keys(captcha)
+                                        # 获取验证码图片base64
+                                        code_bin = self.get_captcha_base64(chrome, code_url)
+                                        if not code_bin:
+                                            return None, None, "获取验证码图片数据失败"
+                                        else:
+                                            code_bin = f"data:image/png;base64,{code_bin}"
+                                        # 推送到前端
+                                        self.progress.update(ptype='sitecookie',
+                                                             text=f"{code_bin}|{code_key}")
+                                        time.sleep(1)
+                                if not captcha:
+                                    return None, None, "验证码输入超时"
+                            # 输入验证码
+                            captcha_element.send_keys(captcha)
+                        else:
+                            # 不可见元素不处理
+                            pass
                     # 提交登录
                     submit_obj.click()
                 else:
