@@ -199,7 +199,7 @@ class SiteCookie(object):
             if not html_text:
                 return None, None, "获取源码失败"
             if self.sites.is_signin_success(html_text):
-                return chrome.get_cookies(), chrome.get_ua(), "获取成功"
+                return chrome.get_cookies(), chrome.get_ua(), ""
             else:
                 # 读取错误信息
                 error_xpath = None
