@@ -6,14 +6,16 @@ from functools import reduce
 from threading import Lock
 
 from app.utils import SystemUtils, RequestUtils
-import undetected_chromedriver.v2 as uc
+import undetected_chromedriver as uc
 
+from app.utils.commons import singleton
 from config import WEBDRIVER_PATH
 
 CHROME_LOCK = Lock()
 lock = Lock()
 
 
+@singleton
 class ChromeHelper(object):
 
     _executable_path = None
