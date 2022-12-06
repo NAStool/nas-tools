@@ -92,7 +92,7 @@ class Telegram(IMessageChannel):
                 return False, "参数未配置"
 
             # 拼装消息内容
-            titles = title.split('\n')
+            titles = str(title).split('\n')
             if len(titles) > 1:
                 title = titles[0]
                 if not text:

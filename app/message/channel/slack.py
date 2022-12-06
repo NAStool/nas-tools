@@ -100,7 +100,7 @@ class Slack(IMessageChannel):
                 # 消息广播
                 channel = self.__find_public_channel()
             # 拼装消息内容
-            titles = title.split('\n')
+            titles = str(title).split('\n')
             if len(titles) > 1:
                 title = titles[0]
                 if not text:
