@@ -35,7 +35,6 @@ if is_windows_exe:
     os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable),
                                              "config",
                                              "logs").replace("\\", "/")
-
     try:
         config_dir = os.path.join(os.path.dirname(sys.executable),
                                   "config").replace("\\", "/")
