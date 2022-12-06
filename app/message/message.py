@@ -25,11 +25,11 @@ class Message:
     MESSAGE_DICT = {
         "channel": {
             "telegram": {"name": "Telegram", "img_url": "../static/img/telegram.png", "search_type": SearchType.TG},
-            "wechat": {"name": "WeChat", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
-            "serverchan": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
+            "wechat": {"name": "微信", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
+            "serverchan": {"name": "Server酱", "img_url": "../static/img/serverchan.png"},
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
-            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"},
+            "iyuu": {"name": "爱语飞飞", "img_url": "../static/img/iyuu.png"},
             "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK}
         },
         "switch": {

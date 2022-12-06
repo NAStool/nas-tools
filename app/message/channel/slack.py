@@ -46,7 +46,7 @@ class Slack(IMessageChannel):
 
             @slack_app.event("app_mention")
             def slack_mention(say, body):
-                say(f"收到，请稍等... <@{body.get('event', {}).get('user')}>!")
+                say(f"收到，请稍等... <@{body.get('event', {}).get('user')}>")
                 local_res = requests.post(self._ds_url, json=body, timeout=10)
                 log.debug("【Slack】message: %s processed, response is: %s" % (body, local_res.text))
 
@@ -177,16 +177,15 @@ class Slack(IMessageChannel):
                 })
                 index = 1
                 for media in medias:
-                    overview = media.overview[:50] if media.overview else ""
                     if media.get_star_string():
                         text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
                                f"\n{media.get_type_string()}" \
                                f"\n{media.get_star_string()}" \
-                               f"\n{overview}"
+                               f"\n{media.get_overview_string(50)}"
                     else:
                         text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
                                f"\n{media.get_type_string()}" \
-                               f"\n{overview}"
+                               f"\n{media.get_overview_string(50)}"
                     blocks.append(
                         {
                             "type": "section",
