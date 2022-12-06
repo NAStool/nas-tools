@@ -16,7 +16,16 @@ EXPIRE_TIMESTAMP = 7 * 24 * 3600
 
 @singleton
 class MetaHelper(object):
+    """
+    {
+        "id": '',
+        "title": '',
+        "year": '',
+        "type": MediaType
+    }
+    """
     _meta_data = {}
+
     _meta_path = None
     _tmdb_cache_expire = False
 
@@ -27,7 +36,7 @@ class MetaHelper(object):
         laboratory = Config().get_config('laboratory')
         if laboratory:
             self._tmdb_cache_expire = laboratory.get("tmdb_cache_expire")
-        self._meta_path = os.path.join(Config().get_config_path(), 'meta.dat')
+        self._meta_path = os.path.join(Config().get_config_path(), 'tmdb.dat')
         self._meta_data = self.__load_meta_data(self._meta_path)
 
     def clear_meta_data(self):
@@ -114,10 +123,7 @@ class MetaHelper(object):
         """
         with lock:
             if self._meta_data.get(key):
-                if self._meta_data[key]['media_type'] == MediaType.MOVIE:
-                    self._meta_data[key]['title'] = title
-                else:
-                    self._meta_data[key]['name'] = title
+                self._meta_data[key]['title'] = title
                 self._meta_data[key][CACHE_EXPIRE_TIMESTAMP_STR] = int(time.time()) + EXPIRE_TIMESTAMP
             return self._meta_data.get(key)
 
@@ -203,8 +209,7 @@ class MetaHelper(object):
         cache_media_info = self._meta_data.get(key)
         if not cache_media_info or not cache_media_info.get("id"):
             return None
-        return cache_media_info.get("title") if cache_media_info.get(
-            "media_type") == MediaType.MOVIE else cache_media_info.get("name")
+        return cache_media_info.get("title")
 
     def set_cache_title(self, key, cn_title):
         """
@@ -213,7 +218,4 @@ class MetaHelper(object):
         cache_media_info = self._meta_data.get(key)
         if not cache_media_info:
             return
-        if cache_media_info.get("media_type") == MediaType.MOVIE:
-            self._meta_data[key]['title'] = cn_title
-        else:
-            self._meta_data[key]['name'] = cn_title
+        self._meta_data[key]['title'] = cn_title

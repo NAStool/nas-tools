@@ -39,14 +39,12 @@ class Searcher:
     def search_medias(self,
                       key_word,
                       filter_args: dict,
-                      match_type,
                       match_media=None,
                       in_from: SearchType = None):
         """
         根据关键字调用索引器检查媒体
         :param key_word: 检索的关键字，不能为空
         :param filter_args: 过滤条件
-        :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_media: 区配的媒体信息
         :param in_from: 搜索渠道
         :return: 命中的资源媒体信息列表
@@ -61,7 +59,6 @@ class Searcher:
                                                                tmdbid=match_media.tmdb_id))
         return self.indexer.search_by_keyword(key_word=key_word,
                                               filter_args=filter_args,
-                                              match_type=match_type,
                                               match_media=match_media,
                                               in_from=in_from)
 
@@ -138,7 +135,6 @@ class Searcher:
         log.info("【Searcher】开始检索 %s ..." % first_search_name)
         media_list = self.search_medias(key_word=first_search_name,
                                         filter_args=filter_args,
-                                        match_type=1,
                                         match_media=media_info,
                                         in_from=in_from)
         # 使用名称重新搜索
@@ -148,7 +144,6 @@ class Searcher:
             log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
             media_list = self.search_medias(key_word=second_search_name,
                                             filter_args=filter_args,
-                                            match_type=1,
                                             match_media=media_info,
                                             in_from=in_from)
 

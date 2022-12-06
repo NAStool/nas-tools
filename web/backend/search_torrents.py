@@ -150,7 +150,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     log.info("【Web】开始检索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=first_search_name,
                                           filter_args=filter_args,
-                                          match_type=1 if ident_flag else 2,
                                           match_media=media_info,
                                           in_from=SearchType.WEB)
     # 使用第二名称重新搜索
@@ -164,7 +163,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
-                                              match_type=1,
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
