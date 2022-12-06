@@ -84,10 +84,10 @@ class Sites:
             site_cookie = site.COOKIE
             site_uses = site.INCLUDE or ''
             if site_uses:
-                signin_enable = True if "Q" in site_uses and site_signurl else False
+                signin_enable = True if "Q" in site_uses and site_signurl and site_cookie else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
-                brush_enable = True if "S" in site_uses and site_rssurl else False
-                statistic_enable = True if "T" in site_uses and site_cookie else False
+                brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
+                statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
             else:
                 signin_enable = False
                 rss_enable = False

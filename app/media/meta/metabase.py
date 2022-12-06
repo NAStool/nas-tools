@@ -178,7 +178,7 @@ class MetaBase(object):
         if not self.vote_average:
             return self.get_title_string()
         else:
-            return "%s\n%s" % (self.get_title_string(), self.get_vote_string())
+            return "%s\n%s" % (self.get_title_string(), self.get_star_string())
 
     def get_title_ep_string(self):
         string = self.get_title_string()
@@ -198,7 +198,7 @@ class MetaBase(object):
         if not hasattr(self, "overview"):
             return ""
 
-        overview = self.overview
+        overview = str(self.overview).strip()
         placeholder = ' ...'
         max_len = max(len(placeholder), max_len - len(placeholder))
         overview = (overview[:max_len] + placeholder) if len(overview) > max_len else overview

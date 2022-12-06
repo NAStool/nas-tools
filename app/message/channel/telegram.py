@@ -91,6 +91,14 @@ class Telegram(IMessageChannel):
             if not self._telegram_token or not self._telegram_chat_id:
                 return False, "参数未配置"
 
+            # 拼装消息内容
+            titles = str(title).split('\n')
+            if len(titles) > 1:
+                title = titles[0]
+                if not text:
+                    text = "\n".join(titles[1:])
+                else:
+                    text = "%s\n%s" % ("\n".join(titles[1:]), text)
             if text:
                 caption = "*%s*\n%s" % (title, text.replace("\n\n", "\n"))
             else:
