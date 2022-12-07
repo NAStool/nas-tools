@@ -21,7 +21,7 @@ API: http://localhost:3000/api/v1/
 
 ### 1、资源检索和订阅
 * 站点RSS聚合，想看的加入订阅，资源自动实时追新。
-* 通过微信、Telegram或者WEB界面聚合资源搜索下载，最新热门资源一键搜索或者订阅。
+* 通过微信、Telegram、Slack或者WEB界面聚合资源搜索下载，最新热门资源一键搜索或者订阅。
 * 与豆瓣联动，在豆瓣中标记想看后台自动检索下载，未出全的自动加入订阅。
 
 ### 2、媒体库整理
@@ -35,8 +35,8 @@ API: http://localhost:3000/api/v1/
 * 站点每日自动登录保号。
 
 ### 4、消息服务
-* 支持ServerChan、微信、Telegram、Bark、PushPlus、爱语飞飞等图文消息通知
-* 支持通过微信、Telegram远程控制订阅和下载。
+* 支持ServerChan、微信、Slack、Telegram、Bark、PushPlus、爱语飞飞等图文消息通知
+* 支持通过微信、Telegram、Slack远程控制订阅和下载。
 * Emby/Jellyfin/Plex播放状态通知。
 
 
@@ -77,9 +77,10 @@ https://spk7.imnks.com/
   1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得企业ID、自建应用secret、agentid
      
      微信扫描自建应用二维码可实现在微信中使用消息服务，无需打开企业微信
-  3) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey
-  4) Telegram（推荐）：关注BotFather申请机器人获取token，关注getuserID拿到chat_id
-  5) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器
+  2) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey
+  3) Telegram（推荐）：关注BotFather申请机器人获取token，关注getuserID拿到chat_id
+  4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器
+  5) Slack：在 https://api.slack.com/apps 申请应用，详情参考频道说明
   6) 其它：仍然会持续增加对通知渠道的支持，API KEY获取方式类似，不一一说明
 
 ### 2、基础配置
@@ -125,12 +126,12 @@ https://spk7.imnks.com/
 * 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。
 * 如将下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
 
-### 5、配置微信菜单/Telegram机器人
-配置好微信或Telegram机器人后，可以直接通过微信/Telegram机器人发送名字实现自动检索下载，以及通过菜单控制程序运行。
+### 5、配置微信/Slack/Telegram远程控制
+配置好微信、Slack或Telegram机器人后，可以直接通过微信/Slack/Telegram机器人发送名字实现自动检索下载，以及通过菜单控制程序运行。
 
-1) 微信消息推送及回调
+1) **微信消息推送及回调**
 
-* 配置消息推送代理
+  * 配置消息推送代理
 
   由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能接收到消息，使用有固定公网IP的代理服务器转发可解决该问题
 
@@ -153,17 +154,17 @@ https://spk7.imnks.com/
     注意：代理服务器仅适用于在微信中接收工具推送的消息，消息回调与代理服务器无关。
 
 
-* 配置微信消息接收服务
+  * 配置微信消息接收服务
   在企业微信自建应用管理页面-》API接收消息 开启消息接收服务：
  
-  1、在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。
+    1) 在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。
 
-  2、**重启NASTool**。
+    2) **重启NASTool**。
 
-  3、微信页面地址URL填写：http(s)://IP:PORT/wechat，点确定进行认证。
+    3) 微信页面地址URL填写：http(s)://IP:PORT/wechat，点确定进行认证。
 
 
-* 配置微信菜单控制
+  * 配置微信菜单控制
   通过菜单远程控制工具运行，在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单，菜单内容为发送消息，消息内容随意。
 
    **一级菜单及一级菜单下的前几个子菜单顺序需要一模一样**，在符合截图的示例项后可以自己增加别的二级菜单项。
@@ -171,15 +172,19 @@ https://spk7.imnks.com/
    ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
 
 
-2) Telegram Bot机器人
+2) **Telegram Bot机器人**
 
-* 在NASTool设置中设置好本程序的外网访问地址，根据实际网络情况决定是否打开Telegram Webhook开关。
+  * 在NASTool设置中设置好本程序的外网访问地址，根据实际网络情况决定是否打开Telegram Webhook开关。
 
   **注意：WebHook受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443，且需要有以网认证的Https证书。**
 
-* 在Telegram BotFather机器人中按下表维护好bot命令菜单（要选），选择菜单或输入命令运行对应服务，输入其它内容则启动聚合检索。
+  * 在Telegram BotFather机器人中按下表维护好bot命令菜单（要选），选择菜单或输入命令运行对应服务，输入其它内容则启动聚合检索。
 
-3) 命令与功能对应关系
+3) **Slack**
+
+  * 详情参考频道说明
+
+  **命令与功能对应关系**
 
    |  命令   | 功能  |
    |  ----  | ----  |
@@ -193,8 +198,8 @@ https://spk7.imnks.com/
 
 ### 6、配置索引器
 配置索引器，以支持搜索站点资源：
-* 本工具内建索引器目前已支持大部分主流PT站点及部分公开站点，建议启用内建索引器。
-* 同时支持Jackett/Prowlarr，需额外搭建对应服务并获取API Key以及地址等信息，配置到设置->索引器->Jackett/Prowlarr中。
+  * 本工具内建索引器目前已支持大部分主流PT站点及部分公开站点，建议启用内建索引器。
+  * 同时支持Jackett/Prowlarr，需额外搭建对应服务并获取API Key以及地址等信息，配置到设置->索引器->Jackett/Prowlarr中。
 
 ### 7、配置站点
 本工具的电影电视剧订阅、资源搜索、站点数据统计、刷流、自动签到等功能均依赖于正确配置站点信息，需要在“站点管理->站点维护”中维护好站点RSS链接以及Cookie等。
