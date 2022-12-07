@@ -1004,9 +1004,9 @@ class Downloader:
             return [], None
         # 保存种子文件
         file_path, _, _, files, retmsg = Torrent().get_torrent_info(url=url,
-                                                                 cookie=cookie,
-                                                                 ua=ua,
-                                                                 referer=page_url if referer else None)
+                                                                    cookie=cookie,
+                                                                    ua=ua,
+                                                                    referer=page_url if referer else None)
         if not files:
             log.error("【Downloader】读取种子文件集数出错：%s" % retmsg)
             return [], None
