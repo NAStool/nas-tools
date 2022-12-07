@@ -27,14 +27,14 @@ class Client115(IDownloadClient):
         """
         # 载入测试  如返回{} 或 False 都会使not判断成立从而载入原始配置
         # 有可能在测试配置传递参数时填写错误, 所导致的异常可通过该思路回顾
-        self.init_config(Config().get_test_config('client115'))
+        self.get_config(Config().get_test_config('client115'))
         ret = False
         if self.downclient:
             ret = self.downclient.login()
             if not ret:
                 log.info(self.downclient.err)
         # 重置配置
-        self.init_config()
+        self.get_config()
         return ret
 
     def get_torrents(self, ids=None, status=None, tag=None):
