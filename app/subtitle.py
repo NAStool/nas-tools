@@ -250,7 +250,7 @@ class Subtitle:
         """
         转移字幕
         """
-        new_sub_file = "%s%s" % (os.path.splitext(media_file)[0], os.path.splitext(sub_file)[-1])
+        new_sub_file = os.path.join(os.path.splitext(media_file)[0], os.path.basename(sub_file))
         if os.path.exists(new_sub_file):
             return 1
         else:

@@ -150,7 +150,7 @@ class Downloader:
         if not url:
             return None, "Url链接为空"
         # 默认值
-        site_info, cookie, ua, dl_files = {}, None, None, []
+        site_info, cookie, ua, dl_files_folder, dl_files = {}, None, None, "", []
         # 下载设置
         if download_setting:
             download_attr = self.get_download_setting(download_setting)
@@ -189,10 +189,10 @@ class Downloader:
                         return None, "%s 转换磁力链失败" % url
             if torrent_file:
                 # 已经下载过了种子文件，直接读取
-                content, dl_files, retmsg = Torrent().read_torrent_file(torrent_file)
+                content, dl_files_folder, dl_files, retmsg = Torrent().read_torrent_file(torrent_file)
             else:
                 # 下载种子文件，并读取信息
-                torrent_file, content, dl_files, retmsg = Torrent().get_torrent_info(
+                torrent_file, content, dl_files_folder, dl_files, retmsg = Torrent().get_torrent_info(
                     url=url,
                     cookie=cookie,
                     ua=ua,
@@ -296,10 +296,10 @@ class Downloader:
                     if visit_dir:
                         # 取种子文件的公共目录为下载目录
                         if len(dl_files) > 1:
-                            sub_dir = os.path.commonpath([os.path.join(visit_dir,
+                            sub_dir = os.path.commonpath([os.path.join(visit_dir, dl_files_folder,
                                                                        f) for f in dl_files])
                         else:
-                            sub_dir = os.path.dirname(os.path.join(visit_dir, dl_files[0]))
+                            sub_dir = os.path.dirname(os.path.join(visit_dir, dl_files_folder, dl_files[0]))
                         ThreadHelper().start_thread(Subtitle().download_subtitle_from_site,
                                                     (media_info, cookie, ua, sub_dir))
                 return ret, ""
@@ -1003,10 +1003,10 @@ class Downloader:
         if not cookie:
             return [], None
         # 保存种子文件
-        file_path, _, files, retmsg = Torrent().get_torrent_info(url=url,
-                                                                 cookie=cookie,
-                                                                 ua=ua,
-                                                                 referer=page_url if referer else None)
+        file_path, _, _, files, retmsg = Torrent().get_torrent_info(url=url,
+                                                                    cookie=cookie,
+                                                                    ua=ua,
+                                                                    referer=page_url if referer else None)
         if not files:
             log.error("【Downloader】读取种子文件集数出错：%s" % retmsg)
             return [], None
