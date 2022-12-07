@@ -68,7 +68,9 @@
               {% else %}
               <span class="badge bg-red"></span>
               {% endif %}
-              <div class="ms-2"><h3 class="card-title">{{ Task.name }}</h3></div>
+              <div class="ms-2">
+                <h3 class="card-title">{{ Task.name }}</h3>
+              </div>
               <div class="ms-2">
                 <a href="javascript:run_brushtask_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
                    data-bs-toggle="tooltip">
@@ -81,6 +83,8 @@
                   </svg>
                 </a>
               </div>
+              <div class="text-muted ms-3" id="detail_size_{{ Task.id }}"
+                style="display: {% if Count > 2 %}block{% else %}none{% endif %};">↑{{ Task.upload_size }}  ↓{{ Task.download_size }}</div>
               <div class="card-actions btn-actions">
                 <a href="javascript:show_brushtask_detail('{{ Task.id }}')" class="btn-action">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
@@ -658,8 +662,10 @@
   function show_brushtask_detail(taskid) {
     if ($(`#detail_${taskid}`)[0].style["display"] == "none") {
       $(`#detail_${taskid}`).attr("style", "display: block;");
+      $(`#detail_size_${taskid}`).attr("style", "display: none;");
     } else {
       $(`#detail_${taskid}`).attr("style", "display: none;");
+      $(`#detail_size_${taskid}`).attr("style", "display: block;");
     };
   }
 
