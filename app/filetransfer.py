@@ -718,8 +718,10 @@ class FileTransfer:
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
-                # 查询TMDB详情
-                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
+                # 查询TMDB详情，需要全部数据
+                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type,
+                                                             tmdbid=media.tmdb_id,
+                                                             append_to_response="all"))
                 # 下载字幕条目
                 subtitle_item = {"type": media.type,
                                  "file": ret_file_path,

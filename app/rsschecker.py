@@ -262,6 +262,10 @@ class RssChecker(object):
                         title,
                         media_info.get_title_string(),
                         media_info.get_season_episode_string()))
+                    # 补充TMDB完整信息
+                    if not media_info.tmdb_info:
+                        media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
+                                                                          tmdbid=media_info.tmdb_id))
 
                 # 下载
                 if taskinfo.get("uses") == "D":

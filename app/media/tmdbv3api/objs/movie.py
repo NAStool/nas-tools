@@ -44,7 +44,7 @@ class Movie(TMDb):
     def details(
             self,
             movie_id,
-            append_to_response="videos,trailers,images,credits,release_dates,alternative_titles,translations,external_ids",
+            append_to_response="",
     ):
         """
         Get the primary information about a movie.
@@ -52,6 +52,10 @@ class Movie(TMDb):
         :param append_to_response:
         :return:
         """
+        if append_to_response == "all":
+            append_to_response = "images,credits,alternative_titles,translations,external_ids"
+        elif append_to_response is None:
+            append_to_response = "alternative_titles,translations,external_ids"
         return AsObj(
             **self._call(
                 self._urls["details"] % movie_id,

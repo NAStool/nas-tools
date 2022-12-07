@@ -3237,9 +3237,9 @@ class WebAction:
                 if tmp_info.begin_episode:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                 tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
-                medias.append(tmp_info.__dict__)
+                medias.append(tmp_info)
 
-        return {"code": 0, "result": medias}
+        return {"code": 0, "result": [media.__dict__ for media in medias]}
 
     @staticmethod
     def get_movie_rss_list(data=None):
