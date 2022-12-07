@@ -26,7 +26,7 @@ is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
 if is_windows_exe:
     # 托盘相关库
     import threading
-    from windows.trayicon import trayicon
+    from windows.trayicon import TrayIcon, NullWriter
 
     # 初始化环境变量
     os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable),
@@ -189,9 +189,11 @@ if __name__ == '__main__':
             homepage = "http://localhost:%s" % str(Config().get_config('app').get('web_port'))
         log_path = os.environ.get("NASTOOL_LOG")
 
+        sys.stdout = NullWriter()
+        sys.stderr = NullWriter()
 
         def traystart():
-            trayicon(homepage, log_path)
+            TrayIcon(homepage, log_path)
 
 
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable), 'r').read().splitlines()) <= 2:
