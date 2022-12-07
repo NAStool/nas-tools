@@ -1455,6 +1455,7 @@ class WebAction:
         ret = None
         if command:
             try:
+                module_obj = None
                 if isinstance(command, list):
                     for cmd_str in command:
                         ret = eval(cmd_str)
@@ -1472,6 +1473,9 @@ class WebAction:
                         ret = eval(command)
                 # 重载配置
                 Config().init_config()
+                if module_obj:
+                    if hasattr(module_obj, "init_config"):
+                        module_obj.init_config()
             except Exception as e:
                 ret = None
                 print(str(e))
