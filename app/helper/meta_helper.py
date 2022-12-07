@@ -3,10 +3,9 @@ import pickle
 import random
 import time
 from threading import RLock
-from app.utils import JsonUtils
-from config import Config
+
 from app.utils.commons import singleton
-from app.utils.types import MediaType
+from config import Config
 
 lock = RLock()
 
@@ -81,10 +80,15 @@ class MetaHelper(object):
             begin_pos = (page - 1) * num
 
         with lock:
-            search_metas = [(k, JsonUtils.json_serializable(v),
-                             str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
-                            for k, v in
-                            self._meta_data.items() if search.lower() in k.lower() and v.get("id") != 0]
+            search_metas = [(k, {
+                "id": v.get("id"),
+                "title": v.get("title"),
+                "year": v.get("year"),
+                "media_type": v.get("type").value,
+                "poster_path": v.get("poster_path"),
+                "backdrop_path": v.get("backdrop_path")
+            },  str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
+                for k, v in self._meta_data.items() if search.lower() in k.lower() and v.get("id") != 0]
             return len(search_metas), search_metas[begin_pos: begin_pos + num]
 
     def delete_meta_data(self, key):
@@ -161,7 +165,9 @@ class MetaHelper(object):
         meta_data = self.__load_meta_data(self._meta_path)
         new_meta_data = {k: v for k, v in self._meta_data.items() if str(v.get("id")) != '0'}
 
-        if not force and not self._random_sample(new_meta_data) and meta_data.keys() == new_meta_data.keys():
+        if not force \
+                and not self._random_sample(new_meta_data) \
+                and meta_data.keys() == new_meta_data.keys():
             return
 
         with open(self._meta_path, 'wb') as f:
