@@ -223,11 +223,12 @@ class FileTransfer:
                     # 通过对比字幕文件大小  尽量转移所有存在的字幕
                     file_ext = os.path.splitext(file_item)[-1]
                     new_sub_tag_dict = {
-                        ".eng":".英文",
-                        ".chi.zh-cn":".简体中文",
-                        ".zh-tw":".繁体中文"
+                        ".eng": ".英文",
+                        ".chi.zh-cn": ".简体中文",
+                        ".zh-tw": ".繁体中文"
                     }
-                    new_sub_tag_list = [new_file_type if t == 0 else "%s%s(%s)" % (new_file_type, new_sub_tag_dict.get(new_file_type, ""), t) for t in range(6)]
+                    new_sub_tag_list = [new_file_type if t == 0 else "%s%s(%s)" % (
+                        new_file_type, new_sub_tag_dict.get(new_file_type, ""), t) for t in range(6)]
                     for new_sub_tag in new_sub_tag_list:
                         new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
                         # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
@@ -241,7 +242,8 @@ class FileTransfer:
                                     log.info("【Rmt】字幕 %s %s完成" % (os.path.basename(file_item), rmt_mode.value))
                                     break
                                 else:
-                                    log.error("【Rmt】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
+                                    log.error(
+                                        "【Rmt】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
                                     return retcode
                             # 如果字幕文件的大小与已存在文件相同, 说明已经转移过了, 则跳出循环
                             elif os.path.getsize(new_file) == os.path.getsize(file_item):
@@ -716,8 +718,10 @@ class FileTransfer:
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
-                # 查询TMDB详情
-                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
+                # 查询TMDB详情，需要全部数据
+                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type,
+                                                             tmdbid=media.tmdb_id,
+                                                             append_to_response="all"))
                 # 下载字幕条目
                 subtitle_item = {"type": media.type,
                                  "file": ret_file_path,

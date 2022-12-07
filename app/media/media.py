@@ -225,16 +225,10 @@ class Media:
                     if movie.get('release_date'):
                         if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
                                 and movie.get('release_date')[0:4] == str(first_media_year):
-                            if movie.get('production_countries'):
-                                return movie
-                            else:
-                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=movie.get('id'))
+                            return movie
                         if self.__compare_tmdb_names(file_media_name, movie.get('original_title')) \
                                 and movie.get('release_date')[0:4] == str(first_media_year):
-                            if movie.get('production_countries'):
-                                return movie
-                            else:
-                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=movie.get('id'))
+                            return movie
             else:
                 for movie in movies:
                     if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
@@ -251,18 +245,12 @@ class Media:
                         index += 1
                         info, names = self.__search_tmdb_allnames(MediaType.MOVIE, movie.get("id"))
                         if self.__compare_tmdb_names(file_media_name, names):
-                            if info.get('production_countries'):
-                                return info
-                            else:
-                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=info.get('id'))
+                            return info
                     else:
                         index += 1
                         info, names = self.__search_tmdb_allnames(MediaType.MOVIE, movie.get("id"))
                         if self.__compare_tmdb_names(file_media_name, names):
-                            if info.get('production_countries'):
-                                return info
-                            else:
-                                return self.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=info.get('id'))
+                            return info
                     if index > 5:
                         break
         return {}
@@ -477,14 +465,13 @@ class Media:
                 log.console(str(err))
         return {}
 
-    def get_tmdb_info(self, mtype: MediaType = None, title=None, year=None, tmdbid=None, language=None):
+    def get_tmdb_info(self, mtype: MediaType, tmdbid, language=None, append_to_response=None):
         """
-        给定名称和年份或者TMDB号，查询一条媒体信息
+        给定TMDB号，查询一条媒体信息
         :param mtype: 类型：电影、电视剧、动漫，为空时都查（此时用不上年份）
-        :param title: 标题
-        :param year: 年份
         :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
         :param language: 语种
+        :param append_to_response: 附加信息
         """
         if not self.tmdb:
             log.error("【Meta】TMDB API Key 未设置！")
@@ -493,39 +480,36 @@ class Media:
             self.tmdb.language = language
         else:
             self.tmdb.language = 'zh-CN'
-        if not tmdbid or not mtype:
-            if not title:
-                return None
-            if mtype:
-                tmdb_info = self.__search_tmdb(file_media_name=title, first_media_year=year, search_type=mtype)
-            else:
-                tmdb_info = self.__search_multi_tmdb(file_media_name=title)
-        else:
-            if mtype == MediaType.MOVIE:
-                tmdb_info = self.__get_tmdb_movie_detail(tmdbid)
-                if tmdb_info:
-                    tmdb_info['media_type'] = MediaType.MOVIE
-            else:
-                tmdb_info = self.__get_tmdb_tv_detail(tmdbid)
-                if tmdb_info:
-                    tmdb_info['media_type'] = MediaType.TV
+        if mtype == MediaType.MOVIE:
+            tmdb_info = self.__get_tmdb_movie_detail(tmdbid, append_to_response)
             if tmdb_info:
-                tmdb_info['genre_ids'] = self.__get_genre_ids_from_detail(tmdb_info.get('genres'))
+                tmdb_info['media_type'] = MediaType.MOVIE
+        else:
+            tmdb_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response)
+            if tmdb_info:
+                tmdb_info['media_type'] = MediaType.TV
         if tmdb_info:
-            # 查找中文名
-            org_title = tmdb_info.get("title") if tmdb_info.get("media_type") == MediaType.MOVIE else tmdb_info.get(
-                "name")
-            if not StringUtils.is_chinese(org_title) and self.tmdb.language == 'zh-CN':
-                if tmdb_info.get("alternative_titles"):
-                    cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
+            # 转换genreid
+            tmdb_info['genre_ids'] = self.__get_genre_ids_from_detail(tmdb_info.get('genres'))
+            # 转换中文标题
+            tmdb_info = self.__update_tmdbinfo_cn_title(tmdb_info)
+
+        return tmdb_info
+
+    def __update_tmdbinfo_cn_title(self, tmdb_info):
+        """
+        更新TMDB信息中的中文名称
+        """
+        # 查找中文名
+        org_title = tmdb_info.get("title") if tmdb_info.get("media_type") == MediaType.MOVIE else tmdb_info.get(
+            "name")
+        if not StringUtils.is_chinese(org_title) and self.tmdb.language == 'zh-CN':
+            cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
+            if cn_title and cn_title != org_title:
+                if tmdb_info.get("media_type") == MediaType.MOVIE:
+                    tmdb_info['title'] = cn_title
                 else:
-                    cn_title = self.__get_tmdb_chinese_title(tmdbid=tmdb_info.get("id"),
-                                                             mtype=tmdb_info.get("media_type"))
-                if cn_title and cn_title != org_title:
-                    if tmdb_info.get("media_type") == MediaType.MOVIE:
-                        tmdb_info['title'] = cn_title
-                    else:
-                        tmdb_info['name'] = cn_title
+                    tmdb_info['name'] = cn_title
         return tmdb_info
 
     def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, num=6):
@@ -601,7 +585,29 @@ class Media:
                 ret_infos.append(tv)
         return ret_infos
 
-    def get_media_info(self, title, subtitle=None, mtype=None, strict=None, cache=True, chinese=True):
+    @staticmethod
+    def __make_cache_key(meta_info):
+        """
+        生成缓存的key
+        """
+        if not meta_info:
+            return None
+        return f"[{meta_info.type.value}]{meta_info.get_name()}-{meta_info.year}-{meta_info.begin_season}"
+
+    def get_cache_info(self, meta_info):
+        """
+        根据名称查询是否已经有缓存
+        """
+        if not meta_info:
+            return {}
+        return self.meta.get_meta_data_by_key(self.__make_cache_key(meta_info)) or {}
+
+    def get_media_info(self, title,
+                       subtitle=None,
+                       mtype=None,
+                       strict=None,
+                       cache=True,
+                       chinese=True):
         """
         只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别
         :param title: 种子名称
@@ -624,8 +630,7 @@ class Media:
             return None
         if mtype:
             meta_info.type = mtype
-        media_key = "[%s]%s-%s-%s" % (
-            meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+        media_key = self.__make_cache_key(meta_info)
         if not cache or not self.meta.get_meta_data_by_key(media_key):
             # 缓存中没有开始查询
             if meta_info.type != MediaType.TV and not meta_info.year:
@@ -674,23 +679,45 @@ class Media:
                         file_media_info = self.__search_tmdb(file_media_name=cache_name, search_type=MediaType.MOVIE)
                     else:
                         file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
-            if file_media_info:
-                # 加入缓存
-                self.meta.update_meta_data({media_key: file_media_info})
-            else:
-                # 标记为未找到，避免再次查询
-                self.meta.update_meta_data({media_key: {'id': 0}})
-        # 查找中文名
-        cache_title = self.meta.get_cache_title(key=media_key)
-        if cache_title and chinese and not StringUtils.is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
-            cache_media_info = self.meta.get_meta_data_by_key(media_key)
-            cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
-                                                     tmdbid=cache_media_info.get("id"))
-            if cn_title and cn_title != cache_title:
-                self.meta.set_cache_title(key=media_key, cn_title=cn_title)
-        # 赋值返回
-        meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
+            # 保存到缓存
+            self.__insert_media_cache(media_key=media_key,
+                                      file_media_info=file_media_info,
+                                      chinese=chinese)
+        # 赋值TMDB信息并返回
+        cache_info = self.meta.get_meta_data_by_key(media_key)
+        if cache_info and cache_info.get("id"):
+            meta_info.set_tmdb_info(self.get_tmdb_info(mtype=cache_info.get("type"), tmdbid=cache_info.get("id")))
         return meta_info
+
+    def __insert_media_cache(self, media_key, file_media_info, chinese=True):
+        """
+        将TMDB信息插入缓存
+        """
+        if file_media_info:
+            # 尝试转换为中文名称
+            if chinese:
+                file_media_info = self.__update_tmdbinfo_cn_title(file_media_info)
+            # 缓存标题
+            cache_title = file_media_info.get(
+                "title") if file_media_info.get(
+                "media_type") == MediaType.MOVIE else file_media_info.get("name")
+            # 缓存年份
+            cache_year = file_media_info.get('release_date') if file_media_info.get(
+                "media_type") == MediaType.MOVIE else file_media_info.get('first_air_date')
+            if cache_year:
+                cache_year = cache_year[:4]
+            self.meta.update_meta_data({
+                media_key: {
+                    "id": file_media_info.get("id"),
+                    "type": file_media_info.get("media_type"),
+                    "year": cache_year,
+                    "title": cache_title,
+                    "poster_path": file_media_info.get("poster_path"),
+                    "backdrop_path": file_media_info.get("backdrop_path")
+                }
+            })
+        else:
+            self.meta.update_meta_data({media_key: {'id': 0}})
 
     def get_media_info_on_files(self,
                                 file_list,
@@ -748,11 +775,6 @@ class Media:
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                             parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                            parent_parent_info.begin_season)
-                            # 对于文件，不可能有多季
-                            """
-                            parent_info.end_season = NumberUtils.max_ele(parent_info.end_season,
-                                                                         parent_parent_info.end_season)
-                            """
                         if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
                             meta_info.en_name = parent_info.en_name
@@ -764,13 +786,10 @@ class Media:
                         if meta_info.type == MediaType.TV:
                             meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
                                                                          meta_info.begin_season)
-                            # 对于文件，不可能有多季
-                            # meta_info.end_season = NumberUtils.max_ele(parent_info.end_season, meta_info.end_season)
                     if not meta_info.get_name() or not meta_info.type:
                         log.warn("【Rmt】%s 未识别出有效信息！" % meta_info.org_string)
                         continue
-                    media_key = "[%s]%s-%s-%s" % (
-                        meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                    media_key = self.__make_cache_key(meta_info)
                     if not self.meta.get_meta_data_by_key(media_key):
                         # 调用TMDB API
                         file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
@@ -800,23 +819,15 @@ class Media:
                                                                          search_type=MediaType.MOVIE)
                                 else:
                                     file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
-                        if file_media_info:
-                            # 加入缓存
-                            self.meta.update_meta_data({media_key: file_media_info})
-                        else:
-                            # 标记为未找到避免再次查询
-                            self.meta.update_meta_data({media_key: {'id': 0}})
-                    # 查找中文名
-                    cache_title = self.meta.get_cache_title(key=media_key)
-                    if cache_title and chinese and not StringUtils.is_chinese(
-                            cache_title) and self.tmdb.language == 'zh-CN':
-                        cache_media_info = self.meta.get_meta_data_by_key(media_key)
-                        cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
-                                                                 tmdbid=cache_media_info.get("id"))
-                        if cn_title and cn_title != cache_title:
-                            self.meta.set_cache_title(key=media_key, cn_title=cn_title)
-                    # 存入结果清单返回
-                    meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
+                        # 保存到缓存
+                        self.__insert_media_cache(media_key=media_key,
+                                                  file_media_info=file_media_info,
+                                                  chinese=chinese)
+                    # 赋值TMDB信息
+                    cache_info = self.meta.get_meta_data_by_key(media_key)
+                    if cache_info and cache_info.get("id"):
+                        meta_info.set_tmdb_info(
+                            self.get_tmdb_info(mtype=cache_info.get("type"), tmdbid=cache_info.get("id")))
                 # 自带TMDB信息
                 else:
                     meta_info = MetaInfo(title=file_name, mtype=media_type)
@@ -831,6 +842,7 @@ class Media:
                             meta_info.end_episode = end_ep
                     # 加入缓存
                     self.save_rename_cache(file_name, tmdb_info)
+                # 按文件路程存储
                 return_media_infos[file_path] = meta_info
             except Exception as err:
                 log.error("【Rmt】发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -887,7 +899,7 @@ class Media:
             return []
         return self.movie.upcoming(page)
 
-    def __get_tmdb_movie_detail(self, tmdbid):
+    def __get_tmdb_movie_detail(self, tmdbid, append_to_response=None):
         """
         获取电影的详情
         :param tmdbid: TMDB ID
@@ -897,13 +909,13 @@ class Media:
             return {}
         try:
             log.info("【Meta】正在查询TMDB电影：%s ..." % tmdbid)
-            tmdbinfo = self.movie.details(tmdbid)
+            tmdbinfo = self.movie.details(tmdbid, append_to_response)
             return tmdbinfo
         except Exception as e:
             log.console(str(e))
             return {}
 
-    def __get_tmdb_tv_detail(self, tmdbid):
+    def __get_tmdb_tv_detail(self, tmdbid, append_to_response=None):
         """
         获取电视剧的详情
         :param tmdbid: TMDB ID
@@ -913,7 +925,7 @@ class Media:
             return {}
         try:
             log.info("【Meta】正在查询TMDB电视剧：%s ..." % tmdbid)
-            tmdbinfo = self.tv.details(tmdbid)
+            tmdbinfo = self.tv.details(tmdbid, append_to_response)
             return tmdbinfo
         except Exception as e:
             log.console(str(e))
@@ -946,7 +958,7 @@ class Media:
         if not tv_info and not tmdbid:
             return []
         if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid)
+            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
         if not tv_info:
             return []
         seasons = tv_info.get("seasons")
@@ -972,7 +984,7 @@ class Media:
         if not tv_info and not tmdbid:
             return 0
         if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid)
+            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
         if not tv_info:
             return 0
         seasons = tv_info.get("seasons")
@@ -1193,20 +1205,16 @@ class Media:
             return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
         return ""
 
-    def save_rename_cache(self, file_name, tmdb_info):
+    def save_rename_cache(self, file_name, cache_info):
         """
         将手动识别的信息加入缓存
         """
-        if not file_name or not tmdb_info:
+        if not file_name or not cache_info:
             return
-        meta_infos = {}
         meta_info = MetaInfo(title=file_name)
-        if meta_info.get_name():
-            media_key = "[%s]%s-%s-%s" % (
-                tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-            meta_infos[media_key] = tmdb_info
-        if meta_infos:
-            self.meta.update_meta_data(meta_infos)
+        self.meta.update_meta_data({
+            self.__make_cache_key(meta_info): cache_info
+        })
 
     @staticmethod
     def merge_media_info(target, source):

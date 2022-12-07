@@ -6,14 +6,16 @@ from functools import reduce
 from threading import Lock
 
 from app.utils import SystemUtils, RequestUtils
-import undetected_chromedriver.v2 as uc
+import undetected_chromedriver as uc
 
+from app.utils.commons import singleton
 from config import WEBDRIVER_PATH
 
 CHROME_LOCK = Lock()
 lock = Lock()
 
 
+@singleton
 class ChromeHelper(object):
 
     _executable_path = None
@@ -125,9 +127,12 @@ class ChromeHelper(object):
     def get_ua(self):
         return self.browser.execute_script("return navigator.userAgent")
 
-    def __del__(self):
+    def quit(self):
         if self._chrome:
             self._chrome.quit()
+
+    def __del__(self):
+        self.quit()
 
 
 class ChromeWithPrefs(uc.Chrome):

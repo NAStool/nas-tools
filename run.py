@@ -4,7 +4,6 @@ import sys
 import time
 import warnings
 
-from pyvirtualdisplay import Display
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -50,27 +49,16 @@ if is_windows_exe:
     except Exception as err:
         print(str(err))
 
-# 启动虚拟显示
-is_docker = os.path.exists('/.dockerenv')
-if is_docker:
-    try:
-        display = Display(visible=False, size=(1920, 1080))
-        display.start()
-        os.environ['NASTOOL_DISPLAY'] = 'YES'
-    except Exception as err:
-        print(str(err))
-else:
-    display = None
-
 from config import Config
 import log
 from web.main import App
 from app.brushtask import BrushTask
 from app.db import init_db, update_db
-from app.helper import IndexerHelper
+from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
+from app.utils import SystemUtils
 from app.utils.commons import INSTANCES
 from check_config import update_config, check_config
 from version import APP_VERSION
@@ -80,11 +68,12 @@ def sigal_handler(num, stack):
     """
     信号处理
     """
-    if is_docker:
+    if SystemUtils.is_docker():
         log.warn('捕捉到退出信号：%s，开始退出...' % num)
         # 停止虚拟显示
-        if display:
-            display.stop()
+        DisplayHelper().quit()
+        # 停止Chrome
+        ChromeHelper().quit()
         # 退出主进程
         sys.exit()
 
@@ -132,6 +121,8 @@ def init_system():
 
 def start_service():
     log.console("开始启动服务...")
+    # 启动虚拟显示
+    DisplayHelper()
     # 启动定时服务
     run_scheduler()
     # 启动监控服务
@@ -175,7 +166,7 @@ def monitor_config():
     # 配置文件监听
     _observer = Observer(timeout=10)
     _observer.schedule(_ConfigHandler(), path=Config().get_config_path(), recursive=False)
-    _observer.setDaemon(True)
+    _observer.daemon = True
     _observer.start()
 
 

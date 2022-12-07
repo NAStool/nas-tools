@@ -9,7 +9,7 @@ import log
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper
-from app.media import Media
+from app.media import Media, MetaInfo
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
@@ -197,16 +197,27 @@ class RssChecker(object):
                     log.info("【RssChecker】%s 已处理过" % title)
                     continue
                 # 识别种子名称，开始检索TMDB
-                media_info = self.media.get_media_info(title=meta_name,
-                                                       subtitle=description,
-                                                       mtype=mediatype)
-                if not media_info:
-                    log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
-                    continue
+                media_info = MetaInfo(title=meta_name,
+                                      subtitle=description,
+                                      mtype=mediatype)
+                cache_info = self.media.get_cache_info(media_info)
+                if cache_info.get("id"):
+                    # 有缓存，直接使用缓存
+                    media_info.tmdb_id = cache_info.get("id")
+                    media_info.type = cache_info.get("type")
+                    media_info.title = cache_info.get("title")
+                    media_info.year = cache_info.get("year")
+                else:
+                    media_info = self.media.get_media_info(title=meta_name,
+                                                           subtitle=description,
+                                                           mtype=mediatype)
+                    if not media_info:
+                        log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
+                        continue
+                    if not media_info.tmdb_info:
+                        log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
+                        continue
                 # 检查是否已存在
-                if not media_info.tmdb_info:
-                    log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                    continue
                 if media_info.type == MediaType.MOVIE:
                     exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
                                                                                    no_exists=no_exists)
@@ -227,64 +238,59 @@ class RssChecker(object):
                     if no_exists.get(media_info.tmdb_id):
                         log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
                                                              no_exists.get(media_info.tmdb_id)))
+                # 大小及种子页面
+                media_info.set_torrent_info(size=size,
+                                            page_url=page_url,
+                                            site=taskinfo.get("name"),
+                                            enclosure=enclosure)
+                # 检查种子是否匹配过滤条件
+                filter_args = {
+                    "include": taskinfo.get("include"),
+                    "exclude": taskinfo.get("exclude"),
+                    "rule": taskinfo.get("filter")
+                }
+                match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
+                                                                                    filter_args=filter_args)
+                # 未匹配
+                if not match_flag:
+                    log.info(f"【RssChecker】{match_msg}")
+                    continue
+                else:
+                    # 匹配优先级
+                    media_info.set_torrent_info(res_order=res_order)
+                    log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
+                        title,
+                        media_info.get_title_string(),
+                        media_info.get_season_episode_string()))
+                    # 补充TMDB完整信息
+                    if not media_info.tmdb_info:
+                        media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
+                                                                          tmdbid=media_info.tmdb_id))
+
+                # 下载
                 if taskinfo.get("uses") == "D":
                     if not enclosure:
                         log.warn("【RssChecker】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
                         continue
-                    # 大小及种子页面
-                    media_info.set_torrent_info(size=size,
-                                                page_url=page_url,
-                                                site=taskinfo.get("name"),
-                                                enclosure=enclosure,
-                                                download_volume_factor=0.0,
-                                                upload_volume_factor=1.0)
-                    # 检查种子是否匹配过滤条件
-                    filter_args = {
-                        "include": taskinfo.get("include"),
-                        "exclude": taskinfo.get("exclude"),
-                        "rule": taskinfo.get("filter")
-                    }
-                    match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
-                                                                                        filter_args=filter_args)
-                    # 未匹配
-                    if not match_flag:
-                        log.info(f"【RssChecker】{match_msg}")
-                        continue
-                    else:
-                        log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
-                            title,
-                            media_info.get_title_string(),
-                            media_info.get_season_episode_string()))
-                    media_info.set_torrent_info(res_order=res_order)
-                # 插入数据库
-                # FIXME: 这里不能所有的种子都直接插入数据库
-                """
-                如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
-                # self.dbhelper.insert_rss_torrents(media_info) 
-                好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
-                下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
-                还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
-                """
-                # 汇总处理
-                res_num = res_num + 1
-                if taskinfo.get("uses") == "D":
-                    # 下载
                     if media_info not in rss_download_torrents:
                         media_info.set_download_info(download_setting=taskinfo.get("download_setting"),
                                                      save_path=taskinfo.get("save_path"))
                         rss_download_torrents.append(media_info)
+                        res_num = res_num + 1
+                # 订阅
                 elif taskinfo.get("uses") == "R":
-                    # 订阅
                     # 订阅类型的 保持现状直接插入数据库
                     self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
                         rss_subscribe_torrents.append(media_info)
+                        res_num = res_num + 1
+                # 搜索
                 elif taskinfo.get("uses") == "S":
-                    # 搜索
                     # 搜索类型的 保持现状直接插入数据库
                     self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_search_torrents:
                         rss_search_torrents.append(media_info)
+                        res_num = res_num + 1
             except Exception as e:
                 log.error("【RssChecker】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                 continue
@@ -500,9 +506,18 @@ class RssChecker(object):
         if not taskinfo:
             return
         # 识别种子名称，开始检索TMDB
-        media_info = self.media.get_media_info(title=title)
-        if not media_info:
-            log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
+        media_info = MetaInfo(title=title)
+        cache_info = self.media.get_cache_info(media_info)
+        if cache_info.get("id"):
+            # 有缓存，直接使用缓存
+            media_info.tmdb_id = cache_info.get("id")
+            media_info.type = cache_info.get("type")
+            media_info.title = cache_info.get("title")
+            media_info.year = cache_info.get("year")
+        else:
+            media_info = self.media.get_media_info(title=title)
+            if not media_info:
+                log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
         # 检查是否匹配
         filter_args = {
             "include": taskinfo.get("include"),

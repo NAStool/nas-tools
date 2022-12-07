@@ -19,8 +19,9 @@ from app.doubansync import DoubanSync
 from app.downloader import Qbittorrent, Transmission, Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper
+from app.helper import DbHelper, DictHelper, ChromeHelper
 from app.helper import ProgressHelper, ThreadHelper, MetaHelper
+from app.helper.display_helper import DisplayHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
 from app.media import Category, Media, MetaInfo
@@ -234,14 +235,16 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
+        # 关闭浏览器
+        ChromeHelper().quit()
+        # 关闭虚拟显示
+        DisplayHelper().quit()
         # 重启进程
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         elif SystemUtils.is_synology():
             os.system("ps -ef | grep -v grep | grep 'python run.py'|awk '{print $2}'|xargs kill -9")
         else:
-            if SystemUtils.is_docker():
-                os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
             os.system("pm2 restart NAStool")
 
     @staticmethod
@@ -3234,9 +3237,9 @@ class WebAction:
                 if tmp_info.begin_episode:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                 tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
-                medias.append(tmp_info.__dict__)
+                medias.append(tmp_info)
 
-        return {"code": 0, "result": medias}
+        return {"code": 0, "result": [media.__dict__ for media in medias]}
 
     @staticmethod
     def get_movie_rss_list(data=None):
