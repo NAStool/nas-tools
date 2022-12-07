@@ -166,7 +166,7 @@ def monitor_config():
     # 配置文件监听
     _observer = Observer(timeout=10)
     _observer.schedule(_ConfigHandler(), path=Config().get_config_path(), recursive=False)
-    _observer.setDaemon(True)
+    _observer.daemon = True
     _observer.start()
 
 

@@ -19,7 +19,7 @@ jobs:
     - name: install dependent packages
       run: |
         python -m pip install --upgrade pip
-        pip install wheel numpy railroad pyparsing wxpython pyinstaller
+        pip install wheel numpy==1.23.5 pyparsing==3.0.9 wxpython==4.2.0 pyinstaller==5.6.2
         git clone --depth=1 -b master https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
