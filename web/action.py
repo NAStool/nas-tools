@@ -1464,7 +1464,10 @@ class WebAction:
                     if command.find("|") != -1:
                         module = command.split("|")[0]
                         class_name = command.split("|")[1]
-                        ret = getattr(importlib.import_module(module), class_name)().get_status()
+                        module_obj = getattr(importlib.import_module(module), class_name)()
+                        if hasattr(module_obj, "init_config"):
+                            module_obj.init_config()
+                        ret = module_obj.get_status()
                     else:
                         ret = eval(command)
                 # 重载配置
@@ -3236,10 +3239,9 @@ class WebAction:
                     tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
                 if tmp_info.begin_episode:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
-                tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
                 medias.append(tmp_info)
 
-        return {"code": 0, "result": [media.__dict__ for media in medias]}
+        return {"code": 0, "result": [media.to_dict() for media in medias]}
 
     @staticmethod
     def get_movie_rss_list(data=None):

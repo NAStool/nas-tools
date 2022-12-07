@@ -211,13 +211,14 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test || false};
+    const params = {"test": test || false};
     $("#modal-" + type + " input").each(function () {
-      var key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
+      let value;
+      const key = $(this).attr("id");
+      if ($(this).attr("type") === "checkbox") {
+        value = !!$(this).prop("checked");
       } else {
-        var value = $(this).val();
+        value = $(this).val();
       }
       params[key] = value;
     });
@@ -237,15 +238,16 @@
   function test_mediaserver_config(type) {
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
-      if (currType == "emby") {
+      let command;
+      if (currType === "emby") {
         command = "app.mediaserver.server.emby|Emby";
-      } else if (currType == "jellyfin") {
+      } else if (currType === "jellyfin") {
         command = "app.mediaserver.server.jellyfin|Jellyfin";
-      } else if (currType == "plex") {
+      } else if (currType === "plex") {
         command = "app.mediaserver.server.plex|Plex";
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           $("#" + currType + "_test_btn").text("测试成功");
         } else {
           $("#" + currType + "_test_btn").text("测试失败！");

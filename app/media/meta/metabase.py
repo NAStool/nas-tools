@@ -656,3 +656,18 @@ class MetaBase(object):
                     self.end_season = self.total_seasons
                     self.type = MediaType.TV
                     self._subtitle_flag = True
+
+    def to_dict(self):
+        """
+        转化为字典
+        """
+        return {
+            "title": self.title,
+            "year": self.year,
+            "type": self.type.value if self.type else "",
+            "imdb_id": self.imdb_id,
+            "tmdb_id": self.tmdb_id,
+            "overview": self.overview,
+            "poster_path": self.poster_path,
+            "backdrop_path": self.backdrop_path,
+        }
