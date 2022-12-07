@@ -568,18 +568,18 @@ class BrushTask(object):
                 return False
             torrent_tag = "NT" + StringUtils.generate_random_str(5)
             if tag:
-                tag = [tag, torrent_tag]
+                tags = [tag, torrent_tag]
             else:
-                tag = torrent_tag
+                tags = torrent_tag
             ret = downloader.add_torrent(content=enclosure,
-                                         tag=tag,
+                                         tag=tags,
                                          download_dir=downloadercfg.get("save_dir"),
                                          upload_limit=upspeed,
                                          download_limit=downspeed,
                                          cookie=site_info.get("cookie"))
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
-                download_id = downloader.get_torrent_id_by_tag(tag)
+                download_id = downloader.get_torrent_id_by_tag(torrent_tag)
                 if download_id:
                     # 开始下载
                     downloader.start_torrents(download_id)
