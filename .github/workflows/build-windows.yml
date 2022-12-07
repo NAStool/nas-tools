@@ -23,7 +23,7 @@ jobs:
         git clone --depth=1 -b master https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
-        pip install -r greenlet==1.1.3.post0
+        pip install greenlet==1.1.3.post0
         echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
         echo $env:NASTOOL_CONFIG
       shell: pwsh
