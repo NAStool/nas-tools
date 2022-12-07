@@ -129,7 +129,7 @@ https://spk7.imnks.com/
 ### 5、配置微信/Slack/Telegram远程控制
 配置好微信、Slack或Telegram机器人后，可以直接通过微信/Slack/Telegram机器人发送名字实现自动检索下载，以及通过菜单控制程序运行。
 
-1) 微信消息推送及回调
+1) **微信消息推送及回调**
 
   * 配置消息推送代理
 
@@ -157,11 +157,11 @@ https://spk7.imnks.com/
   * 配置微信消息接收服务
   在企业微信自建应用管理页面-》API接收消息 开启消息接收服务：
  
-    a) 在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。
+    1) 在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。
 
-    b) **重启NASTool**。
+    2) **重启NASTool**。
 
-    c) 微信页面地址URL填写：http(s)://IP:PORT/wechat，点确定进行认证。
+    3) 微信页面地址URL填写：http(s)://IP:PORT/wechat，点确定进行认证。
 
 
   * 配置微信菜单控制
@@ -172,7 +172,7 @@ https://spk7.imnks.com/
    ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
 
 
-2) Telegram Bot机器人
+2) **Telegram Bot机器人**
 
   * 在NASTool设置中设置好本程序的外网访问地址，根据实际网络情况决定是否打开Telegram Webhook开关。
 
@@ -180,7 +180,7 @@ https://spk7.imnks.com/
 
   * 在Telegram BotFather机器人中按下表维护好bot命令菜单（要选），选择菜单或输入命令运行对应服务，输入其它内容则启动聚合检索。
 
-3) Slack
+3) **Slack**
 
   * 详情参考频道说明
 
