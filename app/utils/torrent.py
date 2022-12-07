@@ -24,7 +24,7 @@ class Torrent:
         :param cookie: 站点Cookie
         :param ua: 站点UserAgent
         :param referer: 关联地址，有的网站需要这个否则无法下载
-        :return: 种子保存路径、种子内容、种子文件列表、错误信息
+        :return: 种子保存路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
         """
         if not url:
             return None, None, [], "URL为空"
@@ -47,9 +47,9 @@ class Torrent:
                 with open(file_path, 'wb') as f:
                     f.write(req.content)
                 # 解析种子文件
-                files, retmsg = self.__get_torrent_files(file_path)
-                # 种子文件路径、种子内容、种子文件列表、错误信息
-                return file_path, req.content, files, retmsg
+                files_folder, files, retmsg = self.__get_torrent_files(file_path)
+                # 种子文件路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
+                return file_path, req.content, files_folder, files, retmsg
             elif req is None:
                 return None, None, [], "无法打开链接：%s" % url
             else:
@@ -81,29 +81,31 @@ class Torrent:
     def __get_torrent_files(path):
         """
         解析Torrent文件，获取文件清单
+        :return: 种子文件列表主目录、种子文件列表、错误信息
         """
         if not path or not os.path.exists(path):
             return [], f"种子文件不存在：{path}"
         file_names = []
+        file_folder = ""
         try:
             torrent = TorrentParser().readFile(path=path)
             if torrent.get("torrent"):
-                name = torrent.get("torrent").get("info", {}).get("name")
+                file_folder = torrent.get("torrent").get("info", {}).get("name") or ""
                 files = torrent.get("torrent").get("info", {}).get("files") or []
-                if not files and name:
-                    file_names.append(name)
+                if not files and file_folder:
+                    file_names.append(file_folder)
                 else:
                     for item in files:
                         if item.get("path"):
                             file_names.append(item["path"][0])
         except Exception as err:
-            return file_names, "解析种子文件异常：%s" % str(err)
-        return file_names, ""
+            return file_folder, file_names, "解析种子文件异常：%s" % str(err)
+        return file_folder, file_names, ""
 
     def read_torrent_file(self, path):
         """
         读取本地种子文件的内容
-        :return: 种子内容、种子文件列表、错误信息
+        :return: 种子内容、种子文件列表主目录、种子文件列表、错误信息
         """
         if not path or not os.path.exists(path):
             return None, "种子文件不存在：%s" % path
@@ -113,10 +115,10 @@ class Torrent:
             with open(path, 'rb') as f:
                 content = f.read()
             # 解析种子文件
-            files, retmsg = self.__get_torrent_files(path)
+            file_folder, files, retmsg = self.__get_torrent_files(path)
         except Exception as e:
             retmsg = "读取种子文件出错：%s" % str(e)
-        return content, files, retmsg
+        return content, file_folder, files, retmsg
 
     @staticmethod
     def __get_url_torrent_name(disposition, url):
