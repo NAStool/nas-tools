@@ -152,6 +152,7 @@ class TorrentRemover(object):
                 # 获取需删除种子列表
                 downloader_type = self.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type")
                 task.get("config")["samedata"] = task.get("samedata")
+                task.get("config")["onlynastool"] = task.get("onlynastool")
                 torrents = self.downloader.get_remove_torrents(
                     downloader=downloader_type,
                     config=task.get("config")
@@ -336,6 +337,7 @@ class TorrentRemover(object):
             return False, []
         else:
             task.get("config")["samedata"] = task.get("samedata")
+            task.get("config")["onlynastool"] = task.get("onlynastool")
             torrents = self.downloader.get_remove_torrents(
                 downloader=self.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type"),
                 config=task.get("config")

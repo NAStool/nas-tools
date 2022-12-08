@@ -241,7 +241,7 @@ class Transmission(IDownloadClient):
         torrents, error_flag = self.get_torrents()
         if error_flag:
             return []
-        tags = config.get("tags")
+        tags = config.get("filter_tags")
         ratio = config.get("ratio")
         # 做种时间 单位：小时
         seeding_time = config.get("seeding_time")
