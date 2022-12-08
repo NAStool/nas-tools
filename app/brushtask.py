@@ -309,7 +309,9 @@ class BrushTask(object):
                         # 已开始时间 秒
                         dltime = int(time.time() - torrent.get("added_on"))
                         # 已做种时间 秒
-                        seeding_time = torrent.get('seeding_time') or 0
+                        date_done = torrent.completion_on if torrent.completion_on > 0 else torrent.added_on
+                        date_now = int(time.mktime(datetime.now().timetuple()))
+                        seeding_time = date_now - date_done if date_done else 0
                         # 分享率
                         ratio = torrent.get("ratio") or 0
                         # 上传量
