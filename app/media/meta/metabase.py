@@ -390,9 +390,9 @@ class MetaBase(object):
     def get_detail_url(self):
         if self.tmdb_id:
             if self.type == MediaType.MOVIE:
-                return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
+                return "https://www.themoviedb.org/movie/%s" % str(self.tmdb_id).replace("DB:", "")
             else:
-                return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
+                return "https://www.themoviedb.org/tv/%s" % str(self.tmdb_id).replace("DB:", "")
         elif self.douban_id:
             return "https://movie.douban.com/subject/%s" % str(self.douban_id).replace("DB:", "")
         return ""
