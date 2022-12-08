@@ -184,7 +184,7 @@ class Qbittorrent(IDownloadClient):
         qb_state = config.get("qb_state")
         qb_category = config.get("qb_category")
         for torrent in torrents:
-            date_done = torrent.completion_on or torrent.added_on
+            date_done = torrent.completion_on if torrent.completion_on > 0 else torrent.added_on
             date_now = int(time.mktime(datetime.now().timetuple()))
             torrent_seeding_time = date_now - date_done if date_done else 0
             torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
