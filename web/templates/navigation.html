@@ -2560,27 +2560,41 @@
     ajax_post("logging", {}, function (ret) {
       if (ret.loglist) {
         let log_list = ret.loglist;
-        let style = "padding-top: 0.5rem; padding-bottom: 0.5rem";
+        let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
         let tbody = "";
         for (let i = 0; i < log_list.length; i++) {
           const log =  log_list[i];
-          const text = log.text;
+          let text = log.text;
           const source = log.source;
           const time = log.time;
           const level = log.level;
-          let color = '';
+          let tcolor = '';
+          let bgcolor = '';
+          let tstyle = '';
           if (level === "WARN") {
-            color = "warning";
+            tcolor = "text-warning";
+            bgcolor = "bg-warning";
           } else if (level === "ERROR") {
-            color = "danger";
+            tcolor = "text-danger";
+            bgcolor = "bg-danger";
           } else if (source === "System") {
-            color = "info";
+            tcolor = "text-info";
+            bgcolor = "bg-info";
+          } else {
+            tcolor = "text";
+          }
+          if (["Rmt", "Subtitle"].includes(source) && text.includes(" 到 ")) {
+            text = text.replace(/\s到\s/, "\n->")
+            tstyle = "white-space: pre"
+          }
+          if (text.includes("http")) {
+            text = text.replace(/http.+?(\s|$)/, "<a href='$&' target='_blank'>$&</a>")
           }
           tbody = `${tbody}
                     <tr>
-                    <td style="${style}"><span class="text-${color}">${time}</span></td>
-                    <td style="${style}"><span class="badge bg-${color}">${source}</span></td>
-                    <td style="${style}"><span class="text-${color}">${text}</span></td>
+                    <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
+                    <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
+                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
         $("#logging_content").append(tbody);
