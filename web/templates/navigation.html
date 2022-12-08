@@ -2609,7 +2609,7 @@
 
   function check_new_version() {
     ajax_post("version", {}, function (ret) {
-      if (ret.code === -1) {
+      if (ret.code === 0) {
         if (ret.version != AppVersion) {
           $("#new_version_info").html(ret.info);
           $("#new_version_tip").show();
@@ -2623,10 +2623,10 @@
   function check_system_online() {
     ajax_post("refresh_process", {type: "restart"}, function (ret) {
         if (ret.code === -1) {
-          setTimeout("check_system_online()", 1000);
-        } else {
           hide_wait_process();
           logout();
+        } else {
+          setTimeout("check_system_online()", 1000);
         }
       });
   }
