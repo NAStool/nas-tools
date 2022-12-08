@@ -292,6 +292,9 @@ class Subtitle:
                 # 下载
                 ret = request.get_res(sublink)
                 if ret and ret.status_code == 200:
+                    # 如果目录不存在,则先创建
+                    if not os.path.isdir(download_dir):
+                        os.makedirs(download_dir)
                     # 保存ZIP
                     file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), sublink)
                     if not file_name:
@@ -308,8 +311,9 @@ class Subtitle:
                         shutil.unpack_archive(zip_file, zip_path, format='zip')
                         # 遍历转移文件
                         for sub_file in PathUtils.get_dir_files(in_path=zip_path, exts=RMT_SUBEXT):
-                            log.info(f"【Subtitle】转移字幕 {sub_file} 到 {download_dir}")
-                            self.__transfer_subtitle(sub_file, download_dir)
+                            media_file = os.path.join(download_dir, os.path.basename(sub_file))
+                            log.info(f"【Subtitle】转移字幕 {sub_file} 到 {media_file}")
+                            self.__transfer_subtitle(sub_file, media_file)
                         # 删除临时文件
                         try:
                             shutil.rmtree(zip_path)
@@ -321,8 +325,9 @@ class Subtitle:
                         # 保存
                         with open(sub_file, 'wb') as f:
                             f.write(ret.content)
-                        log.info(f"【Subtitle】转移字幕 {sub_file} 到 {download_dir}")
-                        self.__transfer_subtitle(sub_file, download_dir)
+                        media_file = os.path.join(download_dir, os.path.basename(sub_file))
+                        log.info(f"【Subtitle】转移字幕 {sub_file} 到 {media_file}")
+                        self.__transfer_subtitle(sub_file, media_file)
                 else:
                     log.error(f"【Subtitle】下载字幕文件失败：{sublink}")
                     return
