@@ -58,6 +58,7 @@ from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
+from app.torrentremover import TorrentRemover
 from app.utils import SystemUtils
 from app.utils.commons import INSTANCES
 from check_config import update_config, check_config
@@ -131,6 +132,8 @@ def start_service():
     BrushTask()
     # 启动自定义订阅服务
     RssChecker()
+    # 启动自动删种服务
+    TorrentRemover()
     # 加载索引器配置
     IndexerHelper()
 
