@@ -17,7 +17,7 @@ function ajax_post(cmd, params, handler, aync=true) {
             if (xhr && xhr.status === 200) {
                 handler({code: 0});
             } else {
-                handler({code: -1, msg: "网络错误"});
+                handler({code: -99, msg: "网络错误"});
             }
         }
     });
