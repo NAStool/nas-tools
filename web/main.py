@@ -8,6 +8,7 @@ import time
 import traceback
 import urllib
 import xml.dom.minidom
+from functools import wraps
 from math import floor
 from pathlib import Path
 from threading import Lock
@@ -86,6 +87,18 @@ def page_not_found(error):
 @App.errorhandler(500)
 def page_server_error(error):
     return render_template("500.html", error=error), 500
+
+
+def action_login_check(func):
+    """
+    Action安全认证
+    """
+    @wraps(func)
+    def login_check(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return {"code": -1, "msg": "用户未登录"}
+        return func(*args, **kwargs)
+    return login_check
 
 
 # 主页面
@@ -1079,7 +1092,7 @@ def rss_parser():
 
 # 事件响应
 @App.route('/do', methods=['POST'])
-@login_required
+@action_login_check
 def do():
     try:
         cmd = request.form.get("cmd")
