@@ -70,15 +70,6 @@ class Slack(IMessageChannel):
             self._service.close()
             log.info("Slack消息接收服务已停止")
 
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.send_msg("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【Slack】发送消息失败：%s" % msg)
-        return flag
-
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送Telegram消息

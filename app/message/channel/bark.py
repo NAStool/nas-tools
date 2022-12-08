@@ -19,15 +19,6 @@ class Bark(IMessageChannel):
             self._server = StringUtils.get_base_url(self._client_config.get('server'))
             self._apikey = self._client_config.get('apikey')
 
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.send_msg("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【Bark】发送消息失败：%s" % msg)
-        return flag
-
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送Bark消息

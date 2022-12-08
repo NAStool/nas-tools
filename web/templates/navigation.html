@@ -2584,7 +2584,7 @@
             tcolor = "text";
           }
           if (["Rmt", "Subtitle"].includes(source) && text.includes(" 到 ")) {
-            text = text.replace(/\s到\s/, "\n->")
+            text = text.replace(/\s到\s/, "\n=> ")
             tstyle = "white-space: pre"
           }
           if (text.includes("http")) {
