@@ -15,7 +15,6 @@ CHROME_LOCK = Lock()
 lock = Lock()
 
 
-@singleton
 class ChromeHelper(object):
 
     _executable_path = None
