@@ -64,7 +64,7 @@ function ajax_backup(handler) {
             }
         }
         if (handler) {
-            eval(handler)();
+            handler();
         }
     };
     xhr.send();
