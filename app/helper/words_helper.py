@@ -117,7 +117,7 @@ class WordsHelper:
                 return title, msg
             if front and not re.findall(r'%s' % front, title):
                 return title, msg
-            offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front, back))
+            offset_word_info_re = re.compile(r'(?<=%s.*?)[0-9]+(?=.*?%s)' % (front, back))
             episode_nums_str = re.findall(offset_word_info_re, title)
             if not episode_nums_str:
                 return title, msg
@@ -145,7 +145,7 @@ class WordsHelper:
                 episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
             for episode_num in episode_nums_list:
                 episode_offset_re = re.compile(
-                    r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
+                    r'(?<=%s.*?)%s(?=.*?%s)' % (front, episode_num[0], back))
                 title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
             return title, msg
         except Exception as err:

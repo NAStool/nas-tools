@@ -17,15 +17,6 @@ class IyuuMsg(IMessageChannel):
         if self._client_config:
             self._token = self._client_config.get('token')
 
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.send_msg("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【IYUU】发送消息失败：%s" % msg)
-        return flag
-
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送爱语飞飞消息

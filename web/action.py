@@ -844,14 +844,11 @@ class WebAction:
         """
         查询实时日志
         """
-        if log.LOG_INDEX:
-            if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
-                text = "<br/>".join(list(log.LOG_QUEUE))
-            else:
-                text = "<br/>".join(list(log.LOG_QUEUE)[-log.LOG_INDEX:])
-            log.LOG_INDEX = 0
-            return {"text": text + "<br/>"}
-        return {"text": ""}
+        log_list = list(log.LOG_QUEUE)
+        if log_list:
+            log_list.reverse()
+            return {"loglist": log_list}
+        return {"loglist": []}
 
     @staticmethod
     def __version(data):
