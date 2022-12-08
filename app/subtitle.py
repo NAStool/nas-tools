@@ -127,7 +127,7 @@ class Subtitle:
                 # 下载链接
                 Download_Link = subtitle.get('link')
                 # 下载后的字幕文件路径
-                Media_File = "%s.zh-cn%s" % (item.get("file"), item.get("file_ext"))
+                Media_File = "%s.chi.zh-cn%s" % (item.get("file"), item.get("file_ext"))
                 log.info("【Subtitle】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
                 ret = RequestUtils(cookies=self.subhelper.get_cookie(),
@@ -250,7 +250,7 @@ class Subtitle:
         """
         转移字幕
         """
-        new_sub_file = os.path.join(os.path.splitext(media_file)[0], os.path.basename(sub_file))
+        new_sub_file = "%s%s" % (os.path.splitext(media_file)[0], os.path.splitext(sub_file)[-1])
         if os.path.exists(new_sub_file):
             return 1
         else:
