@@ -1238,9 +1238,7 @@ class Media:
         if not file_name or not cache_info:
             return
         meta_info = MetaInfo(title=file_name)
-        self.meta.update_meta_data({
-            self.__make_cache_key(meta_info): cache_info
-        })
+        self.__insert_media_cache(self.__make_cache_key(meta_info), cache_info)
 
     @staticmethod
     def merge_media_info(target, source):

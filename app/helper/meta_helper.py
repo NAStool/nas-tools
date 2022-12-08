@@ -2,6 +2,7 @@ import os
 import pickle
 import random
 import time
+from enum import Enum
 from threading import RLock
 
 from app.utils.commons import singleton
@@ -84,7 +85,7 @@ class MetaHelper(object):
                 "id": v.get("id"),
                 "title": v.get("title"),
                 "year": v.get("year"),
-                "media_type": v.get("type").value,
+                "media_type": v.get("type").value if isinstance(v.get("type"), Enum) else v.get("type"),
                 "poster_path": v.get("poster_path"),
                 "backdrop_path": v.get("backdrop_path")
             },  str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
