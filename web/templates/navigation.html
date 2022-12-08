@@ -885,6 +885,7 @@
         <thead>
           <tr>
             <th class="w-3">时间</th>
+            <th class="w-3">来源</th>
             <th>内容</th>
           </tr>
         </thead>
@@ -2559,26 +2560,27 @@
     ajax_post("logging", {}, function (ret) {
       if (ret.loglist) {
         let log_list = ret.loglist;
+        let style = "padding-top: 0.5rem; padding-bottom: 0.5rem";
         let tbody = "";
         for (let i = 0; i < log_list.length; i++) {
           const log =  log_list[i];
           const text = log.text;
+          const source = log.source;
           const time = log.time;
           const level = log.level;
           let color = '';
           if (level === "WARN") {
-            color = "text-warning";
+            color = "warning";
           } else if (level === "ERROR") {
-            color = "text-danger";
-          } else if (text.search(/【/g) === -1) {
-            color = "text-info";
-          } else {
-            color = "text";
+            color = "danger";
+          } else if (source === "System") {
+            color = "info";
           }
           tbody = `${tbody}
                     <tr>
-                    <td><span class="${color}">${time}</span></td>
-                    <td><span class="${color}">${text}</span></td>
+                    <td style="${style}"><span class="text-${color}">${time}</span></td>
+                    <td style="${style}"><span class="badge bg-${color}">${source}</span></td>
+                    <td style="${style}"><span class="text-${color}">${text}</span></td>
                     </tr>`;
         }
         $("#logging_content").append(tbody);
