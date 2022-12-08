@@ -12,7 +12,6 @@ from config import Config
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)
-LOG_INDEX = 0
 
 
 class Logger:
@@ -73,7 +72,7 @@ class Logger:
 
 
 def __append_log_queue(level, text):
-    global LOG_INDEX, LOG_QUEUE
+    global LOG_QUEUE
     with lock:
         text = escape(text)
         if text.startswith("【"):
@@ -86,7 +85,6 @@ def __append_log_queue(level, text):
             "level": level,
             "source": source,
             "text": text})
-        LOG_INDEX += 1
 
 
 def debug(text, module=None):

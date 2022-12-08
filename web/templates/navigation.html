@@ -2597,7 +2597,7 @@
                     <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
-        $("#logging_content").append(tbody);
+        $("#logging_content").empty().append(tbody);
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
