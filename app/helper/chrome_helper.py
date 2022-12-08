@@ -8,7 +8,6 @@ from threading import Lock
 from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
 
-from app.utils.commons import singleton
 from config import WEBDRIVER_PATH
 
 CHROME_LOCK = Lock()
