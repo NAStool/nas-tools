@@ -536,8 +536,12 @@ class Message:
         """
         if not config or not ctype:
             return False
-        state, ret_msg = self.__build_client(ctype, config).send_msg(title="测试", text="这是一条测试消息")
+        # 测试状态不启动监听服务
+        state, ret_msg = self.__build_client(ctype=ctype,
+                                             conf=config,
+                                             interactive=False).send_msg(title="测试",
+                                                                         text="这是一条测试消息")
         if not state:
-            ctype_name = self.MESSAGE_DICT.get('channel').get(ctype).get("name")
+            ctype_name = self.MESSAGE_DICT.get('channel', {}).get(ctype, {}).get("name")
             log.error(f"【Message】【{ctype_name}】消息服务发送测试消息失败：%s" % ret_msg)
         return state

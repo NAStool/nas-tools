@@ -109,7 +109,8 @@ SITE_CHECKIN_XPATH = [
     '//span[@id="sign_in"]/a',
     '//a[contains(@href, "addbonus")]',
     '//input[@class="dt_button"][contains(@value, "打卡")]',
-    '//a[contains(@href, "sign_in")]'
+    '//a[contains(@href, "sign_in")]',
+    '//a[@id="do-attendance"]'
 ]
 
 # 站点详情页字幕下载链接识别XPATH
