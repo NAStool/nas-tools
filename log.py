@@ -74,7 +74,10 @@ class Logger:
 def __append_log_queue(level, text):
     global LOG_INDEX, LOG_QUEUE
     with lock:
-        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} {level} - {escape(text)}")
+        LOG_QUEUE.append({
+            "time": time.strftime('%H:%M:%S', time.localtime(time.time())),
+            "level": level,
+            "text": escape(text)})
         LOG_INDEX += 1
 
 

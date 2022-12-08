@@ -873,15 +873,24 @@
 <!-- 实时日志 -->
 <div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">实时日志</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                 id="logging_close_head"></button>
       </div>
-      <div class="modal-body" id="logging_content"
-           style="display:flex; flex-direction:column-reverse;font-size:12px;">
+      <div class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
+      <table class="table table-vcenter card-table table-hover table-striped">
+        <thead>
+          <tr>
+            <th class="w-3">时间</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody id="logging_content" class="table-tbody">
+        </tbody>
+      </table>
       </div>
       <div class="modal-footer">
         <a href="javascript:pause_logging()" class="btn btn-link me-auto" id="logging_stop_btn">
@@ -2548,10 +2557,31 @@
   //刷新日志
   function refresh_logging(flag) {
     ajax_post("logging", {}, function (ret) {
-      if (ret.text) {
-        $("#logging_content").append(ret.text);
-        const height = $('#logging_content').prop("scrollHeight");
-        $('#logging_content').scrollTop(height);
+      if (ret.loglist) {
+        let log_list = ret.loglist;
+        let tbody = "";
+        for (let i = 0; i < log_list.length; i++) {
+          const log =  log_list[i];
+          const text = log.text;
+          const time = log.time;
+          const level = log.level;
+          let color = '';
+          if (level === "WARN") {
+            color = "text-warning";
+          } else if (level === "ERROR") {
+            color = "text-danger";
+          } else if (text.search(/【/g) === -1) {
+            color = "text-info";
+          } else {
+            color = "text";
+          }
+          tbody = `${tbody}
+                    <tr>
+                    <td><span class="${color}">${time}</span></td>
+                    <td><span class="${color}">${text}</span></td>
+                    </tr>`;
+        }
+        $("#logging_content").append(tbody);
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
