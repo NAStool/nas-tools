@@ -538,7 +538,7 @@
                       </div>
                       {% if SystemFlag > 0 and "系统设置" in UserPris %}
                         <div class="col-auto">
-                          <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
+                          <a href="javascript:update(NewVersion)" class="list-group-item-actions" title="升级版本">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24"
                                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -2588,35 +2588,6 @@
     start_logging();
   }
 
-  //注销
-  function logout() {
-    ajax_post("logout", {}, function (ret) {
-      window.location.href = "/";
-    });
-  }
-
-  //重启
-  function restart() {
-    show_confirm_modal("立即重启系统？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("重启中...");
-      ajax_post("restart", {}, function (ret) {
-      });
-      setTimeout("window.location.reload()", 10000);
-    });
-  }
-
-  //更新
-  function update() {
-    show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("更新中...");
-      ajax_post("update_system", {}, function (ret) {
-      });
-      setTimeout("window.location.reload()", 15000);
-    });
-  }
-
   //刷新消息中心
   function refresh_message(time_str) {
     ajax_post("refresh_message", {"lst_time": time_str}, function (ret) {
@@ -2648,14 +2619,50 @@
     });
   }
 
-  //升级新版本
-  function update_to_newversion() {
-    show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("升级中...");
+  //检查系统是否在线
+  function check_system_online() {
+    ajax_post("refresh_process", {type: "restart"}, function (ret) {
+        if (ret.code === -1) {
+          setTimeout("check_system_online()", 1000);
+        } else {
+          hide_wait_process();
+          window.location.href = "/";
+        }
+      });
+  }
+
+  //注销
+  function logout() {
+    ajax_post("logout", {}, function (ret) {
+      window.location.href = "/";
+    });
+  }
+
+  //重启
+  function restart() {
+    show_confirm_modal("立即重启系统？", function () {
+      hide_confirm_modal();
+      ajax_post("restart", {}, function (ret) {
+      });
+      show_wait_process();
+      setTimeout("check_system_online()", 5000);
+    });
+  }
+
+  //更新
+  function update(version) {
+    let title;
+    if (version) {
+      title = "是否确认更新到 " + version + " 版本？";
+    } else {
+      title = "将从Github拉取最新程序代码并重启，是否确认？";
+    }
+    show_confirm_modal(title, function () {
+      hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      setTimeout("window.location.reload()", 15000);
+      show_wait_process();
+      setTimeout("check_system_online()", 5000);
     });
   }
 
