@@ -211,13 +211,13 @@ class FileTransfer:
                     new_file_type = ".未知语言"
                     # 兼容jellyfin字幕识别(多重识别), emby则会识别最后一个后缀
                     if re.search(
-                            r"\.(((zh[-_])?(cn|ch[si]|sg))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3}))\.",
+                            r"([\.\[\(](((zh[-_])?(cn|ch[si]|sg|sc))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?)[\.\]\)])|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3})|简体|简中",
                             file_item, re.I):
                         new_file_type = ".chi.zh-cn"
-                    elif re.search(r"\.(((zh[-_])?(hk|tw|cht))|繁[体中]?|繁体中[文字]|中[文字]繁体)\.", file_item,
+                    elif re.search(r"([\.\[\(](((zh[-_])?(hk|tw|cht|tc))|繁[体中]?)[\.\]\)])|繁体中[文字]|中[文字]繁体|繁体", file_item,
                                    re.I):
                         new_file_type = ".zh-tw"
-                    elif re.search(r"\.eng\.", file_item,
+                    elif re.search(r"[\.\[\(]eng[\.\]\)]", file_item,
                                    re.I):
                         new_file_type = ".eng"
                     # 通过对比字幕文件大小  尽量转移所有存在的字幕
