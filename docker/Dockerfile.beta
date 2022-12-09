@@ -21,11 +21,8 @@ ENV LANG="C.UTF-8" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
-    WORKDIR="/nas-tools" \
-    TINI_VERSION="v0.19.0"
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "--"]
+    WORKDIR="/nas-tools"
+WORKDIR ${WORKDIR}
 RUN python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
@@ -35,5 +32,4 @@ RUN python_ver=$(python3 -V | awk '{print $2}') \
     && git config --global --add safe.directory ${WORKDIR}
 EXPOSE 3000
 VOLUME ["/config"]
-WORKDIR ${WORKDIR}
-CMD ["/nas-tools/docker/entrypoint.sh"]
+ENTRYPOINT ["/nas-tools/docker/entrypoint.sh"]
