@@ -830,13 +830,15 @@ class LibrarySpace(ClientResource):
 
 @system.route('/logging')
 class SystemLogging(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('refresh_new', type=bool, help='是否刷新增量日志', location='form', required=True)
 
-    @staticmethod
-    def post():
+    @system.doc(parser=parser)
+    def post(self):
         """
         获取实时日志
         """
-        return WebAction().api_action(cmd='logging')
+        return WebAction().api_action(cmd='logging', data=self.parser.parse_args())
 
 
 @system.route('/version')

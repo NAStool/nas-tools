@@ -1,5 +1,5 @@
 import os
-from app.utils import RequestUtils
+from app.utils import RequestUtils, SystemUtils
 from version import APP_VERSION
 
 
@@ -29,5 +29,5 @@ class WebUtils:
         """
         获取当前版本号
         """
-        commit_id = os.popen('git rev-parse --short HEAD').readline().strip()
+        commit_id = SystemUtils.execute('git rev-parse --short HEAD')
         return "%s %s" % (APP_VERSION, commit_id)

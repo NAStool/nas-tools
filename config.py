@@ -131,10 +131,12 @@ SITE_LOGIN_XPATH = {
         '//input[@name="imagestring"]'
     ],
     "captcha_img": [
-        '//img[@alt="CAPTCHA"]/@src'
+        '//img[@alt="CAPTCHA"]/@src',
+        '//img[@alt="SECURITY CODE"]/@src'
     ],
     "submit": [
-        '//input[@type="submit"]'
+        '//input[@type="submit"]',
+        '//button[@type="submit"]'
     ],
     "error": [
         "//table[@class='main']//td[@class='text']/text()"
