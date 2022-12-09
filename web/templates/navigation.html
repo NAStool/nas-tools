@@ -2596,7 +2596,7 @@
           }
           if (text.includes("http")) {
             tstyle = `word-break: break-all;`
-            text = text.replace(/(?<=\s|^|：)(http|magnet).+?(\s|$)/, "<a href='$&' target='_blank'>$&</a>")
+            text = text.replace(/(?<=\s|^|：)(http|magnet).+?(\s|$)/g, "<a href='$&' target='_blank'>$&</a>")
           }
           tbody = `${tbody}
                     <tr>
