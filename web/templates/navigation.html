@@ -2492,7 +2492,13 @@
           .text("转移");
       if (ret.retcode == 0) {
         $('#modal-media-identification').modal('hide');
-        show_success_modal("处理成功！");
+        show_success_modal("处理成功！", function () {
+          if (manual_type == '2') {
+            navmenu('history');
+          } else {
+            navmenu('unidentification');
+          }
+        });
       } else {
         //处理失败
         regmsg = ret.retmsg;
