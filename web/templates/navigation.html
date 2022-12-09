@@ -880,7 +880,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                 id="logging_close_head"></button>
       </div>
-      <div class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
+      <div id="logging_table" class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
       <table class="table table-vcenter card-table table-hover table-striped">
         <thead>
           <tr>
@@ -2557,7 +2557,8 @@
 
   //刷新日志
   function refresh_logging(flag) {
-    ajax_post("logging", {}, function (ret) {
+    let refresh_new = $("#logging_content").children().length;
+    ajax_post("logging", {"refresh_new": refresh_new}, function (ret) {
       if (ret.loglist) {
         let log_list = ret.loglist;
         let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
@@ -2597,7 +2598,8 @@
                     <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
-        $("#logging_content").empty().append(tbody);
+        $("#logging_content").append(tbody);
+        $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
@@ -2630,8 +2632,8 @@
 
   // 显示实时日志
   function show_logging_modal() {
-    $('#modal-logging').modal('show');
     start_logging();
+    $('#modal-logging').modal('show');
   }
 
   //刷新消息中心
