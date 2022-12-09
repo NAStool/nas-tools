@@ -60,15 +60,6 @@ class Telegram(IMessageChannel):
                         self._message_proxy_event = event
                         ThreadHelper().start_thread(self.__start_telegram_message_proxy, [event])
 
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.send_msg("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【Telegram】发送消息失败：%s" % msg)
-        return flag
-
     def get_admin_user(self):
         """
         获取Telegram配置文件中的ChatId，即管理员用户ID

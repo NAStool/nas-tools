@@ -58,26 +58,20 @@ class Slack(IMessageChannel):
 
             # 启动服务
             if self._interactive:
-                self._service = SocketModeHandler(
-                    slack_app,
-                    self._client_config.get("app_token")
-                )
-                self._service.connect()
-                log.info("Slack消息接收服务启动")
+                try:
+                    self._service = SocketModeHandler(
+                        slack_app,
+                        self._client_config.get("app_token")
+                    )
+                    self._service.connect()
+                    log.info("Slack消息接收服务启动")
+                except Exception as err:
+                    log.error("Slack消息接收服务启动失败: %s" % str(err))
 
     def stop_service(self):
         if self._service:
             self._service.close()
             log.info("Slack消息接收服务已停止")
-
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.send_msg("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【Slack】发送消息失败：%s" % msg)
-        return flag
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """

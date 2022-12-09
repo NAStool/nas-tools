@@ -75,15 +75,6 @@ class WeChat(IMessageChannel):
                 return None
         return self._access_token
 
-    def get_status(self):
-        """
-        测试连通性
-        """
-        flag, msg = self.__send_message("测试", "这是一条测试消息")
-        if not flag:
-            log.error("【WeChat】发送消息失败：%s" % msg)
-        return flag
-
     def __send_message(self, title, text, user_id=None):
         """
         发送文本消息

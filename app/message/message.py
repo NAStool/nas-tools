@@ -134,7 +134,9 @@ class Message:
         """
         if not client or not client.get('client'):
             return None
-        log.info(f"【Message】发送{client.get('type')}消息服务{client.get('name')}：title={title}, text={text}")
+        ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
+        cname = client.get('name')
+        log.info(f"【Message】发送【{ctype_name}】消息服务【{cname}】：title={title}, text={text}")
         if self._domain:
             if url:
                 if not url.startswith(self._domain):
@@ -149,7 +151,7 @@ class Message:
                                                        url=url,
                                                        user_id=user_id)
         if not state:
-            log.error("【Message】发送消息失败：%s" % ret_msg)
+            log.error(f"【Message】【{ctype_name}】消息服务【{cname}】发送失败：%s" % ret_msg)
         return state
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
@@ -204,7 +206,9 @@ class Message:
                                                       medias=medias,
                                                       user_id=user_id)
                 if not state:
-                    log.error("【Message】发送消息失败：%s" % ret_msg)
+                    ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
+                    cname = client.get('name')
+                    log.error(f"【Message】发送{ctype_name}消息服务{cname}失败：%s" % ret_msg)
                 return state
         return False
 
@@ -532,4 +536,12 @@ class Message:
         """
         if not config or not ctype:
             return False
-        return self.__build_client(ctype, config).get_status()
+        # 测试状态不启动监听服务
+        state, ret_msg = self.__build_client(ctype=ctype,
+                                             conf=config,
+                                             interactive=False).send_msg(title="测试",
+                                                                         text="这是一条测试消息")
+        if not state:
+            ctype_name = self.MESSAGE_DICT.get('channel', {}).get(ctype, {}).get("name")
+            log.error(f"【Message】【{ctype_name}】消息服务发送测试消息失败：%s" % ret_msg)
+        return state
