@@ -2590,14 +2590,6 @@
           } else {
             tcolor = "text";
           }
-          if (["Rmt", "Subtitle"].includes(source) && text.includes(" 到 ")) {
-            tstyle = `white-space: pre;`
-            text = text.replace(/\s到\s/, "\n=> ")
-          }
-          if (text.includes("http")) {
-            tstyle = `word-break: break-all;`
-            text = text.replace(/(?<=\s|^|：)(http|magnet).+?(\s|$)/g, "<a href='$&' target='_blank'>$&</a>")
-          }
           tbody = `${tbody}
                     <tr>
                     <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
