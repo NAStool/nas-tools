@@ -3,6 +3,7 @@ import os
 from pyvirtualdisplay import Display
 
 from app.utils.commons import singleton
+from config import XVFB_PATH
 
 
 @singleton
@@ -29,8 +30,9 @@ class DisplayHelper(object):
 
     @staticmethod
     def can_display():
-        if os.path.exists("/usr/bin/Xvfb"):
-            return True
+        for path in XVFB_PATH:
+            if os.path.exists(path):
+                return True
         return False
 
     def __del__(self):
