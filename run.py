@@ -105,8 +105,6 @@ def get_run_config():
 # 退出事件
 signal.signal(signal.SIGINT, sigal_handler)
 signal.signal(signal.SIGTERM, sigal_handler)
-# 避免僵尸进程
-signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
 
 def init_system():
