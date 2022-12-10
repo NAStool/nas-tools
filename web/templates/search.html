@@ -122,24 +122,24 @@
                               <div class="col">
                                 <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
                                 {% if torrent.uploadvalue != 1.0 %}
-                                  <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                  <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
                                 {% endif %}
                                 {% if torrent.downloadvalue != 1.0 %}
                                   {% if torrent.downloadvalue == 0.0 %}
-                                    <span class="badge text-white bg-lime">FREE</span>
+                                    <span class="badge text-white bg-lime mb-1">FREE</span>
                                   {% else %}
-                                    <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                    <span class="badge text-white bg-blue mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                   {% endif %}
                                 {% endif %}
                                 <div>
                                   {% if torrent.restype %}
-                                    <span class="badge badge-outline text-orange">{{ torrent.restype }}</span>
+                                    <span class="badge badge-outline text-orange mb-1">{{ torrent.restype }}</span>
                                   {% endif %}
                                   {% if torrent.size %}
-                                    <span class="badge badge-outline text-yellow">{{ torrent.size }}</span>
+                                    <span class="badge badge-outline text-yellow mb-1">{{ torrent.size }}</span>
                                   {% endif %}
                                   {% if torrent.releasegroup %}
-                                    <span class="badge badge-outline text-cyan">{{ torrent.releasegroup }}</span>
+                                    <span class="badge badge-outline text-cyan mb-1">{{ torrent.releasegroup }}</span>
                                   {% endif %}
                                 </div>
                                 <div class="text-muted">
