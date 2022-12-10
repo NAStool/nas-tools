@@ -404,11 +404,11 @@ class SiteResources(ClientResource):
 @site.route('/list')
 class SiteList(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('basic', type=bool, help='只查询基本信息', location='form')
-    parser.add_argument('rss', type=bool, help='订阅', location='form')
-    parser.add_argument('brush', type=bool, help='刷流', location='form')
-    parser.add_argument('signin', type=bool, help='签到', location='form')
-    parser.add_argument('statistic', type=bool, help='数据统计', location='form')
+    parser.add_argument('basic', type=int, help='只查询基本信息（0-否/1-是）', location='form')
+    parser.add_argument('rss', type=int, help='订阅（0-否/1-是）', location='form')
+    parser.add_argument('brush', type=int, help='刷流（0-否/1-是）', location='form')
+    parser.add_argument('signin', type=int, help='签到（0-否/1-是）', location='form')
+    parser.add_argument('statistic', type=int, help='数据统计（0-否/1-是）', location='form')
 
     def post(self):
         """
@@ -432,7 +432,7 @@ class SiteIndexers(ClientResource):
 class SearchKeyword(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('search_word', type=str, help='搜索关键字', location='form', required=True)
-    parser.add_argument('unident', type=bool, help='快速模式', location='form')
+    parser.add_argument('unident', type=int, help='快速模式（0-否/1-是）', location='form')
     parser.add_argument('filters', type=str, help='过滤条件', location='form')
     parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
     parser.add_argument('media_type', type=str, help='类型（电影/电视剧）', location='form')
@@ -831,7 +831,7 @@ class LibrarySpace(ClientResource):
 @system.route('/logging')
 class SystemLogging(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('refresh_new', type=bool, help='是否刷新增量日志', location='form', required=True)
+    parser.add_argument('refresh_new', type=int, help='是否刷新增量日志（0-否/1-是）', location='form', required=True)
 
     @system.doc(parser=parser)
     def post(self):
@@ -1027,10 +1027,10 @@ class SubscribeAdd(ClientResource):
     parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
     parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
     parser.add_argument('doubanid', type=str, help='豆瓣ID', location='form')
-    parser.add_argument('match', type=bool, help='模糊匹配', location='form')
+    parser.add_argument('match', type=int, help='模糊匹配（0-否/1-是）', location='form')
     parser.add_argument('sites', type=list, help='RSS站点', location='form')
     parser.add_argument('search_sites', type=list, help='搜索站点', location='form')
-    parser.add_argument('over_edition', type=bool, help='洗版', location='form')
+    parser.add_argument('over_edition', type=int, help='洗版（0-否/1-是）', location='form')
     parser.add_argument('rss_restype', type=str, help='资源类型', location='form')
     parser.add_argument('rss_pix', type=str, help='分辨率', location='form')
     parser.add_argument('rss_team', type=str, help='字幕组/发布组', location='form')
@@ -1572,7 +1572,7 @@ class BrushTasklist(ClientResource):
 @brushtask.route('/downloader/update')
 class BrushTaskDownloaderUpdate(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('test', type=bool, help='测试', location='form', required=True)
+    parser.add_argument('test', type=int, help='测试（0-否/1-是）', location='form', required=True)
     parser.add_argument('id', type=int, help='下载器ID', location='form')
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
     parser.add_argument('type', type=str, help='类型（qbittorrent/transmission）', location='form', required=True)
@@ -1974,8 +1974,8 @@ class SyncDirectoryDelete(ClientResource):
 class SyncDirectoryStatus(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('sid', type=int, help='同步目录ID', location='form', required=True)
-    parser.add_argument('flag', type=int, help='操作（rename/enable）', location='form', required=True)
-    parser.add_argument('checked', type=bool, help='状态', location='form', required=True)
+    parser.add_argument('flag', type=str, help='操作（rename/enable）', location='form', required=True)
+    parser.add_argument('checked', type=int, help='状态（0-否/1-是）', location='form', required=True)
 
     @sync.doc(parser=parser)
     def post(self):

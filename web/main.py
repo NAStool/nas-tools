@@ -288,38 +288,20 @@ def search():
                 MediaNameDict[item.get("title")] += 1
 
     # 展示类型
-    MediaMTypes = []
-    for k, v in MeidaTypeDict.items():
-        MediaMTypes.append({"name": k, "num": v})
-    MediaMTypes = sorted(MediaMTypes, key=lambda x: int(x.get("num")), reverse=True)
+    MediaMTypes = sorted([{"name": k, "num": v} for k, v in MeidaTypeDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 展示站点
-    MediaSites = []
-    for k, v in MediaSiteDict.items():
-        MediaSites.append({"name": k, "num": v})
-    MediaSites = sorted(MediaSites, key=lambda x: int(x.get("num")), reverse=True)
+    MediaSites = sorted([{"name": k, "num": v} for k, v in MediaSiteDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 展示分辨率
-    MediaPixs = []
-    for k, v in MediaPixDict.items():
-        MediaPixs.append({"name": k, "num": v})
-    MediaPixs = sorted(MediaPixs, key=lambda x: int(x.get("num")), reverse=True)
+    MediaPixs = sorted([{"name": k, "num": v} for k, v in MediaPixDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 展示质量
-    MediaRestypes = []
-    for k, v in MediaRestypeDict.items():
-        MediaRestypes.append({"name": k, "num": v})
-    MediaRestypes = sorted(MediaRestypes, key=lambda x: int(x.get("num")), reverse=True)
+    MediaRestypes = sorted([{"name": k, "num": v} for k, v in MediaRestypeDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 展示促销
-    MediaSPStates = [{"name": k, "num": v} for k, v in MediaSPStateDict.items()]
-    MediaSPStates = sorted(MediaSPStates, key=lambda x: int(x.get("num")), reverse=True)
+    MediaSPStates = sorted([{"name": k, "num": v} for k, v in MediaSPStateDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 展示名称
-    MediaNames = []
-    for k, v in MediaNameDict.items():
-        MediaNames.append({"name": k, "num": v})
-
+    MediaNames = sorted([{"name": k, "num": v} for k, v in MediaNameDict.items()], key=lambda x: int(x.get("num")), reverse=True)
     # 站点列表
-    SiteDict = []
-    Indexers = Searcher().indexer.get_indexers() or []
-    for item in Indexers:
-        SiteDict.append({"id": item.id, "name": item.name})
+    SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
+
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
