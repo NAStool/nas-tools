@@ -51,21 +51,37 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg">
+              <div class="col-xl-2">
+                <div class="mb-3">
+                  <label class="form-label required">WEB壁纸来源 <span class="form-help"
+                                                               title="登录界面壁纸来源：TMDB、Bing，设置为TMDB时需在媒体配置TMDB API Key"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="app.wallpaper">
+                    <option value="themoviedb"
+                      {% if not Config.app.wallpaper or Config.app.wallpaper=='themoviedb' %}selected{% endif %}>
+                      TMDB
+                    </option>
+                    <option value="bing" {% if Config.app.wallpaper=='bing' %}selected{% endif %}>
+                      Bing
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-xl-2">
                 <div class="mb-3">
                   <label class="form-label required">WEB服务端口</label>
                   <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port"
                          placeholder="3000" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理用户</label>
                   <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user"
                          placeholder="admin" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理密码</label>
                   <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control"
@@ -992,7 +1008,7 @@
     $("#modal-scraper").modal("hide");
   }
 
-    // 保存自定义识别屏蔽词配置
+    // 保存自定义制作组/字幕组配置
   function save_release_groups_config(){
     let params = {};
     params['laboratory.release_groups'] = $("#release_groups").val().replace(/;$/g, '');
