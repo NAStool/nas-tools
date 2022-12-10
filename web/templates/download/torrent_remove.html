@@ -478,11 +478,7 @@
 <script type="text/javascript">
   // 折叠任务详情
   function show_torrent_remove_task_detail(tid) {
-    if ($(`#detail_${tid}`)[0].style["display"] == "none") {
-      $(`#detail_${tid}`).attr("style", "display: block;");
-    } else {
-      $(`#detail_${tid}`).attr("style", "display: none;");
-    };
+    $(`#detail_${tid}`).slideToggle();
   }
 
   // 显示新增任务
