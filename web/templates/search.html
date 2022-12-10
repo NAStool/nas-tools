@@ -109,73 +109,91 @@
                         {{ Item.overview}}
                       </div>
                       {% endif %}
-                      <div class="list-group card-list-group mt-2">
-                        {% for torrent in Item.torrent_list %}
-                          <div class="list-group-item p-2">
-                            <div class="row g-2 align-items-center">
-                              <div class="col-auto fs-3">
-                                {{ loop.index0 + 1 }}
-                              </div>
-                              <div class="col-auto">
-                                <span class="avatar text-wrap"><strong>{{ torrent.site }}</strong></span>
-                              </div>
-                              <div class="col">
-                                <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
-                                {% if torrent.uploadvalue != 1.0 %}
-                                  <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                      <div class="accordion" id="search_results_accordion">
+                        {% for unique_key, torrent_dict_item in Item.torrent_dict.items() %}
+                        <div class="accordion-item" id="{{ unique_key }}">
+                          <h2 class="accordion-header" id="heading-detail_{{ unique_key }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#detail_{{ unique_key }}"
+                                    aria-expanded="true">
+                                {% if torrent_dict_item.unique_info.restype %}
+                                  <span class="text-orange">{{ torrent_dict_item.unique_info.restype }}</span>
                                 {% endif %}
-                                {% if torrent.downloadvalue != 1.0 %}
-                                  {% if torrent.downloadvalue == 0.0 %}
-                                    <span class="badge text-white bg-lime mb-1">FREE</span>
-                                  {% else %}
-                                    <span class="badge text-white bg-blue mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
-                                  {% endif %}
+                                {% if torrent_dict_item.unique_info.size %}
+                                / <span class="text-yellow">{{ torrent_dict_item.unique_info.size }}</span>
                                 {% endif %}
-                                <div>
-                                  {% if torrent.restype %}
-                                    <span class="badge badge-outline text-orange mb-1">{{ torrent.restype }}</span>
-                                  {% endif %}
-                                  {% if torrent.size %}
-                                    <span class="badge badge-outline text-yellow mb-1">{{ torrent.size }}</span>
-                                  {% endif %}
-                                  {% if torrent.releasegroup %}
-                                    <span class="badge badge-outline text-cyan mb-1">{{ torrent.releasegroup }}</span>
-                                  {% endif %}
-                                </div>
-                                <div class="text-muted">
-                                  {{ torrent.description }}
-                                </div>
-                              </div>
-                              <div class="col-auto text-muted">
-                                {{ torrent.seeders }}{{ UPCHAR }}
-                              </div>
-                              <div class="col-auto ms-2 d-none d-md-inline-block">
-                                <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                     <polyline points="7 11 12 16 17 11"></polyline>
-                                     <line x1="12" y1="4" x2="12" y2="16"></line>
-                                  </svg>
-                                </a>
-                              </div>
-                              <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
-                                <div class="dropdown">
-                                  <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
-                                  </a>
-                                  <div class="dropdown-menu dropdown-menu-end" style="">
-                                    <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
-                                      下载种子文件
-                                    </a>
-                                    <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
-                                      查看种子详情
-                                    </a>
-                                  </div>
+                                {% if torrent_dict_item.unique_info.releasegroup %}
+                                /  <span class="text-cyan">{{ torrent_dict_item.unique_info.releasegroup }} </span>
+                                {% endif %}
+                                / <span class="text">共{{ torrent_dict_item.torrent_list|length }}条 </span>
+                            </button>
+                          </h2>
+                          <div id="detail_{{ unique_key }}" class="accordion-collapse collapse"
+                               data-bs-parent="#search_results_accordion">
+                            <div class="accordion-body pt-0">
+                              <div class="list-group list-group-transparent">
+                                <div class="list-group card-list-group mt-2">
+                                  {% for torrent in torrent_dict_item.torrent_list %}
+                                    <div class="list-group-item">
+                                      <div class="row g-2 align-items-center">
+                                        <div class="col-auto fs-3">
+                                          {{ loop.index0 + 1 }}
+                                        </div>
+                                        <div class="col-auto">
+                                          <span class="avatar text-wrap"><strong>{{ torrent.site }}</strong></span>
+                                        </div>
+                                        <div class="col">
+                                          <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
+                                          {% if torrent.uploadvalue != 1.0 %}
+                                            <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                          {% endif %}
+                                          {% if torrent.downloadvalue != 1.0 %}
+                                            {% if torrent.downloadvalue == 0.0 %}
+                                              <span class="badge text-white bg-lime">FREE</span>
+                                            {% else %}
+                                              <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                            {% endif %}
+                                          {% endif %}
+                                          <div class="text-muted">
+                                            {{ torrent.description }}
+                                          </div>
+                                        </div>
+                                        <div class="col-auto text-muted">
+                                          {{ torrent.seeders }}{{ UPCHAR }}
+                                        </div>
+                                        <div class="col-auto ms-2 d-none d-md-inline-block">
+                                          <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                               <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                               <polyline points="7 11 12 16 17 11"></polyline>
+                                               <line x1="12" y1="4" x2="12" y2="16"></line>
+                                            </svg>
+                                          </a>
+                                        </div>
+                                        <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
+                                          <div class="dropdown">
+                                            <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end" style="">
+                                              <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
+                                                下载种子文件
+                                              </a>
+                                              <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
+                                                查看种子详情
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  {% endfor %}
                                 </div>
                               </div>
                             </div>
                           </div>
+                        </div>
                         {% endfor %}
                       </div>
                     </div>

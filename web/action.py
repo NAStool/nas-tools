@@ -3178,6 +3178,13 @@ class WebAction:
         res = self.dbhelper.get_search_results()
         total = len(res)
         for item in res:
+            # 种子唯一标识 （大小，质量，制作组组成）
+            unique_key = re.sub(r"-|\.|\s", "", f"{item.SIZE}_{item.RES_TYPE}_{item.OTHERINFO}").lower()
+            unique_info = {
+                "size": item.SIZE,
+                "restype": item.RES_TYPE,
+                "releasegroup": item.OTHERINFO
+            }
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
@@ -3188,21 +3195,26 @@ class WebAction:
             # 种子信息
             torrent_item = {
                 "id": item.ID,
-                "restype": item.RES_TYPE,
-                "size": item.SIZE,
                 "seeders": item.SEEDERS,
                 "enclosure": item.ENCLOSURE,
                 "site": item.SITE,
                 "torrent_name": item.TORRENT_NAME,
                 "description": item.DESCRIPTION,
                 "pageurl": item.PAGEURL,
-                "releasegroup": item.OTHERINFO,
                 "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
                 "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR
             }
             # 合并搜索结果
             if SearchResults.get(title_string):
-                SearchResults[title_string]["torrent_list"].append(torrent_item)
+                torrent_dict = SearchResults[title_string].get("torrent_dict")
+                torrent_dict_item = torrent_dict.get(unique_key)
+                if torrent_dict_item:
+                    torrent_dict_item["torrent_list"].append(torrent_item)
+                else:
+                    torrent_dict[unique_key] = {
+                        "unique_info": unique_info,
+                        "torrent_list": [torrent_item]
+                    }
             else:
                 # 是否已存在
                 if item.TMDBID:
@@ -3222,7 +3234,12 @@ class WebAction:
                     "poster": item.POSTER,
                     "overview": item.OVERVIEW,
                     "exist": exist_flag,
-                    "torrent_list": [torrent_item]
+                    "torrent_dict": {
+                        unique_key: {
+                            "unique_info": unique_info,
+                            "torrent_list": [torrent_item]
+                        }
+                    }
                 }
         return {"code": 0, "total": total, "result": SearchResults}
 
