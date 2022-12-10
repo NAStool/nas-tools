@@ -246,7 +246,7 @@ def search():
     # 名称
     MediaNameDict = {}
     # 查询统计值
-    for item in SearchResults:
+    for _, item in SearchResults.items():
         # 资源类型
         if str(item.get("restype")).find(" ") != -1:
             restypes = str(item.get("restype")).split(" ")
@@ -307,7 +307,7 @@ def search():
                            SearchWord=SearchWord or "",
                            NeedSearch=NeedSearch or "",
                            Count=len(SearchResults),
-                           Items=SearchResults,
+                           Results=SearchResults,
                            MediaMTypes=MediaMTypes,
                            MediaSites=MediaSites,
                            MediaPixs=MediaPixs,
