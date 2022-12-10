@@ -217,10 +217,10 @@
         {% endif %}
         <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
           <div class="row row-cards" id="media_cards">
-            {% for Item in Items %}
+            {% for Key, Item in Results.items() %}
               <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card"
                    id="media_card_{{ Item.id }}">
-                <div class="card card-sm card-link-pop rounded-3">
+                <div class="card card-sm {% if Item.torrent_list|length  > 0 %}card-stacked{% else %}card-link-pop{% endif %} rounded-3">
                   {% if Item.vote|int > 0 %}
                     <div class="badge badge-pill bg-purple"
                          style="position:absolute;top:10px;right:10px;">
@@ -239,7 +239,7 @@
                     </div>
                   {% endif %}
                   {% if Item.image %}
-                    <a href='javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}")'
+                    <a href='javascript:show_download_modal("{{ Item.id }}","【{{ Item.site }}】{{ Item.title_string }}")'
                        class="d-block">
                       <img src="{{ Item.image }}" class="card-img-top" title="点击添加下载"
                            style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
@@ -254,7 +254,7 @@
                              value="{{ Item.title_string }}">
                       <div>
                         <div>
-                          <a href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
+                          <a href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","【{{ Item.site }}】{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","【{{ Item.site }}】{{ Item.title_string }}"){% endif %}'
                              title="点击添加下载">
                             <strong>{% if Item.tmdbid or not Item.description %}
                               {{ Item.title_string|replace("()", "") }}{% else %}
@@ -329,6 +329,34 @@
                     {% if Item.tmdbid and Item.description %}
                       <div class="text-muted">
                         <small>{{ Item.description }}</small>
+                      </div>
+                    {% endif %}
+                    {% if Item.torrent_list|length  > 0 %}
+                      <a href="javascript:void(0)" data-bs-toggle="dropdown" class="dropdown-toggle btn btn-blue btn-sm mt-2"
+                         id="search_result_more">
+                        更多站点来源
+                      </a>
+                      <div class="dropdown-menu" id="search_result_more_dropdown">
+                        {% for torrent in Item.torrent_list %}
+                          <a class="dropdown-item"
+                             href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ Item.description }}"){% else %}javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ Item.title_string }}"){% endif %}'
+                             >
+                            <span class="badge badge-outline text-blue">{{ torrent.site }}</span>
+                            {% if torrent.seeders %}
+                              <span class="badge ms-2">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                            {% endif %}
+                            {% if torrent.uploadvalue != 1.0 %}
+                              <span class="badge text-white bg-azure ms-2">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                            {% endif %}
+                            {% if torrent.downloadvalue != 1.0 %}
+                              {% if torrent.downloadvalue == 0.0 %}
+                                <span class="badge text-white bg-lime ms-2">FREE</span>
+                              {% else %}
+                                <span class="badge text-white bg-blue ms-2">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                              {% endif %}
+                            {% endif %}
+                          </a>
+                        {% endfor %}
                       </div>
                     {% endif %}
                   </div>

@@ -251,6 +251,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         else:
+            input_str = re.sub(r"[搜索|下载][:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
         # 去掉查询中的电影或电视剧关键字
