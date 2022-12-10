@@ -3179,7 +3179,7 @@ class WebAction:
         total = len(res)
         for item in res:
             # 种子唯一标识 （大小，质量，制作组组成）
-            unique_key = re.sub(r"-|\.|\s", "", f"{item.SIZE}_{item.RES_TYPE}").lower()
+            unique_key = re.sub(r"[-.\s@]", "", f"{item.SIZE}_{item.RES_TYPE}_{item.OTHERINFO}").lower()
             # 质量、分辨率
             if item.RES_TYPE:
                 restypes = str(item.RES_TYPE).split()
