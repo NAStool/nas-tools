@@ -544,11 +544,7 @@
 
   // 折叠任务详情
   function show_userrss_detail(taskid) {
-    if ($(`#detail_${taskid}`)[0].style["display"] == "none") {
-      $(`#detail_${taskid}`).attr("style", "display: block;");
-    } else {
-      $(`#detail_${taskid}`).attr("style", "display: none;");
-    };
+    $(`#detail_${taskid}`).slideToggle();
   }
 
   // 新增/编辑任务保存

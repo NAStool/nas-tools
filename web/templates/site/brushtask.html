@@ -660,13 +660,8 @@
 
   // 折叠任务详情
   function show_brushtask_detail(taskid) {
-    if ($(`#detail_${taskid}`)[0].style["display"] == "none") {
-      $(`#detail_${taskid}`).attr("style", "display: block;");
-      $(`#detail_size_${taskid}`).attr("style", "display: none;");
-    } else {
-      $(`#detail_${taskid}`).attr("style", "display: none;");
-      $(`#detail_size_${taskid}`).attr("style", "display: block;");
-    };
+    $(`#detail_${taskid}`).slideToggle();
+    $(`#detail_size_${taskid}`).slideToggle();
   }
 
   // 显示编辑刷流任务
