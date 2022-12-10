@@ -9,6 +9,7 @@ from app.media.meta.metabase import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils.types import MediaType
 
+import log
 
 class MetaAnime(MetaBase):
     """
@@ -110,6 +111,13 @@ class MetaAnime(MetaBase):
                 else:
                     begin_episode = None
                     end_episode = None
+                try:
+                    int(begin_episode)
+                    int(end_episode)
+                except Exception as reason:
+                    begin_episode = None
+                    end_episode = None
+                    log.error("【Metaanime】int(begin_episode)错误: %s" % reason)
                 if begin_episode:
                     self.begin_episode = int(begin_episode)
                     if end_episode and end_episode != self.begin_episode:
