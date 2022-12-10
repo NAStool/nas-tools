@@ -3180,9 +3180,21 @@ class WebAction:
         for item in res:
             # 种子唯一标识 （大小，质量，制作组组成）
             unique_key = re.sub(r"-|\.|\s", "", f"{item.SIZE}_{item.RES_TYPE}_{item.OTHERINFO}").lower()
+            # 质量、分辨率
+            if item.RES_TYPE:
+                restypes = str(item.RES_TYPE).split()
+                restype = restypes[0]
+                if len(restypes) > 1:
+                    respix = restypes[1]
+                else:
+                    respix = ""
+            else:
+                restype = ""
+                respix = ""
             unique_info = {
                 "size": item.SIZE,
-                "restype": item.RES_TYPE,
+                "restype": restype,
+                "respix": respix,
                 "releasegroup": item.OTHERINFO
             }
             # 结果

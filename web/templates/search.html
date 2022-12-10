@@ -109,7 +109,7 @@
                         {{ Item.overview}}
                       </div>
                       {% endif %}
-                      <div class="accordion" id="search_results_accordion">
+                      <div class="accordion mt-2" id="search_results_accordion">
                         {% for unique_key, torrent_dict_item in Item.torrent_dict.items() %}
                         <div class="accordion-item" id="{{ unique_key }}">
                           <h2 class="accordion-header" id="heading-detail_{{ unique_key }}">
@@ -117,24 +117,27 @@
                                     data-bs-target="#detail_{{ unique_key }}"
                                     aria-expanded="true">
                                 {% if torrent_dict_item.unique_info.restype %}
-                                  <span class="text-orange">{{ torrent_dict_item.unique_info.restype }}</span>
+                                  <span class="text-red">{{ torrent_dict_item.unique_info.restype }}</span>
+                                {% endif %}
+                                {% if torrent_dict_item.unique_info.respix %}
+                                &nbsp;/&nbsp;<span class="text-orange">{{ torrent_dict_item.unique_info.respix }}</span>
                                 {% endif %}
                                 {% if torrent_dict_item.unique_info.size %}
-                                / <span class="text-yellow">{{ torrent_dict_item.unique_info.size }}</span>
+                                &nbsp;/&nbsp;<span class="text-yellow">{{ torrent_dict_item.unique_info.size }}</span>
                                 {% endif %}
                                 {% if torrent_dict_item.unique_info.releasegroup %}
-                                /  <span class="text-cyan">{{ torrent_dict_item.unique_info.releasegroup }} </span>
+                                &nbsp;/&nbsp;<span class="text-cyan">{{ torrent_dict_item.unique_info.releasegroup }} </span>
                                 {% endif %}
-                                / <span class="text">共{{ torrent_dict_item.torrent_list|length }}条 </span>
+                                &nbsp;/&nbsp;<span class="text">共{{ torrent_dict_item.torrent_list|length }}条 </span>
                             </button>
                           </h2>
                           <div id="detail_{{ unique_key }}" class="accordion-collapse collapse"
                                data-bs-parent="#search_results_accordion">
                             <div class="accordion-body pt-0">
-                              <div class="list-group list-group-transparent">
+                              <div class="list-group">
                                 <div class="list-group card-list-group mt-2">
                                   {% for torrent in torrent_dict_item.torrent_list %}
-                                    <div class="list-group-item">
+                                    <div class="list-group-item p-2">
                                       <div class="row g-2 align-items-center">
                                         <div class="col-auto fs-3">
                                           {{ loop.index0 + 1 }}
@@ -200,7 +203,7 @@
                   </div>
                   {% if Item.exist %}
                     <div class="badge badge-pill bg-green"
-                         style="position:absolute;top:25px;right:20px;padding:0;">
+                         style="position:absolute;top:20px;right:20px;padding:0;">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                            fill="currentColor" aria-hidden="true"
                            class="h-3 w-3 sm:h-4 sm:w-4">
