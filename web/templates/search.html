@@ -129,7 +129,7 @@
                                data-bs-parent="#search_results_accordion">
                             <div class="accordion-body pt-0">
                             {% for unique_key, unique in group.group_torrents.items() %}
-                              <a href="javascript:show_unique_detail('{{ unique_key }}')" class="card card-link card-link-pop rounded-3 mb-1">
+                              <a href="javascript:show_unique_detail('{{ unique_key }}')" class="card card-link card-link-pop rounded-3 mb-2">
                               <div class="card-header">
                                 {% if unique.unique_info.size %}
                                 <span class="text-yellow">{{ unique.unique_info.size }}</span>
