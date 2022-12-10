@@ -72,8 +72,10 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 mkdir -p /.local
 mkdir -p /.pm2
-chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/chromium /.local /.pm2
+chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2
 export PATH=$PATH:/usr/lib/chromium
-umask ${UMASK}
-chmod +x /nas-tools/docker/dumb-init
-exec su-exec ${PUID}:${PGID} /nas-tools/docker/dumb-init /usr/local/bin/pm2-runtime start run.py -n NAStool --interpreter python3
+umask "${UMASK}"
+if ! which dumb-init; then
+    apk add --no-cache dumb-init
+fi
+exec su-exec "${PUID}":"${PGID}" "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
