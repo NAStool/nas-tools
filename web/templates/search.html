@@ -56,7 +56,7 @@
                 <div class="card-body ps-1">
                   <div class="row">
                     {% if Item.poster %}
-                    <div class="col-2">
+                    <div class="col-2 d-none d-md-block">
                       <img class="rounded object-cover shadow" src="{{ Item.poster }}">
                     </div>
                     {% endif %}
@@ -105,7 +105,7 @@
                         </div>
                       </div>
                       {% if Item.overview %}
-                      <div class="text-muted mt-2">
+                      <div class="text-muted mt-2 d-none d-md-block">
                         {{ Item.overview}}
                       </div>
                       {% endif %}
@@ -149,8 +149,8 @@
                               <div class="col-auto text-muted">
                                 {{ torrent.seeders }}{{ UPCHAR }}
                               </div>
-                              <div class="col-auto ms-2">
-                                <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary">
+                              <div class="col-auto ms-2 d-none d-md-inline-block">
+                                <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
                                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                      <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
@@ -159,7 +159,7 @@
                                   </svg>
                                 </a>
                               </div>
-                              <div class="col-auto lh-1 ms-2">
+                              <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
                                 <div class="dropdown">
                                   <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
