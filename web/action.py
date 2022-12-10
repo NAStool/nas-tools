@@ -3176,6 +3176,7 @@ class WebAction:
         """
         SearchResults = {}
         res = self.dbhelper.get_search_results()
+        total = len(res)
         for item in res:
             # 是否已存在
             if item.TMDBID:
@@ -3188,46 +3189,42 @@ class WebAction:
                 title_string = f"{title_string} ({item.YEAR})"
             if item.ES_STRING:
                 title_string = f"{title_string} {item.ES_STRING}"
-            item_key = f'{item.TORRENT_NAME}-{item.SIZE}'
-            if SearchResults.get(item_key):
-                SearchResults[item_key]["torrent_list"].append({
-                    "id": item.ID,
-                    "site": item.SITE,
-                    "enclosure": item.ENCLOSURE,
-                    "description": item.DESCRIPTION,
-                    "pageurl": item.PAGEURL,
-                    "seeders": item.SEEDERS,
-                    "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                    "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR
-                })
+            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE, "")
+            # 种子信息
+            torrent_item = {
+                "id": item.ID,
+                "restype": item.RES_TYPE,
+                "size": item.SIZE,
+                "seeders": item.SEEDERS,
+                "enclosure": item.ENCLOSURE,
+                "site": item.SITE,
+                "torrent_name": item.TORRENT_NAME,
+                "description": item.DESCRIPTION,
+                "pageurl": item.PAGEURL,
+                "releasegroup": item.OTHERINFO,
+                "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
+                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR
+            }
+            # 合并搜索结果
+            if SearchResults.get(title_string):
+                SearchResults[title_string]["torrent_list"].append(torrent_item)
             else:
-                SearchResults[item_key] = {
-                    "id": item.ID,
-                    "title_string": title_string,
-                    "restype": item.RES_TYPE,
-                    "size": item.SIZE,
-                    "seeders": item.SEEDERS,
-                    "enclosure": item.ENCLOSURE,
-                    "site": item.SITE,
+                SearchResults[title_string] = {
+                    "key": item.ID,
+                    "title": item.TITLE,
                     "year": item.YEAR,
                     "es_string": item.ES_STRING,
                     "image": item.IMAGE,
-                    "type": item.TYPE,
+                    "type": media_type,
                     "vote": item.VOTE,
-                    "torrent_name": item.TORRENT_NAME,
-                    "description": item.DESCRIPTION,
                     "tmdbid": item.TMDBID,
-                    "poster": item.IMAGE,
+                    "backdrop": item.IMAGE,
+                    "poster": item.POSTER,
                     "overview": item.OVERVIEW,
-                    "pageurl": item.PAGEURL,
-                    "releasegroup": item.OTHERINFO,
-                    "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                    "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
-                    "title": item.TITLE,
                     "exist": exist_flag,
-                    "torrent_list": []
+                    "torrent_list": [torrent_item]
                 }
-        return {"code": 0, "result": SearchResults}
+        return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod
     def search_media_infos(data):
