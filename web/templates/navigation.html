@@ -1312,7 +1312,12 @@
 <!-- 提示弹窗 -->
 <script type="text/javascript">
   //显示全局加载框
-  function show_wait_process() {
+  function show_wait_process(blur) {
+    if (blur) {
+      $('#wait_process').addClass('modal-blur');
+    } else {
+      $('#wait_process').removeClass('modal-blur');
+    }
     $("#modal-wait").modal("show");
   }
 
@@ -2704,7 +2709,7 @@
       hide_confirm_modal();
       ajax_post("restart", {}, function (ret) {
       });
-      show_wait_process();
+      show_wait_process(true);
       setTimeout("check_system_online()", 5000);
     });
   }
@@ -2721,7 +2726,7 @@
       hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      show_wait_process();
+      show_wait_process(true);
       setTimeout("check_system_online()", 5000);
     });
   }
