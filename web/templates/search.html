@@ -110,33 +110,40 @@
                       </div>
                       {% endif %}
                       <div class="accordion mt-2" id="search_results_accordion">
-                        {% for unique_key, torrent_dict_item in Item.torrent_dict.items() %}
-                        <div class="accordion-item" id="{{ unique_key }}">
-                          <h2 class="accordion-header" id="heading-detail_{{ unique_key }}">
+                        {% for group_key, group in Item.torrent_dict.items() %}
+                        <div class="accordion-item" id="{{ group_key }}">
+                          <h2 class="accordion-header" id="heading-detail_{{ group_key }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#detail_{{ unique_key }}"
+                                    data-bs-target="#detail_{{ group_key }}"
                                     aria-expanded="true">
-                                {% if torrent_dict_item.unique_info.restype %}
-                                  <span class="text-red">{{ torrent_dict_item.unique_info.restype }}</span>
+                                {% if group.group_info.restype %}
+                                  <span class="text-red">{{ group.group_info.restype }}</span>
                                 {% endif %}
-                                {% if torrent_dict_item.unique_info.respix %}
-                                &nbsp;/&nbsp;<span class="text-orange">{{ torrent_dict_item.unique_info.respix }}</span>
+                                {% if group.group_info.respix %}
+                                &nbsp;/&nbsp;<span class="text-orange">{{ group.group_info.respix }}</span>
                                 {% endif %}
-                                {% if torrent_dict_item.unique_info.size %}
-                                &nbsp;/&nbsp;<span class="text-yellow">{{ torrent_dict_item.unique_info.size }}</span>
-                                {% endif %}
-                                {% if torrent_dict_item.unique_info.releasegroup %}
-                                &nbsp;/&nbsp;<span class="text-cyan">{{ torrent_dict_item.unique_info.releasegroup }} </span>
-                                {% endif %}
-                                &nbsp;/&nbsp;<span class="text">共{{ torrent_dict_item.torrent_list|length }}条 </span>
+                                &nbsp;/&nbsp;<span class="text">共{{ group.group_torrents|length }}条 </span>
                             </button>
                           </h2>
-                          <div id="detail_{{ unique_key }}" class="accordion-collapse collapse"
+                          <div id="detail_{{ group_key }}" class="accordion-collapse collapse"
                                data-bs-parent="#search_results_accordion">
                             <div class="accordion-body pt-0">
-                              <div class="list-group">
+                            {% for unique_key, unique in group.group_torrents.items() %}
+                              <a href="javascript:show_unique_detail('{{ unique_key }}')" class="card card-link card-link-pop rounded-3 mb-1">
+                              <div class="card-header">
+                                {% if unique.unique_info.size %}
+                                <span class="text-yellow">{{ unique.unique_info.size }}</span>
+                                {% endif %}
+                                &nbsp;/&nbsp;<span class="text-cyan">{{ unique.unique_info.releasegroup or "未识别组" }}</span>
+                                {% if unique.unique_info.reseffect %}
+                                &nbsp;/&nbsp;<span class="text-blue">{{ unique.unique_info.reseffect }} </span>
+                                {% endif %}
+                                &nbsp;/&nbsp;<span class="text">来源：{{ unique.torrent_list|length }} </span>
+                              </div>
+                              </a>
+                              <div class="list-group" id="detail_{{ unique_key }}" style="display: none">
                                 <div class="list-group card-list-group mt-2">
-                                  {% for torrent in torrent_dict_item.torrent_list %}
+                                  {% for torrent in unique.torrent_list %}
                                     <div class="list-group-item p-2 ps-1 pe-1">
                                       <div class="row g-2 align-items-center">
                                         <div class="col-auto fs-3">
@@ -194,6 +201,7 @@
                                   {% endfor %}
                                 </div>
                               </div>
+                            {% endfor %}
                             </div>
                           </div>
                         </div>
@@ -569,4 +577,8 @@
     $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }
 
+  // 折叠任务详情
+  function show_unique_detail(unique_key) {
+    $(`#detail_${unique_key}`).slideToggle();
+  }
 </script>

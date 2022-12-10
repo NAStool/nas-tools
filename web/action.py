@@ -3178,24 +3178,42 @@ class WebAction:
         res = self.dbhelper.get_search_results()
         total = len(res)
         for item in res:
-            # 种子唯一标识 （大小，质量，制作组组成）
-            unique_key = re.sub(r"[-.\s@]", "", f"{item.SIZE}_{item.RES_TYPE}_{item.OTHERINFO}").lower()
-            # 质量、分辨率
+            # 质量(来源、效果)、分辨率
             if item.RES_TYPE:
-                restypes = str(item.RES_TYPE).split()
-                restype = restypes[0]
-                if len(restypes) > 1:
-                    respix = restypes[1]
+                res_mix = json.loads(item.RES_TYPE)
+                respix = res_mix.get("pix") or ""
+                restypes = res_mix.get("type") or ""
+                if restypes:
+                    if restypes.startswith(" "):
+                        restype = ""
+                        reseffect = restypes
+                    else:
+                        restypes = restypes.split("|")
+                        restype = restypes[0]
+                        if len(restypes) > 1:
+                            reseffect = restypes[1]
+                        else:
+                            reseffect = ""
                 else:
-                    respix = ""
+                    restype = ""
+                    reseffect = ""
             else:
                 restype = ""
                 respix = ""
+                reseffect = ""
+            # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
+            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
             unique_info = {
                 "size": item.SIZE,
-                "restype": restype,
-                "respix": respix,
+                "reseffect": reseffect,
                 "releasegroup": item.OTHERINFO
+            }
+            # 分组标识 (来源，分辨率)
+            group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
+            # 分组信息
+            group_info = {
+                "respix": respix,
+                "restype": restype,
             }
             # 结果
             title_string = f"{item.TITLE}"
@@ -3219,13 +3237,25 @@ class WebAction:
             # 合并搜索结果
             if SearchResults.get(title_string):
                 torrent_dict = SearchResults[title_string].get("torrent_dict")
-                torrent_dict_item = torrent_dict.get(unique_key)
-                if torrent_dict_item:
-                    torrent_dict_item["torrent_list"].append(torrent_item)
+                torrent_group = torrent_dict.get(group_key)
+                if torrent_group:
+                    torrent_unique = torrent_group.get("group_torrents").get(unique_key)
+                    if torrent_unique:
+                        torrent_unique["torrent_list"].append(torrent_item)
+                    else:
+                        torrent_group.get("group_torrents")[unique_key] = {
+                            "unique_info": unique_info,
+                            "torrent_list": [torrent_item]
+                        }
                 else:
-                    torrent_dict[unique_key] = {
-                        "unique_info": unique_info,
-                        "torrent_list": [torrent_item]
+                    torrent_dict[group_key] = {
+                        "group_info": group_info,
+                        "group_torrents": {
+                            unique_key: {
+                                "unique_info": unique_info,
+                                "torrent_list": [torrent_item]
+                            }
+                        }
                     }
             else:
                 # 是否已存在
@@ -3247,9 +3277,14 @@ class WebAction:
                     "overview": item.OVERVIEW,
                     "exist": exist_flag,
                     "torrent_dict": {
-                        unique_key: {
-                            "unique_info": unique_info,
-                            "torrent_list": [torrent_item]
+                        group_key: {
+                            "group_info": group_info,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
                         }
                     }
                 }
