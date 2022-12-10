@@ -2605,8 +2605,13 @@
                     <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
+        let bool_ToScrolTop = ($("#logging_table").scrollTop() + $("#logging_table").prop("offsetHeight")) >= $("#logging_table").prop("scrollHeight");
         $("#logging_content").append(tbody);
-        $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+        if (bool_ToScrolTop){
+          setTimeout(function () {
+            $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+          }, 500);
+        }
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
