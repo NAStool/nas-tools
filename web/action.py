@@ -3178,11 +3178,6 @@ class WebAction:
         res = self.dbhelper.get_search_results()
         total = len(res)
         for item in res:
-            # 是否已存在
-            if item.TMDBID:
-                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
-            else:
-                exist_flag = False
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
@@ -3209,6 +3204,11 @@ class WebAction:
             if SearchResults.get(title_string):
                 SearchResults[title_string]["torrent_list"].append(torrent_item)
             else:
+                # 是否已存在
+                if item.TMDBID:
+                    exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+                else:
+                    exist_flag = False
                 SearchResults[title_string] = {
                     "key": item.ID,
                     "title": item.TITLE,
