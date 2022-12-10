@@ -27,8 +27,8 @@ class MetaVideo(MetaBase):
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})$|S\d{1,2}EP?(\d{1,4})$"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
-    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^HDRip$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^WEBDL$|^BD$|^DOVI$|^10BIT$"
-    _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^WEB$|^WEBDL$|^BD$|^HDRip$"
+    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^HDRip$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$|^DOVI$|^10BIT$"
+    _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
     _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^10BIT$"
     _name_no_begin_re = r"^\[.+?]"
     _name_no_chinese_re = r".*版|.*字幕"
@@ -90,7 +90,7 @@ class MetaVideo(MetaBase):
                 self.__init_resource_pix(token)
             # 季
             if self._continue_flag:
-                self.__init_seasion(token)
+                self.__init_season(token)
             # 集
             if self._continue_flag:
                 self.__init_episode(token)
@@ -324,7 +324,7 @@ class MetaVideo(MetaBase):
                 else:
                     self.resource_pix = "%s 3D" % self.resource_pix
 
-    def __init_seasion(self, token):
+    def __init_season(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
             self._last_token_type = "season"
@@ -459,6 +459,10 @@ class MetaVideo(MetaBase):
                 and self._last_token_type == "source" \
                 and self._last_token == "BLU":
             self._source = "BluRay"
+            self._continue_flag = False
+            return
+        elif token.upper() == "WEBDL":
+            self._source = "WEB-DL"
             self._continue_flag = False
             return
         effect_res = re.search(r"(%s)" % self._effect_re, token, re.IGNORECASE)

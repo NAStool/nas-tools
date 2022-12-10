@@ -129,15 +129,18 @@
                                data-bs-parent="#search_results_accordion">
                             <div class="accordion-body pt-0">
                             {% for unique_key, unique in group.group_torrents.items() %}
-                              <a href="javascript:show_unique_detail('{{ unique_key }}')" class="card card-link card-link-pop rounded-3 mb-2">
+                              <a href="javascript:$('#detail_{{ unique_key}}').slideToggle()" class="card card-link card-link-pop rounded-3 mb-2">
                               <div class="card-header">
                                 {% if unique.unique_info.size %}
                                 <span class="text-yellow">{{ unique.unique_info.size }}</span>
                                 {% endif %}
-                                &nbsp;/&nbsp;<span class="text-cyan">{{ unique.unique_info.releasegroup or "未识别组" }}</span>
+                                {% if unique.unique_info.video_encode %}
+                                &nbsp;/&nbsp;<span class="text-pink">{{ unique.unique_info.video_encode }}</span>
+                                {% endif %}
                                 {% if unique.unique_info.reseffect %}
                                 &nbsp;/&nbsp;<span class="text-blue">{{ unique.unique_info.reseffect }} </span>
                                 {% endif %}
+                                &nbsp;/&nbsp;<span class="text-cyan">{{ unique.unique_info.releasegroup or "未识别组" }}</span>
                                 &nbsp;/&nbsp;<span class="text">来源：{{ unique.torrent_list|length }} </span>
                               </div>
                               </a>
@@ -577,8 +580,4 @@
     $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }
 
-  // 折叠任务详情
-  function show_unique_detail(unique_key) {
-    $(`#detail_${unique_key}`).slideToggle();
-  }
 </script>

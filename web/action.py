@@ -3182,6 +3182,7 @@ class WebAction:
             if item.RES_TYPE:
                 res_mix = json.loads(item.RES_TYPE)
                 respix = res_mix.get("pix") or ""
+                video_encode = res_mix.get("video_encode") or ""
                 restypes = res_mix.get("type") or ""
                 if restypes:
                     if restypes.startswith(" "):
@@ -3201,12 +3202,14 @@ class WebAction:
                 restype = ""
                 respix = ""
                 reseffect = ""
+                video_encode = ""
             # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
-            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
+            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{item.SIZE}_{video_encode}_{reseffect}_{item.OTHERINFO}").lower()
             unique_info = {
                 "size": item.SIZE,
                 "reseffect": reseffect,
-                "releasegroup": item.OTHERINFO
+                "releasegroup": item.OTHERINFO,
+                "video_encode": video_encode
             }
             # 分组标识 (来源，分辨率)
             group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
@@ -3288,6 +3291,14 @@ class WebAction:
                         }
                     }
                 }
+        for SearchResult in SearchResults.values():
+            torrent_dict = SearchResult.get("torrent_dict")
+            for group in torrent_dict.values():
+                unique = group.get("group_torrents")
+                group["group_torrents"] = \
+                    dict(sorted(unique.items(), key=lambda x: x[1].get("unique_info").get("video_encode")))
+            SearchResult["torrent_dict"] = \
+                dict(sorted(torrent_dict.items(), key=lambda x: (x[1].get("group_info").get("restype"), x[1].get("group_info").get("respix"))))
         return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod

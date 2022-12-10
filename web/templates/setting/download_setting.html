@@ -57,7 +57,7 @@
         <div class="card-header">
           <h3 class="card-title">{{ Attr.name }}</h3>
           <div class="card-actions btn-actions">
-            <a href="javascript:show_download_setting_detail('{{ Attr.id }}')" class="btn-action">
+            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
@@ -283,15 +283,6 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 折叠设置详情
-  function show_download_setting_detail(sid) {
-    if ($(`#detail_${sid}`)[0].style["display"] == "none") {
-      $(`#detail_${sid}`).attr("style", "display: block;");
-    } else {
-      $(`#detail_${sid}`).attr("style", "display: none;");
-    };
-  }
-
   // 显示新增下载设置
   function show_add_download_setting_modal(){
     $("#download_setting_id").val('');
