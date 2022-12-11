@@ -27,9 +27,9 @@ class MetaVideo(MetaBase):
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})$|S\d{1,2}EP?(\d{1,4})$"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
-    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^HDRip$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$|^DOVI$|^10BIT$"
     _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
-    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^10BIT$"
+    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$"
+    _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
     _name_no_chinese_re = r".*版|.*字幕"
     _name_se_words = ['共', '第', '季', '集', '话', '話', '期']
@@ -46,7 +46,7 @@ class MetaVideo(MetaBase):
                         r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PI]+)|\d{3,4}X(\d{3,4})"
     _resources_pix_re2 = r"(^[248]+K)"
-    _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
+    _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$|^10BIT$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
 
     def __init__(self, title, subtitle=None, fileflag=False):
@@ -107,14 +107,15 @@ class MetaVideo(MetaBase):
             token = tokens.get_next()
             self._continue_flag = True
         # 合成质量
-        self._effect.reverse()
-        effect_string = " ".join(self._effect)
-        if self._source and effect_string:
-            self.resource_type = f"{self._source} | {effect_string}"
-        else:
-            self.resource_type = self._source or f" {effect_string}" or ""
+        if self._effect:
+            self._effect.reverse()
+            self.resource_effect = " ".join(self._effect)
+        if self._source:
+            self.resource_type = self._source.strip()
         # 副标题提取原盘DIY
-        if "BluRay" in self.resource_type and self.subtitle:
+        if self.resource_type \
+                and "BluRay" in self.resource_type \
+                and self.subtitle:
             if re.findall(r'DIY', self.subtitle):
                 self.resource_type = f"{self.resource_type} DIY"
         # 解析副标题，只要季和集
@@ -313,16 +314,6 @@ class MetaVideo(MetaBase):
                 self._stop_name_flag = True
                 if not self.resource_pix:
                     self.resource_pix = re_res.group(1).lower()
-                elif self.resource_pix == "3D":
-                    self.resource_pix = "%s 3D" % re_res.group(1).lower()
-            elif token.upper() == "3D":
-                self._last_token_type = "pix"
-                self._continue_flag = False
-                self._stop_name_flag = True
-                if not self.resource_pix:
-                    self.resource_pix = "3D"
-                else:
-                    self.resource_pix = "%s 3D" % self.resource_pix
 
     def __init_season(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
@@ -471,7 +462,8 @@ class MetaVideo(MetaBase):
             self._continue_flag = False
             self._stop_name_flag = True
             effect = effect_res.group(1)
-            self._effect.append(effect)
+            if effect not in self._effect:
+                self._effect.append(effect)
             self._last_token = effect.upper()
 
     def __init_video_encode(self, token):

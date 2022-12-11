@@ -6,7 +6,9 @@
         <h2 class="page-title text-nowrap">
           资源搜索
         </h2>
+        {% if Results|length > 0 %}
         <div class="text-muted mt-1 d-none d-md-block">共搜索到 {{ Count }} 条记录</div>
+        {% endif %}
       </div>
       <div class="col ms-auto d-print-none">
         <div class="d-flex btn-list">
@@ -45,7 +47,7 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
-{% if Count > 0 %}
+{% if Count > 0 and Results|length > 0 %}
   <div class="page-body">
     <div class="container-xl">
       <div class="row">
@@ -109,45 +111,35 @@
                         {{ Item.overview}}
                       </div>
                       {% endif %}
-                      <div class="accordion mt-2" id="search_results_accordion">
+                      <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
                         {% for group_key, group in Item.torrent_dict.items() %}
-                        <div class="accordion-item" id="{{ group_key }}">
-                          <h2 class="accordion-header" id="heading-detail_{{ group_key }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#detail_{{ group_key }}"
+                        <div class="accordion-item">
+                          <h2 class="accordion-header">
+                            <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
                                     aria-expanded="true">
                                 {% if group.group_info.restype %}
                                   <span class="text-red">{{ group.group_info.restype }}</span>
                                 {% endif %}
                                 {% if group.group_info.respix %}
-                                &nbsp;/&nbsp;<span class="text-orange">{{ group.group_info.respix }}</span>
+                                  {% if group.group_info.restype %}
+                                    &nbsp;/&nbsp;
+                                  {% endif %}
+                                  <span class="text-orange">{{ group.group_info.respix }}</span>
                                 {% endif %}
-                                &nbsp;/&nbsp;<span class="text">共{{ group.group_torrents|length }}条 </span>
+                                {% if group.group_info.restype or group.group_info.respix %}
+                                  &nbsp;/&nbsp;
+                                {% endif %}
+                                <span class="text">共{{ group.torrent_list|length }}条 </span>
                             </button>
                           </h2>
-                          <div id="detail_{{ group_key }}" class="accordion-collapse collapse"
-                               data-bs-parent="#search_results_accordion">
+                          <div id="search_results_group_{{ group_key }}_{{ Item.key }}" class="accordion-collapse collapse"
+                               data-bs-parent="#search_results_accordion_{{ Item.key }}">
                             <div class="accordion-body pt-0">
-                            {% for unique_key, unique in group.group_torrents.items() %}
-                              <a href="javascript:$('#detail_{{ unique_key}}').slideToggle()" class="card card-link card-link-pop rounded-3 mb-2">
-                              <div class="card-header">
-                                {% if unique.unique_info.size %}
-                                <span class="text-yellow">{{ unique.unique_info.size }}</span>
-                                {% endif %}
-                                {% if unique.unique_info.video_encode %}
-                                &nbsp;/&nbsp;<span class="text-pink">{{ unique.unique_info.video_encode }}</span>
-                                {% endif %}
-                                {% if unique.unique_info.reseffect %}
-                                &nbsp;/&nbsp;<span class="text-blue">{{ unique.unique_info.reseffect }} </span>
-                                {% endif %}
-                                &nbsp;/&nbsp;<span class="text-cyan">{{ unique.unique_info.releasegroup or "未识别组" }}</span>
-                                &nbsp;/&nbsp;<span class="text">来源：{{ unique.torrent_list|length }} </span>
-                              </div>
-                              </a>
-                              <div class="list-group" id="detail_{{ unique_key }}" style="display: none">
+                              <div class="list-group">
                                 <div class="list-group card-list-group mt-2">
-                                  {% for torrent in unique.torrent_list %}
-                                    <div class="list-group-item p-2 ps-1 pe-1">
+                                  {% for torrent in group.torrent_list %}
+                                    <div class="list-group-item p-2 ps-1">
                                       <div class="row g-2 align-items-center">
                                         <div class="col-auto fs-3">
                                           {{ loop.index0 + 1 }}
@@ -167,6 +159,20 @@
                                               <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                             {% endif %}
                                           {% endif %}
+                                          <div>
+                                            {% if torrent.reseffect %}
+                                              <span class="badge badge-outline text-blue">{{ torrent.reseffect }}</span>
+                                            {% endif %}
+                                            {% if torrent.video_encode %}
+                                              <span class="badge badge-outline text-orange">{{ torrent.video_encode }}</span>
+                                            {% endif %}
+                                            {% if torrent.size %}
+                                              <span class="badge badge-outline text-yellow">{{ torrent.size }}</span>
+                                            {% endif %}
+                                            {% if torrent.releasegroup %}
+                                              <span class="badge badge-outline text-cyan">{{ torrent.releasegroup }}</span>
+                                            {% endif %}
+                                          </div>
                                           <div class="text-muted">
                                             {{ torrent.description }}
                                           </div>
@@ -204,7 +210,6 @@
                                   {% endfor %}
                                 </div>
                               </div>
-                            {% endfor %}
                             </div>
                           </div>
                         </div>

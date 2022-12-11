@@ -96,7 +96,7 @@ def get_run_config():
         _ssl_cert = app_conf.get('ssl_cert')
         _ssl_key = app_conf.get('ssl_key')
 
-    app_arg = dict(host=_web_host, port=_web_port, debug=False, threaded=True, use_reloader=False)
+    app_arg = dict(host=_web_host, port=_web_port, debug=True, threaded=True, use_reloader=False)
     if _ssl_cert:
         app_arg['ssl_context'] = (_ssl_cert, _ssl_key)
     return app_arg

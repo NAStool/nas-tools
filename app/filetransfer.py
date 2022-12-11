@@ -1121,7 +1121,7 @@ class FileTransfer:
             "original_title": StringUtils.clear_file_name(media.original_title),
             "name": StringUtils.clear_file_name(media.get_name()),
             "year": media.year,
-            "edition": media.resource_type,
+            "edition": media.get_edtion_string() or None,
             "videoFormat": media.resource_pix,
             "releaseGroup": media.resource_team,
             "videoCodec": media.video_encode,

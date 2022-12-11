@@ -240,9 +240,9 @@ class Filter:
         # 过滤质量
         if filter_args.get("restype"):
             restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
-            if not meta_info.resource_type:
+            if not meta_info.get_resource_type_string():
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.I):
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.get_resource_type_string(), re.I):
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
         # 过滤分辨率
         if filter_args.get("pix"):

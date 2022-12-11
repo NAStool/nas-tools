@@ -45,8 +45,9 @@ class DbHelper:
                 TMDBID=media_item.tmdb_id,
                 OVERVIEW=media_item.overview,
                 RES_TYPE=json.dumps({
-                    "pix": media_item.resource_pix,
-                    "type": media_item.resource_type,
+                    "respix": media_item.resource_pix,
+                    "restype": media_item.resource_type,
+                    "reseffect": media_item.resource_effect,
                     "video_encode": media_item.video_encode
                 }),
                 RES_ORDER=media_item.res_order,

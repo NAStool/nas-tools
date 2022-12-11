@@ -1939,6 +1939,7 @@ class WebAction:
             "tmdb_S_E_link": tmdb_S_E_link,
             "category": media_info.category,
             "restype": media_info.resource_type,
+            "effect": media_info.resource_effect,
             "pix": media_info.resource_pix,
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
@@ -3180,37 +3181,20 @@ class WebAction:
         for item in res:
             # 质量(来源、效果)、分辨率
             if item.RES_TYPE:
-                res_mix = json.loads(item.RES_TYPE)
-                respix = res_mix.get("pix") or ""
+                try:
+                    res_mix = json.loads(item.RES_TYPE)
+                except Exception as err:
+                    print(str(err))
+                    continue
+                respix = res_mix.get("respix") or ""
                 video_encode = res_mix.get("video_encode") or ""
-                restypes = res_mix.get("type") or ""
-                if restypes:
-                    if restypes.startswith(" "):
-                        restype = ""
-                        reseffect = restypes
-                    else:
-                        restypes = restypes.split("|")
-                        restype = restypes[0]
-                        if len(restypes) > 1:
-                            reseffect = restypes[1]
-                        else:
-                            reseffect = ""
-                else:
-                    restype = ""
-                    reseffect = ""
+                restype = res_mix.get("restype") or ""
+                reseffect = res_mix.get("reseffect") or ""
             else:
                 restype = ""
                 respix = ""
                 reseffect = ""
                 video_encode = ""
-            # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
-            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{item.SIZE}_{video_encode}_{reseffect}_{item.OTHERINFO}").lower()
-            unique_info = {
-                "size": item.SIZE,
-                "reseffect": reseffect,
-                "releasegroup": item.OTHERINFO,
-                "video_encode": video_encode
-            }
             # 分组标识 (来源，分辨率)
             group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
             # 分组信息
@@ -3235,30 +3219,24 @@ class WebAction:
                 "description": item.DESCRIPTION,
                 "pageurl": item.PAGEURL,
                 "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR
+                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
+                "size": item.SIZE,
+                "respix": respix,
+                "restype": restype,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO,
+                "video_encode": video_encode
             }
             # 合并搜索结果
             if SearchResults.get(title_string):
                 torrent_dict = SearchResults[title_string].get("torrent_dict")
-                torrent_group = torrent_dict.get(group_key)
-                if torrent_group:
-                    torrent_unique = torrent_group.get("group_torrents").get(unique_key)
-                    if torrent_unique:
-                        torrent_unique["torrent_list"].append(torrent_item)
-                    else:
-                        torrent_group.get("group_torrents")[unique_key] = {
-                            "unique_info": unique_info,
-                            "torrent_list": [torrent_item]
-                        }
+                torrent_dict_item = torrent_dict.get(group_key)
+                if torrent_dict_item:
+                    torrent_dict_item["torrent_list"].append(torrent_item)
                 else:
                     torrent_dict[group_key] = {
                         "group_info": group_info,
-                        "group_torrents": {
-                            unique_key: {
-                                "unique_info": unique_info,
-                                "torrent_list": [torrent_item]
-                            }
-                        }
+                        "torrent_list": [torrent_item]
                     }
             else:
                 # 是否已存在
@@ -3282,23 +3260,10 @@ class WebAction:
                     "torrent_dict": {
                         group_key: {
                             "group_info": group_info,
-                            "group_torrents": {
-                                unique_key: {
-                                    "unique_info": unique_info,
-                                    "torrent_list": [torrent_item]
-                                }
-                            }
+                            "torrent_list": [torrent_item]
                         }
                     }
                 }
-        for SearchResult in SearchResults.values():
-            torrent_dict = SearchResult.get("torrent_dict")
-            for group in torrent_dict.values():
-                unique = group.get("group_torrents")
-                group["group_torrents"] = \
-                    dict(sorted(unique.items(), key=lambda x: x[1].get("unique_info").get("video_encode")))
-            SearchResult["torrent_dict"] = \
-                dict(sorted(torrent_dict.items(), key=lambda x: (x[1].get("group_info").get("restype"), x[1].get("group_info").get("respix"))))
         return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod
