@@ -44,7 +44,11 @@ class DbHelper:
                 POSTER=media_item.get_poster_image(),
                 TMDBID=media_item.tmdb_id,
                 OVERVIEW=media_item.overview,
-                RES_TYPE=media_item.get_resource_type_string(),
+                RES_TYPE=json.dumps({
+                    "pix": media_item.resource_pix,
+                    "type": media_item.resource_type,
+                    "video_encode": media_item.video_encode
+                }),
                 RES_ORDER=media_item.res_order,
                 SIZE=StringUtils.str_filesize(int(media_item.size)),
                 SEEDERS=media_item.seeders,
@@ -68,7 +72,7 @@ class DbHelper:
         """
         查询检索结果的所有记录
         """
-        return self._db.query(SEARCHRESULTINFO).all()
+        return self._db.query(SEARCHRESULTINFO).order_by(SEARCHRESULTINFO.SIZE, SEARCHRESULTINFO.SEEDERS.desc()).all()
 
     def is_torrent_rssd(self, enclosure):
         """

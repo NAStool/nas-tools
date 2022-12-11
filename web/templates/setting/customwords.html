@@ -121,7 +121,7 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:show_custom_words_group('{{ Group.id }}')" class="btn-action" title="折叠">
+              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action" title="折叠">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                   viewBox="0 0 16 16">
                   <path fill-rule="evenodd"
@@ -557,15 +557,6 @@
     $("[id^='all_check_group']").change(function () {
       $(`[id^='check_group${$(this).attr("id").replace("all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
     })
-
-    // 折叠识别词组
-    function show_custom_words_group(gid) {
-      if ($(`#div_group${gid}`)[0].style["display"] == "none") {
-        $(`#div_group${gid}`).attr("style", "display: block;");
-      } else {
-        $(`#div_group${gid}`).attr("style", "display: none;");
-      };
-    }
 
     // 批量启用/停用/导出
     function batch_check_action(flag) {
