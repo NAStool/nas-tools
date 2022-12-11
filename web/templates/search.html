@@ -67,7 +67,8 @@
                       <div class="form-selectgroup form-selectgroup-pills">
                         {% for filter_site in Item.filter.site %}
                         <label class="form-selectgroup-item">
-                          <input type="checkbox" name="name" value="{{ filter_site }}" class="form-selectgroup-input">
+                          <input type="checkbox" name="filter_site" value="{{ filter_site }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this)">
                           <span class="form-selectgroup-label">{{ filter_site }}</span>
                         </label>
                         {% endfor %}
@@ -76,7 +77,8 @@
                       <div class="form-selectgroup form-selectgroup-pills">
                         {% for filter_free in Item.filter.free %}
                         <label class="form-selectgroup-item">
-                          <input type="checkbox" name="name" value="{{ filter_free }}" class="form-selectgroup-input">
+                          <input type="checkbox" name="filter_free" value="{{ filter_free }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this)">
                           <span class="form-selectgroup-label">{{ filter_free }}</span>
                         </label>
                         {% endfor %}
@@ -85,7 +87,8 @@
                       <div class="form-selectgroup form-selectgroup-pills">
                         {% for filter_video in Item.filter.video %}
                         <label class="form-selectgroup-item">
-                          <input type="checkbox" name="name" value="{{ filter_video }}" class="form-selectgroup-input">
+                          <input type="checkbox" name="filter_video" value="{{ filter_video }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this)">
                           <span class="form-selectgroup-label">{{ filter_video }}</span>
                         </label>
                         {% endfor %}
@@ -399,9 +402,8 @@
   // 关键字
   var search_word = "{{ SearchWord }}";
   var need_search = "{{ NeedSearch }}";
-  var result_count =
-  {{ Count }}
-  if (search_word != "") {
+  var result_count = {{ Count }};
+  if (search_word !== "") {
     $("#search_word").val(decodeURI(search_word));
     if (need_search) {
       search_media(true);
@@ -418,25 +420,23 @@
     } else {
       unident = "1";
     }
-    var keyword = $("#search_word").val();
-    if (keyword == "") {
+    const keyword = $("#search_word").val();
+    if (keyword === "") {
       return;
     }
-    $("#search_btn").text("搜索中...");
-    $("#search_btn").attr("disabled", "true");
+    $("#search_btn").text("搜索中...").attr("disabled", "true");
     $("#quick_search_btn").attr("disabled", "true");
     $("#search_icon").attr("disabled", "true");
     $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
     $("#search_tip_text").text("正在搜索 " + keyword + " ...");
-    var param = {"search_word": keyword, "unident": unident};
+    const param = {"search_word": keyword, "unident": unident};
     show_refresh_process("正在搜索 " + keyword + "...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('search?s=' + keyword);
       } else {
-        $("#search_btn").text("搜索");
-        $("#search_btn").attr("disabled", false);
+        $("#search_btn").text("搜索").attr("disabled", false);
         $("#quick_search_btn").attr("disabled", false);
         $("#search_icon").attr("disabled", false);
         $("#search_tip_title").text("搜索失败");
@@ -448,8 +448,8 @@
 
   //搜索联想
   function search_media_list() {
-    var keyword = $("#search_word").val();
-    if (keyword == "") {
+    const keyword = $("#search_word").val();
+    if (keyword === "") {
       return;
     }
     navmenu('medialist?s=' + keyword + '&f=1&t=search');
@@ -457,101 +457,27 @@
 
   // 搜索输入框
   $('#search_word').bind('keypress', function (event) {
-    if (event.keyCode == "13") {
+    if (event.keyCode === 13) {
       search_media_list();
     }
   });
 
   // 执行过滤
   function filter_do() {
-    var strings = [];
-    var i = 0;
-    $("#filter_form_accordion").find("a").each(function () {
-      if ($(this).hasClass("active")) {
-        strings[i] = $(this).find("span").text().trim();
-        i++;
-      }
-    });
-
-    if (strings.length == 0) {
-      $("#media_cards").find("div[class*='media_card']").show();
-    } else {
-      $("#media_cards").find("div[class*='media_card']").each(function () {
-        media_string = $(this).find("strong[class='media_card_info']").text();
-        type_string = $(this).find("input[name='media_card_type']").val();
-        spstate_string = $(this).find("input[name='media_card_spstate']").val();
-        title_string = $(this).find("input[name='media_card_title']").val();
-        show_flag = true;
-        for (var i = 0; i < strings.length; i++) {
-          if (strings[i] == "电影" && type_string != "MOV") {
-            show_flag = false;
-            break;
-          }
-          if (strings[i] == "电视剧" && type_string != "TV") {
-            show_flag = false;
-            break;
-          }
-          if (strings[i] == "动漫" && type_string != "ANI") {
-            show_flag = false;
-            break;
-          }
-          const sp_name_map = new Map([
-            ["普通", '1.0 1.0'],
-            ["免费", '1.0 0.0'],
-            ["2X", '2.0 1.0'],
-            ["2X免费", '2.0 0.0'],
-            ["50%", '1.0 0.5'],
-            ["2X 50%", '2.0 0.5'],
-            ["70%", '1.0 0.7'],
-            ["30%", '1.0 0.3']
-          ]);
-          if (Array.from(sp_name_map.keys()).includes(strings[i])) {
-            let sp_state = sp_name_map.get(strings[i]);
-            if (sp_state != spstate_string) {
-              show_flag = false;
-              break;
-            }
-          }
-          if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"
-              && !Array.from(sp_name_map.keys()).includes(strings[i])
-              && media_string.search(strings[i]) == -1
-              && title_string.search(strings[i]) == -1) {
-            show_flag = false;
-            break;
-          }
-        }
-        if (show_flag) {
-          $(this).show();
-        } else {
-          $(this).hide();
-        }
-      });
-    }
 
   }
 
   // 过滤媒体展示
-  function filter_medias(typeid, obj) {
-    // 处理响应
+  function filter_medias(obj) {
+    // 处理UI
     if (obj) {
-      if ($(obj).hasClass("active")) {
-        $(obj).removeClass("active");
-      } else {
-        $(obj).addClass("active");
-        if (typeid) {
-          $("#" + typeid).find("a").not(obj).removeClass("active");
-        }
-      }
+      debugger;
+      $(obj).parent().parent().find("input[type=checkbox]").each(function(){
+        $(this).prop("checked", false);
+      });
+      $(obj).prop("checked", true);
     }
     // 开始过滤
-    filter_do();
-  }
-
-  // 重置过滤器
-  function reset_filter() {
-    $("#filter_form").find("a").removeClass("active");
-    $("#filter_size_begin").val("");
-    $("#filter_size_end").val("");
     filter_do();
   }
 
@@ -562,28 +488,29 @@
 
   // 开始高级搜索
   function search_media_advanced() {
+    let keyword;
     $("#search_icon").attr("disabled", "true");
     // 读取数据
-    var search_name = $("#search_name").val();
+    const search_name = $("#search_name").val();
     if (!search_name) {
       $("#search_name").addClass("is-invalid");
       return;
     } else {
       $("#search_name").removeClass("is-invalid");
     }
-    var search_type = $("#search_type").val();
-    var search_season = $("#search_season").val();
-    var search_year = $("#search_year").val();
-    var search_site = $("#search_site").val();
-    var search_restype = $("#search_restype").val();
-    var search_pix = $("#search_pix").val();
-    var sp_state = $("#sp_state").val();
-    var search_key = $("#search_key").val();
+    const search_type = $("#search_type").val();
+    const search_season = $("#search_season").val();
+    const search_year = $("#search_year").val();
+    const search_site = $("#search_site").val();
+    const search_restype = $("#search_restype").val();
+    const search_pix = $("#search_pix").val();
+    const sp_state = $("#sp_state").val();
+    const search_key = $("#search_key").val();
     // 拼装请求
     if (search_type) {
-      var keyword = search_type + " " + search_name;
+      keyword = search_type + " " + search_name;
     } else {
-      var keyword = search_name;
+      keyword = search_name;
     }
     if (search_year) {
       keyword = keyword + " " + search_year;
@@ -591,19 +518,19 @@
     if (search_season) {
       keyword = keyword + " " + search_season;
     }
-    var filters = {
+    const filters = {
       "site": search_site,
       "restype": search_restype,
       "pix": search_pix,
       "sp_state": sp_state,
       "key": search_key
     };
-    var param = {"search_word": keyword, "filters": filters, "unident": true};
+    const param = {"search_word": keyword, "filters": filters, "unident": true};
     $("#modal-search-advanced").modal("hide");
     show_refresh_process("正在搜索 " + keyword + " ...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('search?s=' + keyword);
       } else {
         show_fail_modal(ret.msg,function () {
@@ -614,9 +541,8 @@
   }
 
   //初始化下拉框
-  $("#search_season").empty();
-  $("#search_season").append('<option value="">全部</option>');
-  for (var i = 1; i <= 50; i++) {
+  $("#search_season").empty().append('<option value="">全部</option>');
+  for (let i = 1; i <= 50; i++) {
     $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }
 
