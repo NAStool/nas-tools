@@ -106,9 +106,6 @@ class MetaVideo(MetaBase):
             # 取下一个，直到没有为卡
             token = tokens.get_next()
             self._continue_flag = True
-        # 统一分辨率形式
-        if self.resource_pix == "4k":
-            self.resource_pix = "2160p"
         # 合成质量
         if self._effect:
             self._effect.reverse()
