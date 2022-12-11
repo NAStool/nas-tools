@@ -3186,15 +3186,15 @@ class WebAction:
                 except Exception as err:
                     print(str(err))
                     continue
-                respix = res_mix.get("respix") or "未识分辨率"
-                video_encode = res_mix.get("video_encode") or "未识别视频编码"
-                restype = res_mix.get("restype") or "未识别媒介"
+                respix = res_mix.get("respix") or ""
+                video_encode = res_mix.get("video_encode") or ""
+                restype = res_mix.get("restype") or ""
                 reseffect = res_mix.get("reseffect") or ""
             else:
-                restype = "未识别媒介"
-                respix = "未识分辨率"
+                restype = ""
+                respix = ""
                 reseffect = ""
-                video_encode = "未识别视频编码"
+                video_encode = ""
             # 分组标识 (来源，分辨率)
             group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
             # 分组信息
@@ -3308,7 +3308,7 @@ class WebAction:
                     "filter": {
                         "site": [item.SITE],
                         "free": [free_item],
-                        "video": [video_encode]
+                        "video": [video_encode] if video_encode else []
                     }
                 }
         return {"code": 0, "total": total, "result": SearchResults}

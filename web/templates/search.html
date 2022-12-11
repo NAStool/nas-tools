@@ -162,9 +162,9 @@
                                 data-bs-toggle="collapse"
                                 data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
                                 aria-expanded="true">
-                                <span class="text-red">{{ group.group_info.restype }}</span>
+                                <span class="text-red">{{ group.group_info.restype or "未识别媒介" }}</span>
                                     &nbsp;/&nbsp;
-                                  <span class="text-orange">{{ group.group_info.respix }}</span>
+                                  <span class="text-orange">{{ group.group_info.respix or "未识别分辨率" }}</span>
                                   &nbsp;/&nbsp;
                               <span class="text">共 <span id="search_results_group_total_{{ group_key }}_{{ Item.key }}"
                                                          class="search_results_group_total"
@@ -195,9 +195,7 @@
                                             {{ torrent.description or '' }}
                                           </div>
                                           <div>
-                                            {% if torrent.video_encode %}
-                                              <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
-                                            {% endif %}
+                                            <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode or "未识别视频编码" }}</span>
                                             {% if torrent.reseffect %}
                                               <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
                                             {% endif %}
