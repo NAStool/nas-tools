@@ -57,7 +57,7 @@
               <div class="card">
                 <div class="card-body ps-1 pe-1">
                   <div class="row">
-                    <div class="col-2 d-none d-md-block">
+                    <div class="col-2 d-none d-lg-block">
                       <!-- 图片 -->
                       {% if Item.poster %}
                       <img class="rounded object-cover shadow" src="{{ Item.poster }}">
@@ -92,6 +92,11 @@
                           <span class="form-selectgroup-label">{{ filter_video }}</span>
                         </label>
                         {% endfor %}
+                      </div>
+                      <div class="mt-3">
+                        <button class="btn w-100" onclick="reset_filter(this)">
+                          重置
+                        </button>
                       </div>
                     </div>
                     <div class="col">
@@ -477,6 +482,15 @@
       });
       $(obj).prop("checked", true);
     }
+    // 开始过滤
+    filter_do();
+  }
+
+  // 重置过滤条件
+  function reset_filter(obj) {
+    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
+      $(this).prop("checked", false);
+    });
     // 开始过滤
     filter_do();
   }
