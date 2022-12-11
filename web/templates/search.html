@@ -193,11 +193,8 @@
                                       data-video="{{ torrent.video_encode }}"
                                       data-group="{{ group_key }}">
                                       <div class="row g-2 align-items-center">
-                                        <div class="col-auto fs-3">
-                                          {{ loop.index0 + 1 }}
-                                        </div>
                                         <div class="col-auto">
-                                          <span class="avatar text-wrap" style="overflow:hidden;"><strong>{{ torrent.site }}</strong></span>
+                                          <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }});"></span>
                                         </div>
                                         <div class="col">
                                           <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
@@ -205,11 +202,12 @@
                                             {{ torrent.description }}
                                           </div>
                                           <div>
+                                            <span class="badge bg-dark text-dark-fg">{{ torrent.site }}</span>
                                             {% if torrent.video_encode %}
-                                              <span class="badge text-white bg-red">{{ torrent.video_encode }}</span>
+                                              <span class="badge text-white bg-orange">{{ torrent.video_encode }}</span>
                                             {% endif %}
                                             {% if torrent.reseffect %}
-                                              <span class="badge text-white">{{ torrent.reseffect }}</span>
+                                              <span class="badge text-white bg-purple">{{ torrent.reseffect }}</span>
                                             {% endif %}
                                             {% if torrent.size %}
                                               <span class="badge text-white bg-yellow">{{ torrent.size }}</span>
@@ -217,7 +215,6 @@
                                             {% if torrent.releasegroup %}
                                               <span class="badge text-white bg-cyan">{{ torrent.releasegroup }}</span>
                                             {% endif %}
-                                            <span class="badge text-white bg-orange">{{ torrent.site }}</span>
                                             {% if torrent.uploadvalue != 1.0 %}
                                             <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
                                             {% endif %}
@@ -225,7 +222,7 @@
                                               {% if torrent.downloadvalue == 0.0 %}
                                                 <span class="badge text-white bg-lime">FREE</span>
                                               {% else %}
-                                                <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                                <span class="badge text-white bg-indigo">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                               {% endif %}
                                             {% endif %}
                                             <span class="badge text-white">{{ torrent.seeders }}{{ UPCHAR }}</span>
