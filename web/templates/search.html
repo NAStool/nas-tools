@@ -503,6 +503,30 @@
         filter_site = $(this).val();
       }
     });
+    // 过滤促销
+    let filter_free;
+    $(filter_obj+" input[name=filter_free]").each(function () {
+      if($(this).prop('checked')){
+        filter_free = $(this).val();
+      }
+    });
+    // 过滤编码
+    let filter_video;
+    $(filter_obj+" input[name=filter_video]").each(function () {
+      if($(this).prop('checked')){
+        filter_video = $(this).val();
+      }
+    });
+    // 有过滤则展开
+    if (filter_site || filter_free || filter_video) {
+      $(torrent_obj+" .accordion-button").each(function () {
+        $(this).removeClass("collapsed");
+      });
+      $(torrent_obj+" .accordion-collapse").each(function () {
+        $(this).addClass("show");
+      });
+    }
+    // 执行过滤
     if (filter_site) {
       $(torrent_obj+" .search_results_torrent").each(function () {
         if ($(this).attr("data-site") !== filter_site) {
@@ -513,13 +537,6 @@
         }
       });
     }
-    // 过滤促销
-    let filter_free;
-    $(filter_obj+" input[name=filter_free]").each(function () {
-      if($(this).prop('checked')){
-        filter_free = $(this).val();
-      }
-    });
     if (filter_free) {
       $(torrent_obj+" .search_results_torrent").each(function () {
         if ($(this).attr("data-free") !== filter_free) {
@@ -530,13 +547,6 @@
         }
       });
     }
-    // 过滤编码
-    let filter_video;
-    $(filter_obj+" input[name=filter_video]").each(function () {
-      if($(this).prop('checked')){
-        filter_video = $(this).val();
-      }
-    });
     if (filter_video) {
       $(torrent_obj+" .search_results_torrent").each(function () {
         if ($(this).attr("data-video") !== filter_video) {
@@ -547,26 +557,16 @@
         }
       });
     }
-    // 过滤后展开
-    if (filter_site || filter_free || filter_video) {
-      $(torrent_obj+" .accordion-button").each(function () {
-        $(this).removeClass("collapsed");
-      });
-      $(torrent_obj+" .accordion-collapse").each(function () {
-        $(this).addClass("show");
-      });
-    }
   }
 
   // 过滤媒体展示
   function filter_medias(obj, key) {
+    let filter_obj = "#search_results_filter_"+key;
     // 处理UI
-    if (obj) {
-      $(obj).parent().parent().find("input[type=checkbox]").each(function(){
-        $(this).prop("checked", false);
-      });
-      $(obj).prop("checked", true);
-    }
+    $(filter_obj + " input[type=checkbox]").each(function(){
+      $(this).prop("checked", false);
+    });
+    $(obj).prop("checked", true);
     // 开始过滤
     filter_do(key);
   }
