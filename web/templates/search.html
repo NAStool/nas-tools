@@ -201,36 +201,35 @@
                                         </div>
                                         <div class="col">
                                           <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
-                                          {% if torrent.uploadvalue != 1.0 %}
-                                            <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
-                                          {% endif %}
-                                          {% if torrent.downloadvalue != 1.0 %}
-                                            {% if torrent.downloadvalue == 0.0 %}
-                                              <span class="badge text-white bg-lime">FREE</span>
-                                            {% else %}
-                                              <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
-                                            {% endif %}
-                                          {% endif %}
-                                          <div>
-                                            {% if torrent.reseffect %}
-                                              <span class="badge badge-outline text-blue">{{ torrent.reseffect }}</span>
-                                            {% endif %}
-                                            {% if torrent.video_encode %}
-                                              <span class="badge badge-outline text-orange">{{ torrent.video_encode }}</span>
-                                            {% endif %}
-                                            {% if torrent.size %}
-                                              <span class="badge badge-outline text-yellow">{{ torrent.size }}</span>
-                                            {% endif %}
-                                            {% if torrent.releasegroup %}
-                                              <span class="badge badge-outline text-cyan">{{ torrent.releasegroup }}</span>
-                                            {% endif %}
-                                          </div>
                                           <div class="text-muted">
                                             {{ torrent.description }}
                                           </div>
-                                        </div>
-                                        <div class="col-auto text-muted">
-                                          {{ torrent.seeders }}{{ UPCHAR }}
+                                          <div>
+                                            {% if torrent.video_encode %}
+                                              <span class="badge text-white bg-red">{{ torrent.video_encode }}</span>
+                                            {% endif %}
+                                            {% if torrent.reseffect %}
+                                              <span class="badge text-white">{{ torrent.reseffect }}</span>
+                                            {% endif %}
+                                            {% if torrent.size %}
+                                              <span class="badge text-white bg-yellow">{{ torrent.size }}</span>
+                                            {% endif %}
+                                            {% if torrent.releasegroup %}
+                                              <span class="badge text-white bg-cyan">{{ torrent.releasegroup }}</span>
+                                            {% endif %}
+                                            <span class="badge text-white bg-orange">{{ torrent.site }}</span>
+                                            {% if torrent.uploadvalue != 1.0 %}
+                                            <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                            {% endif %}
+                                            {% if torrent.downloadvalue != 1.0 %}
+                                              {% if torrent.downloadvalue == 0.0 %}
+                                                <span class="badge text-white bg-lime">FREE</span>
+                                              {% else %}
+                                                <span class="badge text-white bg-blue">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                              {% endif %}
+                                            {% endif %}
+                                            <span class="badge text-white">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                          </div>
                                         </div>
                                         <div class="col-auto ms-2 d-none d-md-inline-block">
                                           <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
