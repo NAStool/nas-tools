@@ -3251,7 +3251,8 @@ class WebAction:
                     torrent_filter["free"].append(free_item)
                 if item.SITE not in torrent_filter.get("site"):
                     torrent_filter["site"].append(item.SITE)
-                if video_encode not in torrent_filter.get("video"):
+                if video_encode \
+                        and video_encode not in torrent_filter.get("video"):
                     torrent_filter["video"].append(video_encode)
             else:
                 # 是否已存在
