@@ -147,6 +147,17 @@ class Searcher:
                                             match_media=media_info,
                                             in_from=in_from)
 
+        # 使用单集搜索，解决有些剧集始终无法下载的情况；Jackett搜索结果过多时，不会有时间较前的内容。
+        # FIXME: 能力有限，未确定 media_list 是否重复，此处的性能严重降低
+        if len(media_list) != 0:
+            for i in no_exists[media_info.tmdb_id][0]['episodes']:
+                third_search_name = first_search_name + " " + str(i)
+                log.info("【Searcher】%s, %s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name, third_search_name))
+                media_list += self.search_medias(key_word=third_search_name,
+                                            filter_args=filter_args,
+                                            match_media=media_info,
+                                            in_from=in_from)       
+
         if len(media_list) == 0:
             log.info("【Searcher】%s 未搜索到任何资源" % second_search_name)
             return False, no_exists, 0, 0
