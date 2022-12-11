@@ -41,6 +41,8 @@ class MetaBase(object):
     part = None
     # 识别的资源类型
     resource_type = None
+    # 识别的效果
+    resource_effect = None
     # 识别的分辨率
     resource_pix = None
     # 识别的制作组/字幕组
@@ -310,16 +312,25 @@ class MetaBase(object):
                 return "%s" % episode
         return ""
 
-    # 返回资源类型字符串
+    # 返回资源类型字符串，含分辨率
     def get_resource_type_string(self):
-        if self.resource_type and self.resource_pix:
-            return "%s %s" % (self.resource_type, self.resource_pix)
-        elif self.resource_type:
-            return self.resource_type
-        elif self.resource_pix:
-            return self.resource_pix
-        else:
-            return ""
+        ret_string = ""
+        if self.resource_type:
+            ret_string = f"{ret_string} {self.resource_type}"
+        if self.resource_effect:
+            ret_string = f"{ret_string} {self.resource_effect}"
+        if self.resource_pix:
+            ret_string = f"{ret_string} {self.resource_pix}"
+        return ret_string
+
+    # 返回资源类型字符串，不含分辨率
+    def get_edtion_string(self):
+        ret_string = ""
+        if self.resource_type:
+            ret_string = f"{ret_string} {self.resource_type}"
+        if self.resource_effect:
+            ret_string = f"{ret_string} {self.resource_effect}"
+        return ret_string.strip()
     
     # 返回发布组/字幕组字符串
     def get_resource_team_string(self):
@@ -405,7 +416,11 @@ class MetaBase(object):
 
     # 返回促销信息
     def get_volume_factor_string(self):
-        if self.upload_volume_factor is None or self.download_volume_factor is None:
+        return self.get_free_string(self.upload_volume_factor, self.download_volume_factor)
+
+    @staticmethod
+    def get_free_string(upload_volume_factor, download_volume_factor):
+        if upload_volume_factor is None or download_volume_factor is None:
             return "未知"
         free_strs = {
             "1.0 1.0": "普通",
@@ -417,7 +432,7 @@ class MetaBase(object):
             "1.0 0.7": "70%",
             "1.0 0.3": "30%"
         }
-        return free_strs.get('%.1f %.1f' % (self.upload_volume_factor, self.download_volume_factor), "未知")
+        return free_strs.get('%.1f %.1f' % (upload_volume_factor, download_volume_factor), "未知")
 
     # 是否包含季
     def is_in_season(self, season):

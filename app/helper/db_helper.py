@@ -44,7 +44,12 @@ class DbHelper:
                 POSTER=media_item.get_poster_image(),
                 TMDBID=media_item.tmdb_id,
                 OVERVIEW=media_item.overview,
-                RES_TYPE=media_item.get_resource_type_string(),
+                RES_TYPE=json.dumps({
+                    "respix": media_item.resource_pix,
+                    "restype": media_item.resource_type,
+                    "reseffect": media_item.resource_effect,
+                    "video_encode": media_item.video_encode
+                }),
                 RES_ORDER=media_item.res_order,
                 SIZE=StringUtils.str_filesize(int(media_item.size)),
                 SEEDERS=media_item.seeders,

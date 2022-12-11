@@ -232,91 +232,22 @@ def search():
     SearchWord = request.args.get("s")
     NeedSearch = request.args.get("f")
     # 结果
-    SearchResults = WebAction().get_search_result().get("result")
-    # 类型字典
-    MeidaTypeDict = {}
-    # 站点字典
-    MediaSiteDict = {}
-    # 资源类型字典
-    MediaRestypeDict = {}
-    # 分辨率字典
-    MediaPixDict = {}
-    # 促销信息
-    MediaSPStateDict = {}
-    # 名称
-    MediaNameDict = {}
-    # 查询统计值
-    for _, item in SearchResults.items():
-        # 资源类型
-        if str(item.get("restype")).find(" ") != -1:
-            restypes = str(item.get("restype")).split(" ")
-            if len(restypes) > 0:
-                if not MediaRestypeDict.get(restypes[0]):
-                    MediaRestypeDict[restypes[0]] = 1
-                else:
-                    MediaRestypeDict[restypes[0]] += 1
-            # 分辨率
-            if len(restypes) > 1:
-                if not MediaPixDict.get(restypes[1]):
-                    MediaPixDict[restypes[1]] = 1
-                else:
-                    MediaPixDict[restypes[1]] += 1
-        # 类型
-        if item.get("type"):
-            mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.get("type"))
-            if not MeidaTypeDict.get(mtype):
-                MeidaTypeDict[mtype] = 1
-            else:
-                MeidaTypeDict[mtype] += 1
-        # 站点
-        if item.get("site"):
-            if not MediaSiteDict.get(item.get("site")):
-                MediaSiteDict[item.get("site")] = 1
-            else:
-                MediaSiteDict[item.get("site")] += 1
-        # 促销信息
-        sp_key = f"{item.get('uploadvalue')} {item.get('downloadvalue')}"
-        if sp_key not in MediaSPStateDict:
-            MediaSPStateDict[sp_key] = 1
-        else:
-            MediaSPStateDict[sp_key] += 1
-        # 名称
-        if item.get("title"):
-            if item.get("title") not in MediaNameDict:
-                MediaNameDict[item.get("title")] = 1
-            else:
-                MediaNameDict[item.get("title")] += 1
-
-    # 展示类型
-    MediaMTypes = sorted([{"name": k, "num": v} for k, v in MeidaTypeDict.items()], key=lambda x: int(x.get("num")), reverse=True)
-    # 展示站点
-    MediaSites = sorted([{"name": k, "num": v} for k, v in MediaSiteDict.items()], key=lambda x: int(x.get("num")), reverse=True)
-    # 展示分辨率
-    MediaPixs = sorted([{"name": k, "num": v} for k, v in MediaPixDict.items()], key=lambda x: int(x.get("num")), reverse=True)
-    # 展示质量
-    MediaRestypes = sorted([{"name": k, "num": v} for k, v in MediaRestypeDict.items()], key=lambda x: int(x.get("num")), reverse=True)
-    # 展示促销
-    MediaSPStates = sorted([{"name": k, "num": v} for k, v in MediaSPStateDict.items()], key=lambda x: int(x.get("num")), reverse=True)
-    # 展示名称
-    MediaNames = sorted([{"name": k, "num": v} for k, v in MediaNameDict.items()], key=lambda x: int(x.get("num")), reverse=True)
+    res = WebAction().get_search_result()
+    SearchResults = res.get("result")
+    Count = res.get("total")
     # 站点列表
     SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
-
+    SiteFavicons = Sites().get_site_favicon()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
                            NeedSearch=NeedSearch or "",
-                           Count=len(SearchResults),
+                           Count=Count,
                            Results=SearchResults,
-                           MediaMTypes=MediaMTypes,
-                           MediaSites=MediaSites,
-                           MediaPixs=MediaPixs,
-                           MediaSPStates=MediaSPStates,
-                           MediaNames=MediaNames,
-                           MediaRestypes=MediaRestypes,
                            RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
                            PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
+                           SiteFavicons=SiteFavicons,
                            UPCHAR=chr(8593))
 
 

@@ -612,7 +612,7 @@
   </header>
   <div class="page-wrapper" id="page_wrapper">
     <div id="page_content"></div>
-    <footer class="footer footer-transparent d-print-none" style="padding: 0.5rem 0;">
+    <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
         <div class="row text-center align-items-center flex-row-reverse">
           <div class="col-12 col-lg-auto mt-3 mt-lg-0">
@@ -1312,7 +1312,12 @@
 <!-- 提示弹窗 -->
 <script type="text/javascript">
   //显示全局加载框
-  function show_wait_process() {
+  function show_wait_process(blur) {
+    if (blur) {
+      $('#modal-wait').addClass('modal-blur');
+    } else {
+      $('#modal-wait').removeClass('modal-blur');
+    }
     $("#modal-wait").modal("show");
   }
 
@@ -2239,91 +2244,99 @@
         func();
       }
       if (ret.code === 0) {
-        let content = '';
-        let ignored_words = [];
-        let replaced_words = [];
-        let offset_words = [];
-        if (ret.data.ignored_words) {
-          ignored_words = ret.data.ignored_words;
-        }
-        if (ret.data.replaced_words) {
-          replaced_words = ret.data.replaced_words;
-        }
-        if (ret.data.offset_words) {
-          offset_words = ret.data.offset_words;
-        }
-        const words = ignored_words + replaced_words + offset_words;
-        if (words.length !== 0) {
-          if (ret.data.org_string) {
-            content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`;
-          }
-          if (ignored_words.length !== 0) {
-            let ignored_word_content = '';
-            for (ignored_word of ignored_words) {
-              ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
-            }
-            content = `${content}<div class="mb-3"><label class="form-label">应用屏蔽词：${ignored_word_content}</label></div>`;
-          }
-          if (replaced_words.length !== 0) {
-            let replaced_words_content = '';
-            for (replaced_word of replaced_words) {
-              replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
-            }
-            content = `${content}<div class="mb-3"><label class="form-label">应用替换词：${replaced_words_content}</label></div>`;
-          }
-          if (offset_words.length !== 0) {
-            let offset_words_content = '';
-            for (offset_word of offset_words) {
-              offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
-            }
-            content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
-          }
-        }
-        if (ret.data.type) {
-          content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`;
-        }
-        if (ret.data.category) {
-          content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`;
-        }
-        if (ret.data.name) {
-          const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(ret.data.name)}`;
-          content = `${content}<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${ret.data.name}</a></span>`;
-        }
-        if (ret.data.title) {
-          content = `${content}<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`;
-        } else {
-          content = `${content}<span class="badge me-1 mb-1" title="标题">TMDB无匹配</span>`;
-        }
-        if (ret.data.year) {
-          content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`;
-        }
-        if (ret.data.season_episode) {
-          content = `${content}<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`;
-        }
-        if (ret.data.part) {
-          content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`;
-        }
-        if (ret.data.tmdbid) {
-          content = `${content}<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`;
-        }
-        if (ret.data.restype) {
-          content = `${content}<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`;
-        }
-        if (ret.data.pix) {
-          content = `${content}<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`;
-        }
-        if (ret.data.video_codec) {
-          content = `${content}<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`;
-        }
-        if (ret.data.audio_codec) {
-          content = `${content}<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`;
-        }
-        if (ret.data.team) {
-          content = `${content}<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`;
-        }
-        $(`#${result_div}`).empty().append(content);
+        media_name_test_ui(ret.data, result_div);
       }
     });
+  }
+
+  // 处理识别结果UI
+  function media_name_test_ui(data, result_div) {
+    let content = '';
+    let ignored_words = [];
+    let replaced_words = [];
+    let offset_words = [];
+    if (data.ignored_words) {
+      ignored_words = data.ignored_words;
+    }
+    if (data.replaced_words) {
+      replaced_words = data.replaced_words;
+    }
+    if (data.offset_words) {
+      offset_words = data.offset_words;
+    }
+    const words = ignored_words + replaced_words + offset_words;
+    if (words.length !== 0) {
+      if (data.org_string) {
+        content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${data.org_string}</span></label></div>`;
+      }
+      if (ignored_words.length !== 0) {
+        let ignored_word_content = '';
+        for (ignored_word of ignored_words) {
+          ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用屏蔽词：${ignored_word_content}</label></div>`;
+      }
+      if (replaced_words.length !== 0) {
+        let replaced_words_content = '';
+        for (replaced_word of replaced_words) {
+          replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用替换词：${replaced_words_content}</label></div>`;
+      }
+      if (offset_words.length !== 0) {
+        let offset_words_content = '';
+        for (offset_word of offset_words) {
+          offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
+      }
+    }
+    if (data.type) {
+      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${data.type}</span>`;
+    }
+    if (data.category) {
+      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${data.category}</span>`;
+    }
+    if (data.name) {
+      const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
+      content = `${content}<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
+    }
+    if (data.title) {
+      content = `${content}<span class="badge badge-outline text-red me-1 mb-1" title="标题">${data.title}</span>`;
+    } else {
+      content = `${content}<span class="badge me-1 mb-1" title="标题">TMDB无匹配</span>`;
+    }
+    if (data.year) {
+      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${data.year}</span>`;
+    }
+    if (data.season_episode) {
+      content = `${content}<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${data.tmdb_S_E_link}" target="_blank">${data.season_episode}</a></span>`;
+    }
+    if (data.part) {
+      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${data.part}</span>`;
+    }
+    if (data.tmdbid) {
+      content = `${content}<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${data.tmdblink}" target="_blank">${data.tmdbid}</a></span>`;
+    }
+    if (data.restype) {
+      content = `${content}<span class="badge me-1 mb-1" title="质量">${data.restype}</span>`;
+    }
+    if (data.effect) {
+      content = `${content}<span class="badge me-1 mb-1" title="特性">${data.effect}</span>`;
+    }
+    if (data.pix) {
+      content = `${content}<span class="badge me-1 mb-1" title="分辨率">${data.pix}</span>`;
+    }
+    if (data.video_codec) {
+      content = `${content}<span class="badge me-1 mb-1" title="视频编码">${data.video_codec}</span>`;
+    }
+    if (data.audio_codec) {
+      content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
+    }
+    if (data.team) {
+      content = `${content}<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
+    }
+    $(`#${result_div}`).empty().append(content);
   }
 
   // 显示手动识别转移框
@@ -2605,8 +2618,13 @@
                     <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
+        let bool_ToScrolTop = ($("#logging_table").scrollTop() + $("#logging_table").prop("offsetHeight")) >= $("#logging_table").prop("scrollHeight");
         $("#logging_content").append(tbody);
-        $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+        if (bool_ToScrolTop){
+          setTimeout(function () {
+            $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+          }, 500);
+        }
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
@@ -2678,7 +2696,6 @@
   function check_system_online() {
     ajax_post("refresh_process", {type: "restart"}, function (ret) {
         if (ret.code === -1) {
-          hide_wait_process();
           logout();
         } else {
           setTimeout("check_system_online()", 1000);
@@ -2699,7 +2716,7 @@
       hide_confirm_modal();
       ajax_post("restart", {}, function (ret) {
       });
-      show_wait_process();
+      show_wait_process(true);
       setTimeout("check_system_online()", 5000);
     });
   }
@@ -2716,7 +2733,7 @@
       hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      show_wait_process();
+      show_wait_process(true);
       setTimeout("check_system_online()", 5000);
     });
   }

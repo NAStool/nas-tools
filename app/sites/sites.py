@@ -150,6 +150,15 @@ class Sites:
             return {}
         return ret_sites
 
+    def get_site_favicon(self, site_name=None):
+        """
+        获取站点图标
+        """
+        if site_name:
+            return self._site_favicons.get(site_name)
+        else:
+            return self._site_favicons
+
     def refresh_all_site_data(self, force=False, specify_sites=None):
         """
         多线程刷新站点下载上传量，默认间隔6小时

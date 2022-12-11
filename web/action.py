@@ -24,7 +24,7 @@ from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.helper.display_helper import DisplayHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
-from app.media import Category, Media, MetaInfo
+from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
 from app.mediaserver import MediaServer
@@ -1939,6 +1939,7 @@ class WebAction:
             "tmdb_S_E_link": tmdb_S_E_link,
             "category": media_info.category,
             "restype": media_info.resource_type,
+            "effect": media_info.resource_effect,
             "pix": media_info.resource_pix,
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
@@ -3176,58 +3177,114 @@ class WebAction:
         """
         SearchResults = {}
         res = self.dbhelper.get_search_results()
+        total = len(res)
         for item in res:
-            # 是否已存在
-            if item.TMDBID:
-                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+            # 质量(来源、效果)、分辨率
+            if item.RES_TYPE:
+                try:
+                    res_mix = json.loads(item.RES_TYPE)
+                except Exception as err:
+                    print(str(err))
+                    continue
+                respix = res_mix.get("respix") or ""
+                video_encode = res_mix.get("video_encode") or ""
+                restype = res_mix.get("restype") or ""
+                reseffect = res_mix.get("reseffect") or ""
             else:
-                exist_flag = False
+                restype = ""
+                respix = ""
+                reseffect = ""
+                video_encode = ""
+            # 分组标识 (来源，分辨率)
+            group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
+            # 分组信息
+            group_info = {
+                "respix": respix,
+                "restype": restype,
+            }
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
                 title_string = f"{title_string} ({item.YEAR})"
             if item.ES_STRING:
                 title_string = f"{title_string} {item.ES_STRING}"
-            item_key = f'{item.TORRENT_NAME}-{item.SIZE}'
-            if SearchResults.get(item_key):
-                SearchResults[item_key]["torrent_list"].append({
-                    "id": item.ID,
-                    "site": item.SITE,
-                    "enclosure": item.ENCLOSURE,
-                    "description": item.DESCRIPTION,
-                    "pageurl": item.PAGEURL,
-                    "seeders": item.SEEDERS,
-                    "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                    "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR
-                })
+            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE, "")
+            # 种子信息
+            torrent_item = {
+                "id": item.ID,
+                "seeders": item.SEEDERS,
+                "enclosure": item.ENCLOSURE,
+                "site": item.SITE,
+                "torrent_name": item.TORRENT_NAME,
+                "description": item.DESCRIPTION,
+                "pageurl": item.PAGEURL,
+                "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
+                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
+                "size": item.SIZE,
+                "respix": respix,
+                "restype": restype,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO,
+                "video_encode": video_encode
+            }
+            # 促销
+            free_item = {
+                "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
+                "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
+            }
+            # 合并搜索结果
+            if SearchResults.get(title_string):
+                # 种子列表
+                result_item = SearchResults[title_string]
+                torrent_dict = result_item.get("torrent_dict")
+                torrent_dict_item = torrent_dict.get(group_key)
+                if torrent_dict_item:
+                    torrent_dict_item["torrent_list"].append(torrent_item)
+                else:
+                    torrent_dict[group_key] = {
+                        "group_info": group_info,
+                        "torrent_list": [torrent_item]
+                    }
+                # 过滤条件
+                torrent_filter = dict(result_item.get("filter"))
+                if free_item not in torrent_filter.get("free"):
+                    torrent_filter["free"].append(free_item)
+                if item.SITE not in torrent_filter.get("site"):
+                    torrent_filter["site"].append(item.SITE)
+                if video_encode not in torrent_filter.get("video"):
+                    torrent_filter["video"].append(video_encode)
             else:
-                SearchResults[item_key] = {
-                    "id": item.ID,
-                    "title_string": title_string,
-                    "restype": item.RES_TYPE,
-                    "size": item.SIZE,
-                    "seeders": item.SEEDERS,
-                    "enclosure": item.ENCLOSURE,
-                    "site": item.SITE,
+                # 是否已存在
+                if item.TMDBID:
+                    exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+                else:
+                    exist_flag = False
+                SearchResults[title_string] = {
+                    "key": item.ID,
+                    "title": item.TITLE,
                     "year": item.YEAR,
                     "es_string": item.ES_STRING,
                     "image": item.IMAGE,
-                    "type": item.TYPE,
+                    "type": media_type,
                     "vote": item.VOTE,
-                    "torrent_name": item.TORRENT_NAME,
-                    "description": item.DESCRIPTION,
                     "tmdbid": item.TMDBID,
-                    "poster": item.IMAGE,
+                    "backdrop": item.IMAGE,
+                    "poster": item.POSTER,
                     "overview": item.OVERVIEW,
-                    "pageurl": item.PAGEURL,
-                    "releasegroup": item.OTHERINFO,
-                    "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
-                    "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
-                    "title": item.TITLE,
                     "exist": exist_flag,
-                    "torrent_list": []
+                    "torrent_dict": {
+                        group_key: {
+                            "group_info": group_info,
+                            "torrent_list": [torrent_item]
+                        }
+                    },
+                    "filter": {
+                        "site": [item.SITE],
+                        "free": [free_item],
+                        "video": [video_encode] if video_encode else []
+                    }
                 }
-        return {"code": 0, "result": SearchResults}
+        return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod
     def search_media_infos(data):

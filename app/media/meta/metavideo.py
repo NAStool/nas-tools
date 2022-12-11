@@ -20,12 +20,16 @@ class MetaVideo(MetaBase):
     _last_token_type = ""
     _continue_flag = True
     _unknown_name_str = ""
+    _source = ""
+    _effect = []
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})$|S(\d{1,2})E"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})$|S\d{1,2}EP?(\d{1,4})$"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
-    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
+    _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
+    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$"
+    _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
     _name_no_chinese_re = r".*版|.*字幕"
     _name_se_words = ['共', '第', '季', '集', '话', '話', '期']
@@ -50,6 +54,8 @@ class MetaVideo(MetaBase):
         if not title:
             return
         original_title = title
+        self._source = ""
+        self._effect = []
         # 判断是否纯数字命名
         if os.path.splitext(title)[-1] in RMT_MEDIAEXT \
                 and os.path.splitext(title)[0].isdigit() \
@@ -84,7 +90,7 @@ class MetaVideo(MetaBase):
                 self.__init_resource_pix(token)
             # 季
             if self._continue_flag:
-                self.__init_seasion(token)
+                self.__init_season(token)
             # 集
             if self._continue_flag:
                 self.__init_episode(token)
@@ -100,6 +106,18 @@ class MetaVideo(MetaBase):
             # 取下一个，直到没有为卡
             token = tokens.get_next()
             self._continue_flag = True
+        # 合成质量
+        if self._effect:
+            self._effect.reverse()
+            self.resource_effect = " ".join(self._effect)
+        if self._source:
+            self.resource_type = self._source.strip()
+        # 副标题提取原盘DIY
+        if self.resource_type \
+                and "BluRay" in self.resource_type \
+                and self.subtitle:
+            if re.findall(r'DIY', self.subtitle):
+                self.resource_type = f"{self.resource_type} DIY"
         # 解析副标题，只要季和集
         self.init_subtitle(self.org_string)
         if not self._subtitle_flag and self.subtitle:
@@ -296,18 +314,8 @@ class MetaVideo(MetaBase):
                 self._stop_name_flag = True
                 if not self.resource_pix:
                     self.resource_pix = re_res.group(1).lower()
-                elif self.resource_pix == "3D":
-                    self.resource_pix = "%s 3D" % re_res.group(1).lower()
-            elif token.upper() == "3D":
-                self._last_token_type = "pix"
-                self._continue_flag = False
-                self._stop_name_flag = True
-                if not self.resource_pix:
-                    self.resource_pix = "3D"
-                else:
-                    self.resource_pix = "%s 3D" % self.resource_pix
 
-    def __init_seasion(self, token):
+    def __init_season(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
             self._last_token_type = "season"
@@ -423,26 +431,40 @@ class MetaVideo(MetaBase):
     def __init_resource_type(self, token):
         if not self.get_name():
             return
-        re_res = re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE)
-        if re_res:
-            self._last_token_type = "restype"
+        source_res = re.search(r"(%s)" % self._source_re, token, re.IGNORECASE)
+        if source_res:
+            self._last_token_type = "source"
             self._continue_flag = False
             self._stop_name_flag = True
-            if not self.resource_type:
-                self.resource_type = re_res.group(1)
-                self._last_token = self.resource_type.upper()
-
-        else:
-            if token.upper() == "DL" \
-                    and self._last_token_type == "restype" \
-                    and self._last_token == "WEB":
-                self.resource_type = "WEB-DL"
-                self._continue_flag = False
-            if token.upper() == "RAY" \
-                    and self._last_token_type == "restype" \
-                    and self._last_token == "BLU":
-                self.resource_type = "BluRay"
-                self._continue_flag = False
+            if not self._source:
+                self._source = source_res.group(1)
+                self._last_token = self._source.upper()
+            return
+        elif token.upper() == "DL" \
+                and self._last_token_type == "source" \
+                and self._last_token == "WEB":
+            self._source = "WEB-DL"
+            self._continue_flag = False
+            return
+        elif token.upper() == "RAY" \
+                and self._last_token_type == "source" \
+                and self._last_token == "BLU":
+            self._source = "BluRay"
+            self._continue_flag = False
+            return
+        elif token.upper() == "WEBDL":
+            self._source = "WEB-DL"
+            self._continue_flag = False
+            return
+        effect_res = re.search(r"(%s)" % self._effect_re, token, re.IGNORECASE)
+        if effect_res:
+            self._last_token_type = "effect"
+            self._continue_flag = False
+            self._stop_name_flag = True
+            effect = effect_res.group(1)
+            if effect not in self._effect:
+                self._effect.append(effect)
+            self._last_token = effect.upper()
 
     def __init_video_encode(self, token):
         if not self.get_name():
@@ -466,7 +488,7 @@ class MetaVideo(MetaBase):
             self._stop_name_flag = True
             self._last_token_type = "videoencode"
             self._last_token = token.upper()
-        elif token.isdigit() \
+        elif token in ["264", "265"] \
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['H', 'X']:
             self.video_encode = "%s%s" % (self._last_token, token)
@@ -474,6 +496,12 @@ class MetaVideo(MetaBase):
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['VC', 'MPEG']:
             self.video_encode = "%s%s" % (self._last_token, token)
+        elif token.upper() == "10BIT":
+            self._last_token_type = "videoencode"
+            if not self.video_encode:
+                self.video_encode = "10bit"
+            else:
+                self.video_encode = f"{self.video_encode} 10bit"
 
     def __init_audio_encode(self, token):
         if not self.get_name():

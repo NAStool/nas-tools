@@ -121,7 +121,7 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:show_custom_words_group('{{ Group.id }}')" class="btn-action" title="折叠">
+              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action" title="折叠">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                   viewBox="0 0 16 16">
                   <path fill-rule="evenodd"
@@ -486,9 +486,9 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label required">自定义识别词内容 <span class="form-help"
+                <label class="form-label required">分享代码 <span class="form-help"
                     title="复制以下内容分享给他人，获得分享后使用导入功能导入自定义识别词" data-bs-toggle="tooltip">?</span></label>
-                <pre id="export_code">
+                <pre class="text-wrap" id="export_code">
                 </pre>
               </div>
             </div>
@@ -533,7 +533,7 @@
           <h5 class="modal-title">导入自定义识别词</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div id="import_groups_div">
+        <div class="card border-0" id="import_groups_div">
         </div>
         <div class="modal-body">
           <div class="row">
@@ -557,15 +557,6 @@
     $("[id^='all_check_group']").change(function () {
       $(`[id^='check_group${$(this).attr("id").replace("all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
     })
-
-    // 折叠识别词组
-    function show_custom_words_group(gid) {
-      if ($(`#div_group${gid}`)[0].style["display"] == "none") {
-        $(`#div_group${gid}`).attr("style", "display: block;");
-      } else {
-        $(`#div_group${gid}`).attr("style", "display: none;");
-      };
-    }
 
     // 批量启用/停用/导出
     function batch_check_action(flag) {
