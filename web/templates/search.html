@@ -57,12 +57,42 @@
               <div class="card">
                 <div class="card-body ps-1 pe-1">
                   <div class="row">
-                    {% if Item.poster %}
                     <div class="col-2 d-none d-md-block">
+                      <!-- 图片 -->
+                      {% if Item.poster %}
                       <img class="rounded object-cover shadow" src="{{ Item.poster }}">
+                      {% endif %}
+                      <!-- 过滤条件 -->
+                      <div class="subheader mb-2 mt-3">站点</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_site in Item.filter.site %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="name" value="{{ filter_site }}" class="form-selectgroup-input">
+                          <span class="form-selectgroup-label">{{ filter_site }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      <div class="subheader mb-2 mt-2">促销</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_free in Item.filter.free %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="name" value="{{ filter_free }}" class="form-selectgroup-input">
+                          <span class="form-selectgroup-label">{{ filter_free }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      <div class="subheader mb-2 mt-2">视频编码</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_video in Item.filter.video %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="name" value="{{ filter_video }}" class="form-selectgroup-input">
+                          <span class="form-selectgroup-label">{{ filter_video }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
                     </div>
-                    {% endif %}
                     <div class="col">
+                      <!-- 标题 -->
                       <div class="row">
                         <div class="col">
                           <h3 class="mb-0">
@@ -74,6 +104,7 @@
                           </h3>
                         </div>
                       </div>
+                      <!-- 媒体属性 -->
                       <div class="row mt-2">
                         <div class="col-md">
                           {% if Item.tmdbid and Item.tmdbid!= '0' %}
@@ -106,11 +137,13 @@
                           {% endif %}
                         </div>
                       </div>
+                      <!-- 简介 -->
                       {% if Item.overview %}
                       <div class="text-muted mt-2 d-none d-md-block">
                         {{ Item.overview}}
                       </div>
                       {% endif %}
+                      <!-- 资源分组 -->
                       <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
                         {% for group_key, group in Item.torrent_dict.items() %}
                         <div class="accordion-item">
@@ -138,6 +171,7 @@
                             <div class="accordion-body pt-0">
                               <div class="list-group">
                                 <div class="list-group card-list-group mt-2">
+                                  <!-- 种子列表 -->
                                   {% for torrent in group.torrent_list %}
                                     <div class="list-group-item p-2 ps-1">
                                       <div class="row g-2 align-items-center">
@@ -217,6 +251,7 @@
                       </div>
                     </div>
                   </div>
+                  <!-- 是否存在 -->
                   {% if Item.exist %}
                     <div class="badge badge-pill bg-green"
                          style="position:absolute;top:20px;right:20px;padding:0;">

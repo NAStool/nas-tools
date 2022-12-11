@@ -24,7 +24,7 @@ from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.helper.display_helper import DisplayHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
-from app.media import Category, Media, MetaInfo
+from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
 from app.mediaserver import MediaServer
@@ -3227,9 +3227,13 @@ class WebAction:
                 "releasegroup": item.OTHERINFO,
                 "video_encode": video_encode
             }
+            # 促销
+            free_tag = MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
             # 合并搜索结果
             if SearchResults.get(title_string):
-                torrent_dict = SearchResults[title_string].get("torrent_dict")
+                # 种子列表
+                result_item = SearchResults[title_string]
+                torrent_dict = result_item.get("torrent_dict")
                 torrent_dict_item = torrent_dict.get(group_key)
                 if torrent_dict_item:
                     torrent_dict_item["torrent_list"].append(torrent_item)
@@ -3238,6 +3242,14 @@ class WebAction:
                         "group_info": group_info,
                         "torrent_list": [torrent_item]
                     }
+                # 过滤条件
+                torrent_filter = dict(result_item.get("filter"))
+                if free_tag not in torrent_filter.get("free"):
+                    torrent_filter["free"].append(free_tag)
+                if item.SITE not in torrent_filter.get("site"):
+                    torrent_filter["site"].append(item.SITE)
+                if video_encode not in torrent_filter.get("video"):
+                    torrent_filter["video"].append(video_encode)
             else:
                 # 是否已存在
                 if item.TMDBID:
@@ -3262,6 +3274,11 @@ class WebAction:
                             "group_info": group_info,
                             "torrent_list": [torrent_item]
                         }
+                    },
+                    "filter": {
+                        "site": [item.SITE],
+                        "free": [free_tag],
+                        "video": [video_encode] if video_encode else []
                     }
                 }
         return {"code": 0, "total": total, "result": SearchResults}

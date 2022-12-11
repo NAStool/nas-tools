@@ -416,7 +416,11 @@ class MetaBase(object):
 
     # 返回促销信息
     def get_volume_factor_string(self):
-        if self.upload_volume_factor is None or self.download_volume_factor is None:
+        return self.get_free_string(self.upload_volume_factor, self.download_volume_factor)
+
+    @staticmethod
+    def get_free_string(upload_volume_factor, download_volume_factor):
+        if upload_volume_factor is None or download_volume_factor is None:
             return "未知"
         free_strs = {
             "1.0 1.0": "普通",
@@ -428,7 +432,7 @@ class MetaBase(object):
             "1.0 0.7": "70%",
             "1.0 0.3": "30%"
         }
-        return free_strs.get('%.1f %.1f' % (self.upload_volume_factor, self.download_volume_factor), "未知")
+        return free_strs.get('%.1f %.1f' % (upload_volume_factor, download_volume_factor), "未知")
 
     # 是否包含季
     def is_in_season(self, season):
