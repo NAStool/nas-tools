@@ -202,30 +202,30 @@
                                             {{ torrent.description }}
                                           </div>
                                           <div>
-                                            <span class="badge bg-dark text-dark-fg">{{ torrent.site }}</span>
+                                            <span class="badge bg-dark text-dark-fg mb-1">{{ torrent.site }}</span>
                                             {% if torrent.video_encode %}
-                                              <span class="badge text-white bg-orange">{{ torrent.video_encode }}</span>
+                                              <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
                                             {% endif %}
                                             {% if torrent.reseffect %}
-                                              <span class="badge text-white bg-purple">{{ torrent.reseffect }}</span>
+                                              <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
                                             {% endif %}
                                             {% if torrent.size %}
-                                              <span class="badge text-white bg-yellow">{{ torrent.size }}</span>
+                                              <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
                                             {% endif %}
                                             {% if torrent.releasegroup %}
-                                              <span class="badge text-white bg-cyan">{{ torrent.releasegroup }}</span>
+                                              <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
                                             {% endif %}
                                             {% if torrent.uploadvalue != 1.0 %}
-                                            <span class="badge text-white bg-azure">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                            <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
                                             {% endif %}
                                             {% if torrent.downloadvalue != 1.0 %}
                                               {% if torrent.downloadvalue == 0.0 %}
-                                                <span class="badge text-white bg-lime">FREE</span>
+                                                <span class="badge text-white bg-lime mb-1">FREE</span>
                                               {% else %}
-                                                <span class="badge text-white bg-indigo">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                                <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                               {% endif %}
                                             {% endif %}
-                                            <span class="badge text-white">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                            <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
                                           </div>
                                         </div>
                                         <div class="col-auto ms-2 d-none d-md-inline-block">
