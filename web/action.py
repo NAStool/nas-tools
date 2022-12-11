@@ -3215,9 +3215,10 @@ class WebAction:
             title_string = f"{item.TITLE}"
             if item.YEAR:
                 title_string = f"{title_string} ({item.YEAR})"
-            if item.ES_STRING:
-                title_string = f"{title_string} {item.ES_STRING}"
-            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE, "")
+            # 电视剧季集标识
+            mtype = item.TYPE or ""
+            SE_key = item.ES_STRING or "全集" if mtype != "MOV" else "MOV"
+            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 种子信息
             torrent_item = {
                 "id": item.ID,
@@ -3246,23 +3247,37 @@ class WebAction:
                 # 种子列表
                 result_item = SearchResults[title_string]
                 torrent_dict = SearchResults[title_string].get("torrent_dict")
-                torrent_group = torrent_dict.get(group_key)
-                if torrent_group:
-                    torrent_unique = torrent_group.get("group_torrents").get(unique_key)
-                    if torrent_unique:
-                        torrent_unique["torrent_list"].append(torrent_item)
-                    else:
-                        torrent_group.get("group_torrents")[unique_key] = {
-                            "unique_info": unique_info,
-                            "torrent_list": [torrent_item]
-                        }
-                else:
-                    torrent_dict[group_key] = {
-                        "group_info": group_info,
-                        "group_torrents": {
-                            unique_key: {
+                SE_dict = torrent_dict.get(SE_key)
+                if SE_dict:
+                    group = SE_dict.get(group_key)
+                    if group:
+                        unique = group.get("group_torrents").get(unique_key)
+                        if unique:
+                            unique["torrent_list"].append(torrent_item)
+                        else:
+                            group.get("group_torrents")[unique_key] = {
                                 "unique_info": unique_info,
                                 "torrent_list": [torrent_item]
+                            }
+                    else:
+                        SE_dict[group_key] = {
+                            "group_info": group_info,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
+                        }
+                else:
+                    torrent_dict[SE_key] = {
+                        group_key: {
+                            "group_info": group_info,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
                             }
                         }
                     }
@@ -3285,7 +3300,7 @@ class WebAction:
                     "key": item.ID,
                     "title": item.TITLE,
                     "year": item.YEAR,
-                    "es_string": item.ES_STRING,
+                    "type_key": mtype,
                     "image": item.IMAGE,
                     "type": media_type,
                     "vote": item.VOTE,
@@ -3295,12 +3310,14 @@ class WebAction:
                     "overview": item.OVERVIEW,
                     "exist": exist_flag,
                     "torrent_dict": {
-                        group_key: {
-                            "group_info": group_info,
-                            "group_torrents": {
-                                unique_key: {
-                                    "unique_info": unique_info,
-                                    "torrent_list": [torrent_item]
+                        SE_key: {
+                            group_key: {
+                                "group_info": group_info,
+                                "group_torrents": {
+                                    unique_key: {
+                                        "unique_info": unique_info,
+                                        "torrent_list": [torrent_item]
+                                    }
                                 }
                             }
                         }
