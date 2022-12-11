@@ -156,10 +156,12 @@
                         {% for group_key, group in Item.torrent_dict.items() %}
                         <div class="accordion-item">
                           <h2 class="accordion-header">
-                            <button class="accordion-button p-2 collapsed" type="button" data-bs-toggle="collapse"
-                                    id=""
-                                    data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
-                                    aria-expanded="true">
+                            <button
+                                class="accordion-button p-2 {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}{% else %}collapsed{% endif %}"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
+                                aria-expanded="true">
                                 {% if group.group_info.restype %}
                                   <span class="text-red">{{ group.group_info.restype }}</span>
                                 {% endif %}
@@ -177,7 +179,8 @@
                                                          data-total="{{ group.torrent_list|length }}">{{ group.torrent_list|length }}</span>条 </span>
                             </button>
                           </h2>
-                          <div id="search_results_group_{{ group_key }}_{{ Item.key }}" class="accordion-collapse collapse"
+                          <div id="search_results_group_{{ group_key }}_{{ Item.key }}"
+                               class="accordion-collapse collapse {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}show{% endif %}"
                                data-bs-parent="#search_results_accordion_{{ Item.key }}">
                             <div class="accordion-body pt-0">
                               <div class="list-group">
