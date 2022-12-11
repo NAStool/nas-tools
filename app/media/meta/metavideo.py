@@ -28,7 +28,7 @@ class MetaVideo(MetaBase):
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
-    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$"
+    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$|^REPACK$"
     _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
     _name_no_chinese_re = r".*版|.*字幕"
@@ -482,6 +482,9 @@ class MetaVideo(MetaBase):
             self._last_token_type = "videoencode"
             if not self.video_encode:
                 self.video_encode = re_res.group(1)
+                self._last_token = re_res.group(1).upper()
+            elif self.video_encode == "10bit":
+                self.video_encode = f"{re_res.group(1)} 10bit"
                 self._last_token = re_res.group(1).upper()
         elif token.upper() in ['H', 'X']:
             self._continue_flag = False
