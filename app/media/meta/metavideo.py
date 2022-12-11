@@ -46,7 +46,7 @@ class MetaVideo(MetaBase):
                         r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PI]+)|\d{3,4}X(\d{3,4})"
     _resources_pix_re2 = r"(^[248]+K)"
-    _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$|^10BIT$"
+    _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
 
     def __init__(self, title, subtitle=None, fileflag=False):
@@ -496,6 +496,12 @@ class MetaVideo(MetaBase):
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['VC', 'MPEG']:
             self.video_encode = "%s%s" % (self._last_token, token)
+        elif token.upper() == "10BIT":
+            self._last_token_type = "videoencode"
+            if not self.video_encode:
+                self.video_encode = "10bit"
+            else:
+                self.video_encode = f"{self.video_encode} 10bit"
 
     def __init_audio_encode(self, token):
         if not self.get_name():
