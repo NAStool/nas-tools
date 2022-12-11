@@ -3228,7 +3228,10 @@ class WebAction:
                 "video_encode": video_encode
             }
             # 促销
-            free_tag = MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
+            free_item = {
+                "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
+                "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
+            }
             # 合并搜索结果
             if SearchResults.get(title_string):
                 # 种子列表
@@ -3244,8 +3247,8 @@ class WebAction:
                     }
                 # 过滤条件
                 torrent_filter = dict(result_item.get("filter"))
-                if free_tag not in torrent_filter.get("free"):
-                    torrent_filter["free"].append(free_tag)
+                if free_item not in torrent_filter.get("free"):
+                    torrent_filter["free"].append(free_item)
                 if item.SITE not in torrent_filter.get("site"):
                     torrent_filter["site"].append(item.SITE)
                 if video_encode not in torrent_filter.get("video"):
@@ -3277,7 +3280,7 @@ class WebAction:
                     },
                     "filter": {
                         "site": [item.SITE],
-                        "free": [free_tag],
+                        "free": [free_item],
                         "video": [video_encode] if video_encode else []
                     }
                 }
