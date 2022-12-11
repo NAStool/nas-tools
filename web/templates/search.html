@@ -194,12 +194,12 @@
                                       data-group="{{ group_key }}">
                                       <div class="row g-2 align-items-center">
                                         <div class="col-auto">
-                                          <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }});"></span>
+                                          <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }}); overflow: hidden;">{% if not SiteFavicons[torrent.site] %}{{ torrent.site }}{% endif %}</span>
                                         </div>
                                         <div class="col">
                                           <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
                                           <div class="text-muted">
-                                            {{ torrent.description }}
+                                            {{ torrent.description or '' }}
                                           </div>
                                           <div>
                                             <span class="badge bg-dark text-dark-fg mb-1">{{ torrent.site }}</span>
