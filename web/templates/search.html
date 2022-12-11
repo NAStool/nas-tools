@@ -174,9 +174,9 @@
                                 {% if group.group_info.restype or group.group_info.respix %}
                                   &nbsp;/&nbsp;
                                 {% endif %}
-                              <span class="text">共<span id="search_results_group_total_{{ group_key }}_{{ Item.key }}"
+                              <span class="text">共 <span id="search_results_group_total_{{ group_key }}_{{ Item.key }}"
                                                          class="search_results_group_total"
-                                                         data-total="{{ group.torrent_list|length }}">{{ group.torrent_list|length }}</span>条 </span>
+                                                         data-total="{{ group.group_torrents|length }}">{{ group.group_torrents|length }}</span> 个种子 </span>
                             </button>
                           </h2>
                           <div id="search_results_group_{{ group_key }}_{{ Item.key }}"
@@ -186,7 +186,8 @@
                               <div class="list-group">
                                 <div class="list-group card-list-group mt-2">
                                   <!-- 种子列表 -->
-                                  {% for torrent in group.torrent_list %}
+                                {% for unique_key, unique in group.group_torrents.items() %}
+                                  {% for torrent in unique.torrent_list %}
                                     <div class="list-group-item p-2 ps-1 search_results_torrent"
                                       data-site="{{ torrent.site }}"
                                       data-free="{{ torrent.uploadvalue|string + " " + torrent.downloadvalue|string }}"
@@ -202,7 +203,6 @@
                                             {{ torrent.description or '' }}
                                           </div>
                                           <div>
-                                            <span class="badge bg-dark text-dark-fg mb-1">{{ torrent.site }}</span>
                                             {% if torrent.video_encode %}
                                               <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
                                             {% endif %}
@@ -226,6 +226,7 @@
                                               {% endif %}
                                             {% endif %}
                                             <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                            <span class="badge bg-dark text-dark-fg mb-1">{{ torrent.site }}</span>
                                           </div>
                                         </div>
                                         <div class="col-auto ms-2 d-none d-md-inline-block">
@@ -256,6 +257,7 @@
                                       </div>
                                     </div>
                                   {% endfor %}
+                                {% endfor %}
                                 </div>
                               </div>
                             </div>

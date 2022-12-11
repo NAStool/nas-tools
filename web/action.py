@@ -3202,6 +3202,15 @@ class WebAction:
                 "respix": respix,
                 "restype": restype,
             }
+            # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
+            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{video_encode}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
+            # 标识信息
+            unique_info = {
+                "video_encode": video_encode,
+                "size": item.SIZE,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO
+            }
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
@@ -3236,14 +3245,26 @@ class WebAction:
             if SearchResults.get(title_string):
                 # 种子列表
                 result_item = SearchResults[title_string]
-                torrent_dict = result_item.get("torrent_dict")
-                torrent_dict_item = torrent_dict.get(group_key)
-                if torrent_dict_item:
-                    torrent_dict_item["torrent_list"].append(torrent_item)
+                torrent_dict = SearchResults[title_string].get("torrent_dict")
+                torrent_group = torrent_dict.get(group_key)
+                if torrent_group:
+                    torrent_unique = torrent_group.get("group_torrents").get(unique_key)
+                    if torrent_unique:
+                        torrent_unique["torrent_list"].append(torrent_item)
+                    else:
+                        torrent_group.get("group_torrents")[unique_key] = {
+                            "unique_info": unique_info,
+                            "torrent_list": [torrent_item]
+                        }
                 else:
                     torrent_dict[group_key] = {
                         "group_info": group_info,
-                        "torrent_list": [torrent_item]
+                        "group_torrents": {
+                            unique_key: {
+                                "unique_info": unique_info,
+                                "torrent_list": [torrent_item]
+                            }
+                        }
                     }
                 # 过滤条件
                 torrent_filter = dict(result_item.get("filter"))
@@ -3276,7 +3297,12 @@ class WebAction:
                     "torrent_dict": {
                         group_key: {
                             "group_info": group_info,
-                            "torrent_list": [torrent_item]
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
                         }
                     },
                     "filter": {

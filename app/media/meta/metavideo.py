@@ -483,6 +483,9 @@ class MetaVideo(MetaBase):
             if not self.video_encode:
                 self.video_encode = re_res.group(1)
                 self._last_token = re_res.group(1).upper()
+            elif self.video_encode == "10bit":
+                self.video_encode = f"{re_res.group(1)} 10bit"
+                self._last_token = re_res.group(1).upper()
         elif token.upper() in ['H', 'X']:
             self._continue_flag = False
             self._stop_name_flag = True
