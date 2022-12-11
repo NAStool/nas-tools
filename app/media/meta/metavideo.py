@@ -28,7 +28,7 @@ class MetaVideo(MetaBase):
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
-    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$"
+    _effect_re = r"^REMUX$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^DOVI$|^3D$|^REPACK$"
     _resources_type_re = r"%s|%s" % (_source_re, _effect_re)
     _name_no_begin_re = r"^\[.+?]"
     _name_no_chinese_re = r".*版|.*字幕"
@@ -106,6 +106,9 @@ class MetaVideo(MetaBase):
             # 取下一个，直到没有为卡
             token = tokens.get_next()
             self._continue_flag = True
+        # 统一分辨率形式
+        if self.resource_pix == "4k":
+            self.resource_pix = "2160p"
         # 合成质量
         if self._effect:
             self._effect.reverse()

@@ -162,18 +162,12 @@
                                 data-bs-toggle="collapse"
                                 data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
                                 aria-expanded="true">
-                                {% if group.group_info.restype %}
-                                  <span class="text-red">{{ group.group_info.restype }}</span>
-                                {% endif %}
+                                <span class="text-red">{{ group.group_info.restype or "未识别媒介" }}</span>
                                 {% if group.group_info.respix %}
-                                  {% if group.group_info.restype %}
                                     &nbsp;/&nbsp;
-                                  {% endif %}
                                   <span class="text-orange">{{ group.group_info.respix }}</span>
                                 {% endif %}
-                                {% if group.group_info.restype or group.group_info.respix %}
                                   &nbsp;/&nbsp;
-                                {% endif %}
                               <span class="text">共 <span id="search_results_group_total_{{ group_key }}_{{ Item.key }}"
                                                          class="search_results_group_total"
                                                          data-total="{{ group.group_torrents|length }}">{{ group.group_torrents|length }}</span> 个种子 </span>
