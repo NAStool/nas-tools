@@ -73,7 +73,7 @@ class DbHelper:
         """
         查询检索结果的所有记录
         """
-        return self._db.query(SEARCHRESULTINFO).order_by(SEARCHRESULTINFO.SIZE, SEARCHRESULTINFO.SEEDERS.desc()).all()
+        return self._db.query(SEARCHRESULTINFO).all()
 
     def is_torrent_rssd(self, enclosure):
         """
