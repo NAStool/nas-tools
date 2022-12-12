@@ -3217,7 +3217,7 @@ class WebAction:
                 title_string = f"{title_string} ({item.YEAR})"
             # 电视剧季集标识
             mtype = item.TYPE or ""
-            SE_key = item.ES_STRING or "全集" if mtype != "MOV" else "MOV"
+            SE_key = item.ES_STRING or "TV" if mtype != "MOV" else "MOV"
             media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 种子信息
             torrent_item = {
@@ -3242,6 +3242,8 @@ class WebAction:
                 "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
                 "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
             }
+            # 季
+            filter_season = SE_key.split()[0] if SE_key and SE_key not in ["MOV", "TV"] else None
             # 合并搜索结果
             if SearchResults.get(title_string):
                 # 种子列表
@@ -3254,7 +3256,9 @@ class WebAction:
                         unique = group.get("group_torrents").get(unique_key)
                         if unique:
                             unique["torrent_list"].append(torrent_item)
+                            group["group_total"] += 1
                         else:
+                            group["group_total"] += 1
                             group.get("group_torrents")[unique_key] = {
                                 "unique_info": unique_info,
                                 "torrent_list": [torrent_item]
@@ -3262,6 +3266,7 @@ class WebAction:
                     else:
                         SE_dict[group_key] = {
                             "group_info": group_info,
+                            "group_total": 1,
                             "group_torrents": {
                                 unique_key: {
                                     "unique_info": unique_info,
@@ -3273,6 +3278,7 @@ class WebAction:
                     torrent_dict[SE_key] = {
                         group_key: {
                             "group_info": group_info,
+                            "group_total": 1,
                             "group_torrents": {
                                 unique_key: {
                                     "unique_info": unique_info,
@@ -3290,6 +3296,9 @@ class WebAction:
                 if video_encode \
                         and video_encode not in torrent_filter.get("video"):
                     torrent_filter["video"].append(video_encode)
+                if filter_season \
+                        and filter_season not in torrent_filter.get("season"):
+                    torrent_filter["season"].append(filter_season)
             else:
                 # 是否已存在
                 if item.TMDBID:
@@ -3313,6 +3322,7 @@ class WebAction:
                         SE_key: {
                             group_key: {
                                 "group_info": group_info,
+                                "group_total": 1,
                                 "group_torrents": {
                                     unique_key: {
                                         "unique_info": unique_info,
@@ -3325,7 +3335,8 @@ class WebAction:
                     "filter": {
                         "site": [item.SITE],
                         "free": [free_item],
-                        "video": [video_encode] if video_encode else []
+                        "video": [video_encode] if video_encode else [],
+                        "season": [filter_season] if filter_season else []
                     }
                 }
         return {"code": 0, "total": total, "result": SearchResults}
