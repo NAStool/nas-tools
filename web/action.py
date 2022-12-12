@@ -3202,13 +3202,23 @@ class WebAction:
                 "respix": respix,
                 "restype": restype,
             }
+            # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
+            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{video_encode}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
+            # 标识信息
+            unique_info = {
+                "video_encode": video_encode,
+                "size": item.SIZE,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO
+            }
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
                 title_string = f"{title_string} ({item.YEAR})"
-            if item.ES_STRING:
-                title_string = f"{title_string} {item.ES_STRING}"
-            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE, "")
+            # 电视剧季集标识
+            mtype = item.TYPE or ""
+            SE_key = item.ES_STRING or "TV" if mtype != "MOV" else "MOV"
+            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 种子信息
             torrent_item = {
                 "id": item.ID,
@@ -3232,18 +3242,50 @@ class WebAction:
                 "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
                 "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
             }
+            # 季
+            filter_season = SE_key.split()[0] if SE_key and SE_key not in ["MOV", "TV"] else None
             # 合并搜索结果
             if SearchResults.get(title_string):
                 # 种子列表
                 result_item = SearchResults[title_string]
-                torrent_dict = result_item.get("torrent_dict")
-                torrent_dict_item = torrent_dict.get(group_key)
-                if torrent_dict_item:
-                    torrent_dict_item["torrent_list"].append(torrent_item)
+                torrent_dict = SearchResults[title_string].get("torrent_dict")
+                SE_dict = torrent_dict.get(SE_key)
+                if SE_dict:
+                    group = SE_dict.get(group_key)
+                    if group:
+                        unique = group.get("group_torrents").get(unique_key)
+                        if unique:
+                            unique["torrent_list"].append(torrent_item)
+                            group["group_total"] += 1
+                        else:
+                            group["group_total"] += 1
+                            group.get("group_torrents")[unique_key] = {
+                                "unique_info": unique_info,
+                                "torrent_list": [torrent_item]
+                            }
+                    else:
+                        SE_dict[group_key] = {
+                            "group_info": group_info,
+                            "group_total": 1,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
+                        }
                 else:
-                    torrent_dict[group_key] = {
-                        "group_info": group_info,
-                        "torrent_list": [torrent_item]
+                    torrent_dict[SE_key] = {
+                        group_key: {
+                            "group_info": group_info,
+                            "group_total": 1,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
+                        }
                     }
                 # 过滤条件
                 torrent_filter = dict(result_item.get("filter"))
@@ -3254,6 +3296,9 @@ class WebAction:
                 if video_encode \
                         and video_encode not in torrent_filter.get("video"):
                     torrent_filter["video"].append(video_encode)
+                if filter_season \
+                        and filter_season not in torrent_filter.get("season"):
+                    torrent_filter["season"].append(filter_season)
             else:
                 # 是否已存在
                 if item.TMDBID:
@@ -3264,7 +3309,7 @@ class WebAction:
                     "key": item.ID,
                     "title": item.TITLE,
                     "year": item.YEAR,
-                    "es_string": item.ES_STRING,
+                    "type_key": mtype,
                     "image": item.IMAGE,
                     "type": media_type,
                     "vote": item.VOTE,
@@ -3274,15 +3319,24 @@ class WebAction:
                     "overview": item.OVERVIEW,
                     "exist": exist_flag,
                     "torrent_dict": {
-                        group_key: {
-                            "group_info": group_info,
-                            "torrent_list": [torrent_item]
+                        SE_key: {
+                            group_key: {
+                                "group_info": group_info,
+                                "group_total": 1,
+                                "group_torrents": {
+                                    unique_key: {
+                                        "unique_info": unique_info,
+                                        "torrent_list": [torrent_item]
+                                    }
+                                }
+                            }
                         }
                     },
                     "filter": {
                         "site": [item.SITE],
                         "free": [free_item],
-                        "video": [video_encode] if video_encode else []
+                        "video": [video_encode] if video_encode else [],
+                        "season": [filter_season] if filter_season else []
                     }
                 }
         return {"code": 0, "total": total, "result": SearchResults}

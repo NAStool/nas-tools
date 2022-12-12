@@ -2267,26 +2267,26 @@
     const words = ignored_words + replaced_words + offset_words;
     if (words.length !== 0) {
       if (data.org_string) {
-        content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${data.org_string}</span></label></div>`;
+        content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${data.org_string}</span></label></div>`;
       }
       if (ignored_words.length !== 0) {
         let ignored_word_content = '';
         for (ignored_word of ignored_words) {
-          ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
+          ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
         }
         content = `${content}<div class="mb-3"><label class="form-label">应用屏蔽词：${ignored_word_content}</label></div>`;
       }
       if (replaced_words.length !== 0) {
         let replaced_words_content = '';
         for (replaced_word of replaced_words) {
-          replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
+          replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
         }
         content = `${content}<div class="mb-3"><label class="form-label">应用替换词：${replaced_words_content}</label></div>`;
       }
       if (offset_words.length !== 0) {
         let offset_words_content = '';
         for (offset_word of offset_words) {
-          offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
+          offset_words_content = offset_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
         }
         content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
       }
