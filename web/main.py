@@ -237,7 +237,7 @@ def search():
     Count = res.get("total")
     # 站点列表
     SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
-    SiteFavicons = Sites().get_site_favicon()
+    SiteFavicons = []
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",

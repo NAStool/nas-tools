@@ -187,7 +187,7 @@
                                   class="accordion-button p-2 {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}{% else %}collapsed{% endif %}"
                                   type="button"
                                   data-bs-toggle="collapse"
-                                  data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
+                                  data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
                                   aria-expanded="true">
                                   <span class="text-red">{{ group.group_info.restype or "未知媒介" }}</span>
                                     &nbsp;/&nbsp;
@@ -198,7 +198,7 @@
                                                            data-total="{{ group.group_total }}">{{ group.group_total }}</span> 个种子 </span>
                               </button>
                             </h2>
-                            <div id="search_results_group_{{ group_key }}_{{ Item.key }}"
+                            <div id="search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
                                  class="accordion-collapse collapse {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}show{% endif %}"
                                  data-bs-parent="#search_results_accordion_{{ Item.key }}">
                               <div class="accordion-body pt-0">
