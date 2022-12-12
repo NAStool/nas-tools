@@ -215,6 +215,7 @@ class Slack(IMessageChannel):
                         }
                     )
                     index += 1
+            print(str(blocks))
             # 发送
             result = self._client.chat_postMessage(
                 channel=channel,
