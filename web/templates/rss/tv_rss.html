@@ -120,7 +120,7 @@
                         {{ RuleGroups[Attr.filter_rule|string] }}
                       </span>
                     {% endif %}
-                    {% if Attr.download_setting and Attr.download_setting != -1 %}
+                    {% if Attr.download_setting != -1 and Attr.download_setting|string in DownloadSettings %}
                       <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
                         {{ DownloadSettings[Attr.download_setting|string].name }}
                       </span>
