@@ -1,3 +1,4 @@
+import json
 import re
 from threading import Lock
 
@@ -174,47 +175,48 @@ class Slack(IMessageChannel):
                 })
                 index = 1
                 for media in medias:
-                    if media.get_star_string():
-                        text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
-                               f"\n{media.get_type_string()}" \
-                               f"\n{media.get_star_string()}" \
-                               f"\n{media.get_overview_string(50)}"
-                    else:
-                        text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
-                               f"\n{media.get_type_string()}" \
-                               f"\n{media.get_overview_string(50)}"
-                    blocks.append(
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": text
-                            },
-                            "accessory": {
-                                "type": "image",
-                                "image_url": f"{media.get_poster_image()}",
-                                "alt_text": f"{media.get_title_string()}"
-                            }
-                        }
-                    )
-                    blocks.append(
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {
-                                        "type": "plain_text",
-                                        "text": "选择",
-                                        "emoji": True
-                                    },
-                                    "value": f"{index}",
-                                    "action_id": f"actionId-{index}"
+                    if media.get_poster_image():
+                        if media.get_star_string():
+                            text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
+                                   f"\n{media.get_type_string()}" \
+                                   f"\n{media.get_star_string()}" \
+                                   f"\n{media.get_overview_string(50)}"
+                        else:
+                            text = f"{index}. *<{media.get_detail_url()}|{media.get_title_string()}>*" \
+                                   f"\n{media.get_type_string()}" \
+                                   f"\n{media.get_overview_string(50)}"
+                        blocks.append(
+                            {
+                                "type": "section",
+                                "text": {
+                                    "type": "mrkdwn",
+                                    "text": text
+                                },
+                                "accessory": {
+                                    "type": "image",
+                                    "image_url": f"{media.get_poster_image()}",
+                                    "alt_text": f"{media.get_title_string()}"
                                 }
-                            ]
-                        }
-                    )
-                    index += 1
+                            }
+                        )
+                        blocks.append(
+                            {
+                                "type": "actions",
+                                "elements": [
+                                    {
+                                        "type": "button",
+                                        "text": {
+                                            "type": "plain_text",
+                                            "text": "选择",
+                                            "emoji": True
+                                        },
+                                        "value": f"{index}",
+                                        "action_id": f"actionId-{index}"
+                                    }
+                                ]
+                            }
+                        )
+                        index += 1
             # 发送
             result = self._client.chat_postMessage(
                 channel=channel,
