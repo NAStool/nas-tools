@@ -239,7 +239,7 @@ class RssChecker(object):
                             continue
                         if no_exists.get(media_info.tmdb_id):
                             log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                 no_exists.get(media_info.tmdb_id)))
+                                                                     no_exists.get(media_info.tmdb_id)))
                     # 大小及种子页面
                     media_info.set_torrent_info(size=size,
                                                 page_url=page_url,
@@ -318,18 +318,19 @@ class RssChecker(object):
                             downloader = download_attr.get("downloader")
                     self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)
                 else:
-                    log.error("【RssChecker】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
+                    log.error("【RssChecker】添加下载任务 %s 失败：%s" % (
+                        media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                     if ret_msg:
                         self.message.send_download_fail_message(media, ret_msg)
         # 添加订阅
         if rss_subscribe_torrents:
             for media in rss_subscribe_torrents:
-                code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
-                                                                name=media.get_name(),
-                                                                year=media.year,
-                                                                season=media.begin_season)
-                if code == 0:
-                    self.message.send_rss_success_message(in_from=SearchType.USERRSS, media_info=media)
+                code, msg, rss_media = self.subscribe.add_rss_subscribe(mtype=media.type,
+                                                                        name=media.get_name(),
+                                                                        year=media.year,
+                                                                        season=media.begin_season)
+                if rss_media and code == 0:
+                    self.message.send_rss_success_message(in_from=SearchType.USERRSS, media_info=rss_media)
                 else:
                     log.warn("【RssChecker】%s 添加订阅失败：%s" % (media.get_name(), msg))
         # 直接搜索
@@ -560,7 +561,7 @@ class RssChecker(object):
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                 if no_exists.get(media_info.tmdb_id):
                     log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                         no_exists.get(media_info.tmdb_id)))
+                                                             no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
     def check_rss_articles(self, flag, articles):
@@ -617,7 +618,8 @@ class RssChecker(object):
                         downloader = download_attr.get("downloader")
                 self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader)
             else:
-                log.error("【RssChecker】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
+                log.error("【RssChecker】添加下载任务 %s 失败：%s" % (
+                    media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:
                     self.message.send_download_fail_message(media, ret_msg)
                 return False
