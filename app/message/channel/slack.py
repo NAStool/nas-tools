@@ -1,3 +1,4 @@
+import json
 import re
 from threading import Lock
 
@@ -215,7 +216,7 @@ class Slack(IMessageChannel):
                         }
                     )
                     index += 1
-            print(str(blocks))
+            print(json.dumps(blocks))
             # 发送
             result = self._client.chat_postMessage(
                 channel=channel,
