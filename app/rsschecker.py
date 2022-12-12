@@ -325,14 +325,13 @@ class RssChecker(object):
         if rss_subscribe_torrents:
             for media in rss_subscribe_torrents:
                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
-                                                                name=media.title,
+                                                                name=media.get_name(),
                                                                 year=media.year,
-                                                                season=media.begin_season,
-                                                                tmdbid=media.tmdb_id)
+                                                                season=media.begin_season)
                 if code == 0:
                     self.message.send_rss_success_message(in_from=SearchType.USERRSS, media_info=media)
                 else:
-                    log.warn("【RssChecker】%s 添加订阅失败：%s" % (media.title, msg))
+                    log.warn("【RssChecker】%s 添加订阅失败：%s" % (media.get_name(), msg))
         # 直接搜索
         if rss_search_torrents:
             for media in rss_search_torrents:
