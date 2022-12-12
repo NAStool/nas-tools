@@ -63,6 +63,18 @@
                       <img class="rounded object-cover shadow" src="{{ Item.poster }}">
                       {% endif %}
                       <!-- 过滤条件 -->
+                      {% if Item.filter.season %}
+                      <div class="subheader mb-2 mt-2">季</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_season in Item.filter.season %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="filter_season" value="{{ filter_season }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this, '{{ Item.key }}')">
+                          <span class="form-selectgroup-label">{{ filter_season }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
                       <div class="subheader mb-2 mt-3">站点</div>
                       <div class="form-selectgroup form-selectgroup-pills">
                         {% for filter_site in Item.filter.site %}
@@ -83,6 +95,7 @@
                         </label>
                         {% endfor %}
                       </div>
+                      {% if Item.filter.video %}
                       <div class="subheader mb-2 mt-2">视频编码</div>
                       <div class="form-selectgroup form-selectgroup-pills">
                         {% for filter_video in Item.filter.video %}
@@ -93,6 +106,7 @@
                         </label>
                         {% endfor %}
                       </div>
+                      {% endif %}
                       <div class="mt-3">
                         <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}')">
                           重置
@@ -105,7 +119,7 @@
                         <div class="col">
                           <h3 class="mb-0">
                             {% if Item.tmdbid and Item.tmdbid != '0' %}
-                            <a href="{% if Item.type == '电影' %}https://www.themoviedb.org/movie/{{ Item.tmdbid }}{% else %}https://www.themoviedb.org/tv/{{ Item.tmdbid }}{% endif %}" target="_blank"><strong>{{ Title }}</strong></a>
+                            <strong>{{ Title }}</strong>
                             {% else %}
                             <strong class="ms-3">{{ Title }}</strong>
                             {% endif %}
@@ -139,7 +153,7 @@
                                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                  <polyline points="11 12 12 12 12 16 13 16"></polyline>
                               </svg>
-                              {{ Item.tmdbid }}
+                              <a href="{% if Item.type == '电影' %}https://www.themoviedb.org/movie/{{ Item.tmdbid }}{% else %}https://www.themoviedb.org/tv/{{ Item.tmdbid }}{% endif %}" target="_blank">{{ Item.tmdbid }}</a>
                             </div>
                           </div>
                           {% endif %}
@@ -152,117 +166,127 @@
                       </div>
                       {% endif %}
                       <!-- 资源分组 -->
-                      <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
-                        {% for group_key, group in Item.torrent_dict.items() %}
-                        <div class="accordion-item">
-                          <h2 class="accordion-header">
-                            <button
-                                class="accordion-button p-2 {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}{% else %}collapsed{% endif %}"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}"
-                                aria-expanded="true">
-                                {% if group.group_info.restype %}
-                                  <span class="text-red">{{ group.group_info.restype }}</span>
-                                {% endif %}
-                                {% if group.group_info.respix %}
-                                  {% if group.group_info.restype %}
+                      {% for SE_key, SE_dict in Item.torrent_dict.items() %}
+                      {% if SE_key != 'MOV' %}
+                        <a href="javascript:$('#search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}').slideToggle()"
+                          class="search_results_season_{{ Item.key }}"
+                          data-season="{{ SE_key }}">
+                          <div class="row mt-2">
+                            <h3 class="mb-0">
+                            <strong>{{ SE_key }}</strong>
+                            </h3>
+                          </div>
+                        </a>
+                      {% endif %}
+                      <div {% if SE_key != 'MOV' %} id="search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}" {% endif %}>
+                        <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
+                          {% for group_key, group in SE_dict.items() %}
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button
+                                  class="accordion-button p-2 {% if loop.index0 != 0 %}collapsed{% endif %}"
+                                  type="button"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                  aria-expanded="true">
+                                  <span class="text-red">{{ group.group_info.restype or "未知媒介" }}</span>
                                     &nbsp;/&nbsp;
-                                  {% endif %}
-                                  <span class="text-orange">{{ group.group_info.respix }}</span>
-                                {% endif %}
-                                {% if group.group_info.restype or group.group_info.respix %}
-                                  &nbsp;/&nbsp;
-                                {% endif %}
-                              <span class="text">共<span id="search_results_group_total_{{ group_key }}_{{ Item.key }}"
-                                                         class="search_results_group_total"
-                                                         data-total="{{ group.torrent_list|length }}">{{ group.torrent_list|length }}</span>条 </span>
-                            </button>
-                          </h2>
-                          <div id="search_results_group_{{ group_key }}_{{ Item.key }}"
-                               class="accordion-collapse collapse {% if loop.index0 == 0 and Item.torrent_dict.values()|length == 1 %}show{% endif %}"
-                               data-bs-parent="#search_results_accordion_{{ Item.key }}">
-                            <div class="accordion-body pt-0">
-                              <div class="list-group">
-                                <div class="list-group card-list-group mt-2">
-                                  <!-- 种子列表 -->
-                                  {% for torrent in group.torrent_list %}
-                                    <div class="list-group-item p-2 ps-1 search_results_torrent"
-                                      data-site="{{ torrent.site }}"
-                                      data-free="{{ torrent.uploadvalue|string + " " + torrent.downloadvalue|string }}"
-                                      data-video="{{ torrent.video_encode }}"
-                                      data-group="{{ group_key }}">
-                                      <div class="row g-2 align-items-center">
-                                        <div class="col-auto">
-                                          <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }}); overflow: hidden;">{% if not SiteFavicons[torrent.site] %}{{ torrent.site }}{% endif %}</span>
-                                        </div>
-                                        <div class="col">
-                                          <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
-                                          <div class="text-muted">
-                                            {{ torrent.description or '' }}
+                                  <span class="text-orange">{{ group.group_info.respix or "未知分辨率" }}</span>
+                                    &nbsp;/&nbsp;
+                                  <span class="text">共 <span id="search_results_group_total_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                                           class="search_results_group_total"
+                                                           data-total="{{ group.group_total }}">{{ group.group_total }}</span> 个种子 </span>
+                              </button>
+                            </h2>
+                            <div id="search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                 class="accordion-collapse collapse {% if loop.index0 == 0 %}show{% endif %}"
+                                 data-bs-parent="#search_results_accordion_{{ Item.key }}">
+                              <div class="accordion-body pt-0">
+                                <div class="list-group">
+                                  <div class="list-group card-list-group mt-2">
+                                    <!-- 种子列表 -->
+                                  {% for unique_key, unique in group.group_torrents.items() %}
+                                    {% for torrent in unique.torrent_list %}
+                                      <div class="list-group-item p-2 ps-1 search_results_torrent"
+                                        data-site="{{ torrent.site }}"
+                                        data-free="{{ torrent.uploadvalue|string + " " + torrent.downloadvalue|string }}"
+                                        data-video="{{ torrent.video_encode }}"
+                                        data-group="{{ group_key }}"
+                                        data-season="{{ SE_key.replace(' ', '') }}">
+                                        <div class="row g-2 align-items-center">
+                                          <div class="col-auto">
+                                            <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }}); overflow: hidden;">{% if not SiteFavicons[torrent.site] %}{{ torrent.site }}{% endif %}</span>
                                           </div>
-                                          <div>
-                                            <span class="badge bg-dark text-dark-fg mb-1">{{ torrent.site }}</span>
-                                            {% if torrent.video_encode %}
+                                          <div class="col">
+                                            <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
+                                            <div class="text-muted">
+                                              {{ torrent.description or '' }}
+                                            </div>
+                                            <div>
+                                              {% if torrent.video_encode %}
+                                              <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
                                               <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
-                                            {% endif %}
-                                            {% if torrent.reseffect %}
-                                              <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
-                                            {% endif %}
-                                            {% if torrent.size %}
-                                              <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
-                                            {% endif %}
-                                            {% if torrent.releasegroup %}
-                                              <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
-                                            {% endif %}
-                                            {% if torrent.uploadvalue != 1.0 %}
-                                            <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
-                                            {% endif %}
-                                            {% if torrent.downloadvalue != 1.0 %}
-                                              {% if torrent.downloadvalue == 0.0 %}
-                                                <span class="badge text-white bg-lime mb-1">FREE</span>
-                                              {% else %}
-                                                <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                               {% endif %}
-                                            {% endif %}
-                                            <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                              {% if torrent.reseffect %}
+                                                <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
+                                              {% endif %}
+                                              {% if torrent.size %}
+                                                <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
+                                              {% endif %}
+                                              {% if torrent.releasegroup %}
+                                                <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
+                                              {% endif %}
+                                              {% if torrent.uploadvalue != 1.0 %}
+                                              <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                              {% endif %}
+                                              {% if torrent.downloadvalue != 1.0 %}
+                                                {% if torrent.downloadvalue == 0.0 %}
+                                                  <span class="badge text-white bg-lime mb-1">FREE</span>
+                                                {% else %}
+                                                  <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                                {% endif %}
+                                              {% endif %}
+                                              <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                            </div>
                                           </div>
-                                        </div>
-                                        <div class="col-auto ms-2 d-none d-md-inline-block">
-                                          <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                               <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                               <polyline points="7 11 12 16 17 11"></polyline>
-                                               <line x1="12" y1="4" x2="12" y2="16"></line>
-                                            </svg>
-                                          </a>
-                                        </div>
-                                        <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
-                                          <div class="dropdown">
-                                            <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                          <div class="col-auto ms-2 d-none d-md-inline-block">
+                                            <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
+                                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                 <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                                 <polyline points="7 11 12 16 17 11"></polyline>
+                                                 <line x1="12" y1="4" x2="12" y2="16"></line>
+                                              </svg>
                                             </a>
-                                            <div class="dropdown-menu dropdown-menu-end" style="">
-                                              <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
-                                                下载种子文件
+                                          </div>
+                                          <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
+                                            <div class="dropdown">
+                                              <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                               </a>
-                                              <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
-                                                查看种子详情
-                                              </a>
+                                              <div class="dropdown-menu dropdown-menu-end" style="">
+                                                <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
+                                                  下载种子文件
+                                                </a>
+                                                <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
+                                                  查看种子详情
+                                                </a>
+                                              </div>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
-                                    </div>
+                                    {% endfor %}
                                   {% endfor %}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
+                          {% endfor %}
                         </div>
-                        {% endfor %}
                       </div>
+                      {% endfor %}
                     </div>
                   </div>
                   <!-- 是否存在 -->
@@ -474,8 +498,8 @@
   });
 
   // 计算各分组的种子数量
-  function sub_group_total(group, key) {
-    total_obj = $("#search_results_group_total_"+group+"_"+key)
+  function sub_group_total(group, key, se) {
+    total_obj = $("#search_results_group_total_"+group+"_"+key+"_"+se)
     current_num = parseInt(total_obj.text());
     if (current_num < 1) {
       current_num = 1;
@@ -487,8 +511,12 @@
   function filter_do(key) {
     let filter_obj = "#search_results_filter_"+key;
     let torrent_obj = "#search_results_accordion_"+key;
+    let season_obj = ".search_results_season_"+key;
     // 全部显示
     $(torrent_obj+" .search_results_torrent").each(function () {
+      $(this).show();
+    });
+    $(season_obj).each(function () {
       $(this).show();
     });
     // 恢复总条数
@@ -516,6 +544,13 @@
         filter_video = $(this).val();
       }
     });
+    //过滤剧集
+    let filter_season;
+    $(filter_obj+" input[name=filter_season]").each(function () {
+      if($(this).prop('checked')){
+        filter_season = $(this).val();
+      }
+    });
     // 有过滤则展开
     if (filter_site || filter_free || filter_video) {
       $(torrent_obj+" .accordion-button").each(function () {
@@ -530,7 +565,7 @@
       $(torrent_obj+" .search_results_torrent").each(function () {
         if ($(this).attr("data-site") !== filter_site) {
           if($(this).is(":visible")){
-            sub_group_total($(this).attr("data-group"), key);
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
             $(this).hide();
           }
         }
@@ -541,7 +576,7 @@
         if ($(this).attr("data-free") !== filter_free) {
           if($(this).is(":visible")){
             $(this).hide();
-            sub_group_total($(this).attr("data-group"), key);
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
           }
         }
       });
@@ -551,8 +586,21 @@
         if ($(this).attr("data-video") !== filter_video) {
           if($(this).is(":visible")) {
             $(this).hide();
-            sub_group_total($(this).attr("data-group"), key);
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
           }
+        }
+      });
+    }
+    if (filter_season) {
+      $(season_obj).each(function () {
+        season = $(this).attr("data-season").split(" ")[0];
+        se_key = $(this).attr("data-season").replace(" ", "");
+        if ( season !== filter_season) {
+          $(this).hide();
+          $("#search_se_accordion_"+se_key+"_"+key).hide();
+        }else{
+          $(this).show();
+          $("#search_se_accordion_"+se_key+"_"+key).show();
         }
       });
     }
@@ -562,7 +610,7 @@
   function filter_medias(obj, key) {
     let filter_obj = "#search_results_filter_"+key;
     // 处理UI
-    $(filter_obj + " input[type=checkbox]").each(function(){
+    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
     });
     $(obj).prop("checked", true);
