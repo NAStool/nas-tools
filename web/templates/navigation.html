@@ -1956,9 +1956,21 @@
         $("#rss_restype").val(ret.detail.filter_restype);
         $("#rss_pix").val(ret.detail.filter_pix);
         $("#rss_team").val(ret.detail.filter_team);
-        $("#rss_rule").val(ret.detail.filter_rule);
+        $("#rss_rule").val('');
+        for (let rule of $("#rss_rule")[0].options) {
+          if (rule.value == ret.detail.filter_rule) {
+            rule.selected = true;
+            break;
+          }
+        }
         $("#rss_save_path").val(ret.detail.save_path);
-        $("#rss_download_setting").val(ret.detail.download_setting);
+        $("#rss_download_setting").val("-1");
+        for (let download_setting of $("#rss_download_setting")[0].options) {
+          if (download_setting.value == ret.detail.download_setting) {
+            download_setting.selected = true;
+            break;
+          }
+        }
         $("#rss_sites_div").find("input[type=checkbox]").each(function () {
           if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes($(this).val()))) {
             $(this).prop("checked", true);

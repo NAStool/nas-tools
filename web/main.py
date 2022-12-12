@@ -275,10 +275,14 @@ def movie_rss():
     RssItems = WebAction().get_movie_rss_list().get("result")
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     DownloadSettings = Downloader().get_download_setting()
+    RssSites = [site.get("name") for site in Sites().get_sites(rss=True)]
+    SearchSites = [site.name for site in BuiltinIndexer().get_indexers(check=True)]
     return render_template("rss/movie_rss.html",
                            Count=len(RssItems),
                            RuleGroups=RuleGroups,
                            DownloadSettings=DownloadSettings,
+                           RssSites=RssSites,
+                           SearchSites=SearchSites,
                            Items=RssItems
                            )
 
@@ -290,10 +294,14 @@ def tv_rss():
     RssItems = WebAction().get_tv_rss_list().get("result")
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     DownloadSettings = Downloader().get_download_setting()
+    RssSites = [site.get("name") for site in Sites().get_sites(rss=True)]
+    SearchSites = [site.name for site in BuiltinIndexer().get_indexers(check=True)]
     return render_template("rss/tv_rss.html",
                            Count=len(RssItems),
                            RuleGroups=RuleGroups,
                            DownloadSettings=DownloadSettings,
+                           RssSites=RssSites,
+                           SearchSites=SearchSites,
                            Items=RssItems
                            )
 

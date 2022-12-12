@@ -107,7 +107,7 @@
                         {{ RuleGroups[Attr.filter_rule|string] }}
                       </span>
                     {% endif %}
-                    {% if Attr.download_setting and Attr.download_setting != -1 %}
+                    {% if Attr.download_setting != -1 and Attr.download_setting|string in DownloadSettings %}
                       <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
                         {{ DownloadSettings[Attr.download_setting|string].name }}
                       </span>
@@ -122,10 +122,14 @@
                 <div class="text-muted">
                   <small>
                     {% for Site in Attr.rss_sites %}
+                      {% if Site in RssSites %}
                       <span class="badge bg-lime me-1 mb-1" title="订阅站点">{{ Site }}</span>
+                      {% endif %}
                     {% endfor %}
                     {% for Site in Attr.search_sites %}
+                      {% if Site in SearchSites %}
                       <span class="badge bg-yellow me-1 mb-1" title="搜索站点">{{ Site }}</span>
+                      {% endif %}
                     {% endfor %}
                   </small>
                 </div>
