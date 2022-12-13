@@ -309,6 +309,9 @@ class IIndexer(metaclass=ABCMeta):
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 index_rule_fail += 1
                 continue
+            # 无订阅或搜索过滤规则，应用站点过滤规则
+            if not filter_args.get("rule"):
+                filter_args["rule"] = indexer.rule
             # 检查订阅过滤规则匹配
             match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
                                                                                 filter_args=filter_args,
