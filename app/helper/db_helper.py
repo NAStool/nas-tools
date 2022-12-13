@@ -44,7 +44,12 @@ class DbHelper:
                 POSTER=media_item.get_poster_image(),
                 TMDBID=media_item.tmdb_id,
                 OVERVIEW=media_item.overview,
-                RES_TYPE=media_item.get_resource_type_string(),
+                RES_TYPE=json.dumps({
+                    "respix": media_item.resource_pix,
+                    "restype": media_item.resource_type,
+                    "reseffect": media_item.resource_effect,
+                    "video_encode": media_item.video_encode
+                }),
                 RES_ORDER=media_item.res_order,
                 SIZE=StringUtils.str_filesize(int(media_item.size)),
                 SEEDERS=media_item.seeders,
@@ -1849,7 +1854,8 @@ class DbHelper:
         """
         if not task_id:
             return []
-        return self._db.query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id).all()
+        return self._db.query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id)\
+            .order_by(USERRSSTASKHISTORY.DATE.desc()).all()
 
     def get_rss_history(self, rtype=None, rid=None):
         """
@@ -2178,7 +2184,7 @@ class DbHelper:
         ))
 
     @DbPersist(_db)
-    def check_message_client(self, cid=None, interactive=None, enabled=None):
+    def check_message_client(self, cid=None, interactive=None, enabled=None, ctype=None):
         """
         设置目录同步状态
         """
@@ -2194,8 +2200,9 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-        elif not cid and int(interactive) == 0:
-            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1).update(
+        elif not cid and int(interactive) == 0 and ctype:
+            self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.INTERACTIVE == 1,
+                                                 MESSAGECLIENT.TYPE == ctype).update(
                 {
                     "INTERACTIVE": 0
                 }

@@ -241,7 +241,7 @@ class Transmission(IDownloadClient):
         torrents, error_flag = self.get_torrents()
         if error_flag:
             return []
-        tags = config.get("tags")
+        tags = config.get("filter_tags")
         ratio = config.get("ratio")
         # 做种时间 单位：小时
         seeding_time = config.get("seeding_time")
@@ -271,8 +271,17 @@ class Transmission(IDownloadClient):
                 continue
             if savepath_key and not re.findall(savepath_key, torrent.download_dir, re.I):
                 continue
-            if tracker_key and not re.findall(tracker_key, torrent.trackers, re.I):
-                continue
+            if tracker_key:
+                if not torrent.trackers:
+                    continue
+                else:
+                    tacker_key_flag = False
+                    for tracker in torrent.trackers:
+                        if re.findall(tracker_key, tracker.get("announce", ""), re.I):
+                            tacker_key_flag = True
+                            break
+                    if not tacker_key_flag:
+                        continue
             if tr_state and not torrent.status not in tr_state:
                 continue
             if tr_error_key and not re.findall(tr_error_key, torrent.error_string, re.I):

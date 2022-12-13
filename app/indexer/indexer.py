@@ -51,7 +51,6 @@ class IIndexer(metaclass=ABCMeta):
     def search_by_keyword(self,
                           key_word,
                           filter_args: dict,
-                          match_type=0,
                           match_media=None,
                           in_from: SearchType = None):
         """
@@ -60,7 +59,6 @@ class IIndexer(metaclass=ABCMeta):
         :param filter_args: 过滤条件，对应属性为空则不过滤，{"season":季, "episode":集, "year":年, "type":类型, "site":站点,
                             "":, "restype":质量, "pix":分辨率, "sp_state":促销状态, "key":其它关键字}
                             sp_state: 为UL DL，* 代表不关心，
-        :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_media: 需要匹配的媒体信息
         :param in_from: 搜索渠道
         :return: 命中的资源媒体信息列表
@@ -90,7 +88,6 @@ class IIndexer(metaclass=ABCMeta):
                                    index,
                                    key_word,
                                    filter_args,
-                                   match_type,
                                    match_media,
                                    in_from)
             all_task.append(task)
@@ -116,7 +113,6 @@ class IIndexer(metaclass=ABCMeta):
                indexer,
                key_word,
                filter_args: dict,
-               match_type,
                match_media,
                in_from: SearchType):
         """
@@ -146,7 +142,6 @@ class IIndexer(metaclass=ABCMeta):
                                               order_seq=order_seq,
                                               indexer=indexer,
                                               filter_args=filter_args,
-                                              match_type=match_type,
                                               match_media=match_media,
                                               start_time=start_time)
 
@@ -257,7 +252,6 @@ class IIndexer(metaclass=ABCMeta):
                               order_seq,
                               indexer,
                               filter_args: dict,
-                              match_type,
                               match_media,
                               start_time):
         """
@@ -267,6 +261,7 @@ class IIndexer(metaclass=ABCMeta):
         index_sucess = 0
         index_rule_fail = 0
         index_match_fail = 0
+        index_error = 0
         for item in result_array:
             # 这此站标题和副标题相反
             if indexer.id in self._reverse_title_sites:
@@ -279,6 +274,7 @@ class IIndexer(metaclass=ABCMeta):
             if indexer.id in self._invalid_description_sites:
                 description = ""
             if not torrent_name:
+                index_error += 1
                 continue
             enclosure = item.get('enclosure')
             size = item.get('size')
@@ -293,6 +289,7 @@ class IIndexer(metaclass=ABCMeta):
             # 全匹配模式下，非公开站点，过滤掉做种数为0的
             if filter_args.get("seeders") and not indexer.public and str(seeders) == "0":
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
+                index_rule_fail += 1
                 continue
             # 识别种子名称
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
@@ -310,6 +307,7 @@ class IIndexer(metaclass=ABCMeta):
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
+                index_rule_fail += 1
                 continue
             # 检查订阅过滤规则匹配
             match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
@@ -321,49 +319,49 @@ class IIndexer(metaclass=ABCMeta):
                 index_rule_fail += 1
                 continue
             # 识别媒体信息
-            if match_type != 2:
-                # IMDBID匹配
-                if match_media \
-                        and meta_info.imdb_id \
+            if not match_media:
+                # 不过滤
+                media_info = meta_info
+            else:
+                # 0-识别并模糊匹配；1-识别并精确匹配
+                if meta_info.imdb_id \
                         and match_media.imdb_id \
-                        and meta_info.imdb_id == match_media.imdb_id:
+                        and str(meta_info.imdb_id) == str(match_media.imdb_id):
                     # IMDBID匹配，合并媒体数据
                     media_info = self.media.merge_media_info(meta_info, match_media)
                 else:
-                    # 识别匹配
-                    media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
-                    if not media_info:
-                        log.warn(f"【{self.index_type}】{torrent_name} 识别媒体信息出错！")
-                        continue
-                    elif not media_info.tmdb_info:
-                        log.info(f"【{self.index_type}】{torrent_name} 识别为 {media_info.get_name()} 未匹配到媒体信息")
-                        index_match_fail += 1
-                        continue
-                    # TMDBID是否匹配
-                    if match_type == 1:
-                        # 全匹配模式，TMDBID需要完全一样才匹配
-                        if match_media and media_info.tmdb_id != match_media.tmdb_id:
+                    # 查询缓存
+                    cache_info = self.media.get_cache_info(meta_info)
+                    if match_media and str(cache_info.get("id")) == str(match_media.tmdb_id):
+                        # 缓存匹配，合并媒体数据
+                        media_info = self.media.merge_media_info(meta_info, match_media)
+                    else:
+                        # 重新识别
+                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
+                        if not media_info:
+                            log.warn(f"【{self.index_type}】{torrent_name} 识别媒体信息出错！")
+                            index_error += 1
+                            continue
+                        elif not media_info.tmdb_info:
+                            log.info(f"【{self.index_type}】{torrent_name} 识别为 {media_info.get_name()} 未匹配到媒体信息")
+                            index_match_fail += 1
+                            continue
+                        # TMDBID是否匹配
+                        if str(media_info.tmdb_id) != str(match_media.tmdb_id):
                             log.info(
                                 f"【{self.index_type}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} 不匹配")
                             index_match_fail += 1
                             continue
                         # 合并媒体数据
                         media_info = self.media.merge_media_info(media_info, match_media)
-                    else:
-                        # 非全匹配模式，找出来的全要，不过滤名称
-                        pass
-                    # 过滤类型
-                    if filter_args.get("type"):
-                        if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
-                                or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
-                            log.info(
-                                f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不是 {filter_args.get('type').value}")
-                            index_rule_fail += 1
-                            continue
-            else:
-                # 无需识别
-                media_info = meta_info
-
+                # 过滤类型
+                if filter_args.get("type"):
+                    if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
+                            or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
+                        log.info(
+                            f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不是 {filter_args.get('type').value}")
+                        index_rule_fail += 1
+                        continue
             # 检查标题是否匹配季、集、年
             if not self.filter.is_torrent_match_sey(media_info,
                                                     filter_args.get("season"),
@@ -391,11 +389,13 @@ class IIndexer(metaclass=ABCMeta):
             if media_info not in ret_array:
                 index_sucess += 1
                 ret_array.append(media_info)
+            else:
+                index_rule_fail += 1
         # 循环结束
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(
-            f"【{self.index_type}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+            f"【{self.index_type}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         self.progress.update(ptype='search',
-                             text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+                             text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array

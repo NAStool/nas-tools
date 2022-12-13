@@ -538,7 +538,7 @@
                       </div>
                       {% if SystemFlag > 0 and "系统设置" in UserPris %}
                         <div class="col-auto">
-                          <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
+                          <a href="javascript:update(NewVersion)" class="list-group-item-actions" title="升级版本">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24"
                                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -612,7 +612,7 @@
   </header>
   <div class="page-wrapper" id="page_wrapper">
     <div id="page_content"></div>
-    <footer class="footer footer-transparent d-print-none" style="padding: 0.5rem 0;">
+    <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
         <div class="row text-center align-items-center flex-row-reverse">
           <div class="col-12 col-lg-auto mt-3 mt-lg-0">
@@ -873,15 +873,25 @@
 <!-- 实时日志 -->
 <div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">实时日志</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                 id="logging_close_head"></button>
       </div>
-      <div class="modal-body" id="logging_content"
-           style="display:flex; flex-direction:column-reverse;font-size:12px;">
+      <div id="logging_table" class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
+      <table class="table table-vcenter card-table table-hover table-striped">
+        <thead>
+          <tr>
+            <th class="w-3">时间</th>
+            <th class="w-3">来源</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody id="logging_content" class="table-tbody">
+        </tbody>
+      </table>
       </div>
       <div class="modal-footer">
         <a href="javascript:pause_logging()" class="btn btn-link me-auto" id="logging_stop_btn">
@@ -1302,7 +1312,12 @@
 <!-- 提示弹窗 -->
 <script type="text/javascript">
   //显示全局加载框
-  function show_wait_process() {
+  function show_wait_process(blur) {
+    if (blur) {
+      $('#modal-wait').addClass('modal-blur');
+    } else {
+      $('#modal-wait').removeClass('modal-blur');
+    }
     $("#modal-wait").modal("show");
   }
 
@@ -2229,91 +2244,99 @@
         func();
       }
       if (ret.code === 0) {
-        $("#" + result_div).empty();
-        let ignored_words = [];
-        let replaced_words = [];
-        let offset_words = [];
-        if (ret.data.ignored_words) {
-          ignored_words = ret.data.ignored_words;
-        }
-        if (ret.data.replaced_words) {
-          replaced_words = ret.data.replaced_words;
-        }
-        if (ret.data.offset_words) {
-          offset_words = ret.data.offset_words;
-        }
-        const words = ignored_words + replaced_words + offset_words;
-        if (words.length !== 0) {
-          if (ret.data.org_string) {
-            $("#" + result_div).append(`<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`);
-          }
-          if (ignored_words.length !== 0) {
-            let ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
-            for (ignored_word of ignored_words) {
-              ignored_word_content = ignored_word_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
-            }
-            ;
-            $("#" + result_div).append(ignored_word_content + '</label></div>');
-          }
-          if (replaced_words.length != 0) {
-            let replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
-            for (replaced_word of replaced_words) {
-              replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
-            }
-            ;
-            $("#" + result_div).append(replaced_words_content + '</label></div>');
-          }
-          if (offset_words.length != 0) {
-            let offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
-            for (offset_word of offset_words) {
-              offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
-            }
-            ;
-            $("#" + result_div).append(offset_words_content + '</label></div>');
-          }
-        }
-        if (ret.data.type) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`);
-        }
-        if (ret.data.category) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
-        }
-        if (ret.data.name) {
-          const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(ret.data.name)}`;
-          $("#" + result_div).append(`<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${ret.data.name}</a></span>`);
-        }
-        if (ret.data.title) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
-        }
-        if (ret.data.year) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
-        }
-        if (ret.data.season_episode) {
-          $("#" + result_div).append(`<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`);
-        }
-        if (ret.data.part) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`);
-        }
-        if (ret.data.tmdbid) {
-          $("#" + result_div).append(`<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`);
-        }
-        if (ret.data.restype) {
-          $("#" + result_div).append(`<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`);
-        }
-        if (ret.data.pix) {
-          $("#" + result_div).append(`<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`);
-        }
-        if (ret.data.video_codec) {
-          $("#" + result_div).append(`<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`);
-        }
-        if (ret.data.audio_codec) {
-          $("#" + result_div).append(`<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`);
-        }
-        if (ret.data.team) {
-          $("#" + result_div).append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
-        }
+        media_name_test_ui(ret.data, result_div);
       }
     });
+  }
+
+  // 处理识别结果UI
+  function media_name_test_ui(data, result_div) {
+    let content = '';
+    let ignored_words = [];
+    let replaced_words = [];
+    let offset_words = [];
+    if (data.ignored_words) {
+      ignored_words = data.ignored_words;
+    }
+    if (data.replaced_words) {
+      replaced_words = data.replaced_words;
+    }
+    if (data.offset_words) {
+      offset_words = data.offset_words;
+    }
+    const words = ignored_words + replaced_words + offset_words;
+    if (words.length !== 0) {
+      if (data.org_string) {
+        content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${data.org_string}</span></label></div>`;
+      }
+      if (ignored_words.length !== 0) {
+        let ignored_word_content = '';
+        for (ignored_word of ignored_words) {
+          ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用屏蔽词：${ignored_word_content}</label></div>`;
+      }
+      if (replaced_words.length !== 0) {
+        let replaced_words_content = '';
+        for (replaced_word of replaced_words) {
+          replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用替换词：${replaced_words_content}</label></div>`;
+      }
+      if (offset_words.length !== 0) {
+        let offset_words_content = '';
+        for (offset_word of offset_words) {
+          offset_words_content = offset_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
+        }
+        content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
+      }
+    }
+    if (data.type) {
+      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${data.type}</span>`;
+    }
+    if (data.category) {
+      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${data.category}</span>`;
+    }
+    if (data.name) {
+      const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
+      content = `${content}<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
+    }
+    if (data.title) {
+      content = `${content}<span class="badge badge-outline text-red me-1 mb-1" title="标题">${data.title}</span>`;
+    } else {
+      content = `${content}<span class="badge me-1 mb-1" title="标题">TMDB无匹配</span>`;
+    }
+    if (data.year) {
+      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${data.year}</span>`;
+    }
+    if (data.season_episode) {
+      content = `${content}<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${data.tmdb_S_E_link}" target="_blank">${data.season_episode}</a></span>`;
+    }
+    if (data.part) {
+      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${data.part}</span>`;
+    }
+    if (data.tmdbid) {
+      content = `${content}<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${data.tmdblink}" target="_blank">${data.tmdbid}</a></span>`;
+    }
+    if (data.restype) {
+      content = `${content}<span class="badge me-1 mb-1" title="质量">${data.restype}</span>`;
+    }
+    if (data.effect) {
+      content = `${content}<span class="badge me-1 mb-1" title="特性">${data.effect}</span>`;
+    }
+    if (data.pix) {
+      content = `${content}<span class="badge me-1 mb-1" title="分辨率">${data.pix}</span>`;
+    }
+    if (data.video_codec) {
+      content = `${content}<span class="badge me-1 mb-1" title="视频编码">${data.video_codec}</span>`;
+    }
+    if (data.audio_codec) {
+      content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
+    }
+    if (data.team) {
+      content = `${content}<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
+    }
+    $(`#${result_div}`).empty().append(content);
   }
 
   // 显示手动识别转移框
@@ -2482,7 +2505,13 @@
           .text("转移");
       if (ret.retcode == 0) {
         $('#modal-media-identification').modal('hide');
-        show_success_modal("处理成功！");
+        show_success_modal("处理成功！", function () {
+          if (manual_type == '2') {
+            navmenu('history');
+          } else {
+            navmenu('unidentification');
+          }
+        });
       } else {
         //处理失败
         regmsg = ret.retmsg;
@@ -2547,11 +2576,55 @@
 
   //刷新日志
   function refresh_logging(flag) {
-    ajax_post("logging", {}, function (ret) {
-      if (ret.text) {
-        $("#logging_content").append(ret.text);
-        const height = $('#logging_content').prop("scrollHeight");
-        $('#logging_content').scrollTop(height);
+    let refresh_new = $("#logging_content").children().length;
+    ajax_post("logging", {"refresh_new": refresh_new}, function (ret) {
+      if (ret.loglist) {
+        let log_list = ret.loglist;
+        let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
+        let tbody = "";
+        for (let i = 0; i < log_list.length; i++) {
+          const log =  log_list[i];
+          let text = log.text;
+          const source = log.source;
+          const time = log.time;
+          const level = log.level;
+          let tcolor = '';
+          let bgcolor = '';
+          let tstyle = '';
+          if (level === "WARN") {
+            tcolor = "text-warning";
+            bgcolor = "bg-warning";
+          } else if (level === "ERROR") {
+            tcolor = "text-danger";
+            bgcolor = "bg-danger";
+          } else if (source === "System") {
+            tcolor = "text-info";
+            bgcolor = "bg-info";
+          } else {
+            tcolor = "text";
+          }
+          if (["Rmt", "Subtitle"].includes(source) && text.includes(" 到 ")) {
+            tstyle = `white-space: pre;`
+            text = text.replace(/\s到\s/, "\n=> ")
+          }
+          if (text.includes("http") || text.includes("magnet")) {
+            tstyle = `word-break: break-all;`
+            text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
+          }
+          tbody = `${tbody}
+                    <tr>
+                    <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
+                    <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
+                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
+                    </tr>`;
+        }
+        let bool_ToScrolTop = ($("#logging_table").scrollTop() + $("#logging_table").prop("offsetHeight")) >= $("#logging_table").prop("scrollHeight");
+        $("#logging_content").append(tbody);
+        if (bool_ToScrolTop){
+          setTimeout(function () {
+            $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+          }, 500);
+        }
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
@@ -2584,37 +2657,8 @@
 
   // 显示实时日志
   function show_logging_modal() {
-    $('#modal-logging').modal('show');
     start_logging();
-  }
-
-  //注销
-  function logout() {
-    ajax_post("logout", {}, function (ret) {
-      window.location.href = "/";
-    });
-  }
-
-  //重启
-  function restart() {
-    show_confirm_modal("立即重启系统？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("重启中...");
-      ajax_post("restart", {}, function (ret) {
-      });
-      setTimeout("window.location.reload()", 10000);
-    });
-  }
-
-  //更新
-  function update() {
-    show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("更新中...");
-      ajax_post("update_system", {}, function (ret) {
-      });
-      setTimeout("window.location.reload()", 15000);
-    });
+    $('#modal-logging').modal('show');
   }
 
   //刷新消息中心
@@ -2648,14 +2692,49 @@
     });
   }
 
-  //升级新版本
-  function update_to_newversion() {
-    show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function () {
-      $("#system_confirm_btn").attr("disabled", true)
-          .text("升级中...");
+  //检查系统是否在线
+  function check_system_online() {
+    ajax_post("refresh_process", {type: "restart"}, function (ret) {
+        if (ret.code === -1) {
+          logout();
+        } else {
+          setTimeout("check_system_online()", 1000);
+        }
+      });
+  }
+
+  //注销
+  function logout() {
+    ajax_post("logout", {}, function (ret) {
+      window.location.href = "/";
+    });
+  }
+
+  //重启
+  function restart() {
+    show_confirm_modal("立即重启系统？", function () {
+      hide_confirm_modal();
+      ajax_post("restart", {}, function (ret) {
+      });
+      show_wait_process(true);
+      setTimeout("check_system_online()", 5000);
+    });
+  }
+
+  //更新
+  function update(version) {
+    let title;
+    if (version) {
+      title = "是否确认更新到 " + version + " 版本？";
+    } else {
+      title = "将从Github拉取最新程序代码并重启，是否确认？";
+    }
+    show_confirm_modal(title, function () {
+      hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      setTimeout("window.location.reload()", 15000);
+      show_wait_process(true);
+      setTimeout("check_system_online()", 5000);
     });
   }
 

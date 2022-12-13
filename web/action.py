@@ -19,11 +19,12 @@ from app.doubansync import DoubanSync
 from app.downloader import Qbittorrent, Transmission, Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper
+from app.helper import DbHelper, DictHelper, ChromeHelper
 from app.helper import ProgressHelper, ThreadHelper, MetaHelper
+from app.helper.display_helper import DisplayHelper
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
-from app.media import Category, Media, MetaInfo
+from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
 from app.mediaserver import MediaServer
@@ -234,14 +235,16 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
+        # 关闭浏览器
+        ChromeHelper().quit()
+        # 关闭虚拟显示
+        DisplayHelper().quit()
         # 重启进程
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         elif SystemUtils.is_synology():
             os.system("ps -ef | grep -v grep | grep 'python run.py'|awk '{print $2}'|xargs kill -9")
         else:
-            if SystemUtils.is_docker():
-                os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
             os.system("pm2 restart NAStool")
 
     @staticmethod
@@ -841,14 +844,17 @@ class WebAction:
         """
         查询实时日志
         """
-        if log.LOG_INDEX:
+        log_list = []
+        refresh_new = data.get('refresh_new')
+        if not refresh_new:
+            log_list = list(log.LOG_QUEUE)
+        elif log.LOG_INDEX:
             if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
-                text = "<br/>".join(list(log.LOG_QUEUE))
+                log_list = list(log.LOG_QUEUE)
             else:
-                text = "<br/>".join(list(log.LOG_QUEUE)[-log.LOG_INDEX:])
-            log.LOG_INDEX = 0
-            return {"text": text + "<br/>"}
-        return {"text": ""}
+                log_list = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+        log.LOG_INDEX = 0
+        return {"loglist": log_list}
 
     @staticmethod
     def __version(data):
@@ -1452,6 +1458,7 @@ class WebAction:
         ret = None
         if command:
             try:
+                module_obj = None
                 if isinstance(command, list):
                     for cmd_str in command:
                         ret = eval(cmd_str)
@@ -1461,11 +1468,17 @@ class WebAction:
                     if command.find("|") != -1:
                         module = command.split("|")[0]
                         class_name = command.split("|")[1]
-                        ret = getattr(importlib.import_module(module), class_name)().get_status()
+                        module_obj = getattr(importlib.import_module(module), class_name)()
+                        if hasattr(module_obj, "init_config"):
+                            module_obj.init_config()
+                        ret = module_obj.get_status()
                     else:
                         ret = eval(command)
                 # 重载配置
                 Config().init_config()
+                if module_obj:
+                    if hasattr(module_obj, "init_config"):
+                        module_obj.init_config()
             except Exception as e:
                 ret = None
                 print(str(e))
@@ -1814,7 +1827,6 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         site_info = Sites().get_sites(siteid=brushtask.SITE)
-        scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
         sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
         forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
         task = {
@@ -1834,7 +1846,7 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask.DOWNLOAD_SIZE),
             "upload_size": StringUtils.str_filesize(brushtask.UPLOAD_SIZE),
             "lst_mod_date": brushtask.LST_MOD_DATE,
-            "site_url": "%s://%s" % (scheme, netloc),
+            "site_url": StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl")),
             "sendmessage": sendmessage_switch,
             "forceupload": forceupload_switch
         }
@@ -1927,6 +1939,7 @@ class WebAction:
             "tmdb_S_E_link": tmdb_S_E_link,
             "category": media_info.category,
             "restype": media_info.resource_type,
+            "effect": media_info.resource_effect,
             "pix": media_info.resource_pix,
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
@@ -2262,13 +2275,15 @@ class WebAction:
             rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="下载限速">下载限速: %sB/s</span>'
                               % StringUtils.str_filesize(int(rules.get("downspeed")) * 1024))
         if rules.get("include"):
-            rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1 text-wrap text-start" title="包含规则">包含: %s</span>'
-                              % rules.get("include"))
+            rule_htmls.append(
+                '<span class="badge badge-outline text-green me-1 mb-1 text-wrap text-start" title="包含规则">包含: %s</span>'
+                % rules.get("include"))
         if rules.get("hr"):
             rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除HR">排除: HR</span>')
         if rules.get("exclude"):
-            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start" title="排除规则">排除: %s</span>'
-                              % rules.get("exclude"))
+            rule_htmls.append(
+                '<span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start" title="排除规则">排除: %s</span>'
+                % rules.get("exclude"))
         if rules.get("dlcount"):
             rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
                               % rules.get("dlcount"))
@@ -3160,46 +3175,171 @@ class WebAction:
         """
         查询所有搜索结果
         """
-        SearchResults = []
+        SearchResults = {}
         res = self.dbhelper.get_search_results()
+        total = len(res)
         for item in res:
-            # 是否已存在
-            if item.TMDBID:
-                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+            # 质量(来源、效果)、分辨率
+            if item.RES_TYPE:
+                try:
+                    res_mix = json.loads(item.RES_TYPE)
+                except Exception as err:
+                    print(str(err))
+                    continue
+                respix = res_mix.get("respix") or ""
+                video_encode = res_mix.get("video_encode") or ""
+                restype = res_mix.get("restype") or ""
+                reseffect = res_mix.get("reseffect") or ""
             else:
-                exist_flag = False
+                restype = ""
+                respix = ""
+                reseffect = ""
+                video_encode = ""
+            # 分组标识 (来源，分辨率)
+            group_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}").lower()
+            # 分组信息
+            group_info = {
+                "respix": respix,
+                "restype": restype,
+            }
+            # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
+            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{video_encode}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
+            # 标识信息
+            unique_info = {
+                "video_encode": video_encode,
+                "size": item.SIZE,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO
+            }
             # 结果
             title_string = f"{item.TITLE}"
             if item.YEAR:
                 title_string = f"{title_string} ({item.YEAR})"
-            if item.ES_STRING:
-                title_string = f"{title_string} {item.ES_STRING}"
-            SearchResults.append({
+            # 电视剧季集标识
+            mtype = item.TYPE or ""
+            SE_key = item.ES_STRING or "TV" if mtype != "MOV" else "MOV"
+            media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
+            # 种子信息
+            torrent_item = {
                 "id": item.ID,
-                "title_string": title_string,
-                "restype": item.RES_TYPE,
-                "size": item.SIZE,
                 "seeders": item.SEEDERS,
                 "enclosure": item.ENCLOSURE,
                 "site": item.SITE,
-                "year": item.YEAR,
-                "es_string": item.ES_STRING,
-                "image": item.IMAGE,
-                "type": item.TYPE,
-                "vote": item.VOTE,
                 "torrent_name": item.TORRENT_NAME,
                 "description": item.DESCRIPTION,
-                "tmdbid": item.TMDBID,
-                "poster": item.IMAGE,
-                "overview": item.OVERVIEW,
                 "pageurl": item.PAGEURL,
-                "releasegroup": item.OTHERINFO,
                 "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
                 "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
-                "title": item.TITLE,
-                "exist": exist_flag
-            })
-        return {"code": 0, "result": SearchResults}
+                "size": item.SIZE,
+                "respix": respix,
+                "restype": restype,
+                "reseffect": reseffect,
+                "releasegroup": item.OTHERINFO,
+                "video_encode": video_encode
+            }
+            # 促销
+            free_item = {
+                "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
+                "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
+            }
+            # 季
+            filter_season = SE_key.split()[0] if SE_key and SE_key not in ["MOV", "TV"] else None
+            # 合并搜索结果
+            if SearchResults.get(title_string):
+                # 种子列表
+                result_item = SearchResults[title_string]
+                torrent_dict = SearchResults[title_string].get("torrent_dict")
+                SE_dict = torrent_dict.get(SE_key)
+                if SE_dict:
+                    group = SE_dict.get(group_key)
+                    if group:
+                        unique = group.get("group_torrents").get(unique_key)
+                        if unique:
+                            unique["torrent_list"].append(torrent_item)
+                            group["group_total"] += 1
+                        else:
+                            group["group_total"] += 1
+                            group.get("group_torrents")[unique_key] = {
+                                "unique_info": unique_info,
+                                "torrent_list": [torrent_item]
+                            }
+                    else:
+                        SE_dict[group_key] = {
+                            "group_info": group_info,
+                            "group_total": 1,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
+                        }
+                else:
+                    torrent_dict[SE_key] = {
+                        group_key: {
+                            "group_info": group_info,
+                            "group_total": 1,
+                            "group_torrents": {
+                                unique_key: {
+                                    "unique_info": unique_info,
+                                    "torrent_list": [torrent_item]
+                                }
+                            }
+                        }
+                    }
+                # 过滤条件
+                torrent_filter = dict(result_item.get("filter"))
+                if free_item not in torrent_filter.get("free"):
+                    torrent_filter["free"].append(free_item)
+                if item.SITE not in torrent_filter.get("site"):
+                    torrent_filter["site"].append(item.SITE)
+                if video_encode \
+                        and video_encode not in torrent_filter.get("video"):
+                    torrent_filter["video"].append(video_encode)
+                if filter_season \
+                        and filter_season not in torrent_filter.get("season"):
+                    torrent_filter["season"].append(filter_season)
+            else:
+                # 是否已存在
+                if item.TMDBID:
+                    exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
+                else:
+                    exist_flag = False
+                SearchResults[title_string] = {
+                    "key": item.ID,
+                    "title": item.TITLE,
+                    "year": item.YEAR,
+                    "type_key": mtype,
+                    "image": item.IMAGE,
+                    "type": media_type,
+                    "vote": item.VOTE,
+                    "tmdbid": item.TMDBID,
+                    "backdrop": item.IMAGE,
+                    "poster": item.POSTER,
+                    "overview": item.OVERVIEW,
+                    "exist": exist_flag,
+                    "torrent_dict": {
+                        SE_key: {
+                            group_key: {
+                                "group_info": group_info,
+                                "group_total": 1,
+                                "group_torrents": {
+                                    unique_key: {
+                                        "unique_info": unique_info,
+                                        "torrent_list": [torrent_item]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "filter": {
+                        "site": [item.SITE],
+                        "free": [free_item],
+                        "video": [video_encode] if video_encode else [],
+                        "season": [filter_season] if filter_season else []
+                    }
+                }
+        return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod
     def search_media_infos(data):
@@ -3234,10 +3374,9 @@ class WebAction:
                     tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
                 if tmp_info.begin_episode:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
-                tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
-                medias.append(tmp_info.__dict__)
+                medias.append(tmp_info)
 
-        return {"code": 0, "result": medias}
+        return {"code": 0, "result": [media.to_dict() for media in medias]}
 
     @staticmethod
     def get_movie_rss_list(data=None):
@@ -3756,11 +3895,12 @@ class WebAction:
         """
         flag = data.get("flag")
         cid = data.get("cid")
+        ctype = data.get("type")
         checked = data.get("checked")
         if flag == "interactive":
-            # 最多开启一个交互
+            # TG/WX只能开启一个交互
             if checked:
-                self.dbhelper.check_message_client(interactive=0)
+                self.dbhelper.check_message_client(interactive=0, ctype=ctype)
             self.dbhelper.check_message_client(cid=cid,
                                                interactive=1 if checked else 0)
             Message().init_config()
@@ -3878,11 +4018,14 @@ class WebAction:
             return {"code": 0}
 
     @staticmethod
-    def __get_torrent_remove_task(data):
+    def __get_torrent_remove_task(data=None):
         """
         获取自动删种任务
         """
-        tid = data.get("tid")
+        if data:
+            tid = data.get("tid")
+        else:
+            tid = None
         return {"code": 0, "detail": TorrentRemover().get_torrent_remove_tasks(taskid=tid)}
 
     @staticmethod

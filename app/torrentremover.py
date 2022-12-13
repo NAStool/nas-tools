@@ -152,6 +152,7 @@ class TorrentRemover(object):
                 # 获取需删除种子列表
                 downloader_type = self.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type")
                 task.get("config")["samedata"] = task.get("samedata")
+                task.get("config")["onlynastool"] = task.get("onlynastool")
                 torrents = self.downloader.get_remove_torrents(
                     downloader=downloader_type,
                     config=task.get("config")
@@ -197,7 +198,7 @@ class TorrentRemover(object):
                         self.downloader.delete_torrents(downloader=downloader_type,
                                                         delete_file=True,
                                                         ids=[torrent.get("id")])
-                if title and text:
+                if torrents and title and text:
                     self.message.send_brushtask_remove_message(title=title, text=text)
             except Exception as e:
                 log.error(f"【TorrentRemover】自动删种任务：{task.get('name')}异常：{str(e)}")
@@ -336,6 +337,7 @@ class TorrentRemover(object):
             return False, []
         else:
             task.get("config")["samedata"] = task.get("samedata")
+            task.get("config")["onlynastool"] = task.get("onlynastool")
             torrents = self.downloader.get_remove_torrents(
                 downloader=self.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type"),
                 config=task.get("config")

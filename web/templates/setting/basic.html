@@ -51,21 +51,37 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg">
+              <div class="col-xl-2">
+                <div class="mb-3">
+                  <label class="form-label required">WEB壁纸来源 <span class="form-help"
+                                                               title="登录界面壁纸来源：TMDB、Bing，设置为TMDB时需在媒体配置TMDB API Key"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="app.wallpaper">
+                    <option value="themoviedb"
+                      {% if not Config.app.wallpaper or Config.app.wallpaper=='themoviedb' %}selected{% endif %}>
+                      TMDB
+                    </option>
+                    <option value="bing" {% if Config.app.wallpaper=='bing' %}selected{% endif %}>
+                      Bing
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-xl-2">
                 <div class="mb-3">
                   <label class="form-label required">WEB服务端口</label>
                   <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port"
                          placeholder="3000" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理用户</label>
                   <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user"
                          placeholder="admin" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理密码</label>
                   <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control"
@@ -254,7 +270,7 @@
               <div class="col">
                 <div class="mb-3">
                   <label class="form-label required">电影重命名格式 <span class="form-help"
-                                                                          title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上。<br>电影占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"
+                                                                          title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符，转义为&#123;&#123;&#125;&#125;；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上。<br>电影占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"
                                                                           data-bs-toggle="tooltip"
                                                                           data-bs-html="true">?</span></label>
                   <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control"
@@ -268,7 +284,7 @@
               <div class="col">
                 <div class="mb-3">
                   <label class="form-label required">电视剧重命名格式 <span class="form-help"
-                                                                            title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上。<br>电视剧占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{season}：季数<br>{episode}：集数<br>{season_episode}：剧集SxxExx<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"
+                                                                            title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符，转义为&#123;&#123;&#125;&#125;；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上。<br>电视剧占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{season}：季数<br>{episode}：集数<br>{season_episode}：剧集SxxExx<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"
                                                                             data-bs-toggle="tooltip"
                                                                             data-bs-html="true">?</span></label>
                   <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control"
@@ -317,8 +333,34 @@
           <div class="card-footer">
             <div class="row align-items-center">
               <div class="col-auto">
-                <a href="javascript:void(0)" class="btn" data-bs-toggle="modal" data-bs-target="#modal-scraper">
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-scraper">
                   刮削设置
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-scraper" title="刮削设置">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-slideshow" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <line x1="15" y1="6" x2="15.01" y2="6"></line>
+                     <rect x="3" y="3" width="18" height="14" rx="3"></rect>
+                     <path d="M3 13l4 -4a3 5 0 0 1 3 0l4 4"></path>
+                     <path d="M13 12l2 -2a3 5 0 0 1 3 0l3 3"></path>
+                     <line x1="8" y1="21" x2="8.01" y2="21"></line>
+                     <line x1="12" y1="21" x2="12.01" y2="21"></line>
+                     <line x1="16" y1="21" x2="16.01" y2="21"></line>
+                  </svg>
+                </a>
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-release-groups">
+                  自定义制作组/字幕组
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-release-groups" title="自定义制作组/字幕组">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tex" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M9 8v-1h-6v1"></path>
+                     <path d="M6 15v-8"></path>
+                     <path d="M21 15l-5 -8"></path>
+                     <path d="M16 15l5 -8"></path>
+                     <path d="M14 11h-4v8h4"></path>
+                     <path d="M10 15h3"></path>
+                  </svg>
                 </a>
               </div>
               <div class="col"></div>
@@ -586,7 +628,7 @@
             role="tablist">
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
-               aria-selected="true" role="tab">NFO</a>
+               aria-selected="true" role="tab">元数据</a>
           </li>
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
@@ -907,6 +949,31 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-release-groups" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">自定义制作组/字幕组 <span class="form-help" title="无法识别的制作组/字幕组在此添加" data-bs-toggle="tooltip">?</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class='row'>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <textarea class="form-control" id="release_groups" rows="5" placeholder="多个制作组/字幕组请用;分隔，支持正则表达式，特殊字符注意转义">{{ Config.laboratory.release_groups or '' }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="release_groups_save_btn" href="javascript:save_release_groups_config()" class="btn btn-primary">
+          保存
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
@@ -926,13 +993,11 @@
       params[key] = value;
     });
     if (type != "modal-scraper") {
-      $("#" + type + "_btn").attr("disabled", true);
-      $("#" + type + "_btn").text("保存中...");
+      $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
     ajax_post("update_config", params, function (ret) {
       if (type != "modal-scraper") {
-        $("#" + type + "_btn").attr("disabled", false);
-        $("#" + type + "_btn").text("保存");
+        $("#" + type + "_btn").text("保存").attr("disabled", false);
       }
     });
   }
@@ -941,6 +1006,17 @@
   function save_scraper_config() {
     save_basic_config('modal-scraper');
     $("#modal-scraper").modal("hide");
+  }
+
+    // 保存自定义制作组/字幕组配置
+  function save_release_groups_config(){
+    let params = {};
+    params['laboratory.release_groups'] = $("#release_groups").val().replace(/;$/g, '');
+    $("#release_groups_save_btn").text("保存中...").attr("disabled", true);
+    ajax_post("update_config", params, function (ret) {
+      $("#release_groups_save_btn").text("保存").attr("disabled", false);
+    });
+    $("#modal-customized-words").modal("hide");
   }
 
 </script>

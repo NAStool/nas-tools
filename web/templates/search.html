@@ -6,8 +6,8 @@
         <h2 class="page-title text-nowrap">
           资源搜索
         </h2>
-        {% if Count > 8 %}
-          <div class="text-muted mt-1 d-none d-md-block">共搜索到 {{ Count }} 条记录</div>
+        {% if Results|length > 0 %}
+        <div class="text-muted mt-1 d-none d-md-block">共搜索到 {{ Count }} 条记录</div>
         {% endif %}
       </div>
       <div class="col ms-auto d-print-none">
@@ -15,9 +15,9 @@
           <div class="input-group">
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
-                    onclick="javascript:search_media_list()">搜索
+                    onclick="search_media_list()">搜索
             </button>
-            <button id="search_icon" onclick="javascript:search_media_list()"
+            <button id="search_icon" onclick="search_media_list()"
                     class="btn btn-primary d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search"
                    width="24" height="24"
@@ -47,188 +47,252 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
-{% if Count > 0 %}
+{% if Count > 0 and Results|length > 0 %}
   <div class="page-body">
     <div class="container-xl">
       <div class="row">
-        {% if Count > 8 %}
-          <div class="col-md-3 col-lg-2 d-none d-md-block">
-            <div class="accordion" id="filter_form_accordion"
-                 style="position:-webkit-sticky;position:sticky;top:1rem;z-index:1;max-height: 35rem; overflow-y:auto; overflow-x:hidden;">
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_type">
-                  <button class="accordion-button " type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_type"
-                          aria-expanded="true">
-                    类型
-                  </button>
-                </h2>
-                <div id="filter_type" class="accordion-collapse collapse show"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for mtype in MediaMTypes %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_type', this)">
-                          <span>{{ mtype.name }}</span>
-                          <small class="text-muted ms-auto">{{ mtype.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_title">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_title" aria-expanded="true">
-                    标题
-                  </button>
-                </h2>
-                <div id="filter_title" class="accordion-collapse collapse"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for name in MediaNames %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_title', this)">
-                          <span>{{ name.name }}</span>
-                          <small class="text-muted ms-auto">{{ name.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_site">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_site" aria-expanded="true">
-                    站点
-                  </button>
-                </h2>
-                <div id="filter_site" class="accordion-collapse collapse"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for site in MediaSites %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_site', this)">
-                          <span>{{ site.name }}</span>
-                          <small class="text-muted ms-auto">{{ site.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_res">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_res" aria-expanded="true">
-                    质量
-                  </button>
-                </h2>
-                <div id="filter_res" class="accordion-collapse collapse"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for restype in MediaRestypes %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_res', this)">
-                          <span>{{ restype.name }}</span>
-                          <small class="text-muted ms-auto">{{ restype.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_pix">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_pix" aria-expanded="true">
-                    分辨率
-                  </button>
-                </h2>
-                <div id="filter_pix" class="accordion-collapse collapse"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for pix in MediaPixs %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_pix', this)">
-                          <span>{{ pix.name }}</span>
-                          <small class="text-muted ms-auto">{{ pix.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-filter_free">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                          data-bs-target="#filter_spstate" aria-expanded="true">
-                    促销
-                  </button>
-                </h2>
-                <div id="filter_spstate" class="accordion-collapse collapse"
-                     data-bs-parent="#filter_form_accordion">
-                  <div class="accordion-body pt-0">
-                    <div class="list-group list-group-transparent">
-                      {% for spstate in MediaSPStates %}
-                        <a class="list-group-item list-group-item-action d-flex align-items-center"
-                           href="javascript:void(0)"
-                           onclick="filter_medias('filter_spstate', this)">
-                          {% if spstate.name == "1.0 1.0" %}
-                            <span>普通</span>
-                          {% elif spstate.name == "1.0 0.0" %}
-                            <span>免费</span>
-                          {% elif spstate.name == "2.0 1.0" %}
-                            <span>2X</span>
-                          {% elif spstate.name == "2.0 0.0" %}
-                            <span>2X免费</span>
-                          {% elif spstate.name == "1.0 0.5" %}
-                            <span>50%</span>
-                          {% elif spstate.name == "2.0 0.5" %}
-                            <span>2X 50%</span>
-                          {% elif spstate.name == "1.0 0.7" %}
-                            <span>70%</span>
-                          {% elif spstate.name == "1.0 0.3" %}
-                            <span>30%</span>
-                          {% else %}
-                            <span>{{ spstate.name }}</span>
-                          {% endif %}
-                          <small class="text-muted ms-auto">{{ spstate.num }}</small>
-                        </a>
-                      {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        {% endif %}
-        <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
+        <div class="col">
           <div class="row row-cards" id="media_cards">
-            {% for Item in Items %}
-              <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card"
-                   id="media_card_{{ Item.id }}">
-                <div class="card card-sm card-link-pop rounded-3">
-                  {% if Item.vote|int > 0 %}
-                    <div class="badge badge-pill bg-purple"
-                         style="position:absolute;top:10px;right:10px;">
-                      {{ Item.vote }}</div>
-                  {% endif %}
+            {% for Title, Item in Results.items() %}
+              <div class="card">
+                <div class="card-body ps-1 pe-1">
+                  <div class="row">
+                    <div class="col-2 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
+                      <!-- 图片 -->
+                      {% if Item.poster %}
+                      <img class="rounded object-cover shadow" src="{{ Item.poster }}">
+                      {% endif %}
+                      <!-- 过滤条件 -->
+                      {% if Item.filter.season %}
+                      <div class="subheader mb-2 mt-2">季</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_season in Item.filter.season %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="filter_season" value="{{ filter_season }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this, '{{ Item.key }}')">
+                          <span class="form-selectgroup-label">{{ filter_season }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
+                      <div class="subheader mb-2 mt-3">站点</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_site in Item.filter.site %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="filter_site" value="{{ filter_site }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this, '{{ Item.key }}')">
+                          <span class="form-selectgroup-label">{{ filter_site }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      <div class="subheader mb-2 mt-2">促销</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_free in Item.filter.free %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="filter_free" value="{{ filter_free.value }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this, '{{ Item.key }}')">
+                          <span class="form-selectgroup-label">{{ filter_free.name }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      {% if Item.filter.video %}
+                      <div class="subheader mb-2 mt-2">视频编码</div>
+                      <div class="form-selectgroup form-selectgroup-pills">
+                        {% for filter_video in Item.filter.video %}
+                        <label class="form-selectgroup-item">
+                          <input type="checkbox" name="filter_video" value="{{ filter_video }}" class="form-selectgroup-input"
+                            onclick="filter_medias(this, '{{ Item.key }}')">
+                          <span class="form-selectgroup-label">{{ filter_video }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
+                      <div class="mt-3">
+                        <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}')">
+                          重置
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <!-- 标题 -->
+                      <div class="row">
+                        <div class="col">
+                          <h3 class="mb-0">
+                            {% if Item.tmdbid and Item.tmdbid != '0' %}
+                            <strong>{{ Title }}</strong>
+                            {% else %}
+                            <strong class="ms-3">{{ Title }}</strong>
+                            {% endif %}
+                          </h3>
+                        </div>
+                      </div>
+                      <!-- 媒体属性 -->
+                      <div class="row mt-2">
+                        <div class="col-md">
+                          {% if Item.tmdbid and Item.tmdbid!= '0' %}
+                          <div class="list-inline list-inline-dots mb-0 text-muted d-sm-block d-none">
+                            <div class="list-inline-item">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-video" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                 <path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"></path>
+                                 <rect x="3" y="6" width="12" height="12" rx="2"></rect>
+                              </svg>
+                              {{ Item.type }}
+                            </div>
+                            <div class="list-inline-item">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                 <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
+                              </svg>
+                              {{ Item.vote or '暂无评分' }}
+                            </div>
+                            <div class="list-inline-item">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                 <circle cx="12" cy="12" r="9"></circle>
+                                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                 <polyline points="11 12 12 12 12 16 13 16"></polyline>
+                              </svg>
+                              <a href="{% if Item.type == '电影' %}https://www.themoviedb.org/movie/{{ Item.tmdbid }}{% else %}https://www.themoviedb.org/tv/{{ Item.tmdbid }}{% endif %}" target="_blank">{{ Item.tmdbid }}</a>
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <!-- 简介 -->
+                      {% if Item.overview %}
+                      <div class="text-muted mt-2 d-none d-md-block">
+                        {{ Item.overview}}
+                      </div>
+                      {% endif %}
+                      <!-- 资源分组 -->
+                      {% for SE_key, SE_dict in Item.torrent_dict.items() %}
+                      {% if SE_key != 'MOV' %}
+                        <a href="javascript:$('#search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}').slideToggle()"
+                          class="search_results_season_{{ Item.key }}"
+                          data-season="{{ SE_key }}">
+                          <div class="row mt-2">
+                            <h3 class="mb-0">
+                            <strong>{{ SE_key }}</strong>
+                            </h3>
+                          </div>
+                        </a>
+                      {% endif %}
+                      <div {% if SE_key != 'MOV' %} id="search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}" {% endif %}>
+                        <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
+                          {% for group_key, group in SE_dict.items() %}
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button
+                                  class="accordion-button p-2 {% if loop.index0 != 0 %}collapsed{% endif %}"
+                                  type="button"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target="#search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                  aria-expanded="true">
+                                  <span class="text-red">{{ group.group_info.restype or "未知媒介" }}</span>
+                                    &nbsp;/&nbsp;
+                                  <span class="text-orange">{{ group.group_info.respix or "未知分辨率" }}</span>
+                                    &nbsp;/&nbsp;
+                                  <span class="text">共 <span id="search_results_group_total_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                                           class="search_results_group_total"
+                                                           data-total="{{ group.group_total }}">{{ group.group_total }}</span> 个种子 </span>
+                              </button>
+                            </h2>
+                            <div id="search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
+                                 class="accordion-collapse collapse {% if loop.index0 == 0 %}show{% endif %}"
+                                 data-bs-parent="#search_results_accordion_{{ Item.key }}">
+                              <div class="accordion-body pt-0">
+                                <div class="list-group">
+                                  <div class="list-group card-list-group mt-2">
+                                    <!-- 种子列表 -->
+                                  {% for unique_key, unique in group.group_torrents.items() %}
+                                    {% for torrent in unique.torrent_list %}
+                                      <div class="list-group-item p-2 ps-1 search_results_torrent"
+                                        data-site="{{ torrent.site }}"
+                                        data-free="{{ torrent.uploadvalue|string + " " + torrent.downloadvalue|string }}"
+                                        data-video="{{ torrent.video_encode }}"
+                                        data-group="{{ group_key }}"
+                                        data-season="{{ SE_key.replace(' ', '') }}">
+                                        <div class="row g-2 align-items-center">
+                                          <div class="col-auto">
+                                            <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }}); overflow: hidden;">{% if not SiteFavicons[torrent.site] %}{{ torrent.site }}{% endif %}</span>
+                                          </div>
+                                          <div class="col">
+                                            <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
+                                            <div class="text-muted">
+                                              {{ torrent.description or '' }}
+                                            </div>
+                                            <div>
+                                              {% if torrent.video_encode %}
+                                              <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
+                                              <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
+                                              {% endif %}
+                                              {% if torrent.reseffect %}
+                                                <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
+                                              {% endif %}
+                                              {% if torrent.size %}
+                                                <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
+                                              {% endif %}
+                                              {% if torrent.releasegroup %}
+                                                <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
+                                              {% endif %}
+                                              {% if torrent.uploadvalue != 1.0 %}
+                                              <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                              {% endif %}
+                                              {% if torrent.downloadvalue != 1.0 %}
+                                                {% if torrent.downloadvalue == 0.0 %}
+                                                  <span class="badge text-white bg-lime mb-1">FREE</span>
+                                                {% else %}
+                                                  <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
+                                                {% endif %}
+                                              {% endif %}
+                                              <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                            </div>
+                                          </div>
+                                          <div class="col-auto ms-2 d-none d-md-inline-block">
+                                            <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
+                                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                 <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                                 <polyline points="7 11 12 16 17 11"></polyline>
+                                                 <line x1="12" y1="4" x2="12" y2="16"></line>
+                                              </svg>
+                                            </a>
+                                          </div>
+                                          <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
+                                            <div class="dropdown">
+                                              <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                              </a>
+                                              <div class="dropdown-menu dropdown-menu-end" style="">
+                                                <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
+                                                  下载种子文件
+                                                </a>
+                                                <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
+                                                  查看种子详情
+                                                </a>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    {% endfor %}
+                                  {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <!-- 是否存在 -->
                   {% if Item.exist %}
                     <div class="badge badge-pill bg-green"
-                         style="position:absolute;top:10px;left:10px;padding:0;">
+                         style="position:absolute;top:20px;right:20px;padding:0;">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                            fill="currentColor" aria-hidden="true"
                            class="h-3 w-3 sm:h-4 sm:w-4">
@@ -238,100 +302,6 @@
                       </svg>
                     </div>
                   {% endif %}
-                  {% if Item.image %}
-                    <a href='javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}")'
-                       class="d-block">
-                      <img src="{{ Item.image }}" class="card-img-top" title="点击添加下载"
-                           style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
-                    </a>
-                  {% endif %}
-                  <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                      <input type="hidden" name="media_card_type" value="{{ Item.type }}">
-                      <input type="hidden" name="media_card_spstate"
-                             value="{{ Item.uploadvalue }} {{ Item.downloadvalue }}">
-                      <input type="hidden" name="media_card_title"
-                             value="{{ Item.title_string }}">
-                      <div>
-                        <div>
-                          <a href='{% if not Item.image and Item.description %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
-                             title="点击添加下载">
-                            <strong>{% if Item.tmdbid or not Item.description %}
-                              {{ Item.title_string|replace("()", "") }}{% else %}
-                              {{ Item.description }} {% endif %}</strong></a>
-                          {% if Item.seeders %}
-                            <span class="badge ms-2">{{ Item.seeders }}{{ UPCHAR }}</span>
-                          {% endif %}
-                          {% if Item.uploadvalue != 1.0 %}
-                            <span class="badge text-white bg-azure">{{ (Item.uploadvalue * 100) | int }}%UL</span>
-                          {% endif %}
-                          {% if Item.downloadvalue != 1.0 %}
-                            {% if Item.downloadvalue == 0.0 %}
-                              <span class="badge text-white bg-lime">FREE</span>
-                            {% else %}
-                              <span class="badge text-white bg-blue">{{ (Item.downloadvalue * 100) | int }}%DL</span>
-                            {% endif %}
-                          {% endif %}
-                        </div>
-                        <div class="text-muted mt-1" style="line-height: 1.6em;">
-                          <strong class="media_card_info"><span
-                                  class="badge badge-outline text-blue">{{ Item.site }}</span>
-                            {% if Item.restype %}
-                              <span class="badge badge-outline text-orange">
-                              {{ Item.restype }}{% endif %}</span>
-                            {% if Item.size %}
-                              <span class="badge badge-outline text-yellow">{{ Item.size }}</span>
-                            {% endif %}
-                            {% if Item.releasegroup %}
-                              <span class="badge badge-outline text-cyan">{{ Item.releasegroup }}</span>
-                            {% endif %}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                    {% if Item.torrent_name %}
-                      <div class="text-muted border-top pt-2">
-                        {% if Item.type == "MOV" %}
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-movie" width="24"
-                               height="24" viewBox="0 0 24 24" stroke-width="2"
-                               stroke="currentColor" fill="none"
-                               stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                            <line x1="8" y1="4" x2="8" y2="20"></line>
-                            <line x1="16" y1="4" x2="16" y2="20"></line>
-                            <line x1="4" y1="8" x2="8" y2="8"></line>
-                            <line x1="4" y1="16" x2="8" y2="16"></line>
-                            <line x1="4" y1="12" x2="20" y2="12"></line>
-                            <line x1="16" y1="8" x2="20" y2="8"></line>
-                            <line x1="16" y1="16" x2="20" y2="16"></line>
-                          </svg>
-                        {% else %}
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-device-tv" width="24"
-                               height="24" viewBox="0 0 24 24" stroke-width="2"
-                               stroke="currentColor" fill="none"
-                               stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-                            <polyline points="16 3 12 7 8 3"></polyline>
-                          </svg>
-                        {% endif %}
-                        {% if Item.pageurl %}
-                          <small><a href="{{ Item.pageurl }}"
-                                    target="_blank">{{ Item.torrent_name }}</a></small>
-                        {% else %}
-                          <small>{{ Item.torrent_name }}</small>
-                        {% endif %}
-                      </div>
-                    {% endif %}
-                    {% if Item.tmdbid and Item.description %}
-                      <div class="text-muted">
-                        <small>{{ Item.description }}</small>
-                      </div>
-                    {% endif %}
-                  </div>
                 </div>
               </div>
             {% endfor %}
@@ -467,9 +437,8 @@
   // 关键字
   var search_word = "{{ SearchWord }}";
   var need_search = "{{ NeedSearch }}";
-  var result_count =
-  {{ Count }}
-  if (search_word != "") {
+  var result_count = {{ Count }};
+  if (search_word !== "") {
     $("#search_word").val(decodeURI(search_word));
     if (need_search) {
       search_media(true);
@@ -486,25 +455,23 @@
     } else {
       unident = "1";
     }
-    var keyword = $("#search_word").val();
-    if (keyword == "") {
+    const keyword = $("#search_word").val();
+    if (keyword === "") {
       return;
     }
-    $("#search_btn").text("搜索中...");
-    $("#search_btn").attr("disabled", "true");
+    $("#search_btn").text("搜索中...").attr("disabled", "true");
     $("#quick_search_btn").attr("disabled", "true");
     $("#search_icon").attr("disabled", "true");
     $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
     $("#search_tip_text").text("正在搜索 " + keyword + " ...");
-    var param = {"search_word": keyword, "unident": unident};
+    const param = {"search_word": keyword, "unident": unident};
     show_refresh_process("正在搜索 " + keyword + "...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('search?s=' + keyword);
       } else {
-        $("#search_btn").text("搜索");
-        $("#search_btn").attr("disabled", false);
+        $("#search_btn").text("搜索").attr("disabled", false);
         $("#quick_search_btn").attr("disabled", false);
         $("#search_icon").attr("disabled", false);
         $("#search_tip_title").text("搜索失败");
@@ -516,8 +483,8 @@
 
   //搜索联想
   function search_media_list() {
-    var keyword = $("#search_word").val();
-    if (keyword == "") {
+    const keyword = $("#search_word").val();
+    if (keyword === "") {
       return;
     }
     navmenu('medialist?s=' + keyword + '&f=1&t=search');
@@ -525,102 +492,139 @@
 
   // 搜索输入框
   $('#search_word').bind('keypress', function (event) {
-    if (event.keyCode == "13") {
+    if (event.keyCode === 13) {
       search_media_list();
     }
   });
 
+  // 计算各分组的种子数量
+  function sub_group_total(group, key, se) {
+    total_obj = $("#search_results_group_total_"+group+"_"+key+"_"+se)
+    current_num = parseInt(total_obj.text());
+    if (current_num < 1) {
+      current_num = 1;
+    }
+    total_obj.text(current_num-1);
+  }
+
   // 执行过滤
-  function filter_do() {
-    var strings = [];
-    var i = 0;
-    $("#filter_form_accordion").find("a").each(function () {
-      if ($(this).hasClass("active")) {
-        strings[i] = $(this).find("span").text().trim();
-        i++;
+  function filter_do(key) {
+    let filter_obj = "#search_results_filter_"+key;
+    let torrent_obj = "#search_results_accordion_"+key;
+    let season_obj = ".search_results_season_"+key;
+    // 全部显示
+    $(torrent_obj+" .search_results_torrent").each(function () {
+      $(this).show();
+    });
+    $(season_obj).each(function () {
+      $(this).show();
+    });
+    // 恢复总条数
+    $(torrent_obj+" .search_results_group_total").each(function () {
+      $(this).text($(this).attr("data-total"));
+    });
+    // 过滤站点
+    let filter_site;
+    $(filter_obj+" input[name=filter_site]").each(function () {
+      if($(this).prop('checked')){
+        filter_site = $(this).val();
       }
     });
-
-    if (strings.length == 0) {
-      $("#media_cards").find("div[class*='media_card']").show();
-    } else {
-      $("#media_cards").find("div[class*='media_card']").each(function () {
-        media_string = $(this).find("strong[class='media_card_info']").text();
-        type_string = $(this).find("input[name='media_card_type']").val();
-        spstate_string = $(this).find("input[name='media_card_spstate']").val();
-        title_string = $(this).find("input[name='media_card_title']").val();
-        show_flag = true;
-        for (var i = 0; i < strings.length; i++) {
-          if (strings[i] == "电影" && type_string != "MOV") {
-            show_flag = false;
-            break;
+    // 过滤促销
+    let filter_free;
+    $(filter_obj+" input[name=filter_free]").each(function () {
+      if($(this).prop('checked')){
+        filter_free = $(this).val();
+      }
+    });
+    // 过滤编码
+    let filter_video;
+    $(filter_obj+" input[name=filter_video]").each(function () {
+      if($(this).prop('checked')){
+        filter_video = $(this).val();
+      }
+    });
+    //过滤剧集
+    let filter_season;
+    $(filter_obj+" input[name=filter_season]").each(function () {
+      if($(this).prop('checked')){
+        filter_season = $(this).val();
+      }
+    });
+    // 有过滤则展开
+    if (filter_site || filter_free || filter_video) {
+      $(torrent_obj+" .accordion-button").each(function () {
+        $(this).removeClass("collapsed");
+      });
+      $(torrent_obj+" .accordion-collapse").each(function () {
+        $(this).addClass("show");
+      });
+    }
+    // 执行过滤
+    if (filter_site) {
+      $(torrent_obj+" .search_results_torrent").each(function () {
+        if ($(this).attr("data-site") !== filter_site) {
+          if($(this).is(":visible")){
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
+            $(this).hide();
           }
-          if (strings[i] == "电视剧" && type_string != "TV") {
-            show_flag = false;
-            break;
-          }
-          if (strings[i] == "动漫" && type_string != "ANI") {
-            show_flag = false;
-            break;
-          }
-          const sp_name_map = new Map([
-            ["普通", '1.0 1.0'],
-            ["免费", '1.0 0.0'],
-            ["2X", '2.0 1.0'],
-            ["2X免费", '2.0 0.0'],
-            ["50%", '1.0 0.5'],
-            ["2X 50%", '2.0 0.5'],
-            ["70%", '1.0 0.7'],
-            ["30%", '1.0 0.3']
-          ]);
-          if (Array.from(sp_name_map.keys()).includes(strings[i])) {
-            let sp_state = sp_name_map.get(strings[i]);
-            if (sp_state != spstate_string) {
-              show_flag = false;
-              break;
-            }
-          }
-          if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"
-              && !Array.from(sp_name_map.keys()).includes(strings[i])
-              && media_string.search(strings[i]) == -1
-              && title_string.search(strings[i]) == -1) {
-            show_flag = false;
-            break;
-          }
-        }
-        if (show_flag) {
-          $(this).show();
-        } else {
-          $(this).hide();
         }
       });
     }
-
+    if (filter_free) {
+      $(torrent_obj+" .search_results_torrent").each(function () {
+        if ($(this).attr("data-free") !== filter_free) {
+          if($(this).is(":visible")){
+            $(this).hide();
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
+          }
+        }
+      });
+    }
+    if (filter_video) {
+      $(torrent_obj+" .search_results_torrent").each(function () {
+        if ($(this).attr("data-video") !== filter_video) {
+          if($(this).is(":visible")) {
+            $(this).hide();
+            sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
+          }
+        }
+      });
+    }
+    if (filter_season) {
+      $(season_obj).each(function () {
+        season = $(this).attr("data-season").split(" ")[0];
+        se_key = $(this).attr("data-season").replace(" ", "");
+        if ( season !== filter_season) {
+          $(this).hide();
+          $("#search_se_accordion_"+se_key+"_"+key).hide();
+        }else{
+          $(this).show();
+          $("#search_se_accordion_"+se_key+"_"+key).show();
+        }
+      });
+    }
   }
 
   // 过滤媒体展示
-  function filter_medias(typeid, obj) {
-    // 处理响应
-    if (obj) {
-      if ($(obj).hasClass("active")) {
-        $(obj).removeClass("active");
-      } else {
-        $(obj).addClass("active");
-        if (typeid) {
-          $("#" + typeid).find("a").not(obj).removeClass("active");
-        }
-      }
-    }
+  function filter_medias(obj, key) {
+    let filter_obj = "#search_results_filter_"+key;
+    // 处理UI
+    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
+      $(this).prop("checked", false);
+    });
+    $(obj).prop("checked", true);
     // 开始过滤
-    filter_do();
+    filter_do(key);
   }
 
-  // 重置过滤器
-  function reset_filter() {
-    $("#filter_form").find("a").removeClass("active");
-    $("#filter_size_begin").val("");
-    $("#filter_size_end").val("");
-    filter_do();
+  // 重置过滤条件
+  function reset_filter(obj, key) {
+    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
+      $(this).prop("checked", false);
+    });
+    // 开始过滤
+    filter_do(key);
   }
 
   // 显示高级搜索框
@@ -630,28 +634,29 @@
 
   // 开始高级搜索
   function search_media_advanced() {
+    let keyword;
     $("#search_icon").attr("disabled", "true");
     // 读取数据
-    var search_name = $("#search_name").val();
+    const search_name = $("#search_name").val();
     if (!search_name) {
       $("#search_name").addClass("is-invalid");
       return;
     } else {
       $("#search_name").removeClass("is-invalid");
     }
-    var search_type = $("#search_type").val();
-    var search_season = $("#search_season").val();
-    var search_year = $("#search_year").val();
-    var search_site = $("#search_site").val();
-    var search_restype = $("#search_restype").val();
-    var search_pix = $("#search_pix").val();
-    var sp_state = $("#sp_state").val();
-    var search_key = $("#search_key").val();
+    const search_type = $("#search_type").val();
+    const search_season = $("#search_season").val();
+    const search_year = $("#search_year").val();
+    const search_site = $("#search_site").val();
+    const search_restype = $("#search_restype").val();
+    const search_pix = $("#search_pix").val();
+    const sp_state = $("#sp_state").val();
+    const search_key = $("#search_key").val();
     // 拼装请求
     if (search_type) {
-      var keyword = search_type + " " + search_name;
+      keyword = search_type + " " + search_name;
     } else {
-      var keyword = search_name;
+      keyword = search_name;
     }
     if (search_year) {
       keyword = keyword + " " + search_year;
@@ -659,19 +664,19 @@
     if (search_season) {
       keyword = keyword + " " + search_season;
     }
-    var filters = {
+    const filters = {
       "site": search_site,
       "restype": search_restype,
       "pix": search_pix,
       "sp_state": sp_state,
       "key": search_key
     };
-    var param = {"search_word": keyword, "filters": filters, "unident": true};
+    const param = {"search_word": keyword, "filters": filters, "unident": true};
     $("#modal-search-advanced").modal("hide");
     show_refresh_process("正在搜索 " + keyword + " ...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('search?s=' + keyword);
       } else {
         show_fail_modal(ret.msg,function () {
@@ -682,9 +687,8 @@
   }
 
   //初始化下拉框
-  $("#search_season").empty();
-  $("#search_season").append('<option value="">全部</option>');
-  for (var i = 1; i <= 50; i++) {
+  $("#search_season").empty().append('<option value="">全部</option>');
+  for (let i = 1; i <= 50; i++) {
     $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }
 

@@ -2,11 +2,11 @@ import os
 import pickle
 import random
 import time
+from enum import Enum
 from threading import RLock
-from app.utils import JsonUtils
-from config import Config
+
 from app.utils.commons import singleton
-from app.utils.types import MediaType
+from config import Config
 
 lock = RLock()
 
@@ -16,7 +16,16 @@ EXPIRE_TIMESTAMP = 7 * 24 * 3600
 
 @singleton
 class MetaHelper(object):
+    """
+    {
+        "id": '',
+        "title": '',
+        "year": '',
+        "type": MediaType
+    }
+    """
     _meta_data = {}
+
     _meta_path = None
     _tmdb_cache_expire = False
 
@@ -27,7 +36,7 @@ class MetaHelper(object):
         laboratory = Config().get_config('laboratory')
         if laboratory:
             self._tmdb_cache_expire = laboratory.get("tmdb_cache_expire")
-        self._meta_path = os.path.join(Config().get_config_path(), 'meta.dat')
+        self._meta_path = os.path.join(Config().get_config_path(), 'tmdb.dat')
         self._meta_data = self.__load_meta_data(self._meta_path)
 
     def clear_meta_data(self):
@@ -72,10 +81,15 @@ class MetaHelper(object):
             begin_pos = (page - 1) * num
 
         with lock:
-            search_metas = [(k, JsonUtils.json_serializable(v),
-                             str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
-                            for k, v in
-                            self._meta_data.items() if search.lower() in k.lower() and v.get("id") != 0]
+            search_metas = [(k, {
+                "id": v.get("id"),
+                "title": v.get("title"),
+                "year": v.get("year"),
+                "media_type": v.get("type").value if isinstance(v.get("type"), Enum) else v.get("type"),
+                "poster_path": v.get("poster_path"),
+                "backdrop_path": v.get("backdrop_path")
+            },  str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
+                for k, v in self._meta_data.items() if search.lower() in k.lower() and v.get("id") != 0]
             return len(search_metas), search_metas[begin_pos: begin_pos + num]
 
     def delete_meta_data(self, key):
@@ -114,10 +128,7 @@ class MetaHelper(object):
         """
         with lock:
             if self._meta_data.get(key):
-                if self._meta_data[key]['media_type'] == MediaType.MOVIE:
-                    self._meta_data[key]['title'] = title
-                else:
-                    self._meta_data[key]['name'] = title
+                self._meta_data[key]['title'] = title
                 self._meta_data[key][CACHE_EXPIRE_TIMESTAMP_STR] = int(time.time()) + EXPIRE_TIMESTAMP
             return self._meta_data.get(key)
 
@@ -155,7 +166,9 @@ class MetaHelper(object):
         meta_data = self.__load_meta_data(self._meta_path)
         new_meta_data = {k: v for k, v in self._meta_data.items() if str(v.get("id")) != '0'}
 
-        if not force and not self._random_sample(new_meta_data) and meta_data.keys() == new_meta_data.keys():
+        if not force \
+                and not self._random_sample(new_meta_data) \
+                and meta_data.keys() == new_meta_data.keys():
             return
 
         with open(self._meta_path, 'wb') as f:
@@ -203,8 +216,7 @@ class MetaHelper(object):
         cache_media_info = self._meta_data.get(key)
         if not cache_media_info or not cache_media_info.get("id"):
             return None
-        return cache_media_info.get("title") if cache_media_info.get(
-            "media_type") == MediaType.MOVIE else cache_media_info.get("name")
+        return cache_media_info.get("title")
 
     def set_cache_title(self, key, cn_title):
         """
@@ -213,7 +225,4 @@ class MetaHelper(object):
         cache_media_info = self._meta_data.get(key)
         if not cache_media_info:
             return
-        if cache_media_info.get("media_type") == MediaType.MOVIE:
-            self._meta_data[key]['title'] = cn_title
-        else:
-            self._meta_data[key]['name'] = cn_title
+        self._meta_data[key]['title'] = cn_title

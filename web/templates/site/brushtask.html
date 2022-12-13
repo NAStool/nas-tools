@@ -63,7 +63,14 @@
         {% for Task in Tasks %}
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">{{ Task.name }}</h3>
+              {% if Task.state == 'Y' %}
+              <span class="badge bg-green"></span>
+              {% else %}
+              <span class="badge bg-red"></span>
+              {% endif %}
+              <div class="ms-2">
+                <h3 class="card-title">{{ Task.name }}</h3>
+              </div>
               <div class="ms-2">
                 <a href="javascript:run_brushtask_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
                    data-bs-toggle="tooltip">
@@ -76,7 +83,16 @@
                   </svg>
                 </a>
               </div>
+              <div class="text-muted ms-3" id="detail_size_{{ Task.id }}"
+                style="display: {% if Count > 2 %}block{% else %}none{% endif %};">↑{{ Task.upload_size }}  ↓{{ Task.download_size }}</div>
               <div class="card-actions btn-actions">
+                <a href="javascript:show_brushtask_detail('{{ Task.id }}')" class="btn-action">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
+                    viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                      d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                  </svg>
+                </a>
                 <a href="javascript:edit_brushtask_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -100,7 +116,8 @@
                 </a>
               </div>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="detail_{{ Task.id }}"
+                style="display: {% if Count > 2 %}none{% else %}block{% endif %};">
               <div class="datagrid">
                 <div class="datagrid-item">
                   <div class="datagrid-title">站点</div>
@@ -639,6 +656,12 @@
     $("#brushtask_modal_title").text("新建任务");
     $("#brushtask_id").val("");
     $("#modal-brushtask").modal('show');
+  }
+
+  // 折叠任务详情
+  function show_brushtask_detail(taskid) {
+    $(`#detail_${taskid}`).slideToggle();
+    $(`#detail_size_${taskid}`).slideToggle();
   }
 
   // 显示编辑刷流任务

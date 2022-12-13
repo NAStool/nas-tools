@@ -6,7 +6,7 @@
           <div class="col-12 col-xl-6">
             {% if OperType == 'search' %}
               <a class="card card-link card-link-pop rounded-3"
-                 href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
+                 href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type}}')"
                  style="padding:0 0; overflow:hidden">
             {% else %}
               <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
@@ -16,12 +16,10 @@
             {% endif %}
             <div class="row" style="max-height:240px; overflow:hidden">
               <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0 0">
-                <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}"
-                      style="position:absolute;top:10px;left:10px;">{{ Media.type.value }}</span>
-                <img
-                        src="
-                                {% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
-                        class="w-100 h-100 object-cover">
+                <span class="badge badge-pill {% if Media.type== '电影' %}bg-green{% else %}bg-blue{% endif %}"
+                    style="position:absolute;top:10px;left:10px;">{{ Media.type}}</span>
+                <img src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
+                    class="w-100 h-100 object-cover">
               </div>
               <div class="col">
                 <div class="card-body">
@@ -42,7 +40,7 @@
             </div>
             {% if OperType != 'search' %}
               <div class="d-flex">
-                <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type.value }}','{{ Media.tmdb_id }}')"
+                <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type}}','{{ Media.tmdb_id }}')"
                    class="card-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss me-2 text-muted"
                        width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -54,7 +52,7 @@
                   </svg>
                   订阅
                 </a>
-                <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}')"
+                <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type}}')"
                    class="card-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-2 text-muted"
                        width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -108,11 +106,11 @@
 <script type="text/javascript">
   //搜索
   function medialist_search(tmdbid, title, type) {
-    var param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
+    const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
     show_refresh_process("正在搜索 " + title + " ...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('search?s=' + title)
       } else {
         show_fail_modal(ret.msg);
@@ -122,24 +120,25 @@
 
   //点击订阅按钮
   function add_medialist_rss_media(name, year, type, tmdbid) {
-    if (type == "电影") {
+    let doubanid;
+    if (type === "电影") {
       type = "MOV";
     } else {
       type = "TV";
     }
     if (tmdbid && tmdbid.startsWith("DB:")) {
-      var doubanid = tmdbid.replace("DB:", "");
+      doubanid = tmdbid.replace("DB:", "");
       tmdbid = "";
     } else {
-      var doubanid = "";
+      doubanid = "";
     }
-    if (!tmdbid || type == "MOV") {
+    if (!tmdbid || type === "MOV") {
       add_rss_media(name, year, type, tmdbid, doubanid);
     } else {
       show_wait_process();
       ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function (ret) {
         hide_wait_process();
-        if (ret.seasons.length == 1) {
+        if (ret.seasons.length === 1) {
           add_rss_media(name, year, type, tmdbid, doubanid);
         } else if (ret.seasons.length > 1) {
           show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons);

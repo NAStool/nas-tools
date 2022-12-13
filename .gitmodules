@@ -13,3 +13,6 @@
 [submodule "third_party/plexapi"]
 	path = third_party/plexapi
 	url = https://github.com/pkkid/python-plexapi
+[submodule "third_party/slack_bolt"]
+	path = third_party/slack_bolt
+	url = https://github.com/slackapi/bolt-python

@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import threading
 import time
 from collections import deque
@@ -12,7 +13,6 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)
 LOG_INDEX = 0
-
 
 class Logger:
     logger = None
@@ -74,7 +74,17 @@ class Logger:
 def __append_log_queue(level, text):
     global LOG_INDEX, LOG_QUEUE
     with lock:
-        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} {level} - {escape(text)}")
+        text = escape(text)
+        if text.startswith("【"):
+            source = re.findall(r"(?<=【).*?(?=】)", text)[0]
+            text = text.replace(f"【{source}】", "")
+        else:
+            source = "System"
+        LOG_QUEUE.append({
+            "time": time.strftime('%H:%M:%S', time.localtime(time.time())),
+            "level": level,
+            "source": source,
+            "text": text})
         LOG_INDEX += 1
 
 
