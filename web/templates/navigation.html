@@ -33,6 +33,7 @@
   <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
   <link href="../static/css/jquery.filetree.css" rel="stylesheet"/>
   <link href="../static/css/dropzone.css" rel="stylesheet"/>
+  <!-- 字体 -->
   <style>
       @import url('https://rsms.me/inter/inter.css');
 
@@ -40,7 +41,8 @@
           --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
       }
   </style>
-  <style type="text/css">
+  <!-- 附加样式 -->
+  <style>
       body,
       .page {
           height: 100%;
@@ -95,6 +97,16 @@
       .modal-dialog {
           padding-top: env(safe-area-inset-top) !important;
       }
+  </style>
+  <!-- 站点图标 -->
+  <style>
+  {% for site_name, site_icon in SiteFavicons.items() %}
+      .siteicon-{{ site_name|hash }} {
+          background-image: url(data:image/ico;base64,{{ site_icon }});
+          background-size: cover;
+          border: 0;
+      }
+  {% endfor %}
   </style>
 </head>
 

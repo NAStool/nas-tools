@@ -259,9 +259,9 @@
                           {% else %}
                             <span class="badge bg-success me-1"></span>
                           {% endif %}
-                          <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
-                               class="rounded me-2" src="data:image/ico;base64,{{ item.favicon }}" width="24"
-                               height="24" alt="" onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
+                          <span onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
+                               class="avatar avatar-sm rounded me-2 siteicon-{{ item.site|hash }}" width="24"
+                                height="24" alt="" style="cursor:pointer"></span>
                           <div class="flex-fill">
                             <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
                               {% if item.msg_unread > 0 %}

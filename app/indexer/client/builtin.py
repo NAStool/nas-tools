@@ -59,8 +59,7 @@ class BuiltinIndexer(IIndexer):
                                                   proxy=proxy,
                                                   ua=site.get("ua"),
                                                   language=language,
-                                                  pri=site.get('pri'),
-                                                  favicon=site.get('favicon'))
+                                                  pri=site.get('pri'))
             if indexer:
                 if indexer_id and indexer.id == indexer_id:
                     return indexer

@@ -15,6 +15,7 @@ from threading import Lock
 from urllib import parse
 
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
+from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
 
 import log
@@ -50,6 +51,9 @@ App = Flask(__name__)
 App.config['JSON_AS_ASCII'] = False
 App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
+
+# 启用压缩
+Compress(App)
 
 # 登录管理模块
 LoginManager = LoginManager()
@@ -116,6 +120,7 @@ def login():
             SyncMod = "link"
         RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        SiteFavicons = Sites().get_site_favicon()
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -125,7 +130,8 @@ def login():
                                AppVersion=WebUtils.get_current_version(),
                                RestypeDict=RestypeDict,
                                PixDict=PixDict,
-                               SyncMod=SyncMod)
+                               SyncMod=SyncMod,
+                               SiteFavicons=SiteFavicons)
 
     def redirect_to_login(errmsg=''):
         """
@@ -237,7 +243,6 @@ def search():
     Count = res.get("total")
     # 站点列表
     SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
-    SiteFavicons = Sites().get_site_favicon()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
@@ -247,7 +252,6 @@ def search():
                            RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
                            PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
-                           SiteFavicons=SiteFavicons,
                            UPCHAR=chr(8593))
 
 
@@ -1543,3 +1547,9 @@ def brush_rule_string(rules):
 @App.template_filter('str_filesize')
 def str_filesize(size):
     return WebAction.str_filesize(size)
+
+
+# MD5 HASH过滤器
+@App.template_filter('hash')
+def md5_hash(size):
+    return WebAction.md5_hash(size)

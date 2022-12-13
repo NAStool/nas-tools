@@ -106,7 +106,6 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
-                "favicon": self._site_favicons.get(site.NAME, ""),
                 "ua": site_note.get("ua"),
                 "unread_msg_notify": site_note.get("message") or 'N',
                 "chrome": site_note.get("chrome") or 'N',
@@ -504,7 +503,6 @@ class Sites:
                                "seeding_size": site.SEEDING_SIZE,
                                "bonus": site.BONUS,
                                "url": site.URL,
-                               "favicon": site.FAVICON,
                                "msg_unread": site.MSG_UNREAD
                                })
         return statistics

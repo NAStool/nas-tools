@@ -215,7 +215,7 @@
                                         data-season="{{ SE_key.replace(' ', '') }}">
                                         <div class="row g-2 align-items-center">
                                           <div class="col-auto">
-                                            <span class="avatar avatar-sm rounded" style="background-image: url(data:image/ico;base64,{{ SiteFavicons[torrent.site] }}); overflow: hidden;">{% if not SiteFavicons[torrent.site] %}{{ torrent.site }}{% endif %}</span>
+                                            <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;"></span>
                                           </div>
                                           <div class="col">
                                             <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>

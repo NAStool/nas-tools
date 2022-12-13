@@ -1,5 +1,6 @@
 import base64
 import datetime
+import hashlib
 import importlib
 import json
 import os.path
@@ -71,6 +72,7 @@ class WebAction:
             "update_site": self.__update_site,
             "get_site": self.__get_site,
             "del_site": self.__del_site,
+            "get_site_favicon": self.__get_site_favicon,
             "restart": self.__restart,
             "update_system": self.__update_system,
             "logout": self.__logout,
@@ -3203,7 +3205,8 @@ class WebAction:
                 "restype": restype,
             }
             # 种子唯一标识 （大小，质量(来源、效果)，制作组组成）
-            unique_key = re.sub(r"[-.\s@|]", "", f"{respix}_{restype}_{video_encode}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
+            unique_key = re.sub(r"[-.\s@|]", "",
+                                f"{respix}_{restype}_{video_encode}_{reseffect}_{item.SIZE}_{item.OTHERINFO}").lower()
             # 标识信息
             unique_info = {
                 "video_encode": video_encode,
@@ -4060,3 +4063,20 @@ class WebAction:
         tid = data.get("tid")
         TorrentRemover().auto_remove_torrents(taskids=tid)
         return {"code": 0}
+
+    @staticmethod
+    def md5_hash(data):
+        """
+        MD5 HASH
+        """
+        if not data:
+            return ""
+        return hashlib.md5(str(data).encode()).hexdigest()
+
+    @staticmethod
+    def __get_site_favicon(data):
+        """
+        获取站点图标
+        """
+        sitename = data.get("name")
+        return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
