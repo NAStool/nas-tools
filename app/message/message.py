@@ -441,7 +441,7 @@ class Message:
         """
         if not path or not count:
             return
-        title = f"【{count} 个文件转移失败】"
+        title = f"【{count} 个文件入库失败】"
         text = f"源路径：{path}\n原因：{text}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
