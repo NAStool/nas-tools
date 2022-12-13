@@ -72,7 +72,7 @@ class Sites:
         # 开启签到功能站点：
         self._signin_sites = []
         # 站点图标
-        self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_favicons()}
+        self.__init_favicons()
         # 站点数据
         self._sites = self.dbhelper.get_config_site()
         for site in self._sites:
@@ -118,6 +118,12 @@ class Sites:
             site_strict_url = StringUtils.get_url_domain(site.SIGNURL or site.RSSURL)
             if site_strict_url:
                 self._siteByUrls[site_strict_url] = site_info
+
+    def __init_favicons(self):
+        """
+        加载图标到内存
+        """
+        self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_favicons()}
 
     def get_sites(self,
                   siteid=None,
@@ -194,6 +200,9 @@ class Sites:
         # 更新时间
         if refresh_all:
             self._last_update_time = datetime.now()
+
+        # 站点图标重新加载
+        self.__init_favicons()
 
     def __refresh_site_data(self, site_info):
         """
