@@ -2,6 +2,7 @@ import json
 import traceback
 
 import jsonpath
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
 
@@ -112,7 +113,10 @@ class RssChecker(object):
         if not self._rss_tasks:
             return
         # 启动RSS任务
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai",
+                                              executors={
+                                                  'default': ThreadPoolExecutor(30)
+                                              })
         rss_flag = False
         for task in self._rss_tasks:
             if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
@@ -238,8 +242,8 @@ class RssChecker(object):
                                     media_info.get_title_string(), media_info.get_season_episode_string()))
                             continue
                         if no_exists.get(media_info.tmdb_id):
-                            log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                     no_exists.get(media_info.tmdb_id)))
+                            log.info("【RssChecker】%s 缺失季集：%s"
+                                     % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
                     # 大小及种子页面
                     media_info.set_torrent_info(size=size,
                                                 page_url=page_url,
@@ -560,8 +564,8 @@ class RssChecker(object):
                         log.info("【RssChecker】电视剧 %s %s 已存在" % (
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                 if no_exists.get(media_info.tmdb_id):
-                    log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                             no_exists.get(media_info.tmdb_id)))
+                    log.info("【RssChecker】%s 缺失季集：%s"
+                             % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
     def check_rss_articles(self, flag, articles):

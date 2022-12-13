@@ -3,6 +3,7 @@ import math
 import random
 import traceback
 
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
@@ -40,7 +41,10 @@ class Scheduler:
         """
         读取配置，启动定时服务
         """
-        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai")
+        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai",
+                                             executors={
+                                                 'default': ThreadPoolExecutor(20)
+                                             })
         if not self.SCHEDULER:
             return
         if self._pt:
@@ -178,7 +182,7 @@ class Scheduler:
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now,
                                'interval',
                                hours=REFRESH_PT_DATA_INTERVAL,
-                               next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
+                               next_run_time=datetime.datetime.now() + datetime.timedelta(minutes=1))
 
         # 豆瓣RSS转TMDB，定时更新TMDB数据
         self.SCHEDULER.add_job(Subscribe().refresh_rss_metainfo, 'interval', hours=RSS_REFRESH_TMDB_INTERVAL)
