@@ -63,11 +63,11 @@ TORRENT_SEARCH_PARAMS = {
     "restype": {
         "BLURAY": r"Blu-?Ray|BD|BDRIP",
         "REMUX": r"REMUX",
-        "DOLBY": r"DOLBY|DOVI",
+        "DOLBY": r"DOLBY|DOVI|\s+DV$|\s+DV\s+",
         "WEB": r"WEB-?DL|WEBRIP",
         "HDTV": r"U?HDTV",
         "UHD": r"UHD",
-        "HDR": r"HDR|HDR10",
+        "HDR": r"HDR",
         "3D": r"3D"
     },
     "pix": {

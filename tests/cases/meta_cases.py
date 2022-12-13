@@ -699,7 +699,7 @@ meta_cases = [{
         "episode": "",
         "restype": "BluRay",
         "pix": "1080p",
-        "video_codec": "x265",
+        "video_codec": "x265 10bit",
         "audio_codec": "DTS-HD MA 5.1"
     }
 }, {
