@@ -185,7 +185,7 @@ meta_cases = [{
         "part": "",
         "season": "S04",
         "episode": "E03",
-        "restype": "",
+        "restype": "WEB-DL",
         "pix": "1080p",
         "video_codec": "",
         "audio_codec": ""
@@ -281,7 +281,7 @@ meta_cases = [{
         "part": "",
         "season": "",
         "episode": "",
-        "restype": "BluRay",
+        "restype": "BluRay Remux",
         "pix": "1080p",
         "video_codec": "AVC",
         "audio_codec": "LPCM 7³"
@@ -601,7 +601,7 @@ meta_cases = [{
         "part": "",
         "season": "",
         "episode": "",
-        "restype": "UHD",
+        "restype": "BluRay DoVi UHD",
         "pix": "1080p",
         "video_codec": "x265",
         "audio_codec": "DD 7.1"

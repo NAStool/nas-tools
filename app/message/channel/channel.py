@@ -4,13 +4,6 @@ from abc import ABCMeta, abstractmethod
 class IMessageChannel(metaclass=ABCMeta):
 
     @abstractmethod
-    def get_status(self):
-        """
-        检查连通性
-        """
-        pass
-
-    @abstractmethod
     def send_msg(self, title, text, image, url, user_id):
         """
         消息发送入口，支持文本、图片、链接跳转、指定发送对象

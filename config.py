@@ -63,11 +63,11 @@ TORRENT_SEARCH_PARAMS = {
     "restype": {
         "BLURAY": r"Blu-?Ray|BD|BDRIP",
         "REMUX": r"REMUX",
-        "DOLBY": r"DOLBY",
+        "DOLBY": r"DOLBY|DOVI",
         "WEB": r"WEB-?DL|WEBRIP",
         "HDTV": r"U?HDTV",
         "UHD": r"UHD",
-        "HDR": r"HDR",
+        "HDR": r"HDR|HDR10",
         "3D": r"3D"
     },
     "pix": {
@@ -87,7 +87,8 @@ KEYWORD_SEARCH_WEIGHT_2 = [10, 2, 1]
 KEYWORD_SEARCH_WEIGHT_3 = [10, 2]
 KEYWORD_STR_SIMILARITY_THRESHOLD = 0.2
 KEYWORD_DIFF_SCORE_THRESHOLD = 30
-KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版', '法语',
+KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版',
+                     '法语',
                      '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
 # 网络测试对象
@@ -103,13 +104,14 @@ NETTEST_TARGETS = ["www.themoviedb.org",
 # 站点签到支持的识别XPATH
 SITE_CHECKIN_XPATH = [
     '//a[@id="signed"]',
-    '//a[contains(@href, "attendance.php")]',
+    '//a[contains(@href, "attendance")]',
     '//a[contains(text(), "签到")]',
     '//a/b[contains(text(), "签 到")]',
     '//span[@id="sign_in"]/a',
     '//a[contains(@href, "addbonus")]',
     '//input[@class="dt_button"][contains(@value, "打卡")]',
-    '//a[contains(@href, "sign_in")]'
+    '//a[contains(@href, "sign_in")]',
+    '//a[@id="do-attendance"]'
 ]
 
 # 站点详情页字幕下载链接识别XPATH
@@ -129,16 +131,19 @@ SITE_LOGIN_XPATH = {
         '//input[@name="imagestring"]'
     ],
     "captcha_img": [
-        '//img[@alt="CAPTCHA"]/@src'
+        '//img[@alt="CAPTCHA"]/@src',
+        '//img[@alt="SECURITY CODE"]/@src'
     ],
     "submit": [
-        '//input[@type="submit"]'
+        '//input[@type="submit"]',
+        '//button[@type="submit"]'
     ],
     "error": [
         "//table[@class='main']//td[@class='text']/text()"
     ],
     "twostep": [
-        '//input[@name="two_step_code"]'
+        '//input[@name="two_step_code"]',
+        '//input[@name="2fa_secret"]'
     ]
 }
 
@@ -150,9 +155,14 @@ WEBDRIVER_PATH = {
     "MACOS": "/Users/nastool/chromedriver",
 }
 
+# Xvfb虚拟显示路程
+XVFB_PATH = [
+    "/usr/bin/Xvfb",
+    "/usr/local/bin/Xvfb"
+]
+
 # 线程锁
 lock = Lock()
-
 
 # 全局实例
 _CONFIG = None
@@ -165,6 +175,7 @@ def singleconfig(cls):
             with lock:
                 _CONFIG = cls(*args, **kwargs)
         return _CONFIG
+
     return _singleconfig
 
 

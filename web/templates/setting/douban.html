@@ -108,21 +108,20 @@
 </div>
 <script type="text/javascript">
   function save_douban_config() {
-    var params = {};
+    const params = {};
     $("#config_douban input").each(function () {
-      var key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
+      let value;
+      const key = $(this).attr("id");
+      if ($(this).attr("type") === "checkbox") {
+        value = !!$(this).prop("checked");
       } else {
-        var value = $(this).val();
+        value = $(this).val();
       }
       params[key] = value;
     });
-    $("#douban_save_btn").attr("disabled", true);
-    $("#douban_save_btn").text("保存中...");
+    $("#douban_save_btn").attr("disabled", true).text("保存中...");
     ajax_post("update_config", params, function (ret) {
-      $("#douban_save_btn").attr("disabled", false);
-      $("#douban_save_btn").text("保存");
+      $("#douban_save_btn").attr("disabled", false).text("保存");
     });
   }
 </script>

@@ -93,7 +93,6 @@ class BuiltinIndexer(IIndexer):
                indexer,
                key_word,
                filter_args: dict,
-               match_type,
                match_media,
                in_from: SearchType):
         """
@@ -137,7 +136,6 @@ class BuiltinIndexer(IIndexer):
                                               order_seq=order_seq,
                                               indexer=indexer,
                                               filter_args=filter_args,
-                                              match_type=match_type,
                                               match_media=match_media,
                                               start_time=start_time)
 

@@ -6,7 +6,7 @@ from functools import reduce
 from threading import Lock
 
 from app.utils import SystemUtils, RequestUtils
-import undetected_chromedriver.v2 as uc
+import undetected_chromedriver as uc
 
 from config import WEBDRIVER_PATH
 
@@ -125,9 +125,29 @@ class ChromeHelper(object):
     def get_ua(self):
         return self.browser.execute_script("return navigator.userAgent")
 
-    def __del__(self):
+    def quit(self):
         if self._chrome:
+            self._chrome.close()
             self._chrome.quit()
+            self._fixup_uc_pid_leak()
+
+    def _fixup_uc_pid_leak(self):
+        """
+        uc 在处理退出时为强制kill进程，没有调用wait，会导致出现僵尸进程，此处增加wait，确保系统正常回收
+        :return:
+        """
+        try:
+            # chromedriver 进程
+            if hasattr(self._chrome, "service") and getattr(self._chrome.service, "process", None):
+                self._chrome.service.process.wait(3)
+            # chrome 进程
+            os.waitpid(self._chrome.browser_pid, 0)
+        except Exception as e:
+            print(f"fixup_uc_pid_leak {e}")
+            pass
+
+    def __del__(self):
+        self.quit()
 
 
 class ChromeWithPrefs(uc.Chrome):

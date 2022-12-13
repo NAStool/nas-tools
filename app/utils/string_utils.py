@@ -209,6 +209,16 @@ class StringUtils:
         return addr.scheme, addr.netloc
 
     @staticmethod
+    def get_url_domain(url):
+        """
+        获取URL的域名部分，不含WWW和HTTP
+        """
+        _, netloc = StringUtils.get_url_netloc(url)
+        if netloc:
+            return netloc.lower().replace("www.", "")
+        return ""
+
+    @staticmethod
     def get_base_url(url):
         """
         获取URL根地址

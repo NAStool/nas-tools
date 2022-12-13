@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
+from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -25,11 +25,12 @@ class Message:
     MESSAGE_DICT = {
         "channel": {
             "telegram": {"name": "Telegram", "img_url": "../static/img/telegram.png", "search_type": SearchType.TG},
-            "wechat": {"name": "WeChat", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
-            "serverchan": {"name": "ServerChan", "img_url": "../static/img/serverchan.png"},
+            "wechat": {"name": "微信", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
+            "serverchan": {"name": "Server酱", "img_url": "../static/img/serverchan.png"},
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
-            "iyuu": {"name": "IyuuMsg", "img_url": "../static/img/iyuu.png"}
+            "iyuu": {"name": "爱语飞飞", "img_url": "../static/img/iyuu.png"},
+            "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK}
         },
         "switch": {
             "download_start": {"name": "新增下载", "fuc_name": "download_start"},
@@ -53,13 +54,14 @@ class Message:
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
         self._domain = Config().get_domain()
-        # 初始化消息客户端
+        # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") == SearchType.TG:
-                    tg_client = active_client.get("client")
-                    if tg_client:
-                        tg_client.enabled = False
+                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                    client = active_client.get("client")
+                    if client:
+                        client.stop_service()
+        # 初始化消息客户端
         self._active_clients = []
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
@@ -108,6 +110,8 @@ class Message:
             return PushPlus(conf)
         elif ctype == "iyuu":
             return IyuuMsg(conf)
+        elif ctype == "slack":
+            return Slack(conf, interactive)
         else:
             return None
 
@@ -130,7 +134,9 @@ class Message:
         """
         if not client or not client.get('client'):
             return None
-        log.info(f"【Message】发送{client.get('type')}消息服务{client.get('name')}：title={title}, text={text}")
+        ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
+        cname = client.get('name')
+        log.info(f"【Message】发送【{ctype_name}】消息服务【{cname}】：title={title}, text={text}")
         if self._domain:
             if url:
                 if not url.startswith(self._domain):
@@ -145,7 +151,7 @@ class Message:
                                                        url=url,
                                                        user_id=user_id)
         if not state:
-            log.error("【Message】发送消息失败：%s" % ret_msg)
+            log.error(f"【Message】【{ctype_name}】消息服务【{cname}】发送失败：%s" % ret_msg)
         return state
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
@@ -200,7 +206,9 @@ class Message:
                                                       medias=medias,
                                                       user_id=user_id)
                 if not state:
-                    log.error("【Message】发送消息失败：%s" % ret_msg)
+                    ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
+                    cname = client.get('name')
+                    log.error(f"【Message】发送{ctype_name}消息服务{cname}失败：%s" % ret_msg)
                 return state
         return False
 
@@ -212,7 +220,7 @@ class Message:
         :return: 发送状态、错误信息
         """
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
-        msg_text = f"{can_item.get_vote_string()}"
+        msg_text = f"{can_item.get_star_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
         if can_item.user_name:
             msg_text = f"{msg_text}\n用户：{can_item.user_name}"
@@ -506,14 +514,21 @@ class Message:
             return self._client_configs.get(str(cid))
         return self._client_configs
 
-    def get_interactive_client(self):
+    def get_interactive_client(self, client_type=None):
         """
         查询当前可以交互的渠道
         """
-        for client in self._active_clients:
-            if client.get('interactive'):
-                return client
-        return {}
+        if client_type:
+            for client in Message().get_interactive_client():
+                if client.get("search_type") == client_type:
+                    return client
+            return None
+        else:
+            ret_clients = []
+            for client in self._active_clients:
+                if client.get('interactive'):
+                    ret_clients.append(client)
+            return ret_clients
 
     def get_status(self, ctype=None, config=None):
         """
@@ -521,4 +536,12 @@ class Message:
         """
         if not config or not ctype:
             return False
-        return self.__build_client(ctype, config).get_status()
+        # 测试状态不启动监听服务
+        state, ret_msg = self.__build_client(ctype=ctype,
+                                             conf=config,
+                                             interactive=False).send_msg(title="测试",
+                                                                         text="这是一条测试消息")
+        if not state:
+            ctype_name = self.MESSAGE_DICT.get('channel', {}).get(ctype, {}).get("name")
+            log.error(f"【Message】【{ctype_name}】消息服务发送测试消息失败：%s" % ret_msg)
+        return state

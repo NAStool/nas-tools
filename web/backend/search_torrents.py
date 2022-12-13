@@ -150,7 +150,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     log.info("【Web】开始检索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=first_search_name,
                                           filter_args=filter_args,
-                                          match_type=1 if ident_flag else 2,
                                           match_media=media_info,
                                           in_from=SearchType.WEB)
     # 使用第二名称重新搜索
@@ -164,7 +163,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
-                                              match_type=1,
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
@@ -253,6 +251,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         else:
+            input_str = re.sub(r"[搜索|下载][:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
         # 去掉查询中的电影或电视剧关键字
@@ -464,12 +463,12 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                               search_sites=media_info.search_sites)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
-        if in_from in [SearchType.WX, SearchType.TG]:
+        if in_from in [SearchType.WX, SearchType.TG, SearchType.SLACK]:
             media_info.user_name = user_name
             Message().send_rss_success_message(in_from=in_from,
                                                media_info=media_info)
     else:
-        if in_from in [SearchType.WX, SearchType.TG]:
+        if in_from in [SearchType.WX, SearchType.TG, SearchType.SLACK]:
             log.info("【Web】%s 添加订阅失败：%s" % (media_info.title, msg))
             Message().send_channel_msg(channel=in_from,
                                        title="%s 添加订阅失败：%s" % (media_info.title, msg),

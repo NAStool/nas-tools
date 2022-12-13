@@ -253,7 +253,7 @@
 
   // 运行服务
   function run_scheduler(id, name) {
-    var data = { "item": id };
+    const data = {"item": id};
     ajax_post("sch", data, function (ret) {
       show_success_modal(name + " 服务启动成功，正在后台运行");
     });
@@ -303,7 +303,7 @@
 
   //名称识别测试
   function name_test() {
-    var name = $("#test_name").val();
+    const name = $("#test_name").val();
     if (!name) {
       $("#test_name").addClass("is-invalid");
       return;
@@ -320,21 +320,21 @@
 
   //过滤规则测试
   function rule_test() {
-    var title = $("#test_title").val();
+    const title = $("#test_title").val();
     if (!title) {
       $("#test_title").addClass("is-invalid");
       return;
     } else {
       $("#test_title").removeClass("is-invalid");
     }
-    var size = $("#test_size").val();
+    const size = $("#test_size").val();
     if (!size || isNaN(size)) {
       $("#test_size").addClass("is-invalid");
       return;
     } else {
       $("#test_size").removeClass("is-invalid");
     }
-    var rulegroup = $("#test_rulegroup").val();
+    const rulegroup = $("#test_rulegroup").val();
     if (rulegroup == "0") {
       $("#test_rulegroup").addClass("is-invalid");
       return;
@@ -342,22 +342,21 @@
       $("#test_rulegroup").removeClass("is-invalid");
     }
 
-    var subtitle = $("#test_subtitle").val();
+    const subtitle = $("#test_subtitle").val();
     $("#ruletest_btn").text("测试中...").attr("disabled", true);
-    var params = {
+    const params = {
       "title": title,
       "size": size,
       "rulegroup": rulegroup,
       "subtitle": subtitle
     };
     ajax_post("rule_test", params, function (ret) {
-      $("#ruletest_btn").text("测试");
-      $("#ruletest_btn").attr("disabled", false);
+      $("#ruletest_btn").text("测试").attr("disabled", false);
       if (ret.code == 0) {
         $("#testrule_result").empty();
         if (ret.flag) {
-          $("#testrule_result").append(`<span class="badge bg-green me-1 mb-1">${ret.text}</span>`);
-          $("#testrule_result").append(`<span class="badge badge-outline text-blue me-1 mb-1" title="命中规则在规则组内的序号">优先级：${ret.order}</span>`);
+          $("#testrule_result").append(`<span class="badge bg-green me-1 mb-1">${ret.text}</span>`)
+                  .append(`<span class="badge badge-outline text-blue me-1 mb-1" title="命中规则在规则组内的序号">优先级：${ret.order}</span>`);
         } else {
           $("#testrule_result").append(`<span class="badge bg-red me-1 mb-1">${ret.text}</span>`);
         }
@@ -366,23 +365,20 @@
   }
   //网络连通性测试
   function net_test() {
-    var targets = {{ SchedulerTasks[-2].targets | safe
-  }};
-  var currentIndex = 0;
-  var stopindex = targets.length;
-  $("#nettest_btn").text("测试中...");
-  $("#nettest_btn").attr("disabled", true);
-  net_test_ajax(targets, currentIndex, stopindex);
+    const targets = {{ SchedulerTasks[-2].targets | safe }};
+    const currentIndex = 0;
+    const stopindex = targets.length;
+    $("#nettest_btn").text("测试中...").attr("disabled", true);
+    net_test_ajax(targets, currentIndex, stopindex);
   }
 
   //递归轮询测试结果
   function net_test_ajax(targets, currentIndex, stopindex) {
     if (currentIndex >= stopindex) {
-      $("#nettest_btn").text("测试");
-      $("#nettest_btn").attr("disabled", false);
+      $("#nettest_btn").text("测试").attr("disabled", false);
       return;
     }
-    var target = '';
+    let target = '';
     target = targets[currentIndex];
     ajax_post("net_test", target, function (ret) {
       if (ret.res) {

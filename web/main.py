@@ -1,12 +1,14 @@
 import base64
 import datetime
 import os.path
+import re
 import shutil
 import sqlite3
 import time
 import traceback
 import urllib
 import xml.dom.minidom
+from functools import wraps
 from math import floor
 from pathlib import Path
 from threading import Lock
@@ -85,6 +87,18 @@ def page_not_found(error):
 @App.errorhandler(500)
 def page_server_error(error):
     return render_template("500.html", error=error), 500
+
+
+def action_login_check(func):
+    """
+    Action安全认证
+    """
+    @wraps(func)
+    def login_check(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return {"code": -1, "msg": "用户未登录"}
+        return func(*args, **kwargs)
+    return login_check
 
 
 # 主页面
@@ -218,109 +232,22 @@ def search():
     SearchWord = request.args.get("s")
     NeedSearch = request.args.get("f")
     # 结果
-    SearchResults = WebAction().get_search_result().get("result")
-    # 类型字典
-    MeidaTypeDict = {}
-    # 站点字典
-    MediaSiteDict = {}
-    # 资源类型字典
-    MediaRestypeDict = {}
-    # 分辨率字典
-    MediaPixDict = {}
-    # 促销信息
-    MediaSPStateDict = {}
-    # 名称
-    MediaNameDict = {}
-    # 查询统计值
-    for item in SearchResults:
-        # 资源类型
-        if str(item.get("restype")).find(" ") != -1:
-            restypes = str(item.get("restype")).split(" ")
-            if len(restypes) > 0:
-                if not MediaRestypeDict.get(restypes[0]):
-                    MediaRestypeDict[restypes[0]] = 1
-                else:
-                    MediaRestypeDict[restypes[0]] += 1
-            # 分辨率
-            if len(restypes) > 1:
-                if not MediaPixDict.get(restypes[1]):
-                    MediaPixDict[restypes[1]] = 1
-                else:
-                    MediaPixDict[restypes[1]] += 1
-        # 类型
-        if item.get("type"):
-            mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.get("type"))
-            if not MeidaTypeDict.get(mtype):
-                MeidaTypeDict[mtype] = 1
-            else:
-                MeidaTypeDict[mtype] += 1
-        # 站点
-        if item.get("site"):
-            if not MediaSiteDict.get(item.get("site")):
-                MediaSiteDict[item.get("site")] = 1
-            else:
-                MediaSiteDict[item.get("site")] += 1
-        # 促销信息
-        sp_key = f"{item.get('uploadvalue')} {item.get('downloadvalue')}"
-        if sp_key not in MediaSPStateDict:
-            MediaSPStateDict[sp_key] = 1
-        else:
-            MediaSPStateDict[sp_key] += 1
-        # 名称
-        if item.get("title"):
-            if item.get("title") not in MediaNameDict:
-                MediaNameDict[item.get("title")] = 1
-            else:
-                MediaNameDict[item.get("title")] += 1
-
-    # 展示类型
-    MediaMTypes = []
-    for k, v in MeidaTypeDict.items():
-        MediaMTypes.append({"name": k, "num": v})
-    MediaMTypes = sorted(MediaMTypes, key=lambda x: int(x.get("num")), reverse=True)
-    # 展示站点
-    MediaSites = []
-    for k, v in MediaSiteDict.items():
-        MediaSites.append({"name": k, "num": v})
-    MediaSites = sorted(MediaSites, key=lambda x: int(x.get("num")), reverse=True)
-    # 展示分辨率
-    MediaPixs = []
-    for k, v in MediaPixDict.items():
-        MediaPixs.append({"name": k, "num": v})
-    MediaPixs = sorted(MediaPixs, key=lambda x: int(x.get("num")), reverse=True)
-    # 展示质量
-    MediaRestypes = []
-    for k, v in MediaRestypeDict.items():
-        MediaRestypes.append({"name": k, "num": v})
-    MediaRestypes = sorted(MediaRestypes, key=lambda x: int(x.get("num")), reverse=True)
-    # 展示促销
-    MediaSPStates = [{"name": k, "num": v} for k, v in MediaSPStateDict.items()]
-    MediaSPStates = sorted(MediaSPStates, key=lambda x: int(x.get("num")), reverse=True)
-    # 展示名称
-    MediaNames = []
-    for k, v in MediaNameDict.items():
-        MediaNames.append({"name": k, "num": v})
-
+    res = WebAction().get_search_result()
+    SearchResults = res.get("result")
+    Count = res.get("total")
     # 站点列表
-    SiteDict = []
-    Indexers = Searcher().indexer.get_indexers() or []
-    for item in Indexers:
-        SiteDict.append({"id": item.id, "name": item.name})
+    SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
+    SiteFavicons = Sites().get_site_favicon()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
                            NeedSearch=NeedSearch or "",
-                           Count=len(SearchResults),
-                           Items=SearchResults,
-                           MediaMTypes=MediaMTypes,
-                           MediaSites=MediaSites,
-                           MediaPixs=MediaPixs,
-                           MediaSPStates=MediaSPStates,
-                           MediaNames=MediaNames,
-                           MediaRestypes=MediaRestypes,
+                           Count=Count,
+                           Results=SearchResults,
                            RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
                            PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
+                           SiteFavicons=SiteFavicons,
                            UPCHAR=chr(8593))
 
 
@@ -1078,7 +1005,7 @@ def rss_parser():
 
 # 事件响应
 @App.route('/do', methods=['POST'])
-@login_required
+@action_login_check
 def do():
     try:
         cmd = request.form.get("cmd")
@@ -1142,10 +1069,9 @@ def robots():
 @App.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     # 当前在用的交互渠道
-    interactive_client = Message().get_interactive_client()
-    if not interactive_client or interactive_client.get("search_type") != SearchType.WX:
-        return
-    # 读取配置
+    interactive_client = Message().get_interactive_client(SearchType.WX)
+    if not interactive_client:
+        return make_response("NAStool没有启用微信交互", 200)
     conf = interactive_client.get("config")
     sToken = conf.get('token')
     sEncodingAESKey = conf.get('encodingAESKey')
@@ -1159,7 +1085,7 @@ def wechat():
 
     if request.method == 'GET':
         if not sVerifyMsgSig and not sVerifyTimeStamp and not sVerifyNonce:
-            return "放心吧，服务是正常的！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
+            return "NAStool微信交互服务正常！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项，打开微信交互开关。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
         sVerifyEchoStr = request.args.get("echostr")
         log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
@@ -1238,11 +1164,11 @@ def wechat():
 def plex_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
     WebhookEvent().plex_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 # Emby Webhook
@@ -1250,11 +1176,11 @@ def plex_webhook():
 def jellyfin_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
     WebhookEvent().jellyfin_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
 @App.route('/emby', methods=['POST'])
@@ -1262,14 +1188,14 @@ def jellyfin_webhook():
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
-        return 'Reject'
+        return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     WebhookEvent().emby_action(request_json)
-    return 'Success'
+    return 'Ok'
 
 
-# Telegram消息
+# Telegram消息响应
 @App.route('/telegram', methods=['POST', 'GET'])
 def telegram():
     """
@@ -1296,13 +1222,13 @@ def telegram():
     }
     """
     # 当前在用的交互渠道
-    interactive_client = Message().get_interactive_client()
-    if not interactive_client or interactive_client.get("search_type") != SearchType.TG:
-        return 'Reject'
+    interactive_client = Message().get_interactive_client(SearchType.TG)
+    if not interactive_client:
+        return 'NAStool未启用Telegram交互'
     msg_json = request.get_json()
     if not SecurityHelper().check_telegram_ip(request.remote_addr):
         log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
-        return 'Reject'
+        return '不允许的IP地址请求'
     if msg_json:
         message = msg_json.get("message", {})
         text = message.get("text")
@@ -1316,7 +1242,140 @@ def telegram():
                                            in_from=SearchType.TG,
                                            user_id=user_id,
                                            user_name=user_name)
-    return 'Success'
+    return 'Ok'
+
+
+# Slack消息响应
+@App.route('/slack', methods=['POST'])
+def slack():
+    """
+    # 消息
+    {
+        'client_msg_id': '',
+        'type': 'message',
+        'text': 'hello',
+        'user': '',
+        'ts': '1670143568.444289',
+        'blocks': [{
+            'type': 'rich_text',
+            'block_id': 'i2j+',
+            'elements': [{
+                'type': 'rich_text_section',
+                'elements': [{
+                    'type': 'text',
+                    'text': 'hello'
+                }]
+            }]
+        }],
+        'team': '',
+        'channel': '',
+        'event_ts': '1670143568.444289',
+        'channel_type': 'im'
+    }
+    # 快捷方式
+    {
+      "type": "shortcut",
+      "token": "XXXXXXXXXXXXX",
+      "action_ts": "1581106241.371594",
+      "team": {
+        "id": "TXXXXXXXX",
+        "domain": "shortcuts-test"
+      },
+      "user": {
+        "id": "UXXXXXXXXX",
+        "username": "aman",
+        "team_id": "TXXXXXXXX"
+      },
+      "callback_id": "shortcut_create_task",
+      "trigger_id": "944799105734.773906753841.38b5894552bdd4a780554ee59d1f3638"
+    }
+    # 按钮点击
+    {
+      "type": "block_actions",
+      "team": {
+        "id": "T9TK3CUKW",
+        "domain": "example"
+      },
+      "user": {
+        "id": "UA8RXUSPL",
+        "username": "jtorrance",
+        "team_id": "T9TK3CUKW"
+      },
+      "api_app_id": "AABA1ABCD",
+      "token": "9s8d9as89d8as9d8as989",
+      "container": {
+        "type": "message_attachment",
+        "message_ts": "1548261231.000200",
+        "attachment_id": 1,
+        "channel_id": "CBR2V3XEX",
+        "is_ephemeral": false,
+        "is_app_unfurl": false
+      },
+      "trigger_id": "12321423423.333649436676.d8c1bb837935619ccad0f624c448ffb3",
+      "channel": {
+        "id": "CBR2V3XEX",
+        "name": "review-updates"
+      },
+      "message": {
+        "bot_id": "BAH5CA16Z",
+        "type": "message",
+        "text": "This content can't be displayed.",
+        "user": "UAJ2RU415",
+        "ts": "1548261231.000200",
+        ...
+      },
+      "response_url": "https://hooks.slack.com/actions/AABA1ABCD/1232321423432/D09sSasdasdAS9091209",
+      "actions": [
+        {
+          "action_id": "WaXA",
+          "block_id": "=qXel",
+          "text": {
+            "type": "plain_text",
+            "text": "View",
+            "emoji": true
+          },
+          "value": "click_me_123",
+          "type": "button",
+          "action_ts": "1548426417.840180"
+        }
+      ]
+    }
+    """
+    # 只有本地转发请求能访问
+    if not SecurityHelper().check_slack_ip(request.remote_addr):
+        log.warn(f"非法IP地址的Slack消息通知：{request.remote_addr}")
+        return '不允许的IP地址请求'
+
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client(SearchType.SLACK)
+    if not interactive_client:
+        return 'NAStool未启用Slack交互'
+    msg_json = request.get_json()
+    if msg_json:
+        if msg_json.get("type") == "message":
+            channel = msg_json.get("channel")
+            text = msg_json.get("text")
+            username = ""
+        elif msg_json.get("type") == "block_actions":
+            channel = msg_json.get("channel", {}).get("id")
+            text = msg_json.get("actions")[0].get("value")
+            username = msg_json.get("user", {}).get("name")
+        elif msg_json.get("type") == "event_callback":
+            channel = msg_json.get("event", {}).get("channel")
+            text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
+            username = ""
+        elif msg_json.get("type") == "shortcut":
+            channel = ""
+            text = msg_json.get("callback_id")
+            username = msg_json.get("user", {}).get("username")
+        else:
+            return "Error"
+        WebAction().handle_message_job(msg=text,
+                                       client=interactive_client,
+                                       in_from=SearchType.SLACK,
+                                       user_id=channel,
+                                       user_name=username)
+    return "Ok"
 
 
 # Jellyseerr Overseerr订阅接口

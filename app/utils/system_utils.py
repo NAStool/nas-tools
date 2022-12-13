@@ -87,7 +87,8 @@ class SystemUtils:
         """
         执行命令，获得返回结果
         """
-        return os.popen(cmd).readline().strip()
+        with os.popen(cmd) as p:
+            return p.readline().strip()
 
     @staticmethod
     def is_docker():

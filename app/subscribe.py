@@ -537,7 +537,7 @@ class Subscribe:
         """
         if tmdbid and not tmdbid.startswith("DB:"):
             media_info = MetaInfo(title="%s %s".strip() % (name, year))
-            tmdb_info = Media().get_tmdb_info(mtype=mtype, title=name, year=year, tmdbid=tmdbid)
+            tmdb_info = Media().get_tmdb_info(mtype=mtype, tmdbid=tmdbid)
             media_info.set_tmdb_info(tmdb_info)
         else:
             media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True, cache=cache)

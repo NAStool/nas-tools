@@ -1,7 +1,7 @@
 import re
 
 from app.helper import DbHelper
-from app.media.meta.release_groups import rg_match
+from app.media.meta.release_groups import ReleaseGroupsMatcher
 from app.utils import StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType
@@ -10,6 +10,7 @@ from config import TORRENT_SEARCH_PARAMS
 
 @singleton
 class Filter:
+    rg_matcher = None
     dbhelper = None
     _groups = []
     _rules = []
@@ -19,6 +20,7 @@ class Filter:
 
     def init_config(self):
         self.dbhelper = DbHelper()
+        self.rg_matcher = ReleaseGroupsMatcher()
         self._groups = self.dbhelper.get_config_filter_group()
         self._rules = self.dbhelper.get_config_filter_rule()
 
@@ -238,9 +240,9 @@ class Filter:
         # 过滤质量
         if filter_args.get("restype"):
             restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
-            if not meta_info.resource_type:
+            if not meta_info.get_resource_type_string():
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.I):
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.get_resource_type_string(), re.I):
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
         # 过滤分辨率
         if filter_args.get("pix"):
@@ -253,7 +255,9 @@ class Filter:
         if filter_args.get("team"):
             team = filter_args.get("team")
             if not meta_info.resource_team:
-                resource_team = rg_match(f"{meta_info.org_string} ", team)
+                resource_team = self.rg_matcher.match(
+                    title=f"{meta_info.org_string} ",
+                    groups=team)
                 if not resource_team:
                     return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
                 else:
