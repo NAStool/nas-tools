@@ -482,7 +482,7 @@ class BrushTask(object):
                 return False
         # 检查正在下载的任务数
         if dlcount:
-            downloading_count = self.__get_downloading_count(downloadercfg)
+            downloading_count = self.__get_downloading_count(downloadercfg, taskid=taskid)
             if downloading_count is None:
                 log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return False
@@ -504,24 +504,25 @@ class BrushTask(object):
         else:
             return self._downloader_infos
 
-    def __get_downloading_count(self, downloadercfg):
+    def __get_downloading_count(self, downloadercfg, taskid=None):
         """
         查询当前正在下载的任务数
         """
+        fileter_tag = f'NT_BRUSH_{taskid}'
         if not downloadercfg:
             return 0
         if downloadercfg.get("type") == self._qb_client:
             downloader = Qbittorrent(user_config=downloadercfg)
             if not downloader.qbc:
                 return None
-            dlitems = downloader.get_downloading_torrents()
+            dlitems = downloader.get_downloading_torrents(tag=fileter_tag)
             if dlitems is not None:
                 return int(len(dlitems))
         else:
             downloader = Transmission(user_config=downloadercfg)
             if not downloader.trc:
                 return None
-            dlitems = downloader.get_downloading_torrents()
+            dlitems = downloader.get_downloading_torrents(tag=fileter_tag)
             if dlitems is not None:
                 return int(len(dlitems))
         return None
@@ -571,9 +572,9 @@ class BrushTask(object):
                 return False
             torrent_tag = "NT" + StringUtils.generate_random_str(5)
             if tag:
-                tags = [tag, torrent_tag]
+                tags = [tag, torrent_tag, f'NT_BRUSH_{taskid}']
             else:
-                tags = torrent_tag
+                tags = [torrent_tag, f'NT_BRUSH_{taskid}']
             ret = downloader.add_torrent(content=enclosure,
                                          tag=tags,
                                          download_dir=downloadercfg.get("save_dir"),
