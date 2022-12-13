@@ -72,7 +72,7 @@ class Sites:
         # 开启签到功能站点：
         self._signin_sites = []
         # 站点图标
-        self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_user_statistics()}
+        self._site_favicons = {site.SITE: site.FAVICON for site in self.dbhelper.get_site_favicons()}
         # 站点数据
         self._sites = self.dbhelper.get_config_site()
         for site in self._sites:
@@ -186,6 +186,8 @@ class Sites:
             self.dbhelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
             self.dbhelper.update_site_user_statistics(site_user_infos)
+            # 更新站点图标
+            self.dbhelper.update_site_favicon(site_user_infos)
             # 实时做种信息
             self.dbhelper.update_site_seed_info(site_user_infos)
 

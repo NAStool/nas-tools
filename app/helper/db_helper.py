@@ -1069,7 +1069,6 @@ class DbHelper:
             leeching = site_user_info.leeching
             bonus = site_user_info.bonus
             url = site_user_info.site_url
-            favicon = site_user_info.site_favicon
             msg_unread = site_user_info.message_unread
             if not self.is_exists_site_user_statistics(url):
                 self._db.insert(SITEUSERINFOSTATS(
@@ -1086,7 +1085,6 @@ class DbHelper:
                     SEEDING_SIZE=seeding_size,
                     BONUS=bonus,
                     URL=url,
-                    FAVICON=favicon,
                     MSG_UNREAD=msg_unread
                 ))
             else:
@@ -1104,7 +1102,6 @@ class DbHelper:
                         "LEECHING": leeching,
                         "SEEDING_SIZE": seeding_size,
                         "BONUS": bonus,
-                        "FAVICON": favicon,
                         "MSG_UNREAD": msg_unread
                     }
                 )
@@ -1118,6 +1115,47 @@ class DbHelper:
             return True
         else:
             return False
+
+    @DbPersist(_db)
+    def update_site_favicon(self, site_user_infos: list):
+        """
+        更新站点图标数据
+        """
+        if not site_user_infos:
+            return
+        for site_user_info in site_user_infos:
+            if not self.is_exists_site_favicon(site_user_info.site_name):
+                self._db.insert(SITEFAVICON(
+                    SITE=site_user_info.site_name,
+                    URL=site_user_info.site_url,
+                    FAVICON=site_user_info.site_favicon
+                ))
+            else:
+                self._db.query(SITEFAVICON).filter(SITEFAVICON.SITE == site_user_info.site_name).update(
+                    {
+                        "URL": site_user_info.site_url,
+                        "FAVICON": site_user_info.site_favicon
+                    }
+                )
+
+    def is_exists_site_favicon(self, site):
+        """
+        判断站点图标是否存在
+        """
+        count = self._db.query(SITEFAVICON).filter(SITEFAVICON.SITE == site).count()
+        if count > 0:
+            return True
+        else:
+            return False
+
+    def get_site_favicons(self, site=None):
+        """
+        查询站点数据历史
+        """
+        if site:
+            return self._db.query(SITEFAVICON).filter(SITEFAVICON.SITE == site).all()
+        else:
+            return self._db.query(SITEFAVICON).all()
 
     @DbPersist(_db)
     def update_site_seed_info_site_name(self, new_name, old_name):
