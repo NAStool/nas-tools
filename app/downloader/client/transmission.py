@@ -1,5 +1,6 @@
 import os.path
 import re
+import time
 from datetime import datetime
 
 import transmission_rpc
@@ -257,8 +258,8 @@ class Transmission(IDownloadClient):
         tr_error_key = config.get("tr_error_key")
         for torrent in torrents:
             date_done = torrent.date_done or torrent.date_added
-            date_now = datetime.now().astimezone()
-            torrent_seeding_time = (date_now - date_done).seconds if date_done else 0
+            date_now = int(time.mktime(datetime.now().timetuple()))
+            torrent_seeding_time = date_now - int(time.mktime(date_done.timetuple())) if date_done else 0
             torrent_uploaded = torrent.ratio * torrent.total_size
             torrent_upload_avs = torrent_uploaded / torrent_seeding_time if torrent_seeding_time else 0
             if ratio and torrent.ratio <= ratio:

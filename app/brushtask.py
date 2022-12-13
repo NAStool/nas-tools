@@ -385,9 +385,10 @@ class BrushTask(object):
                         # ID
                         torrent_id = torrent.id
                         # 做种时间
-                        date_done = torrent.date_done if torrent.date_done else torrent.date_added
-                        dltime = (datetime.now().astimezone() - torrent.date_added).seconds
-                        seeding_time = (datetime.now().astimezone() - date_done).seconds
+                        date_done = torrent.date_done or torrent.date_added
+                        date_now = int(time.mktime(datetime.now().timetuple()))
+                        dltime = date_now - int(time.mktime(torrent.date_added.timetuple()))
+                        seeding_time = date_now - int(time.mktime(date_done.timetuple()))
                         # 下载量
                         downloaded = int(torrent.total_size * torrent.progress / 100)
                         total_downloaded += downloaded
