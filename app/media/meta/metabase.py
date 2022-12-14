@@ -382,20 +382,15 @@ class MetaBase(object):
 
     # 返回海报图片地址
     def get_poster_image(self, original=False):
-        if self.fanart_poster:
-            return self.fanart_poster
-        else:
-            self.fanart_poster = self.fanart.get_poster(media_type=self.type,
-                                                        queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
-        if self.fanart_poster:
-            return self.fanart_poster
-        elif self.poster_path:
+        if self.poster_path:
             if original:
                 return self.poster_path.replace("/w500", "/original")
             else:
                 return self.poster_path
-        else:
-            return ""
+        if not self.fanart_poster:
+            self.fanart_poster = self.fanart.get_poster(media_type=self.type,
+                                                        queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
+        return self.fanart_poster or ""
 
     # 查询TMDB详情页URL
     def get_detail_url(self):
