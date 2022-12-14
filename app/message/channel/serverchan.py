@@ -44,6 +44,7 @@ class ServerChan(IMessageChannel):
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def send_list_msg(self, **kwargs):

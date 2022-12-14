@@ -14,6 +14,7 @@ from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
 from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 
 
@@ -31,7 +32,7 @@ class SiteUserInfoFactory(object):
                 try:
                     chrome.visit(url=url, ua=ua, cookie=site_cookie)
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     log.error("【Sites】%s 无法打开网站" % site_name)
                     return None
                 # 循环检测是否过cf

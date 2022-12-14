@@ -1,3 +1,4 @@
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
@@ -37,7 +38,7 @@ class Prowlarr(IIndexer):
         try:
             ret = RequestUtils().get_res(indexer_query_url)
         except Exception as e2:
-            print(str(e2))
+            ExceptionUtils.exception_traceback(e2)
             return []
         if not ret:
             return []

@@ -1,6 +1,7 @@
 import re
 import cn2an
 from app.media.fanart import Fanart
+from app.utils.exception_util import ExceptionUtils
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
 from app.media.category import Category
 from app.utils import StringUtils
@@ -599,7 +600,7 @@ class MetaBase(object):
                     else:
                         begin_season = int(cn2an.cn2an(seasons, mode='smart'))
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     return
                 if self.begin_season is None and isinstance(begin_season, int):
                     self.begin_season = begin_season
@@ -630,7 +631,7 @@ class MetaBase(object):
                     else:
                         begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     return
                 if self.begin_episode is None and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
@@ -660,7 +661,7 @@ class MetaBase(object):
                     try:
                         self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
                     except Exception as err:
-                        print(str(err))
+                        ExceptionUtils.exception_traceback(err)
                         return
                     self.begin_season = 1
                     self.end_season = self.total_seasons

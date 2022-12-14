@@ -5,6 +5,7 @@ from urllib import parse
 import requests
 
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 
 
 class Py115:
@@ -39,6 +40,7 @@ class Py115:
                     return False, ''
                 return True, rootobject.get("id")
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False, ''
 
@@ -56,6 +58,7 @@ class Py115:
                 self.sign = rootobject.get("sign")
                 return True
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False
 
@@ -73,6 +76,7 @@ class Py115:
                 self.uid = rootobject.get("uid")
                 return True
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False
 
@@ -97,6 +101,7 @@ class Py115:
                         break
             return True, tasks
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False, []
 
@@ -114,6 +119,7 @@ class Py115:
                     if p and p.headers.get("Location"):
                         content = p.headers.get("Location")
                 except Exception as result:
+                    ExceptionUtils.exception_traceback(result)
                     content = str(result).replace("No connection adapters were found for '", "").replace("'", "")
 
             url = "https://115.com/web/lixian/?ct=lixian&ac=add_task_url"
@@ -128,6 +134,7 @@ class Py115:
                     return False, ''
                 return True, rootobject.get("info_hash")
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False, ''
 
@@ -145,6 +152,7 @@ class Py115:
                     return False
                 return True
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False
 
@@ -170,5 +178,6 @@ class Py115:
                     return False, path
                 return True, path
         except Exception as result:
+            ExceptionUtils.exception_traceback(result)
             self.err = "异常错误：{}".format(result)
         return False, '/'

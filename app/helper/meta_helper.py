@@ -144,7 +144,7 @@ class MetaHelper(object):
                 return data
             return {}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(err)
             return {}
 
     def update_meta_data(self, meta_data):

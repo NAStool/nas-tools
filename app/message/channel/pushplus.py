@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 import log
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 
 
 class PushPlus(IMessageChannel):
@@ -62,6 +63,7 @@ class PushPlus(IMessageChannel):
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def send_list_msg(self, **kwargs):

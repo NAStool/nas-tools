@@ -114,7 +114,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     def _parse_user_traffic_info(self, html_text):
         """

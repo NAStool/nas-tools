@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from app.media import Media
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 
 
@@ -40,7 +41,7 @@ def __get_bing_wallpaper(today):
     try:
         resp = RequestUtils(timeout=5).get_res(url)
     except Exception as err:
-        print(str(err))
+        ExceptionUtils.exception_traceback(err)
         return ""
     if resp and resp.status_code == 200:
         if resp.json():

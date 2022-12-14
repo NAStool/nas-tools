@@ -7,6 +7,7 @@ import log
 from app.helper.thread_helper import ThreadHelper
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 
 lock = Lock()
@@ -111,6 +112,7 @@ class Telegram(IMessageChannel):
             return self.__send_request(sc_url, values)
 
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def send_list_msg(self, medias: list, user_id="", title="", **kwargs):
@@ -152,6 +154,7 @@ class Telegram(IMessageChannel):
             return self.__send_request(sc_url, values)
 
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def __send_request(self, sc_url, values):
@@ -264,6 +267,7 @@ class Telegram(IMessageChannel):
                         local_res = requests.post(_ds_url, json=msg, timeout=10)
                         log.debug("【Telegram】message: %s processed, response is: %s" % (msg, local_res.text))
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error("【Telegram】消息接收出现错误: %s" % e)
             return _offset
 

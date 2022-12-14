@@ -50,5 +50,5 @@ class SecurityHelper:
                     if ipaddr in ipaddress.ip_network(allow_ipv6):
                         return True
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(err)
         return False

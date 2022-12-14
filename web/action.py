@@ -42,6 +42,7 @@ from app.sync import Sync
 from app.sync import stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import RMT_MODES, RmtMode, OsType
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
@@ -788,7 +789,7 @@ class WebAction:
                         if not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
                             shutil.rmtree(media_path)
                     except Exception as e:
-                        log.console(str(e))
+                        ExceptionUtils.exception_traceback(e)
                     # 删除记录
                     self.dbhelper.delete_transfer_log_by_id(logid)
                 else:
@@ -813,13 +814,13 @@ class WebAction:
                             try:
                                 shutil.rmtree(dest_path)
                             except Exception as e:
-                                log.console(str(e))
+                                ExceptionUtils.exception_traceback(e)
                         elif not meta_info.get_episode_string():
                             # 电视剧但没有集数，删除季目录
                             try:
                                 shutil.rmtree(dest_path)
                             except Exception as e:
-                                log.console(str(e))
+                                ExceptionUtils.exception_traceback(e)
                             rm_parent_dir = True
                         else:
                             # 有集数的电视剧，删除对应的集数文件
@@ -830,7 +831,7 @@ class WebAction:
                                     try:
                                         os.remove(dest_file)
                                     except Exception as e:
-                                        log.console(str(e))
+                                        ExceptionUtils.exception_traceback(e)
                             rm_parent_dir = True
                         if rm_parent_dir \
                                 and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
@@ -838,7 +839,7 @@ class WebAction:
                             try:
                                 shutil.rmtree(os.path.dirname(dest_path))
                             except Exception as e:
-                                log.console(str(e))
+                                ExceptionUtils.exception_traceback(e)
         return {"retcode": 0}
 
     @staticmethod
@@ -872,7 +873,7 @@ class WebAction:
                 info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
                 return {"code": 0, "version": version, "info": info}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
         return {"code": -1, "version": "", "info": ""}
 
     def __update_site(self, data):
@@ -1137,7 +1138,7 @@ class WebAction:
                         'enabled': sync_item.ENABLED}
             return {"code": 0, "data": syncpath}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": "查询识别词失败"}
 
     def __delete_sync_path(self, data):
@@ -1483,7 +1484,7 @@ class WebAction:
                         module_obj.init_config()
             except Exception as e:
                 ret = None
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
             return {"code": 0 if ret else 1}
         return {"code": 0}
 
@@ -2072,7 +2073,7 @@ class WebAction:
             try:
                 self.dbhelper.delete_filtergroup(groupid)
             except Exception as err:
-                print(err)
+                ExceptionUtils.exception_traceback(err)
             for init_rulegroup in init_rulegroups:
                 if str(init_rulegroup.get("id")) == groupid:
                     for sql in init_rulegroup.get("sql"):
@@ -2302,7 +2303,7 @@ class WebAction:
                     # 兼容性代码
                     peer_counts = ["lt", int(rules.get("peercount"))]
                 except Exception as err:
-                    print(err)
+                    ExceptionUtils.exception_traceback(err)
                     pass
             if peer_counts:
                 rule_htmls.append(
@@ -2354,6 +2355,7 @@ class WebAction:
             MetaHelper().clear_meta_data()
             os.remove(MetaHelper().get_meta_data_path())
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             return {"code": 0, "msg": str(e)}
         return {"code": 0}
 
@@ -2396,6 +2398,7 @@ class WebAction:
                 shutil.unpack_archive(file_path, config_path, format='zip')
                 return {"code": 0, "msg": ""}
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 return {"code": 1, "msg": str(e)}
             finally:
                 if os.path.exists(file_path):
@@ -2624,7 +2627,7 @@ class WebAction:
             else:
                 return {"code": 1, "msg": "无法识别媒体类型"}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     def __delete_custom_word_group(self, data):
@@ -2634,7 +2637,7 @@ class WebAction:
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     def __add_or_edit_custom_word(self, data):
@@ -2738,7 +2741,7 @@ class WebAction:
             else:
                 return {"code": 1, "msg": ""}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     def __get_custom_word(self, data):
@@ -2763,7 +2766,7 @@ class WebAction:
                 word = {}
             return {"code": 0, "data": word}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": "查询识别词失败"}
 
     def __delete_custom_word(self, data):
@@ -2773,6 +2776,7 @@ class WebAction:
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     def __check_custom_words(self, data):
@@ -2786,7 +2790,7 @@ class WebAction:
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": "识别词状态设置失败"}
 
     def __export_custom_words(self, data):
@@ -2835,7 +2839,7 @@ class WebAction:
             string = base64.b64encode(export_string.encode("utf-8")).decode('utf-8')
             return {"code": 0, "string": string}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     @staticmethod
@@ -2866,7 +2870,7 @@ class WebAction:
                                "words": words})
             return {"code": 0, "groups": groups, "note_string": note_string}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     def __import_custom_words(self, data):
@@ -2933,7 +2937,7 @@ class WebAction:
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
     @staticmethod
@@ -3026,6 +3030,7 @@ class WebAction:
                 Filter().init_config()
             return {"code": 0, "msg": ""}
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}
 
     @staticmethod
@@ -3186,7 +3191,7 @@ class WebAction:
                 try:
                     res_mix = json.loads(item.RES_TYPE)
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     continue
                 respix = res_mix.get("respix") or ""
                 video_encode = res_mix.get("video_encode") or ""
@@ -3742,6 +3747,7 @@ class WebAction:
                         })
 
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             return {
                 "code": -1,
                 "message": '加载路径失败: %s' % str(e)
@@ -3763,6 +3769,7 @@ class WebAction:
             try:
                 os.rename(path, os.path.join(os.path.dirname(path), name))
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
 
@@ -3801,6 +3808,7 @@ class WebAction:
                         and not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
                     shutil.rmtree(media_path)
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
 
@@ -3989,7 +3997,7 @@ class WebAction:
                 for file in files:
                     hardlinks[os.path.basename(file)] = SystemUtils().find_hardlinks(file=file, fdir=file_dir)
             except Exception as e:
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
                 return {"code": 1}
         return {"code": 0, "data": hardlinks}
 

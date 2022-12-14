@@ -1,5 +1,6 @@
 import requests
 
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
@@ -56,7 +57,7 @@ class Jackett(IIndexer):
                                  "buildin": False})
                     for v in ret.json()]
         except Exception as e2:
-            print(str(e2))
+            ExceptionUtils.exception_traceback(e2)
             return []
 
     def search(self, *kwargs):

@@ -12,6 +12,7 @@ from app.sites import Sites
 from app.subtitle import Subtitle
 from app.utils import Torrent, StringUtils, SystemUtils
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 from config import Config, PT_TAG, RMT_MEDIAEXT
 
@@ -306,6 +307,7 @@ class Downloader:
             else:
                 return ret, "请检查下载任务是否已存在"
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error("【Downloader】添加下载任务出错：%s" % str(e))
             return None, str(e)
 
@@ -374,7 +376,7 @@ class Downloader:
         try:
             return self._default_client_type, self.default_client.get_downloading_torrents(tag=tag)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return self._default_client_type, []
 
     def get_torrents(self, torrent_ids):

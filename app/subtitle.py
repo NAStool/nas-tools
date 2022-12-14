@@ -9,6 +9,7 @@ import log
 from app.helper.sub_helper import SubHelper
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType
 from config import Config, RMT_SUBEXT, SITE_SUBTITLE_XPATH
 
@@ -151,7 +152,7 @@ class Subtitle:
                         shutil.rmtree(zip_path)
                         os.remove(zip_file)
                     except Exception as err:
-                        print(str(err))
+                        ExceptionUtils.exception_traceback(err)
                 else:
                     log.error("【Subtitle】下载字幕文件失败：%s" % Download_Link)
                     continue
@@ -238,6 +239,7 @@ class Subtitle:
                             log.error("【Subtitle】%s 目录缺失nfo元数据" % file_path)
                             ret_msg = "%s 目录下缺失nfo元数据：" % file_path
                 except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
                     log.error("【Subtitle】连接ChineseSubFinder出错：" + str(e))
                     ret_msg = "连接ChineseSubFinder出错：%s" % str(e)
         if success:
@@ -319,7 +321,7 @@ class Subtitle:
                             shutil.rmtree(zip_path)
                             os.remove(zip_file)
                         except Exception as err:
-                            print(str(err))
+                            ExceptionUtils.exception_traceback(err)
                     else:
                         sub_file = os.path.join(self._save_tmp_path, file_name)
                         # 保存

@@ -20,7 +20,7 @@ class IndexerHelper:
                       "rb") as f:
                 self._indexers = pickle.load(f)
         except Exception as err:
-            print(err)
+            ExceptionUtils.exception_traceback(err)
 
     def get_all_indexers(self):
         return self._indexers

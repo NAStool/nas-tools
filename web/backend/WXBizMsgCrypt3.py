@@ -17,6 +17,8 @@ import xml.etree.cElementTree as ET
 
 from Crypto.Cipher import AES
 
+from app.utils.exception_util import ExceptionUtils
+
 # Description:定义错误码含义
 #########################################################################
 WXBizMsgCrypt_OK = 0
@@ -67,6 +69,7 @@ class SHA1:
             sha.update("".join(sortlist).encode())
             return WXBizMsgCrypt_OK, sha.hexdigest()
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             logger = logging.getLogger()
             logger.error(e)
             return WXBizMsgCrypt_ComputeSignature_Error, None
@@ -94,6 +97,7 @@ class XMLParse:
             encrypt = xml_tree.find("Encrypt")
             return WXBizMsgCrypt_OK, encrypt.text
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             logger = logging.getLogger()
             logger.error(e)
             return WXBizMsgCrypt_ParseXml_Error, None
@@ -177,6 +181,7 @@ class Prpcrypt(object):
             # 使用BASE64对加密后的字符串进行编码
             return WXBizMsgCrypt_OK, base64.b64encode(ciphertext)
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             logger = logging.getLogger()
             logger.error(e)
             return WXBizMsgCrypt_EncryptAES_Error, None
@@ -192,6 +197,7 @@ class Prpcrypt(object):
             # 使用BASE64对密文进行解码，然后AES-CBC解密
             plain_text = cryptor.decrypt(base64.b64decode(text))
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             logger = logging.getLogger()
             logger.error(e)
             return WXBizMsgCrypt_DecryptAES_Error, None
@@ -206,6 +212,7 @@ class Prpcrypt(object):
             xml_content = content[4: xml_len + 4]
             from_receiveid = content[xml_len + 4:]
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             logger = logging.getLogger()
             logger.error(e)
             return WXBizMsgCrypt_IllegalBuffer, None
@@ -229,6 +236,7 @@ class WXBizMsgCrypt(object):
             self.key = base64.b64decode(sEncodingAESKey + "=")
             assert len(self.key) == 32
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             throw_exception("[error]: EncodingAESKey unvalid !", FormatException)
             # return WXBizMsgCrypt_IllegalAesKey,None
         self.m_sToken = sToken

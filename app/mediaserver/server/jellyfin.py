@@ -1,6 +1,7 @@
 import re
 
 import log
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaServerType
 from config import Config
 from app.mediaserver.server.server import IMediaServer
@@ -53,6 +54,7 @@ class Jellyfin(IMediaServer):
                 log.error(f"【{self.server_type}】Library/VirtualFolders 未获取到返回数据")
                 return []
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Library/VirtualFolders 出错：" + str(e))
             return []
 
@@ -71,6 +73,7 @@ class Jellyfin(IMediaServer):
                 log.error(f"【{self.server_type}】Users 未获取到返回数据")
                 return 0
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users出错：" + str(e))
             return 0
 
@@ -91,6 +94,7 @@ class Jellyfin(IMediaServer):
             else:
                 log.error(f"【{self.server_type}】Users 未获取到返回数据")
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users出错：" + str(e))
         return None
 
@@ -125,6 +129,7 @@ class Jellyfin(IMediaServer):
                 log.error(f"【{self.server_type}】System/ActivityLog/Entries 未获取到返回数据")
                 return []
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接System/ActivityLog/Entries出错：" + str(e))
             return []
         return ret_array
@@ -145,6 +150,7 @@ class Jellyfin(IMediaServer):
                 log.error(f"【{self.server_type}】Items/Counts 未获取到返回数据")
                 return {}
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items/Counts出错：" + str(e))
             return {}
 
@@ -166,6 +172,7 @@ class Jellyfin(IMediaServer):
                                 not year or str(res_item.get('ProductionYear')) == str(year)):
                             return res_item.get('Id')
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return ""
@@ -194,6 +201,7 @@ class Jellyfin(IMediaServer):
                         if int(res_item.get('IndexNumber')) == int(season):
                             return series_id, res_item.get('Id')
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Shows/Id/Seasons出错：" + str(e))
             return None, None
         return "", ""
@@ -222,6 +230,7 @@ class Jellyfin(IMediaServer):
                                 {'title': res_item.get('Name'), 'year': str(res_item.get('ProductionYear'))})
                             return ret_movies
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return []
@@ -259,6 +268,7 @@ class Jellyfin(IMediaServer):
                     exists_episodes.append(int(res_item.get("IndexNumber")))
                 return exists_episodes
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Shows/Id/Episodes出错：" + str(e))
             return None
         return []
@@ -300,6 +310,7 @@ class Jellyfin(IMediaServer):
                 log.error(f"【{self.server_type}】Items/RemoteImages 未获取到返回数据")
                 return None
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items/Id/RemoteImages出错：" + str(e))
             return None
         return None
@@ -318,6 +329,7 @@ class Jellyfin(IMediaServer):
             else:
                 log.info(f"【{self.server_type}】刷新媒体库失败，无法连接Jellyfin！")
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Library/Refresh出错：" + str(e))
             return False
 
@@ -359,7 +371,7 @@ class Jellyfin(IMediaServer):
             if res and res.status_code == 200:
                 return res.json()
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {}
 
     def get_items(self, parent):
@@ -394,5 +406,6 @@ class Jellyfin(IMediaServer):
                         for item in self.get_items(result.get("Id")):
                             yield item
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users/Items出错：" + str(e))
         yield {}

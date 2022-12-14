@@ -8,6 +8,7 @@ from app.downloader import Downloader
 from app.helper import DbHelper
 from app.message import Message
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import DownloaderType
 
 lock = Lock()
@@ -80,7 +81,7 @@ class TorrentRemover(object):
                 self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
         # 读取任务任务列表
         removetasks = self.dbhelper.get_torrent_remove_tasks()
         self._remove_tasks = {}
@@ -201,6 +202,7 @@ class TorrentRemover(object):
                 if torrents and title and text:
                     self.message.send_brushtask_remove_message(title=title, text=text)
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error(f"【TorrentRemover】自动删种任务：{task.get('name')}异常：{str(e)}")
             finally:
                 lock.release()

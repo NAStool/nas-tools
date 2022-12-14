@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 
 lock = threading.Lock()
@@ -54,7 +55,7 @@ class MediaDb:
             self.session.commit()
             return True
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             self.session.rollback()
         return False
 
@@ -68,7 +69,7 @@ class MediaDb:
             self.session.commit()
             return True
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             self.session.rollback()
         return False
 
@@ -89,7 +90,7 @@ class MediaDb:
             self.session.commit()
             return True
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             self.session.rollback()
         return False
 

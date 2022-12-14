@@ -12,6 +12,7 @@ from app.helper.ocr_helper import OcrHelper
 from app.sites import Sites
 from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from config import SITE_LOGIN_XPATH
 
 
@@ -73,7 +74,7 @@ class SiteCookie(object):
             try:
                 chrome.visit(url=url)
             except Exception as err:
-                print(str(err))
+                ExceptionUtils.exception_traceback(err)
                 return None, None, "Chrome模拟访问失败"
             # 循环检测是否过cf
             cloudflare = chrome.pass_cloudflare()
@@ -193,6 +194,7 @@ class SiteCookie(object):
                 else:
                     return None, None, "未找到登录按钮"
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 return None, None, "仿真登录失败：%s" % str(e)
             # 登录后的源码
             html_text = chrome.get_html()

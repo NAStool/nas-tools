@@ -11,6 +11,7 @@ from app.media import Media, MetaInfo
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import DomUtils, RequestUtils, StringUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.rsstitle_utils import RssTitleUtils
 from app.utils.types import MediaType, SearchType
 
@@ -266,6 +267,7 @@ class Rss:
                             rss_download_torrents.append(media_info)
                             res_num = res_num + 1
                     except Exception as e:
+                        ExceptionUtils.exception_traceback(e)
                         log.error("【Rss】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                         continue
                 log.info("【Rss】%s 处理结束，匹配到 %s 个有效资源" % (site_name, res_num))
@@ -334,6 +336,7 @@ class Rss:
                 return []
             ret.encoding = ret.apparent_encoding
         except Exception as e2:
+            ExceptionUtils.exception_traceback(e2)
             log.console(str(e2))
             return []
         if ret:
@@ -384,10 +387,10 @@ class Rss:
                                     'pubdate': pubdate}
                         ret_array.append(tmp_dict)
                     except Exception as e1:
-                        log.console(str(e1))
+                        ExceptionUtils.exception_traceback(e1)
                         continue
             except Exception as e2:
-                log.console(str(e2))
+                ExceptionUtils.exception_traceback(e2)
                 return ret_array
         return ret_array
 
