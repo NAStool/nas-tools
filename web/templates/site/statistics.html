@@ -873,21 +873,21 @@
 
     // 生成统计数据图片并下载
     function save_statistics_pic() {
-      var table = $('#table-site-user-data-table').clone(true)[0];
+      let table = $('#table-site-user-data-table').clone(true)[0];
       table.setAttribute("style", "width:500px; min-height: 300px;");
-      var thead = table.childNodes[1];
-      var tbody = table.childNodes[3];
-      var thead_tr = thead.childNodes[1];
+      let thead = table.childNodes[1];
+      let tbody = table.childNodes[3];
+      let thead_tr = thead.childNodes[1];
       thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
       thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
       thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
       thead_tr.removeChild(thead_tr.childNodes[3]);//等级
       for (tbody_tr of tbody.childNodes) {
-        var td_name = tbody_tr.childNodes[1];
-        var div_name = td_name.childNodes[1];
-        var img = div_name.childNodes[3];
-        var div_name_text = div_name.childNodes[5];
-        var id = div_name_text.childNodes[3];
+        let td_name = tbody_tr.childNodes[1];
+        let div_name = td_name.childNodes[1];
+        let img = div_name.childNodes[3];
+        let div_name_text = div_name.childNodes[5];
+        let id = div_name_text.childNodes[3];
         img.setAttribute("style", "filter:blur(3px)");//站点图标模糊
         id.setAttribute("style", "filter:blur(3px)");//站点id模糊
         div_name.removeChild(div_name.childNodes[1]);
@@ -896,10 +896,16 @@
         tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
         tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
       }
-      ;
-      // 生成图片（素色背景）并下载
+      // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
+      let theme = localStorage.getItem("tablerTheme");
+      let bgcolor = '';
+      if (theme === "light") {
+        bgcolor = '#ffffff';
+      } else {
+        bgcolor = '#1f273c';
+      }
       $('body').append(table);
-      domtoimage.toBlob(table, {bgcolor: '#E9F1F6'}).then(function (blob) {
+      domtoimage.toBlob(table, {bgcolor: bgcolor}).then(function (blob) {
         saveAs(blob, 'nastool_statistics.png');
       });
     }
