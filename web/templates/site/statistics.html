@@ -878,8 +878,9 @@
       let thead = table.childNodes[1];
       let tbody = table.childNodes[3];
       let thead_tr = thead.childNodes[1];
-      thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
-      thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
+      thead_tr.removeChild(thead_tr.childNodes[19]);//更新按钮
+      thead_tr.removeChild(thead_tr.childNodes[17]);//更新时间
+      thead_tr.removeChild(thead_tr.childNodes[15]);//加入时间
       thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
       thead_tr.removeChild(thead_tr.childNodes[3]);//等级
       for (tbody_tr of tbody.childNodes) {
@@ -891,8 +892,9 @@
         img.setAttribute("style", "filter:blur(3px)");//站点图标模糊
         id.setAttribute("style", "filter:blur(3px)");//站点id模糊
         div_name.removeChild(div_name.childNodes[1]);
-        tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
-        tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
+        tbody_tr.removeChild(tbody_tr.childNodes[19]);//更新按钮
+        tbody_tr.removeChild(tbody_tr.childNodes[17]);//更新时间
+        tbody_tr.removeChild(tbody_tr.childNodes[15]);//加入时间
         tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
         tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
       }
