@@ -166,7 +166,7 @@
                       </div>
                       {% endif %}
                       <!-- 资源分组 -->
-                      {% for SE_key, SE_dict in Item.torrent_dict.items() %}
+                      {% for SE_key, SE_dict in Item.torrent_dict %}
                       {% if SE_key != 'MOV' %}
                         <a href="javascript:$('#search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}').slideToggle()"
                           class="search_results_season_{{ Item.key }}"
