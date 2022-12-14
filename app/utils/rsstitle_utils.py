@@ -1,5 +1,7 @@
 import re
 
+from app.utils.exception_util import ExceptionUtils
+
 
 class RssTitleUtils:
 
@@ -24,5 +26,5 @@ class RssTitleUtils:
                     torrent_desc = title.replace(title_search.group(), "").strip()
                     title = "%s %s" % (torrent_name, torrent_desc)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         return title

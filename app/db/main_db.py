@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
 from app.db.models import Base
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 from app.utils import PathUtils
 
@@ -111,7 +112,7 @@ class DbPersist(object):
                 self.db.commit()
                 return True if ret is None else ret
             except Exception as e:
-                print(e.args)
+                ExceptionUtils.exception_traceback(e)
                 self.db.rollback()
                 return False
 

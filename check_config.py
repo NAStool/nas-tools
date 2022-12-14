@@ -3,6 +3,7 @@ import os
 from werkzeug.security import generate_password_hash
 from app.helper import DbHelper
 from app.utils import StringUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 
 
@@ -384,7 +385,7 @@ def update_config():
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
     except Exception as e:
-        print(str(e))
+        ExceptionUtils.exception_traceback(e)
 
     # 目录同步兼容旧配置
     try:
@@ -449,7 +450,7 @@ def update_config():
             _config['sync'].pop('sync_path')
             overwrite_cofig = True
     except Exception as e:
-        print(str(e))
+        ExceptionUtils.exception_traceback(e)
 
     # 消息服务兼容旧配置
     try:
@@ -616,7 +617,7 @@ def update_config():
                 _config['message'].pop('iyuu')
             overwrite_cofig = True
     except Exception as e:
-        print(str(e))
+        ExceptionUtils.exception_traceback(e)
 
     # 站点兼容旧配置
     try:
@@ -647,7 +648,7 @@ def update_config():
             }))
 
     except Exception as e:
-        print(str(e))
+        ExceptionUtils.exception_traceback(e)
 
     # 订阅兼容旧配置
     try:
@@ -727,7 +728,7 @@ def update_config():
             )
 
     except Exception as e:
-        print(str(e))
+        ExceptionUtils.exception_traceback(e)
 
     # 重写配置文件
     if overwrite_cofig:

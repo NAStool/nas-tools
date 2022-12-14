@@ -6,6 +6,7 @@ from lxml import etree
 import log
 from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
 from app.utils import StringUtils
+from app.utils.exception_util import ExceptionUtils
 
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):
@@ -114,7 +115,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     def _parse_user_traffic_info(self, html_text):
         """

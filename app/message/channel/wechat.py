@@ -5,6 +5,7 @@ from datetime import datetime
 import log
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import DEFAULT_WECHAT_PROXY
 
 lock = threading.Lock()
@@ -71,7 +72,7 @@ class WeChat(IMessageChannel):
                         self._expires_in = ret_json.get('expires_in')
                         self._access_token_time = datetime.now()
             except Exception as e:
-                log.console(str(e))
+                ExceptionUtils.exception_traceback(e)
                 return None
         return self._access_token
 
@@ -211,4 +212,5 @@ class WeChat(IMessageChannel):
             else:
                 return False, None
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return False, str(err)

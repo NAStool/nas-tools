@@ -5,6 +5,7 @@ import shutil
 import subprocess
 
 from app.utils import PathUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import OsType
 
 
@@ -33,7 +34,7 @@ class SystemUtils:
             total_b, used_b, free_b = shutil.disk_usage(path)
             return used_b, total_b
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return 0, 0
 
     @staticmethod
@@ -68,7 +69,7 @@ class SystemUtils:
             local_date = utc_date + datetime.timedelta(hours=8)
             local_date_str = datetime.datetime.strftime(local_date, '%Y-%m-%d %H:%M:%S')
         except Exception as e:
-            print(f'Could not get local date:{e}')
+            ExceptionUtils.exception_traceback(e)
             return utc_time_str
         return local_date_str
 
@@ -111,6 +112,7 @@ class SystemUtils:
             shutil.copy2(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -125,6 +127,7 @@ class SystemUtils:
             shutil.move(tmp_file, os.path.normpath(dest))
             return 0, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -143,6 +146,7 @@ class SystemUtils:
                 os.link(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -154,6 +158,7 @@ class SystemUtils:
             os.symlink(os.path.normpath(src), os.path.normpath(dest))
             return 0, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -170,6 +175,7 @@ class SystemUtils:
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -186,6 +192,7 @@ class SystemUtils:
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -205,6 +212,7 @@ class SystemUtils:
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod
@@ -224,6 +232,7 @@ class SystemUtils:
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             return -1, str(err)
 
     @staticmethod

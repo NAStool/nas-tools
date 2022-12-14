@@ -2,6 +2,7 @@ import os.path
 import pickle
 
 from app.utils import StringUtils, RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 from app.utils.commons import singleton
 
@@ -20,7 +21,7 @@ class IndexerHelper:
                       "rb") as f:
                 self._indexers = pickle.load(f)
         except Exception as err:
-            print(err)
+            ExceptionUtils.exception_traceback(err)
 
     def get_all_indexers(self):
         return self._indexers

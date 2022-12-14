@@ -2,6 +2,7 @@ import os
 import re
 
 import log
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
@@ -55,6 +56,7 @@ class Emby(IMediaServer):
                 log.error(f"【{self.server_type}】Library/SelectableMediaFolders 未获取到返回数据")
                 return []
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Library/SelectableMediaFolders 出错：" + str(e))
             return []
 
@@ -75,6 +77,7 @@ class Emby(IMediaServer):
             else:
                 log.error(f"【{self.server_type}】Users 未获取到返回数据")
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users出错：" + str(e))
         return None
 
@@ -93,6 +96,7 @@ class Emby(IMediaServer):
                 log.error(f"【{self.server_type}】Users/Query 未获取到返回数据")
                 return 0
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users/Query出错：" + str(e))
             return 0
 
@@ -126,6 +130,7 @@ class Emby(IMediaServer):
                 log.error(f"【{self.server_type}】System/ActivityLog/Entries 未获取到返回数据")
                 return []
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接System/ActivityLog/Entries出错：" + str(e))
             return []
         return ret_array[:num]
@@ -146,6 +151,7 @@ class Emby(IMediaServer):
                 log.error(f"【{self.server_type}】Items/Counts 未获取到返回数据")
                 return {}
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items/Counts出错：" + str(e))
             return {}
 
@@ -170,6 +176,7 @@ class Emby(IMediaServer):
                                 not year or str(res_item.get('ProductionYear')) == str(year)):
                             return res_item.get('Id')
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return ""
@@ -198,6 +205,7 @@ class Emby(IMediaServer):
                                 {'title': res_item.get('Name'), 'year': str(res_item.get('ProductionYear'))})
                             return ret_movies
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return []
@@ -238,6 +246,7 @@ class Emby(IMediaServer):
                     exists_episodes.append(int(res_item.get("IndexNumber")))
                 return exists_episodes
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Shows/Id/Episodes出错：" + str(e))
             return None
         return []
@@ -279,6 +288,7 @@ class Emby(IMediaServer):
                 log.error(f"【{self.server_type}】Items/RemoteImages 未获取到返回数据")
                 return None
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items/Id/RemoteImages出错：" + str(e))
             return None
         return None
@@ -297,6 +307,7 @@ class Emby(IMediaServer):
             else:
                 log.info(f"【{self.server_type}】刷新媒体库对象 {item_id} 失败，无法连接Emby！")
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Items/Id/Refresh出错：" + str(e))
             return False
         return False
@@ -315,6 +326,7 @@ class Emby(IMediaServer):
             else:
                 log.info(f"【{self.server_type}】刷新媒体库失败，无法连接Emby！")
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Library/Refresh出错：" + str(e))
             return False
         return False
@@ -377,7 +389,7 @@ class Emby(IMediaServer):
                         max_equal_path_id = folder.get("Id")
                         equal_path_num += 1
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     continue
             if max_equal_path_id:
                 return max_equal_path_id if equal_path_num == 1 else library.get("Id")
@@ -413,7 +425,7 @@ class Emby(IMediaServer):
             if res and res.status_code == 200:
                 return res.json()
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return {}
 
     def get_items(self, parent):
@@ -448,5 +460,6 @@ class Emby(IMediaServer):
                         for item in self.get_items(parent=result.get('Id')):
                             yield item
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users/Items出错：" + str(e))
         yield {}

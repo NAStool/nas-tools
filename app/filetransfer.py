@@ -16,6 +16,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
@@ -764,6 +765,7 @@ class FileTransfer:
                     sleep(round(random.uniform(0, 1), 1))
 
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【Rmt】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         # 统计完成情况，发送通知
@@ -1052,7 +1054,7 @@ class FileTransfer:
                         max_path_len = path_len
                         max_return_path = dest_path
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     continue
             if max_return_path:
                 return max_return_path
@@ -1163,6 +1165,7 @@ class FileTransfer:
                 if not file_list:
                     return [], "排除转移文件夹黑名单后，没有新文件需要处理"
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
 
         #  过滤掉文件列表中包含文件转移忽略词的
@@ -1175,6 +1178,7 @@ class FileTransfer:
                 if not file_list:
                     return [], "排除文件转移忽略词后，没有新文件需要处理"
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
 
         return file_list, ""
