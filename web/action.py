@@ -3345,15 +3345,17 @@ class WebAction:
 
         # 提升整季的顺序到顶层
         def se_sort(k):
-            k = re.sub(r" +|(?<=s\d)\D*?(?=e)|(?<=s\d\d)\D*?(?=e)", " ", k[0], flags=re.I).split(" ")
+            k = re.sub(r" +|(?<=s\d)\D*?(?=e)|(?<=s\d\d)\D*?(?=e)", " ", k[0], flags=re.I).split()
             return (k[0], k[1]) if len(k) > 1 else ("Z" + k[0], "ZZZ")
 
         # 开始排序季集顺序
-        for i in SearchResults:
+        for title, item in SearchResults.items():
             # 排序筛选器 季
-            SearchResults[i]["filter"]["season"].sort(reverse = True)
+            item["filter"]["season"].sort(reverse=True)
             # 排序种子列 集
-            SearchResults[i]["torrent_dict"] = sorted(SearchResults[i]["torrent_dict"].items(), key=se_sort, reverse = True)
+            item["torrent_dict"] = sorted(item["torrent_dict"].items(),
+                                          key=se_sort,
+                                          reverse=True)
         return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod
