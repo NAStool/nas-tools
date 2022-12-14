@@ -499,6 +499,7 @@ class Subscribe:
             tmdbid = rss_info.get("tmdbid")
             season = rss_info.get("season") or 1
             total = rss_info.get("total")
+            total_ep = rss_info.get("total_ep")
             lack = rss_info.get("lack")
             # 更新TMDB信息
             media_info = self.__get_media_info(tmdbid=tmdbid,
@@ -511,6 +512,8 @@ class Subscribe:
                 total_episode = self.media.get_tmdb_season_episodes_num(sea=int(str(season).replace("S", "")),
                                                                         tv_info=media_info.tmdb_info)
                 # 设置总集数的，不更新集数
+                if total_ep:
+                    total_episode = total_ep
                 if total_episode and (name != media_info.title or total != total_episode):
                     # 新的缺失集数
                     lack_episode = total_episode - (total - lack)
