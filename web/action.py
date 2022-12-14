@@ -3278,8 +3278,6 @@ class WebAction:
                             }
                         }
                 else:
-                    # 加入排序列表
-                    SearchResults[title_string]["se_list"].append(SE_key)
                     torrent_dict[SE_key] = {
                         group_key: {
                             "group_info": group_info,
@@ -3342,22 +3340,20 @@ class WebAction:
                         "free": [free_item],
                         "video": [video_encode] if video_encode else [],
                         "season": [filter_season] if filter_season else []
-                    },
-                    "se_list": [SE_key] # 新建排序列表
+                    }
                 }
 
         # 提升整季的顺序到顶层
         def se_sort(k):
-            k = re.sub(r" +|(?<=s\d)\D*?(?=e)|(?<=s\d\d)\D*?(?=e)", " ", k, flags=re.I).split(" ")
-            return (k[0], k[1] if len(k) > 1 else "ZZZ")
+            k = re.sub(r" +|(?<=s\d)\D*?(?=e)|(?<=s\d\d)\D*?(?=e)", " ", k[0], flags=re.I).split(" ")
+            return (k[0], k[1]) if len(k) > 1 else ("Z" + k[0], "ZZZ")
 
         # 开始排序季集顺序
         for i in SearchResults:
             # 排序筛选器 季
             SearchResults[i]["filter"]["season"].sort(reverse = True)
             # 排序种子列 集
-            SearchResults[i]["se_list"].sort(key=se_sort, reverse = True)
-
+            SearchResults[i]["torrent_dict"] = sorted(SearchResults[i]["torrent_dict"].items(), key=se_sort, reverse = True)
         return {"code": 0, "total": total, "result": SearchResults}
 
     @staticmethod

@@ -166,7 +166,7 @@
                       </div>
                       {% endif %}
                       <!-- 资源分组 -->
-                      {% for SE_key in Item.se_list %}
+                      {% for SE_key, SE_dict in Item.torrent_dict %}
                       {% if SE_key != 'MOV' %}
                         <a href="javascript:$('#search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}').slideToggle()"
                           class="search_results_season_{{ Item.key }}"
@@ -180,7 +180,7 @@
                       {% endif %}
                       <div {% if SE_key != 'MOV' %} id="search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}" {% endif %}>
                         <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
-                          {% for group_key, group in Item.torrent_dict[SE_key].items() %}
+                          {% for group_key, group in SE_dict.items() %}
                           <div class="accordion-item">
                             <h2 class="accordion-header">
                               <button
