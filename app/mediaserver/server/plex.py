@@ -1,3 +1,4 @@
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaServerType
 from plexapi.myplex import MyPlexAccount
 
@@ -39,12 +40,14 @@ class Plex(IMediaServer):
                 try:
                     self._plex = PlexServer(self._host, self._token)
                 except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
                     self._plex = None
                     log.error(f"【{self.server_type}】Plex服务器连接失败：{str(e)}")
             elif self._username and self._password and self._servername:
                 try:
                     self._plex = MyPlexAccount(self._username, self._password).resource(self._servername).connect()
                 except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
                     self._plex = None
                     log.error(f"【{self.server_type}】Plex服务器连接失败：{str(e)}")
 
@@ -165,7 +168,7 @@ class Plex(IMediaServer):
         try:
             self._libraries = self._plex.library.sections()
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return []
         libraries = []
         for library in self._libraries:
@@ -193,5 +196,5 @@ class Plex(IMediaServer):
                            "year": item.year,
                            "json": str(item.__dict__)}
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         yield {}

@@ -4,6 +4,7 @@ from xml.dom import minidom
 
 import log
 from app.media.douban import DouBan
+from app.utils.exception_util import ExceptionUtils
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
@@ -275,7 +276,7 @@ class Scraper:
             else:
                 log.info(f"【Scraper】{itype}图片下载失败，请检查网络连通性")
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     @staticmethod
     def __save_nfo(doc, out_file):
@@ -457,7 +458,7 @@ class Scraper:
                                                       "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
 
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
 
     def __gen_people_chinese_info(self, directors, actors, doubaninfo):
         """

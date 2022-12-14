@@ -8,6 +8,7 @@ from threading import Lock
 from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
 
+from app.utils.exception_util import ExceptionUtils
 from config import WEBDRIVER_PATH
 
 CHROME_LOCK = Lock()
@@ -143,7 +144,7 @@ class ChromeHelper(object):
             # chrome 进程
             os.waitpid(self._chrome.browser_pid, 0)
         except Exception as e:
-            print(f"fixup_uc_pid_leak {e}")
+            ExceptionUtils.exception_traceback(e)
             pass
 
     def __del__(self):

@@ -11,6 +11,7 @@ from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import SearchType, MediaType
 from config import Config
 
@@ -236,6 +237,7 @@ class DoubanSync:
                                 user_succnum += 1
                         log.debug(f"【Douban】{user_name or user} 第 {page_number} 页解析完成，共获取到 {sucess_urlnum} 个媒体")
                     except Exception as err:
+                        ExceptionUtils.exception_traceback(err)
                         log.error(f"【Douban】{user_name or user} 第 {page_number} 页解析出错：%s" % str(err))
                         break
                     # 继续下一页

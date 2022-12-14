@@ -22,6 +22,7 @@ from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import DbHelper
+from app.utils.exception_util import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
@@ -259,6 +260,7 @@ class Sites:
                 return site_user_info
 
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error("【Sites】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
@@ -305,7 +307,7 @@ class Sites:
                 try:
                     chrome.visit(url=site_url, ua=ua, cookie=site_cookie)
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     return False, "Chrome模拟访问失败", 0
                 # 循环检测是否过cf
                 cloudflare = chrome.pass_cloudflare()
@@ -366,7 +368,7 @@ class Sites:
                         try:
                             chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
                         except Exception as err:
-                            print(str(err))
+                            ExceptionUtils.exception_traceback(err)
                             log.warn("【Sites】%s 无法打开网站" % site)
                             status.append("【%s】无法打开网站！" % site)
                             continue
@@ -410,6 +412,7 @@ class Sites:
                                 log.info("【Sites】%s 仿真签到成功" % site)
                                 status.append("【%s】签到成功" % site)
                         except Exception as e:
+                            ExceptionUtils.exception_traceback(e)
                             log.warn("【Sites】%s 仿真签到失败：%s" % (site, str(e)))
                             status.append("【%s】签到失败！" % site)
                             continue
@@ -440,6 +443,7 @@ class Sites:
                         log.warn(f"【Sites】{site} {checkin_text}失败，无法打开网站")
                         status.append(f"【{site}】{checkin_text}失败，无法打开网站！")
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error("【Sites】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
             self.message.send_site_signin_message(status)
@@ -601,7 +605,7 @@ class Sites:
                                 cookie = chrome.get_cookies()
                                 ua = chrome.get_ua()
                             except Exception as err:
-                                print(str(err))
+                                ExceptionUtils.exception_traceback(err)
                                 log.warn("【Sites】无法打开网站：%s" % short_url)
                 else:
                     try:
@@ -609,7 +613,7 @@ class Sites:
                         if res:
                             cookie = dict_from_cookiejar(res.cookies)
                     except Exception as err:
-                        print(str(err))
+                        ExceptionUtils.exception_traceback(err)
         return cookie, ua, referer, site_info
 
     def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
@@ -637,7 +641,7 @@ class Sites:
                             chrome.visit(url=page_url)
                             page_source = chrome.get_html()
                         except Exception as err:
-                            print(str(err))
+                            ExceptionUtils.exception_traceback(err)
                             log.warn("【Sites】无法打开网站：%s" % short_url)
             else:
                 req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
@@ -651,7 +655,7 @@ class Sites:
                 if urls:
                     return str(urls[0])
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         return None
 
     @staticmethod
@@ -717,7 +721,7 @@ class Sites:
                     peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
                     ret_attr["peer_count"] = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr

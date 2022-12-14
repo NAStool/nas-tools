@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from app.utils import RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType
 from config import Config, FANART_MOVIE_API_URL, FANART_TV_API_URL
 
@@ -58,7 +59,7 @@ class Fanart:
                         else:
                             self._images[image_type] = ""
         except Exception as e2:
-            print(str(e2))
+            ExceptionUtils.exception_traceback(e2)
 
     @classmethod
     @lru_cache(maxsize=256)
@@ -70,7 +71,7 @@ class Fanart:
         try:
             return RequestUtils(proxies=cls._proxies, timeout=5).get_res(image_url)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         return None
 
     def get_backdrop(self, media_type, queryid, default=""):

@@ -7,6 +7,7 @@ import zhconv
 from app.utils import StringUtils
 from app.media.meta.metabase import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType
 
 
@@ -119,7 +120,7 @@ class MetaAnime(MetaBase):
                         else:
                             self.total_episodes = 1
                     except Exception as err:
-                        print(str(err))
+                        ExceptionUtils.exception_traceback(err)
                         self.begin_episode = None
                         self.end_episode = None
                     self.type = MediaType.TV
@@ -160,7 +161,7 @@ class MetaAnime(MetaBase):
             if not self.type:
                 self.type = MediaType.TV
         except Exception as e:
-            print("%s - %s " % (str(e), traceback.format_exc()))
+            ExceptionUtils.exception_traceback(e)
 
     @staticmethod
     def __prepare_title(title):

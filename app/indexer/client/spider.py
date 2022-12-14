@@ -8,6 +8,7 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils, SystemUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config, DEFAULT_UA, WEBDRIVER_PATH
 from feapder.utils.tools import urlencode
 from jinja2 import Template
@@ -89,6 +90,7 @@ class TorrentSpider(feapder.AirSpider):
                 if res:
                     self.cookies = dict_from_cookiejar(res.cookies)
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.warn(f"【Spider】获取 {self.domain} cookie失败：{format(err)}")
         self.torrents_info_array = []
 
@@ -413,6 +415,7 @@ class TorrentSpider(feapder.AirSpider):
             self.Getpubdate(torrent)
             self.Getelapsed_date(torrent)
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             log.error("【Spider】%s 检索出现错误：%s" % (self.indexername, str(err)))
         return self.torrents_info
 
@@ -442,7 +445,7 @@ class TorrentSpider(feapder.AirSpider):
                 elif method_name == "appendleft":
                     text = f"{args}{text}"
             except Exception as err:
-                print(str(err))
+                ExceptionUtils.exception_traceback(err)
         return text.strip()
 
     def parse(self, request, response):
@@ -480,6 +483,7 @@ class TorrentSpider(feapder.AirSpider):
                     break
 
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             log.warn("【Spider】错误：%s - %s" % (str(err), traceback.format_exc()))
         finally:
             self.is_complete = True

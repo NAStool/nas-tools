@@ -8,6 +8,7 @@ from app.filter import Filter
 from app.utils import DomUtils, RequestUtils, StringUtils
 from app.helper import ProgressHelper
 from app.media import MetaInfo, Media
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, SearchType
 
 
@@ -157,7 +158,7 @@ class IIndexer(metaclass=ABCMeta):
         try:
             ret = RequestUtils(timeout=10).get_res(url)
         except Exception as e2:
-            log.console(str(e2))
+            ExceptionUtils.exception_traceback(e2)
             return []
         if not ret:
             return []
@@ -240,10 +241,10 @@ class IIndexer(metaclass=ABCMeta):
                                 'imdbid': imdbid}
                     torrents.append(tmp_dict)
                 except Exception as e:
-                    print(f"{str(e)}")
+                    ExceptionUtils.exception_traceback(e)
                     continue
         except Exception as e2:
-            print(f"{str(e2)}")
+            ExceptionUtils.exception_traceback(e2)
             pass
 
         return torrents

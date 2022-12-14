@@ -34,6 +34,7 @@ from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, WebUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
 from web.action import WebAction
@@ -844,7 +845,7 @@ def mediafile():
         try:
             DirD = os.path.commonpath(download_dirs).replace("\\", "/")
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             DirD = "/"
     else:
         DirD = "/"
@@ -1015,6 +1016,7 @@ def do():
         cmd = request.form.get("cmd")
         data = request.form.get("data")
     except Exception as e:
+        ExceptionUtils.exception_traceback(e)
         return {"code": -1, "msg": str(e)}
     if data:
         data = json.loads(data)
@@ -1058,6 +1060,7 @@ def dirlist():
                         e, ff.replace("\\", "/"), f.replace("\\", "/")))
         r.append('</ul>')
     except Exception as e:
+        ExceptionUtils.exception_traceback(e)
         r.append('加载路径失败: %s' % str(e))
     r.append('</ul>')
     return make_response(''.join(r), 200)
@@ -1159,6 +1162,7 @@ def wechat():
                                                user_name=user_id)
             return make_response(content, 200)
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
             return make_response("ok", 200)
 
@@ -1507,7 +1511,7 @@ def backup():
         shutil.make_archive(str(backup_path), 'zip', str(backup_path))
         shutil.rmtree(str(backup_path))
     except Exception as e:
-        log.debug(e)
+        ExceptionUtils.exception_traceback(e)
         return make_response("创建备份失败", 400)
     return send_file(zip_file)
 
@@ -1521,7 +1525,7 @@ def upload():
         files.save(str(zip_file))
         return {"code": 0, "filepath": str(zip_file)}
     except Exception as e:
-        log.debug(e)
+        ExceptionUtils.exception_traceback(e)
         return {"code": 1, "msg": str(e), "filepath": ""}
 
 

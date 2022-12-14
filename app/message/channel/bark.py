@@ -3,6 +3,7 @@ from urllib.parse import quote_plus
 import log
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils, StringUtils
+from app.utils.exception_util import ExceptionUtils
 
 
 class Bark(IMessageChannel):
@@ -47,6 +48,7 @@ class Bark(IMessageChannel):
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def send_list_msg(self, **kwargs):
