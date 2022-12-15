@@ -625,6 +625,14 @@
 
   // 重置过滤条件
   function reset_filter(obj, key) {
+    // 重置全部收起
+    $(`#search_results_accordion_${key} .accordion-button`).each(function () {
+      $(this).addClass("collapsed");
+    });
+    $(`#search_results_accordion_${key} .accordion-collapse`).each(function () {
+      $(this).removeClass("show");
+    });
+    // 处理UI
     $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
     });
