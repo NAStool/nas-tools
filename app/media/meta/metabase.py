@@ -396,12 +396,14 @@ class MetaBase(object):
     # 查询TMDB详情页URL
     def get_detail_url(self):
         if self.tmdb_id:
-            if self.type == MediaType.MOVIE:
-                return "https://www.themoviedb.org/movie/%s" % str(self.tmdb_id).replace("DB:", "")
+            if str(self.tmdb_id).startswith("DB:"):
+                return "https://movie.douban.com/subject/%s" % str(self.tmdb_id).replace("DB:", "")
+            elif self.type == MediaType.MOVIE:
+                return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
             else:
-                return "https://www.themoviedb.org/tv/%s" % str(self.tmdb_id).replace("DB:", "")
+                return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
         elif self.douban_id:
-            return "https://movie.douban.com/subject/%s" % str(self.douban_id).replace("DB:", "")
+            return "https://movie.douban.com/subject/%s" % self.douban_id
         return ""
 
     # 返回评分星星个数
