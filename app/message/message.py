@@ -139,7 +139,7 @@ class Message:
         log.info(f"【Message】发送【{ctype_name}】消息服务【{cname}】：title={title}, text={text}")
         if self._domain:
             if url:
-                if not url.startswith(self._domain):
+                if not url.startswith("http"):
                     url = "%s?next=%s" % (self._domain, url)
             else:
                 url = self._domain
