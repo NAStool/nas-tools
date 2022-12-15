@@ -256,7 +256,7 @@ class Filter:
             team = filter_args.get("team")
             if not meta_info.resource_team:
                 resource_team = self.rg_matcher.match(
-                    title=f"{meta_info.org_string} ",
+                    title=meta_info.org_string,
                     groups=team)
                 if not resource_team:
                     return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"

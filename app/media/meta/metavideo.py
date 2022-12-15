@@ -132,7 +132,7 @@ class MetaVideo(MetaBase):
         if self.part and self.part.upper() == "PART":
             self.part = None
         # 制作组/字幕组
-        self.resource_team = ReleaseGroupsMatcher().match(title=f"{original_title} ") or None
+        self.resource_team = ReleaseGroupsMatcher().match(title=original_title) or None
 
     def __fix_name(self, name):
         if not name:
