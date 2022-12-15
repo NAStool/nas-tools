@@ -181,7 +181,7 @@
                       <div {% if SE_key != 'MOV' %} id="search_se_accordion_{{ SE_key.replace(' ', '') }}_{{ Item.key }}" {% endif %}>
                         <div class="accordion mt-2" id="search_results_accordion_{{ Item.key }}">
                           {% for group_key, group in SE_dict.items() %}
-                          <div class="accordion-item">
+                          <div class="accordion-item" id="search_results_accordion_item_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}">
                             <h2 class="accordion-header">
                               <button
                                   class="accordion-button p-2 {% if loop.index0 != 0 %}collapsed{% endif %}"
@@ -435,15 +435,15 @@
 </div>
 <script type="text/javascript">
   // 关键字
-  var search_word = "{{ SearchWord }}";
-  var need_search = "{{ NeedSearch }}";
-  var result_count = {{ Count }};
+  let search_word = "{{ SearchWord }}";
+  let need_search = "{{ NeedSearch }}";
+  let result_count = {{ Count }};
   if (search_word !== "") {
     $("#search_word").val(decodeURI(search_word));
     if (need_search) {
       search_media(true);
     } else if (!result_count) {
-      $("#search_tip_title").text(search_word + " 未找到任何资源")
+      $("#search_tip_title").text(`${search_word} 未找到任何资源`)
       $("#search_tip_text").text("")
     }
   }
@@ -462,14 +462,14 @@
     $("#search_btn").text("搜索中...").attr("disabled", "true");
     $("#quick_search_btn").attr("disabled", "true");
     $("#search_icon").attr("disabled", "true");
-    $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
-    $("#search_tip_text").text("正在搜索 " + keyword + " ...");
+    $("#search_tip_title").text(`正在搜索 ${keyword}，请稍后...`);
+    $("#search_tip_text").text(`正在搜索 ${keyword} ...`);
     const param = {"search_word": keyword, "unident": unident};
-    show_refresh_process("正在搜索 " + keyword + "...");
+    show_refresh_process(`正在搜索 ${keyword} ...`);
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
-        navmenu('search?s=' + keyword);
+        navmenu(`search?s=${keyword}`);
       } else {
         $("#search_btn").text("搜索").attr("disabled", false);
         $("#quick_search_btn").attr("disabled", false);
@@ -487,7 +487,7 @@
     if (keyword === "") {
       return;
     }
-    navmenu('medialist?s=' + keyword + '&f=1&t=search');
+    navmenu(`medialist?s=${keyword}&f=1&t=search`);
   }
 
   // 搜索输入框
@@ -499,70 +499,76 @@
 
   // 计算各分组的种子数量
   function sub_group_total(group, key, se) {
-    total_obj = $("#search_results_group_total_"+group+"_"+key+"_"+se)
-    current_num = parseInt(total_obj.text());
+    let total_obj = $(`#search_results_group_total_${group}_${key}_${se}`)
+    let current_num = parseInt(total_obj.text());
     if (current_num < 1) {
       current_num = 1;
     }
     total_obj.text(current_num-1);
+    if (current_num===1) {
+      $(`#search_results_accordion_item_${group}_${key}_${se}`).hide();
+    }
   }
 
   // 执行过滤
   function filter_do(key) {
-    let filter_obj = "#search_results_filter_"+key;
-    let torrent_obj = "#search_results_accordion_"+key;
-    let season_obj = ".search_results_season_"+key;
+    let filter_obj = `#search_results_filter_${key}`;
+    let torrent_obj = `#search_results_accordion_${key}`;
+    let season_obj = `.search_results_season_${key}`;
     // 全部显示
-    $(torrent_obj+" .search_results_torrent").each(function () {
+    $("[id^='search_results_accordion_item']").each(function () {
+      $(this).show();
+    });
+    $(`${torrent_obj} .search_results_torrent`).each(function () {
       $(this).show();
     });
     $(season_obj).each(function () {
       $(this).show();
     });
     // 恢复总条数
-    $(torrent_obj+" .search_results_group_total").each(function () {
+    $(`${torrent_obj} .search_results_group_total`).each(function () {
       $(this).text($(this).attr("data-total"));
     });
     // 过滤站点
     let filter_site;
-    $(filter_obj+" input[name=filter_site]").each(function () {
+    $(`${filter_obj} input[name=filter_site]`).each(function () {
       if($(this).prop('checked')){
         filter_site = $(this).val();
       }
     });
     // 过滤促销
     let filter_free;
-    $(filter_obj+" input[name=filter_free]").each(function () {
+    $(`${filter_obj} input[name=filter_free]`).each(function () {
       if($(this).prop('checked')){
         filter_free = $(this).val();
       }
     });
     // 过滤编码
     let filter_video;
-    $(filter_obj+" input[name=filter_video]").each(function () {
+    $(`${filter_obj} input[name=filter_video]`).each(function () {
       if($(this).prop('checked')){
         filter_video = $(this).val();
       }
     });
     //过滤剧集
     let filter_season;
-    $(filter_obj+" input[name=filter_season]").each(function () {
+    $(`${filter_obj} input[name=filter_season]`).each(function () {
       if($(this).prop('checked')){
         filter_season = $(this).val();
       }
     });
     // 有过滤则展开
     if (filter_site || filter_free || filter_video) {
-      $(torrent_obj+" .accordion-button").each(function () {
+      $(`${torrent_obj} .accordion-button`).each(function () {
         $(this).removeClass("collapsed");
       });
-      $(torrent_obj+" .accordion-collapse").each(function () {
+      $(`${torrent_obj} .accordion-collapse`).each(function () {
         $(this).addClass("show");
       });
     }
     // 执行过滤
     if (filter_site) {
-      $(torrent_obj+" .search_results_torrent").each(function () {
+      $(`${torrent_obj} .search_results_torrent`).each(function () {
         if ($(this).attr("data-site") !== filter_site) {
           if($(this).is(":visible")){
             sub_group_total($(this).attr("data-group"), key, $(this).attr("data-season"));
@@ -572,7 +578,7 @@
       });
     }
     if (filter_free) {
-      $(torrent_obj+" .search_results_torrent").each(function () {
+      $(`${torrent_obj} .search_results_torrent`).each(function () {
         if ($(this).attr("data-free") !== filter_free) {
           if($(this).is(":visible")){
             $(this).hide();
@@ -582,7 +588,7 @@
       });
     }
     if (filter_video) {
-      $(torrent_obj+" .search_results_torrent").each(function () {
+      $(`${torrent_obj} .search_results_torrent`).each(function () {
         if ($(this).attr("data-video") !== filter_video) {
           if($(this).is(":visible")) {
             $(this).hide();
@@ -597,10 +603,10 @@
         se_key = $(this).attr("data-season").replace(" ", "");
         if ( season !== filter_season) {
           $(this).hide();
-          $("#search_se_accordion_"+se_key+"_"+key).hide();
+          $(`#search_se_accordion_${se_key}_${key}`).hide();
         }else{
           $(this).show();
-          $("#search_se_accordion_"+se_key+"_"+key).show();
+          $(`#search_se_accordion_${se_key}_${key}`).show();
         }
       });
     }
@@ -608,7 +614,6 @@
 
   // 过滤媒体展示
   function filter_medias(obj, key) {
-    let filter_obj = "#search_results_filter_"+key;
     // 处理UI
     $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
@@ -673,11 +678,11 @@
     };
     const param = {"search_word": keyword, "filters": filters, "unident": true};
     $("#modal-search-advanced").modal("hide");
-    show_refresh_process("正在搜索 " + keyword + " ...");
+    show_refresh_process(`正在搜索 ${keyword} ...`);
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
-        navmenu('search?s=' + keyword);
+        navmenu(`search?s=${keyword}`);
       } else {
         show_fail_modal(ret.msg,function () {
           $("#modal-search-advanced").modal("show");
@@ -689,7 +694,7 @@
   //初始化下拉框
   $("#search_season").empty().append('<option value="">全部</option>');
   for (let i = 1; i <= 50; i++) {
-    $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
+    $("#search_season").append(`<option value="第${i}'季">第${i}'季</option>`);
   }
 
 </script>
