@@ -1,6 +1,7 @@
 import re
 import cn2an
 from app.media.fanart import Fanart
+from app.utils.exception_util import ExceptionUtils
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
 from app.media.category import Category
 from app.utils import StringUtils
@@ -382,30 +383,27 @@ class MetaBase(object):
 
     # 返回海报图片地址
     def get_poster_image(self, original=False):
-        if self.fanart_poster:
-            return self.fanart_poster
-        else:
-            self.fanart_poster = self.fanart.get_poster(media_type=self.type,
-                                                        queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
-        if self.fanart_poster:
-            return self.fanart_poster
-        elif self.poster_path:
+        if self.poster_path:
             if original:
                 return self.poster_path.replace("/w500", "/original")
             else:
                 return self.poster_path
-        else:
-            return ""
+        if not self.fanart_poster:
+            self.fanart_poster = self.fanart.get_poster(media_type=self.type,
+                                                        queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
+        return self.fanart_poster or ""
 
     # 查询TMDB详情页URL
     def get_detail_url(self):
         if self.tmdb_id:
-            if self.type == MediaType.MOVIE:
-                return "https://www.themoviedb.org/movie/%s" % str(self.tmdb_id).replace("DB:", "")
+            if str(self.tmdb_id).startswith("DB:"):
+                return "https://movie.douban.com/subject/%s" % str(self.tmdb_id).replace("DB:", "")
+            elif self.type == MediaType.MOVIE:
+                return "https://www.themoviedb.org/movie/%s" % self.tmdb_id
             else:
-                return "https://www.themoviedb.org/tv/%s" % str(self.tmdb_id).replace("DB:", "")
+                return "https://www.themoviedb.org/tv/%s" % self.tmdb_id
         elif self.douban_id:
-            return "https://movie.douban.com/subject/%s" % str(self.douban_id).replace("DB:", "")
+            return "https://movie.douban.com/subject/%s" % self.douban_id
         return ""
 
     # 返回评分星星个数
@@ -604,7 +602,7 @@ class MetaBase(object):
                     else:
                         begin_season = int(cn2an.cn2an(seasons, mode='smart'))
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     return
                 if self.begin_season is None and isinstance(begin_season, int):
                     self.begin_season = begin_season
@@ -635,7 +633,7 @@ class MetaBase(object):
                     else:
                         begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     return
                 if self.begin_episode is None and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
@@ -665,7 +663,7 @@ class MetaBase(object):
                     try:
                         self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
                     except Exception as err:
-                        print(str(err))
+                        ExceptionUtils.exception_traceback(err)
                         return
                     self.begin_season = 1
                     self.end_season = self.total_seasons

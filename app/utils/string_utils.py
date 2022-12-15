@@ -8,6 +8,7 @@ from urllib import parse
 from delorean import parse as delorean_parse
 
 import cn2an
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType
 
 
@@ -27,7 +28,7 @@ class StringUtils:
         try:
             size = float(size)
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             return 0
         if text.find("PB") != -1 or text.find("PIB") != -1:
             size *= 1024 ** 5
@@ -50,7 +51,7 @@ class StringUtils:
             try:
                 time_sec = float(time_sec)
             except Exception as e:
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
                 return ""
         d = [(0, '秒'), (60 - 1, '分'), (3600 - 1, '小时'), (86400 - 1, '天')]
         s = [x[0] for x in d]
@@ -127,7 +128,7 @@ class StringUtils:
         try:
             int_val = int(text.strip().replace(',', ''))
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
 
         return int_val
 
@@ -142,7 +143,7 @@ class StringUtils:
         try:
             float_val = float(text.strip().replace(',', ''))
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
         return float_val
 
     @staticmethod
@@ -170,7 +171,7 @@ class StringUtils:
             try:
                 size = float(size)
             except Exception as e:
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
                 return ""
         d = [(1024 - 1, 'K'), (1024 ** 2 - 1, 'M'), (1024 ** 3 - 1, 'G'), (1024 ** 4 - 1, 'T')]
         s = [x[0] for x in d]
@@ -295,7 +296,7 @@ class StringUtils:
                 tempsTime = time.mktime(utcdatetime)
                 tempsTime = datetime.datetime.fromtimestamp(tempsTime)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         return tempsTime
 
     @staticmethod
@@ -312,7 +313,7 @@ class StringUtils:
         try:
             return delorean_parse(datetime_str, dayfirst=False).format_datetime('yyyy-MM-dd HH:mm:ss')
         except Exception as e:
-            print(e)
+            ExceptionUtils.exception_traceback(e)
             return datetime_str
 
     @staticmethod

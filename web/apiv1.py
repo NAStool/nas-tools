@@ -308,6 +308,19 @@ class SiteInfo(ClientResource):
         return WebAction().api_action(cmd='get_site', data=self.parser.parse_args())
 
 
+@site.route('/favicon')
+class SiteFavicon(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', type=str, help='站点名称', location='form', required=True)
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        获取站点图标(Base64)
+        """
+        return WebAction().api_action(cmd='get_site_favicon', data=self.parser.parse_args())
+
+
 @site.route('/test')
 class SiteTest(ClientResource):
     parser = reqparse.RequestParser()

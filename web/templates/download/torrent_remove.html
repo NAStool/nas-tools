@@ -186,7 +186,7 @@
                 <div class="datagrid-content">
                   {% if Attr.config.qb_category %}
                   {% for Category in Attr.config.qb_category %}
-                  <span class="badge me-2">{{ Category }}</span>
+                  <span class="badge me-2 mb-1">{{ Category }}</span>
                   {% endfor %}
                   {% endif %}
                 </div>
@@ -196,7 +196,7 @@
                 <div class="datagrid-content">
                   {% if Attr.config.qb_state %}
                   {% for State in Attr.config.qb_state %}
-                  <span class="badge me-2 bg-blue">{{ State }}</span>
+                  <span class="badge me-2 bg-blue mb-1">{{ State }}</span>
                   {% endfor %}
                   {% endif %}
                 </div>
@@ -215,7 +215,7 @@
                 <div class="datagrid-content">
                   {% if Attr.config.tr_state %}
                   {% for State in Attr.config.tr_state %}
-                  <span class="badge me-2 bg-blue">{{ State }}</span>
+                  <span class="badge me-2 bg-blue mb-1">{{ State }}</span>
                   {% endfor %}
                   {% endif %}
                 </div>
@@ -236,7 +236,7 @@
               <div class="datagrid-content">
                 {% if Attr.config.tags %}
                 {% for Tag in Attr.config.tags %}
-                <span class="badge me-2">{{ Tag }}</span>
+                <span class="badge me-2 mb-1">{{ Tag }}</span>
                 {% endfor %}
                 {% endif %}
               </div>

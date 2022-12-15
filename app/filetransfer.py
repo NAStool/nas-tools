@@ -16,6 +16,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
@@ -211,13 +212,19 @@ class FileTransfer:
                     new_file_type = ".未知语言"
                     # 兼容jellyfin字幕识别(多重识别), emby则会识别最后一个后缀
                     if re.search(
-                            r"([\.\[\(](((zh[-_])?(cn|ch[si]|sg|sc))|zho?|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)|简[体中]?)[\.\]\)])|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3})|简体|简中",
+                            r"([.\[(](((zh[-_])?(cn|ch[si]|sg|sc))|zho?"
+                            r"|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)"
+                            r"|简[体中]?)[.\])])"
+                            r"|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3})"
+                            r"|简体|简中",
                             file_item, re.I):
                         new_file_type = ".chi.zh-cn"
-                    elif re.search(r"([\.\[\(](((zh[-_])?(hk|tw|cht|tc))|繁[体中]?)[\.\]\)])|繁体中[文字]|中[文字]繁体|繁体", file_item,
+                    elif re.search(r"([.\[(](((zh[-_])?(hk|tw|cht|tc))"
+                                   r"|繁[体中]?)[.\])])"
+                                   r"|繁体中[文字]|中[文字]繁体|繁体", file_item,
                                    re.I):
                         new_file_type = ".zh-tw"
-                    elif re.search(r"[\.\[\(]eng[\.\]\)]", file_item,
+                    elif re.search(r"[.\[(]eng[.\])]", file_item,
                                    re.I):
                         new_file_type = ".eng"
                     # 通过对比字幕文件大小  尽量转移所有存在的字幕
@@ -492,29 +499,10 @@ class FileTransfer:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
 
-        #  过滤掉文件列表中上级文件夹在黑名单中的
-        if self._ignored_paths:
-            try:
-                for file in file_list[:]:
-                    if file.replace('\\', '/').split('/')[-2] in self._ignored_paths:
-                        log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
-                        file_list.remove(file)
-                if not file_list:
-                    return True, "排除转移文件夹黑名单后，没有新文件需要处理"
-            except Exception as err:
-                log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
-
-        #  过滤掉文件列表中包含文件转移忽略词的
-        if self._ignored_files:
-            try:
-                for file in file_list[:]:
-                    if re.findall(self._ignored_files, file.replace('\\', '/').split('/')[-1]):
-                        log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
-                        file_list.remove(file)
-                if not file_list:
-                    return True, "排除文件转移忽略词后，没有新文件需要处理"
-            except Exception as err:
-                log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
+        #  过滤掉文件列表
+        file_list, msg = self.check_ignore(file_list=file_list)
+        if not file_list:
+            return True, msg
 
         # 目录同步模式下，过滤掉文件列表中已处理过的
         if in_from == SyncType.MON:
@@ -777,6 +765,7 @@ class FileTransfer:
                     sleep(round(random.uniform(0, 1), 1))
 
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【Rmt】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         # 统计完成情况，发送通知
@@ -1065,7 +1054,7 @@ class FileTransfer:
                         max_path_len = path_len
                         max_return_path = dest_path
                 except Exception as err:
-                    print(str(err))
+                    ExceptionUtils.exception_traceback(err)
                     continue
             if max_return_path:
                 return max_return_path
@@ -1090,7 +1079,7 @@ class FileTransfer:
                 return unknown_path
         return self._unknown_path[0]
 
-    def link_sync_files(self, src_path, in_file, target_dir, sync_transfer_mode):
+    def link_sync_file(self, src_path, in_file, target_dir, sync_transfer_mode):
         """
         对文件做纯链接处理，不做识别重命名，则监控模块调用
         :param : 来源渠道
@@ -1100,12 +1089,17 @@ class FileTransfer:
         :param sync_transfer_mode: 明确的转移方式
         """
         new_file = in_file.replace(src_path, target_dir)
+        new_file_list, msg = self.check_ignore(file_list=[new_file])
+        if not new_file_list:
+            return 0, msg
+        else:
+            new_file = new_file_list[0]
         new_dir = os.path.dirname(new_file)
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
         return self.__transfer_command(file_item=in_file,
                                        target_file=new_file,
-                                       rmt_mode=sync_transfer_mode)
+                                       rmt_mode=sync_transfer_mode), ""
 
     @staticmethod
     def get_format_dict(media):
@@ -1153,6 +1147,41 @@ class FileTransfer:
         season_name = re.sub(r"[-_\s.]*None", "", self._tv_season_rmt_format.format(**format_dict))
         file_name = re.sub(r"[-_\s.]*None", "", self._tv_file_rmt_format.format(**format_dict))
         return dir_name, season_name, file_name
+
+    def check_ignore(self, file_list):
+        """
+        检查过滤文件列表中忽略项目
+        :param file_list: 文件路径列表
+        """
+        if not file_list:
+            return [], ""
+        #  过滤掉文件列表中上级文件夹在黑名单中的
+        if self._ignored_paths:
+            try:
+                for file in file_list[:]:
+                    if file.replace('\\', '/').split('/')[-2] in self._ignored_paths:
+                        log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
+                        file_list.remove(file)
+                if not file_list:
+                    return [], "排除转移文件夹黑名单后，没有新文件需要处理"
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+                log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
+
+        #  过滤掉文件列表中包含文件转移忽略词的
+        if self._ignored_files:
+            try:
+                for file in file_list[:]:
+                    if re.findall(self._ignored_files, file.replace('\\', '/').split('/')[-1]):
+                        log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
+                        file_list.remove(file)
+                if not file_list:
+                    return [], "排除文件转移忽略词后，没有新文件需要处理"
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+                log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
+
+        return file_list, ""
 
 
 if __name__ == "__main__":

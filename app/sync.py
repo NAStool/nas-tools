@@ -8,6 +8,7 @@ from watchdog.observers.polling import PollingObserver
 
 import log
 from app.helper import DbHelper
+from app.utils.exception_util import ExceptionUtils
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
@@ -188,13 +189,13 @@ class Sync(object):
                     if self.dbhelper.is_sync_in_history(event_path, target_path):
                         return
                     log.info("【Sync】开始同步 %s" % event_path)
-                    ret = self.filetransfer.link_sync_files(src_path=monitor_dir,
-                                                            in_file=event_path,
-                                                            target_dir=target_path,
-                                                            sync_transfer_mode=sync_mode)
+                    ret, msg = self.filetransfer.link_sync_file(src_path=monitor_dir,
+                                                                in_file=event_path,
+                                                                target_dir=target_path,
+                                                                sync_transfer_mode=sync_mode)
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (event_path, ret))
-                    else:
+                    elif not msg:
                         self.dbhelper.insert_sync_history(event_path, monitor_dir, target_path)
                         log.info("【Sync】%s 同步完成" % event_path)
                 # 识别转移
@@ -237,6 +238,7 @@ class Sync(object):
                         finally:
                             lock.release()
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error("【Sync】发生错误：%s - %s" % (str(e), traceback.format_exc()))
 
     def transfer_mon_files(self):
@@ -296,6 +298,7 @@ class Sync(object):
                     observer.start()
                     log.info("%s 的监控服务启动" % monpath)
                 except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
                     log.error("%s 启动目录监控失败：%s" % (monpath, str(e)))
 
     def stop_service(self):
@@ -324,13 +327,13 @@ class Sync(object):
                     if self.dbhelper.is_sync_in_history(link_file, target_path):
                         continue
                     log.info("【Sync】开始同步 %s" % link_file)
-                    ret = self.filetransfer.link_sync_files(src_path=monpath,
-                                                            in_file=link_file,
-                                                            target_dir=target_path,
-                                                            sync_transfer_mode=sync_mode)
+                    ret, msg = self.filetransfer.link_sync_file(src_path=monpath,
+                                                                in_file=link_file,
+                                                                target_dir=target_path,
+                                                                sync_transfer_mode=sync_mode)
                     if ret != 0:
                         log.warn("【Sync】%s 同步失败，错误码：%s" % (link_file, ret))
-                    else:
+                    elif not msg:
                         self.dbhelper.insert_sync_history(link_file, monpath, target_path)
                         log.info("【Sync】%s 同步完成" % link_file)
             else:
@@ -353,6 +356,7 @@ def run_monitor():
     try:
         Sync().run_service()
     except Exception as err:
+        ExceptionUtils.exception_traceback(err)
         log.error("启动目录同步服务失败：%s" % str(err))
 
 
@@ -363,6 +367,7 @@ def stop_monitor():
     try:
         Sync().stop_service()
     except Exception as err:
+        ExceptionUtils.exception_traceback(err)
         log.error("停止目录同步服务失败：%s" % str(err))
 
 

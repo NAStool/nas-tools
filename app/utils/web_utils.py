@@ -1,5 +1,6 @@
 import os
 from app.utils import RequestUtils, SystemUtils
+from app.utils.exception_util import ExceptionUtils
 from version import APP_VERSION
 
 
@@ -21,7 +22,7 @@ class WebUtils:
             c2 = c1.split('","')[0]
             return c2
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return ""
 
     @staticmethod

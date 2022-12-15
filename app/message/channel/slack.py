@@ -7,6 +7,7 @@ from slack_sdk.errors import SlackApiError
 
 import log
 from app.message.channel.channel import IMessageChannel
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -67,6 +68,7 @@ class Slack(IMessageChannel):
                     self._service.connect()
                     log.info("Slack消息接收服务启动")
                 except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
                     log.error("Slack消息接收服务启动失败: %s" % str(err))
 
     def stop_service(self):
@@ -142,6 +144,7 @@ class Slack(IMessageChannel):
             )
             return True, result
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def send_list_msg(self, medias: list, user_id="", **kwargs):
@@ -224,6 +227,7 @@ class Slack(IMessageChannel):
             )
             return True, result
         except Exception as msg_e:
+            ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
     def __find_public_channel(self):

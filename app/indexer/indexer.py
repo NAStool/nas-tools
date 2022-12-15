@@ -8,6 +8,7 @@ from app.filter import Filter
 from app.utils import DomUtils, RequestUtils, StringUtils
 from app.helper import ProgressHelper
 from app.media import MetaInfo, Media
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, SearchType
 
 
@@ -157,7 +158,7 @@ class IIndexer(metaclass=ABCMeta):
         try:
             ret = RequestUtils(timeout=10).get_res(url)
         except Exception as e2:
-            log.console(str(e2))
+            ExceptionUtils.exception_traceback(e2)
             return []
         if not ret:
             return []
@@ -240,10 +241,10 @@ class IIndexer(metaclass=ABCMeta):
                                 'imdbid': imdbid}
                     torrents.append(tmp_dict)
                 except Exception as e:
-                    print(f"{str(e)}")
+                    ExceptionUtils.exception_traceback(e)
                     continue
         except Exception as e2:
-            print(f"{str(e2)}")
+            ExceptionUtils.exception_traceback(e2)
             pass
 
         return torrents
@@ -309,6 +310,9 @@ class IIndexer(metaclass=ABCMeta):
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 index_rule_fail += 1
                 continue
+            # 无订阅或搜索过滤规则，应用站点过滤规则
+            if not filter_args.get("rule"):
+                filter_args["rule"] = indexer.rule
             # 检查订阅过滤规则匹配
             match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
                                                                                 filter_args=filter_args,

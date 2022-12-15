@@ -1,7 +1,6 @@
 import re
 import sys
 import time
-import traceback
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -15,6 +14,7 @@ from app.rss import Rss
 from app.sites import Sites
 from app.utils import StringUtils
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import BrushDeleteType, SystemDictType
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 
@@ -47,7 +47,7 @@ class BrushTask(object):
                 self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
         # 读取下载器列表
         downloaders = self.dbhelper.get_user_downloaders()
         self._downloader_infos = []
@@ -243,7 +243,7 @@ class BrushTask(object):
                                                        downloadercfg=downloader_cfg):
                         break
             except Exception as err:
-                log.console(str(err) + " - " + traceback.format_exc())
+                ExceptionUtils.exception_traceback(err)
                 continue
         log.info("【Brush】任务 %s 本次添加了 %s 个下载" % (task_name, success_count))
 
@@ -385,9 +385,10 @@ class BrushTask(object):
                         # ID
                         torrent_id = torrent.id
                         # 做种时间
-                        date_done = torrent.date_done if torrent.date_done else torrent.date_added
-                        dltime = (datetime.now().astimezone() - torrent.date_added).seconds
-                        seeding_time = (datetime.now().astimezone() - date_done).seconds
+                        date_done = torrent.date_done or torrent.date_added
+                        date_now = int(time.mktime(datetime.now().timetuple()))
+                        dltime = date_now - int(time.mktime(torrent.date_added.timetuple()))
+                        seeding_time = date_now - int(time.mktime(date_done.timetuple()))
                         # 下载量
                         downloaded = int(torrent.total_size * torrent.progress / 100)
                         total_downloaded += downloaded
@@ -464,7 +465,7 @@ class BrushTask(object):
                                                          download_size=total_downloaded,
                                                          remove_count=len(delete_ids) + len(remove_torrent_ids))
             except Exception as e:
-                log.console(str(e) + " - " + traceback.format_exc())
+                ExceptionUtils.exception_traceback(e)
 
     def __is_allow_new_torrent(self, taskid, taskname, downloadercfg, seedsize, dlcount):
         """
@@ -737,7 +738,7 @@ class BrushTask(object):
                         return False
 
         except Exception as err:
-            log.error(str(err) + " - " + traceback.format_exc())
+            ExceptionUtils.exception_traceback(err)
 
         return True
 
@@ -786,5 +787,5 @@ class BrushTask(object):
                         if float(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
                             return True, BrushDeleteType.AVGUPSPEED
         except Exception as err:
-            log.console(str(err) + " - " + traceback.format_exc())
+            ExceptionUtils.exception_traceback(err)
         return False, BrushDeleteType.NOTDELETE

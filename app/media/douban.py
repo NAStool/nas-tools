@@ -5,6 +5,7 @@ from time import sleep
 import zhconv
 
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.string_utils import StringUtils
 
 import log
@@ -42,6 +43,7 @@ class DouBan:
                     if res:
                         self.cookie = StringUtils.str_from_cookiejar(res.cookies)
                 except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
                     log.warn(f"【Douban】获取cookie失败：{format(err)}")
 
     def get_douban_detail(self, doubanid, mtype=None, wait=False):
@@ -272,7 +274,7 @@ class DouBan:
             if imdbid:
                 ret_media['imdbid'] = str(imdbid).strip()
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
         if ret_media:
             log.info("【Douban】查询到数据：%s" % ret_media.get("title"))
         else:
@@ -370,7 +372,7 @@ class DouBan:
                 ret_list.append({'id': rid, 'title': title, 'release_date': year, 'vote_average': vote_average,
                                  'poster_path': poster_path, 'overview': overview})
             except Exception as e:
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
         return ret_list
 
     @staticmethod
@@ -403,5 +405,5 @@ class DouBan:
                 ret_list.append({'id': rid, 'name': title, 'first_air_date': year, 'vote_average': vote_average,
                                  'poster_path': poster_path, 'overview': overview})
             except Exception as e:
-                print(str(e))
+                ExceptionUtils.exception_traceback(e)
         return ret_list

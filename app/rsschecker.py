@@ -2,6 +2,7 @@ import json
 import traceback
 
 import jsonpath
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
 
@@ -15,6 +16,7 @@ from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import MediaType, SearchType
 from config import Config
 
@@ -57,7 +59,7 @@ class RssChecker(object):
                 self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
         # 读取解析器列表
         rss_parsers = self.dbhelper.get_userrss_parser()
         self._rss_parsers = []
@@ -112,7 +114,10 @@ class RssChecker(object):
         if not self._rss_tasks:
             return
         # 启动RSS任务
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai",
+                                              executors={
+                                                  'default': ThreadPoolExecutor(30)
+                                              })
         rss_flag = False
         for task in self._rss_tasks:
             if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
@@ -238,8 +243,8 @@ class RssChecker(object):
                                     media_info.get_title_string(), media_info.get_season_episode_string()))
                             continue
                         if no_exists.get(media_info.tmdb_id):
-                            log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                     no_exists.get(media_info.tmdb_id)))
+                            log.info("【RssChecker】%s 缺失季集：%s"
+                                     % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
                     # 大小及种子页面
                     media_info.set_torrent_info(size=size,
                                                 page_url=page_url,
@@ -296,6 +301,7 @@ class RssChecker(object):
                         rss_search_torrents.append(media_info)
                         res_num = res_num + 1
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error("【RssChecker】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                 continue
         log.info("【RssChecker】%s 处理结束，匹配到 %s 个有效资源" % (taskinfo.get("name"), res_num))
@@ -359,7 +365,7 @@ class RssChecker(object):
         try:
             rss_parser_format = json.loads(rss_parser.get("format"))
         except Exception as e:
-            print(str(e))
+            ExceptionUtils.exception_traceback(e)
             log.error("【RssChecker】任务 %s 的解析配置不是合法的Json格式" % taskinfo.get("name"))
             return []
         # 拼装链接
@@ -373,7 +379,7 @@ class RssChecker(object):
             try:
                 param_url = rss_parser.get("params").format(**_dict)
             except Exception as e:
-                log.console(str(e))
+                ExceptionUtils.exception_traceback(e)
                 log.error("【RssChecker】任务 %s 的解析配置附加参数不合法" % taskinfo.get("name"))
                 return []
             rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
@@ -384,7 +390,7 @@ class RssChecker(object):
                 return []
             ret.encoding = ret.apparent_encoding
         except Exception as e2:
-            log.console(str(e2))
+            ExceptionUtils.exception_traceback(e2)
             return []
         # 解析数据 XPATH
         rss_result = []
@@ -409,12 +415,14 @@ class RssChecker(object):
                             rss_item.update({key: value[0]})
                     rss_result.append(rss_item)
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【RssChecker】任务 %s 获取的订阅报文无法解析：%s" % (taskinfo.get("name"), str(err)))
                 return []
         elif rss_parser.get("type") == "JSON":
             try:
                 result_json = json.loads(ret.text)
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 log.error("【RssChecker】任务 %s 获取的订阅报文不是合法的Json格式：%s" % (taskinfo.get("name"), str(err)))
                 return []
             item_list = jsonpath.jsonpath(result_json, rss_parser_format.get("list"))[0]
@@ -496,6 +504,7 @@ class RssChecker(object):
                 if params not in rss_articles:
                     rss_articles.append(params)
             except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 log.error("【RssChecker】获取RSS报文发生错误：%s - %s" % (str(e), traceback.format_exc()))
         return rss_articles
 
@@ -560,8 +569,8 @@ class RssChecker(object):
                         log.info("【RssChecker】电视剧 %s %s 已存在" % (
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                 if no_exists.get(media_info.tmdb_id):
-                    log.info("【RssChecker】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                             no_exists.get(media_info.tmdb_id)))
+                    log.info("【RssChecker】%s 缺失季集：%s"
+                             % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
     def check_rss_articles(self, flag, articles):
@@ -584,6 +593,7 @@ class RssChecker(object):
                 return False
             return True
         except Exception as e:
+            ExceptionUtils.exception_traceback(e)
             log.error("【RssChecker】设置RSS报文状态时发生错误：%s - %s" % (str(e), traceback.format_exc()))
             return False
 

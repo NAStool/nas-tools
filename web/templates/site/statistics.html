@@ -259,9 +259,9 @@
                           {% else %}
                             <span class="badge bg-success me-1"></span>
                           {% endif %}
-                          <img onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
-                               class="rounded me-2" src="data:image/ico;base64,{{ item.favicon }}" width="24"
-                               height="24" alt="" onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
+                          <span onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
+                               class="avatar avatar-sm rounded me-2 siteicon-{{ item.site|hash }}" width="24"
+                                height="24" alt="" style="cursor:pointer"></span>
                           <div class="flex-fill">
                             <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
                               {% if item.msg_unread > 0 %}
@@ -873,33 +873,41 @@
 
     // 生成统计数据图片并下载
     function save_statistics_pic() {
-      var table = $('#table-site-user-data-table').clone(true)[0];
+      let table = $('#table-site-user-data-table').clone(true)[0];
       table.setAttribute("style", "width:500px; min-height: 300px;");
-      var thead = table.childNodes[1];
-      var tbody = table.childNodes[3];
-      var thead_tr = thead.childNodes[1];
-      thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
-      thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
+      let thead = table.childNodes[1];
+      let tbody = table.childNodes[3];
+      let thead_tr = thead.childNodes[1];
+      thead_tr.removeChild(thead_tr.childNodes[19]);//更新按钮
+      thead_tr.removeChild(thead_tr.childNodes[17]);//更新时间
+      thead_tr.removeChild(thead_tr.childNodes[15]);//加入时间
       thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
       thead_tr.removeChild(thead_tr.childNodes[3]);//等级
       for (tbody_tr of tbody.childNodes) {
-        var td_name = tbody_tr.childNodes[1];
-        var div_name = td_name.childNodes[1];
-        var img = div_name.childNodes[3];
-        var div_name_text = div_name.childNodes[5];
-        var id = div_name_text.childNodes[3];
+        let td_name = tbody_tr.childNodes[1];
+        let div_name = td_name.childNodes[1];
+        let img = div_name.childNodes[3];
+        let div_name_text = div_name.childNodes[5];
+        let id = div_name_text.childNodes[3];
         img.setAttribute("style", "filter:blur(3px)");//站点图标模糊
         id.setAttribute("style", "filter:blur(3px)");//站点id模糊
         div_name.removeChild(div_name.childNodes[1]);
-        tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
-        tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
+        tbody_tr.removeChild(tbody_tr.childNodes[19]);//更新按钮
+        tbody_tr.removeChild(tbody_tr.childNodes[17]);//更新时间
+        tbody_tr.removeChild(tbody_tr.childNodes[15]);//加入时间
         tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
         tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
       }
-      ;
-      // 生成图片（素色背景）并下载
+      // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
+      let theme = localStorage.getItem("tablerTheme");
+      let bgcolor = '';
+      if (theme === "light") {
+        bgcolor = '#ffffff';
+      } else {
+        bgcolor = '#1f273c';
+      }
       $('body').append(table);
-      domtoimage.toBlob(table, {bgcolor: '#E9F1F6'}).then(function (blob) {
+      domtoimage.toBlob(table, {bgcolor: bgcolor}).then(function (blob) {
         saveAs(blob, 'nastool_statistics.png');
       });
     }

@@ -2,6 +2,7 @@ import regex as re
 
 from app.helper import DbHelper
 from app.utils.commons import singleton
+from app.utils.exception_util import ExceptionUtils
 
 
 @singleton
@@ -48,6 +49,7 @@ class WordsHelper:
                 if used_ignored_words:
                     title = re.sub(ignored_words, '', title)
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 msg = "【Meta】自定义屏蔽词设置有误：%s" % str(err)
         if self.ignored_words_noregex_info:
             try:
@@ -57,6 +59,7 @@ class WordsHelper:
                         title = title.replace(ignored_word, '')
                         used_ignored_words.append(ignored_word)
             except Exception as err:
+                ExceptionUtils.exception_traceback(err)
                 msg = "【Meta】自定义屏蔽词设置有误：%s" % str(err)
         # 替换
         if self.replaced_words_info:
@@ -69,6 +72,7 @@ class WordsHelper:
                         used_replaced_words.append(replaced_word)
                         title = re.sub(r'%s' % replaced, r'%s' % replace, title)
                 except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
                     msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word_info, str(err))
         if self.replaced_words_noregex_info:
             for replaced_word_noregex_info in self.replaced_words_noregex_info:
@@ -80,6 +84,7 @@ class WordsHelper:
                         used_replaced_words.append(replaced_word)
                         title = title.replace(replaced, replace)
                 except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
                     msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word_noregex_info, str(err))
         # 替换+集偏移
         if self.replaced_offset_words_info:
@@ -96,6 +101,7 @@ class WordsHelper:
                         title = re.sub(r'%s' % replaced, r'%s' % replace, title)
                         title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
                 except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
                     msg = "【Meta】自定义替换+集偏移词 %s 格式有误：%s" % (replaced_offset_word_info, str(err))
         # 集数偏移
         if self.offset_words_info:
@@ -149,5 +155,6 @@ class WordsHelper:
                 title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
             return title, msg
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             msg = "自定义集数偏移 %s 格式有误：%s" % (used_offset_words, str(err))
             return title, msg

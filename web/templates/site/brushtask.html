@@ -123,8 +123,7 @@
                   <div class="datagrid-title">站点</div>
                   <div class="datagrid-content">
                     <div class="d-flex align-items-center">
-                      <img class="avatar-sm me-2" src="{{ Task.site_url }}/favicon.ico" width="24" height="24" alt=""
-                           onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
+                      <span class="avatar avatar-sm rounded me-2 siteicon-{{ Task.site|hash }}" width="24" height="24" alt="" style="cursor:pointer"></span>
                       <h3>{{ Task.site }}</h3>
                     </div>
                   </div>

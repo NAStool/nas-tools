@@ -1,10 +1,12 @@
 import os.path
 import re
+import time
 from datetime import datetime
 
 import transmission_rpc
 
 import log
+from app.utils.exception_util import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
 from app.downloader.client.client import IDownloadClient
@@ -46,6 +48,7 @@ class Transmission(IDownloadClient):
                                           timeout=30)
             return trt
         except Exception as err:
+            ExceptionUtils.exception_traceback(err)
             log.error(f"【{self.client_type}】transmission连接出错：{str(err)}")
             return None
 
@@ -66,7 +69,7 @@ class Transmission(IDownloadClient):
         try:
             torrents = self.trc.get_torrents(ids=ids, arguments=self._trarg)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return [], True
         if status and not isinstance(status, list):
             status = [status]
@@ -98,7 +101,7 @@ class Transmission(IDownloadClient):
             torrents, _ = self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
             return torrents
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return []
 
     def get_downloading_torrents(self, tag=None):
@@ -112,7 +115,7 @@ class Transmission(IDownloadClient):
             torrents, _ = self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
             return torrents
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return []
 
     def set_torrents_status(self, ids, tags=None):
@@ -135,7 +138,7 @@ class Transmission(IDownloadClient):
             self.trc.change_torrent(labels=tags, ids=ids)
             log.info(f"【{self.client_type}】设置transmission种子标签成功")
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     def set_torrent_tag(self, tid, tag):
         if not tid or not tag:
@@ -143,7 +146,7 @@ class Transmission(IDownloadClient):
         try:
             self.trc.change_torrent(labels=tag, ids=int(tid))
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     def change_torrent(self,
                        tid,
@@ -209,7 +212,7 @@ class Transmission(IDownloadClient):
                                     seedIdleMode=seedIdleMode,
                                     seedIdleLimit=seedIdleLimit)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
 
     def get_transfer_task(self, tag):
         # 处理所有任务
@@ -257,8 +260,8 @@ class Transmission(IDownloadClient):
         tr_error_key = config.get("tr_error_key")
         for torrent in torrents:
             date_done = torrent.date_done or torrent.date_added
-            date_now = datetime.now().astimezone()
-            torrent_seeding_time = (date_now - date_done).seconds if date_done else 0
+            date_now = int(time.mktime(datetime.now().timetuple()))
+            torrent_seeding_time = date_now - int(time.mktime(date_done.timetuple())) if date_done else 0
             torrent_uploaded = torrent.ratio * torrent.total_size
             torrent_upload_avs = torrent_uploaded / torrent_seeding_time if torrent_seeding_time else 0
             if ratio and torrent.ratio <= ratio:
@@ -332,7 +335,7 @@ class Transmission(IDownloadClient):
                     self.set_downloadspeed_limit(ret.id, int(download_limit))
             return ret
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return False
 
     def start_torrents(self, ids):
@@ -345,7 +348,7 @@ class Transmission(IDownloadClient):
         try:
             return self.trc.start_torrent(ids=ids)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return False
 
     def stop_torrents(self, ids):
@@ -358,7 +361,7 @@ class Transmission(IDownloadClient):
         try:
             return self.trc.stop_torrent(ids=ids)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return False
 
     def delete_torrents(self, delete_file, ids):
@@ -373,7 +376,7 @@ class Transmission(IDownloadClient):
         try:
             return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return False
 
     def get_files(self, tid):
@@ -385,7 +388,7 @@ class Transmission(IDownloadClient):
         try:
             torrent = self.trc.get_torrent(tid)
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return None
         if torrent:
             return torrent.files()
@@ -412,7 +415,7 @@ class Transmission(IDownloadClient):
             self.trc.set_files(kwargs.get("file_info"))
             return True
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return False
 
     def get_download_dirs(self):
@@ -421,7 +424,7 @@ class Transmission(IDownloadClient):
         try:
             return [self.trc.get_session(timeout=10).download_dir]
         except Exception as err:
-            print(str(err))
+            ExceptionUtils.exception_traceback(err)
             return []
 
     def set_uploadspeed_limit(self, ids, limit):

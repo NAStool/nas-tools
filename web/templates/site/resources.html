@@ -120,19 +120,19 @@
                       <div class="font-weight-medium strong">
                         <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
                         {% if Result.uploadvolumefactor != 1.0 %}
-                          <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                          <span class="badge text-white bg-azure mb-1">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
                         {% endif %}
                         {% if Result.downloadvolumefactor != 1.0 %}
                           {% if Result.downloadvolumefactor == 0.0 %}
-                            <span class="badge text-white bg-lime">FREE</span>
+                            <span class="badge text-white bg-lime mb-1">FREE</span>
                           {% else %}
-                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                            <span class="badge text-white bg-blue mb-1">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
                           {% endif %}
                         {% endif %}
                         <a class="ms-2" title="名称测试"
                            href="javascript:nametest('{{ loop.index0 }}', '{{ Result.title }}')"
                            data-bs-toggle="tooltip">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-text-recognition" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-text-recognition mb-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                              <path d="M4 8v-2a2 2 0 0 1 2 -2h2"></path>
                              <path d="M4 16v2a2 2 0 0 0 2 2h2"></path>

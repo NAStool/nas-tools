@@ -2,6 +2,7 @@ import os.path
 import pickle
 
 from app.utils import StringUtils, RequestUtils
+from app.utils.exception_util import ExceptionUtils
 from config import Config
 from app.utils.commons import singleton
 
@@ -20,7 +21,7 @@ class IndexerHelper:
                       "rb") as f:
                 self._indexers = pickle.load(f)
         except Exception as err:
-            print(err)
+            ExceptionUtils.exception_traceback(err)
 
     def get_all_indexers(self):
         return self._indexers
@@ -36,8 +37,7 @@ class IndexerHelper:
                     ua=None,
                     render=False,
                     language=None,
-                    pri=None,
-                    favicon=None):
+                    pri=None):
         if not url:
             return None
         for indexer in self._indexers:
@@ -55,8 +55,7 @@ class IndexerHelper:
                                    render=render,
                                    buildin=True,
                                    language=language,
-                                   pri=pri,
-                                   favicon=favicon)
+                                   pri=pri)
         return None
 
 
@@ -74,8 +73,7 @@ class IndexerConf(object):
                  render=False,
                  buildin=True,
                  language=None,
-                 pri=None,
-                 favicon=None):
+                 pri=None):
         if not datas:
             return
         self.datas = datas
@@ -96,7 +94,6 @@ class IndexerConf(object):
         self.buildin = buildin
         self.language = language
         self.pri = pri if pri else 0
-        self.favicon = favicon
 
     def get_userinfo(self):
         return self.userinfo
