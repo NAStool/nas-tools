@@ -55,6 +55,11 @@
           <div class="row row-cards" id="media_cards">
             {% for Title, Item in Results.items() %}
               <div class="card">
+                <div class="ribbon g-cyan d-md-none">
+                  <a class="text-white" href="javascript:show_search_filter_modal()">
+                    筛选
+                  </a>
+                </div>
                 <div class="card-body ps-1 pe-1">
                   <div class="row">
                     <div class="col-2 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
@@ -433,6 +438,79 @@
     </div>
   </div>
 </div>
+<!-- 搜索结果过滤弹窗 -->
+<div class="modal modal-blur fade" id="search_filter_modal" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">过滤条件</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          {% for Title, Item in Results.items() %}
+          <!-- 过滤条件 -->
+          {% if Item.filter.season %}
+          <div class="subheader mb-2 mt-2">季</div>
+          <div class="form-selectgroup form-selectgroup-pills">
+            {% for filter_season in Item.filter.season %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="filter_season" value="{{ filter_season }}" class="form-selectgroup-input"
+                onclick="filter_medias(this, '{{ Item.key }}')">
+              <span class="form-selectgroup-label">{{ filter_season }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="subheader mb-2 mt-3">站点</div>
+          <div class="form-selectgroup form-selectgroup-pills">
+            {% for filter_site in Item.filter.site %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="filter_site" value="{{ filter_site }}" class="form-selectgroup-input"
+                onclick="filter_medias(this, '{{ Item.key }}')">
+              <span class="form-selectgroup-label">{{ filter_site }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="subheader mb-2 mt-2">促销</div>
+          <div class="form-selectgroup form-selectgroup-pills">
+            {% for filter_free in Item.filter.free %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="filter_free" value="{{ filter_free.value }}" class="form-selectgroup-input"
+                onclick="filter_medias(this, '{{ Item.key }}')">
+              <span class="form-selectgroup-label">{{ filter_free.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if Item.filter.video %}
+          <div class="subheader mb-2 mt-2">视频编码</div>
+          <div class="form-selectgroup form-selectgroup-pills">
+            {% for filter_video in Item.filter.video %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="filter_video" value="{{ filter_video }}" class="form-selectgroup-input"
+                onclick="filter_medias(this, '{{ Item.key }}')">
+              <span class="form-selectgroup-label">{{ filter_video }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="mt-3">
+            <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}')">
+              重置
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="text/javascript">
   // 关键字
   var search_word = "{{ SearchWord }}";
@@ -638,6 +716,11 @@
     });
     // 开始过滤
     filter_do(key);
+  }
+
+  // 显示过滤器弹窗
+  function show_search_filter_modal() {
+    $("#search_filter_modal").modal("show");
   }
 
   // 显示高级搜索框
