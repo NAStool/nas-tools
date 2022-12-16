@@ -450,55 +450,57 @@
       <div class="modal-body">
         <div class="row">
           {% for Title, Item in Results.items() %}
-          <!-- 过滤条件 -->
-          {% if Item.filter.season %}
-          <div class="subheader mb-2 mt-2">季</div>
-          <div class="form-selectgroup form-selectgroup-pills">
-            {% for filter_season in Item.filter.season %}
-            <label class="form-selectgroup-item">
-              <input type="checkbox" name="filter_season" value="{{ filter_season }}" class="form-selectgroup-input"
-                onclick="filter_medias(this, '{{ Item.key }}')">
-              <span class="form-selectgroup-label">{{ filter_season }}</span>
-            </label>
-            {% endfor %}
-          </div>
-          {% endif %}
-          <div class="subheader mb-2 mt-3">站点</div>
-          <div class="form-selectgroup form-selectgroup-pills">
-            {% for filter_site in Item.filter.site %}
-            <label class="form-selectgroup-item">
-              <input type="checkbox" name="filter_site" value="{{ filter_site }}" class="form-selectgroup-input"
-                onclick="filter_medias(this, '{{ Item.key }}')">
-              <span class="form-selectgroup-label">{{ filter_site }}</span>
-            </label>
-            {% endfor %}
-          </div>
-          <div class="subheader mb-2 mt-2">促销</div>
-          <div class="form-selectgroup form-selectgroup-pills">
-            {% for filter_free in Item.filter.free %}
-            <label class="form-selectgroup-item">
-              <input type="checkbox" name="filter_free" value="{{ filter_free.value }}" class="form-selectgroup-input"
-                onclick="filter_medias(this, '{{ Item.key }}')">
-              <span class="form-selectgroup-label">{{ filter_free.name }}</span>
-            </label>
-            {% endfor %}
-          </div>
-          {% if Item.filter.video %}
-          <div class="subheader mb-2 mt-2">视频编码</div>
-          <div class="form-selectgroup form-selectgroup-pills">
-            {% for filter_video in Item.filter.video %}
-            <label class="form-selectgroup-item">
-              <input type="checkbox" name="filter_video" value="{{ filter_video }}" class="form-selectgroup-input"
-                onclick="filter_medias(this, '{{ Item.key }}')">
-              <span class="form-selectgroup-label">{{ filter_video }}</span>
-            </label>
-            {% endfor %}
-          </div>
-          {% endif %}
-          <div class="mt-3">
-            <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}')">
-              重置
-            </button>
+          <div class="col" id="search_results_filter_{{ Item.key }}_{{ Item.key }}">
+            <!-- 过滤条件 -->
+            {% if Item.filter.season %}
+            <div class="subheader mb-2 mt-2">季</div>
+            <div class="form-selectgroup form-selectgroup-pills">
+              {% for filter_season in Item.filter.season %}
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="filter_season" value="{{ filter_season }}" class="form-selectgroup-input"
+                  onclick="filter_medias(this, '{{ Item.key }}', '_{{ Item.key }}')">
+                <span class="form-selectgroup-label">{{ filter_season }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="subheader mb-2 mt-3">站点</div>
+            <div class="form-selectgroup form-selectgroup-pills">
+              {% for filter_site in Item.filter.site %}
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="filter_site" value="{{ filter_site }}" class="form-selectgroup-input"
+                  onclick="filter_medias(this, '{{ Item.key }}', '_{{ Item.key }}')">
+                <span class="form-selectgroup-label">{{ filter_site }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            <div class="subheader mb-2 mt-2">促销</div>
+            <div class="form-selectgroup form-selectgroup-pills">
+              {% for filter_free in Item.filter.free %}
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="filter_free" value="{{ filter_free.value }}" class="form-selectgroup-input"
+                  onclick="filter_medias(this, '{{ Item.key }}', '_{{ Item.key }}')">
+                <span class="form-selectgroup-label">{{ filter_free.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            {% if Item.filter.video %}
+            <div class="subheader mb-2 mt-2">视频编码</div>
+            <div class="form-selectgroup form-selectgroup-pills">
+              {% for filter_video in Item.filter.video %}
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="filter_video" value="{{ filter_video }}" class="form-selectgroup-input"
+                  onclick="filter_medias(this, '{{ Item.key }}', '_{{ Item.key }}')">
+                <span class="form-selectgroup-label">{{ filter_video }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="mt-3">
+              <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}', '_{{ Item.key }}')">
+                重置
+              </button>
+            </div>
           </div>
           {% endfor %}
         </div>
@@ -589,8 +591,11 @@
   }
 
   // 执行过滤
-  function filter_do(key) {
-    let filter_obj = `#search_results_filter_${key}`;
+  function filter_do(key, modal_key) {
+    if (modal_key == undefined) {
+      modal_key = "";
+    }
+    let filter_obj = `#search_results_filter_${key}${modal_key}`;
     let torrent_obj = `#search_results_accordion_${key}`;
     let season_obj = `.search_results_season_${key}`;
     // 全部显示
@@ -698,24 +703,24 @@
   }
 
   // 过滤媒体展示
-  function filter_medias(obj, key) {
+  function filter_medias(obj, key, modal_key) {
     // 处理UI
     $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
     });
     $(obj).prop("checked", true);
     // 开始过滤
-    filter_do(key);
+    filter_do(key, modal_key);
   }
 
   // 重置过滤条件
-  function reset_filter(obj, key) {
+  function reset_filter(obj, key, modal_key) {
     // 处理UI
     $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
     });
     // 开始过滤
-    filter_do(key);
+    filter_do(key, modal_key);
   }
 
   // 显示过滤器弹窗
