@@ -92,3 +92,15 @@ RMT_MODES = {
     "minio": RmtMode.MINIO,
     "miniocopy": RmtMode.MINIOCOPY
 }
+
+
+# 站点框架
+class SiteSchema(Enum):
+    DiscuzX = "Discuz!"
+    Gazelle = "Gazelle"
+    Ipt = "IPTorrents"
+    NexusPhp = "NexusPhp"
+    NexusProject = "NexusProject"
+    NexusRabbit = "NexusRabbit"
+    SmallHorse = "Small Horse"
+    Unit3d = "Unit3d"

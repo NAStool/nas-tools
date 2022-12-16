@@ -9,6 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 import log
 from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
 from app.helper.ocr_helper import OcrHelper
+from app.helper.site_helper import SiteHelper
 from app.sites import Sites
 from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton
@@ -84,7 +85,7 @@ class SiteCookie(object):
             html_text = chrome.get_html()
             if not html_text:
                 return None, None, "获取源码失败"
-            if self.sites.is_signin_success(html_text):
+            if SiteHelper.is_logged_in(html_text):
                 return chrome.get_cookies(), chrome.get_ua(), "已经登录过且Cookie未失效"
             # 查找用户名输入框
             html = etree.HTML(html_text)
@@ -200,7 +201,7 @@ class SiteCookie(object):
             html_text = chrome.get_html()
             if not html_text:
                 return None, None, "获取源码失败"
-            if self.sites.is_signin_success(html_text):
+            if SiteHelper.is_logged_in(html_text):
                 return chrome.get_cookies(), chrome.get_ua(), ""
             else:
                 # 读取错误信息

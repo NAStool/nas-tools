@@ -4,13 +4,14 @@ import re
 from lxml import etree
 
 import log
-from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
 from app.utils.exception_util import ExceptionUtils
+from app.utils.types import SiteSchema
 
 
-class NexusPhpSiteUserInfo(ISiteUserInfo):
-    _site_schema = "NexusPhp"
+class NexusPhpSiteUserInfo(_ISiteUserInfo):
+    schema = SiteSchema.NexusPhp
 
     def _parse_site_page(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -26,16 +27,6 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                 self._user_detail_page = user_detail.group().strip().lstrip('/')
                 self.userid = None
                 self._torrent_seeding_page = None
-
-        html = etree.HTML(html_text)
-        if not html:
-            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
-            return
-
-        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
-                            ' or contains(@onclick, "logout") or contains(@href, "usercp")]')
-        if not logout:
-            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_message_unread(self, html_text):
         """
@@ -82,7 +73,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
     def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
+                                 re.IGNORECASE)
         self.upload = StringUtils.num_filesize(upload_match.group(1).strip()) if upload_match else 0
         download_match = re.search(r"[^总子影力]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)

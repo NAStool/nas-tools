@@ -3,12 +3,13 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
+from app.utils.types import SiteSchema
 
 
-class IptSiteUserInfo(ISiteUserInfo):
-    _site_schema = "IPTorrents"
+class IptSiteUserInfo(_ISiteUserInfo):
+    schema = SiteSchema.Ipt
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -32,9 +33,6 @@ class IptSiteUserInfo(ISiteUserInfo):
             self.leeching = StringUtils.str_int(tmps[0].xpath('a')[2].xpath('text()')[1])
             self.ratio = StringUtils.str_float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
             self.bonus = StringUtils.str_float(tmps[0].xpath('a')[3].xpath('text()')[0])
-
-        if not self.username:
-            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
 
     def _parse_site_page(self, html_text):
         # TODO
