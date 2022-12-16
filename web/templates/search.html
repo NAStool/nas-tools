@@ -209,7 +209,7 @@
                                     {% for torrent in unique.torrent_list %}
                                       <div class="list-group-item p-2 ps-1 search_results_torrent"
                                         data-site="{{ torrent.site }}"
-                                        data-free="{{ torrent.uploadvalue|string + " " + torrent.downloadvalue|string }}"
+                                        data-free="{{ torrent.uploadvalue|string + ' ' + torrent.downloadvalue|string }}"
                                         data-video="{{ torrent.video_encode }}"
                                         data-group="{{ group_key }}"
                                         data-season="{{ SE_key.replace(' ', '') }}">
@@ -516,7 +516,7 @@
     let torrent_obj = `#search_results_accordion_${key}`;
     let season_obj = `.search_results_season_${key}`;
     // 全部显示
-    $("[id^='search_results_accordion_item']").each(function () {
+    $(`${torrent_obj} .accordion-item`).each(function () {
       $(this).show();
     });
     $(`${torrent_obj} .search_results_torrent`).each(function () {
@@ -557,13 +557,20 @@
         filter_season = $(this).val();
       }
     });
-    // 有过滤则展开
+    // 有过滤则展开，无过滤则收起
     if (filter_site || filter_free || filter_video) {
       $(`${torrent_obj} .accordion-button`).each(function () {
         $(this).removeClass("collapsed");
       });
       $(`${torrent_obj} .accordion-collapse`).each(function () {
         $(this).addClass("show");
+      });
+    } else {
+      $(`${torrent_obj} .accordion-button`).each(function () {
+        $(this).addClass("collapsed");
+      });
+      $(`${torrent_obj} .accordion-collapse`).each(function () {
+        $(this).removeClass("show");
       });
     }
     // 执行过滤
@@ -625,13 +632,6 @@
 
   // 重置过滤条件
   function reset_filter(obj, key) {
-    // 重置全部收起
-    $(`#search_results_accordion_${key} .accordion-button`).each(function () {
-      $(this).addClass("collapsed");
-    });
-    $(`#search_results_accordion_${key} .accordion-collapse`).each(function () {
-      $(this).removeClass("show");
-    });
     // 处理UI
     $(obj).parent().parent().find("input[type=checkbox]").each(function(){
       $(this).prop("checked", false);
