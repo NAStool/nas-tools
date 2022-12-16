@@ -129,20 +129,19 @@ class FileTransfer:
             self._filesize_cover = media.get('filesize_cover')
             # 电影重命名格式
             movie_name_format = media.get('movie_name_format') or DEFAULT_MOVIE_FORMAT
-            movie_formats = movie_name_format.split('/')
+            movie_formats = movie_name_format.rsplit('/', 1)
             if movie_formats:
                 self._movie_dir_rmt_format = movie_formats[0]
                 if len(movie_formats) > 1:
-                    self._movie_file_rmt_format = movie_formats[1]
+                    self._movie_file_rmt_format = movie_formats[-1]
             # 电视剧重命名格式
             tv_name_format = media.get('tv_name_format') or DEFAULT_TV_FORMAT
-            tv_formats = tv_name_format.split('/')
+            tv_formats = tv_name_format.rsplit('/', 2)
             if tv_formats:
                 self._tv_dir_rmt_format = tv_formats[0]
-                if len(tv_formats) > 1:
-                    self._tv_season_rmt_format = tv_formats[1]
                 if len(tv_formats) > 2:
-                    self._tv_file_rmt_format = tv_formats[2]
+                    self._tv_season_rmt_format = tv_formats[-2]
+                    self._tv_file_rmt_format = tv_formats[-1]
         self._default_rmt_mode = RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
     @staticmethod
