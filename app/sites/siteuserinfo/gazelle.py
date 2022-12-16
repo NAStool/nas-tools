@@ -3,12 +3,13 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
+from app.utils.types import SiteSchema
 
 
-class GazelleSiteUserInfo(ISiteUserInfo):
-    _site_schema = "Gazelle"
+class GazelleSiteUserInfo(_ISiteUserInfo):
+    schema = SiteSchema.Gazelle
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -44,11 +45,6 @@ class GazelleSiteUserInfo(ISiteUserInfo):
                 bonus_match = re.search(r"([\d,.]+)", bonus_text)
                 if bonus_match and bonus_match.group(1).strip():
                     self.bonus = StringUtils.str_float(bonus_match.group(1))
-
-        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
-                            ' or contains(@onclick, "logout")]')
-        if not logout:
-            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_site_page(self, html_text):
         # TODO

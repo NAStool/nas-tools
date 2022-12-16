@@ -3,12 +3,13 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
+from app.utils.types import SiteSchema
 
 
-class DiscuzUserInfo(ISiteUserInfo):
-    _site_schema = "Discuz!"
+class DiscuzUserInfo(_ISiteUserInfo):
+    schema = SiteSchema.DiscuzX
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -22,11 +23,6 @@ class DiscuzUserInfo(ISiteUserInfo):
                 self._torrent_seeding_page = f"forum.php?&mod=torrents&cat_5up=on"
                 self._user_detail_page = user_info[0].attrib['href']
                 self.username = user_info[0].text.strip()
-
-        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
-                            ' or contains(@onclick, "logout")]')
-        if not logout:
-            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_site_page(self, html_text):
         # TODO

@@ -1,26 +1,43 @@
-import time
+import importlib
+import pkgutil
 
 import requests
-from lxml import etree
 
 import log
 from app.helper import ChromeHelper, CHROME_LOCK
-from app.sites.siteuserinfo.discuz import DiscuzUserInfo
-from app.sites.siteuserinfo.gazelle import GazelleSiteUserInfo
-from app.sites.siteuserinfo.ipt_project import IptSiteUserInfo
-from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
-from app.sites.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
-from app.sites.siteuserinfo.nexus_rabbit import NexusRabbitSiteUserInfo
-from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
-from app.sites.siteuserinfo.unit3d import Unit3dSiteUserInfo
+from app.helper.site_helper import SiteHelper
 from app.utils import RequestUtils
+from app.utils.commons import singleton
 from app.utils.exception_util import ExceptionUtils
+from app.utils.types import SiteSchema
 from config import Config
 
 
+@singleton
 class SiteUserInfoFactory(object):
-    @staticmethod
-    def build(url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
+
+    def __init__(self):
+        self.__site_schema = {}
+
+        # 从 app.sites.siteuserinfo 下加载所有的站点信息类
+        packages = importlib.import_module('app.sites.siteuserinfo').__path__
+        for importer, package_name, _ in pkgutil.iter_modules(packages):
+            full_package_name = f'app.sites.siteuserinfo.{package_name}'
+            if full_package_name.startswith('_'):
+                continue
+            module = importlib.import_module(full_package_name)
+            for name, obj in module.__dict__.items():
+                if name.startswith('_'):
+                    continue
+                if isinstance(obj, type) and hasattr(obj, 'schema'):
+                    self.__site_schema[obj.schema] = obj
+
+    def _build_class(self, schema):
+        if schema not in self.__site_schema:
+            return self.__site_schema.get(SiteSchema.NexusPhp)
+        return self.__site_schema[schema]
+
+    def build(self, url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
         if not site_cookie:
             return None
         log.debug(f"【Sites】站点 {site_name} url={url} site_cookie={site_cookie} ua={ua}")
@@ -101,32 +118,6 @@ class SiteUserInfoFactory(object):
                 log.error("【Sites】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
                 return None
 
-        # 解析站点代码
-        html = etree.HTML(html_text)
-        printable_text = html.xpath("string(.)") if html else ""
-
-        if "Powered by Gazelle" in printable_text:
-            return GazelleSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "Style by Rabbit" in printable_text:
-            return NexusRabbitSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "Powered by Discuz!" in printable_text:
-            return DiscuzUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "unit3d.js" in html_text:
-            return Unit3dSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "NexusPHP" in html_text:
-            return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "Nexus Project" in html_text:
-            return NexusProjectSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "Small Horse" in html_text:
-            return SmallHorseSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-
-        if "IPTorrents" in html_text:
-            return IptSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
-        # 默认NexusPhp
-        return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session, ua=ua)
+        # 解析站点类型
+        site_schema = self._build_class(SiteHelper.schema(html_text))
+        return site_schema(site_name, url, site_cookie, html_text, session=session, ua=ua)

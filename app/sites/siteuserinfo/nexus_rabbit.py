@@ -3,10 +3,11 @@ import json
 
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from app.utils.exception_util import ExceptionUtils
+from app.utils.types import SiteSchema
 
 
 class NexusRabbitSiteUserInfo(NexusPhpSiteUserInfo):
-    _site_schema = "NexusRabbit"
+    schema = SiteSchema.NexusRabbit
 
     def _parse_site_page(self, html_text):
         super()._parse_site_page(html_text)
