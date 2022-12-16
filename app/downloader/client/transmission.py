@@ -285,7 +285,7 @@ class Transmission(IDownloadClient):
                             break
                     if not tacker_key_flag:
                         continue
-            if tr_state and not torrent.status not in tr_state:
+            if tr_state and torrent.status not in tr_state:
                 continue
             if tr_error_key and not re.findall(tr_error_key, torrent.error_string, re.I):
                 continue
