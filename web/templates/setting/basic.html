@@ -23,6 +23,22 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
+                  <label class="form-label required">默认首页<span class="form-help"
+                    title="登录后默认显示的页面"
+                    data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="app.index_page">
+                    <option value="index" {% if Config.app.index_page=='index' %}selected{% endif %}>我的媒体库</option>
+                    <option value="search" {% if Config.app.index_page=='search' %}selected{% endif %}>资源搜索</option>
+                    <option value="statistics" {% if Config.app.index_page=='statistics' %}selected{% endif %}>数据统计</option>
+                    <option value="movie_rss" {% if Config.app.index_page=='movie_rss' %}selected{% endif %}>电影订阅</option>
+                    <option value="tv_rss" {% if Config.app.index_page=='tv_rss' %}selected{% endif %}>电视剧订阅</option>
+                    <option value="user_rss" {% if Config.app.index_page=='user_rss' %}selected{% endif %}>自定义订阅</option>
+                    <option value="service" {% if Config.app.index_page=='service' %}selected{% endif %}>服务</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
                   <label class="form-label required">日志输出类型</label>
                   <select class="form-select" id="app.logtype">
                     <option value="console" {% if Config.app.logtype=='console' %}selected{% endif %}>控制台</option>

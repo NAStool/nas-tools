@@ -2825,8 +2825,8 @@
     if (go_page) {
       navmenu(go_page);
     } else {
-      //打开第一个页面
-      $("#navbar-menu").find("a[onclick]").first().trigger('click');
+      // 加载设置的主页
+      navmenu("{{ IndexPage }}")
     }
 
     {% if "系统设置" in UserPris %}

@@ -117,6 +117,7 @@ def login():
         SystemFlag = 0 if SystemUtils.is_windows() else 1
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
+        IndexPage = Config().get_config('app').get('index_page', 'index')
         if not SyncMod:
             SyncMod = "link"
         RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
@@ -124,6 +125,7 @@ def login():
         SiteFavicons = Sites().get_site_favicon()
         return render_template('navigation.html',
                                GoPage=GoPage,
+                               IndexPage=IndexPage,
                                UserName=userinfo.username,
                                UserPris=str(userinfo.pris).split(","),
                                SystemFlag=SystemFlag,
