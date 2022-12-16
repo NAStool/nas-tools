@@ -199,6 +199,7 @@
   // 打开新增窗口
   function show_add_downloader_modal() {
     $("#downloader_modal_title").text("新增下载器");
+    $("#dl_test_btn").text("测试");
     $("#dl_id").val("");
     $("#modal-add-downloader").modal('show');
   }
@@ -278,6 +279,7 @@
   // 编辑下载器
   function show_edit_downloader_modal(id) {
     $("#downloader_modal_title").text("编辑下载器");
+    $("#dl_test_btn").text("测试");
     $("#dl_id").val(id);
     ajax_post("get_downloader", {"id": id}, function (ret) {
       if (ret.code == 0) {

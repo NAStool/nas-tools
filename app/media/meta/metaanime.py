@@ -145,7 +145,7 @@ class MetaAnime(MetaBase):
                 # 制作组/字幕组
                 self.resource_team = \
                     anitopy_info_origin.get("release_group") or \
-                    ReleaseGroupsMatcher().match(title=f"{original_title}") or None
+                    ReleaseGroupsMatcher().match(title=original_title) or None
                 # 视频编码
                 self.video_encode = anitopy_info.get("video_term")
                 if isinstance(self.video_encode, list):
