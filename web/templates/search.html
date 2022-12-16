@@ -435,9 +435,9 @@
 </div>
 <script type="text/javascript">
   // 关键字
-  let search_word = "{{ SearchWord }}";
-  let need_search = "{{ NeedSearch }}";
-  let result_count = {{ Count }};
+  var search_word = "{{ SearchWord }}";
+  var need_search = "{{ NeedSearch }}";
+  var result_count = {{ Count }};
   if (search_word !== "") {
     $("#search_word").val(decodeURI(search_word));
     if (need_search) {
