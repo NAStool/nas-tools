@@ -44,7 +44,7 @@ class ReleaseGroupsMatcher(object):
         "iptorrents": [],
         "joyhd": [],
         "keepfrds": ['FRDS', 'Yumi', 'cXcY'],
-        "lemonhd": ['L(?:eague(?:(?:C|H)D|(?:M|T)V|NF)|WEB)', 'i18n', 'CiNT'],
+        "lemonhd": ['L(?:eague(?:(?:C|H)D|(?:M|T)V|NF|WEB)|HD)', 'i18n', 'CiNT'],
         "mteam": ['MTeam(?:|TV)', 'MPAD'],
         "nanyangpt": [],
         "nicept": [],
@@ -97,5 +97,6 @@ class ReleaseGroupsMatcher(object):
             return ""
         if not groups:
             groups = self.__release_groups
+        title = f"{title} "
         groups_re = re.compile(r"(?<=[-@\[￡【])(?:%s)(?=[@.\s\]\[】])" % groups, re.I)
         return '@'.join(re.findall(groups_re, title))
