@@ -20,10 +20,8 @@ from app.doubansync import DoubanSync
 from app.downloader import Qbittorrent, Transmission, Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper, ChromeHelper
-from app.helper import ProgressHelper, ThreadHelper, MetaHelper
-from app.helper.display_helper import DisplayHelper
-from app.helper.words_helper import WordsHelper
+from app.helper import DbHelper, DictHelper, ChromeHelper, ProgressHelper, ThreadHelper, \
+    MetaHelper, DisplayHelper, WordsHelper
 from app.indexer import BuiltinIndexer
 from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi

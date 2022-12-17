@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 import requests
 
 import log
-from app.helper.thread_helper import ThreadHelper
+from app.helper import ThreadHelper
 from app.message.channel.channel import IMessageChannel
 from app.utils import RequestUtils
 from app.utils.exception_util import ExceptionUtils

@@ -7,9 +7,7 @@ from selenium.webdriver.support import expected_conditions as es
 from selenium.webdriver.support.wait import WebDriverWait
 
 import log
-from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper
-from app.helper.ocr_helper import OcrHelper
-from app.helper.site_helper import SiteHelper
+from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper, OcrHelper, SiteHelper
 from app.sites import Sites
 from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton

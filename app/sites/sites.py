@@ -15,14 +15,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
 
 import log
-from app.helper.site_helper import SiteHelper
 from app.message import Message
 from app.sites import SiteUserInfoFactory
 from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
-from app.helper import ChromeHelper, CHROME_LOCK
-from app.helper import DbHelper
+from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper, DbHelper
 from app.utils.exception_util import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 

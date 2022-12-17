@@ -9,7 +9,7 @@ import requests
 from lxml import etree
 
 import log
-from app.helper.site_helper import SiteHelper
+from app.helper import SiteHelper
 from app.utils import RequestUtils
 from app.utils.types import SiteSchema
 

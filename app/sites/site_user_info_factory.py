@@ -4,8 +4,7 @@ import pkgutil
 import requests
 
 import log
-from app.helper import ChromeHelper, CHROME_LOCK
-from app.helper.site_helper import SiteHelper
+from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper
 from app.utils import RequestUtils
 from app.utils.commons import singleton
 from app.utils.exception_util import ExceptionUtils
