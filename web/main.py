@@ -98,11 +98,13 @@ def action_login_check(func):
     """
     Action安全认证
     """
+
     @wraps(func)
     def login_check(*args, **kwargs):
         if not current_user.is_authenticated:
             return {"code": -1, "msg": "用户未登录"}
         return func(*args, **kwargs)
+
     return login_check
 
 
@@ -243,7 +245,14 @@ def search():
     SearchResults = res.get("result")
     Count = res.get("total")
     # 站点列表
-    SiteDict = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers() or []]
+    SiteDict = {}
+    for item in Searcher().indexer.get_indexers() or []:
+        SiteDict[item.name] = {
+            "id": item.id,
+            "name": item.name,
+            "public": item.public,
+            "builtin": item.builtin
+        }
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
@@ -321,7 +330,8 @@ def rss_history():
 @login_required
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    RssMovieItems = [{"tmdbid": movie.get("tmdbid"), "rssid": movie.get("id")} for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
+    RssMovieItems = [{"tmdbid": movie.get("tmdbid"), "rssid": movie.get("id")} for movie in
+                     Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
     RssTvItems = [{
         "id": tv.get("tmdbid"),
         "rssid": tv.get("id"),
@@ -564,7 +574,8 @@ def service():
         '''
 
         scheduler_cfg_list.append(
-            {'name': '订阅搜索', 'time': tim_rsssearch, 'state': rss_search_state, 'id': 'subscribe_search_all', 'svg': svg,
+            {'name': '订阅搜索', 'time': tim_rsssearch, 'state': rss_search_state, 'id': 'subscribe_search_all',
+             'svg': svg,
              'color': "blue"})
 
         # 下载文件转移
