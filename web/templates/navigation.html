@@ -2304,31 +2304,31 @@
       }
     }
     if (data.type) {
-      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${data.type}</span>`;
+      content = `${content}<span class="badge bg-blue me-1 mb-1" title="类型">${data.type}</span>`;
     }
     if (data.category) {
-      content = `${content}<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${data.category}</span>`;
+      content = `${content}<span class="badge bg-blue me-1 mb-1" title="类别">${data.category}</span>`;
     }
     if (data.name) {
       const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
-      content = `${content}<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
+      content = `${content}<span title="识别名称"><a class="badge bg-yellow me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
     }
     if (data.title) {
-      content = `${content}<span class="badge badge-outline text-red me-1 mb-1" title="标题">${data.title}</span>`;
+      content = `${content}<span class="badge bg-green me-1 mb-1" title="标题">${data.title}</span>`;
     } else {
-      content = `${content}<span class="badge me-1 mb-1" title="标题">TMDB无匹配</span>`;
-    }
-    if (data.year) {
-      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${data.year}</span>`;
-    }
-    if (data.season_episode) {
-      content = `${content}<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${data.tmdb_S_E_link}" target="_blank">${data.season_episode}</a></span>`;
-    }
-    if (data.part) {
-      content = `${content}<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${data.part}</span>`;
+      content = `${content}<span class="badge bg-red me-1 mb-1" title="标题">未匹配TMDB</span>`;
     }
     if (data.tmdbid) {
-      content = `${content}<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${data.tmdblink}" target="_blank">${data.tmdbid}</a></span>`;
+      content = `${content}<span title="TMDB ID"><a class="badge bg-green me-1 mb-1" href="${data.tmdblink}" target="_blank">${data.tmdbid}</a></span>`;
+    }
+    if (data.year) {
+      content = `${content}<span class="badge bg-orange me-1 mb-1" title="年份">${data.year}</span>`;
+    }
+    if (data.season_episode) {
+      content = `${content}<span title="季集"><a class="badge bg-orange me-1 mb-1" href="${data.tmdb_S_E_link}" target="_blank">${data.season_episode}</a></span>`;
+    }
+    if (data.part) {
+      content = `${content}<span class="badge bg-orange me-1 mb-1" title="分集">${data.part}</span>`;
     }
     if (data.restype) {
       content = `${content}<span class="badge me-1 mb-1" title="质量">${data.restype}</span>`;
@@ -2346,7 +2346,7 @@
       content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
     }
     if (data.team) {
-      content = `${content}<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
+      content = `${content}<span class="badge bg-cyan me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
     }
     $(`#${result_div}`).empty().append(content);
   }
