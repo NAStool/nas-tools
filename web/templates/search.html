@@ -233,7 +233,15 @@
                                         data-season="{{ SE_key.replace(' ', '') }}">
                                         <div class="row g-2 align-items-center">
                                           <div class="col-auto">
-                                            <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;"></span>
+                                            <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
+                                            {% if SiteDict[torrent.site] %}
+                                              {% if SiteDict[torrent.site].public %}
+                                              BT
+                                              {% elif not SiteDict[torrent.site].builtin %}
+                                              PT
+                                              {% endif %}
+                                            {% endif %}
+                                            </span>
                                           </div>
                                           <div class="col">
                                             <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")'>{{ torrent.torrent_name }}</a>
@@ -377,8 +385,8 @@
               <label class="form-label">站点</label>
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
-                {% for site in SiteDict %}
-                  <option value="{{ site.name }}">{{ site.name }}</option>
+                {% for site in SiteDict.keys() %}
+                  <option value="{{ site }}">{{ site }}</option>
                 {% endfor %}
               </select>
             </div>

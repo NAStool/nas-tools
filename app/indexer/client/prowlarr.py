@@ -46,7 +46,7 @@ class Prowlarr(IIndexer):
         return [IndexerConf({"id": v["indexerId"],
                              "name": v["indexerName"],
                              "domain": f'{self.host}{v["indexerId"]}/api',
-                             "buildin": False})
+                             "builtin": False})
                 for v in indexers]
 
     def search(self, *kwargs):

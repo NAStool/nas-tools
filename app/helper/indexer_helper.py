@@ -53,7 +53,7 @@ class IndexerHelper:
                                    parser=parser,
                                    ua=ua,
                                    render=render,
-                                   buildin=True,
+                                   builtin=True,
                                    language=language,
                                    pri=pri)
         return None
@@ -71,7 +71,7 @@ class IndexerConf(object):
                  parser=None,
                  ua=None,
                  render=False,
-                 buildin=True,
+                 builtin=True,
                  language=None,
                  pri=None):
         if not datas:
@@ -91,7 +91,7 @@ class IndexerConf(object):
         self.parser = parser
         self.ua = ua
         self.render = render
-        self.buildin = buildin
+        self.builtin = builtin
         self.language = language
         self.pri = pri if pri else 0
 
