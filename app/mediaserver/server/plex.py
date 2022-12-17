@@ -78,6 +78,8 @@ class Plex(IMediaServer):
             event_str = "开始播放 %s" % his.title
             activity = {"type": event_type, "event": event_str, "date": event_date}
             ret_array.append(activity)
+        if ret_array:
+            ret_array = sorted(ret_array, key=lambda x: x['date'], reverse=True)
         return ret_array
 
     def get_medias_count(self):

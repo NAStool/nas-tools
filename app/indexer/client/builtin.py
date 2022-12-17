@@ -108,8 +108,8 @@ class BuiltinIndexer(IIndexer):
         # 不在设定搜索范围的站点过滤掉
         if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
-        # 搜索条件没有过滤规则时，非WEB搜索模式下使用站点的过滤规则
-        if in_from != SearchType.WEB and not filter_args.get("rule") and indexer.rule:
+        # 搜索条件没有过滤规则时，使用站点的过滤规则
+        if not filter_args.get("rule") and indexer.rule:
             filter_args.update({"rule": indexer.rule})
         # 计算耗时
         start_time = datetime.datetime.now()
