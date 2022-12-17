@@ -3,12 +3,13 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
+from app.utils.types import SiteSchema
 
 
-class Unit3dSiteUserInfo(ISiteUserInfo):
-    _site_schema = "Unit3d"
+class Unit3dSiteUserInfo(_ISiteUserInfo):
+    schema = SiteSchema.Unit3d
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -28,11 +29,6 @@ class Unit3dSiteUserInfo(ISiteUserInfo):
             bonus_match = re.search(r"([\d,.]+)", bonus_text)
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
-
-        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
-                            ' or contains(@onclick, "logout")]')
-        if not logout:
-            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_site_page(self, html_text):
         # TODO
@@ -58,7 +54,8 @@ class Unit3dSiteUserInfo(ISiteUserInfo):
                                   'or contains(text(), "註冊日期") '
                                   'or contains(text(), "Registration date")]/text()')
         if join_at_text:
-            self.join_at = StringUtils.unify_datetime_str(join_at_text[0].replace('注册日期', '').replace('註冊日期', '').replace('Registration date', ''))
+            self.join_at = StringUtils.unify_datetime_str(
+                join_at_text[0].replace('注册日期', '').replace('註冊日期', '').replace('Registration date', ''))
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """
@@ -111,7 +108,8 @@ class Unit3dSiteUserInfo(ISiteUserInfo):
 
     def _parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
+                                 re.IGNORECASE)
         self.upload = StringUtils.num_filesize(upload_match.group(1).strip()) if upload_match else 0
         download_match = re.search(r"[^总子影力]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)

@@ -60,7 +60,7 @@
                     <div class="col-2 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
                       <!-- 图片 -->
                       {% if Item.poster %}
-                      <img class="rounded object-cover shadow" src="{{ Item.poster }}">
+                      <img class="rounded object-cover shadow" src="{{ Item.poster }}" alt="">
                       {% endif %}
                       <!-- 过滤条件 -->
                       {% if Item.filter.season %}
@@ -426,13 +426,14 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button onclick="javascript:search_media_advanced()" id="search_advanced_btn"
+        <button onclick="search_media_advanced()" id="search_advanced_btn"
                 class="btn btn-primary">开始搜索
         </button>
       </div>
     </div>
   </div>
 </div>
+
 <script type="text/javascript">
   // 关键字
   var search_word = "{{ SearchWord }}";
@@ -606,8 +607,8 @@
     }
     if (filter_season) {
       $(season_obj).each(function () {
-        season = $(this).attr("data-season").split(" ")[0];
-        se_key = $(this).attr("data-season").replace(" ", "");
+        let season = $(this).attr("data-season").split(" ")[0];
+        let se_key = $(this).attr("data-season").replace(" ", "");
         if ( season !== filter_season) {
           $(this).hide();
           $(`#search_se_accordion_${se_key}_${key}`).hide();

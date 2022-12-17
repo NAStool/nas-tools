@@ -20,8 +20,7 @@ from app.sites import SiteUserInfoFactory
 from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
-from app.helper import ChromeHelper, CHROME_LOCK
-from app.helper import DbHelper
+from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper, DbHelper
 from app.utils.exception_util import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 
@@ -221,12 +220,12 @@ class Sites:
         chrome = True if site_info.get("chrome") == "Y" else False
         proxy = True if site_info.get("proxy") == "Y" else False
         try:
-            site_user_info = SiteUserInfoFactory.build(url=site_url,
-                                                       site_name=site_name,
-                                                       site_cookie=site_cookie,
-                                                       ua=ua,
-                                                       emulate=chrome,
-                                                       proxy=proxy)
+            site_user_info = SiteUserInfoFactory().build(url=site_url,
+                                                         site_name=site_name,
+                                                         site_cookie=site_cookie,
+                                                         ua=ua,
+                                                         emulate=chrome,
+                                                         proxy=proxy)
             if site_user_info:
                 log.debug(f"【Sites】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -318,7 +317,7 @@ class Sites:
                 html_text = chrome.get_html()
                 if not html_text:
                     return False, "获取站点源码失败", 0
-                if self.is_signin_success(html_text):
+                if SiteHelper.is_logged_in(html_text):
                     return True, "连接成功", seconds
                 else:
                     return False, "Cookie失效", seconds
@@ -332,7 +331,7 @@ class Sites:
                                ).get_res(url=site_url)
             seconds = int((datetime.now() - start_time).microseconds / 1000)
             if res and res.status_code == 200:
-                if not self.is_signin_success(res.text):
+                if not SiteHelper.is_logged_in(res.text):
                     return False, "Cookie失效", seconds
                 else:
                     return True, "连接成功", seconds
@@ -396,7 +395,7 @@ class Sites:
                             status.append("【%s】今日已签到" % site)
                             continue
                         if not xpath_str:
-                            if self.is_signin_success(html_text):
+                            if SiteHelper.is_logged_in(html_text):
                                 log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
                                 status.append("【%s】模拟登录成功" % site)
                             else:
@@ -430,7 +429,7 @@ class Sites:
                                        proxies=proxies
                                        ).get_res(url=site_url)
                     if res and res.status_code == 200:
-                        if not self.is_signin_success(res.text):
+                        if not SiteHelper.is_logged_in(res.text):
                             log.warn(f"【Sites】{site} {checkin_text}失败，请检查cookie")
                             status.append(f"【{site}】{checkin_text}失败，请检查cookie！")
                         else:
@@ -447,15 +446,6 @@ class Sites:
                 log.error("【Sites】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
             self.message.send_site_signin_message(status)
-
-    @staticmethod
-    def is_signin_success(html_text):
-        """
-        检进是否成功进入站点而不是登录界面
-        """
-        if not html_text:
-            return False
-        return True if html_text.find("userdetails") != -1 else False
 
     def refresh_pt_date_now(self):
         """

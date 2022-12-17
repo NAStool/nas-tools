@@ -6,7 +6,7 @@ import shutil
 from lxml import etree
 
 import log
-from app.helper.sub_helper import SubHelper
+from app.helper import SubHelper
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.exception_util import ExceptionUtils
