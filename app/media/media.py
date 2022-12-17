@@ -612,7 +612,7 @@ class Media:
         """
         if not meta_info:
             return {}
-        return self.meta.get_meta_data_by_key(self.__make_cache_key(meta_info)) or {}
+        return self.meta.get_meta_data_by_key(self.__make_cache_key(meta_info))
 
     def get_media_info(self, title,
                        subtitle=None,
