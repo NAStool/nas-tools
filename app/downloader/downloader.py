@@ -167,9 +167,6 @@ class Downloader:
         # 获取种子内容，磁力链不解析
         if url.startswith("magnet:"):
             content = url
-        # 这些下载器不解析
-        elif downloader in [DownloaderType.Client115]:
-            content = url
         # HTTP协议偿试下载种子内容
         elif url.startswith("http"):
             # 获取Cookie和ua等
