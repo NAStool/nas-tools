@@ -622,317 +622,334 @@
 <div class="modal modal-blur fade" id="modal-scraper" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content border-0">
-      <div class="card">
-        <ul class="nav nav-fill nav-tabs" style="--tblr-nav-link-padding-y:0.75rem" data-bs-toggle="tabs"
+    <div class="card modal-content" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+      <div class="card-header" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+        <ul class="nav nav-fill card-header-tabs nav-tabs rounded-3" data-bs-toggle="tabs"
             role="tablist">
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
-               aria-selected="true" role="tab">元数据</a>
+               aria-selected="true" role="tab">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-square-rounded me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M12 8h.01"></path>
+                 <path d="M11 12h1v4h1"></path>
+                 <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
+              </svg>
+              元数据
+            </a>
           </li>
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
-               aria-selected="false" role="tab" tabindex="-1">图片</a>
+               aria-selected="false" role="tab" tabindex="-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <line x1="15" y1="8" x2="15.01" y2="8"></line>
+                 <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                 <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
+                 <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
+              </svg>
+              图片
+            </a>
           </li>
         </ul>
-        <div class="card-body">
-          <div class="tab-content">
-            <div class="tab-pane fade active show" id="tabs-scraper-nfo" role="tabpanel">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电影 </label>
-                    </div>
+      </div>
+      <div class="card-body">
+        <div class="tab-content">
+          <div class="tab-pane fade active show" id="tabs-scraper-nfo" role="tabpanel">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电影 </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.basic" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.movie.basic %}checked{% endif %}>
-                        <span class="form-check-label">基础信息 </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.movie.credits %}checked{% endif %}>
-                        <span class="form-check-label">演职人员 </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits_chinese" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.movie.credits_chinese %}checked{% endif %}>
-                        <span class="form-check-label">演职人员中文 </span>
-                      </label>
-                    </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.basic" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.movie.basic %}checked{% endif %}>
+                      <span class="form-check-label">基础信息 </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电视剧 </label>
-                    </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.movie.credits %}checked{% endif %}>
+                      <span class="form-check-label">演职人员 </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.basic" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.basic %}checked{% endif %}>
-                        <span class="form-check-label">基础信息 </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.credits %}checked{% endif %}>
-                        <span class="form-check-label">演职人员 </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits_chinese" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.credits_chinese %}checked{% endif %}>
-                        <span class="form-check-label">演职人员中文 </span>
-                      </label>
-                    </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.movie.credits_chinese" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.movie.credits_chinese %}checked{% endif %}>
+                      <span class="form-check-label">演职人员中文 </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电视剧-季-集 </label>
-                    </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电视剧 </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.season_basic" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.season_basic %}checked{% endif %}>
-                        <span class="form-check-label">季-基础信息 </span>
-                      </label>
-                    </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.basic" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.basic %}checked{% endif %}>
+                      <span class="form-check-label">基础信息 </span>
+                    </label>
                   </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_basic" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.episode_basic %}checked{% endif %}>
-                        <span class="form-check-label">集-基础信息 </span>
-                      </label>
-                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.credits %}checked{% endif %}>
+                      <span class="form-check-label">演职人员 </span>
+                    </label>
                   </div>
-                  <div class="col-12 col-lg-4">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_credits" {% if
-                          Config.scraper_nfo and Config.scraper_nfo.tv.episode_credits %}checked{% endif %}>
-                        <span class="form-check-label">集-演职人员 </span>
-                      </label>
-                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.credits_chinese" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.credits_chinese %}checked{% endif %}>
+                      <span class="form-check-label">演职人员中文 </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电视剧-季-集 </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.season_basic" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.season_basic %}checked{% endif %}>
+                      <span class="form-check-label">季-基础信息 </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_basic" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.episode_basic %}checked{% endif %}>
+                      <span class="form-check-label">集-基础信息 </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_nfo.tv.episode_credits" {% if
+                        Config.scraper_nfo and Config.scraper_nfo.tv.episode_credits %}checked{% endif %}>
+                      <span class="form-check-label">集-演职人员 </span>
+                    </label>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="tab-pane fade" id="tabs-scraper-pic" role="tabpanel">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电影图片 </label>
-                    </div>
+          </div>
+          <div class="tab-pane fade" id="tabs-scraper-pic" role="tabpanel">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电影图片 </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.poster" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.poster %}checked{% endif %}>
-                        <span class="form-check-label">poster </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.backdrop" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.backdrop %}checked{% endif %}>
-                        <span class="form-check-label">fanart </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.background" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.background %}checked{% endif %}>
-                        <span class="form-check-label">background </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.logo" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.logo %}checked{% endif %}>
-                        <span class="form-check-label">logo </span>
-                      </label>
-                    </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.poster" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.poster %}checked{% endif %}>
+                      <span class="form-check-label">poster </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.disc" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.disc %}checked{% endif %}>
-                        <span class="form-check-label">disc </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.banner" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.banner %}checked{% endif %}>
-                        <span class="form-check-label">banner </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.movie.thumb" {% if
-                          Config.scraper_pic and Config.scraper_pic.movie.thumb %}checked{% endif %}>
-                        <span class="form-check-label">thumb </span>
-                      </label>
-                    </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.backdrop" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.backdrop %}checked{% endif %}>
+                      <span class="form-check-label">fanart </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电视剧图片 </label>
-                    </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.background" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.background %}checked{% endif %}>
+                      <span class="form-check-label">background </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.poster" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.poster %}checked{% endif %}>
-                        <span class="form-check-label">poster </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.backdrop" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.backdrop %}checked{% endif %}>
-                        <span class="form-check-label">fanart </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.background" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.background %}checked{% endif %}>
-                        <span class="form-check-label">show </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.logo" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.logo %}checked{% endif %}>
-                        <span class="form-check-label">logo </span>
-                      </label>
-                    </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.logo" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.logo %}checked{% endif %}>
+                      <span class="form-check-label">logo </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.clearart" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.clearart %}checked{% endif %}>
-                        <span class="form-check-label">clearart </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.banner" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.banner %}checked{% endif %}>
-                        <span class="form-check-label">banner </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.thumb" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.thumb %}checked{% endif %}>
-                        <span class="form-check-label">thumb </span>
-                      </label>
-                    </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.disc" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.disc %}checked{% endif %}>
+                      <span class="form-check-label">disc </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="mb-3">
-                      <label class="form-label">电视剧-季图片 </label>
-                    </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.banner" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.banner %}checked{% endif %}>
+                      <span class="form-check-label">banner </span>
+                    </label>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_poster" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.season_poster %}checked{% endif %}>
-                        <span class="form-check-label">poster </span>
-                      </label>
-                    </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.movie.thumb" {% if
+                        Config.scraper_pic and Config.scraper_pic.movie.thumb %}checked{% endif %}>
+                      <span class="form-check-label">thumb </span>
+                    </label>
                   </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_banner" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.season_banner %}checked{% endif %}>
-                        <span class="form-check-label">banner </span>
-                      </label>
-                    </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电视剧图片 </label>
                   </div>
-                  <div class="col-12 col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check">
-                        <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_thumb" {% if
-                          Config.scraper_pic and Config.scraper_pic.tv.season_thumb %}checked{% endif %}>
-                        <span class="form-check-label">thumb </span>
-                      </label>
-                    </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.poster" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.poster %}checked{% endif %}>
+                      <span class="form-check-label">poster </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.backdrop" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.backdrop %}checked{% endif %}>
+                      <span class="form-check-label">fanart </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.background" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.background %}checked{% endif %}>
+                      <span class="form-check-label">show </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.logo" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.logo %}checked{% endif %}>
+                      <span class="form-check-label">logo </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.clearart" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.clearart %}checked{% endif %}>
+                      <span class="form-check-label">clearart </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.banner" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.banner %}checked{% endif %}>
+                      <span class="form-check-label">banner </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.thumb" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.thumb %}checked{% endif %}>
+                      <span class="form-check-label">thumb </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <div class="mb-3">
+                    <label class="form-label">电视剧-季图片 </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_poster" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.season_poster %}checked{% endif %}>
+                      <span class="form-check-label">poster </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_banner" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.season_banner %}checked{% endif %}>
+                      <span class="form-check-label">banner </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="mb-3">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" id="scraper_pic.tv.season_thumb" {% if
+                        Config.scraper_pic and Config.scraper_pic.tv.season_thumb %}checked{% endif %}>
+                      <span class="form-check-label">thumb </span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -941,8 +958,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="scraper_save_btn" href="javascript:save_scraper_config()" class="btn btn-primary">
+        <button type="button" class="btn btn-link" data-bs-dismiss="modal">取消</button>
+        <a id="scraper_save_btn" href="javascript:save_scraper_config()" class="btn btn-primary ms-auto">
           保存
         </a>
       </div>
@@ -977,26 +994,26 @@
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
-    var params = {};
+    let params = {};
     $("#" + type + " input").each(function () {
-      var key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
+      let value;
+      const key = $(this).attr("id");
+      if ($(this).attr("type") === "checkbox") {
+        value = !!$(this).prop("checked");
       } else {
-        var value = $(this).val();
+        value = $(this).val();
       }
       params[key] = value;
     });
     $("#" + type + " select").each(function () {
-      var key = $(this).attr("id");
-      var value = $(this).val();
-      params[key] = value;
+      const key = $(this).attr("id");
+      params[key] = $(this).val();
     });
-    if (type != "modal-scraper") {
+    if (type !== "modal-scraper") {
       $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
     ajax_post("update_config", params, function (ret) {
-      if (type != "modal-scraper") {
+      if (type !== "modal-scraper") {
         $("#" + type + "_btn").text("保存").attr("disabled", false);
       }
     });
