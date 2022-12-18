@@ -134,9 +134,8 @@ class Message:
         """
         if not client or not client.get('client'):
             return None
-        ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
         cname = client.get('name')
-        log.info(f"【Message】发送【{ctype_name}】消息服务【{cname}】：title={title}, text={text}")
+        log.info(f"【Message】发送消息 {cname}：title={title}, text={text}")
         if self._domain:
             if url:
                 if not url.startswith("http"):
@@ -151,7 +150,7 @@ class Message:
                                                        url=url,
                                                        user_id=user_id)
         if not state:
-            log.error(f"【Message】【{ctype_name}】消息服务【{cname}】发送失败：%s" % ret_msg)
+            log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
         return state
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
@@ -206,9 +205,7 @@ class Message:
                                                       medias=medias,
                                                       user_id=user_id)
                 if not state:
-                    ctype_name = self.MESSAGE_DICT.get('channel').get(client.get('type')).get("name")
-                    cname = client.get('name')
-                    log.error(f"【Message】发送{ctype_name}消息服务{cname}失败：%s" % ret_msg)
+                    log.error(f"【Message】{client.get('name')} 发送消息失败：%s" % ret_msg)
                 return state
         return False
 
@@ -542,6 +539,5 @@ class Message:
                                              interactive=False).send_msg(title="测试",
                                                                          text="这是一条测试消息")
         if not state:
-            ctype_name = self.MESSAGE_DICT.get('channel', {}).get(ctype, {}).get("name")
-            log.error(f"【Message】【{ctype_name}】消息服务发送测试消息失败：%s" % ret_msg)
+            log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
         return state
