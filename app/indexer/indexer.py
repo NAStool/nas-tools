@@ -50,7 +50,7 @@ class Indexer(object):
         :param page: 页码
         :param keyword: 搜索关键字
         """
-        BuiltinIndexer().list(index_id=index_id, page=page, keyword=keyword)
+        return BuiltinIndexer().list(index_id=index_id, page=page, keyword=keyword)
 
     def get_client(self):
         """
