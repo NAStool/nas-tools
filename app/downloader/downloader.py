@@ -2,7 +2,7 @@ import os
 from threading import Lock
 
 import log
-from app.downloader import Aria2, Client115, Qbittorrent, Transmission
+from app.downloader.client import Aria2, Client115, Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.helper import DbHelper, ThreadHelper
 from app.media import MetaInfo, Media

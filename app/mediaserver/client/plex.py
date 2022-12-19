@@ -4,13 +4,13 @@ from plexapi.myplex import MyPlexAccount
 
 import log
 from config import Config
-from app.mediaserver.server.server import IMediaServer
+from app.mediaserver.media_client import IMediaClient
 from app.utils.commons import singleton
 from plexapi.server import PlexServer
 
 
 @singleton
-class Plex(IMediaServer):
+class Plex(IMediaClient):
     _host = None
     _token = None
     _username = None

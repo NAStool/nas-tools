@@ -17,12 +17,13 @@ from werkzeug.security import generate_password_hash
 import log
 from app.brushtask import BrushTask
 from app.doubansync import DoubanSync
-from app.downloader import Qbittorrent, Transmission, Downloader
+from app.downloader import Downloader
+from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, DictHelper, ChromeHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
-from app.indexer import BuiltinIndexer
+from app.indexer.client import BuiltinIndexer
 from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan

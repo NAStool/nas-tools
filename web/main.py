@@ -23,7 +23,7 @@ from app.brushtask import BrushTask
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper
-from app.indexer import BuiltinIndexer
+from app.indexer.client import BuiltinIndexer
 from app.media import MetaInfo
 from app.mediaserver import WebhookEvent
 from app.message import Message
@@ -958,7 +958,7 @@ def mediaserver():
 def notification():
     MessageClients = Message().get_message_client_info()
     MESSAGE_DICT = Message().MESSAGE_DICT
-    Channels = MESSAGE_DICT.get("channel")
+    Channels = MESSAGE_DICT.get("client")
     Switchs = MESSAGE_DICT.get("switch")
     return render_template("setting/notification.html",
                            Channels=Channels,
@@ -1287,7 +1287,7 @@ def slack():
             }]
         }],
         'team': '',
-        'channel': '',
+        'client': '',
         'event_ts': '1670143568.444289',
         'channel_type': 'im'
     }
@@ -1331,7 +1331,7 @@ def slack():
         "is_app_unfurl": false
       },
       "trigger_id": "12321423423.333649436676.d8c1bb837935619ccad0f624c448ffb3",
-      "channel": {
+      "client": {
         "id": "CBR2V3XEX",
         "name": "review-updates"
       },
@@ -1372,15 +1372,15 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            channel = msg_json.get("channel")
+            channel = msg_json.get("client")
             text = msg_json.get("text")
             username = ""
         elif msg_json.get("type") == "block_actions":
-            channel = msg_json.get("channel", {}).get("id")
+            channel = msg_json.get("client", {}).get("id")
             text = msg_json.get("actions")[0].get("value")
             username = msg_json.get("user", {}).get("name")
         elif msg_json.get("type") == "event_callback":
-            channel = msg_json.get("event", {}).get("channel")
+            channel = msg_json.get("event", {}).get("client")
             text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
             username = ""
         elif msg_json.get("type") == "shortcut":

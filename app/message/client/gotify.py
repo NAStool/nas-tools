@@ -1,9 +1,9 @@
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils, StringUtils
 from app.utils.exception_util import ExceptionUtils
 
 
-class Gotify(IMessageChannel):
+class Gotify(IMessageClient):
     _server = None
     _token = None
     _priority = None

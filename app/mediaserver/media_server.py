@@ -5,7 +5,7 @@ from app.db import MediaDb
 from app.helper import ProgressHelper
 from app.utils.types import MediaServerType
 from config import Config
-from app.mediaserver import Emby, Jellyfin, Plex
+from app.mediaserver.client import Emby, Jellyfin, Plex
 
 lock = threading.Lock()
 server_lock = threading.Lock()

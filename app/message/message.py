@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
+from app.message.client import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -23,7 +23,7 @@ class Message:
 
     # 消息通知类型
     MESSAGE_DICT = {
-        "channel": {
+        "client": {
             "telegram": {"name": "Telegram", "img_url": "../static/img/telegram.png", "search_type": SearchType.TG},
             "wechat": {"name": "微信", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
             "serverchan": {"name": "Server酱", "img_url": "../static/img/serverchan.png"},
@@ -87,7 +87,7 @@ class Message:
             self._active_clients.append({
                 "name": name,
                 "type": ctype,
-                "search_type": self.MESSAGE_DICT.get('channel').get(ctype, {}).get('search_type'),
+                "search_type": self.MESSAGE_DICT.get('client').get(ctype, {}).get('search_type'),
                 "client": self.__build_client(ctype, config, interactive),
                 "config": config,
                 "switchs": switchs,

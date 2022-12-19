@@ -1,12 +1,11 @@
 from urllib.parse import urlencode
 
-import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
 from app.utils.exception_util import ExceptionUtils
 
 
-class ServerChan(IMessageChannel):
+class ServerChan(IMessageClient):
     _sckey = None
     _client_config = {}
 

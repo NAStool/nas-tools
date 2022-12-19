@@ -2,8 +2,7 @@ import json
 import threading
 from datetime import datetime
 
-import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
 from app.utils.exception_util import ExceptionUtils
 from config import DEFAULT_WECHAT_PROXY
@@ -11,7 +10,7 @@ from config import DEFAULT_WECHAT_PROXY
 lock = threading.Lock()
 
 
-class WeChat(IMessageChannel):
+class WeChat(IMessageClient):
     _instance = None
     _access_token = None
     _expires_in = None

@@ -1,4 +1,3 @@
-import json
 import re
 from threading import Lock
 
@@ -6,7 +5,7 @@ import requests
 from slack_sdk.errors import SlackApiError
 
 import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils.exception_util import ExceptionUtils
 from config import Config
 from slack_bolt import App
@@ -15,7 +14,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 lock = Lock()
 
 
-class Slack(IMessageChannel):
+class Slack(IMessageClient):
     _client_config = {}
     _interactive = False
     _ds_url = None

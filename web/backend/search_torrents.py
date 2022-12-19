@@ -3,7 +3,7 @@ import re
 import cn2an
 
 import log
-from app.indexer import Prowlarr, Jackett, BuiltinIndexer
+from app.indexer.client import Prowlarr, Jackett, BuiltinIndexer
 from app.sites import Sites
 from config import Config
 from app.message import Message

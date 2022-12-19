@@ -1,13 +1,13 @@
-from urllib.parse import urlencode
+from urllib.parse import quote_plus
 
-import log
-from app.message.channel.channel import IMessageChannel
-from app.utils import RequestUtils
+from app.message.message_client import IMessageClient
+from app.utils import RequestUtils, StringUtils
 from app.utils.exception_util import ExceptionUtils
 
 
-class IyuuMsg(IMessageChannel):
-    _token = None
+class Bark(IMessageClient):
+    _server = None
+    _apikey = None
     _client_config = {}
 
     def __init__(self, config):
@@ -16,32 +16,34 @@ class IyuuMsg(IMessageChannel):
 
     def init_config(self):
         if self._client_config:
-            self._token = self._client_config.get('token')
+            self._server = StringUtils.get_base_url(self._client_config.get('server'))
+            self._apikey = self._client_config.get('apikey')
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
-        发送爱语飞飞消息
+        发送Bark消息
         :param title: 消息标题
         :param text: 消息内容
         :param image: 未使用
         :param url: 未使用
         :param user_id: 未使用
+        :return: 发送状态、错误信息
         """
         if not title and not text:
             return False, "标题和内容不能同时为空"
-        if not self._token:
-            return False, "参数未配置"
         try:
-            sc_url = "http://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))
-            res = RequestUtils().get_res(sc_url)
+            if not self._server or not self._apikey:
+                return False, "参数未配置"
+            sc_url = "%s/%s/%s/%s" % (self._server, self._apikey, quote_plus(title), quote_plus(text))
+            res = RequestUtils().post_res(sc_url)
             if res:
                 ret_json = res.json()
-                errno = ret_json.get('errcode')
-                error = ret_json.get('errmsg')
-                if errno == 0:
-                    return True, error
+                code = ret_json['code']
+                message = ret_json['message']
+                if code == 200:
+                    return True, message
                 else:
-                    return False, error
+                    return False, message
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:

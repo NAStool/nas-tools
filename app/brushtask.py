@@ -6,7 +6,7 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.downloader import Qbittorrent, Transmission
+from app.downloader.client import Qbittorrent, Transmission
 from app.filter import Filter
 from app.helper import DbHelper, DictHelper
 from app.message import Message

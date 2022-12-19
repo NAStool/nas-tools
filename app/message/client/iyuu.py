@@ -1,17 +1,12 @@
-import time
 from urllib.parse import urlencode
 
-import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
 from app.utils.exception_util import ExceptionUtils
 
 
-class PushPlus(IMessageChannel):
+class IyuuMsg(IMessageClient):
     _token = None
-    _topic = None
-    _channel = None
-    _webhook = None
     _client_config = {}
 
     def __init__(self, config):
@@ -21,13 +16,10 @@ class PushPlus(IMessageChannel):
     def init_config(self):
         if self._client_config:
             self._token = self._client_config.get('token')
-            self._topic = self._client_config.get('topic')
-            self._channel = self._client_config.get('channel')
-            self._webhook = self._client_config.get('webhook')
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
-        发送ServerChan消息
+        发送爱语飞飞消息
         :param title: 消息标题
         :param text: 消息内容
         :param image: 未使用
@@ -36,30 +28,19 @@ class PushPlus(IMessageChannel):
         """
         if not title and not text:
             return False, "标题和内容不能同时为空"
-        if not text:
-            text = "无"
-        if not self._token or not self._channel:
+        if not self._token:
             return False, "参数未配置"
         try:
-            values = {
-                "token": self._token,
-                "channel": self._channel,
-                "topic": self._topic,
-                "webhook": self._webhook,
-                "title": title,
-                "content": text,
-                "timestamp": time.time_ns() + 60
-            }
-            sc_url = "http://www.pushplus.plus/send?%s" % urlencode(values)
+            sc_url = "http://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))
             res = RequestUtils().get_res(sc_url)
             if res:
                 ret_json = res.json()
-                code = ret_json.get("code")
-                msg = ret_json.get("msg")
-                if code == 200:
-                    return True, msg
+                errno = ret_json.get('errcode')
+                error = ret_json.get('errmsg')
+                if errno == 0:
+                    return True, error
                 else:
-                    return False, msg
+                    return False, error
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
