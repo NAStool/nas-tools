@@ -5,3 +5,4 @@ from .serverchan import ServerChan
 from .telegram import Telegram
 from .wechat import WeChat
 from .slack import Slack
+from .gotify import Gotify

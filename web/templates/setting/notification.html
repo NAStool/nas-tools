@@ -396,6 +396,32 @@
             </div>
           </div>
         </div>
+        <div id="div_client_config_gotify">
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help"
+                                                                    title="自己搭建gotify服务端, 可百度搜索搭建教程"
+                                                                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_server" class="form-control" placeholder="http://localhost:8800">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">令牌Token <span class="form-help" title="Gotify服务端APPS下创建的token"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_token" class="form-control" placeholder="APPS下创建的token">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">消息Priority <span class="form-help" title="消息通知优先级, 请填写数字(1-8), 默认: 8"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_priority" class="form-control" placeholder="8">
+              </div>
+            </div>
+          </div>
+        </div>
         <details>
           <summary class="summary">推送设置</summary>
           <div class="row mt-2">
@@ -449,6 +475,9 @@
     $("#iyuumsg_token").val('');
     $("#slack_bot_token").val('');
     $("#slack_app_token").val('');
+    $("#gotify_server").val('');
+    $("#gotify_token").val('');
+    $("#gotify_priority").val('');
     show_client_type('telegram');
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
@@ -489,6 +518,9 @@
         $("#iyuumsg_token").val('');
         $("#slack_bot_token").val('');
         $("#slack_app_token").val('');
+        $("#gotify_server").val('');
+        $("#gotify_token").val('');
+        $("#gotify_priority").val('');
         let type = ret.detail.type;
         if (type == "telegram") {
           $("#telegram_token").val(ret.detail.config.token);
@@ -521,6 +553,10 @@
         } else if (type == "slack") {
           $("#slack_bot_token").val(ret.detail.config.bot_token);
           $("#slack_app_token").val(ret.detail.config.app_token);
+        } else if (type == "gotify") {
+          $("#gotify_server").val(ret.detail.config.server);
+          $("#gotify_token").val(ret.detail.config.token);
+          $("#gotify_priority").val(ret.detail.config.priority);
         }
         show_client_type(type);
         $("#test_message_client_btn").text("测试").attr("disabled", false);
@@ -681,6 +717,28 @@
         bot_token: bot_token,
         app_token: app_token
       });
+    } else if (type == "gotify") {
+      let server = $("#gotify_server").val();
+      let token = $("#gotify_token").val();
+      let priority = $("#gotify_priority").val();
+      interactive = "0";
+      if (!server) {
+        $("#gotify_server").addClass("is-invalid");
+        return;
+      } else {
+        $("#gotify_server").removeClass("is-invalid");
+      }
+      if (!token) {
+        $("#gotify_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#gotify_token").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        server: server,
+        token: token,
+        priority: priority
+      });
     }
     let cid = $("#client_id").val();
     let name = $("#client_name").val();
@@ -808,6 +866,14 @@
       $("#div_client_name").attr('class', 'col-lg-6');
       $("#div_client_interactive").show();
       $("#type_slack").prop("checked", true);
+    } else if (type == 'gotify') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_gotify").show();
+      $("#div_client_name").attr('class', 'col-lg-6');
+      $("#div_client_interactive").show();
+      $("#type_gotify").prop("checked", true);
     }
   }
 

@@ -2013,7 +2013,7 @@ class MessageClientUpdate(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('cid', type=int, help='ID', location='form')
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
-    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）',
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）',
                         location='form', required=True)
     parser.add_argument('config', type=str, help='配置项（JSON）', location='form', required=True)
     parser.add_argument('switchs', type=list, help='开关', location='form', required=True)
@@ -2071,7 +2071,7 @@ class MessageClientInfo(ClientResource):
 @message.route('/client/test')
 class MessageClientTest(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）', location='form', required=True)
     parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
 
     @message.doc(parser=parser)
