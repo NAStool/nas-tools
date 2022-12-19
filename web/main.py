@@ -23,12 +23,11 @@ from app.brushtask import BrushTask
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper
-from app.indexer.client import BuiltinIndexer
+from app.indexer import Indexer
 from app.media import MetaInfo
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
-from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
@@ -246,7 +245,7 @@ def search():
     Count = res.get("total")
     # 站点列表
     SiteDict = {}
-    for item in Searcher().indexer.get_indexers() or []:
+    for item in Indexer().get_indexers() or []:
         SiteDict[item.name] = {
             "id": item.id,
             "name": item.name,
@@ -359,7 +358,7 @@ def sites():
 @App.route('/sitelist', methods=['POST', 'GET'])
 @login_required
 def sitelist():
-    IndexerSites = BuiltinIndexer().get_indexers(check=False, public=False)
+    IndexerSites = Indexer().get_builtin_indexers(check=False, public=False)
     return render_template("site/sitelist.html",
                            Sites=IndexerSites,
                            Count=len(IndexerSites))
@@ -928,7 +927,7 @@ def download_setting():
 @App.route('/indexer', methods=['POST', 'GET'])
 @login_required
 def indexer():
-    indexers = BuiltinIndexer().get_indexers(check=False)
+    indexers = Indexer.get_builtin_indexers(check=False)
     private_count = len([item.id for item in indexers if not item.public])
     public_count = len([item.id for item in indexers if item.public])
     return render_template("setting/indexer.html",

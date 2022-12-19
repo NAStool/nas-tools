@@ -23,7 +23,7 @@ from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, DictHelper, ChromeHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
-from app.indexer.client import BuiltinIndexer
+from app.indexer import Indexer
 from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
@@ -32,7 +32,6 @@ from app.message import Message, MessageCenter
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
-from app.searcher import Searcher
 from app.sites import Sites
 from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
@@ -2528,7 +2527,7 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = BuiltinIndexer().list(data.get("id"), data.get("page"), data.get("keyword"))
+        resources = Indexer().list_builtin_resources(data.get("id"), data.get("page"), data.get("keyword"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
@@ -3966,7 +3965,7 @@ class WebAction:
         indexers = [{
             "id": index.id,
             "name": index.name
-        } for index in Searcher().indexer.get_indexers()]
+        } for index in Indexer().get_indexers()]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod
