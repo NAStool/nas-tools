@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack
+from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -30,7 +30,8 @@ class Message:
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
             "iyuu": {"name": "爱语飞飞", "img_url": "../static/img/iyuu.png"},
-            "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK}
+            "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK},
+            "gotify": {"name": "Gotify", "img_url": "../static/img/gotify.png"},
         },
         "switch": {
             "download_start": {"name": "新增下载", "fuc_name": "download_start"},
@@ -112,6 +113,8 @@ class Message:
             return IyuuMsg(conf)
         elif ctype == "slack":
             return Slack(conf, interactive)
+        elif ctype == "gotify":
+            return Gotify(conf)
         else:
             return None
 
