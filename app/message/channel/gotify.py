@@ -38,8 +38,6 @@ class Gotify(IMessageChannel):
             if not self._server or not self._token:
                 return False, "参数未配置"
             sc_url = "%s/message?token=%s" % (self._server, self._token)
-            if text.find("文件入库失败") > -1:
-                text = "%s\r\n%s" % (text, url)
             sc_data = {
                 "title": title,
                 "message": text,
