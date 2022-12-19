@@ -19,8 +19,9 @@ class Gotify(IMessageChannel):
             self._token = self._client_config.get('token')
             try:
                 self._priority = int(self._client_config.get('priority'))
-            except:
+            except Exception as e:
                 self._priority = 8
+                ExceptionUtils.exception_traceback(e)
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
