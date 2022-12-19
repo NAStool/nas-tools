@@ -544,36 +544,36 @@
 
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
-    id = $("#userrss_id").val();
-    name = $("#userrss_name").val();
+    const id = $("#userrss_id").val();
+    const name = $("#userrss_name").val();
     if (!name) {
       $("#userrss_name").addClass("is-invalid");
       return;
     } else {
       $("#userrss_name").removeClass("is-invalid");
     }
-    interval = $("#userrss_interval").val();
+    const interval = $("#userrss_interval").val();
     if (!interval || isNaN(interval)) {
       $("#userrss_interval").addClass("is-invalid");
       return;
     } else {
       $("#userrss_interval").removeClass("is-invalid");
     }
-    address = $("#userrss_address").val();
+    const address = $("#userrss_address").val();
     if (!address) {
       $("#userrss_address").addClass("is-invalid");
       return;
     } else {
       $("#userrss_address").removeClass("is-invalid");
     }
-    parser = $("#userrss_parser").val();
+    const parser = $("#userrss_parser").val();
     if (!parser) {
       $("#userrss_parser").addClass("is-invalid");
       return;
     } else {
       $("#userrss_parser").removeClass("is-invalid");
     }
-    var params = {
+    const params = {
       id: id,
       name: name,
       address: address,
@@ -610,27 +610,27 @@
   function show_rss_articles_modal(id) {
     show_wait_process();
     ajax_post("list_rss_articles", { "id": id }, function (ret) {
-      hide_wait_process();
+      let content  ; hide_wait_process();
       $("#table-rss-articles").empty();
       if (ret.code == 0) {
-        articles = ret.data;
-        var content_th = `<thead><tr>
+        const articles = ret.data;
+        let content_th = `<thead><tr>
                           <th class="w-1"><input class="form-check-input m-0 align-middle" id="articles_check_all_btn" type="checkbox" aria-label="全选"></th>
                           <th>标题</th>
                           <th>状态</th>
                           <th>发布时间</th>
                           <th></th>
                           </tr></thead>`;
-        var content_td = '';
-        for (var i = 0; i < articles.length; i++) {
-          var article = articles[i];
-          var title = '';
-          var link = '';
-          var size = '';
-          var date = '';
-          var finish_flag = '';
+        let content_td = '';
+        for (let i = 0; i < articles.length; i++) {
+          const article = articles[i];
+          let title = '';
+          let size = '';
+          let date = '';
+          let finish_flag = '';
+          let input_checkbox = '';
           if (article.title) {
-            title_param = article.title.replace(/\'/g, "&#39;");
+            const title_param = article.title.replace(/\'/g, "&#39;");
             input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
@@ -662,7 +662,7 @@
           } else {
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
           }
-          download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">
+          let download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                               <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
@@ -670,8 +670,8 @@
                               <line x1="12" y1="4" x2="12" y2="16"></line>
                             </svg>
                           </a>`
-          var content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
-          content_tb = `<tbody>${content_td}</tbody>`;
+          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }
 
@@ -681,7 +681,7 @@
           $(".table-responsive input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
         });
       } else {
-        var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
       };
       $("#article_check_id").val(id);
@@ -691,13 +691,13 @@
 
   // 获取选中按钮
   function get_article_checked(){
-    var articles = [];
+    let articles = [];
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
-        checkid = $(this).attr("id");
+        const checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
-          title = $(`#${checkid.replace("check", "title")}`).val();
-          enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
+          const title = $(`#${checkid.replace("check", "title")}`).val();
+          const enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
           if (title || enclosure) {
             articles.push({ title: title, enclosure: enclosure })
           }
@@ -710,8 +710,8 @@
 
   // 批量处理
   function batch_articles_action(flag) {
-    var articles = get_article_checked();
-    var id = $("#article_check_id").val();
+    const articles = get_article_checked();
+    const id = $("#article_check_id").val();
     if (articles.length == 0) {
       return;
     }
@@ -753,7 +753,7 @@
 
   // 单个报文下载
   function single_article_download(id, article_id) {
-    article = [{ title: $(`#title_${article_id}`).val(), enclosure: $(`#enclosure_${article_id}`).val() }];
+    const article = [{ title: $(`#title_${article_id}`).val(), enclosure: $(`#enclosure_${article_id}`).val() }];
     articles_download(id, article);
   }
 
@@ -775,20 +775,21 @@
   function show_rss_history_modal(id) {
     show_wait_process();
     ajax_post("list_rss_history", { "id": id }, function (ret) {
+      let content;
       hide_wait_process();
       if (ret.code == 0) {
-        downloads = ret.data;
-        var content_th = `<thead><tr>
+        const downloads = ret.data;
+        let content_th = `<thead><tr>
                           <th>标题</th>
                           <th>下载器</th>
                           <th>下载时间</th>
                           </tr></thead>`;
-        var content_td = '';
-        for (var i = 0; i < downloads.length; i++) {
-          var download = downloads[i];
-          var title = '';
-          var downloader = '';
-          var date = '';
+        let content_td = '';
+        for (let i = 0; i < downloads.length; i++) {
+          const download = downloads[i];
+          let title = '';
+          let downloader = '';
+          let date = '';
           if (download.title) {
             title = `<span>${download.title}</span>`
           };
@@ -799,15 +800,14 @@
           if (download.downloader) {
             downloader = `<span class="badge me-1 mb-1" title="下载器">${download.downloader}</span>`;
           };
-          var content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td class="text-nowrap">${date}</td></tr>`;
-          content_tb = `<tbody>${content_td}</tbody>`;
+          content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td class="text-nowrap">${date}</td></tr>`;
+          let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         };
       } else {
-        var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
-      };
-      $("#table-rss-history").empty();
-      $("#table-rss-history").append(content);
+        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+      }
+      $("#table-rss-history").empty().append(content);
       $("#modal-rss-history").modal('show');
     });
   }
@@ -831,8 +831,7 @@
 
   // 单选框事件
   $('input[type=radio][name=userrss_uses]').change(function () {
-    var use = this.value;
-    show_userrss_uses(use);
+    show_userrss_uses(this.value);
   });
 
   // 自定义订阅动作 D:下载 R:订阅 S:搜索

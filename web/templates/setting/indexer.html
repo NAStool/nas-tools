@@ -222,25 +222,25 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test || false};
-    if (type != "builtin") {
+    let  params = {"test": test || false};
+    if (type !== "builtin") {
       $("#modal-" + type + " input").each(function () {
-        var key = $(this).attr("id");
-        if ($(this).attr("type") == "checkbox") {
-          var value = $(this).prop("checked") ? true : false;
+        let value;
+        const key = $(this).attr("id");
+        if ($(this).attr("type") === "checkbox") {
+          value = !!$(this).prop("checked");
         } else {
-          var value = $(this).val();
+          value = $(this).val();
         }
         params[key] = value;
       });
       $("#modal-" + type + " textarea").each(function () {
-        var key = $(this).attr("id");
-        var value = $(this).val();
-        params[key] = value;
+        const key = $(this).attr("id");
+        params[key] = $(this).val();
       });
     } else {
-      var sites = [];
-      var i = 0;
+      let sites = [];
+      let i = 0;
       $("input[name=indexer_site]").each(function () {
         if ($(this).prop("checked")) {
           sites[i] = $(this).val();
@@ -265,13 +265,14 @@
   function test_indexer_config(type) {
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
-      if (currType == "jackett") {
+      let command;
+      if (currType === "jackett") {
         command = "app.indexer.client.jackett|Jackett";
-      } else if (currType == "prowlarr") {
+      } else if (currType === "prowlarr") {
         command = "app.indexer.client.prowlarr|Prowlarr";
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           $("#" + currType + "_test_btn").text("测试成功");
         } else {
           $("#" + currType + "_test_btn").text("测试失败！");

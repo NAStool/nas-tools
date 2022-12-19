@@ -455,13 +455,14 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test || false};
+    const params = {"test": test || false};
     $("#modal-" + type + " input").each(function () {
-      var key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
+      let value;
+      const key = $(this).attr("id");
+      if ($(this).attr("type") === "checkbox") {
+        value = !!$(this).prop("checked");
       } else {
-        var value = $(this).val();
+        value = $(this).val();
       }
       params[key] = value;
     });
@@ -481,18 +482,19 @@
   function test_downloader_config(type) {
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
-      if (currType == "qbittorrent") {
+      let command;
+      if (currType === "qbittorrent") {
         command = "app.downloader.client.qbittorrent|Qbittorrent";
-      } else if (currType == "transmission") {
+      } else if (currType === "transmission") {
         command = "app.downloader.client.transmission|Transmission";
-      } else if (currType == "client115") {
+      } else if (currType === "client115") {
         command = "app.downloader.client.client115|Client115";
-      } else if (currType == "aria2") {
+      } else if (currType === "aria2") {
         command = "app.downloader.client.aria2|Aria2";
       }
 
       ajax_post("test_connection", {"command": command}, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           $("#" + currType + "_test_btn").text("测试成功");
         } else {
           $("#" + currType + "_test_btn").text("测试失败！");
@@ -508,7 +510,7 @@
 
   //获取同一行其它输入框的值
   function get_dir_item_value(obj, name) {
-    item = $(obj).parent().parent().find("[name='" + name + "']")[0];
+    let item = $(obj).parent().parent().find("[name='" + name + "']")[0];
     if (item) {
       return $(item).val();
     } else {
@@ -519,13 +521,13 @@
   //保存下载目录配置
   function save_downloaddir_config() {
     $("#modal-downloaddir").modal('hide');
-    var download_dir = [];
+    let download_dir = [];
     $("[name='save_path']").each(function () {
-      save_path = $(this).val();
-      type = get_dir_item_value(this, 'dir_type');
-      category = get_dir_item_value(this, 'dir_subtype');
-      container_path = get_dir_item_value(this, 'container_path');
-      label = get_dir_item_value(this, 'path_label');
+      let save_path = $(this).val();
+      let type = get_dir_item_value(this, 'dir_type');
+      let category = get_dir_item_value(this, 'dir_subtype');
+      let container_path = get_dir_item_value(this, 'container_path');
+      let label = get_dir_item_value(this, 'path_label');
       download_dir.push({
         "save_path": save_path,
         "type": type,
@@ -549,25 +551,25 @@
 
   //获取二级分类
   function get_categories(obj) {
-    obj_id = $(obj).attr("id");
+    let obj_id = $(obj).attr("id");
     if (!obj_id) {
       return;
     }
-    id = obj_id.replace("dir_type_", "");
-    value = $("#dir_subtype_" + id).val();
+    let id = obj_id.replace("dir_type_", "");
+    let value = $("#dir_subtype_" + id).val();
     if (!id) {
       return;
     }
     if (!$(obj).val()) {
-      $("#dir_subtype_value_" + id).empty();
-      $("#dir_subtype_value_" + id).append('<option value="" selected>全部</option>');
+      $("#dir_subtype_value_" + id).empty()
+          .append('<option value="" selected>全部</option>');
       return;
     }
     ajax_post("get_categories", {"type": $(obj).val(), "id": id, "value": value}, function (ret) {
-      $("#dir_subtype_value_" + ret.id).empty();
-      $("#dir_subtype_value_" + ret.id).append('<option value="" selected>全部</option>');
+      $("#dir_subtype_value_" + ret.id).empty()
+          .append('<option value="" selected>全部</option>');
       if (ret.category) {
-        for (var i = 0; i < ret.category.length; i++) {
+        for (let i = 0; i < ret.category.length; i++) {
           $("#dir_subtype_value_" + ret.id).append('<option value="' + ret.category[i] + '">' + ret.category[i] + '</option>');
         }
       }
@@ -586,7 +588,7 @@
 
   //添加下载目录
   function add_downloaddir() {
-    html = $("#dirdiv_template").text();
+    let html = $("#dirdiv_template").text();
     $("#dirdiv_add").before(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
     CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
     $('.filetree-folders-only').each(function () {

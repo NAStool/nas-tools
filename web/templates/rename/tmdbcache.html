@@ -287,11 +287,11 @@
 
   // 修改标题
   function modify_title() {
-    var key = $("#tmdbcache_key").val();
+    const key = $("#tmdbcache_key").val();
     if (!key) {
       return;
     }
-    var title = $("#tmdbcache_title").val();
+    const title = $("#tmdbcache_title").val();
     if (!title) {
       $("#tmdbcache_title").addClass("is-invalid");
       return;

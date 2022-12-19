@@ -160,8 +160,8 @@
     if (id == "") {
       return;
     }
-    var cmd = "del_unknown_path";
-    var data = {"id": id};
+    const cmd = "del_unknown_path";
+    const data = {"id": id};
     ajax_post(cmd, data, function (ret) {
       navmenu('unidentification');
     });
@@ -169,8 +169,8 @@
 
   //重新识别
   function re_identification(unknown_ids) {
-    var cmd = "re_identification";
-    var data = {"flag": "unknow", "ids": unknown_ids};
+    const cmd = "re_identification";
+    const data = {"flag": "unknow", "ids": unknown_ids};
     show_wait_process();
     ajax_post(cmd, data, function (ret) {
       hide_wait_process();
@@ -184,11 +184,11 @@
 
   //批量删除
   function delete_checked_unknown() {
-    var ids = [];
-    var i = 0;
+    let ids = [];
+    let i = 0;
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
-        checkid = $(this).attr("id");
+        let checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
           ids[i] = checkid.replace("check_", "");
           i = i + 1;
@@ -200,8 +200,8 @@
     }
     show_confirm_modal("是否确认删除所有选中的未识别记录？", function () {
       hide_confirm_modal();
-      var cmd = "del_unknown_path";
-      var data = {"id": ids};
+      const cmd = "del_unknown_path";
+      const data = {"id": ids};
       ajax_post(cmd, data, function (ret) {
         navmenu('unidentification');
       });
@@ -210,13 +210,13 @@
 
   //批量重新识别
   function reidentification_all() {
-    var i = 0;
-    var ids = []
+    let i = 0;
+    let ids = []
     $(".table-responsive input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
-        checkid = $(this).attr("id");
+        let checkid = $(this).attr("id");
         if (checkid && checkid.startsWith("check_")) {
-          id = checkid.replace("check_", "");
+          let id = checkid.replace("check_", "");
           ids[i] = id;
           i = i + 1;
         }

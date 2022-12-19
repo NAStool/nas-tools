@@ -221,7 +221,7 @@
     } else {
       $("#rssparser_name").removeClass("is-invalid");
     }
-    var params = {
+    const params = {
       id: $("#rssparser_id").val(),
       name: $("#rssparser_name").val(),
       type: $("#rssparser_type").val(),
@@ -238,7 +238,7 @@
   function delete_rssparser(id) {
     show_ask_modal("是否确认删除该解析器？ ", function () {
       hide_ask_modal();
-      var params = {"id": id};
+      const params = {"id": id};
       ajax_post("delete_rssparser", params, function (ret) {
         navmenu('rss_parser');
       });
