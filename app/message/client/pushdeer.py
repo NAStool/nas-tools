@@ -1,11 +1,11 @@
 from pypushdeer import PushDeer
 
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import StringUtils
 from app.utils.exception_util import ExceptionUtils
 
 
-class PushDeerChannel(IMessageChannel):
+class PushDeer(IMessageClient):
     _server = None
     _apikey = None
     _client_config = {}
