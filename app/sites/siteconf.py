@@ -378,6 +378,12 @@ class SiteConf:
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': [],
+        },
+        "jptv.club": {
+            'FREE': ["(//span/i[@Class='fas fa-star text-gold'])[1]"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["(//span[@Class='badge-extra text-green']/text())[1]"]
         }
     }
     # 公共BT站点
