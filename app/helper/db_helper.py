@@ -159,7 +159,8 @@ class DbHelper:
                 TYPE=media.type.value,
                 RATING=media.vote_average,
                 IMAGE=media.get_poster_image(),
-                STATE=state
+                STATE=state,
+                ADD_TIME=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             )
         )
 
