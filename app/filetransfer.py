@@ -605,7 +605,7 @@ class FileTransfer:
                             return False, "蓝光原盘目录已存在：%s" % ret_dir_path
                         failed_count += 1
                         continue
-                    # 文年存在
+                    # 文件存在
                     if file_exist_flag:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
