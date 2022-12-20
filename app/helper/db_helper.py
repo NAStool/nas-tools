@@ -2306,4 +2306,4 @@ class DbHelper:
         """
         查询豆瓣同步记录
         """
-        return self._db.query(DOUBANMEDIAS).all()
+        return self._db.query(DOUBANMEDIAS).order_by(DOUBANMEDIAS.ADD_TIME.desc()).all()
