@@ -191,7 +191,9 @@ class WebAction:
             "get_torrent_remove_task": self.__get_torrent_remove_task,
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
-            "auto_remove_torrents": self.__auto_remove_torrents
+            "auto_remove_torrents": self.__auto_remove_torrents,
+            "get_douban_history": self.get_douban_history,
+            "delete_douban_history": self.__delete_douban_history
         }
 
     def action(self, cmd, data=None):
@@ -4102,3 +4104,16 @@ class WebAction:
         """
         sitename = data.get("name")
         return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
+
+    def get_douban_history(self, data=None):
+        """
+        查询豆瓣同步历史
+        """
+        return {"code": 0, "result": self.dbhelper.get_douban_history()}
+
+    def __delete_douban_history(self, data):
+        """
+        删除豆瓣同步历史
+        """
+        self.dbhelper.delete_douban_history(data.get("id"))
+        return {"code": 0}

@@ -2288,3 +2288,18 @@ class DbHelper:
             CONFIG=json.dumps(config),
             NOTE=note
         ))
+
+    @DbPersist(_db)
+    def delete_douban_history(self, hid):
+        """
+        删除豆瓣同步记录
+        """
+        if not hid:
+            return
+        self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.ID == int(hid)).delete()
+
+    def get_douban_history(self):
+        """
+        查询豆瓣同步记录
+        """
+        return self._db.query(DOUBANMEDIAS).all()

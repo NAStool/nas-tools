@@ -43,6 +43,7 @@ sync = Apiv1.namespace('sync', description='目录同步')
 filterrule = Apiv1.namespace('filterrule', description='过滤规则')
 words = Apiv1.namespace('words', description='识别词')
 message = Apiv1.namespace('message', description='消息通知')
+douban = Apiv1.namespace('douban', description='豆瓣')
 
 
 class ApiResource(Resource):
@@ -2147,3 +2148,27 @@ class TorrentRemoverTaskUpdate(ClientResource):
         新增/修改自动删种任务
         """
         return WebAction().api_action(cmd='update_torrent_remove_task', data=self.parser.parse_args())
+
+
+@douban.route('/history/list')
+class DoubanHistoryList(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询豆瓣同步历史记录
+        """
+        return WebAction().api_action(cmd='get_douban_history')
+
+
+@douban.route('/history/delete')
+class DoubanHistoryDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='ID', location='form', required=True)
+
+    @douban.doc(parser=parser)
+    def post(self):
+        """
+        删除豆瓣同步历史记录
+        """
+        return WebAction().api_action(cmd='delete_douban_history', data=self.parser.parse_args())

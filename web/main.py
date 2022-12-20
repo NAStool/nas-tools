@@ -900,7 +900,11 @@ def directorysync():
 @App.route('/douban', methods=['POST', 'GET'])
 @login_required
 def douban():
-    return render_template("setting/douban.html", Config=Config().get_config())
+    DoubanHistory = WebAction().get_douban_history().get("result")
+    return render_template("setting/douban.html",
+                           Config=Config().get_config(),
+                           HistoryCount=len(DoubanHistory),
+                           DoubanHistory=DoubanHistory)
 
 
 # 下载器页面

@@ -93,6 +93,18 @@
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
+              <div class="col-auto">
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-douban-history">
+                  历史记录
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-douban-history" title="同步历史">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <polyline points="12 8 12 12 14 14"></polyline>
+                     <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+                  </svg>
+                </a>
+              </div>
               <div class="col"></div>
               <div class="col-auto">
                 <a id="douban_save_btn" href="javascript:save_douban_config()" class="btn btn-primary">
@@ -106,7 +118,98 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-douban-history" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">豆瓣历史记录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive" style="min-height: 300px">
+        <table class="table table-vcenter card-table">
+          <thead>
+          <tr>
+            <th></th>
+            <th>标题</th>
+            <th>类型</th>
+            <th>状态</th>
+            <th>添加时间</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          {% if HistoryCount > 0 %}
+            {% for Item in DoubanHistory %}
+              <tr id="douban_history_{{ Item.ID }}">
+                <td class="w-5">
+                  <span style="width: 60px">
+                      <img class="rounded" src="{{ Item.IMAGE }}"
+                           onerror="this.src='../static/img/no-image.png'"/>
+                  </span>
+                </td>
+                <td>
+                  <div>{{ Item.NAME }} ({{ Item.YEAR }})</div>
+                  {% if Item.RATING %}
+                    <div class="text-muted text-nowrap">
+                    评份：{{ Item.RATING }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {{ Item.TYPE }}
+                </td>
+                <td>
+                  {% if Item.STATE == 'DOWNLOADED' %}
+                    <span class="badge bg-green">已下载</span>
+                  {% elif Item.STATE == 'RSS' %}
+                    <span class="badge bg-blue">已订阅</span>
+                  {% else %}
+                    <span class="badge bg-orange">处理中</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <small>{{ Item.ADD_TIME or '' }}</small>
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                           height="24" viewBox="0 0 24 24" stroke-width="2"
+                           stroke="currentColor" fill="none" stroke-linecap="round"
+                           stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="12" cy="19" r="1"></circle>
+                        <circle cx="12" cy="5" r="1"></circle>
+                      </svg>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                      <a class="dropdown-item text-danger"
+                         href='javascript:delete_douban_history("{{ Item.ID }}")'>
+                        删除
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" align="center">没有数据</td>
+            </tr>
+          {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
+  // 保存设置
   function save_douban_config() {
     const params = {};
     $("#config_douban input").each(function () {
@@ -123,5 +226,13 @@
     ajax_post("update_config", params, function (ret) {
       $("#douban_save_btn").attr("disabled", false).text("保存");
     });
+  }
+
+  // 删除豆瓣历史记录
+  function delete_douban_history(id){
+    ajax_post("delete_douban_history", {"id": id}, function (ret) {
+      $("#douban_history_" + id).remove();
+    });
+
   }
 </script>
