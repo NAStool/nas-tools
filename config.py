@@ -151,8 +151,7 @@ SITE_LOGIN_XPATH = {
 WEBDRIVER_PATH = {
     "Windows": None,
     "Linux": "/usr/lib/chromium/chromedriver",
-    "Synology": "/var/packages/NASTool/target/bin/chromedriver",
-    "MACOS": "/Users/nastool/chromedriver",
+    "Synology": "/var/packages/NASTool/target/bin/chromedriver"
 }
 
 # Xvfb虚拟显示路程

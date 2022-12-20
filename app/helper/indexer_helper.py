@@ -35,7 +35,7 @@ class IndexerHelper:
                     proxy=False,
                     parser=None,
                     ua=None,
-                    render=False,
+                    render=None,
                     language=None,
                     pri=None):
         if not url:
@@ -70,7 +70,7 @@ class IndexerConf(object):
                  proxy=False,
                  parser=None,
                  ua=None,
-                 render=False,
+                 render=None,
                  builtin=True,
                  language=None,
                  pri=None):
@@ -90,7 +90,10 @@ class IndexerConf(object):
         self.proxy = proxy
         self.parser = parser
         self.ua = ua
-        self.render = render
+        if render is not None:
+            self.render = render
+        else:
+            self.render = True if self.datas.get("render") else False
         self.builtin = builtin
         self.language = language
         self.pri = pri if pri else 0
