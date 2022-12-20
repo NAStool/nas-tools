@@ -385,12 +385,6 @@ class SiteConf:
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
-        "jptv.club": {
-            'FREE': ["(//span/i[@Class='fas fa-star text-gold'])[1]"],
-            '2XFREE': [],
-            'HR': [],
-            'PEER_COUNT': ["(//span[@Class='badge-extra text-green']/text())[1]"],
-        },
         "sharkpt.net": {
             'FREE': ["//font[@class='free']"],
             '2XFREE': [],
