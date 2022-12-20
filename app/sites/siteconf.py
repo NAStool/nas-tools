@@ -390,6 +390,12 @@ class SiteConf:
             '2XFREE': [],
             'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "pt.2xfree.org": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         }
     }
     # 公共BT站点
