@@ -329,6 +329,25 @@
             </div>
           </div>
         </div>
+        <div id="div_client_config_pushdeer">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help"
+                                                                    title="自己搭建pushdeer服务端请实际配置，否则可使用：https://api2.pushdeer.com"
+                                                                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushdeer_server" class="form-control" placeholder="https://api2.pushdeer.com">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">API Key <span class="form-help" title="pushdeer客户端生成的KEY"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushdeer_apikey" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="div_client_config_pushplus">
           <div class="row">
             <div class="col-lg-3">
@@ -468,6 +487,8 @@
     $("#serverchan_sckey").val('');
     $("#bark_server").val('https://api.day.app');
     $("#bark_apikey").val('');
+    $("#pushdeer_server").val('https://api2.pushdeer.com');
+    $("#pushdeer_apikey").val('');
     $("#pushplus_token").val('');
     $("#pushplus_channel").val('WeChat');
     $("#pushplus_topic").val('');
@@ -543,6 +564,9 @@
         } else if (type === "bark") {
           $("#bark_server").val(ret.detail.config.server);
           $("#bark_apikey").val(ret.detail.config.apikey);
+        } else if (type === "pushdeer") {
+          $("#pushdeer_server").val(ret.detail.config.server);
+          $("#pushdeer_apikey").val(ret.detail.config.apikey);
         } else if (type === "pushplus") {
           $("#pushplus_token").val(ret.detail.config.token);
           $("#pushplus_channel").val(ret.detail.config.channel);
@@ -663,6 +687,26 @@
         return;
       } else {
         $("#bark_apikey").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        server: server,
+        apikey: apikey
+      });
+    } else if (type === "pushdeer") {
+      let server = $("#pushdeer_server").val();
+      let apikey = $("#pushdeer_apikey").val();
+      interactive = "0";
+      if (!server) {
+        $("#pushdeer_server").addClass("is-invalid");
+        return;
+      } else {
+        $("#pushdeer_server").removeClass("is-invalid");
+      }
+      if (!apikey) {
+        $("#pushdeer_apikey").addClass("is-invalid");
+        return;
+      } else {
+        $("#pushdeer_apikey").removeClass("is-invalid");
       }
       config = JSON.stringify({
         server: server,
@@ -840,6 +884,14 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_bark").prop("checked", true);
+    } else if (type === 'pushdeer') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_pushdeer").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_pushdeer").prop("checked", true);
     } else if (type === 'pushplus') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();

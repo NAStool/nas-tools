@@ -6,7 +6,7 @@ import log
 from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
-from app.message.client import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
+from app.message.client import Bark, IyuuMsg, PushDeerChannel, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
 from app.utils import StringUtils
 from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -28,6 +28,7 @@ class Message:
             "wechat": {"name": "微信", "img_url": "../static/img/wechat.png", "search_type": SearchType.WX},
             "serverchan": {"name": "Server酱", "img_url": "../static/img/serverchan.png"},
             "bark": {"name": "Bark", "img_url": "../static/img/bark.webp"},
+            "pushdeer": {"name": "PushDeer", "img_url": "../static/img/pushdeer.png"},
             "pushplus": {"name": "PushPlus", "img_url": "../static/img/pushplus.jpg"},
             "iyuu": {"name": "爱语飞飞", "img_url": "../static/img/iyuu.png"},
             "slack": {"name": "Slack", "img_url": "../static/img/slack.png", "search_type": SearchType.SLACK},
@@ -107,6 +108,8 @@ class Message:
             return ServerChan(conf)
         elif ctype == "bark":
             return Bark(conf)
+        elif ctype == "pushdeer":
+            return PushDeerChannel(conf)
         elif ctype == "pushplus":
             return PushPlus(conf)
         elif ctype == "iyuu":
