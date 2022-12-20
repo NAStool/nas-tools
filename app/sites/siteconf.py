@@ -113,7 +113,7 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdsky.me': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -155,7 +155,7 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.btschool.club': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -173,13 +173,13 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': [],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'springsunday.net': {
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'www.htpt.cc': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -215,7 +215,7 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdatmos.club': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -305,19 +305,19 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'piggo.me': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.0ff.cc': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'wintersakura.net': {
             'FREE': ["//font[@class='free']"],
@@ -359,13 +359,13 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': [],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'zmpt.cc': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'ihdbits.me': {
             'FREE': ["//font[@class='free']"],
@@ -377,13 +377,19 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         "jptv.club": {
             'FREE': ["(//span/i[@Class='fas fa-star text-gold'])[1]"],
             '2XFREE': [],
             'HR': [],
-            'PEER_COUNT': ["(//span[@Class='badge-extra text-green']/text())[1]"]
+            'PEER_COUNT': ["(//span[@Class='badge-extra text-green']/text())[1]"],
+        },
+        "sharkpt.net": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': [],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         }
     }
     # 公共BT站点
