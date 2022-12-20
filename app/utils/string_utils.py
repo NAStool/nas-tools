@@ -3,6 +3,7 @@ import datetime
 import random
 import re
 import time
+import dateutil.parser
 from urllib import parse
 
 from delorean import parse as delorean_parse
@@ -289,12 +290,7 @@ class StringUtils:
     def get_time_stamp(date):
         tempsTime = None
         try:
-            result = re.search(r"[\-+]\d+", date)
-            if result:
-                time_area = result.group()
-                utcdatetime = time.strptime(date, '%a, %d %b %Y %H:%M:%S ' + time_area)
-                tempsTime = time.mktime(utcdatetime)
-                tempsTime = datetime.datetime.fromtimestamp(tempsTime)
+            tempsTime = dateutil.parser.parse(date)
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         return tempsTime
