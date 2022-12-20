@@ -1,6 +1,7 @@
 import re
 import sys
 import time
+import pytz
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -689,14 +690,17 @@ class BrushTask(object):
             # 检查免费状态
             if rss_rule.get("free") == "FREE":
                 if not torrent_attr.get("free"):
+                    log.debug("【Brush】不是一个FREE资源，跳过")
                     return False
             elif rss_rule.get("free") == "2XFREE":
                 if not torrent_attr.get("2xfree"):
+                    log.debug("【Brush】不是一个2XFREE资源，跳过")
                     return False
 
             # 检查HR状态
             if rss_rule.get("hr"):
                 if torrent_attr.get("hr"):
+                    log.debug("【Brush】这是一个H&R资源，跳过")
                     return False
 
             # 检查做种人数
@@ -734,7 +738,12 @@ class BrushTask(object):
             if rss_rule.get("pubdate") and pubdate:
                 rule_pubdates = rss_rule.get("pubdate").split("#")
                 if len(rule_pubdates) >= 2 and rule_pubdates[1]:
-                    if (datetime.now() - pubdate).seconds / 3600 > float(rule_pubdates[1]):
+                    localtz=pytz.timezone('Asia/Shanghai')
+                    localnowtime=datetime.now().astimezone(localtz)
+                    localpubdate=pubdate.astimezone(localtz)
+                    log.debug('【Brush】发布时间：%s，当前时间：%s' %(localpubdate.isoformat(),localnowtime.isoformat()))
+                    if (localnowtime - localpubdate).seconds / 3600 > float(rule_pubdates[1]):
+                        log.debug("【Brush】发布时间不符合条件。")
                         return False
 
         except Exception as err:
