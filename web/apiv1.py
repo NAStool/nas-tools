@@ -232,17 +232,6 @@ class ServiceRun(ClientResource):
         return WebAction().api_action(cmd='sch', data=self.parser.parse_args())
 
 
-@service.route('/sync')
-class ServiceSync(ApiResource):
-    @staticmethod
-    def get():
-        """
-        立即运行目录同步服务（密钥认证）
-        """
-        # 返回站点信息
-        return WebAction().api_action(cmd='sch', data={"item": "sync"})
-
-
 @site.route('/statistics')
 class SiteStatistic(ApiResource):
     @staticmethod
@@ -2009,6 +1998,17 @@ class SyncDirectoryList(ClientResource):
         return WebAction().api_action(cmd='get_directorysync')
 
 
+@sync.route('/run')
+class SyncRun(ApiResource):
+    @staticmethod
+    def get():
+        """
+        立即运行目录同步服务（密钥认证）
+        """
+        # 返回站点信息
+        return WebAction().api_action(cmd='sch', data={"item": "sync"})
+
+
 @message.route('/client/update')
 class MessageClientUpdate(ClientResource):
     parser = reqparse.RequestParser()
@@ -2172,3 +2172,14 @@ class DoubanHistoryDelete(ClientResource):
         删除豆瓣同步历史记录
         """
         return WebAction().api_action(cmd='delete_douban_history', data=self.parser.parse_args())
+
+
+@douban.route('/run')
+class DoubanRun(ClientResource):
+    @staticmethod
+    def post():
+        """
+        立即同步豆瓣数据
+        """
+        # 返回站点信息
+        return WebAction().api_action(cmd='sch', data={"item": "douban"})
