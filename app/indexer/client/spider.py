@@ -54,6 +54,7 @@ class TorrentSpider(feapder.AirSpider):
     article_list = None
     fields = None
     page = 0
+    result_num = 100
     torrents_info = {}
     torrents_info_array = []
 
@@ -92,6 +93,7 @@ class TorrentSpider(feapder.AirSpider):
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
                 log.warn(f"【Spider】获取 {self.domain} cookie失败：{format(err)}")
+        self.result_num = Config().get_config('pt').get('site_search_result_num') or 100
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -479,7 +481,7 @@ class TorrentSpider(feapder.AirSpider):
             # 遍历种子html列表
             for torn in html_doc(torrents_selector):
                 self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
-                if len(self.torrents_info_array) >= 100:
+                if len(self.torrents_info_array) >= int(self.result_num):
                     break
 
         except Exception as err:
