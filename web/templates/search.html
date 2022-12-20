@@ -516,15 +516,11 @@
               {% endfor %}
             </div>
             {% endif %}
-            <div class="mt-3">
-              <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}', true)">
-                重置
-              </button>
-            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn me-auto" onclick="reset_filter(this, '{{ Item.key }}', true)">重置</button>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
       </div>
     </div>
@@ -570,9 +566,9 @@
       if (ret.code === 0) {
         navmenu(`search?s=${keyword}`);
       } else {
-        $("#search_btn").text("搜索").attr("disabled", false);
-        $("#quick_search_btn").attr("disabled", false);
-        $("#search_icon").attr("disabled", false);
+        $("#search_btn").text("搜索").removeAttr("disabled");
+        $("#quick_search_btn").removeAttr("disabled");
+        $("#search_icon").removeAttr("disabled");
         $("#search_tip_title").text("搜索失败");
         $("#search_tip_text").text("请确认名称是否正确，网络连接是否正常");
         show_fail_modal(ret.msg);
