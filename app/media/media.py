@@ -32,6 +32,7 @@ class Media:
     meta = None
     _rmt_match_mode = None
     _search_keyword = None
+    _search_tmdbweb = None
 
     def __init__(self):
         self.init_config()
@@ -69,6 +70,7 @@ class Media:
         laboratory = Config().get_config('laboratory')
         if laboratory:
             self._search_keyword = laboratory.get("search_keyword")
+            self._search_tmdbweb = laboratory.get("search_tmdbweb")
 
     @staticmethod
     def __compare_tmdb_names(file_name, tmdb_names):
@@ -678,7 +680,7 @@ class Media:
                     if not file_media_info and self._rmt_match_mode == MatchMode.NORMAL and not strict:
                         # 非严格模式下去掉年份和类型再查一次
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
-            if not file_media_info:
+            if not file_media_info and self._search_tmdbweb:
                 file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
                                                          mtype=meta_info.type)
             if not file_media_info and self._search_keyword:
@@ -826,7 +828,7 @@ class Media:
                                 # 去掉年份再查一次，有可能是年份错误
                                 file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
                                                                      search_type=meta_info.type)
-                        if not file_media_info:
+                        if not file_media_info and self._search_tmdbweb:
                             # 从网站查询
                             file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
                                                                      mtype=meta_info.type)
