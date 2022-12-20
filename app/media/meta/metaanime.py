@@ -142,6 +142,8 @@ class MetaAnime(MetaBase):
                         self.resource_pix = re.split(r'[Xx]', self.resource_pix)[-1] + "p"
                     else:
                         self.resource_pix = self.resource_pix.lower()
+                    if str(self.resource_pix).isdigit():
+                        self.resource_pix = str(self.resource_pix) + "p"
                 # 制作组/字幕组
                 self.resource_team = \
                     anitopy_info_origin.get("release_group") or \
