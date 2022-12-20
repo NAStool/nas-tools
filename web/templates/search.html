@@ -142,6 +142,13 @@
                           重置
                         </button>
                       </div>
+                      {% if SearchWord %}
+                      <div class="mt-3">
+                        <button class="btn w-100" onclick="navmenu(`medialist?s={{ SearchWord }}&t={{ OperType }}`)">
+                          返回
+                        </button>
+                      </div>
+                      {% endif %}
                     </div>
                     <div class="col">
                       <!-- 标题 -->
@@ -521,6 +528,13 @@
                 重置
               </button>
             </div>
+            {% if SearchWord %}
+            <div class="mt-3">
+              <button class="btn w-100" onclick="navmenu(`medialist?s={{ SearchWord }}&t={{ OperType }}`)">
+                返回
+              </button>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>

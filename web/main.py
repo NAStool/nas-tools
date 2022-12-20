@@ -239,6 +239,7 @@ def search():
     # 查询结果
     SearchWord = request.args.get("s")
     NeedSearch = request.args.get("f")
+    OperType = request.args.get("t")
     # 结果
     res = WebAction().get_search_result()
     SearchResults = res.get("result")
@@ -256,6 +257,7 @@ def search():
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
                            NeedSearch=NeedSearch or "",
+                           OperType=OperType,
                            Count=Count,
                            Results=SearchResults,
                            RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),

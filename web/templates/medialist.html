@@ -6,7 +6,7 @@
           <div class="col-12 col-xl-6">
             {% if OperType == 'search' %}
               <a class="card card-link card-link-pop rounded-3"
-                 href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type}}')"
+                 href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type }}', '{{ OperType }}')"
                  style="padding:0 0; overflow:hidden">
             {% else %}
               <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
@@ -40,7 +40,7 @@
             </div>
             {% if OperType != 'search' %}
               <div class="d-flex">
-                <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type}}','{{ Media.tmdb_id }}')"
+                <a href="javascript:add_medialist_rss_media('{{ Media.title }}','{{ Media.year }}','{{ Media.type }}','{{ Media.tmdb_id }}')"
                    class="card-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss me-2 text-muted"
                        width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -52,7 +52,7 @@
                   </svg>
                   订阅
                 </a>
-                <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type}}')"
+                <a href="javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type }}', '{{ OperType }}')"
                    class="card-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-2 text-muted"
                        width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -105,13 +105,13 @@
 {% endif %}
 <script type="text/javascript">
   //搜索
-  function medialist_search(tmdbid, title, type) {
+  function medialist_search(tmdbid, title, type, opertype) {
     const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
-    show_refresh_process("正在搜索 " + title + " ...");
+    show_refresh_process(`正在搜索 ${title} ...`);
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
-        navmenu('search?s=' + title)
+        navmenu(`search?s=${title}&t=${opertype}`);
       } else {
         show_fail_modal(ret.msg);
       }
