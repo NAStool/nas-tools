@@ -454,7 +454,8 @@ class Message:
                 self.__sendmsg(
                     client=client,
                     title=title,
-                    text=text
+                    text=text,
+                    url="unidentification"
                 )
 
     def send_brushtask_remove_message(self, title, text):
@@ -471,7 +472,8 @@ class Message:
                 self.__sendmsg(
                     client=client,
                     title=title,
-                    text=text
+                    text=text,
+                    url="brushtask"
                 )
 
     def send_brushtask_added_message(self, title, text):
@@ -488,7 +490,8 @@ class Message:
                 self.__sendmsg(
                     client=client,
                     title=title,
-                    text=text
+                    text=text,
+                    url="brushtask"
                 )
 
     def send_mediaserver_message(self, title, text, image):
@@ -543,7 +546,8 @@ class Message:
         state, ret_msg = self.__build_client(ctype=ctype,
                                              conf=config,
                                              interactive=False).send_msg(title="测试",
-                                                                         text="这是一条测试消息")
+                                                                         text="这是一条测试消息",
+                                                                         url="https://github.com/jxxghp/nas-tools")
         if not state:
             log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
         return state
