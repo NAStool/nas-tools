@@ -261,8 +261,8 @@
                                               {{ torrent.description or '' }}
                                             </div>
                                             <div>
-                                              {% if torrent.video_encode %}
                                               <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
+                                              {% if torrent.video_encode %}
                                               <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
                                               {% endif %}
                                               {% if torrent.reseffect %}
