@@ -608,7 +608,9 @@ class BrushTask(object):
                 if download_id and tag:
                     downloader.set_torrent_tag(tid=download_id, tag=tag)
         if not download_id:
-            log.warn("【Brush】%s 添加下载任务出错，可能原因：Cookie过期/任务已存在/触发了站点首次种子下载" % title)
+            log.warn(f"【Brush】{taskname} 添加下载任务出错：{title}，"
+                     f"可能原因：Cookie过期/任务已存在/触发了站点首次种子下载，"
+                     f"种子链接：{enclosure}")
             return False
         else:
             log.info("【Brush】成功添加下载：%s" % title)

@@ -336,7 +336,7 @@ class Message:
         发送下载失败的消息
         """
         title = "添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string())
-        text = f"种子：{item.org_string}\n错误信息：{error_msg}"
+        text = f"站点：{item.site}\n种子名称：{item.org_string}\n种子链接：{item.enclosure}\n错误信息：{error_msg}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 发送消息
