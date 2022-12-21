@@ -1,4 +1,5 @@
 import os
+import shutil
 import signal
 import sys
 import time
@@ -12,7 +13,6 @@ from app.utils.exception_utils import ExceptionUtils
 
 warnings.filterwarnings('ignore')
 
-
 # 添加第三方库入口
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
@@ -21,6 +21,18 @@ with open(os.path.join(os.path.dirname(__file__),
         sys.path.append(os.path.join(os.path.dirname(__file__),
                                      "third_party",
                                      third_party_lib.strip()).replace("\\", "/"))
+
+# 第三方代码打补丁
+shutil.copy2(os.path.join(os.path.dirname(__file__),
+                          "third_party",
+                          "_selenium.py"),
+             os.path.join(os.path.dirname(__file__),
+                          "third_party",
+                          "feapder",
+                          "feapder",
+                          "network",
+                          "downloader",
+                          "_selenium.py"))
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
@@ -144,6 +156,7 @@ def monitor_config():
         """
         配置文件变化响应
         """
+
         def __init__(self):
             FileSystemEventHandler.__init__(self)
 
@@ -183,7 +196,6 @@ start_service()
 # 监听配置文件变化
 monitor_config()
 
-
 # 本地运行
 if __name__ == '__main__':
     # Windows启动托盘
@@ -195,6 +207,7 @@ if __name__ == '__main__':
 
         sys.stdout = NullWriter()
         sys.stderr = NullWriter()
+
 
         def traystart():
             TrayIcon(homepage, log_path)
