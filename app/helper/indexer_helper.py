@@ -82,6 +82,7 @@ class IndexerConf(object):
         self.domain = self.datas.get('domain')
         self.userinfo = self.datas.get('userinfo', {})
         self.search = self.datas.get('search', {})
+        self.index = self.datas.get('index', {})
         self.torrents = self.datas.get('torrents', {})
         self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie

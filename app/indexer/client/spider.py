@@ -48,6 +48,7 @@ class TorrentSpider(feapder.AirSpider):
     keyword = None
     indexer = None
     search = None
+    index = None
     domain = None
     torrents = None
     article_list = None
@@ -64,6 +65,7 @@ class TorrentSpider(feapder.AirSpider):
         self.indexerid = indexer.id
         self.indexername = indexer.name
         self.search = indexer.search
+        self.index = indexer.index
         self.torrents = indexer.torrents
         self.render = indexer.render
         self.domain = indexer.domain
@@ -86,19 +88,49 @@ class TorrentSpider(feapder.AirSpider):
         if not self.search or not self.domain:
             self.is_complete = True
             return
+        # 种子路径
         torrentspath = self.search.get('paths', [{}])[0].get('path', '')
-        if self.page:
-            searchurl = self.domain + torrentspath + "?page=%s" % self.page
-        else:
-            searchurl = self.domain + torrentspath + "?page=0"
         if self.keyword:
+            # 关键字搜索
             if torrentspath.find("{keyword}") != -1:
-                searchurl = self.domain + torrentspath.replace("{keyword}", quote(self.keyword))
+                searchurl = self.domain + \
+                            torrentspath.replace("{keyword}", quote(self.keyword))
             else:
-                searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
-                    {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
-        elif torrentspath.find("{keyword}") != -1:
-            searchurl = self.domain + torrentspath.replace("{keyword}", "")
+                searchurl = self.domain + \
+                            torrentspath + \
+                            '?stypes=s&' + \
+                            urlencode({
+                                "search": self.keyword,
+                                "search_field": self.keyword,
+                                "keyword": self.keyword
+                            })
+        else:
+            # 列表浏览
+            if self.index:
+                # 有单独浏览路径
+                indexpath = self.index.get("path")
+                indexstart = self.index.get("start") or 0
+                if self.page is not None:
+                    if indexpath.find("{page}") != -1:
+                        searchurl = self.domain + \
+                                    indexpath.replace("{page}", str(int(self.page) + indexstart))
+                    else:
+                        searchurl = self.domain + \
+                                    indexpath + \
+                                    "?page=%s" % (indexstart + int(self.page))
+                else:
+                    searchurl = self.domain + indexpath
+            else:
+                # 复用搜索路径浏览
+                torrentspath = torrentspath.replace("{keyword}", "")
+                if torrentspath.find("{page}") != -1:
+                    searchurl = self.domain + \
+                                torrentspath.replace("{page}", str(self.page or 0))
+                else:
+                    searchurl = self.domain + \
+                                torrentspath + \
+                                "?page=%s" % (self.page or 0)
+
         yield feapder.Request(url=searchurl,
                               use_session=True,
                               render=self.render)
