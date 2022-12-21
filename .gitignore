@@ -2,8 +2,8 @@ __pycache__
 *.sock
 *.log
 *.pid
-third_party/
-test/
+/third_party/
+/test/
 test.py
 
 ### IntelliJ IDEA ###
