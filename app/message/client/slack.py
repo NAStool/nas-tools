@@ -1,4 +1,3 @@
-import json
 import re
 from threading import Lock
 
@@ -6,8 +5,8 @@ import requests
 from slack_sdk.errors import SlackApiError
 
 import log
-from app.message.channel.channel import IMessageChannel
-from app.utils.exception_util import ExceptionUtils
+from app.message.message_client import IMessageClient
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -15,7 +14,7 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 lock = Lock()
 
 
-class Slack(IMessageChannel):
+class Slack(IMessageClient):
     _client_config = {}
     _interactive = False
     _ds_url = None
@@ -31,7 +30,11 @@ class Slack(IMessageChannel):
     def init_config(self):
         self._ds_url = "http://127.0.0.1:%s/slack" % self._config.get_config("app").get("web_port")
         if self._client_config:
-            slack_app = App(token=self._client_config.get("bot_token"))
+            try:
+                slack_app = App(token=self._client_config.get("bot_token"))
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+                return
             self._client = slack_app.client
 
             # 注册消息响应

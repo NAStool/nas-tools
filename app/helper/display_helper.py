@@ -3,6 +3,7 @@ import os
 from pyvirtualdisplay import Display
 
 from app.utils.commons import singleton
+from app.utils.exception_utils import ExceptionUtils
 from config import XVFB_PATH
 
 
@@ -16,9 +17,12 @@ class DisplayHelper(object):
     def init_config(self):
         self.quit()
         if self.can_display():
-            os.environ["NASTOOL_DISPLAY"] = "YES"
-            self._display = Display(visible=False, size=(1024, 768))
-            self._display.start()
+            try:
+                self._display = Display(visible=False, size=(1024, 768))
+                self._display.start()
+                os.environ["NASTOOL_DISPLAY"] = "YES"
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
 
     def get_display(self):
         return self._display

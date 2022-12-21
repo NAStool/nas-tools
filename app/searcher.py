@@ -1,9 +1,9 @@
 import log
 from app.helper import DbHelper
+from app.indexer import Indexer
 from config import Config
 from app.message import Message
 from app.downloader import Downloader
-from app.indexer import BuiltinIndexer, Jackett, Prowlarr
 from app.media import Media
 from app.helper import ProgressHelper
 from app.utils.types import SearchType, MediaType
@@ -25,16 +25,11 @@ class Searcher:
         self.message = Message()
         self.progress = ProgressHelper()
         self.dbhelper = DbHelper()
+        self.indexer = Indexer()
         self.init_config()
 
     def init_config(self):
         self._search_auto = Config().get_config("pt").get('search_auto', True)
-        if Config().get_config("pt").get('search_indexer') == "prowlarr":
-            self.indexer = Prowlarr()
-        elif Config().get_config("pt").get('search_indexer') == "jackett":
-            self.indexer = Jackett()
-        else:
-            self.indexer = BuiltinIndexer()
 
     def search_medias(self,
                       key_word,

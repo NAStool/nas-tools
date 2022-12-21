@@ -205,6 +205,8 @@ pt:
   search_rss_interval: 1
   # 【下载优先规则】：订阅及远程搜索下载将按此优先规则选择下载资源，字典：site 站点优先、seeder做种数优先
   download_order: site
+  # 【搜索结果数量限制】：每个站点返回搜索结果的最大数量
+  site_search_result_num: 100
 
 # 【配置Jackett检索器】
 jackett:
@@ -316,6 +318,8 @@ security:
 laboratory:
   # 【识别增强】关键字猜想
   search_keyword: false
+  # 【识别增强】通过TMDB WEB检索
+  search_tmdbweb: false
   # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: true
   # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据

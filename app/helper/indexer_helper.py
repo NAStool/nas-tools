@@ -1,8 +1,8 @@
 import os.path
 import pickle
 
-from app.utils import StringUtils, RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils import StringUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 from app.utils.commons import singleton
 
@@ -35,7 +35,7 @@ class IndexerHelper:
                     proxy=False,
                     parser=None,
                     ua=None,
-                    render=False,
+                    render=None,
                     language=None,
                     pri=None):
         if not url:
@@ -45,7 +45,7 @@ class IndexerHelper:
                 continue
             if StringUtils.url_equal(indexer.get("domain"), url):
                 return IndexerConf(datas=indexer,
-                                   cookie=RequestUtils.cookie_parse(cookie),
+                                   cookie=cookie,
                                    name=name,
                                    rule=rule,
                                    public=public,
@@ -70,7 +70,7 @@ class IndexerConf(object):
                  proxy=False,
                  parser=None,
                  ua=None,
-                 render=False,
+                 render=None,
                  builtin=True,
                  language=None,
                  pri=None):
@@ -82,6 +82,7 @@ class IndexerConf(object):
         self.domain = self.datas.get('domain')
         self.userinfo = self.datas.get('userinfo', {})
         self.search = self.datas.get('search', {})
+        self.index = self.datas.get('index', {})
         self.torrents = self.datas.get('torrents', {})
         self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie
@@ -90,7 +91,10 @@ class IndexerConf(object):
         self.proxy = proxy
         self.parser = parser
         self.ua = ua
-        self.render = render
+        if render is not None:
+            self.render = render
+        else:
+            self.render = True if self.datas.get("render") else False
         self.builtin = builtin
         self.language = language
         self.pri = pri if pri else 0

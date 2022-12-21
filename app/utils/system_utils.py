@@ -5,7 +5,7 @@ import shutil
 import subprocess
 
 from app.utils import PathUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import OsType
 
 
@@ -46,7 +46,9 @@ class SystemUtils:
             return OsType.WINDOWS
         elif SystemUtils.is_synology():
             return OsType.SYNOLOGY
-        elif platform.system() == 'Darwin':
+        elif SystemUtils.is_docker():
+            return OsType.DOCKER
+        elif SystemUtils.is_macos():
             return OsType.MACOS
         else:
             return OsType.LINUX
@@ -102,6 +104,10 @@ class SystemUtils:
     @staticmethod
     def is_windows():
         return True if os.name == "nt" else False
+
+    @staticmethod
+    def is_macos():
+        return True if platform.system() == 'Darwin' else False
 
     @staticmethod
     def copy(src, dest):

@@ -3,7 +3,7 @@ import os
 from werkzeug.security import generate_password_hash
 from app.helper import DbHelper
 from app.utils import StringUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 

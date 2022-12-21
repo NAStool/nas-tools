@@ -1,12 +1,12 @@
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
-from app.indexer.indexer import IIndexer
+from app.indexer.index_client import IIndexClient
 from app.utils import RequestUtils
 from app.helper import IndexerConf
 
 
-class Prowlarr(IIndexer):
+class Prowlarr(IIndexClient):
     index_type = IndexerType.PROWLARR.value
 
     def init_config(self):

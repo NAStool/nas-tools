@@ -101,24 +101,24 @@
 <script type="text/javascript">
   // 下载控制
   function start_pt_download(id) {
-    var cmd = "pt_start";
-    var param = {"id": id};
+    const cmd = "pt_start";
+    const param = {"id": id};
     ajax_post(cmd, param, function (ret) {
       get_torrent_info(ret.id)
     });
   }
 
   function stop_pt_download(id) {
-    var cmd = "pt_stop";
-    var param = {"id": id};
+    const cmd = "pt_stop";
+    const param = {"id": id};
     ajax_post(cmd, param, function (ret) {
       get_torrent_info(ret.id)
     });
   }
 
   function remove_pt_download(id) {
-    var cmd = "pt_remove";
-    var param = {"id": id};
+    const cmd = "pt_remove";
+    const param = {"id": id};
     ajax_post(cmd, param, function (ret) {
       navmenu('downloading');
     });
@@ -126,9 +126,9 @@
 
   //更新所有种子页面信息
   function get_all_torrents_info() {
-    var cmd = "pt_info";
-    var ids = [];
-    var i = 0;
+    const cmd = "pt_info";
+    let ids = [];
+    let i = 0;
     $(".download_ids").each(function () {
       ids[i] = $(this).val();
       i++;
@@ -136,7 +136,7 @@
     if (ids.length == 0) {
       return;
     }
-    var param = {"ids": ids};
+    let param = {"ids": ids};
     ajax_post(cmd, param, function (ret) {
       if (ret.retcode == "0") {
         for (var i = 0; i < ret.torrents.length; i++) {
@@ -149,8 +149,8 @@
 
   //更新一个种子页面信息
   function get_torrent_info(id) {
-    var cmd = "pt_info";
-    var param = {"ids": id};
+    const cmd = "pt_info";
+    const param = {"ids": id};
     ajax_post(cmd, param, function (ret) {
       if (ret.retcode == "0") {
         for (var i = 0; i < ret.torrents.length; i++) {
@@ -165,8 +165,8 @@
   function update_torrent_ui(info) {
     $("#speed_text_" + info.id).text(info.speed);
     $("#progress_text_" + info.id).text(info.progress + "%");
-    $("#progress_" + info.id).attr("style", "width: " + info.progress + "%");
-    $("#progress_" + info.id).attr("aria-valuenow", info.progress);
+    $("#progress_" + info.id).attr("style", "width: " + info.progress + "%")
+        .attr("aria-valuenow", info.progress);
     if (info.state == "Stoped") {
       $("#start_btn_" + info.id).show()
       $("#stop_btn_" + info.id).hide()

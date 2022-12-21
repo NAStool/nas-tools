@@ -148,13 +148,14 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    var params = {"test": test || false};
+    let params = {"test": test || false};
     $("#modal-" + type + " input").each(function () {
-      var key = $(this).attr("id");
+      let value;
+      const key = $(this).attr("id");
       if ($(this).attr("type") == "checkbox") {
-        var value = $(this).prop("checked") ? true : false;
+        value = !!$(this).prop("checked");
       } else {
-        var value = $(this).val();
+        value = $(this).val();
       }
       params[key] = value;
     });

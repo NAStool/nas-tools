@@ -2,7 +2,7 @@ import json
 import traceback
 
 import jsonpath
-from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
+from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
 
@@ -16,7 +16,7 @@ from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType, SearchType
 from config import Config
 

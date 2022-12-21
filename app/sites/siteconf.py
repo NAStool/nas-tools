@@ -1,6 +1,12 @@
 class SiteConf:
     # 检测种子促销的站点XPATH，不在此清单的无法开启仅RSS免费种子功能
     RSS_SITE_GRAP_CONF = {
+        'jptv.club': {
+            'FREE': ["//span/i[@class='fas fa-star text-gold']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//span[@class='badge-extra text-green']"],
+        },
         'pthome.net': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
@@ -113,7 +119,7 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdsky.me': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -155,7 +161,7 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.btschool.club': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -173,13 +179,13 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': [],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'springsunday.net': {
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'www.htpt.cc': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -215,7 +221,7 @@ class SiteConf:
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdatmos.club': {
             'FREE': ["//font[@class='free'][text()='免费']"],
@@ -305,19 +311,19 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'piggo.me': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.0ff.cc': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'wintersakura.net': {
             'FREE': ["//font[@class='free']"],
@@ -359,13 +365,13 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': [],
             'HR': ["//img[@class='hitandrun']"],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'zmpt.cc': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'ihdbits.me': {
             'FREE': ["//font[@class='free']"],
@@ -377,7 +383,19 @@ class SiteConf:
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "sharkpt.net": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': [],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "pt.2xfree.org": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         }
     }
     # 公共BT站点

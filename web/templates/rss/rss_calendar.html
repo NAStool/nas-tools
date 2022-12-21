@@ -66,7 +66,7 @@
   var RssMovieItems = {{ RssMovieItems| safe }};
 
   function init_rss_movies_event() {
-    for (var i = 0; i < RssMovieItems.length; i++) {
+    for (let i = 0; i < RssMovieItems.length; i++) {
       ajax_post("movie_calendar_data",
           {"id": RssMovieItems[i].id,
             "rssid": RssMovieItems[i].rssid
@@ -91,7 +91,7 @@
   var RssTvItems = {{ RssTvItems| safe }};
 
   function init_rss_tvs_event() {
-    for (var i = 0; i < RssTvItems.length; i++) {
+    for (let i = 0; i < RssTvItems.length; i++) {
       ajax_post("tv_calendar_data", {
         "id": RssTvItems[i].id,
         "season": RssTvItems[i].season,
@@ -99,7 +99,7 @@
         "rssid": RssTvItems[i].rssid
       }, function (ret) {
         if (ret.code == 0) {
-          for (var i = 0; i < ret.events.length; i++) {
+          for (let i = 0; i < ret.events.length; i++) {
             calendar.addEvent({
               id: ret.events[i].id,
               title: ret.events[i].title,

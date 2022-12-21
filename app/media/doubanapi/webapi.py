@@ -5,7 +5,7 @@ from lxml import etree
 
 from app.utils import RequestUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 @singleton

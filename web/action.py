@@ -17,12 +17,13 @@ from werkzeug.security import generate_password_hash
 import log
 from app.brushtask import BrushTask
 from app.doubansync import DoubanSync
-from app.downloader import Qbittorrent, Transmission, Downloader
+from app.downloader import Downloader
+from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, DictHelper, ChromeHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
-from app.indexer import BuiltinIndexer
+from app.indexer import Indexer
 from app.media import Category, Media, MetaInfo, MetaBase
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
@@ -31,7 +32,6 @@ from app.message import Message, MessageCenter
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
-from app.searcher import Searcher
 from app.sites import Sites
 from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
@@ -40,7 +40,7 @@ from app.sync import Sync
 from app.sync import stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import RMT_MODES, RmtMode, OsType
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
@@ -191,7 +191,9 @@ class WebAction:
             "get_torrent_remove_task": self.__get_torrent_remove_task,
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
-            "auto_remove_torrents": self.__auto_remove_torrents
+            "auto_remove_torrents": self.__auto_remove_torrents,
+            "get_douban_history": self.get_douban_history,
+            "delete_douban_history": self.__delete_douban_history
         }
 
     def action(self, cmd, data=None):
@@ -2527,7 +2529,9 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = BuiltinIndexer().list(data.get("id"), data.get("page"), data.get("keyword"))
+        resources = Indexer().list_builtin_resources(index_id=data.get("id"),
+                                                     page=data.get("page"),
+                                                     keyword=data.get("keyword"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
@@ -3965,7 +3969,7 @@ class WebAction:
         indexers = [{
             "id": index.id,
             "name": index.name
-        } for index in Searcher().indexer.get_indexers()]
+        } for index in Indexer().get_indexers()]
         return {"code": 0, "indexers": indexers}
 
     @staticmethod
@@ -4100,3 +4104,16 @@ class WebAction:
         """
         sitename = data.get("name")
         return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
+
+    def get_douban_history(self, data=None):
+        """
+        查询豆瓣同步历史
+        """
+        return {"code": 0, "result": self.dbhelper.get_douban_history()}
+
+    def __delete_douban_history(self, data):
+        """
+        删除豆瓣同步历史
+        """
+        self.dbhelper.delete_douban_history(data.get("id"))
+        return {"code": 0}

@@ -6,7 +6,7 @@ from lxml import etree
 import log
 from app.sites.siteuserinfo._base import _ISiteUserInfo
 from app.utils import StringUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SiteSchema
 
 
@@ -58,18 +58,19 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         html = etree.HTML(html_text)
         if not html:
             return
+
+        ret = html.xpath(f'//a[contains(@href, "userdetails") and contains(@href, "{self.userid}")]//b//text()')
+        if ret:
+            self.username = str(ret[0])
+            return
+        ret = html.xpath(f'//a[contains(@href, "userdetails") and contains(@href, "{self.userid}")]//text()')
+        if ret:
+            self.username = str(ret[0])
+
         ret = html.xpath('//a[contains(@href, "userdetails")]//strong//text()')
         if ret:
             self.username = str(ret[0])
             return
-
-        ret = html.xpath('//a[contains(@href, "userdetails")]//b//text()')
-        if ret:
-            self.username = str(ret[0])
-            return
-        ret = html.xpath('//a[contains(@href, "userdetails")]//text()')
-        if ret:
-            self.username = str(ret[0])
 
     def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)

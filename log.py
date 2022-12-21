@@ -14,6 +14,7 @@ lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)
 LOG_INDEX = 0
 
+
 class Logger:
     logger = None
     __instance = {}

@@ -21,7 +21,7 @@ from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper, DbHelper
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
@@ -707,9 +707,10 @@ class Sites:
             for xpath_str in xpath_strs.get("PEER_COUNT"):
                 peer_count_dom = html.xpath(xpath_str)
                 if peer_count_dom:
-                    peer_count_str = peer_count_dom[0].text
-                    peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
-                    ret_attr["peer_count"] = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
+                    peer_count_str = ''.join(peer_count_dom[0].itertext())
+                    peer_count_str_re = [int(s) for s in peer_count_str.split() if s.isdigit()]
+                    log.debug(f"peer_count_string: {peer_count_str} , peer_count_str_re: {peer_count_str_re} ")
+                    ret_attr["peer_count"] = peer_count_str_re[0] if peer_count_str_re else 0
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         # 随机休眼后再返回

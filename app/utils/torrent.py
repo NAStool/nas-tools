@@ -3,7 +3,7 @@ import re
 import datetime
 from urllib.parse import quote
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
 from config import Config

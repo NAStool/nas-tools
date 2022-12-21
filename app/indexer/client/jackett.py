@@ -1,14 +1,14 @@
 import requests
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
-from app.indexer.indexer import IIndexer
+from app.indexer.index_client import IIndexClient
 from app.utils import RequestUtils
 from app.helper import IndexerConf
 
 
-class Jackett(IIndexer):
+class Jackett(IIndexClient):
     index_type = IndexerType.JACKETT.value
     _password = None
 

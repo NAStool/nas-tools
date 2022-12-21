@@ -8,7 +8,7 @@ from threading import Lock
 from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import WEBDRIVER_PATH
 
 CHROME_LOCK = Lock()
@@ -40,10 +40,15 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
+        # FIXME Widnows下使用浏览器内核会导致启动多份进程，暂时禁用
+        if SystemUtils.is_windows():
+            return False
+        # 指定了WebDriver路径的，如果路径不存在则不启用
         if self._executable_path \
-                and os.path.exists(self._executable_path):
-            return True
-        return False
+                and not os.path.exists(self._executable_path):
+            return False
+        # 否则自动下载WebDriver
+        return True
 
     def __get_browser(self):
         if not self.get_status():
@@ -64,7 +69,7 @@ class ChromeHelper(object):
         }
         options.add_experimental_option("prefs", prefs)
         chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
-        chrome.set_page_load_timeout(30)
+        chrome.set_page_load_timeout(10)
         return chrome
 
     def visit(self, url, ua=None, cookie=None):

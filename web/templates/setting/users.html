@@ -173,10 +173,10 @@
 
   // 新增用户
   function add_user() {
-    var name = $("#user_name").val();
-    var password = $("#user_password").val();
-    var pris = [];
-    var i = 0;
+    const name = $("#user_name").val();
+    const password = $("#user_password").val();
+    let pris = [];
+    let i = 0;
     $("input[name=user_pris]").each(function () {
       if ($(this).prop("checked")) {
         pris[i] = $(this).val();
@@ -195,11 +195,11 @@
     } else {
       $("#user_password").removeClass("is-invalid");
     }
-    if (pris.length == 0) {
+    if (pris.length === 0) {
       return;
     }
     $("#modal-user").modal('hide');
-    var params = {"oper": "add", "name": name, "password": password, "pris": pris};
+    const params = {"oper": "add", "name": name, "password": password, "pris": pris};
     ajax_post("user_manager", params, function (ret) {
       navmenu('users');
     });
@@ -207,7 +207,7 @@
 
   // 删除用户
   function delete_user(name) {
-    var params = {"oper": "del", "name": name};
+    const params = {"oper": "del", "name": name};
     ajax_post("user_manager", params, function (ret) {
       navmenu('users');
     });

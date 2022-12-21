@@ -5,14 +5,14 @@ import log
 from app.indexer.client.rarbg import Rarbg
 from app.utils.types import SearchType, IndexerType
 from config import Config
-from app.indexer.indexer import IIndexer
+from app.indexer.index_client import IIndexClient
 from app.indexer.client.spider import TorrentSpider
 from app.sites import Sites
 from app.utils import StringUtils
 from app.helper import ProgressHelper, IndexerHelper
 
 
-class BuiltinIndexer(IIndexer):
+class BuiltinIndexer(IIndexClient):
     index_type = IndexerType.BUILTIN.value
     progress = None
     sites = None
@@ -147,7 +147,7 @@ class BuiltinIndexer(IIndexer):
         indexer = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=10)
+        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=30)
 
     @staticmethod
     def __spider_search(indexer, page=None, keyword=None, timeout=20):

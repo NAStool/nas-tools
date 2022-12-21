@@ -1,7 +1,7 @@
 import re
 import cn2an
 from app.media.fanart import Fanart
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
 from app.media.category import Category
 from app.utils import StringUtils

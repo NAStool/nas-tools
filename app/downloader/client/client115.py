@@ -1,7 +1,7 @@
 import log
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.client.client import IDownloadClient
+from app.downloader.download_client import IDownloadClient
 from app.downloader.client.py115 import Py115
 
 

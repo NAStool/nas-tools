@@ -95,7 +95,7 @@ class Subscribe:
                 # 根据TMDBID查询
                 media_info = MetaInfo(title=title, mtype=mtype)
                 media_info.set_tmdb_info(media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
-                if not media_info or not media_info.tmdb_info or not tmdbid:
+                if not media_info.tmdb_info:
                     return 1, "无法查询到媒体信息", None
             else:
                 # 根据名称和年份查询

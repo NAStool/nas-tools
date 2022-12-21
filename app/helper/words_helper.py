@@ -2,7 +2,7 @@ import regex as re
 
 from app.helper import DbHelper
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 @singleton

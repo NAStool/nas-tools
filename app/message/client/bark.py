@@ -1,12 +1,11 @@
 from urllib.parse import quote_plus
 
-import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils, StringUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
-class Bark(IMessageChannel):
+class Bark(IMessageClient):
     _server = None
     _apikey = None
     _client_config = {}

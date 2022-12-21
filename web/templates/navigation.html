@@ -698,7 +698,7 @@
           <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
         </svg>
         <h3>确认</h3>
-        <div class="text-muted" id="system_confirm_message">是否确定？</div>
+        <div class="text-muted text-wrap" id="system_confirm_message" style="overflow: hidden">是否确定？</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
@@ -734,7 +734,7 @@
           <path d="M9 12l2 2l4 -4"/>
         </svg>
         <h3>成功</h3>
-        <div class="text-muted" id="system_success_action_message">操作成功！</div>
+        <div class="text-muted text-wrap" id="system_success_action_message" style="overflow: hidden">操作成功！</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
@@ -761,7 +761,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <div class="modal-title">询问</div>
-        <div id="system_ask_message">是否执行？</div>
+        <div id="system_ask_message" class="text-wrap" style="overflow: hidden">是否执行？</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -785,7 +785,7 @@
           <path d="M9 12l2 2l4 -4"/>
         </svg>
         <h3>成功</h3>
-        <div class="text-muted" id="system_success_message">成功！</div>
+        <div class="text-muted text-wrap" id="system_success_message" style="overflow: hidden">成功！</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
@@ -817,7 +817,7 @@
           <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
         </svg>
         <h3>失败</h3>
-        <div class="text-muted" id="system_fail_message" style="overflow:hidden">失败！</div>
+        <div class="text-muted text-wrap" id="system_fail_message" style="overflow:hidden">失败！</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
@@ -942,7 +942,7 @@
 <!-- 手动订阅 -->
 <div class="modal modal-blur fade" id="modal-manual-rss" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="rss_modal_title">新增订阅</h5>
@@ -1100,7 +1100,7 @@
 <!-- 手动识别 -->
 <div class="modal modal-blur fade" id="modal-media-identification" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="rename_header">手动识别</h5>

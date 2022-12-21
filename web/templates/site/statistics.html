@@ -384,9 +384,8 @@
     </div>
   </div>
   <script type="text/javascript">
-    $('#site-activity').off('shown.bs.modal');
-    $('#site-activity').on('shown.bs.modal', function (e) {
-      site_name = $('#site-activity-name').val();
+    $('#site-activity').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+      let site_name = $('#site-activity-name').val();
 
       // 单站点历史数据图
       if (typeof (chart_site_activity) != 'undefined') {
@@ -401,7 +400,7 @@
             chart_site_activity.hideLoading();
             if (ret.code == 0) {
               const colors = ['#206bc4', '#d63939', '#2fb344', '#d6b344'];
-              options_site_activity = {
+              let options_site_activity = {
                 animation: false,
                 color: colors,
                 dataset: {
@@ -618,9 +617,8 @@
       $('#site-seeding-info').modal("show");
     }
 
-    $('#site-seeding-info').off('shown.bs.modal');
-    $('#site-seeding-info').on('shown.bs.modal', function (e) {
-      site_name = $('#site-seeding-info-name').val();
+    $('#site-seeding-info').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+      let site_name = $('#site-seeding-info-name').val();
       // 做种散点图
       if (typeof (chart_seeding_info) != 'undefined') {
         chart_seeding_info.dispose();
@@ -633,7 +631,7 @@
       ajax_post("get_site_seeding_info", {"name": site_name}, function (ret) {
             chart_seeding_info.hideLoading();
             if (ret.code == 0) {
-              options_seeding_info = {
+              let options_seeding_info = {
                 large: true,
                 animation: false,
                 dataset:
@@ -715,8 +713,8 @@
       ajax_post("get_site_history", {"days": days}, function (ret) {
             chart_history.hideLoading();
             if (ret.code == 0) {
-              rotate = ret.dataset.length > 15 ? 40 : 0;
-              option_history = {
+              let rotate = ret.dataset.length > 15 ? 40 : 0;
+              let option_history = {
                 animation: false,
                 grid: {
                     left: 0,
@@ -793,7 +791,7 @@
           pie_dl.hideLoading();
           pie_ul.hideLoading();
           if (ret.code == 0) {
-            option_ul = {
+            let option_ul = {
               tooltip: {
                 trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
               },
@@ -824,7 +822,7 @@
               ]
             };
             pie_ul.setOption(option_ul)
-            option_dl = {
+            let option_dl = {
               tooltip: {
                 trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
               },

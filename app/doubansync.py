@@ -11,7 +11,7 @@ from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SearchType, MediaType
 from config import Config
 

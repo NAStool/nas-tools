@@ -262,9 +262,9 @@
 
   // 新增目录
   function add_directory_config() {
-    type = $("#path_type").val();
-    value = $("#path_str").val();
-    var params = {"oper": "add", "key": "media." + type + "_path", "value": value};
+    const type = $("#path_type").val();
+    const value = $("#path_str").val();
+    const params = {"oper": "add", "key": "media." + type + "_path", "value": value};
     $("#modal-dirctory").modal('hide');
     ajax_post("update_directory", params, function (ret) {
       navmenu('library');
@@ -273,7 +273,7 @@
 
   // 删除目录
   function sub_directory_config(type, value) {
-    var params = {"oper": "sub", "key": "media." + type + "_path", "value": value};
+    const params = {"oper": "sub", "key": "media." + type + "_path", "value": value};
     ajax_post("update_directory", params, function (ret) {
       navmenu('library');
     });

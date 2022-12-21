@@ -189,7 +189,7 @@
 {% endif %}
 <div class="modal modal-blur fade" id="modal-add-filterrule" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modal-filterrule-title">新增规则</h5>
@@ -197,7 +197,7 @@
         <input type="hidden" id="filtergroup_id"/>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="overflow-x: hidden">
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
@@ -448,8 +448,7 @@
     $("#rule_free").val('');
     $("#filterrule_close_btn").text("取消");
     $("#add_or_edit_filterrule_btn").text("新增");
-    $("#filterrule_close_btn").unbind('click');
-    $("#filterrule_close_btn").click(function () {
+    $("#filterrule_close_btn").unbind('click').click(function () {
       $("#modal-add-filterrule").modal('hide');
     });
     $("#modal-add-filterrule").modal('show');
@@ -462,20 +461,16 @@
 
   // 恢复初始规则
   function restore_filtergroup() {
-    var init_rulegroups =
-    {{ Init_RuleGroups | safe
-     }}
-    var need_init_groupid = [];
-    var i = 0;
+    let init_rulegroups = {{ Init_RuleGroups | safe }};
+    let need_init_groupid = [];
+    let i = 0;
     $("input[name=init_rulegroup]").each(function () {
       if ($(this).prop("checked")) {
         need_init_groupid[i] = $(this).val();
         i = i + 1;
       }
-      ;
     });
-    $("#restore_rulegroup_btn").text("恢复中");
-    $("#restore_rulegroup_btn").attr("disabled", true);
+    $("#restore_rulegroup_btn").text("恢复中").attr("disabled", true);
     ajax_post("restore_filtergroup", {
       "groupids": need_init_groupid,
       "init_rulegroups": init_rulegroups
@@ -506,10 +501,8 @@
         $("#rule_exclude").val(ret.info.exclude);
         $("#rule_sizelimit").val(ret.info.size);
         $("#rule_free").val(ret.info.free);
-        $("#filterrule_close_btn").text("删除");
         $("#add_or_edit_filterrule_btn").text("修改");
-        $("#filterrule_close_btn").unbind('click');
-        $("#filterrule_close_btn").click(function () {
+        $("#filterrule_close_btn").text("删除").unbind('click').click(function () {
           delete_filterrule(ret.info.id);
         });
         $("#modal-add-filterrule").modal('show');
@@ -519,19 +512,20 @@
 
   // 新增规则组
   function add_filtergroup() {
-    var name = $("#rulegroup_name").val();
+    const name = $("#rulegroup_name").val();
     if (!name) {
       $("#rulegroup_name").addClass("is-invalid");
       return;
     } else {
       $("#rulegroup_name").removeClass("is-invalid");
     }
+    let is_default;
     if ($("#rulegroup_default").prop("checked")) {
-      var is_default = 'Y';
+      is_default = 'Y';
     } else {
-      var is_default = 'N';
+      is_default = 'N';
     }
-    var params = {"name": name, "default": is_default};
+    const params = {"name": name, "default": is_default};
     ajax_post("add_filtergroup", params, function (ret) {
       if (ret.code == 0) {
         $("#modal-add-filtergroup").modal('hide');
@@ -552,19 +546,19 @@
 
   // 新增规则
   function add_filterrule() {
-    var rule_id = $("#filterrule_id").val();
-    var group_id = $("#filtergroup_id").val();
-    var rule_name = $("#rule_name").val();
-    var rule_free = $("#rule_free").val();
+    const rule_id = $("#filterrule_id").val();
+    const group_id = $("#filtergroup_id").val();
+    const rule_name = $("#rule_name").val();
+    const rule_free = $("#rule_free").val();
     if (!rule_name) {
       $("#rule_name").addClass("is-invalid");
       return;
     } else {
       $("#rule_name").removeClass("is-invalid");
     }
-    var rule_sizelimit = $("#rule_sizelimit").val();
+    const rule_sizelimit = $("#rule_sizelimit").val();
     if (rule_sizelimit) {
-      var reg = /^[0-9,]*$/;
+      const reg = /^[0-9,]*$/;
       if (!reg.test(rule_sizelimit)) {
         $("#rule_sizelimit").addClass("is-invalid");
         return;
@@ -572,7 +566,7 @@
         $("#rule_sizelimit").removeClass("is-invalid");
       }
     }
-    var params = {
+    const params = {
       rule_id: rule_id,
       group_id: group_id,
       rule_name: rule_name,
@@ -592,7 +586,7 @@
 
   // 删除规则
   function delete_filterrule(id) {
-    var params = {"id": id};
+    const params = {"id": id};
     ajax_post("del_filterrule", params, function (ret) {
       $("#modal-add-filterrule").modal('hide');
       navmenu('filterrule');
@@ -601,7 +595,7 @@
 
   // 应用规则模板
   function apply_templated(item) {
-    var rule = item.value.replace(/'/g, "\"");
+    let rule = item.value.replace(/'/g, "\"");
     rule = rule.replace(/None/g, "\"\"");
     rule = JSON.parse(rule)
     $("#rule_name").val(rule["name"]);
@@ -631,7 +625,7 @@
 
   //导入编规则组
   function import_filtergroup() {
-    content = $("#import_filtergroup_code").val();
+    const content = $("#import_filtergroup_code").val();
     if (!content) {
       return;
     }

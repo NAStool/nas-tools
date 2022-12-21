@@ -62,6 +62,7 @@ PyJWT==2.5.0
 pymongo==4.2.0
 PyMySQL==1.0.2
 pyperclip==1.8.2
+pypushdeer==0.0.3
 pyquery==1.4.3
 pyrsistent==0.18.1
 PySocks==1.7.1

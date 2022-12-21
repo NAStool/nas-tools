@@ -1,6 +1,6 @@
 import ipaddress
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 

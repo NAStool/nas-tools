@@ -6,10 +6,10 @@ from datetime import datetime
 import transmission_rpc
 
 import log
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.client.client import IDownloadClient
+from app.downloader.download_client import IDownloadClient
 
 
 class Transmission(IDownloadClient):

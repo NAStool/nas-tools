@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 class JsonUtils:

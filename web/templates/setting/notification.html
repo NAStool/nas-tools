@@ -141,7 +141,7 @@
 </div>
 <div class="modal modal-blur fade" id="modal-message-client" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="client_modal_title"></h5>
@@ -329,6 +329,25 @@
             </div>
           </div>
         </div>
+        <div id="div_client_config_pushdeer">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help"
+                                                                    title="自己搭建pushdeer服务端请实际配置，否则可使用：https://api2.pushdeer.com"
+                                                                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushdeer_server" class="form-control" placeholder="https://api2.pushdeer.com">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">API Key <span class="form-help" title="pushdeer客户端生成的KEY"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="pushdeer_apikey" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="div_client_config_pushplus">
           <div class="row">
             <div class="col-lg-3">
@@ -396,6 +415,32 @@
             </div>
           </div>
         </div>
+        <div id="div_client_config_gotify">
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help"
+                                                                    title="自己搭建gotify服务端, 可百度搜索搭建教程"
+                                                                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_server" class="form-control" placeholder="http://localhost:8800">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">令牌Token <span class="form-help" title="Gotify服务端APPS下创建的token"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_token" class="form-control" placeholder="APPS下创建的token">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">消息Priority <span class="form-help" title="消息通知优先级, 请填写数字(1-8), 默认: 8"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="gotify_priority" class="form-control" placeholder="8">
+              </div>
+            </div>
+          </div>
+        </div>
         <details>
           <summary class="summary">推送设置</summary>
           <div class="row mt-2">
@@ -442,6 +487,8 @@
     $("#serverchan_sckey").val('');
     $("#bark_server").val('https://api.day.app');
     $("#bark_apikey").val('');
+    $("#pushdeer_server").val('https://api2.pushdeer.com');
+    $("#pushdeer_apikey").val('');
     $("#pushplus_token").val('');
     $("#pushplus_channel").val('WeChat');
     $("#pushplus_topic").val('');
@@ -449,6 +496,9 @@
     $("#iyuumsg_token").val('');
     $("#slack_bot_token").val('');
     $("#slack_app_token").val('');
+    $("#gotify_server").val('');
+    $("#gotify_token").val('');
+    $("#gotify_priority").val('');
     show_client_type('telegram');
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
@@ -489,8 +539,11 @@
         $("#iyuumsg_token").val('');
         $("#slack_bot_token").val('');
         $("#slack_app_token").val('');
+        $("#gotify_server").val('');
+        $("#gotify_token").val('');
+        $("#gotify_priority").val('');
         let type = ret.detail.type;
-        if (type == "telegram") {
+        if (type === "telegram") {
           $("#telegram_token").val(ret.detail.config.token);
           $("#telegram_chat_id").val(ret.detail.config.chat_id);
           $("#telegram_user_ids").val(ret.detail.config.user_ids);
@@ -499,28 +552,35 @@
           } else {
             $("#telegram_webhook").prop("checked", false);
           }
-        } else if (type == "wechat") {
+        } else if (type === "wechat") {
           $("#wechat_corpid").val(ret.detail.config.corpid);
           $("#wechat_corpsecret").val(ret.detail.config.corpsecret);
           $("#wechat_agentid").val(ret.detail.config.agentid);
           $("#wechat_default_proxy").val(ret.detail.config.default_proxy);
           $("#wechat_token").val(ret.detail.config.token);
           $("#wechat_encodingAESKey").val(ret.detail.config.encodingAESKey);
-        } else if (type == "serverchan") {
+        } else if (type === "serverchan") {
           $("#serverchan_sckey").val(ret.detail.config.sckey);
-        } else if (type == "bark") {
+        } else if (type === "bark") {
           $("#bark_server").val(ret.detail.config.server);
           $("#bark_apikey").val(ret.detail.config.apikey);
-        } else if (type == "pushplus") {
+        } else if (type === "pushdeer") {
+          $("#pushdeer_server").val(ret.detail.config.server);
+          $("#pushdeer_apikey").val(ret.detail.config.apikey);
+        } else if (type === "pushplus") {
           $("#pushplus_token").val(ret.detail.config.token);
           $("#pushplus_channel").val(ret.detail.config.channel);
           $("#pushplus_topic").val(ret.detail.config.topic);
           $("#pushplus_webhook").val(ret.detail.config.webhook);
-        } else if (type == "iyuu") {
+        } else if (type === "iyuu") {
           $("#iyuumsg_token").val(ret.detail.config.token);
-        } else if (type == "slack") {
+        } else if (type === "slack") {
           $("#slack_bot_token").val(ret.detail.config.bot_token);
           $("#slack_app_token").val(ret.detail.config.app_token);
+        } else if (type === "gotify") {
+          $("#gotify_server").val(ret.detail.config.server);
+          $("#gotify_token").val(ret.detail.config.token);
+          $("#gotify_priority").val(ret.detail.config.priority);
         }
         show_client_type(type);
         $("#test_message_client_btn").text("测试").attr("disabled", false);
@@ -541,7 +601,7 @@
     let type = $('input:radio[name=client_type]:checked').val();
     let interactive = $("#client_interactive").val();
     let config = {}
-    if (type == "telegram") {
+    if (type === "telegram") {
       let token = $("#telegram_token").val();
       let chat_id = $("#telegram_chat_id").val();
       let user_ids = $("#telegram_user_ids").val();
@@ -567,7 +627,7 @@
         user_ids: user_ids,
         webhook: webhook
       });
-    } else if (type == "wechat") {
+    } else if (type === "wechat") {
       let corpid = $("#wechat_corpid").val();
       let corpsecret = $("#wechat_corpsecret").val();
       let agentid = $("#wechat_agentid").val();
@@ -600,7 +660,7 @@
         token: token,
         encodingAESKey: encodingAESKey
       });
-    } else if (type == "serverchan") {
+    } else if (type === "serverchan") {
       let sckey = $("#serverchan_sckey").val();
       interactive = "0";
       if (!sckey) {
@@ -612,7 +672,7 @@
       config = JSON.stringify({
         sckey: sckey
       });
-    } else if (type == "bark") {
+    } else if (type === "bark") {
       let server = $("#bark_server").val();
       let apikey = $("#bark_apikey").val();
       interactive = "0";
@@ -632,7 +692,27 @@
         server: server,
         apikey: apikey
       });
-    } else if (type == "pushplus") {
+    } else if (type === "pushdeer") {
+      let server = $("#pushdeer_server").val();
+      let apikey = $("#pushdeer_apikey").val();
+      interactive = "0";
+      if (!server) {
+        $("#pushdeer_server").addClass("is-invalid");
+        return;
+      } else {
+        $("#pushdeer_server").removeClass("is-invalid");
+      }
+      if (!apikey) {
+        $("#pushdeer_apikey").addClass("is-invalid");
+        return;
+      } else {
+        $("#pushdeer_apikey").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        server: server,
+        apikey: apikey
+      });
+    } else if (type === "pushplus") {
       let token = $("#pushplus_token").val();
       let channel = $("#pushplus_channel").val();
       let topic = $("#pushplus_topic").val();
@@ -650,7 +730,7 @@
         topic: topic,
         webhook: webhook
       });
-    } else if (type == "iyuu") {
+    } else if (type === "iyuu") {
       let token = $("#iyuumsg_token").val();
       interactive = "0";
       if (!token) {
@@ -662,7 +742,7 @@
       config = JSON.stringify({
         token: token
       });
-    } else if (type == "slack") {
+    } else if (type === "slack") {
       let bot_token = $("#slack_bot_token").val();
       if (!bot_token) {
         $("#slack_bot_token").addClass("is-invalid");
@@ -680,6 +760,28 @@
       config = JSON.stringify({
         bot_token: bot_token,
         app_token: app_token
+      });
+    } else if (type === "gotify") {
+      let server = $("#gotify_server").val();
+      let token = $("#gotify_token").val();
+      let priority = $("#gotify_priority").val();
+      interactive = "0";
+      if (!server) {
+        $("#gotify_server").addClass("is-invalid");
+        return;
+      } else {
+        $("#gotify_server").removeClass("is-invalid");
+      }
+      if (!token) {
+        $("#gotify_token").addClass("is-invalid");
+        return;
+      } else {
+        $("#gotify_token").removeClass("is-invalid");
+      }
+      config = JSON.stringify({
+        server: server,
+        token: token,
+        priority: priority
       });
     }
     let cid = $("#client_id").val();
@@ -701,24 +803,22 @@
       enabled: enabled,
       interactive: interactive
     };
-    if (action == "save") {
+    if (action === "save") {
       $("#add_or_edit_message_client_btn").text("保存中").attr("disabled", true);
       ajax_post("update_message_client", params, function (ret) {
         $("#modal-message-client").modal('hide');
         $("#add_or_edit_message_client_btn").attr("disabled", false);
         navmenu('notification');
       });
-    } else if (action == "test") {
+    } else if (action === "test") {
       $("#test_message_client_btn").text("测试中").attr("disabled", true);
       ajax_post("test_message_client", params, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           $("#test_message_client_btn").text("测试成功").attr("disabled", false);
         } else {
           $("#test_message_client_btn").text("测试失败").attr("disabled", false);
         }
       });
-    } else {
-      return;
     }
   }
 
@@ -728,7 +828,7 @@
     show_wait_process();
     ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked, type: type}, function (ret) {
       hide_wait_process();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         navmenu('notification');
       }
     });
@@ -752,7 +852,7 @@
 
   // 消息服务端类型
   function show_client_type(type) {
-    if (type == 'telegram') {
+    if (type === 'telegram') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -760,7 +860,7 @@
       $("#div_client_name").attr('class', 'col-lg-6');
       $("#div_client_interactive").show();
       $("#type_telegram").prop("checked", true);
-    } else if (type == 'wechat') {
+    } else if (type === 'wechat') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -768,7 +868,7 @@
       $("#div_client_name").attr('class', 'col-lg-6');
       $("#div_client_interactive").show();
       $("#type_wechat").prop("checked", true);
-    } else if (type == 'serverchan') {
+    } else if (type === 'serverchan') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -776,7 +876,7 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_serverchan").prop("checked", true);
-    } else if (type == 'bark') {
+    } else if (type === 'bark') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -784,7 +884,15 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_bark").prop("checked", true);
-    } else if (type == 'pushplus') {
+    } else if (type === 'pushdeer') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_pushdeer").show();
+      $("#div_client_name").attr('class', 'col-lg-9');
+      $("#div_client_interactive").hide();
+      $("#type_pushdeer").prop("checked", true);
+    } else if (type === 'pushplus') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -792,7 +900,7 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_pushplus").prop("checked", true);
-    } else if (type == 'iyuu') {
+    } else if (type === 'iyuu') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -800,7 +908,7 @@
       $("#div_client_name").attr('class', 'col-lg-9');
       $("#div_client_interactive").hide();
       $("#type_iyuu").prop("checked", true);
-    } else if (type == 'slack') {
+    } else if (type === 'slack') {
       $("div[id^='div_client_config']").each(function () {
         $(this).hide();
       });
@@ -808,6 +916,14 @@
       $("#div_client_name").attr('class', 'col-lg-6');
       $("#div_client_interactive").show();
       $("#type_slack").prop("checked", true);
+    } else if (type === 'gotify') {
+      $("div[id^='div_client_config']").each(function () {
+        $(this).hide();
+      });
+      $("#div_client_config_gotify").show();
+      $("#div_client_name").attr('class', 'col-lg-6');
+      $("#div_client_interactive").show();
+      $("#type_gotify").prop("checked", true);
     }
   }
 

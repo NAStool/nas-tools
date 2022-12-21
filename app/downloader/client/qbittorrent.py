@@ -8,8 +8,8 @@ from pkg_resources import parse_version as v
 
 import log
 import qbittorrentapi
-from app.downloader.client.client import IDownloadClient
-from app.utils.exception_util import ExceptionUtils
+from app.downloader.download_client import IDownloadClient
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
 

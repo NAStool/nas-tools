@@ -213,7 +213,7 @@
     ajax_post("get_sync_path", {sid: sid}, function (ret) {
       hide_wait_process();
       if (ret.code == 0) {
-        sync_item = ret.data;
+        let sync_item = ret.data;
         $("#directory_modal_title").text('编辑同步目录');
         $("#sync_path_id").val(sid);
         $("#from_path").val(sync_item.from);
@@ -238,17 +238,17 @@
 
   // 新增目录
   function add_or_edit_sync_path() {
-    var sid = $("#sync_path_id").val();
-    var syncmod = $("#syncmod_flag").val();
-    var from = $("#from_path").val();
+    const sid = $("#sync_path_id").val();
+    const syncmod = $("#syncmod_flag").val();
+    const from = $("#from_path").val();
     if (!from) {
       $("#from_path").addClass("is-invalid");
       return;
     } else {
       $("#from_path").removeClass("is-invalid");
     }
-    var to = $("#to_path").val();
-    var rename = $("#rename_flag").prop("checked");
+    const to = $("#to_path").val();
+    const rename = $("#rename_flag").prop("checked");
     if (!rename) {
       if (!to) {
         $("#to_path").addClass("is-invalid");
@@ -257,9 +257,9 @@
         $("#to_path").removeClass("is-invalid");
       }
     }
-    var unknown = $("#unknown_path").val();
-    var enabled = $("#enable_flag").prop("checked");
-    var params = {
+    const unknown = $("#unknown_path").val();
+    const enabled = $("#enable_flag").prop("checked");
+    const params = {
       "sid": sid,
       "from": from,
       "to": to,

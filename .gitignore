@@ -2,7 +2,6 @@ __pycache__
 *.sock
 *.log
 *.pid
-test/
 test.py
 
 ### IntelliJ IDEA ###

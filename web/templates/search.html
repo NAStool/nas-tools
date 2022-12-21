@@ -40,6 +40,18 @@
                 高级搜索
               </a>
             </div>
+            {% if SearchWord %}
+            <a href='javascript:navmenu("medialist?s={{ SearchWord }}&f=1&t=search")' class="btn btn-icon ms-1" title="返回"
+              style="border-top-left-radius:4px;border-bottom-left-radius:4px;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
+                   height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                   stroke-linecap="round"
+                   stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+              </svg>
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -249,8 +261,8 @@
                                               {{ torrent.description or '' }}
                                             </div>
                                             <div>
-                                              {% if torrent.video_encode %}
                                               <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
+                                              {% if torrent.video_encode %}
                                               <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
                                               {% endif %}
                                               {% if torrent.reseffect %}
@@ -339,7 +351,7 @@
 {% endif %}
 <div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">高级搜索</h5>
@@ -504,15 +516,11 @@
               {% endfor %}
             </div>
             {% endif %}
-            <div class="mt-3">
-              <button class="btn w-100" onclick="reset_filter(this, '{{ Item.key }}', true)">
-                重置
-              </button>
-            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn me-auto" onclick="reset_filter(this, '{{ Item.key }}', true)">重置</button>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
       </div>
     </div>
@@ -558,9 +566,9 @@
       if (ret.code === 0) {
         navmenu(`search?s=${keyword}`);
       } else {
-        $("#search_btn").text("搜索").attr("disabled", false);
-        $("#quick_search_btn").attr("disabled", false);
-        $("#search_icon").attr("disabled", false);
+        $("#search_btn").text("搜索").removeAttr("disabled");
+        $("#quick_search_btn").removeAttr("disabled");
+        $("#search_icon").removeAttr("disabled");
         $("#search_tip_title").text("搜索失败");
         $("#search_tip_text").text("请确认名称是否正确，网络连接是否正常");
         show_fail_modal(ret.msg);

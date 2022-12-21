@@ -3,8 +3,6 @@ import shutil
 from threading import Lock
 import ruamel.yaml
 
-from app.utils.exception_util import ExceptionUtils
-
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/rss RSS下载
@@ -151,10 +149,8 @@ SITE_LOGIN_XPATH = {
 
 # WebDriver路径
 WEBDRIVER_PATH = {
-    "Windows": None,
-    "Linux": "/usr/lib/chromium/chromedriver",
-    "Synology": "/var/packages/NASTool/target/bin/chromedriver",
-    "MACOS": "/Users/nastool/chromedriver",
+    "Docker": "/usr/lib/chromium/chromedriver",
+    "Synology": "/var/packages/NASTool/target/bin/chromedriver"
 }
 
 # Xvfb虚拟显示路程
@@ -207,11 +203,9 @@ class Config(object):
                     print("正在加载配置：%s" % self._config_path)
                     self._config = ruamel.yaml.YAML().load(cf)
                 except Exception as e:
-                    ExceptionUtils.exception_traceback(e)
                     print("【Config】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self._config = {}
         except Exception as err:
-            ExceptionUtils.exception_traceback(e)
             print("【Config】加载 config.yaml 配置出错：%s" % str(err))
             return False
 

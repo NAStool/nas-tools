@@ -3,18 +3,18 @@ import re
 import cn2an
 
 import log
-from app.indexer import Prowlarr, Jackett, BuiltinIndexer
-from app.sites import Sites
-from config import Config
-from app.message import Message
-from app.media.douban import DouBan
 from app.downloader import Downloader
-from app.searcher import Searcher
-from app.utils import StringUtils
-from app.media import MetaInfo, Media
 from app.helper import DbHelper, ProgressHelper
-from app.utils.types import SearchType, MediaType
+from app.indexer import Indexer
+from app.media import MetaInfo, Media
+from app.media.douban import DouBan
+from app.message import Message
+from app.searcher import Searcher
+from app.sites import Sites
 from app.subscribe import Subscribe
+from app.utils import StringUtils
+from app.utils.types import SearchType, MediaType, IndexerType
+from config import Config
 
 SEARCH_MEDIA_CACHE = {}
 SEARCH_MEDIA_TYPE = {}
@@ -265,16 +265,11 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                                                 } for site in Sites().get_sites(rss=True)])
 
         # 索引器类型
-        indexer_type = Config().get_config("pt").get("search_indexer")
-        if indexer_type == "prowlarr":
-            indexers = Prowlarr().get_indexers()
-        elif indexer_type == "jackett":
-            indexers = Jackett().get_indexers()
-        else:
-            indexers = BuiltinIndexer().get_indexers()
+        indexer_type = Indexer().get_client_type()
+        indexers = Indexer().get_indexers()
 
         # 获取字符串中可能的搜索站点列表
-        if indexer_type == "builtin":
+        if indexer_type == IndexerType.BUILTIN.value:
             search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
                 "id": indexer.name,
                 "name": indexer.name

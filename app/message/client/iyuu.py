@@ -1,13 +1,12 @@
 from urllib.parse import urlencode
 
-import log
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
-class ServerChan(IMessageChannel):
-    _sckey = None
+class IyuuMsg(IMessageClient):
+    _token = None
     _client_config = {}
 
     def __init__(self, config):
@@ -16,11 +15,11 @@ class ServerChan(IMessageChannel):
 
     def init_config(self):
         if self._client_config:
-            self._sckey = self._client_config.get('sckey')
+            self._token = self._client_config.get('token')
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
-        发送ServerChan消息
+        发送爱语飞飞消息
         :param title: 消息标题
         :param text: 消息内容
         :param image: 未使用
@@ -29,15 +28,15 @@ class ServerChan(IMessageChannel):
         """
         if not title and not text:
             return False, "标题和内容不能同时为空"
-        if not self._sckey:
+        if not self._token:
             return False, "参数未配置"
         try:
-            sc_url = "https://sctapi.ftqq.com/%s.send?%s" % (self._sckey, urlencode({"title": title, "desp": text}))
+            sc_url = "http://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))
             res = RequestUtils().get_res(sc_url)
             if res:
                 ret_json = res.json()
-                errno = ret_json.get('code')
-                error = ret_json.get('message')
+                errno = ret_json.get('errcode')
+                error = ret_json.get('errmsg')
                 if errno == 0:
                     return True, error
                 else:

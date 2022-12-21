@@ -2,10 +2,10 @@ import os
 import re
 
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.client.client import IDownloadClient
+from app.downloader.download_client import IDownloadClient
 from app.downloader.client.pyaria2 import PyAria2
 
 

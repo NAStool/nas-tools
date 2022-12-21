@@ -1,7 +1,14 @@
 from abc import ABCMeta, abstractmethod
 
 
-class IMessageChannel(metaclass=ABCMeta):
+class IMessageClient(metaclass=ABCMeta):
+
+    @abstractmethod
+    def init_config(self):
+        """
+        初始化配置
+        """
+        pass
 
     @abstractmethod
     def send_msg(self, title, text, image, url, user_id):

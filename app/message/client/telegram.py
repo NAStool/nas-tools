@@ -5,16 +5,16 @@ import requests
 
 import log
 from app.helper import ThreadHelper
-from app.message.channel.channel import IMessageChannel
+from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 lock = Lock()
 WEBHOOK_STATUS = False
 
 
-class Telegram(IMessageChannel):
+class Telegram(IMessageClient):
     _telegram_token = None
     _telegram_chat_id = None
     _webhook = None

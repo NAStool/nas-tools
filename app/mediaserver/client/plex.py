@@ -1,16 +1,16 @@
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaServerType
 from plexapi.myplex import MyPlexAccount
 
 import log
 from config import Config
-from app.mediaserver.server.server import IMediaServer
+from app.mediaserver.media_client import IMediaClient
 from app.utils.commons import singleton
 from plexapi.server import PlexServer
 
 
 @singleton
-class Plex(IMediaServer):
+class Plex(IMediaClient):
     _host = None
     _token = None
     _username = None

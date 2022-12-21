@@ -211,36 +211,36 @@
     } else {
       $("#dl_test_btn").text("测试中...");
     }
-    var dl_id = $("#dl_id").val();
-    var dl_name = $("#dl_name").val();
+    const dl_id = $("#dl_id").val();
+    const dl_name = $("#dl_name").val();
     if (!dl_name) {
       $("#dl_name").addClass("is-invalid");
       return;
     } else {
       $("#dl_name").removeClass("is-invalid");
     }
-    var dl_host = $("#dl_host").val();
+    const dl_host = $("#dl_host").val();
     if (!dl_host) {
       $("#dl_host").addClass("is-invalid");
       return;
     } else {
       $("#dl_host").removeClass("is-invalid");
     }
-    var dl_port = $("#dl_port").val();
+    const dl_port = $("#dl_port").val();
     if (!dl_port || isNaN(dl_port)) {
       $("#dl_port").addClass("is-invalid");
       return;
     } else {
       $("#dl_port").removeClass("is-invalid");
     }
-    var dl_save_dir = $("#dl_save_dir").val();
+    const dl_save_dir = $("#dl_save_dir").val();
     if (!dl_save_dir) {
       $("#dl_save_dir").addClass("is-invalid");
       return;
     } else {
       $("#dl_save_dir").removeClass("is-invalid");
     }
-    var params = {
+    const params = {
       test: test,
       id: dl_id,
       name: dl_name,
@@ -269,7 +269,7 @@
   function delete_downloader(id) {
     show_ask_modal("是否确认删除该下载器？ ", function () {
       hide_ask_modal();
-      var params = {"id": id};
+      const params = {"id": id};
       ajax_post("delete_downloader", params, function (ret) {
         navmenu('userdownloader');
       });

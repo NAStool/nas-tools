@@ -240,11 +240,11 @@
     save_config(type, function (ret) {
       let command;
       if (currType === "emby") {
-        command = "app.mediaserver.server.emby|Emby";
+        command = "app.mediaserver.client.emby|Emby";
       } else if (currType === "jellyfin") {
-        command = "app.mediaserver.server.jellyfin|Jellyfin";
+        command = "app.mediaserver.client.jellyfin|Jellyfin";
       } else if (currType === "plex") {
-        command = "app.mediaserver.server.plex|Plex";
+        command = "app.mediaserver.client.plex|Plex";
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {

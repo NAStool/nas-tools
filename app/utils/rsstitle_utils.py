@@ -1,6 +1,6 @@
 import re
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 class RssTitleUtils:

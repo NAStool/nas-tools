@@ -4,7 +4,7 @@ from xml.dom import minidom
 
 import log
 from app.media.douban import DouBan
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType

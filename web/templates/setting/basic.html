@@ -561,6 +561,17 @@
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="laboratory.search_tmdbweb" {% if
+                      Config.laboratory and Config.laboratory.search_tmdbweb %}checked{% endif %}>
+                    <span class="form-check-label">增强识别 <span class="form-help"
+                                                                  title="开启后，通过TMDB的API无法识别到媒体信息时，会尝试通过themoviedb.org网站再次搜索匹配，仅个别极端情况下有效，会大大增加识别耗时，一般情况下不建议开启"
+                                                                  data-bs-toggle="tooltip">?</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-12 col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.tmdb_cache_expire" {% if
                       Config.laboratory and Config.laboratory.tmdb_cache_expire %}checked{% endif %}>
                     <span class="form-check-label">TMDB缓存过期策略 <span class="form-help"

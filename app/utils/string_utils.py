@@ -1,14 +1,13 @@
 import bisect
-import datetime
 import random
 import re
-import time
 from urllib import parse
 
+import cn2an
+import dateutil.parser
 from delorean import parse as delorean_parse
 
-import cn2an
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
 
@@ -289,12 +288,7 @@ class StringUtils:
     def get_time_stamp(date):
         tempsTime = None
         try:
-            result = re.search(r"[\-+]\d+", date)
-            if result:
-                time_area = result.group()
-                utcdatetime = time.strptime(date, '%a, %d %b %Y %H:%M:%S ' + time_area)
-                tempsTime = time.mktime(utcdatetime)
-                tempsTime = datetime.datetime.fromtimestamp(tempsTime)
+            tempsTime = dateutil.parser.parse(date)
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         return tempsTime

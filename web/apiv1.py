@@ -43,6 +43,7 @@ sync = Apiv1.namespace('sync', description='目录同步')
 filterrule = Apiv1.namespace('filterrule', description='过滤规则')
 words = Apiv1.namespace('words', description='识别词')
 message = Apiv1.namespace('message', description='消息通知')
+douban = Apiv1.namespace('douban', description='豆瓣')
 
 
 class ApiResource(Resource):
@@ -229,17 +230,6 @@ class ServiceRun(ClientResource):
         运行服务
         """
         return WebAction().api_action(cmd='sch', data=self.parser.parse_args())
-
-
-@service.route('/sync')
-class ServiceSync(ApiResource):
-    @staticmethod
-    def get():
-        """
-        立即运行目录同步服务（密钥认证）
-        """
-        # 返回站点信息
-        return WebAction().api_action(cmd='sch', data={"item": "sync"})
 
 
 @site.route('/statistics')
@@ -2008,12 +1998,23 @@ class SyncDirectoryList(ClientResource):
         return WebAction().api_action(cmd='get_directorysync')
 
 
+@sync.route('/run')
+class SyncRun(ApiResource):
+    @staticmethod
+    def get():
+        """
+        立即运行目录同步服务（密钥认证）
+        """
+        # 返回站点信息
+        return WebAction().api_action(cmd='sch', data={"item": "sync"})
+
+
 @message.route('/client/update')
 class MessageClientUpdate(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('cid', type=int, help='ID', location='form')
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
-    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）',
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）',
                         location='form', required=True)
     parser.add_argument('config', type=str, help='配置项（JSON）', location='form', required=True)
     parser.add_argument('switchs', type=list, help='开关', location='form', required=True)
@@ -2071,7 +2072,7 @@ class MessageClientInfo(ClientResource):
 @message.route('/client/test')
 class MessageClientTest(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu）', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）', location='form', required=True)
     parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
 
     @message.doc(parser=parser)
@@ -2147,3 +2148,38 @@ class TorrentRemoverTaskUpdate(ClientResource):
         新增/修改自动删种任务
         """
         return WebAction().api_action(cmd='update_torrent_remove_task', data=self.parser.parse_args())
+
+
+@douban.route('/history/list')
+class DoubanHistoryList(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询豆瓣同步历史记录
+        """
+        return WebAction().api_action(cmd='get_douban_history')
+
+
+@douban.route('/history/delete')
+class DoubanHistoryDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=int, help='ID', location='form', required=True)
+
+    @douban.doc(parser=parser)
+    def post(self):
+        """
+        删除豆瓣同步历史记录
+        """
+        return WebAction().api_action(cmd='delete_douban_history', data=self.parser.parse_args())
+
+
+@douban.route('/run')
+class DoubanRun(ClientResource):
+    @staticmethod
+    def post():
+        """
+        立即同步豆瓣数据
+        """
+        # 返回站点信息
+        return WebAction().api_action(cmd='sch', data={"item": "douban"})

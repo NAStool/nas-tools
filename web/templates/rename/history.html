@@ -298,7 +298,7 @@
   // 搜索按钮
   $('#search_word').bind('keypress', function (event) {
     if (event.keyCode == "13") {
-      var keyword = $("#search_word").val();
+      const keyword = $("#search_word").val();
       navmenu("history?s=" + keyword);
     }
   });
@@ -322,7 +322,7 @@
 
   // 批量删除/重新识别
   function batch_check_action(flag) {
-    var logids = [];
+    let logids = [];
     $("[id^='check_']").each(function () {
       if ($(this).prop("checked")) {
         logids.push($(this).attr("id").replace("check_", ""));
@@ -335,20 +335,18 @@
       delete_history(logids, "");
     } else if (flag == "reidentification") {
       re_identification(logids);
-    } else {
-      return;
     }
   }
 
   //单条记录删除
   function single_delete_history(logid, name) {
-    var logids = [logid];
+    const logids = [logid];
     delete_history(logids, name);
   }
 
   //单条记录重新识别
   function single_re_identification_history(logid) {
-    var logids = [logid];
+    const logids = [logid];
     re_identification(logids);
   }
 

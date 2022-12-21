@@ -140,6 +140,7 @@ class DOUBANMEDIAS(Base):
     RATING = Column(Text)
     IMAGE = Column(Text)
     STATE = Column(Text)
+    ADD_TIME = Column(Text)
 
 
 class DOWNLOADHISTORY(Base):

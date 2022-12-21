@@ -41,7 +41,6 @@ class SubHelper:
         """
         搜索并解析结果
         """
-        # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if not chrome.get_status():
             log.error("【Subtitle】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")

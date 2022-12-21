@@ -159,7 +159,8 @@ class DbHelper:
                 TYPE=media.type.value,
                 RATING=media.vote_average,
                 IMAGE=media.get_poster_image(),
-                STATE=state
+                STATE=state,
+                ADD_TIME=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             )
         )
 
@@ -1991,14 +1992,17 @@ class DbHelper:
         查询自定义识别词
         """
         if wid:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid))\
+                .order_by(CUSTOMWORDS.GROUP_ID).all()
         elif gid:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).all()
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid))\
+                .order_by(CUSTOMWORDS.GROUP_ID).all()
         elif wtype and enabled is not None and regex is not None:
             return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
                                                       CUSTOMWORDS.TYPE == int(wtype),
-                                                      CUSTOMWORDS.REGEX == int(regex)).all()
-        return self._db.query(CUSTOMWORDS).all()
+                                                      CUSTOMWORDS.REGEX == int(regex))\
+                .order_by(CUSTOMWORDS.GROUP_ID).all()
+        return self._db.query(CUSTOMWORDS).all().order_by(CUSTOMWORDS.GROUP_ID)
 
     def is_custom_words_existed(self, replaced=None, front=None, back=None):
         """
@@ -2288,3 +2292,18 @@ class DbHelper:
             CONFIG=json.dumps(config),
             NOTE=note
         ))
+
+    @DbPersist(_db)
+    def delete_douban_history(self, hid):
+        """
+        删除豆瓣同步记录
+        """
+        if not hid:
+            return
+        self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.ID == int(hid)).delete()
+
+    def get_douban_history(self):
+        """
+        查询豆瓣同步记录
+        """
+        return self._db.query(DOUBANMEDIAS).order_by(DOUBANMEDIAS.ADD_TIME.desc()).all()

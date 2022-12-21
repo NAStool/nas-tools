@@ -5,7 +5,7 @@ from urllib import parse
 import requests
 
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 class Py115:
