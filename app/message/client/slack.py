@@ -30,7 +30,11 @@ class Slack(IMessageClient):
     def init_config(self):
         self._ds_url = "http://127.0.0.1:%s/slack" % self._config.get_config("app").get("web_port")
         if self._client_config:
-            slack_app = App(token=self._client_config.get("bot_token"))
+            try:
+                slack_app = App(token=self._client_config.get("bot_token"))
+            except Exception as err:
+                ExceptionUtils.exception_traceback(err)
+                return
             self._client = slack_app.client
 
             # 注册消息响应
