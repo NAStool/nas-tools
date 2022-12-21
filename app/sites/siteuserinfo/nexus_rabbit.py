@@ -2,7 +2,7 @@
 import json
 
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SiteSchema
 
 

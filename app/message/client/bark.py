@@ -2,7 +2,7 @@ from urllib.parse import quote_plus
 
 from app.message.message_client import IMessageClient
 from app.utils import RequestUtils, StringUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 class Bark(IMessageClient):

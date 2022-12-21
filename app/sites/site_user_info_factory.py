@@ -7,7 +7,7 @@ import log
 from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper
 from app.utils import RequestUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SiteSchema
 from config import Config
 

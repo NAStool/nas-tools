@@ -7,7 +7,7 @@ import zhconv
 from app.utils import StringUtils
 from app.media.meta.metabase import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
 

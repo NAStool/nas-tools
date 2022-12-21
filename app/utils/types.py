@@ -52,7 +52,8 @@ class OsType(Enum):
     WINDOWS = "Windows"
     LINUX = "Linux"
     SYNOLOGY = "Synology"
-    MACOS = "MACOS"
+    MACOS = "MacOS"
+    DOCKER = "Docker"
 
 
 class IndexerType(Enum):

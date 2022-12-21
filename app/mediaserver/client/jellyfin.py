@@ -1,7 +1,7 @@
 import re
 
 import log
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaServerType
 from config import Config
 from app.mediaserver.media_client import IMediaClient

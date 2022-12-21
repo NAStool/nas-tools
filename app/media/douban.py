@@ -5,7 +5,7 @@ from time import sleep
 import zhconv
 
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.string_utils import StringUtils
 
 import log

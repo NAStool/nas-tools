@@ -1,6 +1,6 @@
 import requests
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
 from app.indexer.index_client import IIndexClient

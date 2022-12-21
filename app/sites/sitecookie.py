@@ -11,7 +11,7 @@ from app.helper import ChromeHelper, ProgressHelper, CHROME_LOCK, DbHelper, OcrH
 from app.sites import Sites
 from app.utils import StringUtils, RequestUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import SITE_LOGIN_XPATH
 
 

@@ -40,7 +40,7 @@ from app.sync import Sync
 from app.sync import stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import RMT_MODES, RmtMode, OsType
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config

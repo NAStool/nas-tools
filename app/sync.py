@@ -8,7 +8,7 @@ from watchdog.observers.polling import PollingObserver
 
 import log
 from app.helper import DbHelper
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton

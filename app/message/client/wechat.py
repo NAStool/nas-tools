@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import DEFAULT_WECHAT_PROXY
 
 lock = threading.Lock()

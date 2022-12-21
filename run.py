@@ -8,7 +8,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from app.utils.cache_manager import ConfigLoadCache
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 warnings.filterwarnings('ignore')
 

@@ -7,7 +7,7 @@ from app.filter import Filter
 from app.utils import DomUtils, RequestUtils, StringUtils
 from app.helper import ProgressHelper
 from app.media import MetaInfo, Media
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType, SearchType
 
 

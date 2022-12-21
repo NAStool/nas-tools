@@ -21,7 +21,7 @@ from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper, DbHelper
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()

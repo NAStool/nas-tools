@@ -15,7 +15,7 @@ from app.rss import Rss
 from app.sites import Sites
 from app.utils import StringUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import BrushDeleteType, SystemDictType
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 

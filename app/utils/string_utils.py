@@ -7,7 +7,7 @@ import cn2an
 import dateutil.parser
 from delorean import parse as delorean_parse
 
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
 

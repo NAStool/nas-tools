@@ -12,7 +12,7 @@ from app.sites import Sites
 from app.subtitle import Subtitle
 from app.utils import Torrent, StringUtils, SystemUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 from config import Config, PT_TAG, RMT_MEDIAEXT
 

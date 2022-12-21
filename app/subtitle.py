@@ -9,7 +9,7 @@ import log
 from app.helper import SubHelper
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
 from app.utils.commons import singleton
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 from config import Config, RMT_SUBEXT, SITE_SUBTITLE_XPATH
 

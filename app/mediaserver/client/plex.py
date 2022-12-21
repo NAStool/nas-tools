@@ -1,4 +1,4 @@
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaServerType
 from plexapi.myplex import MyPlexAccount
 

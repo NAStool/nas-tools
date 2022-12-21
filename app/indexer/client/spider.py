@@ -8,7 +8,7 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils, SystemUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config, DEFAULT_UA, WEBDRIVER_PATH
 from feapder.utils.tools import urlencode
 from jinja2 import Template

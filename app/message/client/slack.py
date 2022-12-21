@@ -6,7 +6,7 @@ from slack_sdk.errors import SlackApiError
 
 import log
 from app.message.message_client import IMessageClient
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler

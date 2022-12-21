@@ -7,7 +7,7 @@ import log
 from app.helper import ThreadHelper
 from app.message.message_client import IMessageClient
 from app.utils import RequestUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 lock = Lock()

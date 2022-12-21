@@ -2,7 +2,7 @@ from pypushdeer import PushDeer
 
 from app.message.message_client import IMessageClient
 from app.utils import StringUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 
 
 class PushDeer(IMessageClient):

@@ -33,7 +33,7 @@ from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, WebUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import *
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
 from web.action import WebAction

@@ -149,7 +149,7 @@ SITE_LOGIN_XPATH = {
 
 # WebDriver路径
 WEBDRIVER_PATH = {
-    "Linux": "/usr/lib/chromium/chromedriver",
+    "Docker": "/usr/lib/chromium/chromedriver",
     "Synology": "/var/packages/NASTool/target/bin/chromedriver"
 }
 

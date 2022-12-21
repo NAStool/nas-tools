@@ -16,7 +16,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
-from app.utils.exception_util import ExceptionUtils
+from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
