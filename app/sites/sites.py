@@ -708,9 +708,11 @@ class Sites:
                 peer_count_dom = html.xpath(xpath_str)
                 if peer_count_dom:
                     peer_count_str = ''.join(peer_count_dom[0].itertext())
-                    peer_count_str_re = [int(s) for s in peer_count_str.split() if s.isdigit()]
-                    log.debug(f"peer_count_string: {peer_count_str} , peer_count_str_re: {peer_count_str_re} ")
-                    ret_attr["peer_count"] = peer_count_str_re[0] if peer_count_str_re else 0
+                    peer_count_digit_str = ""
+                    for m in peer_count_str:
+                        if m.isdigit(): peer_count_digit_str = peer_count_digit_str + m
+                    log.debug(f"peer_count_string: {peer_count_str} , peer_count_str_re: {peer_count_digit_str} ")
+                    ret_attr["peer_count"] = peer_count_digit_str if peer_count_digit_str else 0
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         # 随机休眼后再返回
