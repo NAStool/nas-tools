@@ -111,6 +111,8 @@ class TorrentSpider(feapder.AirSpider):
             else:
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
+        elif torrentspath.find("{keyword}") != -1:
+            searchurl = self.domain + torrentspath.replace("{keyword}", "")
         yield feapder.Request(searchurl,
                               cookies=self.cookies,
                               render=self.render,
