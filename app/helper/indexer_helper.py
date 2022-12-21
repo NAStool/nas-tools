@@ -1,7 +1,7 @@
 import os.path
 import pickle
 
-from app.utils import StringUtils, RequestUtils
+from app.utils import StringUtils
 from app.utils.exception_utils import ExceptionUtils
 from config import Config
 from app.utils.commons import singleton
@@ -45,7 +45,7 @@ class IndexerHelper:
                 continue
             if StringUtils.url_equal(indexer.get("domain"), url):
                 return IndexerConf(datas=indexer,
-                                   cookie=RequestUtils.cookie_parse(cookie),
+                                   cookie=cookie,
                                    name=name,
                                    rule=rule,
                                    public=public,

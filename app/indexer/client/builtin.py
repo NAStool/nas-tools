@@ -147,7 +147,7 @@ class BuiltinIndexer(IIndexClient):
         indexer = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=10)
+        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=30)
 
     @staticmethod
     def __spider_search(indexer, page=None, keyword=None, timeout=20):
