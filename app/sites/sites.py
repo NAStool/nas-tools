@@ -710,8 +710,9 @@ class Sites:
                     peer_count_str = ''.join(peer_count_dom[0].itertext())
                     peer_count_digit_str = ""
                     for m in peer_count_str:
-                        if m.isdigit(): peer_count_digit_str = peer_count_digit_str + m
-                    ret_attr["peer_count"] = int(peer_count_digit_str) if len(peer_count_digit_str)>0 else 0
+                        if m.isdigit():
+                            peer_count_digit_str = peer_count_digit_str + m
+                    ret_attr["peer_count"] = int(peer_count_digit_str) if len(peer_count_digit_str) > 0 else 0
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         # 随机休眼后再返回
