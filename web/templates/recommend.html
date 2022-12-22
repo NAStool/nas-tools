@@ -14,58 +14,73 @@
     <div class="row row-cards" id="recommend_content">
       {% for item in Items %}
         <div class="col-6 col-md-3 col-xl-2">
-          <div class="card card-sm card-link-pop rounded-3">
-            {% if item.weekday %}
-              <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}"
-                    style="position:absolute;top:10px;left:10px;">{{ item.weekday }}</span>
-            {% else %}
-              {% if item.fav == 2 %}
-                <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
-                       class="h-3 w-3 sm:h-4 sm:w-4">
-                    <path fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-              {% endif %}
-            {% endif %}
-            {% if item.vote %}
-              <div class="badge badge-pill bg-purple"
-                   style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
-            {% endif %}
+          <div class="card card-sm card-link-pop rounded-4"
+               onmouseover="showCardMore('{{ item.orgid }}')"
+               onmouseout="hideCardMore('{{ item.orgid }}')">
             <!-- 占位图 -->
             <div class="placeholder-glow" id="recommend_card_placeholder_{{ item.orgid }}">
-              <div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
+              <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
             </div>
-            <a id="recommend_card_link_{{ item.orgid }}"
-               href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'
-               style="display: none">
-              <img src="{{ item.image or '../static/img/no-image.png' }}"
-                   onload="loadImage('{{ item.orgid }}')"
-                   onerror="this.src='../static/img/no-image.png'"
-                   class="card-img-top"
-                   style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;" alt="">
-            </a>
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div>
-                  <div><strong>{{ item.title }}</strong></div>
-                </div>
-                <div class="ms-auto">
-                  <a id="recommend_link_{{ item.orgid }}"
-                     href='{% if item.fav != 1 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}'
-                     class="text-muted" title="加入/取消订阅">
-                    <svg id="recommend_svg_{{ item.orgid }}" xmlns="http://www.w3.org/2000/svg"
-                         class="icon icon-tabler icon-tabler-heart {% if item.fav == 1 %}icon-filled text-red{% endif %}"
-                         width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+            <div id="recommend_card_link_{{ item.orgid }}"
+                 style="display: none">
+              <a class="ratio rounded-4" style="--tblr-aspect-ratio:150%;"
+                 href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
+                <img src="{{ item.image or '../static/img/no-image.png' }}"
+                     onload="loadImage('{{ item.orgid }}')"
+                     onerror="this.src='../static/img/no-image.png'"
+                     class="card-img rounded-4" alt="">
+              </a>
+              {% if item.weekday %}
+                <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}"
+                      style="position:absolute;top:10px;left:10px;">{{ item.weekday }}</span>
+              {% else %}
+                {% if item.fav == 2 %}
+                  <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                         class="h-3 w-3 sm:h-4 sm:w-4">
+                      <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
                     </svg>
-                  </a>
-                </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+              {% if item.vote %}
+                <div class="badge badge-pill bg-purple"
+                     style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
+              {% endif %}
+            </div>
+            <div class="card-img-overlay rounded-4 ms-auto"
+                 id="recommend_card_more_{{ item.orgid }}"
+                 style="display: none; background-color:rgba(70,70,70,0.5);">
+              <div>
+                <h3>{{ item.year }}</h3>
+                <h2>{{ item.title }}</h2>
+                <p>{{ item.overview }}</p>
               </div>
+              <div class="d-flex">
+                <button type="button" class="btn btn-warning">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                  订阅
+                </button>
+                <button type="button" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                  搜索
+                </button>
+              </div>
+              <!-- <div class="ms-auto">
+                <a id="recommend_link_{{ item.orgid }}"
+                   href='{% if item.fav != 1 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}'
+                   class="text-muted" title="加入/取消订阅">
+                  <svg id="recommend_svg_{{ item.orgid }}" xmlns="http://www.w3.org/2000/svg"
+                       class="icon icon-tabler icon-tabler-heart {% if item.fav == 1 %}icon-filled text-red{% endif %}"
+                       width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                  </svg>
+                </a>
+              </div> -->
             </div>
           </div>
         </div>
@@ -121,6 +136,15 @@
     $(`#recommend_card_link_${id}`).show();
   }
 
+  // 鼠标移到卡片时显示更多
+  function showCardMore(id){
+    $(`#recommend_card_more_${id}`).show();
+  }
+
+  // 鼠标移出卡片时隐藏更多
+  function hideCardMore(id){
+    $(`#recommend_card_more_${id}`).hide();
+  }
 
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id) {
