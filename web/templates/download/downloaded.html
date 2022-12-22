@@ -26,7 +26,6 @@
               </div>
               <a id="downloaded_link_{{ item.ID }}"
                   href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
-                  class="d-block"
                   style="display: none">
                 <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
                      onerror="this.src='../static/img/no-image.png'"
@@ -101,9 +100,9 @@
         }
         html +='<div class="placeholder-glow" id="downloaded_placeholder_' + item.ID + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
         if (item.TYPE == "电影") {
-          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("MOV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' class="d-block" style="display: none">';
+          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("MOV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
         } else {
-          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("TV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' class="d-block" style="display: none">';
+          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("TV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
         }
         if (item.POSTER) {
           html += '<img onload="loadImage(\''+ item.ID + '\')"  src="' + item.POSTER + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
