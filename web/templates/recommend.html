@@ -35,16 +35,17 @@
                    style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
             {% endif %}
             <!-- 占位图 -->
-            <div class="placeholder-glow" id="placeholder_{{ item.orgid }}">
+            <div class="placeholder-glow" id="recommend_card_placeholder_{{ item.orgid }}">
               <div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
             </div>
-            <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
+            <a id="recommend_card_link_{{ item.orgid }}"
+               href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'
+               style="display: none">
               <img src="{{ item.image or '../static/img/no-image.png' }}"
-                   id="card_img_{{ item.orgid }}"
                    onload="loadImage('{{ item.orgid }}')"
                    onerror="this.src='../static/img/no-image.png'"
                    class="card-img-top"
-                   style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;" alt="">
+                   style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;" alt="">
             </a>
             <div class="card-body">
               <div class="d-flex align-items-center">
@@ -114,10 +115,10 @@
     $("#recommend_title").text("Bangumi每日放送");
   }
 
-  //载入图片成功后隐藏占位符
+  // 载入图片成功后隐藏占位符
   function loadImage(id){
-    $(`#placeholder_${id}`).hide();
-    $(`#card_img_${id}`).show();
+    $(`#recommend_card_placeholder_${id}`).hide();
+    $(`#recommend_card_link_${id}`).show();
   }
 
 
@@ -230,12 +231,12 @@
         if (item.vote) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
         }
-        html +='<div class="placeholder-glow" id="placeholder_' + item.orgid + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
-        html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\'>';
+        html +='<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
+        html += '<a id= "recommend_card_link_' + item.orgid + '" href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none">';
         if (item.image) {
-          html += '<img id="card_img_' + item.orgid + '" onload="loadImage(\''+ item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img onload="loadImage(\''+ item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         } else {
-          html += '<img id="card_img_' + item.orgid + '" onload="loadImage(\''+ item.orgid + '\')" src="../static/img/no-image.png" class="card-img-top" style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img onload="loadImage(\''+ item.orgid + '\')" src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }
         html += '</a>';
         html += '<div class="card-body"><div class="d-flex align-items-center">';

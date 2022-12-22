@@ -14,16 +14,22 @@
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
             <div class="card card-sm card-link-pop rounded-3">
-          <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
+              <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
                 style="position:absolute;top:10px;left:10px;">{{ item.TYPE }}</span>
               {% if item.VOTE > '0' %}
                 <div class="badge badge-pill bg-purple"
                      style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
               {% endif %}
-              <a href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
-                 class="d-block">
+              <!-- 占位图 -->
+              <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
+                <div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
+              </div>
+              <a id="downloaded_link_{{ item.ID }}"
+                  href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
+                  style="display: none">
                 <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
                      onerror="this.src='../static/img/no-image.png'"
+                     onload="loadImage('{{ item.ID }}')"
                      class="card-img-top"
                      style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
               </a>
@@ -60,6 +66,12 @@
   var loading = false;
   var CurrentPage = 1;
 
+  // 载入图片成功后隐藏占位符
+  function loadImage(id){
+    $(`#downloaded_placeholder_${id}`).hide();
+    $(`#downloaded_link_${id}`).show();
+  }
+
   function loading_data() {
     if (loading) {
       return;
@@ -86,15 +98,16 @@
         if (item.VOTE) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.VOTE + '</div>'
         }
+        html +='<div class="placeholder-glow" id="downloaded_placeholder_' + item.ID + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
         if (item.TYPE == "电影") {
-          html += '<a href=\'javascript:show_mediainfo_modal("MOV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' class="d-block">';
+          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("MOV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
         } else {
-          html += '<a href=\'javascript:show_mediainfo_modal("TV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' class="d-block">';
+          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("TV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
         }
         if (item.POSTER) {
-          html += '<img src="' + item.POSTER + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img onload="loadImage(\''+ item.ID + '\')"  src="' + item.POSTER + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         } else {
-          html += '<img src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img onload="loadImage(\''+ item.ID + '\')"  src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }
         html += '</a>';
         html += '<div class="card-body"><div class="d-flex align-items-center">';
