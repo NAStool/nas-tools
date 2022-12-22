@@ -5,7 +5,7 @@ from app.utils import StringUtils
 from app.utils.exception_utils import ExceptionUtils
 
 
-class PushDeer(IMessageClient):
+class PushDeerClient(IMessageClient):
     _server = None
     _apikey = None
     _client_config = {}
