@@ -35,7 +35,7 @@
                    style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
             {% endif %}
             <!-- 占位图 -->
-            <div class="ratio ratio-3x4 card-img-top placeholder" id="placeholder_{{ item.orgid }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
+            <div class="ratio ratio-3x4 card-img-top placeholder-glow" id="placeholder_{{ item.orgid }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
             <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
               <img src="{{ item.image or '../static/img/no-image.png' }}"
                    id="card_img_{{ item.orgid }}"
@@ -228,7 +228,7 @@
         if (item.vote) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
         }
-        html +='<div class="ratio ratio-3x4 card-img-top placeholder" id="placeholder_' + item.orgid + '" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>'
+        html +='<div class="ratio ratio-3x4 card-img-top placeholder-glow" id="placeholder_' + item.orgid + '" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>'
         html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\'>';
         if (item.image) {
           html += '<img id="card_img_' + item.orgid + '" onload="loadImage(\''+ item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
