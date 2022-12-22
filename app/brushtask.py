@@ -740,10 +740,10 @@ class BrushTask(object):
             if rss_rule.get("pubdate") and pubdate:
                 rule_pubdates = rss_rule.get("pubdate").split("#")
                 if len(rule_pubdates) >= 2 and rule_pubdates[1]:
-                    localtz=pytz.timezone('Asia/Shanghai')
-                    localnowtime=datetime.now().astimezone(localtz)
-                    localpubdate=pubdate.astimezone(localtz)
-                    log.debug('【Brush】发布时间：%s，当前时间：%s' %(localpubdate.isoformat(),localnowtime.isoformat()))
+                    localtz = pytz.timezone('Asia/Shanghai')
+                    localnowtime = datetime.now().astimezone(localtz)
+                    localpubdate = pubdate.astimezone(localtz)
+                    log.debug('【Brush】发布时间：%s，当前时间：%s' % (localpubdate.isoformat(), localnowtime.isoformat()))
                     if (localnowtime - localpubdate).seconds / 3600 > float(rule_pubdates[1]):
                         log.debug("【Brush】发布时间不符合条件。")
                         return False

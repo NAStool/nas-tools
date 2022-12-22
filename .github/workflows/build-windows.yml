@@ -33,6 +33,7 @@ jobs:
         copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\third_party.txt .\windows
+        copy .\third_party\_selenium.py .\third_party\feapder\feapder\network\downloader\_selenium.py
         copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
