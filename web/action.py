@@ -2225,6 +2225,12 @@ class WebAction:
                 # 替换图片分辨率
                 image = image.replace("s_ratio_poster", "m_ratio_poster")
             vote = res.get('vote_average')
+            if vote:
+                try:
+                    vote = str(round(float(vote), 1))
+                except Exception as err:
+                    print(str(err))
+
             overview = res.get('overview')
             item = {'id': rid,
                     'orgid': orgid,

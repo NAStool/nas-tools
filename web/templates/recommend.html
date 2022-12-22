@@ -30,16 +30,21 @@
                 </div>
               {% endif %}
             {% endif %}
-            {% if item.vote > 0 %}
+            {% if item.vote %}
               <div class="badge badge-pill bg-purple"
                    style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
             {% endif %}
-            <a
-                    href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
+            <!-- 占位图 -->
+            <div class="placeholder-glow" id="placeholder_{{ item.orgid }}">
+              <div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
+            </div>
+            <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
               <img src="{{ item.image or '../static/img/no-image.png' }}"
+                   id="card_img_{{ item.orgid }}"
+                   onload="loadImage('{{ item.orgid }}')"
                    onerror="this.src='../static/img/no-image.png'"
                    class="card-img-top"
-                   style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
+                   style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;" alt="">
             </a>
             <div class="card-body">
               <div class="d-flex align-items-center">
@@ -107,6 +112,12 @@
   }
   if (title_type == "bangumi") {
     $("#recommend_title").text("Bangumi每日放送");
+  }
+
+  //载入图片成功后隐藏占位符
+  function loadImage(id){
+    $(`#placeholder_${id}`).hide();
+    $(`#card_img_${id}`).show();
   }
 
 
@@ -219,11 +230,12 @@
         if (item.vote) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
         }
+        html +='<div class="placeholder-glow" id="placeholder_' + item.orgid + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
         html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\'>';
         if (item.image) {
-          html += '<img src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img id="card_img_' + item.orgid + '" onload="loadImage(\''+ item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         } else {
-          html += '<img src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img id="card_img_' + item.orgid + '" onload="loadImage(\''+ item.orgid + '\')" src="../static/img/no-image.png" class="card-img-top" style="display: none; border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }
         html += '</a>';
         html += '<div class="card-body"><div class="d-flex align-items-center">';
