@@ -13,33 +13,44 @@
       <div class="row row-cards" id="downloaded_content">
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-            <div class="card card-sm card-link-pop rounded-3">
-              <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
-                style="position:absolute;top:10px;left:10px;">{{ item.TYPE }}</span>
-              {% if item.VOTE > '0' %}
-                <div class="badge badge-pill bg-purple"
-                     style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
-              {% endif %}
+            <div class="card card-sm card-link-pop rounded-4"
+              onmouseover="showCardMore('{{ item.ID }}')"
+              onmouseout="hideCardMore('{{ item.ID }}')">
               <!-- 占位图 -->
               <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
-                <div class="card-img-top ratio ratio-3x4 placeholder"
-                    style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important; object-fit:contain;"></div>
+                <div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>
               </div>
-              <a id="downloaded_link_{{ item.ID }}"
-                  href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
-                  style="display: none">
-                <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
-                     onerror="this.src='../static/img/no-image.png'"
-                     onload="loadImage('{{ item.ID }}')"
-                     class="card-img-top"
-                     style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important" alt="">
-              </a>
-              <div class="card-body">
-                <div class="d-flex align-items-center">
-                  <div>
-                    <div><strong title="站点：{{ item.SITE }}<br>种子：{{ item.TORRENT }}<br>时间：{{ item.DATE }}"
-                                 data-bs-toggle="tooltip" data-bs-html="true">{{ item.TITLE }}</strong></div>
-                  </div>
+              <div id="downloaded_link_{{ item.ID }}" style="display: none">
+                <div class="ratio" style="--tblr-aspect-ratio:150%;">
+                  <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
+                       onerror="this.src='../static/img/no-image.png'"
+                       onload="loadImage('{{ item.ID }}')"
+                       class="card-img-top rounded-4 shadow"
+                       alt="">
+                </div>
+                <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
+                  style="position:absolute;top:10px;left:10px;">{{ item.TYPE }}</span>
+                {% if item.VOTE > '0.0' %}
+                  <div class="badge badge-pill bg-purple"
+                     style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
+                {% endif %}
+              </div>
+              <div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_{{ item.ID }}"
+                  onclick='show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
+                  style="display: none; background-color:rgba(0,0,0,0.5);">
+                <div style="cursor: pointer">
+                  <div class="text-white"><strong>{{ item.SITE }}</strong></div>
+                  <h2 class="lh-sm text-white"
+                    style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+                    <strong>{{ item.TITLE }}</strong></h2>
+                  <p class="lh-sm text-white"
+                    style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+                    {{ item.TORRENT }}
+                  </p>
+                  <p class="lh-sm text-white"
+                    style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+                    <small>{{ item.DATE }}</small>
+                  </p>
                 </div>
               </div>
             </div>
@@ -73,50 +84,92 @@
     $(`#downloaded_link_${id}`).show();
   }
 
+  // 鼠标移到卡片时显示更多
+  function showCardMore(id) {
+    $(`#downloaded_card_more_${id}`).show();
+  }
+
+  // 鼠标移出卡片时隐藏更多
+  function hideCardMore(id) {
+    $(`#downloaded_card_more_${id}`).hide();
+  }
+
+  // 插入N个占位卡片 代替loading动画
+  var page_card_num = {{ Count }};
+  function add_loading_card_placeholder() {
+    for (let i = 0; i < page_card_num; i++) {
+      let html = ''
+      html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
+        html +='<div class="card card-sm card-link-pop rounded-4">';
+          html += '<div class="placeholder-glow">';
+            html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
+          html += '</div>';
+        html += '</div>';
+      html += '</div>';
+      $("#recommend_content").append(html);
+    }
+  }
+
+  // 移除占位卡片
+  function del_loading_card_placeholder() {
+    $("div[id^='loading_card_placeholder_']").each(function(){
+      $(this).remove();
+    })
+  }
+
+  // 加载更多
   function loading_data() {
     if (loading) {
       return;
     }
     loading = true;
     CurrentPage++;
-    show_wait_process();
+    add_loading_card_placeholder();
     ajax_post("get_downloaded", {"page": CurrentPage}, function (ret) {
       if (ret.Items.length > 0) {
         loading = false;
       }
-      hide_wait_process();
+      del_loading_card_placeholder();
       // 插入HTML
       for (let i = 0; i < ret.Items.length; i++) {
         let current_tooltip_id = "recommend_fresh_tooltip_" + ((CurrentPage - 1) * 30 + i);
         let item = ret.Items[i];
         let html = '';
-        html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2"><div class="card card-sm card-link-pop rounded-3">';
+        html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
+        html += '<div class="card card-sm card-link-pop rounded-4" onmouseover="showCardMore('+item.ID+')" onmouseout="hideCardMore('+item.ID+')">';
+        html += '<div class="placeholder-glow" id="downloaded_placeholder_'+item.ID+'">';
+        html += '<div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>';
+        html += '</div>';
+        html += '<div id="downloaded_link_'+item.ID+'" style="display: none">';
+        html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">';
+        let poster = item.POSTER;
+        if (!poster) {
+          poster = '../static/img/no-image.png';
+        }
+        html += '<img src="'+poster+'" onerror="this.src=\'../static/img/no-image.png\'" onload="loadImage('+item.ID+')"  class="card-img-top rounded-4 shadow" alt="">';
+        html += '</div>';
         if (item.TYPE == '电影') {
           html += '<span class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;">' + item.TYPE + '</span>';
         } else {
           html += '<span class="badge badge-pill bg-blue" style="position:absolute;top:10px;left:10px;">' + item.TYPE + '</span>';
         }
         if (item.VOTE) {
-          html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.VOTE + '</div>'
+          html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.VOTE + '</div>';
         }
-        html +='<div class="placeholder-glow" id="downloaded_placeholder_' + item.ID + '"><div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div></div>'
-        if (item.TYPE == "电影") {
-          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("MOV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
-        } else {
-          html += '<a id="downloaded_link_' + item.ID + '" href=\'javascript:show_mediainfo_modal("TV", "' + item.TITLE + '", "' + item.YEAR + '", "' + item.TMDBID + '")\' style="display: none">';
-        }
-        if (item.POSTER) {
-          html += '<img onload="loadImage(\''+ item.ID + '\')"  src="' + item.POSTER + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
-        } else {
-          html += '<img onload="loadImage(\''+ item.ID + '\')"  src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
-        }
-        html += '</a>';
-        html += '<div class="card-body"><div class="d-flex align-items-center">';
-        html += '<div><strong id="' + current_tooltip_id + '" title="站点：' + item.SITE + '<br>种子：' + item.TORRENT + '<br>时间：' + item.DATE + '" data-bs-toggle="tooltip" data-bs-html="true">' + item.TITLE + '</strong></div>';
-        html += '<div class="ms-auto">';
-        html += '</div>';
+        html += '<div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_'+item.ID+'"';
+        let meida_type = item.TYPE == "电影" ? "MOV":"TV";
+        html += ' onclick=\'show_mediainfo_modal("'+meida_type+'", "'+item.TITLE+'", "'+item.YEAR+'", "'+item.TMDBID+'")\'';
+        html += ' style="display: none; background-color:rgba(0,0,0,0.5);">';
+        html += '<div style="cursor: pointer">';
+        html += '<div class="text-white"><strong>'+item.SITE+'</strong></div>';
+        html += '<h2 class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">';
+        html += '<strong>'+item.TITLE+'</strong></h2>';
+        html += '<p class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">';
+        html += item.TORRENT + '</p>';
+        html += '<p class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">';
+        html += '<small>'+item.DATE+'</small></p>';
         html += '</div></div>';
-        html += '</div></div>';
+        debugger;
         $("#downloaded_content").append(html);
         //更新tooltip
         let recommendTooltipList = Array.prototype.slice.call(document.querySelectorAll('#' + current_tooltip_id))
