@@ -22,7 +22,8 @@
               {% endif %}
               <!-- 占位图 -->
               <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
-                <div class="card-img-top ratio ratio-3x4 placeholder" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;"></div>
+                <div class="card-img-top ratio ratio-3x4 placeholder"
+                    style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important; object-fit:contain;"></div>
               </div>
               <a id="downloaded_link_{{ item.ID }}"
                   href='javascript:show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
@@ -31,7 +32,7 @@
                      onerror="this.src='../static/img/no-image.png'"
                      onload="loadImage('{{ item.ID }}')"
                      class="card-img-top"
-                     style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+                     style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important" alt="">
               </a>
               <div class="card-body">
                 <div class="d-flex align-items-center">
