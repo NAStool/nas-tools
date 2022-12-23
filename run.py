@@ -49,18 +49,6 @@ if is_windows_exe:
             os.makedirs(feapder_tmpdir)
     except Exception as err:
         ExceptionUtils.exception_traceback(err)
-else:
-    # 第三方代码打补丁
-    shutil.copy2(os.path.join(os.path.dirname(__file__),
-                              "third_party",
-                              "_selenium.py"),
-                 os.path.join(os.path.dirname(__file__),
-                              "third_party",
-                              "feapder",
-                              "feapder",
-                              "network",
-                              "downloader",
-                              "_selenium.py"))
 
 from config import Config
 import log
