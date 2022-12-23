@@ -1603,14 +1603,20 @@ class DbHelper:
             LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         ))
 
-    def get_brushtask_torrents(self, brush_id):
+    def get_brushtask_torrents(self, brush_id, active=True):
         """
         查询刷流任务所有种子
         """
         if not brush_id:
             return []
-        return self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
-                                                        SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
+        if active:
+            return self._db.query(SITEBRUSHTORRENTS).filter(
+                SITEBRUSHTORRENTS.TASK_ID == int(brush_id),
+                SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
+        else:
+            return self._db.query(SITEBRUSHTORRENTS).filter(
+                SITEBRUSHTORRENTS.TASK_ID == int(brush_id)
+            ).order_by(SITEBRUSHTORRENTS.LST_MOD_DATE.desc()).all()
 
     def is_brushtask_torrent_exists(self, brush_id, title, enclosure):
         """

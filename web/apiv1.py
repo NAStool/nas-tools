@@ -590,7 +590,8 @@ class DownloadConfigUpdate(ClientResource):
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
     parser.add_argument('category', type=str, help='分类', location='form')
     parser.add_argument('tags', type=str, help='标签', location='form')
-    parser.add_argument('content_layout', type=int, help='布局（0-全局/1-原始/2-创建子文件夹/3-不建子文件夹）', location='form')
+    parser.add_argument('content_layout', type=int, help='布局（0-全局/1-原始/2-创建子文件夹/3-不建子文件夹）',
+                        location='form')
     parser.add_argument('is_paused', type=int, help='动作（0-添加后开始/1-添加后暂停）', location='form')
     parser.add_argument('upload_limit', type=int, help='上传速度限制', location='form')
     parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
@@ -859,7 +860,8 @@ class SystemVersion(ClientResource):
 class SystemPath(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('dir', type=str, help='路径', location='form', required=True)
-    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/ALL）', location='form', required=True)
+    parser.add_argument('filter', type=str, help='过滤器（ONLYFILE/ONLYDIR/MEDIAFILE/SUBFILE/ALL）', location='form',
+                        required=True)
 
     @system.doc(parser=parser)
     def post(self):
@@ -1030,14 +1032,16 @@ class SubscribeAdd(ClientResource):
     parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
     parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
     parser.add_argument('doubanid', type=str, help='豆瓣ID', location='form')
-    parser.add_argument('match', type=int, help='模糊匹配（0-否/1-是）', location='form')
-    parser.add_argument('sites', type=list, help='RSS站点', location='form')
+    parser.add_argument('fuzzy_match', type=int, help='模糊匹配（0-否/1-是）', location='form')
+    parser.add_argument('rss_sites', type=list, help='RSS站点', location='form')
     parser.add_argument('search_sites', type=list, help='搜索站点', location='form')
     parser.add_argument('over_edition', type=int, help='洗版（0-否/1-是）', location='form')
-    parser.add_argument('rss_restype', type=str, help='资源类型', location='form')
-    parser.add_argument('rss_pix', type=str, help='分辨率', location='form')
-    parser.add_argument('rss_team', type=str, help='字幕组/发布组', location='form')
-    parser.add_argument('rss_rule', type=str, help='过滤规则', location='form')
+    parser.add_argument('filter_restype', type=str, help='资源类型', location='form')
+    parser.add_argument('filter_pix', type=str, help='分辨率', location='form')
+    parser.add_argument('filter_team', type=str, help='字幕组/发布组', location='form')
+    parser.add_argument('filter_rule', type=int, help='过滤规则', location='form')
+    parser.add_argument('download_setting', type=int, help='下载设置', location='form')
+    parser.add_argument('save_path', type=str, help='保存路径', location='form')
     parser.add_argument('total_ep', type=int, help='总集数', location='form')
     parser.add_argument('current_ep', type=int, help='开始集数', location='form')
 
@@ -1557,7 +1561,7 @@ class BrushTaskInfo(ClientResource):
 
 
 @brushtask.route('/list')
-class BrushTasklist(ClientResource):
+class BrushTaskList(ClientResource):
     @staticmethod
     def post():
         """
@@ -1570,6 +1574,19 @@ class BrushTasklist(ClientResource):
                 "tasks": BrushTask().get_brushtask_info()
             }
         }
+
+
+@brushtask.route('/torrents')
+class BrushTaskTorrents(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='刷流任务ID', location='form', required=True)
+
+    @brushtask.doc(parser=parser)
+    def post(self):
+        """
+        查询刷流任务种子明细
+        """
+        return WebAction().api_action(cmd='list_brushtask_torrents', data=self.parser.parse_args())
 
 
 @brushtask.route('/downloader/update')
@@ -1824,7 +1841,8 @@ class WordItemUpdate(ClientResource):
     parser.add_argument('new_back', type=str, help='后定位词', location='form')
     parser.add_argument('new_offset', type=str, help='偏移集数', location='form')
     parser.add_argument('new_help', type=str, help='备注', location='form')
-    parser.add_argument('type', type=str, help='识别词类型（1-屏蔽/2-替换/3-替换+集偏移/4-集偏移）', location='form', required=True)
+    parser.add_argument('type', type=str, help='识别词类型（1-屏蔽/2-替换/3-替换+集偏移/4-集偏移）', location='form',
+                        required=True)
     parser.add_argument('season', type=str, help='季', location='form')
     parser.add_argument('enabled', type=str, help='状态（1-启用/0-停用）', location='form', required=True)
     parser.add_argument('regex', type=str, help='正则表达式（1-使用/0-不使用）', location='form')
@@ -2072,7 +2090,8 @@ class MessageClientInfo(ClientResource):
 @message.route('/client/test')
 class MessageClientTest(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）', location='form', required=True)
+    parser.add_argument('type', type=str, help='类型（wechat/telegram/serverchan/bark/pushplus/iyuu/slack/gotify）',
+                        location='form', required=True)
     parser.add_argument('config', type=str, help='配置（JSON）', location='form', required=True)
 
     @message.doc(parser=parser)
@@ -2125,11 +2144,13 @@ class TorrentRemoverTaskUpdate(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('tid', type=int, help='任务ID', location='form')
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
-    parser.add_argument('action', type=int, help='动作(1-暂停/2-删除种子/3-删除种子及文件)', location='form', required=True)
+    parser.add_argument('action', type=int, help='动作(1-暂停/2-删除种子/3-删除种子及文件)', location='form',
+                        required=True)
     parser.add_argument('interval', type=int, help='运行间隔（分钟）', location='form', required=True)
     parser.add_argument('enabled', type=int, help='状态（0-停用/1-启用）', location='form', required=True)
     parser.add_argument('samedata', type=int, help='处理辅种（0-否/1-是）', location='form', required=True)
-    parser.add_argument('onlynastool', type=int, help='只管理NASTool添加的下载（0-否/1-是）', location='form', required=True)
+    parser.add_argument('onlynastool', type=int, help='只管理NASTool添加的下载（0-否/1-是）', location='form',
+                        required=True)
     parser.add_argument('ratio', type=float, help='分享率', location='form')
     parser.add_argument('seeding_time', type=int, help='做种时间（小时）', location='form')
     parser.add_argument('upload_avs', type=int, help='平均上传速度（KB/S）', location='form')

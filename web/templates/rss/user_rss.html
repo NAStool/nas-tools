@@ -91,7 +91,7 @@
             </a>
           </div>
           <div class="card-actions btn-actions">
-            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action">
+            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action" title="展开/折叠">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
@@ -99,7 +99,7 @@
               </svg>
             </a>
             {% if Task.uses == 'D' %}
-            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action">
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action" title="预览">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                 stroke-linejoin="round">
@@ -434,12 +434,12 @@
         </div>
       </div>      
       <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
-        <table id="table-rss-articles" class="table table-vcenter card-table">
+        <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
       <div class="modal-footer">
         <a href="javascript:batch_articles_action('download')"
-          class="btn btn-primary me-auto">
+          class="btn btn-primary me-auto d-none d-sm-inline-block">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
             stroke-linejoin="round">
@@ -450,8 +450,19 @@
           </svg>
           批量下载
         </a>
+        <a href="javascript:batch_articles_action('download')"
+          class="btn btn-primary btn-icon me-auto d-sm-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+            <polyline points="7 11 12 16 17 11"></polyline>
+            <line x1="12" y1="4" x2="12" y2="16"></line>
+          </svg>
+        </a>
         <a href="javascript:batch_articles_action('set_finished')"
-          class="btn btn-green">
+          class="btn btn-green d-none d-sm-inline-block">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
             stroke-linejoin="round">
@@ -459,9 +470,20 @@
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M9 12l2 2l4 -4"></path>
           </svg>
-          已处理</a>
+          已处理
+        </a>
+        <a href="javascript:batch_articles_action('set_finished')"
+          class="btn btn-green btn-icon d-sm-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
+            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9 12l2 2l4 -4"></path>
+          </svg>
+        </a>
         <a href="javascript:batch_articles_action('set_unfinish')"
-          class="btn btn-yellow">
+          class="btn btn-yellow d-none d-sm-inline-block">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
             stroke-linejoin="round">
@@ -470,6 +492,16 @@
             <path d="M10 10l4 4m0 -4l-4 4"></path>
           </svg>
           未处理
+        </a>
+        <a href="javascript:batch_articles_action('set_unfinish')"
+          class="btn btn-yellow btn-icon d-sm-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M10 10l4 4m0 -4l-4 4"></path>
+          </svg>
         </a>
       </div>
     </div>
@@ -483,7 +515,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
-        <table id="table-rss-history" class="table table-vcenter card-table">
+        <table id="table-rss-history" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
     </div>
@@ -791,11 +823,11 @@
           let downloader = '';
           let date = '';
           if (download.title) {
-            title = `<span>${download.title}</span>`
+            title = `<span class="text-muted">${download.title}</span>`
           };
           if (download.date) {
             date = download.date.split(" ");
-            date = `<small>${date[0]}<br>${date[1]}</small>`;
+            date = `<small class="text-muted">${date[0]}<br>${date[1]}</small>`;
           };
           if (download.downloader) {
             downloader = `<span class="badge me-1 mb-1" title="下载器">${download.downloader}</span>`;

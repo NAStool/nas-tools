@@ -142,6 +142,9 @@ class DOUBANMEDIAS(Base):
     STATE = Column(Text)
     ADD_TIME = Column(Text)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class DOWNLOADHISTORY(Base):
     __tablename__ = 'DOWNLOAD_HISTORY'
@@ -392,6 +395,9 @@ class SITEBRUSHTORRENTS(Base):
     DOWNLOADER = Column(Text)
     DOWNLOAD_ID = Column(Text)
     LST_MOD_DATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class SITESTATISTICSHISTORY(Base):
