@@ -41,6 +41,29 @@ with open("third_party.txt") as third_party:
         pathex_tp.append(('./../third_party/' + third_party_lib).replace("\n", ""))
 # <<< END PATHEX PART
 
+# <<< START HIDDENIMPORTS PART
+def collect_local_submodules(package):
+    import os
+    base_dir = '..'
+    package_dir= os.path.join(base_dir, package.replace('.', os.sep))
+    submodules = []
+    for dir_path, dir_names, files in os.walk(package_dir):
+        for f in files:
+            if f == '__init__.py':
+                continue
+            if f.endswith('.py'):
+                submodules.append(package + '.' + f[:-3])
+    return submodules
+
+hiddenimports = ['Crypto.Math',
+                'Crypto.Cipher',
+                'Crypto.Util',
+                'Crypto.Hash',
+                'Crypto.Protocol',
+                'app.sites.siteuserinfo',]
+hiddenimports += collect_local_submodules('app.sites.siteuserinfo')
+# <<< END HIDDENIMPORTS PART
+
 block_cipher = None
 
 
@@ -49,11 +72,7 @@ a = Analysis(
              pathex=pathex_tp,
              binaries=[],
              datas=[],
-             hiddenimports=['Crypto.Math',
-                            'Crypto.Cipher',
-                            'Crypto.Util',
-                            'Crypto.Hash',
-                            'Crypto.Protocol',],
+             hiddenimports=hiddenimports,
              hookspath=[],
              hooksconfig={},
              runtime_hooks=[],
