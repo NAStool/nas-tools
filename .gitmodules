@@ -13,3 +13,6 @@
 [submodule "third_party/slack_bolt"]
 	path = third_party/slack_bolt
 	url = https://github.com/slackapi/bolt-python
+[submodule "third_party/feapder"]
+	path = third_party/feapder
+	url = https://github.com/jxxghp/feapder
