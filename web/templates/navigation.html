@@ -1431,7 +1431,7 @@
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
   //显示媒体详情
-  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
+  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid, auto_search) {
     let doubanid;
     show_wait_process();
     if (tmdbid.startsWith("DB:")) {
@@ -1460,6 +1460,10 @@
     }, function (ret) {
       hide_wait_process();
       if (ret.code === 0) {
+        if (auto_search) {
+          search_mediainfo_media(toString(ret.tmdbid), toString(ret.doubanid), ret.title, ret.type_str);
+          return
+        }
         //显示信息
         $("#system_media_name").text(ret.title);
         $("#system_release_date").text(ret.release_date)
