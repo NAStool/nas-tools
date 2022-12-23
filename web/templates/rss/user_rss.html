@@ -91,7 +91,7 @@
             </a>
           </div>
           <div class="card-actions btn-actions">
-            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action">
+            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action" title="展开/折叠">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
@@ -99,7 +99,7 @@
               </svg>
             </a>
             {% if Task.uses == 'D' %}
-            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action">
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action" title="预览">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                 stroke-linejoin="round">

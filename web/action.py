@@ -193,7 +193,8 @@ class WebAction:
             "get_remove_torrents": self.__get_remove_torrents,
             "auto_remove_torrents": self.__auto_remove_torrents,
             "get_douban_history": self.get_douban_history,
-            "delete_douban_history": self.__delete_douban_history
+            "delete_douban_history": self.__delete_douban_history,
+            "list_brushtask_torrents": self.__list_brushtask_torrents
         }
 
     def action(self, cmd, data=None):
@@ -4115,7 +4116,8 @@ class WebAction:
         """
         查询豆瓣同步历史
         """
-        return {"code": 0, "result": self.dbhelper.get_douban_history()}
+        results = self.dbhelper.get_douban_history()
+        return {"code": 0, "result": [item.as_dict() for item in results]}
 
     def __delete_douban_history(self, data):
         """
@@ -4123,3 +4125,11 @@ class WebAction:
         """
         self.dbhelper.delete_douban_history(data.get("id"))
         return {"code": 0}
+
+    def __list_brushtask_torrents(self, data):
+        """
+        获取刷流任务的种子明细
+        """
+        results = self.dbhelper.get_brushtask_torrents(brush_id=data.get("id"),
+                                                       active=False)
+        return {"code": 0, "data": [item.as_dict() for item in results]}

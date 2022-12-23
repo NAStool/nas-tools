@@ -86,11 +86,21 @@
               <div class="text-muted ms-3" id="detail_size_{{ Task.id }}"
                 style="display: {% if Count > 2 %}block{% else %}none{% endif %};">↑{{ Task.upload_size }}  ↓{{ Task.download_size }}</div>
               <div class="card-actions btn-actions">
-                <a href="javascript:show_brushtask_detail('{{ Task.id }}')" class="btn-action">
+                <a href="javascript:show_brushtask_detail('{{ Task.id }}')" class="btn-action" title="展开/折叠">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                     viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                       d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                  </svg>
+                </a>
+                <a href="javascript:show_brushtask_torrents_modal('{{ Task.id }}')" class="btn-action" title="查看种子明细">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24"
+                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7">
+                    </path>
                   </svg>
                 </a>
                 <a href="javascript:edit_brushtask_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
@@ -639,6 +649,20 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-brushtask-torrents" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">刷流种子明细</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+        <table id="table-brushtask-torrents" class="table table-vcenter card-table table-hover table-striped">
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示新增刷流任务
   function show_brushtask_modal() {
@@ -1038,6 +1062,49 @@
       show_success_modal("任务运行完成！", function () {
         navmenu('brushtask');
       });
+    });
+  }
+
+  // 刷流种子下载记录
+  function show_brushtask_torrents_modal(id) {
+    show_wait_process();
+    ajax_post("list_brushtask_torrents", { "id": id }, function (ret) {
+      let content;
+      hide_wait_process();
+      if (ret.code == 0) {
+        const downloads = ret.data;
+        let content_th = `<thead><tr>
+                          <th>标题</th>
+                          <th>状态</th>
+                          <th>添加时间</th>
+                          </tr></thead>`;
+        let content_td = '';
+        for (let i = 0; i < downloads.length; i++) {
+          const download = downloads[i];
+          let title = '';
+          let state = '';
+          let date = '';
+          if (download.TORRENT_NAME) {
+            title = `<span class="text-muted">${download.TORRENT_NAME}</span>`
+          };
+          if (download.LST_MOD_DATE) {
+            let dates = download.LST_MOD_DATE.split(" ");
+            date = `<small class="text-muted">${dates[0]}<br>${dates[1]}</small>`;
+          };
+          if (download.DOWNLOAD_ID == '0') {
+            state = `<span class="badge bg-red me-1 mb-1">已删除</span>`;
+          } else {
+            state = `<span class="badge bg-green me-1 mb-1">正常</span>`;
+          }
+          content_td = `${content_td}<tr><td>${title}</td>><td>${state}</td><td class="text-nowrap">${date}</td></tr>`;
+          let content_tb = `<tbody>${content_td}</tbody>`;
+          content = `${content_th}${content_tb}`;
+        };
+      } else {
+        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+      }
+      $("#table-brushtask-torrents").empty().append(content);
+      $("#modal-brushtask-torrents").modal('show');
     });
   }
 
