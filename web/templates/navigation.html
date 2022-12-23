@@ -1461,7 +1461,7 @@
       hide_wait_process();
       if (ret.code === 0) {
         if (auto_search) {
-          search_mediainfo_media(toString(ret.tmdbid), toString(ret.doubanid), ret.title, ret.type_str);
+          search_mediainfo_media(ret.tmdbid, ret.doubanid, ret.title, ret.type_str);
           return
         }
         //显示信息

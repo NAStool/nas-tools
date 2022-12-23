@@ -394,6 +394,7 @@ def recommend():
     Items = WebAction().get_recommend({"type": RecommendType, "page": CurrentPage}).get("Items")
     return render_template("recommend.html",
                            Items=Items,
+                           PageCount=len(Items),
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 

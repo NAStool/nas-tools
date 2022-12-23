@@ -18,12 +18,12 @@
           onmouseout="hideCardMore('{{ item.orgid }}')">
           <!-- 占位图 -->
           <div class="placeholder-glow" id="recommend_card_placeholder_{{ item.orgid }}">
-            <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
+            <div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>
           </div>
           <div id="recommend_card_link_{{ item.orgid }}" style="display: none">
             <div class="ratio" style="--tblr-aspect-ratio:150%;">
               <img src="{{ item.image or '../static/img/no-image.png' }}" onload="loadImage('{{ item.orgid }}')"
-                onerror="this.src='../static/img/no-image.png'" class="card-img rounded-4" alt="">
+                onerror="this.src='../static/img/no-image.png'" class="card-img rounded-4 shadow" alt="">
             </div>
             {% if item.weekday %}
             <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}"
@@ -47,7 +47,7 @@
           <div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_{{ item.orgid }}"
             onclick="show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')"
             style="display: none; background-color:rgba(0,0,0,0.5);">
-            <div>
+            <div style="cursor: pointer">
               <div class="text-white"><strong>{{ item.year }}</strong></div>
               <h2 class="lh-sm text-white"
                 style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
@@ -224,9 +224,10 @@
   }
 
   // 插入N个占位卡片 代替loading动画
+  var page_card_num = {{ PageCount }};
   function add_loading_card_placeholder() {
-    for (let i = 0; i < 20; i++) {
-      html = ''
+    for (let i = 0; i < page_card_num; i++) {
+      let html = ''
       html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
         html +='<div class="card card-sm card-link-pop rounded-4">';
           html += '<div class="placeholder-glow">';
@@ -270,13 +271,13 @@
         let html = '';
         html += '<div class="col-6 col-md-3 col-xl-2">';
           html +='<div class="card card-sm card-link-pop rounded-4" onmouseover="showCardMore(\'' + item.orgid + '\')" onmouseout="hideCardMore(\'' + item.orgid + '\')">';
-            html += '<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div></div>';
+            html += '<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div></div>';
             html += '<div id="recommend_card_link_' + item.orgid + '" style="display: none">';
               html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">'
                 if (item.image) {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img rounded-4"  alt="">';
+                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img rounded-4 shadow"  alt="">';
                 } else {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="../static/img/no-image.png" class="card-img rounded-4"  alt="">';
+                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="../static/img/no-image.png" class="card-img rounded-4 shadow"  alt="">';
                 }
               html += '</div>';
             if (item.weekday) {
@@ -295,10 +296,10 @@
               html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>';
             }
             html += '<div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none; background-color:rgba(0,0,0,0.5);">';
-              html += '<div>';
-                html += '<div><strong>' + item.year + '</strong></div>';
-                html += '<h2 class="lh-sm" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;"><strong>' + item.title + '</strong></h2>';
-                html += '<p class="lh-sm" style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">' + item.overview + '</p>'
+              html += '<div style="cursor: pointer">';
+                html += '<div class="text-white"><strong>' + item.year + '</strong></div>';
+                html += '<h2 class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;"><strong>' + item.title + '</strong></h2>';
+                html += '<p class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">' + item.overview + '</p>'
               html += '</div><div class="d-flex justify-content-between">';
                 html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '", "", true)\' class="text-muted" title="搜索资源" onclick="window.event.cancelBubble=true;">';
                   html += '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search icon-pulse text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>';
