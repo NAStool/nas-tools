@@ -1909,8 +1909,9 @@ class DbHelper:
         if rid:
             return self._db.query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
         elif rtype:
-            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype).all()
-        return self._db.query(RSSHISTORY).all()
+            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype)\
+                .order_by(RSSHISTORY.FINISH_TIME.desc()).all()
+        return self._db.query(RSSHISTORY).order_by(RSSHISTORY.FINISH_TIME.desc()).all()
 
     def is_exists_rss_history(self, rssid):
         """
