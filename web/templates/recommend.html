@@ -48,11 +48,11 @@
             onclick="show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')"
             style="display: none; background-color:rgba(0,0,0,0.5);">
             <div>
-              <div><strong>{{ item.year }}</strong></div>
-              <h2 class="lh-sm"
+              <div class="text-white"><strong>{{ item.year }}</strong></div>
+              <h2 class="lh-sm text-white"
                 style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
                 <strong>{{ item.title }}</strong></h2>
-              <p class="lh-sm"
+              <p class="lh-sm text-white"
                 style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
                 {{ item.overview }}</p>
             </div>
