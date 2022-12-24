@@ -10,7 +10,6 @@ import undetected_chromedriver as uc
 
 from config import WEBDRIVER_PATH
 
-CHROME_LOCK = Lock()
 lock = Lock()
 
 

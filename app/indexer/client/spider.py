@@ -34,7 +34,7 @@ class TorrentSpider(feapder.AirSpider):
             timeout=15,
             window_size=(1024, 800),
             executable_path=_webdriver_path,
-            render_time=5,
+            render_time=6,
             custom_argument=["--ignore-certificate-errors"],
         )
     )

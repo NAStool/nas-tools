@@ -20,7 +20,7 @@ from app.sites import SiteUserInfoFactory
 from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
-from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper, DbHelper
+from app.helper import ChromeHelper, SiteHelper, DbHelper
 from app.utils.exception_utils import ExceptionUtils
 from config import SITE_CHECKIN_XPATH, Config
 
@@ -299,28 +299,26 @@ class Sites:
         emulate = site_info.get("chrome")
         chrome = ChromeHelper()
         if emulate == "Y" and chrome.get_status():
-            # 首页
-            with CHROME_LOCK:
-                # 计时
-                start_time = datetime.now()
-                try:
-                    chrome.visit(url=site_url, ua=ua, cookie=site_cookie)
-                except Exception as err:
-                    print(str(err))
-                    return False, "Chrome模拟访问失败", 0
-                # 循环检测是否过cf
-                cloudflare = chrome.pass_cloudflare()
-                seconds = int((datetime.now() - start_time).microseconds / 1000)
-                if not cloudflare:
-                    return False, "跳转站点失败", seconds
-                # 判断是否已签到
-                html_text = chrome.get_html()
-                if not html_text:
-                    return False, "获取站点源码失败", 0
-                if SiteHelper.is_logged_in(html_text):
-                    return True, "连接成功", seconds
-                else:
-                    return False, "Cookie失效", seconds
+            # 计时
+            start_time = datetime.now()
+            try:
+                chrome.visit(url=site_url, ua=ua, cookie=site_cookie)
+            except Exception as err:
+                print(str(err))
+                return False, "Chrome模拟访问失败", 0
+            # 循环检测是否过cf
+            cloudflare = chrome.pass_cloudflare()
+            seconds = int((datetime.now() - start_time).microseconds / 1000)
+            if not cloudflare:
+                return False, "跳转站点失败", seconds
+            # 判断是否已签到
+            html_text = chrome.get_html()
+            if not html_text:
+                return False, "获取站点源码失败", 0
+            if SiteHelper.is_logged_in(html_text):
+                return True, "连接成功", seconds
+            else:
+                return False, "Cookie失效", seconds
         else:
             # 计时
             start_time = datetime.now()
@@ -363,58 +361,57 @@ class Sites:
                     # 首页
                     log.info("【Sites】开始站点仿真签到：%s" % site)
                     home_url = StringUtils.get_base_url(site_url)
-                    with CHROME_LOCK:
-                        try:
-                            chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
-                        except Exception as err:
-                            print(str(err))
-                            log.warn("【Sites】%s 无法打开网站" % site)
-                            status.append("【%s】无法打开网站！" % site)
-                            continue
-                        # 循环检测是否过cf
-                        cloudflare = chrome.pass_cloudflare()
-                        if not cloudflare:
-                            log.warn("【Sites】%s 跳转站点失败" % site)
-                            status.append("【%s】跳转站点失败！" % site)
-                            continue
-                        # 判断是否已签到
-                        html_text = chrome.get_html()
-                        if not html_text:
-                            log.warn("【Sites】%s 获取站点源码失败" % site)
-                            continue
-                        # 查找签到按钮
-                        html = etree.HTML(html_text)
-                        xpath_str = None
-                        for xpath in SITE_CHECKIN_XPATH:
-                            if html.xpath(xpath):
-                                xpath_str = xpath
-                                break
-                        if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
-                                and not xpath_str:
-                            log.info("【Sites】%s 今日已签到" % site)
-                            status.append("【%s】今日已签到" % site)
-                            continue
-                        if not xpath_str:
-                            if SiteHelper.is_logged_in(html_text):
-                                log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
-                                status.append("【%s】模拟登录成功" % site)
-                            else:
-                                log.info("【Sites】%s 未找到签到按钮，且模拟登录失败" % site)
-                                status.append("【%s】模拟登录失败！" % site)
-                            continue
-                        # 开始仿真
-                        try:
-                            checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
-                                es.element_to_be_clickable((By.XPATH, xpath_str)))
-                            if checkin_obj:
-                                checkin_obj.click()
-                                log.info("【Sites】%s 仿真签到成功" % site)
-                                status.append("【%s】签到成功" % site)
-                        except Exception as e:
-                            ExceptionUtils.exception_traceback(e)
-                            log.warn("【Sites】%s 仿真签到失败：%s" % (site, str(e)))
-                            status.append("【%s】签到失败！" % site)
-                            continue
+                    try:
+                        chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
+                    except Exception as err:
+                        print(str(err))
+                        log.warn("【Sites】%s 无法打开网站" % site)
+                        status.append("【%s】无法打开网站！" % site)
+                        continue
+                    # 循环检测是否过cf
+                    cloudflare = chrome.pass_cloudflare()
+                    if not cloudflare:
+                        log.warn("【Sites】%s 跳转站点失败" % site)
+                        status.append("【%s】跳转站点失败！" % site)
+                        continue
+                    # 判断是否已签到
+                    html_text = chrome.get_html()
+                    if not html_text:
+                        log.warn("【Sites】%s 获取站点源码失败" % site)
+                        continue
+                    # 查找签到按钮
+                    html = etree.HTML(html_text)
+                    xpath_str = None
+                    for xpath in SITE_CHECKIN_XPATH:
+                        if html.xpath(xpath):
+                            xpath_str = xpath
+                            break
+                    if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
+                            and not xpath_str:
+                        log.info("【Sites】%s 今日已签到" % site)
+                        status.append("【%s】今日已签到" % site)
+                        continue
+                    if not xpath_str:
+                        if SiteHelper.is_logged_in(html_text):
+                            log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
+                            status.append("【%s】模拟登录成功" % site)
+                        else:
+                            log.info("【Sites】%s 未找到签到按钮，且模拟登录失败" % site)
+                            status.append("【%s】模拟登录失败！" % site)
+                        continue
+                    # 开始仿真
+                    try:
+                        checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
+                            es.element_to_be_clickable((By.XPATH, xpath_str)))
+                        if checkin_obj:
+                            checkin_obj.click()
+                            log.info("【Sites】%s 仿真签到成功" % site)
+                            status.append("【%s】签到成功" % site)
+                    except Exception as e:
+                        ExceptionUtils.exception_traceback(e)
+                        log.warn("【Sites】%s 仿真签到失败：%s" % (site, str(e)))
+                        status.append("【%s】签到失败！" % site)
+                        continue
                 # 模拟登录
                 else:
                     proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
@@ -589,14 +586,13 @@ class Sites:
                     if not chrome.get_status():
                         log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
                     else:
-                        with CHROME_LOCK:
-                            try:
-                                chrome.visit(url=short_url)
-                                cookie = chrome.get_cookies()
-                                ua = chrome.get_ua()
-                            except Exception as err:
-                                print(str(err))
-                                log.warn("【Sites】无法打开网站：%s" % short_url)
+                        try:
+                            chrome.visit(url=short_url)
+                            cookie = chrome.get_cookies()
+                            ua = chrome.get_ua()
+                        except Exception as err:
+                            print(str(err))
+                            log.warn("【Sites】无法打开网站：%s" % short_url)
                 else:
                     try:
                         res = RequestUtils(timeout=10).get_res(short_url)
@@ -626,13 +622,12 @@ class Sites:
                 if not chrome.get_status():
                     log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
                 else:
-                    with CHROME_LOCK:
-                        try:
-                            chrome.visit(url=page_url)
-                            page_source = chrome.get_html()
-                        except Exception as err:
-                            print(str(err))
-                            log.warn("【Sites】无法打开网站：%s" % short_url)
+                    try:
+                        chrome.visit(url=page_url)
+                        page_source = chrome.get_html()
+                    except Exception as err:
+                        print(str(err))
+                        log.warn("【Sites】无法打开网站：%s" % short_url)
             else:
                 req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
                 if req and req.status_code == 200:
