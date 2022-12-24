@@ -650,11 +650,21 @@ class Sites:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def __get_site_page_html(url, cookie, ua):
-        res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
-        if res and res.status_code == 200:
-            res.encoding = res.apparent_encoding
-            return res.text
+    def __get_site_page_html(url, cookie, ua, render=False):
+        chrome = ChromeHelper(headless=True)
+        if render and chrome.get_status():
+            # 开渲染
+            with CHROME_LOCK:
+                try:
+                    chrome.visit(url=url, cookie=cookie, ua=ua)
+                    return chrome.get_html()
+                except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
+        else:
+            res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
+            if res and res.status_code == 200:
+                res.encoding = res.apparent_encoding
+                return res.text
         return ""
 
     def get_grapsite_conf(self, url):
@@ -685,7 +695,10 @@ class Sites:
         xpath_strs = self.get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
-        html_text = self.__get_site_page_html(url=torrent_url, cookie=cookie, ua=ua)
+        html_text = self.__get_site_page_html(url=torrent_url,
+                                              cookie=cookie,
+                                              ua=ua,
+                                              render=xpath_strs.get('RENDER'))
         if not html_text:
             return ret_attr
         try:
