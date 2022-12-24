@@ -3,13 +3,18 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo._base import _ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import StringUtils
 from app.utils.types import SiteSchema
 
 
 class Unit3dSiteUserInfo(_ISiteUserInfo):
     schema = SiteSchema.Unit3d
+    order = SITE_BASE_ORDER + 15
+
+    @classmethod
+    def match(cls, html_text):
+        return "unit3d.js" in html_text
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)

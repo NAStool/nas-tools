@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 
+from lxml import etree
+
+from app.sites.siteuserinfo._base import SITE_BASE_ORDER
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SiteSchema
@@ -8,6 +11,16 @@ from app.utils.types import SiteSchema
 
 class NexusRabbitSiteUserInfo(NexusPhpSiteUserInfo):
     schema = SiteSchema.NexusRabbit
+    order = SITE_BASE_ORDER + 5
+
+    @classmethod
+    def match(cls, html_text):
+        html = etree.HTML(html_text)
+        if not html:
+            return False
+
+        printable_text = html.xpath("string(.)") if html else ""
+        return 'Style by Rabbit' in printable_text
 
     def _parse_site_page(self, html_text):
         super()._parse_site_page(html_text)

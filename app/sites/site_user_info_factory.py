@@ -1,14 +1,11 @@
-import importlib
-import pkgutil
-
 import requests
 
 import log
-from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper
+from app.helper import ChromeHelper, CHROME_LOCK
+from app.helper.submodule_helper import SubmoduleHelper
 from app.utils import RequestUtils
 from app.utils.commons import singleton
 from app.utils.exception_utils import ExceptionUtils
-from app.utils.types import SiteSchema
 from config import Config
 
 
@@ -16,25 +13,20 @@ from config import Config
 class SiteUserInfoFactory(object):
 
     def __init__(self):
-        self.__site_schema = {}
+        self.__site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
+                                                               filter_func=lambda _, obj: hasattr(obj, 'schema'))
+        self.__site_schema.sort(key=lambda x: x.order)
+        print(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
 
-        # 从 app.sites.siteuserinfo 下加载所有的站点信息类
-        packages = importlib.import_module('app.sites.siteuserinfo').__path__
-        for importer, package_name, _ in pkgutil.iter_modules(packages):
-            full_package_name = f'app.sites.siteuserinfo.{package_name}'
-            if full_package_name.startswith('_'):
-                continue
-            module = importlib.import_module(full_package_name)
-            for name, obj in module.__dict__.items():
-                if name.startswith('_'):
-                    continue
-                if isinstance(obj, type) and hasattr(obj, 'schema'):
-                    self.__site_schema[obj.schema] = obj
+    def _build_class(self, html_text):
+        for site_schema in self.__site_schema:
+            try:
+                if site_schema.match(html_text):
+                    return site_schema
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
 
-    def _build_class(self, schema):
-        if schema not in self.__site_schema:
-            return self.__site_schema.get(SiteSchema.NexusPhp)
-        return self.__site_schema[schema]
+        return None
 
     def build(self, url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
         if not site_cookie:
@@ -118,5 +110,8 @@ class SiteUserInfoFactory(object):
                 return None
 
         # 解析站点类型
-        site_schema = self._build_class(SiteHelper.schema(html_text))
+        site_schema = self._build_class(html_text)
+        if not site_schema:
+            log.error("【Sites】站点 %s 无法识别站点类型" % site_name)
+            return None
         return site_schema(site_name, url, site_cookie, html_text, session=session, ua=ua)

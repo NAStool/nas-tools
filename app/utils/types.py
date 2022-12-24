@@ -105,3 +105,4 @@ class SiteSchema(Enum):
     NexusRabbit = "NexusRabbit"
     SmallHorse = "Small Horse"
     Unit3d = "Unit3d"
+    TorrentLeech = "TorrentLeech"
