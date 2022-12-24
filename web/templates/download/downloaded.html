@@ -36,7 +36,7 @@
                 {% endif %}
               </div>
               <div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_{{ item.ID }}"
-                  onclick='show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
+                  onclick='if(Date.now()-MouseoverDate>200){show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")}'
                   style="display: none; background-color:rgba(0,0,0,0.5);">
                 <div style="cursor: pointer">
                   <div class="text-white"><strong>{{ item.SITE }}</strong></div>
@@ -85,7 +85,14 @@
   }
 
   // 鼠标移到卡片时显示更多
+  var MouseoverDate = Date.now();
+  var MouseoverId = "";
   function showCardMore(id) {
+    // 用于记录移动到卡片时的时间与ID, 解决移动端点击会立即触发打开详情的问题
+    if (MouseoverId != id){
+      MouseoverDate = Date.now();
+    }
+    MouseoverId = id
     $(`#downloaded_card_more_${id}`).show();
   }
 
@@ -158,7 +165,7 @@
         }
         html += '<div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_'+item.ID+'"';
         let meida_type = item.TYPE == "电影" ? "MOV":"TV";
-        html += ' onclick=\'show_mediainfo_modal("'+meida_type+'", "'+item.TITLE+'", "'+item.YEAR+'", "'+item.TMDBID+'")\'';
+        html += ' onclick=\'if(Date.now()-MouseoverDate>200){show_mediainfo_modal("'+meida_type+'", "'+item.TITLE+'", "'+item.YEAR+'", "'+item.TMDBID+'")}\'';
         html += ' style="display: none; background-color:rgba(0,0,0,0.5);">';
         html += '<div style="cursor: pointer">';
         html += '<div class="text-white"><strong>'+item.SITE+'</strong></div>';
