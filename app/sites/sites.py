@@ -656,7 +656,7 @@ class Sites:
             # 开渲染
             with CHROME_LOCK:
                 try:
-                    chrome.visit(url=url, cookie=cookie, ua=ua)
+                    chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30)
                     return chrome.get_html()
                 except Exception as err:
                     print(str(err))

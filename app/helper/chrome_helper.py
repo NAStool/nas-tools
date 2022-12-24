@@ -71,7 +71,7 @@ class ChromeHelper(object):
         chrome.set_page_load_timeout(10)
         return chrome
 
-    def visit(self, url, ua=None, cookie=None):
+    def visit(self, url, ua=None, cookie=None, timeout=15):
         if not self.browser:
             return
         if ua:
@@ -84,7 +84,7 @@ class ChromeHelper(object):
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
-        self.browser.implicitly_wait(10)
+        self.browser.implicitly_wait(timeout)
 
     def new_tab(self, url, ua=None, cookie=None):
         if not self.browser:
