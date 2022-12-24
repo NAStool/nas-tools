@@ -1,7 +1,7 @@
 import requests
 
 import log
-from app.helper import ChromeHelper, CHROME_LOCK
+from app.helper import ChromeHelper
 from app.helper.submodule_helper import SubmoduleHelper
 from app.utils import RequestUtils
 from app.utils.commons import singleton
@@ -36,20 +36,19 @@ class SiteUserInfoFactory(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
-            with CHROME_LOCK:
-                try:
-                    chrome.visit(url=url, ua=ua, cookie=site_cookie)
-                except Exception as err:
-                    print(str(err))
-                    log.error("【Sites】%s 无法打开网站" % site_name)
-                    return None
-                # 循环检测是否过cf
-                cloudflare = chrome.pass_cloudflare()
-                if not cloudflare:
-                    log.error("【Sites】%s 跳转站点失败" % site_name)
-                    return None
-                # 判断是否已签到
-                html_text = chrome.get_html()
+            try:
+                chrome.visit(url=url, ua=ua, cookie=site_cookie)
+            except Exception as err:
+                print(str(err))
+                log.error("【Sites】%s 无法打开网站" % site_name)
+                return None
+            # 循环检测是否过cf
+            cloudflare = chrome.pass_cloudflare()
+            if not cloudflare:
+                log.error("【Sites】%s 跳转站点失败" % site_name)
+                return None
+            # 判断是否已签到
+            html_text = chrome.get_html()
         else:
             proxies = Config().get_proxies() if proxy else None
             res = RequestUtils(cookies=site_cookie,

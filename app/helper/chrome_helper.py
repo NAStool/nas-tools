@@ -10,7 +10,6 @@ import undetected_chromedriver as uc
 
 from config import WEBDRIVER_PATH
 
-CHROME_LOCK = Lock()
 lock = Lock()
 
 
@@ -33,10 +32,9 @@ class ChromeHelper(object):
 
     @property
     def browser(self):
-        with lock:
-            if not self._chrome:
-                self._chrome = self.__get_browser()
-            return self._chrome
+        if not self._chrome:
+            self._chrome = self.__get_browser()
+        return self._chrome
 
     def get_status(self):
         # FIXME Widnows下使用浏览器内核会导致启动多份进程，暂时禁用
@@ -64,14 +62,15 @@ class ChromeHelper(object):
             options.add_argument('--headless')
         prefs = {
             "useAutomationExtension": False,
+            "profile.managed_default_content_settings.images": 2 if self._headless else 1,
             "excludeSwitches": ["enable-automation"]
         }
         options.add_experimental_option("prefs", prefs)
         chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
-        chrome.set_page_load_timeout(10)
+        chrome.set_page_load_timeout(30)
         return chrome
 
-    def visit(self, url, ua=None, cookie=None):
+    def visit(self, url, ua=None, cookie=None, timeout=15):
         if not self.browser:
             return
         if ua:
@@ -84,7 +83,7 @@ class ChromeHelper(object):
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
                 self.browser.add_cookie(cookie)
             self.browser.get(url)
-        self.browser.implicitly_wait(10)
+        self.browser.implicitly_wait(timeout)
 
     def new_tab(self, url, ua=None, cookie=None):
         if not self.browser:
