@@ -3824,7 +3824,7 @@ class WebAction:
     @staticmethod
     def __download_subtitle(data):
         """
-        从Opensubtitles下载单个文件的字幕
+        从配置的字幕服务下载单个文件的字幕
         """
         path = data.get("path")
         name = data.get("name")
@@ -3844,7 +3844,7 @@ class WebAction:
                           "episode": media.begin_episode,
                           "bluray": False,
                           "imdbid": media.imdb_id}]
-        success, retmsg = Subtitle().download_subtitle(items=subtitle_item, server="opensubtitles")
+        success, retmsg = Subtitle().download_subtitle(items=subtitle_item)
         if success:
             return {"code": 0, "msg": retmsg}
         else:
