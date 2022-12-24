@@ -45,6 +45,7 @@ class SubHelper:
         if not chrome.get_status():
             log.error("【Subtitle】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
             return []
+        html_text = None
         try:
             # 访问页面
             chrome.visit(url)

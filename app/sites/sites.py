@@ -649,12 +649,11 @@ class Sites:
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
-            with CHROME_LOCK:
-                try:
-                    chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30)
-                    return chrome.get_html()
-                except Exception as err:
-                    print(str(err))
+            try:
+                chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30)
+                return chrome.get_html()
+            except Exception as err:
+                print(str(err))
         else:
             res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
             if res and res.status_code == 200:
