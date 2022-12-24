@@ -32,10 +32,9 @@ class ChromeHelper(object):
 
     @property
     def browser(self):
-        with lock:
-            if not self._chrome:
-                self._chrome = self.__get_browser()
-            return self._chrome
+        if not self._chrome:
+            self._chrome = self.__get_browser()
+        return self._chrome
 
     def get_status(self):
         # FIXME Widnows下使用浏览器内核会导致启动多份进程，暂时禁用
@@ -63,6 +62,7 @@ class ChromeHelper(object):
             options.add_argument('--headless')
         prefs = {
             "useAutomationExtension": False,
+            "profile.managed_default_content_settings.images": 2 if self._headless else 1,
             "excludeSwitches": ["enable-automation"]
         }
         options.add_experimental_option("prefs", prefs)
