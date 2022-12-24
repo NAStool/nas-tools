@@ -11,3 +11,4 @@ from .site_helper import SiteHelper
 from .ocr_helper import OcrHelper
 from .sub_helper import SubHelper
 from .words_helper import WordsHelper
+from .submodule_helper import SubmoduleHelper
