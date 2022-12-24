@@ -48,7 +48,7 @@ class SiteUserInfoFactory(object):
                 try:
                     chrome.visit(url=url, ua=ua, cookie=site_cookie)
                 except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
+                    print(str(err))
                     log.error("【Sites】%s 无法打开网站" % site_name)
                     return None
                 # 循环检测是否过cf

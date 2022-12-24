@@ -73,7 +73,7 @@ class SiteCookie(object):
             try:
                 chrome.visit(url=url)
             except Exception as err:
-                ExceptionUtils.exception_traceback(err)
+                print(str(err))
                 return None, None, "Chrome模拟访问失败"
             # 循环检测是否过cf
             cloudflare = chrome.pass_cloudflare()

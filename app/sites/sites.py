@@ -306,7 +306,7 @@ class Sites:
                 try:
                     chrome.visit(url=site_url, ua=ua, cookie=site_cookie)
                 except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
+                    print(str(err))
                     return False, "Chrome模拟访问失败", 0
                 # 循环检测是否过cf
                 cloudflare = chrome.pass_cloudflare()
@@ -367,7 +367,7 @@ class Sites:
                         try:
                             chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
                         except Exception as err:
-                            ExceptionUtils.exception_traceback(err)
+                            print(str(err))
                             log.warn("【Sites】%s 无法打开网站" % site)
                             status.append("【%s】无法打开网站！" % site)
                             continue
@@ -595,7 +595,7 @@ class Sites:
                                 cookie = chrome.get_cookies()
                                 ua = chrome.get_ua()
                             except Exception as err:
-                                ExceptionUtils.exception_traceback(err)
+                                print(str(err))
                                 log.warn("【Sites】无法打开网站：%s" % short_url)
                 else:
                     try:
@@ -631,7 +631,7 @@ class Sites:
                             chrome.visit(url=page_url)
                             page_source = chrome.get_html()
                         except Exception as err:
-                            ExceptionUtils.exception_traceback(err)
+                            print(str(err))
                             log.warn("【Sites】无法打开网站：%s" % short_url)
             else:
                 req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
@@ -659,7 +659,7 @@ class Sites:
                     chrome.visit(url=url, cookie=cookie, ua=ua)
                     return chrome.get_html()
                 except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
+                    print(str(err))
         else:
             res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
             if res and res.status_code == 200:

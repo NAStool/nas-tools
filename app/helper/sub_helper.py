@@ -46,10 +46,13 @@ class SubHelper:
             log.error("【Subtitle】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
             return []
         with CHROME_LOCK:
-            # 访问页面
-            chrome.visit(url)
-            # 源码
-            html_text = chrome.get_html()
+            try:
+                # 访问页面
+                chrome.visit(url)
+                # 源码
+                html_text = chrome.get_html()
+            except Exception as err:
+                print(str(err))
             if not html_text:
                 log.error("【Subtitle】无法连接opensubtitles.org！")
                 return []
