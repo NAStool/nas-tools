@@ -149,7 +149,7 @@ class ChromeHelper(object):
             # chrome 进程
             os.waitpid(self._chrome.browser_pid, 0)
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             pass
 
     def __del__(self):
