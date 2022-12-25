@@ -13,20 +13,21 @@
       <div class="row row-cards" id="downloaded_content">
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-            <div class="card card-sm card-link-pop rounded-4"
+            <div class="card card-sm card-link-pop rounded-4 border-2"
+              style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;"
               onclick="if(is_touch_device()){showCardMore('{{ item.ID }}')}"
               onmouseover="if(!is_touch_device()){showCardMore('{{ item.ID }}')}"
               onmouseout="if(!is_touch_device()){hideCardMore('{{ item.ID }}')}">
               <!-- 占位图 -->
               <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
-                <div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>
+                <div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>
               </div>
               <div id="downloaded_link_{{ item.ID }}" style="display: none">
                 <div class="ratio" style="--tblr-aspect-ratio:150%;">
                   <img src="{{ item.POSTER or '../static/img/no-image.png' }}"
                        onerror="this.src='../static/img/no-image.png'"
                        onload="loadImage('{{ item.ID }}')"
-                       class="card-img-top rounded-4 shadow"
+                       class="card-img"
                        alt="">
                 </div>
                 <span class="badge badge-pill {% if item.TYPE == '电影' %}bg-green{% else %}bg-blue{% endif %}"
@@ -36,7 +37,7 @@
                      style="position:absolute;top:10px;right:10px;">{{ item.VOTE }}</div>
                 {% endif %}
               </div>
-              <div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_{{ item.ID }}"
+              <div class="card-img-overlay ms-auto" id="downloaded_card_more_{{ item.ID }}"
                   onclick='show_mediainfo_modal("{% if item.TYPE == "电影" %}MOV{% else %}TV{% endif %}", "{{ item.TITLE }}", "{{ item.YEAR }}", "{{ item.TMDBID }}")'
                   style="display: none; background-color:rgba(0,0,0,0.5);">
                 <div style="cursor: pointer">
@@ -106,9 +107,9 @@
     for (let i = 0; i < page_card_num; i++) {
       let html = ''
       html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
-        html +='<div class="card card-sm card-link-pop rounded-4">';
+        html +='<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;">';
           html += '<div class="placeholder-glow">';
-            html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
+            html += '<div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>';
           html += '</div>';
         html += '</div>';
       html += '</div>';
@@ -142,9 +143,9 @@
         let item = ret.Items[i];
         let html = '';
         html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
-        html += '<div class="card card-sm card-link-pop rounded-4" onclick="if(is_touch_device()){showCardMore('+item.ID+')}" onmouseover="if(!is_touch_device()){showCardMore('+item.ID+')}" onmouseout="if(!is_touch_device()){hideCardMore('+item.ID+')}">';
+        html += '<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;" onclick="if(is_touch_device()){showCardMore('+item.ID+')}" onmouseover="if(!is_touch_device()){showCardMore('+item.ID+')}" onmouseout="if(!is_touch_device()){hideCardMore('+item.ID+')}">';
         html += '<div class="placeholder-glow" id="downloaded_placeholder_'+item.ID+'">';
-        html += '<div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>';
+        html += '<div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>';
         html += '</div>';
         html += '<div id="downloaded_link_'+item.ID+'" style="display: none">';
         html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">';
@@ -152,7 +153,7 @@
         if (!poster) {
           poster = '../static/img/no-image.png';
         }
-        html += '<img src="'+poster+'" onerror="this.src=\'../static/img/no-image.png\'" onload="loadImage('+item.ID+')"  class="card-img-top rounded-4 shadow" alt="">';
+        html += '<img src="'+poster+'" onerror="this.src=\'../static/img/no-image.png\'" onload="loadImage('+item.ID+')"  class="card-img" alt="">';
         html += '</div>';
         if (item.TYPE == '电影') {
           html += '<span class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;">' + item.TYPE + '</span>';
@@ -162,7 +163,7 @@
         if (item.VOTE) {
           html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.VOTE + '</div>';
         }
-        html += '<div class="card-img-overlay rounded-4 ms-auto" id="downloaded_card_more_'+item.ID+'"';
+        html += '<div class="card-img-overlay ms-auto" id="downloaded_card_more_'+item.ID+'"';
         let meida_type = item.TYPE == "电影" ? "MOV":"TV";
         html += ' onclick=\'show_mediainfo_modal("'+meida_type+'", "'+item.TITLE+'", "'+item.YEAR+'", "'+item.TMDBID+'")\'';
         html += ' style="display: none; background-color:rgba(0,0,0,0.5);">';
