@@ -14,8 +14,9 @@
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
             <div class="card card-sm card-link-pop rounded-4"
-              onmouseover="showCardMore('{{ item.ID }}')"
-              onmouseout="hideCardMore('{{ item.ID }}')">
+              onclick="if(is_touch_device()){showCardMore('{{ item.ID }}')}"
+              onmouseover="if(!is_touch_device()){showCardMore('{{ item.ID }}')}"
+              onmouseout="if(!is_touch_device()){hideCardMore('{{ item.ID }}')}">
               <!-- 占位图 -->
               <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
                 <div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>
@@ -85,7 +86,12 @@
   }
 
   // 鼠标移到卡片时显示更多
+  var lastCardmoreID = "";
   function showCardMore(id) {
+    if (is_touch_device() && lastCardmoreID) {
+      hideCardMore(lastCardmoreID);
+    }
+    lastCardmoreID = id;
     $(`#downloaded_card_more_${id}`).show();
   }
 
@@ -136,7 +142,7 @@
         let item = ret.Items[i];
         let html = '';
         html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
-        html += '<div class="card card-sm card-link-pop rounded-4" onmouseover="showCardMore('+item.ID+')" onmouseout="hideCardMore('+item.ID+')">';
+        html += '<div class="card card-sm card-link-pop rounded-4" onclick="if(is_touch_device()){showCardMore('+item.ID+')}" onmouseover="if(!is_touch_device()){showCardMore('+item.ID+')}" onmouseout="if(!is_touch_device()){hideCardMore('+item.ID+')}">';
         html += '<div class="placeholder-glow" id="downloaded_placeholder_'+item.ID+'">';
         html += '<div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>';
         html += '</div>';
