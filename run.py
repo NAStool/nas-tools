@@ -74,8 +74,6 @@ def sigal_handler(num, stack):
         log.warn('捕捉到退出信号：%s，开始退出...' % num)
         # 停止虚拟显示
         DisplayHelper().quit()
-        # 停止Chrome
-        ChromeHelper().quit()
         # 退出主进程
         sys.exit()
 
