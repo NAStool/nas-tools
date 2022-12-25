@@ -403,7 +403,6 @@ class DbHelper:
                 DEST=dest,
                 STATE='N'
             ))
-            return False
 
     def is_transfer_in_blacklist(self, path):
         """
