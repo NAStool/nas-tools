@@ -133,6 +133,7 @@ class ChromeHelper(object):
         if self._chrome:
             self._chrome.close()
             self._chrome.quit()
+            self._chrome = None
             self._fixup_uc_pid_leak()
 
     def _fixup_uc_pid_leak(self):
