@@ -270,7 +270,7 @@ class DbHelper:
 
     def is_transfer_history_exists_by_source_full_path(self, source_full_path):
         """
-        据源文件的全路径查询P识别转移记录
+        据源文件的全路径查询识别转移记录
         """
 
         path = os.path.dirname(source_full_path)
