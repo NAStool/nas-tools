@@ -100,11 +100,11 @@ class SiteUserInfoFactory(object):
                         html_text = res.text
                         if not html_text:
                             return None
-            elif not res:
-                log.error("【Sites】站点 %s 连接失败：%s" % (site_name, url))
+            elif res is not None:
+                log.error(f"【Sites】站点 {site_name} 连接失败，状态码：{res.status_code}")
                 return None
             else:
-                log.error("【Sites】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
+                log.error(f"【Sites】站点 {site_name} 无法访问：{url}")
                 return None
 
         # 解析站点类型
