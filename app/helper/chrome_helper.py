@@ -32,9 +32,10 @@ class ChromeHelper(object):
 
     @property
     def browser(self):
-        if not self._chrome:
-            self._chrome = self.__get_browser()
-        return self._chrome
+        with lock:
+            if not self._chrome:
+                self._chrome = self.__get_browser()
+            return self._chrome
 
     def get_status(self):
         # 指定了WebDriver路径的，如果路径不存在则不启用
