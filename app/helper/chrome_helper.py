@@ -37,9 +37,6 @@ class ChromeHelper(object):
         return self._chrome
 
     def get_status(self):
-        # FIXME Widnows下使用浏览器内核会导致启动多份进程，暂时禁用
-        if SystemUtils.is_windows():
-            return False
         # 指定了WebDriver路径的，如果路径不存在则不启用
         if self._executable_path \
                 and not os.path.exists(self._executable_path):

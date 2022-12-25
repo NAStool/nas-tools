@@ -44,7 +44,7 @@ class Sites:
     _signin_sites = []
     _last_update_time = None
 
-    _MAX_CONCURRENCY = 10
+    _MAX_CONCURRENCY = 1
 
     def __init__(self):
         self.init_config()
