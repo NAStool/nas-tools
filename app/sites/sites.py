@@ -301,10 +301,7 @@ class Sites:
         if emulate == "Y" and chrome.get_status():
             # 计时
             start_time = datetime.now()
-            try:
-                chrome.visit(url=site_url, ua=ua, cookie=site_cookie)
-            except Exception as err:
-                print(str(err))
+            if not chrome.visit(url=site_url, ua=ua, cookie=site_cookie):
                 return False, "Chrome模拟访问失败", 0
             # 循环检测是否过cf
             cloudflare = chrome.pass_cloudflare()
@@ -369,10 +366,7 @@ class Sites:
                 # 首页
                 log.info("【Sites】开始站点仿真签到：%s" % site)
                 home_url = StringUtils.get_base_url(site_url)
-                try:
-                    chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
-                except Exception as err:
-                    print(str(err))
+                if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie):
                     log.warn("【Sites】%s 无法打开网站" % site)
                     return f"{site} 无法打开网站！"
                 # 循环检测是否过cf
@@ -587,12 +581,10 @@ class Sites:
                     if not chrome.get_status():
                         log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
                     else:
-                        try:
-                            chrome.visit(url=short_url)
+                        if chrome.visit(url=short_url):
                             cookie = chrome.get_cookies()
                             ua = chrome.get_ua()
-                        except Exception as err:
-                            print(str(err))
+                        else:
                             log.warn("【Sites】无法打开网站：%s" % short_url)
                 else:
                     try:
@@ -623,11 +615,9 @@ class Sites:
                 if not chrome.get_status():
                     log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
                 else:
-                    try:
-                        chrome.visit(url=page_url)
+                    if chrome.visit(url=page_url):
                         page_source = chrome.get_html()
-                    except Exception as err:
-                        print(str(err))
+                    else:
                         log.warn("【Sites】无法打开网站：%s" % short_url)
             else:
                 req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
@@ -650,11 +640,8 @@ class Sites:
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
-            try:
-                chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30)
+            if chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30):
                 return chrome.get_html()
-            except Exception as err:
-                print(str(err))
         else:
             res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
             if res and res.status_code == 200:

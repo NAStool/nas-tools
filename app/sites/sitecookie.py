@@ -66,10 +66,7 @@ class SiteCookie(object):
         chrome = ChromeHelper()
         if not chrome.get_status():
             return -1, ["需要浏览器内核环境才能更新站点信息"]
-        try:
-            chrome.visit(url=url)
-        except Exception as err:
-            print(str(err))
+        if not chrome.visit(url=url):
             return None, None, "Chrome模拟访问失败"
         # 循环检测是否过cf
         cloudflare = chrome.pass_cloudflare()

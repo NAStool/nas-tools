@@ -72,30 +72,44 @@ class ChromeHelper(object):
 
     def visit(self, url, ua=None, cookie=None, timeout=15):
         if not self.browser:
-            return
-        if ua:
-            self.browser.execute_cdp_cmd("Emulation.setUserAgentOverride", {
-                "userAgent": ua
-            })
-        self.browser.get(url)
-        if cookie:
-            self.browser.delete_all_cookies()
-            for cookie in RequestUtils.cookie_parse(cookie, array=True):
-                self.browser.add_cookie(cookie)
-            self.browser.get(url)
-        self.browser.implicitly_wait(timeout)
+            return False
+        try:
+            if ua:
+                self._chrome.execute_cdp_cmd("Emulation.setUserAgentOverride", {
+                    "userAgent": ua
+                })
+            self._chrome.get(url)
+            if cookie:
+                self._chrome.delete_all_cookies()
+                for cookie in RequestUtils.cookie_parse(cookie, array=True):
+                    self._chrome.add_cookie(cookie)
+                self._chrome.get(url)
+            self._chrome.implicitly_wait(timeout)
+            return True
+        except Exception as err:
+            print(str(err))
+            self.quit()
+            return False
 
     def new_tab(self, url, ua=None, cookie=None):
-        if not self.browser:
-            return
+        if not self._chrome:
+            return False
         # 新开一个标签页
-        self.browser.switch_to.new_window('tab')
+        try:
+            self._chrome.switch_to.new_window('tab')
+        except Exception as err:
+            print(str(err))
+            return False
         # 访问URL
-        self.visit(url=url, ua=ua, cookie=cookie)
+        return self.visit(url=url, ua=ua, cookie=cookie)
 
     def close_tab(self):
-        self.browser.close()
-        self.browser.switch_to.window(self.browser.window_handles[0])
+        try:
+            self._chrome.close()
+            self._chrome.switch_to.window(self._chrome.window_handles[0])
+        except Exception as err:
+            print(str(err))
+            return False
 
     def pass_cloudflare(self, waittime=10):
         cloudflare = False
@@ -107,27 +121,27 @@ class ChromeHelper(object):
         return cloudflare
 
     def get_title(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
-        return self.browser.title
+        return self._chrome.title
 
     def get_html(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
-        return self.browser.page_source
+        return self._chrome.page_source
 
     def get_cookies(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
         cookie_str = ""
-        for _cookie in self.browser.get_cookies():
+        for _cookie in self._chrome.get_cookies():
             if not _cookie:
                 continue
             cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
         return cookie_str
 
     def get_ua(self):
-        return self.browser.execute_script("return navigator.userAgent")
+        return self._chrome.execute_script("return navigator.userAgent")
 
     def quit(self):
         if self._chrome:
