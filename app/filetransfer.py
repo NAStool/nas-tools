@@ -551,11 +551,12 @@ class FileTransfer:
                     if udf_flag:
                         return success_flag, error_message
                     # 记录未识别
-                    is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
-                    failed_count += 1
-                    if is_insert_unknown:
+                    is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
+                    if is_need_insert_unknown:
+                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                         alert_count += 1
-                    if error_message not in alert_messages and is_insert_unknown:
+                    failed_count += 1
+                    if error_message not in alert_messages and is_need_insert_unknown:
                         alert_messages.append(error_message)
                     # 原样转移过去
                     if unknown_dir:
@@ -646,11 +647,12 @@ class FileTransfer:
                         if udf_flag:
                             return success_flag, error_message
                         # 记录未识别
-                        is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
-                        failed_count += 1
-                        if is_insert_unknown:
+                        is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
+                        if is_need_insert_unknown:
+                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                             alert_count += 1
-                        if error_message not in alert_messages and is_insert_unknown:
+                        failed_count += 1
+                        if error_message not in alert_messages and is_need_insert_unknown:
                             alert_messages.append(error_message)
                         continue
                     else:
@@ -680,11 +682,12 @@ class FileTransfer:
                             if udf_flag:
                                 return success_flag, error_message
                             # 记录未识别
-                            is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
-                            failed_count += 1
-                            if is_insert_unknown:
+                            is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
+                            if is_need_insert_unknown:
+                                self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                                 alert_count += 1
-                            if error_message not in alert_messages and is_insert_unknown:
+                            failed_count += 1
+                            if error_message not in alert_messages and is_need_insert_unknown:
                                 alert_messages.append(error_message)
                             continue
                         new_file = "%s%s" % (ret_file_path, file_ext)

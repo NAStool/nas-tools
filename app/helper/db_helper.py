@@ -345,19 +345,18 @@ class DbHelper:
         else:
             return False
 
-    @DbPersist(_db)
-    def insert_transfer_unknown(self, path, dest):
+    def is_need_insert_transfer_unknown(self, path):
         """
-        插入未识别记录
+        检查是否需要插入未识别记录
         """
         if not path:
             return False
 
         """
-        如果不存在未识别，则插入
-        如果存在未处理的未识别，则返回已插入
-        如果未识别已经全部处理完并且存在转移记录，则不插入
-        如果未识别已经全部处理完并且不存在转移记录，则删除并重新插入
+        1) 如果不存在未识别，则插入
+        2) 如果存在未处理的未识别，则插入（并不会真正的插入，insert_transfer_unknown里会挡住，主要是标记进行消息推送）
+        3) 如果未识别已经全部处理完并且存在转移记录，则不插入
+        4) 如果未识别已经全部处理完并且不存在转移记录，则删除并重新插入
         """
         unknowns = self.get_transfer_unknown_by_path(path)
         if unknowns:
@@ -366,26 +365,45 @@ class DbHelper:
                 if unknown.STATE == 'N':
                     is_all_proceed = False
                     break
+
             if is_all_proceed:
                 is_transfer_history_exists = self.is_transfer_history_exists_by_source_full_path(path)
                 if is_transfer_history_exists:
+                    # 对应 3)
                     return False
-                for unknown in unknowns:
-                    self.delete_transfer_unknown(unknown.ID)
+                else:
+                    # 对应 4)
+                    for unknown in unknowns:
+                        self.delete_transfer_unknown(unknown.ID)
+                    return True
             else:
+                # 对应 2)
                 return True
-
-        path = os.path.normpath(path)
-        if dest:
-            dest = os.path.normpath(dest)
         else:
-            dest = ""
-        self._db.insert(TRANSFERUNKNOWN(
-            PATH=path,
-            DEST=dest,
-            STATE='N'
-         ))
-        return True
+            # 对应 1)
+            return True
+
+    @DbPersist(_db)
+    def insert_transfer_unknown(self, path, dest):
+        """
+        插入未识别记录
+        """
+        if not path:
+            return
+        if self.is_transfer_unknown_exists(path):
+            return
+        else:
+            path = os.path.normpath(path)
+            if dest:
+                dest = os.path.normpath(dest)
+            else:
+                dest = ""
+            self._db.insert(TRANSFERUNKNOWN(
+                PATH=path,
+                DEST=dest,
+                STATE='N'
+            ))
+            return False
 
     def is_transfer_in_blacklist(self, path):
         """
