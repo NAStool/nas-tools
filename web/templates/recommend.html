@@ -48,7 +48,7 @@
             {% endif %}
           </div>
           <div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_{{ item.orgid }}"
-            onclick="show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')"
+            onclick="if(Date.now()-MouseoverDate>200){show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')}"
             style="display: none; background-color:rgba(0,0,0,0.5);">
             <div style="cursor: pointer">
               <div class="text-white"><strong>{{ item.year }}</strong></div>
@@ -144,7 +144,14 @@
   }
 
   // 鼠标移到卡片时显示更多
+  var MouseoverDate = Date.now();
+  var MouseoverId = "";
   function showCardMore(id) {
+    // 用于记录移动到卡片时的时间与ID, 解决移动端点击会立即触发打开详情的问题
+    if (MouseoverId != id){
+      MouseoverDate = Date.now();
+    }
+    MouseoverId = id
     $(`#recommend_card_more_${id}`).show();
   }
 
@@ -298,7 +305,7 @@
             if (item.vote) {
               html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>';
             }
-            html += '<div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none; background-color:rgba(0,0,0,0.5);">';
+            html += '<div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'if(Date.now()-MouseoverDate>200){show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")}\' style="display: none; background-color:rgba(0,0,0,0.5);">';
               html += '<div style="cursor: pointer">';
                 html += '<div class="text-white"><strong>' + item.year + '</strong></div>';
                 html += '<h2 class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;"><strong>' + item.title + '</strong></h2>';
