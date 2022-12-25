@@ -50,8 +50,7 @@ class SiteCookie(object):
                              username,
                              password,
                              twostepcode=None,
-                             ocrflag=False,
-                             chrome=None):
+                             ocrflag=False):
         """
         获取站点cookie和ua
         :param url: 站点地址
@@ -59,16 +58,14 @@ class SiteCookie(object):
         :param password: 密码
         :param twostepcode: 两步验证
         :param ocrflag: 是否开启OCR识别
-        :param chrome: ChromeHelper
         :return: cookie、ua、message
         """
         if not url or not username or not password:
             return None, None, "参数错误"
-        if not chrome:
-            chrome = ChromeHelper()
-            if not chrome.get_status():
-                return None, None, "需要浏览器内核环境才能更新站点信息"
         # 全局锁
+        chrome = ChromeHelper()
+        if not chrome.get_status():
+            return -1, ["需要浏览器内核环境才能更新站点信息"]
         try:
             chrome.visit(url=url)
         except Exception as err:
@@ -113,9 +110,9 @@ class SiteCookie(object):
             if html.xpath(xpath):
                 captcha_xpath = xpath
                 break
+        # 查找验证码图片
+        captcha_img_url = None
         if captcha_xpath:
-            # 查找验证码图片
-            captcha_img_url = None
             for xpath in SITE_LOGIN_XPATH.get("captcha_img"):
                 if html.xpath(xpath):
                     captcha_img_url = html.xpath(xpath)[0]
@@ -241,9 +238,6 @@ class SiteCookie(object):
         """
         更新所有站点Cookie和ua
         """
-        chrome = ChromeHelper()
-        if not chrome.get_status():
-            return -1, ["需要浏览器内核环境才能更新站点信息"]
         # 获取站点列表
         sites = self.sites.get_sites(siteid=siteid)
         if siteid:
@@ -271,8 +265,7 @@ class SiteCookie(object):
                                                         username=username,
                                                         password=password,
                                                         twostepcode=twostepcode,
-                                                        ocrflag=ocrflag,
-                                                        chrome=chrome)
+                                                        ocrflag=ocrflag)
             # 更新进度
             curr_num += 1
             if not cookie:

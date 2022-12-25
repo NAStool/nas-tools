@@ -106,7 +106,6 @@ class SiteUserInfoFactory(object):
             else:
                 log.error(f"【Sites】站点 {site_name} 无法访问：{url}")
                 return None
-
         # 解析站点类型
         site_schema = self._build_class(html_text)
         if not site_schema:
