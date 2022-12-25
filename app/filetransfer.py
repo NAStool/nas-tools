@@ -551,10 +551,11 @@ class FileTransfer:
                     if udf_flag:
                         return success_flag, error_message
                     # 记录未识别
-                    self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                    is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                     failed_count += 1
-                    alert_count += 1
-                    if error_message not in alert_messages:
+                    if is_insert_unknown:
+                        alert_count += 1
+                    if error_message not in alert_messages and is_insert_unknown:
                         alert_messages.append(error_message)
                     # 原样转移过去
                     if unknown_dir:
@@ -645,10 +646,11 @@ class FileTransfer:
                         if udf_flag:
                             return success_flag, error_message
                         # 记录未识别
-                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                        is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                         failed_count += 1
-                        alert_count += 1
-                        if error_message not in alert_messages:
+                        if is_insert_unknown:
+                            alert_count += 1
+                        if error_message not in alert_messages and is_insert_unknown:
                             alert_messages.append(error_message)
                         continue
                     else:
@@ -678,10 +680,11 @@ class FileTransfer:
                             if udf_flag:
                                 return success_flag, error_message
                             # 记录未识别
-                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                            is_insert_unknown = self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
                             failed_count += 1
-                            alert_count += 1
-                            if error_message not in alert_messages:
+                            if is_insert_unknown:
+                                alert_count += 1
+                            if error_message not in alert_messages and is_insert_unknown:
                                 alert_messages.append(error_message)
                             continue
                         new_file = "%s%s" % (ret_file_path, file_ext)

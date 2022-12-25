@@ -268,6 +268,20 @@ class DbHelper:
         """
         return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).all()
 
+    def is_transfer_history_exists_by_source_full_path(self, source_full_path):
+        """
+        据源文件的全路径查询P识别转移记录
+        """
+
+        path = os.path.dirname(source_full_path)
+        filename = os.path.basename(source_full_path)
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == path,
+                                                     TRANSFERHISTORY.SOURCE_FILENAME == filename).count()
+        if ret > 0:
+            return True
+        else:
+            return False
+
     @DbPersist(_db)
     def delete_transfer_log_by_id(self, logid):
         """
@@ -311,6 +325,14 @@ class DbHelper:
             return []
         return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
 
+    def get_transfer_unknown_by_path(self, path):
+        """
+        根据路径查询未识别记录
+        """
+        if not path:
+            return []
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == path).all()
+
     def is_transfer_unknown_exists(self, path):
         """
         查询未识别记录是否存在
@@ -329,20 +351,41 @@ class DbHelper:
         插入未识别记录
         """
         if not path:
-            return
-        if self.is_transfer_unknown_exists(path):
-            return
-        else:
-            path = os.path.normpath(path)
-            if dest:
-                dest = os.path.normpath(dest)
+            return False
+
+        """
+        如果不存在未识别，则插入
+        如果存在未处理的未识别，则返回已插入
+        如果未识别已经全部处理完并且存在转移记录，则不插入
+        如果未识别已经全部处理完并且不存在转移记录，则删除并重新插入
+        """
+        unknowns = self.get_transfer_unknown_by_path(path)
+        if unknowns:
+            is_all_proceed = True
+            for unknown in unknowns:
+                if unknown.STATE == 'N':
+                    is_all_proceed = False
+                    break
+            if is_all_proceed:
+                is_transfer_history_exists = self.is_transfer_history_exists_by_source_full_path(path)
+                if is_transfer_history_exists:
+                    return False
+                for unknown in unknowns:
+                    self.delete_transfer_unknown(unknown.ID)
             else:
-                dest = ""
-            self._db.insert(TRANSFERUNKNOWN(
-                PATH=path,
-                DEST=dest,
-                STATE='N'
-            ))
+                return True
+
+        path = os.path.normpath(path)
+        if dest:
+            dest = os.path.normpath(dest)
+        else:
+            dest = ""
+        self._db.insert(TRANSFERUNKNOWN(
+            PATH=path,
+            DEST=dest,
+            STATE='N'
+         ))
+        return True
 
     def is_transfer_in_blacklist(self, path):
         """
