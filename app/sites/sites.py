@@ -171,17 +171,18 @@ class Sites:
         if not self._sites:
             return
 
-        if not force \
-                and not specify_sites \
-                and self._last_update_time \
-                and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
-            return
-
-        if specify_sites \
-                and not isinstance(specify_sites, list):
-            specify_sites = [specify_sites]
-
         with lock:
+
+            if not force \
+                    and not specify_sites \
+                    and self._last_update_time \
+                    and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
+                return
+
+            if specify_sites \
+                    and not isinstance(specify_sites, list):
+                specify_sites = [specify_sites]
+
             # 没有指定站点，默认使用全部站点
             if not specify_sites:
                 refresh_sites = self.get_sites(statistic=True)
@@ -204,12 +205,11 @@ class Sites:
             self.dbhelper.update_site_favicon(site_user_infos)
             # 实时做种信息
             self.dbhelper.update_site_seed_info(site_user_infos)
+            # 站点图标重新加载
+            self.__init_favicons()
 
-        # 更新时间
-        self._last_update_time = datetime.now()
-
-        # 站点图标重新加载
-        self.__init_favicons()
+            # 更新时间
+            self._last_update_time = datetime.now()
 
     def __refresh_site_data(self, site_info):
         """
