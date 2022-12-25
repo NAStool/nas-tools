@@ -102,7 +102,7 @@
   <style>
   {% for site_name, site_icon in SiteFavicons.items() %}
       .siteicon-{{ site_name|hash }} {
-          background-image: url(data:image/ico;base64,{{ site_icon }});
+          background-image: url({{ site_icon }});
           background-size: cover;
           border: 0;
       }
