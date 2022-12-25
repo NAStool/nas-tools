@@ -1323,6 +1323,11 @@
 
 <!-- 提示弹窗 -->
 <script type="text/javascript">
+  //是否触摸屏设备
+  function is_touch_device() {
+    return 'ontouchstart' in window;
+  }
+
   //显示全局加载框
   function show_wait_process(blur) {
     if (blur) {
