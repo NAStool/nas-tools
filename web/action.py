@@ -239,8 +239,6 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
-        # 关闭浏览器
-        ChromeHelper().quit()
         # 关闭虚拟显示
         DisplayHelper().quit()
         # 重启进程

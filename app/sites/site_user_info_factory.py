@@ -35,10 +35,7 @@ class SiteUserInfoFactory(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
-            try:
-                chrome.visit(url=url, ua=ua, cookie=site_cookie)
-            except Exception as err:
-                print(str(err))
+            if not chrome.visit(url=url, ua=ua, cookie=site_cookie):
                 log.error("【Sites】%s 无法打开网站" % site_name)
                 return None
             # 循环检测是否过cf
@@ -106,7 +103,6 @@ class SiteUserInfoFactory(object):
             else:
                 log.error(f"【Sites】站点 {site_name} 无法访问：{url}")
                 return None
-
         # 解析站点类型
         site_schema = self._build_class(html_text)
         if not site_schema:

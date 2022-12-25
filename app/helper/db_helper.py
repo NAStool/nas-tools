@@ -1169,7 +1169,8 @@ class DbHelper:
             return
         for site_user_info in site_user_infos:
             site_icon = "data:image/ico;base64," + \
-                        site_user_info.site_favicon if site_user_info.site_favicon else site_user_info.site_url
+                        site_user_info.site_favicon if site_user_info.site_favicon else site_user_info.site_url \
+                                                                                        + "/favicon.ico"
             if not self.is_exists_site_favicon(site_user_info.site_name):
                 self._db.insert(SITEFAVICON(
                     SITE=site_user_info.site_name,
