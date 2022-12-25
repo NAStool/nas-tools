@@ -164,30 +164,39 @@ class Sites:
         else:
             return self._site_favicons
 
-    def refresh_all_site_data(self, force=False, specify_sites=None):
+    def __refresh_all_site_data(self, force=False, specify_sites=None):
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
         if not self._sites:
             return
-        if not force and self._last_update_time and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
-            return
 
         with lock:
+
+            if not force \
+                    and not specify_sites \
+                    and self._last_update_time \
+                    and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
+                return
+
+            if specify_sites \
+                    and not isinstance(specify_sites, list):
+                specify_sites = [specify_sites]
+
             # 没有指定站点，默认使用全部站点
             if not specify_sites:
                 refresh_sites = self.get_sites(statistic=True)
             else:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
+
             if not refresh_sites:
                 return
-
-            refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
 
             # 并发刷新
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
                 site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
+
             # 登记历史数据
             self.dbhelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
@@ -196,13 +205,11 @@ class Sites:
             self.dbhelper.update_site_favicon(site_user_infos)
             # 实时做种信息
             self.dbhelper.update_site_seed_info(site_user_infos)
+            # 站点图标重新加载
+            self.__init_favicons()
 
-        # 更新时间
-        if refresh_all:
+            # 更新时间
             self._last_update_time = datetime.now()
-
-        # 站点图标重新加载
-        self.__init_favicons()
 
     def __refresh_site_data(self, site_info):
         """
@@ -443,13 +450,13 @@ class Sites:
         """
         强制刷新站点数据
         """
-        self.refresh_all_site_data(True)
+        self.__refresh_all_site_data(force=True)
 
-    def get_pt_date(self):
+    def get_pt_date(self, specify_sites=None, force=False):
         """
         获取站点上传下载量
         """
-        self.refresh_all_site_data()
+        self.__refresh_all_site_data(force=force, specify_sites=specify_sites)
         return self._sites_data
 
     def get_pt_site_statistics_history(self, days=7):
@@ -503,18 +510,6 @@ class Sites:
                                "msg_unread": site.MSG_UNREAD
                                })
         return statistics
-
-    def refresh_pt(self, specify_sites=None):
-        """
-        强制刷新指定站点数据
-        """
-        if not specify_sites:
-            return
-
-        if not isinstance(specify_sites, list):
-            specify_sites = [specify_sites]
-
-        self.refresh_all_site_data(force=True, specify_sites=specify_sites)
 
     def get_pt_site_activity_history(self, site, days=365 * 2):
         """

@@ -201,7 +201,7 @@
                 </div>
                 <div class="ms-auto">
                   <a href="javascript:void(0)" class="btn-icon" {% if SiteUserStatistics | count> 0 %}
-                     onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item.site }}{% endfor %}')"
+                     onclick="navmenu('statistics?refresh_force=1')"
                   {% endif %}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24"
