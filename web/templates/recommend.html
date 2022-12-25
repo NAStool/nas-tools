@@ -14,20 +14,21 @@
     <div class="row row-cards" id="recommend_content">
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
-        <div class="card card-sm card-link-pop rounded-4"
+        <div class="card card-sm card-link-pop rounded-4 border-2"
+          style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;"
           onclick="if(is_touch_device()){showCardMore('{{ item.orgid }}')}"
           onmouseover="if(!is_touch_device()){showCardMore('{{ item.orgid }}')}"
           onmouseout="if(!is_touch_device()){hideCardMore('{{ item.orgid }}')}">
           <!-- 占位图 -->
           <div class="placeholder-glow" id="recommend_card_placeholder_{{ item.orgid }}">
-            <div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div>
+            <div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>
           </div>
           <div id="recommend_card_link_{{ item.orgid }}" style="display: none">
             <div class="ratio" style="--tblr-aspect-ratio:150%;">
               <img src="{{ item.image or '../static/img/no-image.png' }}"
                 onload="loadImage('{{ item.orgid }}')"
                 onerror="this.src='../static/img/no-image.png'"
-                class="card-img rounded-4 shadow" alt="">
+                class="card-img" alt="">
             </div>
             {% if item.weekday %}
             <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}"
@@ -48,7 +49,7 @@
             <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
             {% endif %}
           </div>
-          <div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_{{ item.orgid }}"
+          <div class="card-img-overlay ms-auto" id="recommend_card_more_{{ item.orgid }}"
             onclick="show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')"
             style="display: none; background-color:rgba(0,0,0,0.5);">
             <div style="cursor: pointer">
@@ -238,9 +239,9 @@
     for (let i = 0; i < page_card_num; i++) {
       let html = ''
       html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
-        html +='<div class="card card-sm card-link-pop rounded-4">';
+        html +='<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;">';
           html += '<div class="placeholder-glow">';
-            html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
+            html += '<div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>';
           html += '</div>';
         html += '</div>';
       html += '</div>';
@@ -279,14 +280,14 @@
         let item = ret.Items[i];
         let html = '';
         html += '<div class="col-6 col-md-3 col-xl-2">';
-          html +='<div class="card card-sm card-link-pop rounded-4" onclick="if(is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseover="if(!is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseout="if(!is_touch_device()){hideCardMore(\'' + item.orgid + '\')}">';
-            html += '<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="ratio placeholder rounded-4 shadow" style="--tblr-aspect-ratio:150%;"></div></div>';
+          html +='<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;" onclick="if(is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseover="if(!is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseout="if(!is_touch_device()){hideCardMore(\'' + item.orgid + '\')}">';
+            html += '<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div></div>';
             html += '<div id="recommend_card_link_' + item.orgid + '" style="display: none">';
               html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">'
                 if (item.image) {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img rounded-4 shadow"  alt="">';
+                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img"  alt="">';
                 } else {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="../static/img/no-image.png" class="card-img rounded-4 shadow"  alt="">';
+                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="../static/img/no-image.png" class="card-img"  alt="">';
                 }
               html += '</div>';
             if (item.weekday) {
@@ -304,7 +305,7 @@
             if (item.vote) {
               html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>';
             }
-            html += '<div class="card-img-overlay rounded-4 ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none; background-color:rgba(0,0,0,0.5);">';
+            html += '<div class="card-img-overlay ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none; background-color:rgba(0,0,0,0.5);">';
               html += '<div style="cursor: pointer">';
                 html += '<div class="text-white"><strong>' + item.year + '</strong></div>';
                 html += '<h2 class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;"><strong>' + item.title + '</strong></h2>';
