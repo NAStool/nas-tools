@@ -25,7 +25,9 @@ class ChromeHelper(object):
         chrome_path = SystemUtils.get_system().value
         self._executable_path = WEBDRIVER_PATH.get(chrome_path)
 
-        if not os.environ.get("NASTOOL_DISPLAY"):
+        if SystemUtils.is_windows():
+            self._headless = False
+        elif not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
         else:
             self._headless = headless
@@ -82,11 +84,9 @@ class ChromeHelper(object):
                 for cookie in RequestUtils.cookie_parse(cookie, array=True):
                     self._chrome.add_cookie(cookie)
                 self._chrome.get(url)
-            self._chrome.implicitly_wait(timeout)
             return True
         except Exception as err:
             print(str(err))
-            self.quit()
             return False
 
     def new_tab(self, url, ua=None, cookie=None):
