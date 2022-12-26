@@ -1,8 +1,6 @@
 import json
 from enum import Enum
 
-from app.utils.exception_utils import ExceptionUtils
-
 
 class JsonUtils:
 
@@ -20,7 +18,7 @@ class JsonUtils:
             try:
                 return o.__dict__
             except Exception as err:
-                ExceptionUtils.exception_traceback(err)
+                print(str(err))
                 return str(o)
 
         return json.loads(json.dumps(obj, default=lambda o: _try(o)))
