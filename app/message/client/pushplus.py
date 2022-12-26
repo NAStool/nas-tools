@@ -21,7 +21,7 @@ class PushPlus(IMessageClient):
         if self._client_config:
             self._token = self._client_config.get('token')
             self._topic = self._client_config.get('topic')
-            self._channel = self._client_config.get('client')
+            self._channel = self._client_config.get('channel')
             self._webhook = self._client_config.get('webhook')
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
@@ -42,7 +42,7 @@ class PushPlus(IMessageClient):
         try:
             values = {
                 "token": self._token,
-                "client": self._channel,
+                "channel": self._channel,
                 "topic": self._topic,
                 "webhook": self._webhook,
                 "title": title,
