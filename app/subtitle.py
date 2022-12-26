@@ -265,7 +265,7 @@ class Subtitle:
         if not media_info.page_url:
             return
         # 字幕下载目录
-        log.info("【Subtitle】开始从站点下载字幕: %s" % media_info.page_url)
+        log.info("【Subtitle】开始从站点下载字幕：%s" % media_info.page_url)
         if not download_dir:
             log.warn("【Subtitle】未找到字幕下载目录")
             return
@@ -290,7 +290,7 @@ class Subtitle:
                             sublink = "%s/%s" % (base_url, sublink)
                     break
             if sublink:
-                log.info(f"【Subtitle】找到字幕下载链接: {sublink}，开始下载...")
+                log.info(f"【Subtitle】找到字幕下载链接：{sublink}，开始下载...")
                 # 下载
                 ret = request.get_res(sublink)
                 if ret and ret.status_code == 200:
