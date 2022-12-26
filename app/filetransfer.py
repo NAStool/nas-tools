@@ -1122,8 +1122,8 @@ class FileTransfer:
         """
         if not media:
             return {}
-        en_title = self.media.get_tmdb_en_title(media)
         episode_title = self.media.get_episode_title(media)
+        en_title = self.media.get_tmdb_en_title(media)
         return {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(en_title),
