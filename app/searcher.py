@@ -6,7 +6,7 @@ from app.message import Message
 from app.downloader import Downloader
 from app.media import Media
 from app.helper import ProgressHelper
-from app.utils.types import SearchType, MediaType
+from app.utils.types import SearchType
 
 
 class Searcher:
@@ -111,9 +111,9 @@ class Searcher:
             if media_info.original_language == "en":
                 search_en_name = media_info.original_title
             else:
-                en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
-                if en_info:
-                    search_en_name = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+                en_title = self.media.get_tmdb_en_title(media_info)
+                if en_title:
+                    search_en_name = en_title
         # 两次搜索名称
         second_search_name = None
         if Config().get_config("laboratory").get("search_en_title"):

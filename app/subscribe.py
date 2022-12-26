@@ -84,8 +84,6 @@ class Subscribe:
         fuzzy_match = True if fuzzy_match else False
         # 检索媒体信息
         if not fuzzy_match:
-            # 精确匹配
-            media = Media()
             # 根据TMDBID查询，从推荐加订阅的情况
             if season:
                 title = "%s %s 第%s季".strip() % (name, year, season)
@@ -94,15 +92,15 @@ class Subscribe:
             if tmdbid:
                 # 根据TMDBID查询
                 media_info = MetaInfo(title=title, mtype=mtype)
-                media_info.set_tmdb_info(media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
+                media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
                 if not media_info.tmdb_info:
                     return 1, "无法查询到媒体信息", None
             else:
                 # 根据名称和年份查询
-                media_info = media.get_media_info(title=title,
-                                                  mtype=mtype,
-                                                  strict=True if year else False,
-                                                  cache=False)
+                media_info = self.media.get_media_info(title=title,
+                                                       mtype=mtype,
+                                                       strict=True if year else False,
+                                                       cache=False)
                 if media_info and media_info.tmdb_info:
                     tmdbid = media_info.tmdb_id
                 elif doubanid:
@@ -115,9 +113,9 @@ class Subscribe:
                     media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
                     # 以IMDBID查询TMDB
                     if douban_info.get("imdbid"):
-                        tmdbid = Media().get_tmdbid_by_imdbid(douban_info.get("imdbid"))
+                        tmdbid = self.media.get_tmdbid_by_imdbid(douban_info.get("imdbid"))
                         if tmdbid:
-                            media_info.set_tmdb_info(Media().get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
+                            media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
                     # 无法识别TMDB时以豆瓣信息订阅
                     if not media_info.tmdb_info:
                         media_info.title = douban_info.get('title')
@@ -137,10 +135,10 @@ class Subscribe:
                 if tmdbid:
                     if season or media_info.begin_season is not None:
                         season = int(season) if season else media_info.begin_season
-                        total_episode = media.get_tmdb_season_episodes_num(sea=season, tmdbid=tmdbid)
+                        total_episode = self.media.get_tmdb_season_episodes_num(sea=season, tmdbid=tmdbid)
                     else:
                         # 查询季及集信息
-                        total_seasoninfo = media.get_tmdb_seasons_list(tmdbid=tmdbid)
+                        total_seasoninfo = self.media.get_tmdb_seasons_list(tmdbid=tmdbid)
                         if not total_seasoninfo:
                             return 2, "获取剧集信息失败", media_info
                         # 按季号降序排序
@@ -533,17 +531,16 @@ class Subscribe:
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
         log.info("【Subscribe】订阅TMDB信息刷新完成")
 
-    @staticmethod
-    def __get_media_info(tmdbid, name, year, mtype, cache=True):
+    def __get_media_info(self, tmdbid, name, year, mtype, cache=True):
         """
         综合返回媒体信息
         """
         if tmdbid and not tmdbid.startswith("DB:"):
             media_info = MetaInfo(title="%s %s".strip() % (name, year))
-            tmdb_info = Media().get_tmdb_info(mtype=mtype, tmdbid=tmdbid)
+            tmdb_info = self.media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid)
             media_info.set_tmdb_info(tmdb_info)
         else:
-            media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True, cache=cache)
+            media_info = self.media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True, cache=cache)
         return media_info
 
     def subscribe_search_all(self):

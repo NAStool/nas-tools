@@ -96,4 +96,3 @@ jobs:
             *v${{ env.app_version }}*
 
             ${{ github.event.commits[0].message }}
-          
