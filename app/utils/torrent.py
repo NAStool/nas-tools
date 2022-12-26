@@ -10,7 +10,6 @@ from config import Config
 
 
 class Torrent:
-
     _torrent_path = None
 
     def __init__(self):
@@ -57,7 +56,8 @@ class Torrent:
                 return None, None, "", [], "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            return None, None, "", [], "下载种子文件出现异常：%s，请检查是否站点Cookie已过期，或触发了站点首次种子下载" % str(err)
+            return None, None, "", [], "下载种子文件出现异常：%s，请检查是否站点Cookie已过期，或触发了站点首次种子下载" % str(
+                err)
 
     @staticmethod
     def convert_hash_to_magnet(hash_text, title):
@@ -66,18 +66,41 @@ class Torrent:
         :param hash_text: 种子Hash值
         :param title: 种子标题
         """
+        _trackers = [
+            "udp://tracker.cyberia.is:6969/announce",
+            "udp://tracker.port443.xyz:6969/announce",
+            "http://tracker3.itzmx.com:6961/announce",
+            "udp://tracker.moeking.me:6969/announce",
+            "http://vps02.net.orel.ru:80/announce",
+            "http://tracker.openzim.org:80/announce",
+            "udp://tracker.skynetcloud.tk:6969/announce",
+            "https://1.tracker.eu.org:443/announce",
+            "https://3.tracker.eu.org:443/announce",
+            "http://re-tracker.uz:80/announce",
+            "https://tracker.parrotsec.org:443/announce",
+            "udp://explodie.org:6969/announce",
+            "udp://tracker.filemail.com:6969/announce",
+            "udp://tracker.nyaa.uk:6969/announce",
+            "udp://retracker.netbynet.ru:2710/announce",
+            "http://tracker.gbitt.info:80/announce",
+            "http://tracker2.dler.org:80/announce",
+            "udp://tracker.openbittorrent.com:80/announce",
+            "udp://opentor.org:2710/announce",
+            "udp://tracker.ccc.de:80/announce",
+            "udp://tracker.blackunicorn.xyz:6969/announce",
+            "udp://tracker.leechers-paradise.org:6969/announce"
+        ]
+
         if not hash_text or not title:
             return None
         hash_text = re.search(r'[0-9a-z]+', hash_text, re.IGNORECASE)
         if not hash_text:
             return None
         hash_text = hash_text.group(0)
-        return f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80' \
-               '&tr=udp%3A%2F%2Fopentor.org%3A2710' \
-               '&tr=udp%3A%2F%2Ftracker.ccc.de%3A80' \
-               '&tr=udp%3A%2F%2Ftracker.blackunicorn.xyz%3A6969' \
-               '&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969' \
-               '&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969'
+        ret_magnet = f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}'
+        for tracker in _trackers:
+            ret_magnet = f'{ret_magnet}&tr={tracker}'
+        return ret_magnet
 
     @staticmethod
     def __get_torrent_files(path):
