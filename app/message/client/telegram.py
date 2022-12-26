@@ -83,6 +83,8 @@ class Telegram(IMessageClient):
             if not self._telegram_token or not self._telegram_chat_id:
                 return False, "参数未配置"
 
+            # text中的Markdown特殊字符转义
+            text = text.replace("[", "\[").replace("_", "\_").replace("*", "\*").replace("`", "\`")
             # 拼装消息内容
             titles = str(title).split('\n')
             if len(titles) > 1:
