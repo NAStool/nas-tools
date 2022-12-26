@@ -3,7 +3,6 @@ import re
 import datetime
 from urllib.parse import quote
 
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.torrentParser import TorrentParser
 from app.utils import RequestUtils
 from config import Config
@@ -55,9 +54,7 @@ class Torrent:
             else:
                 return None, None, "", [], "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
-            return None, None, "", [], "下载种子文件出现异常：%s，请检查是否站点Cookie已过期，或触发了站点首次种子下载" % str(
-                err)
+            return None, None, "", [], "下载种子文件出现异常：%s" % str(err)
 
     @staticmethod
     def convert_hash_to_magnet(hash_text, title):
@@ -124,8 +121,11 @@ class Torrent:
                         if item.get("path"):
                             file_names.append(item["path"][0])
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
-            return file_folder, file_names, "解析种子文件异常：%s" % str(err)
+            if str(err).find("Malformed integer element") != -1:
+                err_msg = "需手工在站点下载一次种子"
+            else:
+                err_msg = "解析种子文件异常：%s" % str(err)
+            return file_folder, file_names, err_msg
         return file_folder, file_names, ""
 
     def read_torrent_file(self, path):
@@ -143,7 +143,6 @@ class Torrent:
             # 解析种子文件
             file_folder, files, retmsg = self.__get_torrent_files(path)
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
             retmsg = "读取种子文件出错：%s" % str(e)
         return content, file_folder, files, retmsg
 
