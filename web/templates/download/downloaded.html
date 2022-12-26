@@ -13,14 +13,14 @@
       <div class="row row-cards" id="downloaded_content">
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-            <div class="card card-sm card-link-pop rounded-4 border-2"
+            <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
               style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;"
               onclick="if(is_touch_device()){showCardMore('{{ item.ID }}')}"
               onmouseover="if(!is_touch_device()){showCardMore('{{ item.ID }}')}"
               onmouseout="if(!is_touch_device()){hideCardMore('{{ item.ID }}')}">
               <!-- 占位图 -->
               <div class="placeholder-glow" id="downloaded_placeholder_{{ item.ID }}">
-                <div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>
+                <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
               </div>
               <div id="downloaded_link_{{ item.ID }}" style="display: none">
                 <div class="ratio" style="--tblr-aspect-ratio:150%;">
@@ -107,9 +107,9 @@
     for (let i = 0; i < page_card_num; i++) {
       let html = ''
       html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
-        html +='<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;">';
+        html +='<div class="card card-sm rounded-4" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;">';
           html += '<div class="placeholder-glow">';
-            html += '<div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>';
+            html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
           html += '</div>';
         html += '</div>';
       html += '</div>';
@@ -143,9 +143,9 @@
         let item = ret.Items[i];
         let html = '';
         html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
-        html += '<div class="card card-sm card-link-pop rounded-4 border-2" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;" onclick="if(is_touch_device()){showCardMore('+item.ID+')}" onmouseover="if(!is_touch_device()){showCardMore('+item.ID+')}" onmouseout="if(!is_touch_device()){hideCardMore('+item.ID+')}">';
+        html += '<div class="card card-sm card-link-pop rounded-4 border-1 shadow" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;" onclick="if(is_touch_device()){showCardMore('+item.ID+')}" onmouseover="if(!is_touch_device()){showCardMore('+item.ID+')}" onmouseout="if(!is_touch_device()){hideCardMore('+item.ID+')}">';
         html += '<div class="placeholder-glow" id="downloaded_placeholder_'+item.ID+'">';
-        html += '<div class="ratio placeholder" style="--tblr-aspect-ratio:150%;"></div>';
+        html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
         html += '</div>';
         html += '<div id="downloaded_link_'+item.ID+'" style="display: none">';
         html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">';
