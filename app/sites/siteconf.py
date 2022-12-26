@@ -201,8 +201,8 @@ class SiteConf:
         },
         'hdchina.org': {
             'RENDER': True,
-            'FREE': ["//div[class='m_name']/h2/img[@class='pro_free']"],
-            '2XFREE': ["//div[class='m_name']/h2/img[@class='pro_free2up']"],
+            'FREE': ["//div[@class='m_name']/h2/img[@class='pro_free']"],
+            '2XFREE': ["//div[@class='m_name']/h2/img[@class='pro_free2up']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
