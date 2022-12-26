@@ -1116,16 +1116,17 @@ class FileTransfer:
                                        target_file=new_file,
                                        rmt_mode=sync_transfer_mode), ""
 
-    @staticmethod
-    def get_format_dict(media):
+    def get_format_dict(self, media):
         """
         根据媒体信息，返回Format字典
         """
         if not media:
             return {}
+        en_title = self.media.get_tmdb_en_title(media)
+        episode_title = self.media.get_episode_title(media)
         return {
             "title": StringUtils.clear_file_name(media.title),
-            "en_title": StringUtils.clear_file_name(media.en_name),
+            "en_title": StringUtils.clear_file_name(en_title),
             "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
             "original_title": StringUtils.clear_file_name(media.original_title),
             "name": StringUtils.clear_file_name(media.get_name()),
@@ -1138,6 +1139,7 @@ class FileTransfer:
             "tmdbid": media.tmdb_id,
             "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
+            "episode_title": StringUtils.clear_file_name(episode_title),
             "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
             "part": media.part
         }
