@@ -4,7 +4,7 @@ import re
 from lxml import etree
 
 import log
-from app.sites.siteuserinfo._base import _ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import StringUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import SiteSchema
@@ -12,6 +12,16 @@ from app.utils.types import SiteSchema
 
 class NexusPhpSiteUserInfo(_ISiteUserInfo):
     schema = SiteSchema.NexusPhp
+    order = SITE_BASE_ORDER * 2
+
+    @classmethod
+    def match(cls, html_text):
+        """
+        默认使用NexusPhp解析
+        :param html_text:
+        :return:
+        """
+        return True
 
     def _parse_site_page(self, html_text):
         html_text = self._prepare_html_text(html_text)

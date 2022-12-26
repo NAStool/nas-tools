@@ -3,13 +3,23 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo._base import _ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import StringUtils
 from app.utils.types import SiteSchema
 
 
 class DiscuzUserInfo(_ISiteUserInfo):
     schema = SiteSchema.DiscuzX
+    order = SITE_BASE_ORDER + 10
+
+    @classmethod
+    def match(cls, html_text):
+        html = etree.HTML(html_text)
+        if not html:
+            return False
+
+        printable_text = html.xpath("string(.)") if html else ""
+        return 'Powered by Discuz!' in printable_text
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)

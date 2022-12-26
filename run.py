@@ -49,18 +49,6 @@ if is_windows_exe:
             os.makedirs(feapder_tmpdir)
     except Exception as err:
         ExceptionUtils.exception_traceback(err)
-else:
-    # 第三方代码打补丁
-    shutil.copy2(os.path.join(os.path.dirname(__file__),
-                              "third_party",
-                              "_selenium.py"),
-                 os.path.join(os.path.dirname(__file__),
-                              "third_party",
-                              "feapder",
-                              "feapder",
-                              "network",
-                              "downloader",
-                              "_selenium.py"))
 
 from config import Config
 import log
@@ -86,8 +74,6 @@ def sigal_handler(num, stack):
         log.warn('捕捉到退出信号：%s，开始退出...' % num)
         # 停止虚拟显示
         DisplayHelper().quit()
-        # 停止Chrome
-        ChromeHelper().quit()
         # 退出主进程
         sys.exit()
 

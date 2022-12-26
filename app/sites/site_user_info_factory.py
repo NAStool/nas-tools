@@ -1,14 +1,10 @@
-import importlib
-import pkgutil
-
 import requests
 
 import log
-from app.helper import ChromeHelper, CHROME_LOCK, SiteHelper
+from app.helper import ChromeHelper, SubmoduleHelper
 from app.utils import RequestUtils
 from app.utils.commons import singleton
 from app.utils.exception_utils import ExceptionUtils
-from app.utils.types import SiteSchema
 from config import Config
 
 
@@ -16,25 +12,20 @@ from config import Config
 class SiteUserInfoFactory(object):
 
     def __init__(self):
-        self.__site_schema = {}
+        self.__site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
+                                                               filter_func=lambda _, obj: hasattr(obj, 'schema'))
+        self.__site_schema.sort(key=lambda x: x.order)
+        print(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
 
-        # 从 app.sites.siteuserinfo 下加载所有的站点信息类
-        packages = importlib.import_module('app.sites.siteuserinfo').__path__
-        for importer, package_name, _ in pkgutil.iter_modules(packages):
-            full_package_name = f'app.sites.siteuserinfo.{package_name}'
-            if full_package_name.startswith('_'):
-                continue
-            module = importlib.import_module(full_package_name)
-            for name, obj in module.__dict__.items():
-                if name.startswith('_'):
-                    continue
-                if isinstance(obj, type) and hasattr(obj, 'schema'):
-                    self.__site_schema[obj.schema] = obj
+    def _build_class(self, html_text):
+        for site_schema in self.__site_schema:
+            try:
+                if site_schema.match(html_text):
+                    return site_schema
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
 
-    def _build_class(self, schema):
-        if schema not in self.__site_schema:
-            return self.__site_schema.get(SiteSchema.NexusPhp)
-        return self.__site_schema[schema]
+        return None
 
     def build(self, url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
         if not site_cookie:
@@ -44,20 +35,16 @@ class SiteUserInfoFactory(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
-            with CHROME_LOCK:
-                try:
-                    chrome.visit(url=url, ua=ua, cookie=site_cookie)
-                except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
-                    log.error("【Sites】%s 无法打开网站" % site_name)
-                    return None
-                # 循环检测是否过cf
-                cloudflare = chrome.pass_cloudflare()
-                if not cloudflare:
-                    log.error("【Sites】%s 跳转站点失败" % site_name)
-                    return None
-                # 判断是否已签到
-                html_text = chrome.get_html()
+            if not chrome.visit(url=url, ua=ua, cookie=site_cookie):
+                log.error("【Sites】%s 无法打开网站" % site_name)
+                return None
+            # 循环检测是否过cf
+            cloudflare = chrome.pass_cloudflare()
+            if not cloudflare:
+                log.error("【Sites】%s 跳转站点失败" % site_name)
+                return None
+            # 判断是否已签到
+            html_text = chrome.get_html()
         else:
             proxies = Config().get_proxies() if proxy else None
             res = RequestUtils(cookies=site_cookie,
@@ -110,13 +97,15 @@ class SiteUserInfoFactory(object):
                         html_text = res.text
                         if not html_text:
                             return None
-            elif not res:
-                log.error("【Sites】站点 %s 连接失败：%s" % (site_name, url))
+            elif res is not None:
+                log.error(f"【Sites】站点 {site_name} 连接失败，状态码：{res.status_code}")
                 return None
             else:
-                log.error("【Sites】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
+                log.error(f"【Sites】站点 {site_name} 无法访问：{url}")
                 return None
-
         # 解析站点类型
-        site_schema = self._build_class(SiteHelper.schema(html_text))
+        site_schema = self._build_class(html_text)
+        if not site_schema:
+            log.error("【Sites】站点 %s 无法识别站点类型" % site_name)
+            return None
         return site_schema(site_name, url, site_cookie, html_text, session=session, ua=ua)

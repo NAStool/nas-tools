@@ -13,7 +13,7 @@ from app.helper import DbHelper, DictHelper
 from app.message import Message
 from app.rss import Rss
 from app.sites import Sites
-from app.utils import StringUtils
+from app.utils import StringUtils, Torrent
 from app.utils.commons import singleton
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import BrushDeleteType, SystemDictType
@@ -555,7 +555,7 @@ class BrushTask(object):
         :param taskname: 任务名称
         :param site_id: 站点ID
         """
-        if not downloadercfg:
+        if not downloadercfg or not enclosure:
             return False
         # 标签
         tag = "已整理" if not transfer else None
@@ -563,56 +563,62 @@ class BrushTask(object):
         download_id = None
         # 查询站点信息
         site_info = self.sites.get_sites(siteid=site_id)
-        # 添加下载
-        if downloadercfg.get("type") == self._qb_client:
-            # 初始化下载器
-            downloader = Qbittorrent(user_config=downloadercfg)
-            if not downloader.qbc:
-                log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
-                return False
-            torrent_tag = "NT" + StringUtils.generate_random_str(5)
-            if tag:
-                tags = [tag, torrent_tag]
+        # 下载种子文件
+        _, content, _, _, retmsg = Torrent().get_torrent_info(
+            url=enclosure,
+            cookie=site_info.get("cookie"),
+            ua=site_info.get("ua"))
+        if content:
+            # 添加下载
+            if downloadercfg.get("type") == self._qb_client:
+                # 初始化下载器
+                downloader = Qbittorrent(user_config=downloadercfg)
+                if not downloader.qbc:
+                    log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
+                    return False
+                torrent_tag = "NT" + StringUtils.generate_random_str(5)
+                if tag:
+                    tags = [tag, torrent_tag]
+                else:
+                    tags = torrent_tag
+                ret = downloader.add_torrent(content=content,
+                                             tag=tags,
+                                             download_dir=downloadercfg.get("save_dir"),
+                                             upload_limit=upspeed,
+                                             download_limit=downspeed)
+                if ret:
+                    # QB添加下载后需要时间，重试5次每次等待5秒
+                    download_id = downloader.get_torrent_id_by_tag(torrent_tag)
+                    if download_id:
+                        # 开始下载
+                        downloader.start_torrents(download_id)
+                        # 强制做种
+                        if forceupload:
+                            downloader.torrents_set_force_start(download_id)
             else:
-                tags = torrent_tag
-            ret = downloader.add_torrent(content=enclosure,
-                                         tag=tags,
-                                         download_dir=downloadercfg.get("save_dir"),
-                                         upload_limit=upspeed,
-                                         download_limit=downspeed,
-                                         cookie=site_info.get("cookie"))
-            if ret:
-                # QB添加下载后需要时间，重试5次每次等待5秒
-                download_id = downloader.get_torrent_id_by_tag(torrent_tag)
-                if download_id:
-                    # 开始下载
-                    downloader.start_torrents(download_id)
-                    # 强制做种
-                    if forceupload:
-                        downloader.torrents_set_force_start(download_id)
-        else:
-            # 初始化下载器
-            downloader = Transmission(user_config=downloadercfg)
-            if not downloader.trc:
-                log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
-                return False
-            ret = downloader.add_torrent(content=enclosure,
-                                         download_dir=downloadercfg.get("save_dir"),
-                                         upload_limit=upspeed,
-                                         download_limit=downspeed,
-                                         cookie=site_info.get("cookie")
-                                         )
-            if ret:
-                download_id = ret.id
-                # 设置标签
-                if download_id and tag:
-                    downloader.set_torrent_tag(tid=download_id, tag=tag)
+                # 初始化下载器
+                downloader = Transmission(user_config=downloadercfg)
+                if not downloader.trc:
+                    log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
+                    return False
+                ret = downloader.add_torrent(content=content,
+                                             download_dir=downloadercfg.get("save_dir"),
+                                             upload_limit=upspeed,
+                                             download_limit=downspeed
+                                             )
+                if ret:
+                    download_id = ret.id
+                    # 设置标签
+                    if download_id and tag:
+                        downloader.set_torrent_tag(tid=download_id, tag=tag)
         if not download_id:
+            # 下载失败
             log.warn(f"【Brush】{taskname} 添加下载任务出错：{title}，"
-                     f"可能原因：Cookie过期/任务已存在/触发了站点首次种子下载，"
+                     f"错误原因：{retmsg or '下载器添加任务失败'}，"
                      f"种子链接：{enclosure}")
             return False
         else:
+            # 下载成功
             log.info("【Brush】成功添加下载：%s" % title)
             if sendmessage:
                 msg_title = "【刷流任务 {} 新增下载】".format(taskname)

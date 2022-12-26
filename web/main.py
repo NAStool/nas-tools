@@ -394,6 +394,7 @@ def recommend():
     Items = WebAction().get_recommend({"type": RecommendType, "page": CurrentPage}).get("Items")
     return render_template("recommend.html",
                            Items=Items,
+                           PageCount=len(Items),
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 
@@ -436,6 +437,8 @@ def torrent_remove():
 def statistics():
     # 刷新单个site
     refresh_site = request.args.getlist("refresh_site")
+    # 强制刷新所有
+    refresh_force = True if request.args.get("refresh_force") else False
     # 总上传下载
     TotalUpload = 0
     TotalDownload = 0
@@ -447,10 +450,8 @@ def statistics():
     SiteDownloads = []
     SiteRatios = []
     SiteErrs = {}
-    # 刷新指定站点
-    Sites().refresh_pt(specify_sites=refresh_site)
     # 站点上传下载
-    SiteData = Sites().get_pt_date()
+    SiteData = Sites().get_pt_date(specify_sites=refresh_site, force=refresh_force)
     if isinstance(SiteData, dict):
         for name, data in SiteData.items():
             if not data:

@@ -13,10 +13,14 @@ from app.helper import SiteHelper
 from app.utils import RequestUtils
 from app.utils.types import SiteSchema
 
+SITE_BASE_ORDER = 1000
+
 
 class _ISiteUserInfo(metaclass=ABCMeta):
     # 站点模版
     schema = SiteSchema.NexusPhp
+    # 站点解析时判断顺序，值越小越先解析
+    order = SITE_BASE_ORDER
 
     def __init__(self, site_name, url, site_cookie, index_html, session=None, ua=None):
         super().__init__()
@@ -86,9 +90,18 @@ class _ISiteUserInfo(metaclass=ABCMeta):
     def site_schema(self):
         """
         站点解析模型
-        :return:
+        :return: 站点解析模型
         """
         return self.schema
+
+    @classmethod
+    def match(cls, html_text):
+        """
+        是否匹配当前解析模型
+        :param html_text: 站点首页html
+        :return: 是否匹配
+        """
+        return False
 
     def parse(self):
         """

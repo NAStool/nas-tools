@@ -3,13 +3,18 @@ import re
 
 from lxml import etree
 
-from app.sites.siteuserinfo._base import _ISiteUserInfo
+from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import StringUtils
 from app.utils.types import SiteSchema
 
 
 class SmallHorseSiteUserInfo(_ISiteUserInfo):
     schema = SiteSchema.SmallHorse
+    order = SITE_BASE_ORDER + 30
+
+    @classmethod
+    def match(cls, html_text):
+        return 'Small Horse' in html_text
 
     def _parse_site_page(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -43,7 +48,7 @@ class SmallHorseSiteUserInfo(_ISiteUserInfo):
             self.download = StringUtils.num_filesize(
                 str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())
             if tmps[1].xpath("li")[4].xpath("span//text()"):
-                self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]))
+                self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]).replace('∞', '0'))
             else:
                 self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])
             self.bonus = StringUtils.str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])

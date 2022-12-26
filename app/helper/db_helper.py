@@ -268,6 +268,20 @@ class DbHelper:
         """
         return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).all()
 
+    def is_transfer_history_exists_by_source_full_path(self, source_full_path):
+        """
+        据源文件的全路径查询识别转移记录
+        """
+
+        path = os.path.dirname(source_full_path)
+        filename = os.path.basename(source_full_path)
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == path,
+                                                     TRANSFERHISTORY.SOURCE_FILENAME == filename).count()
+        if ret > 0:
+            return True
+        else:
+            return False
+
     @DbPersist(_db)
     def delete_transfer_log_by_id(self, logid):
         """
@@ -311,6 +325,14 @@ class DbHelper:
             return []
         return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
 
+    def get_transfer_unknown_by_path(self, path):
+        """
+        根据路径查询未识别记录
+        """
+        if not path:
+            return []
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == path).all()
+
     def is_transfer_unknown_exists(self, path):
         """
         查询未识别记录是否存在
@@ -322,6 +344,44 @@ class DbHelper:
             return True
         else:
             return False
+
+    def is_need_insert_transfer_unknown(self, path):
+        """
+        检查是否需要插入未识别记录
+        """
+        if not path:
+            return False
+
+        """
+        1) 如果不存在未识别，则插入
+        2) 如果存在未处理的未识别，则插入（并不会真正的插入，insert_transfer_unknown里会挡住，主要是标记进行消息推送）
+        3) 如果未识别已经全部处理完并且存在转移记录，则不插入
+        4) 如果未识别已经全部处理完并且不存在转移记录，则删除并重新插入
+        """
+        unknowns = self.get_transfer_unknown_by_path(path)
+        if unknowns:
+            is_all_proceed = True
+            for unknown in unknowns:
+                if unknown.STATE == 'N':
+                    is_all_proceed = False
+                    break
+
+            if is_all_proceed:
+                is_transfer_history_exists = self.is_transfer_history_exists_by_source_full_path(path)
+                if is_transfer_history_exists:
+                    # 对应 3)
+                    return False
+                else:
+                    # 对应 4)
+                    for unknown in unknowns:
+                        self.delete_transfer_unknown(unknown.ID)
+                    return True
+            else:
+                # 对应 2)
+                return True
+        else:
+            # 对应 1)
+            return True
 
     @DbPersist(_db)
     def insert_transfer_unknown(self, path, dest):
@@ -1125,17 +1185,20 @@ class DbHelper:
         if not site_user_infos:
             return
         for site_user_info in site_user_infos:
+            site_icon = "data:image/ico;base64," + \
+                        site_user_info.site_favicon if site_user_info.site_favicon else site_user_info.site_url \
+                                                                                        + "/favicon.ico"
             if not self.is_exists_site_favicon(site_user_info.site_name):
                 self._db.insert(SITEFAVICON(
                     SITE=site_user_info.site_name,
                     URL=site_user_info.site_url,
-                    FAVICON=site_user_info.site_favicon
+                    FAVICON=site_icon
                 ))
-            else:
+            elif site_user_info.site_favicon:
                 self._db.query(SITEFAVICON).filter(SITEFAVICON.SITE == site_user_info.site_name).update(
                     {
                         "URL": site_user_info.site_url,
-                        "FAVICON": site_user_info.site_favicon
+                        "FAVICON": site_icon
                     }
                 )
 
@@ -1909,8 +1972,9 @@ class DbHelper:
         if rid:
             return self._db.query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
         elif rtype:
-            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype).all()
-        return self._db.query(RSSHISTORY).all()
+            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype)\
+                .order_by(RSSHISTORY.FINISH_TIME.desc()).all()
+        return self._db.query(RSSHISTORY).order_by(RSSHISTORY.FINISH_TIME.desc()).all()
 
     def is_exists_rss_history(self, rssid):
         """

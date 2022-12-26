@@ -8,10 +8,8 @@ from threading import Lock
 from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
 
-from app.utils.exception_utils import ExceptionUtils
 from config import WEBDRIVER_PATH
 
-CHROME_LOCK = Lock()
 lock = Lock()
 
 
@@ -27,7 +25,9 @@ class ChromeHelper(object):
         chrome_path = SystemUtils.get_system().value
         self._executable_path = WEBDRIVER_PATH.get(chrome_path)
 
-        if not os.environ.get("NASTOOL_DISPLAY"):
+        if SystemUtils.is_windows():
+            self._headless = False
+        elif not os.environ.get("NASTOOL_DISPLAY"):
             self._headless = True
         else:
             self._headless = headless
@@ -40,9 +40,6 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        # FIXME Widnows下使用浏览器内核会导致启动多份进程，暂时禁用
-        if SystemUtils.is_windows():
-            return False
         # 指定了WebDriver路径的，如果路径不存在则不启用
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
@@ -65,39 +62,52 @@ class ChromeHelper(object):
             options.add_argument('--headless')
         prefs = {
             "useAutomationExtension": False,
+            "profile.managed_default_content_settings.images": 2 if self._headless else 1,
             "excludeSwitches": ["enable-automation"]
         }
         options.add_experimental_option("prefs", prefs)
         chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
-        chrome.set_page_load_timeout(10)
+        chrome.set_page_load_timeout(30)
         return chrome
 
-    def visit(self, url, ua=None, cookie=None):
+    def visit(self, url, ua=None, cookie=None, timeout=15):
         if not self.browser:
-            return
-        if ua:
-            self.browser.execute_cdp_cmd("Emulation.setUserAgentOverride", {
-                "userAgent": ua
-            })
-        self.browser.get(url)
-        if cookie:
-            self.browser.delete_all_cookies()
-            for cookie in RequestUtils.cookie_parse(cookie, array=True):
-                self.browser.add_cookie(cookie)
-            self.browser.get(url)
-        self.browser.implicitly_wait(10)
+            return False
+        try:
+            if ua:
+                self._chrome.execute_cdp_cmd("Emulation.setUserAgentOverride", {
+                    "userAgent": ua
+                })
+            self._chrome.get(url)
+            if cookie:
+                self._chrome.delete_all_cookies()
+                for cookie in RequestUtils.cookie_parse(cookie, array=True):
+                    self._chrome.add_cookie(cookie)
+                self._chrome.get(url)
+            return True
+        except Exception as err:
+            print(str(err))
+            return False
 
     def new_tab(self, url, ua=None, cookie=None):
-        if not self.browser:
-            return
+        if not self._chrome:
+            return False
         # 新开一个标签页
-        self.browser.switch_to.new_window('tab')
+        try:
+            self._chrome.switch_to.new_window('tab')
+        except Exception as err:
+            print(str(err))
+            return False
         # 访问URL
-        self.visit(url=url, ua=ua, cookie=cookie)
+        return self.visit(url=url, ua=ua, cookie=cookie)
 
     def close_tab(self):
-        self.browser.close()
-        self.browser.switch_to.window(self.browser.window_handles[0])
+        try:
+            self._chrome.close()
+            self._chrome.switch_to.window(self._chrome.window_handles[0])
+        except Exception as err:
+            print(str(err))
+            return False
 
     def pass_cloudflare(self, waittime=10):
         cloudflare = False
@@ -109,33 +119,34 @@ class ChromeHelper(object):
         return cloudflare
 
     def get_title(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
-        return self.browser.title
+        return self._chrome.title
 
     def get_html(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
-        return self.browser.page_source
+        return self._chrome.page_source
 
     def get_cookies(self):
-        if not self.browser:
+        if not self._chrome:
             return ""
         cookie_str = ""
-        for _cookie in self.browser.get_cookies():
+        for _cookie in self._chrome.get_cookies():
             if not _cookie:
                 continue
             cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
         return cookie_str
 
     def get_ua(self):
-        return self.browser.execute_script("return navigator.userAgent")
+        return self._chrome.execute_script("return navigator.userAgent")
 
     def quit(self):
         if self._chrome:
             self._chrome.close()
             self._chrome.quit()
             self._fixup_uc_pid_leak()
+            self._chrome = None
 
     def _fixup_uc_pid_leak(self):
         """
@@ -149,7 +160,7 @@ class ChromeHelper(object):
             # chrome 进程
             os.waitpid(self._chrome.browser_pid, 0)
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             pass
 
     def __del__(self):

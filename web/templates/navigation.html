@@ -102,7 +102,7 @@
   <style>
   {% for site_name, site_icon in SiteFavicons.items() %}
       .siteicon-{{ site_name|hash }} {
-          background-image: url(data:image/ico;base64,{{ site_icon }});
+          background-image: url({{ site_icon }});
           background-size: cover;
           border: 0;
       }
@@ -1323,6 +1323,11 @@
 
 <!-- 提示弹窗 -->
 <script type="text/javascript">
+  //是否触摸屏设备
+  function is_touch_device() {
+    return 'ontouchstart' in window;
+  }
+
   //显示全局加载框
   function show_wait_process(blur) {
     if (blur) {
@@ -1431,7 +1436,7 @@
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
   //显示媒体详情
-  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
+  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid, auto_search) {
     let doubanid;
     show_wait_process();
     if (tmdbid.startsWith("DB:")) {
@@ -1460,6 +1465,10 @@
     }, function (ret) {
       hide_wait_process();
       if (ret.code === 0) {
+        if (auto_search) {
+          search_mediainfo_media(ret.tmdbid, ret.doubanid, ret.title, ret.type_str);
+          return
+        }
         //显示信息
         $("#system_media_name").text(ret.title);
         $("#system_release_date").text(ret.release_date)
@@ -2560,7 +2569,6 @@
     show_wait_process();
     $(".page-wrapper").unbind('scroll');
     page = page.replaceAll(" ", "%20");
-    CURRENT_PAGE_URI = page;
     $("#page_content").load(page, {}, function (response, status, xhr) {
       hide_wait_process();
       if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
@@ -2568,6 +2576,10 @@
       } else {
         fresh_tooltip();
         init_filetree_element();
+      }
+      if (page != CURRENT_PAGE_URI) {
+        ScrollToTop();
+        CURRENT_PAGE_URI = page;
       }
     });
   }

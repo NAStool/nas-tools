@@ -200,6 +200,7 @@ class SiteConf:
             'PEER_COUNT': [],
         },
         'hdchina.org': {
+            'RENDER': True,
             'FREE': ["//img[@class='pro_free']"],
             '2XFREE': ["//img[@class='pro_free2up']"],
             'HR': [],
