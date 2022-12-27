@@ -111,6 +111,7 @@ SITE_CHECKIN_XPATH = [
     '//a[contains(@href, "addbonus")]',
     '//input[@class="dt_button"][contains(@value, "打卡")]',
     '//a[contains(@href, "sign_in")]',
+    '//a[contains(@href, "do_signin")]',
     '//a[@id="do-attendance"]'
 ]
 
