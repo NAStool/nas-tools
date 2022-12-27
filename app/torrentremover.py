@@ -10,6 +10,7 @@ from app.message import Message
 from app.utils.commons import singleton
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import DownloaderType
+from config import Config
 
 lock = Lock()
 
@@ -101,7 +102,7 @@ class TorrentRemover(object):
         if not self._remove_tasks:
             return
         # 启动删种任务
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+        self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         remove_flag = False
         for task in self._remove_tasks.values():
             if task.get("enabled") and task.get("interval") and task.get("config"):

@@ -114,7 +114,7 @@ class RssChecker(object):
         if not self._rss_tasks:
             return
         # 启动RSS任务
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai",
+        self._scheduler = BackgroundScheduler(timezone=Config().get_timezone(),
                                               executors={
                                                   'default': ThreadPoolExecutor(30)
                                               })

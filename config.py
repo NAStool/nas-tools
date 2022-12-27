@@ -184,7 +184,8 @@ class Config(object):
 
     def __init__(self):
         self._config_path = os.environ.get('NASTOOL_CONFIG')
-        os.environ['TZ'] = 'Asia/Shanghai'
+        if not os.environ.get('TZ'):
+            os.environ['TZ'] = 'Asia/Shanghai'
         self.init_config()
 
     def init_config(self):
@@ -241,3 +242,7 @@ class Config(object):
         if domain and not domain.startswith('http'):
             domain = "http://" + domain
         return domain
+
+    @staticmethod
+    def get_timezone():
+        return os.environ.get('TZ')
