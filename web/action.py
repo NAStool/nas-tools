@@ -3379,8 +3379,12 @@ class WebAction:
         SearchWord = data.get("keyword")
         if not SearchWord:
             return []
+        SearchSourceType = data.get("searchtype")
+        if SearchSourceType == "tmdb":
+            use_douban_titles = False
+        else:
+            use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         _mediaserver = MediaServer()
-        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
             _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
             medias = DouBan().search_douban_medias(keyword=key_word,

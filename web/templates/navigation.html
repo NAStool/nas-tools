@@ -1225,7 +1225,10 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
+              <div class="input-group">
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
+                <button class="btn" type="button" onclick="show_search_tmdbid_modal('rename_tmdb', 'modal-media-identification')">查询</button>
+              </div>
             </div>
           </div>
           <div class="col-lg-4" id="rename_season_div">
@@ -1306,6 +1309,38 @@
     </div>
   </div>
 </div>
+<!-- 根据名称查找TMDBID的对话框 -->
+<div class="modal modal-blur fade" id="search-tmdbid-modal" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">查询TMDBID</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="名称">
+          </div>
+          <div class="col-auto">
+            <button onclick="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')" class="btn btn-primary btn-icon" aria-label="Button">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+            </button>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="list-group list-group-flush" id="search_tmdbid_list">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="search_tmdbid_btn" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -2545,7 +2580,51 @@
         }
       }
     });
+  }
 
+  // 查示查询TMDBID的对话框
+  function show_search_tmdbid_modal(val_obj, modal_id){
+    $("#"+modal_id).modal("hide");
+    $("#search_tmdbid_btn").unbind("click").click(function(){
+      let tmdbid = $("#search_tmdbid_list input:radio[name=search_tmdbid_check]:checked").val();
+      $("#"+val_obj).val(tmdbid);
+      $("#search-tmdbid-modal").modal("hide");
+      $("#"+modal_id).modal("show");
+    });
+    $("#search-tmdbid-modal").modal("show");
+  }
+
+  //根据名称查询TMDBID
+  function search_tmdbid_by_name(keyid, resultid){
+    let name = $("#"+keyid).val();
+    if (!name) {
+      $("#"+keyid).addClass("is-invalid");
+      return;
+    } else {
+      $("#"+keyid).removeClass("is-invalid");
+    }
+    $("#"+keyid).prop("disabled", true);
+    ajax_post("search_media_infos", {"keyword": name, "searchtype": "tmdb"}, function(ret){
+      $("#"+keyid).prop("disabled", false);
+      if(ret.code == 0){
+        let data = ret.result;
+        let html = '';
+        if (data.length > 0) {
+          for(let i=0; i<data.length; i++){
+            html += `<div class="list-group-item" onclick="$(this).find('input:radio').prop('checked', true);"><div class="row align-items-center">`;
+            html += `<div class="col-auto"><input type="radio" name="search_tmdbid_check" value="${data[i].tmdb_id}" class="form-check-input"></div>`;
+            html += `<div class="col-auto"><img class="rounded w-5 shadow" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
+            html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:2; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
+            html += `</div></div>`;
+          }
+          $("#"+resultid).html(html);
+        } else {
+          $("#"+resultid).html('<div class="list-group-item text-center text-muted">未找到相关信息</div>');
+        }
+      } else {
+        $("#"+resultid).html(`<div class="list-group-item text-center text-muted">${ret.msg}</div>`);
+      }
+    });
   }
 
 </script>
