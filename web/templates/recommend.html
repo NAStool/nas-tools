@@ -15,16 +15,16 @@
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
         <normal-card
-          card-tmdbId="{{ item.id or '' }}"
-          card-pageType="{{ RecommendType or '' }}"
+          card-tmdbId="{{ item.id }}"
+          card-pageType="{{ RecommendType }}"
           card-showSub="1"
-          card-image="{{ item.image or '' }}"
-          card-weekday="{{ item.weekday or '' }}"
-          card-fav="{{ item.fav or '' }}"
-          card-vote="{{ item.vote or '' }}"
-          card-year="{{ item.year or '' }}"
-          card-title="{{ item.title or '' }}"
-          card-overview="{{ item.overview or '' }}"
+          card-image="{{ item.image }}"
+          card-weekday="{{ item.weekday }}"
+          card-fav="{{ item.fav }}"
+          card-vote="{{ item.vote }}"
+          card-year="{{ item.year }}"
+          card-title="{{ item.title }}"
+          card-overview="{{ item.overview }}"
         ></normal-card>
       </div>
       {% endfor %}
