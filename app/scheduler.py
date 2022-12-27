@@ -42,7 +42,7 @@ class Scheduler:
         """
         读取配置，启动定时服务
         """
-        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai",
+        self.SCHEDULER = BackgroundScheduler(timezone=Config().get_timezone(),
                                              executors={
                                                  'default': ThreadPoolExecutor(20)
                                              })

@@ -31,10 +31,10 @@ class TorrentSpider(feapder.AirSpider):
             proxy=None,
             headless=True,
             driver_type="CHROME",
-            timeout=15,
+            timeout=30,
             window_size=(1024, 800),
             executable_path=_webdriver_path,
-            render_time=6,
+            render_time=10,
             custom_argument=["--ignore-certificate-errors"],
         )
     )

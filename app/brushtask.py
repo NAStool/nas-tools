@@ -17,7 +17,7 @@ from app.utils import StringUtils, Torrent
 from app.utils.commons import singleton
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import BrushDeleteType, SystemDictType
-from config import BRUSH_REMOVE_TORRENTS_INTERVAL
+from config import BRUSH_REMOVE_TORRENTS_INTERVAL, Config
 
 
 @singleton
@@ -71,7 +71,7 @@ class BrushTask(object):
             return
         # 启动RSS任务
         task_flag = False
-        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+        self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for task in self._brush_tasks:
             if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
                 task_flag = True
@@ -746,7 +746,7 @@ class BrushTask(object):
             if rss_rule.get("pubdate") and pubdate:
                 rule_pubdates = rss_rule.get("pubdate").split("#")
                 if len(rule_pubdates) >= 2 and rule_pubdates[1]:
-                    localtz = pytz.timezone('Asia/Shanghai')
+                    localtz = pytz.timezone(Config().get_timezone())
                     localnowtime = datetime.now().astimezone(localtz)
                     localpubdate = pubdate.astimezone(localtz)
                     log.debug('【Brush】发布时间：%s，当前时间：%s' % (localpubdate.isoformat(), localnowtime.isoformat()))
