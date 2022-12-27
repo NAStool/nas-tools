@@ -147,10 +147,10 @@ class BuiltinIndexer(IIndexClient):
         indexer = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=30)
+        return self.__spider_search(indexer, page=page, keyword=keyword)
 
     @staticmethod
-    def __spider_search(indexer, page=None, keyword=None, timeout=20):
+    def __spider_search(indexer, page=None, keyword=None, timeout=30):
         """
         根据关键字搜索单个站点
         """

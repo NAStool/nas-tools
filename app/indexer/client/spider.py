@@ -31,7 +31,7 @@ class TorrentSpider(feapder.AirSpider):
             proxy=None,
             headless=True,
             driver_type="CHROME",
-            timeout=30,
+            timeout=20,
             window_size=(1024, 800),
             executable_path=_webdriver_path,
             render_time=10,
