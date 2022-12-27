@@ -856,7 +856,7 @@ def mediafile():
         try:
             DirD = os.path.commonpath(download_dirs).replace("\\", "/")
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
+            print(str(err))
             DirD = "/"
     else:
         DirD = "/"
