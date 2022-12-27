@@ -1,12 +1,11 @@
 import re
-import traceback
 
-import anitopy
 import zhconv
 
-from app.utils import StringUtils
+import anitopy
 from app.media.meta.metabase import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
+from app.utils import StringUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
@@ -185,7 +184,7 @@ class MetaAnime(MetaBase):
         if first_item and re.search(r"[动漫画纪录片电影视连续剧集日美韩中港台海外亚洲华语大陆综艺原盘高清]{2,}|TV|Animation|Movie|Documentar|Anime",
                                     zhconv.convert(first_item, "zh-hans"),
                                     re.IGNORECASE):
-            title = re.sub(r"^[^]]*[]]", "", title).strip()
+            title = re.sub(r"^[^]]*]", "", title).strip()
         # 去掉大小
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         # 将TVxx改为xx

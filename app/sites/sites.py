@@ -635,7 +635,9 @@ class Sites:
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
-            if chrome.visit(url=url, cookie=cookie, ua=ua, timeout=30):
+            if chrome.visit(url=url, cookie=cookie, ua=ua):
+                # 等待页面加载完成
+                time.sleep(5)
                 return chrome.get_html()
         else:
             res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
