@@ -15,7 +15,6 @@
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
         <normal-card
-          card-id="{{ item.orgid or '' }}"
           card-tmdbId="{{ item.id or '' }}"
           card-pageType="{{ RecommendType or '' }}"
           card-showSub="1"
@@ -116,7 +115,6 @@
         let html = '';
         html += '<div class="col-6 col-md-3 col-xl-2">';
           html += `<normal-card
-                    card-id="${item.orgid}"
                     card-tmdbId="${item.id}"
                     card-pageType="${title_type}"
                     card-showSub="1"

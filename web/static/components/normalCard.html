@@ -88,9 +88,15 @@
   class normalCard extends HTMLElement {
     constructor() {
       super();
+      // 内部自生成卡片id
+      if (sessionStorage.normalCard_data_card_id){
+        sessionStorage.normalCard_data_card_id++;
+      } else {
+        sessionStorage.normalCard_data_card_id = 1;
+      }
       const my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
       // 读取参数
-      const card_id = this.getAttribute("card-id");
+      const card_id = this.getAttribute("card-id") ? this.getAttribute("card-id") : sessionStorage.normalCard_data_card_id;
       const tmdb_id = this.getAttribute("card-tmdbId");
       const res_type = this.getAttribute("card-resType");
       const page_type = this.getAttribute("card-pageType");
