@@ -1690,7 +1690,7 @@
     if (!tmdbid && doubanid) {
       tmdbid = "DB:" + doubanid;
     }
-    const param = {"tmdbid": tmdbid, "search_word": title, "media_type": typestr};
+    const param = {"tmdbid": toString(tmdbid), "search_word": title, "media_type": typestr};
     show_refresh_process("正在搜索 " + title + " ...");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
