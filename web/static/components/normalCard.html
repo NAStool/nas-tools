@@ -134,21 +134,21 @@
       });
       const card_link = my_card.querySelector(".normalcard_link");
       card_link.setAttribute("id", "normalcard_link_" + card_id);
-      if (weekday && weekday != "None" && weekday != "null" || res_type && res_type != "None" && res_type != "null") {
+      if (weekday || res_type) {
         const card_weekday = document.getElementById("normalCard_Template_weekday").content.cloneNode(true);
         const card_weekday_span = card_weekday.querySelector("span");
-        if (weekday && weekday != "None" && weekday != "null") {
-          card_weekday_span.classList.add(fav == 2 ? "bg-green" : "bg-orange");
+        if (weekday) {
+          card_weekday_span.classList.add(fav == "2" ? "bg-green" : "bg-orange");
           card_weekday_span.innerHTML = weekday;
         } else {
           card_weekday_span.classList.add(res_type == "电影" ? "bg-green" : "bg-blue");
           card_weekday_span.innerHTML = res_type;
         }
         card_link.appendChild(card_weekday);
-      } else if (fav == 2) {
+      } else if (fav == "2") {
         card_link.appendChild(document.getElementById("normalCard_Template_downloaded").content.cloneNode(true));
       }
-      if (vote && vote != "None" && vote != "null") {
+      if (vote && vote != "0.0") {
         const card_vote = document.getElementById("normalCard_Template_vote").content.cloneNode(true);
         card_vote.querySelector("div").innerHTML = vote;
         card_link.appendChild(card_vote);
@@ -159,16 +159,16 @@
         show_mediainfo_modal(page_type, title, year, tmdb_id, 'recommend?t=' + page_type);
       });
       // 设置元素数据
-      if (year && year != "None" && year != "null") {
-        my_card.querySelector("div>strong").innerHTML = site && site != "None" && site != "null" ? site : year;
+      if (year) {
+        my_card.querySelector("div>strong").innerHTML = site ? site : year;
       }
-      if (title && title != "None" && year != "null") {
+      if (title) {
         my_card.querySelector("h2>strong").innerHTML = title;
       }
-      if (overview && overview != "None" && overview != "null") {
+      if (overview) {
         my_card.querySelector("p").innerHTML = overview;
       }
-      if (date && date != "None" && date != "null") {
+      if (date) {
         my_card.querySelector("p>small").innerHTML = date;
       }
       if (showSub == "1"){
@@ -176,7 +176,7 @@
         card_seasub.querySelector("div.d-flex>a").setAttribute("href", `javascript:show_mediainfo_modal("${page_type}", "${title}", "${year}", "${tmdb_id}", "recommend?t=${page_type}", "", true)`);
         const card_seasub_sub = card_seasub.querySelector("div.ms-auto>div");
         const card_seasub_sub_love = card_seasub_sub.querySelector("svg");
-        if (fav==1){
+        if (fav == "1"){
           card_seasub_sub_love.classList.add("icon-filled", "text-red");
         }
         card_seasub_sub.addEventListener("click", e => {
@@ -213,7 +213,7 @@
                 show_wait_process();
                 ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {
                   hide_wait_process();
-                  if (ret.seasons.length == 1) {
+                  if (ret.seasons.length === 1) {
                     add_rss_media(title, year, "TV", tid, did, "", "", add_red_heart);
                   } else if (ret.seasons.length > 1) {
                     show_rss_seasons_modal(title, year, "TV", tid, did, ret.seasons, add_red_heart);
