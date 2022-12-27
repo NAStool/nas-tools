@@ -88,22 +88,28 @@
   class normalCard extends HTMLElement {
     constructor() {
       super();
+      // 内部自生成卡片id
+      if (sessionStorage.normalCard_data_card_id){
+        sessionStorage.normalCard_data_card_id++;
+      } else {
+        sessionStorage.normalCard_data_card_id = 1;
+      }
       const my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
       // 读取参数
-      const card_id = this.getAttribute("card-id");
-      const tmdb_id = this.getAttribute("card-tmdbId");
-      const res_type = this.getAttribute("card-resType");
-      const page_type = this.getAttribute("card-pageType");
-      const showSub = this.getAttribute("card-showSub");
-      const title = this.getAttribute("card-title");
-      const fav = this.getAttribute("card-fav");
-      const date = this.getAttribute("card-date");
-      const vote = this.getAttribute("card-vote");
-      const image = this.getAttribute("card-image");
-      const overview = this.getAttribute("card-overview");
-      const year = this.getAttribute("card-year");
-      const site = this.getAttribute("card-site");
-      const weekday = this.getAttribute("card-weekday");
+      const card_id = this.getArgs("card-id", sessionStorage.normalCard_data_card_id);
+      const tmdb_id = this.getArgs("card-tmdbId");
+      const res_type = this.getArgs("card-resType");
+      const page_type = this.getArgs("card-pageType");
+      const showSub = this.getArgs("card-showSub");
+      const title = this.getArgs("card-title");
+      const fav = this.getArgs("card-fav");
+      const date = this.getArgs("card-date");
+      const vote = this.getArgs("card-vote");
+      const image = this.getArgs("card-image");
+      const overview = this.getArgs("card-overview");
+      const year = this.getArgs("card-year");
+      const site = this.getArgs("card-site");
+      const weekday = this.getArgs("card-weekday");
       // 设置元素事件与id
       const div_card = my_card.querySelector("div.card");
       div_card.addEventListener("click", e => {
@@ -229,6 +235,18 @@
         card_more.appendChild(card_seasub);
       }
       this.appendChild(my_card);
+    }
+  
+    getArgs(name, default_value) {
+      if (!default_value) {
+        default_value = "";
+      }
+      let value = this.getAttribute(name);
+      if (!value || value == "None" || value == "null") {
+        return default_value;
+      } else {
+        return value;
+      }
     }
   }
 
