@@ -2857,6 +2857,18 @@
 
   });
 </script>
+<!-- 动态载入自定义组件 -->
+<div id="MyWebComponents"></div>
+<script type="text/javascript">
+  let components_list = [
+    "normalCard",
+    "normalCard_placeholder",
+  ]
+  for (let components_name of components_list){
+    $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);
+    $(`#MyWebComponents_${components_name}`).load(`../static/components/${components_name}.html`)
+  }
+</script>
 </body>
 
 </html>

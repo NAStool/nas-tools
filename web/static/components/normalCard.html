@@ -1,0 +1,237 @@
+<!-- 卡片主体 -->
+<template id="normalCard_Template">
+  <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
+       style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden;">
+    <!-- 图像加载占位图 -->
+    <div class="placeholder-glow" id="recommend_card_placeholder">
+      <div class="ratio placeholder rounded-4"
+           style="--tblr-aspect-ratio: 150%">
+      </div>
+    </div>
+    <!-- 卡片默认页面 -->
+    <div style="display: none" id="recommend_card_link">
+      <div class="ratio" style="--tblr-aspect-ratio: 150%">
+        <img class="card-img" onerror="this.src='../static/img/no-image.png'"/>
+      </div>
+    </div>
+    <!-- 卡片被选中时 -->
+    <div class="card-img-overlay ms-auto" id="recommend_card_more"
+         style="display: none; background-color: rgba(0, 0, 0, 0.5)">
+      <div style="cursor: pointer">
+        <!-- 小标题 -->
+        <div class="text-white"><strong></strong></div>
+        <!-- 大标题 -->
+        <h2 class="lh-sm text-white"
+            style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+          <strong></strong>
+        </h2>
+        <!-- 大文本 -->
+        <p class="lh-sm text-white"
+           style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+        </p>
+        <!-- 小文本 -->
+        <p class="lh-sm text-white"
+           style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+          <small></small>
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+<!-- 星期几图标 -->
+<template id="normalCard_Template_weekday">
+  <span class="badge badge-pill"
+        style="position: absolute; top: 10px; left: 10px">
+  </span>
+</template>
+<!-- 已下载图标 -->
+<template id="normalCard_Template_downloaded">
+  <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+      class="h-3 w-3 sm:h-4 sm:w-4">
+      <path fill-rule="evenodd"
+        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+        clip-rule="evenodd"></path>
+    </svg>
+  </div>
+</template>
+<!-- 评分图标 -->
+<template id="normalCard_Template_vote">
+  <div class="badge badge-pill bg-purple"
+       style="position: absolute; top: 10px; right: 10px">
+  </div>
+</template>
+<!-- 搜索和订阅按钮 -->
+<template id="normalCard_Template_SeaSub">
+  <div class="d-flex justify-content-between">
+    <a class="text-muted" title="搜索资源" onclick="window.event.cancelBubble=true;">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search icon-pulse text-white" width="24" height="24"
+           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <circle cx="10" cy="10" r="7"></circle>
+        <line x1="21" y1="21" x2="15" y2="15"></line>
+      </svg>
+    </a>
+    <div class="ms-auto">
+      <div class="text-muted" title="加入/取消订阅" style="cursor: pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-pulse text-white"
+             width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script type="text/javascript">
+  class normalCard extends HTMLElement {
+    constructor() {
+      super();
+      var my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
+      // 读取参数
+      var card_id = this.getAttribute("card-id");
+      var tmdb_id = this.getAttribute("card-tmdbId");
+      var res_type = this.getAttribute("card-resType");
+      var page_type = this.getAttribute("card-pageType");
+      var showSub = this.getAttribute("card-showSub");
+      var title = this.getAttribute("card-title");
+      var fav = this.getAttribute("card-fav");
+      var date = this.getAttribute("card-date");
+      var vote = this.getAttribute("card-vote");
+      var image = this.getAttribute("card-image");
+      var overview = this.getAttribute("card-overview");
+      var year = this.getAttribute("card-year");
+      var site = this.getAttribute("card-site");
+      var weekday = this.getAttribute("card-weekday");
+      // 设置元素事件与id
+      var div_card = my_card.querySelector("div.card");
+      div_card.addEventListener("click", e => {
+        if (is_touch_device()){
+          if (sessionStorage.normalCard_data_lastcard_more) {
+            $(`#recommend_card_more_${sessionStorage.normalCard_data_lastcard_more}`).hide();
+          }
+          sessionStorage.normalCard_data_lastcard_more = card_id;
+          $(`#recommend_card_more_${card_id}`).show();
+        }
+      });
+      div_card.addEventListener("mouseenter", e => {
+        if (!is_touch_device()){
+          $(`#recommend_card_more_${card_id}`).show();
+        }
+      });
+      div_card.addEventListener("mouseleave", e => {
+        if (!is_touch_device()){
+          $(`#recommend_card_more_${card_id}`).hide();
+        }
+      });
+      my_card.querySelector("#recommend_card_placeholder").setAttribute("id", "recommend_card_placeholder_" + card_id);
+      var img = my_card.querySelector("img.card-img");
+      img.setAttribute("src", image ? image : "../static/img/no-image.png");
+      img.addEventListener("load", e => {
+        $(`#recommend_card_placeholder_${card_id}`).hide();
+        $(`#recommend_card_link_${card_id}`).show();
+      });
+      var card_link = my_card.querySelector("#recommend_card_link");
+      card_link.setAttribute("id", "recommend_card_link_" + card_id);
+      if (weekday && weekday != "None" && weekday != "null" || res_type && res_type != "None" && res_type != "null") {
+        var card_weekday = document.getElementById("normalCard_Template_weekday").content.cloneNode(true);
+        var card_weekday_span = card_weekday.querySelector("span");
+        if (weekday && weekday != "None" && weekday != "null") {
+          card_weekday_span.classList.add(fav == 2 ? "bg-green" : "bg-orange");
+          card_weekday_span.innerHTML = weekday;
+        } else {
+          card_weekday_span.classList.add(res_type == "电影" ? "bg-green" : "bg-blue");
+          card_weekday_span.innerHTML = res_type;
+        }
+        card_link.appendChild(card_weekday);
+      } else if (fav == 2) {
+        card_link.appendChild(document.getElementById("normalCard_Template_downloaded").content.cloneNode(true));
+      }
+      if (vote && vote != "None" && vote != "null") {
+        var card_vote = document.getElementById("normalCard_Template_vote").content.cloneNode(true);
+        card_vote.querySelector("div").innerHTML = vote;
+        card_link.appendChild(card_vote);
+      }
+      var card_more = my_card.querySelector("#recommend_card_more")
+      card_more.setAttribute("id", "recommend_card_more_" + card_id);
+      card_more.addEventListener("click", e => {
+        show_mediainfo_modal(page_type, title, year, tmdb_id, 'recommend?t=' + page_type);
+      });
+      // 设置元素数据
+      if (year && year != "None" && year != "null") {
+        my_card.querySelector("div>strong").innerHTML = site && site != "None" && site != "null" ? site : year;
+      }
+      if (title && title != "None" && year != "null") {
+        my_card.querySelector("h2>strong").innerHTML = title;
+      }
+      if (overview && overview != "None" && overview != "null") {
+        my_card.querySelector("p").innerHTML = overview;
+      }
+      if (date && date != "None" && date != "null") {
+        my_card.querySelector("p>small").innerHTML = date;
+      }
+      if (showSub == "1"){
+        var card_seasub = document.getElementById("normalCard_Template_SeaSub").content.cloneNode(true);
+        card_seasub.querySelector("div.d-flex>a").setAttribute("href", `javascript:show_mediainfo_modal("${page_type}", "${title}", "${year}", "${tmdb_id}", "recommend?t=${page_type}", "", true)`);
+        var card_seasub_sub = card_seasub.querySelector("div.ms-auto>div");
+        var card_seasub_sub_love = card_seasub_sub.querySelector("svg");
+        if (fav==1){
+          card_seasub_sub_love.classList.add("icon-filled", "text-red");
+        }
+        card_seasub_sub.addEventListener("click", e => {
+          // 如果已经订阅
+          if (card_seasub_sub_love.classList.contains("text-red")){
+            show_ask_modal("是否确定将 " + title + " 从RSS订阅中移除？", function () {
+              hide_ask_modal();
+              remove_rss_media(title, year, page_type, "", "", tmdb_id, function () {
+                card_seasub_sub_love.classList.remove("icon-filled", "text-red");
+              });
+            });
+          } else {
+            show_ask_modal("是否确定订阅： " + title + "？", function () {
+              hide_ask_modal();
+              function add_red_heart(){
+                card_seasub_sub_love.classList.add("icon-filled", "text-red");
+              }
+              // 添加订阅关键字
+              let tid;
+              let did;
+              if (tmdb_id && tmdb_id.startsWith("DB:")) {
+                did = tmdb_id.replace("DB:", "");
+                tid = "";
+              } else if (isNaN(tmdb_id)) {
+                did = "";
+                tid = "";
+              } else {
+                did = "";
+                tid = tmdb_id;
+              }
+              if (!tid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(page_type)) {
+                add_rss_media(title, year, page_type, tid, did, "", "", add_red_heart);
+              } else {
+                show_wait_process();
+                ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {
+                  hide_wait_process();
+                  if (ret.seasons.length == 1) {
+                    add_rss_media(title, year, "TV", tid, did, "", "", add_red_heart);
+                  } else if (ret.seasons.length > 1) {
+                    show_rss_seasons_modal(title, year, "TV", tid, did, ret.seasons, add_red_heart);
+                  } else {
+                    show_fail_modal(title + " 添加RSS订阅失败：未查询到季信息！");
+                  }
+                });
+              }
+            });
+          }
+          e.stopPropagation();
+        });
+        card_more.appendChild(card_seasub);
+      }
+      this.appendChild(my_card);
+    }
+  }
+
+  // 声明自定义元素
+  window.customElements.define("normal-card", normalCard);
+</script>

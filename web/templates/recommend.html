@@ -14,81 +14,19 @@
     <div class="row row-cards" id="recommend_content">
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
-        <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
-          style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;"
-          onclick="if(is_touch_device()){showCardMore('{{ item.orgid }}')}"
-          onmouseover="if(!is_touch_device()){showCardMore('{{ item.orgid }}')}"
-          onmouseout="if(!is_touch_device()){hideCardMore('{{ item.orgid }}')}">
-          <!-- 占位图 -->
-          <div class="placeholder-glow" id="recommend_card_placeholder_{{ item.orgid }}">
-            <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
-          </div>
-          <div id="recommend_card_link_{{ item.orgid }}" style="display: none">
-            <div class="ratio" style="--tblr-aspect-ratio:150%;">
-              <img src="{{ item.image or '../static/img/no-image.png' }}"
-                onload="loadImage('{{ item.orgid }}')"
-                onerror="this.src='../static/img/no-image.png'"
-                class="card-img" alt="">
-            </div>
-            {% if item.weekday %}
-            <span class="badge badge-pill {% if item.fav == 2 %}bg-green{% else %}bg-orange{% endif %}"
-              style="position:absolute;top:10px;left:10px;">{{ item.weekday }}</span>
-            {% else %}
-            {% if item.fav == 2 %}
-            <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
-                class="h-3 w-3 sm:h-4 sm:w-4">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-            </div>
-            {% endif %}
-            {% endif %}
-            {% if item.vote %}
-            <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
-            {% endif %}
-          </div>
-          <div class="card-img-overlay ms-auto" id="recommend_card_more_{{ item.orgid }}"
-            onclick="show_mediainfo_modal('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', 'recommend?t={{ RecommendType }}')"
-            style="display: none; background-color:rgba(0,0,0,0.5);">
-            <div style="cursor: pointer">
-              <div class="text-white"><strong>{{ item.year }}</strong></div>
-              <h2 class="lh-sm text-white"
-                style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
-                <strong>{{ item.title }}</strong></h2>
-              <p class="lh-sm text-white"
-                style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
-                {{ item.overview }}</p>
-            </div>
-            <div class="d-flex justify-content-between">
-              <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}", "", true)'
-                class="text-muted" title="搜索资源" onclick="window.event.cancelBubble=true;">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                  class="icon icon-tabler icon-tabler-search icon-pulse text-white" width="24" height="24"
-                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                  stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <circle cx="10" cy="10" r="7"></circle>
-                  <line x1="21" y1="21" x2="15" y2="15"></line>
-                </svg>
-              </a>
-              <div class="ms-auto">
-                <a id="recommend_link_{{ item.orgid }}"
-                  href='{% if item.fav != 1 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}'
-                  class="text-muted" title="加入/取消订阅" onclick="window.event.cancelBubble=true;">
-                  <svg id="recommend_svg_{{ item.orgid }}" xmlns="http://www.w3.org/2000/svg"
-                    class="icon icon-tabler icon-tabler-heart icon-pulse text-white {% if item.fav == 1 %}icon-filled text-red{% endif %}"
-                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <normal-card
+          card-id="{{ item.orgid }}"
+          card-tmdbId="{{ item.id }}"
+          card-pageType="{{ RecommendType }}"
+          card-showSub="1"
+          card-image="{{ item.image }}"
+          card-weekday="{{ item.weekday }}"
+          card-fav="{{ item.fav }}"
+          card-vote="{{ item.vote }}"
+          card-year="{{ item.year }}"
+          card-title="{{ item.title }}"
+          card-overview="{{ item.overview }}"
+        ></normal-card>
       </div>
       {% endfor %}
     </div>
@@ -137,112 +75,11 @@
     $("#recommend_title").text("Bangumi每日放送");
   }
 
-  // 载入图片成功后隐藏占位符
-  function loadImage(id) {
-    $(`#recommend_card_placeholder_${id}`).hide();
-    $(`#recommend_card_link_${id}`).show();
-  }
-
-  // 鼠标移到卡片时显示更多
-  var lastCardmoreID = "";
-  function showCardMore(id) {
-    if (is_touch_device() && lastCardmoreID) {
-      hideCardMore(lastCardmoreID);
-    }
-    lastCardmoreID = id;
-    $(`#recommend_card_more_${id}`).show();
-  }
-
-  // 鼠标移出卡片时隐藏更多
-  function hideCardMore(id) {
-    $(`#recommend_card_more_${id}`).hide();
-  }
-
-  // 添加订阅关键字
-  function add_recommend_rss_media(type, name, year, id) {
-    let tmdbid;
-    let doubanid;
-    if (id && id.startsWith("DB:")) {
-      doubanid = id.replace("DB:", "");
-      tmdbid = "";
-    } else if (isNaN(id)) {
-      doubanid = "";
-      tmdbid = "";
-    } else {
-      doubanid = "";
-      tmdbid = id;
-    }
-    if (!tmdbid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(type)) {
-      add_rss_media(name, year, type, tmdbid, doubanid, "", "", function () {
-        add_red_heart(id, type, name, year);
-      });
-    } else {
-      show_wait_process();
-      ajax_post("get_tvseason_list", { tmdbid: tmdbid }, function (ret) {
-        hide_wait_process();
-        if (ret.seasons.length == 1) {
-          add_rss_media(name, year, "TV", tmdbid, doubanid, "", "", function () {
-            add_red_heart(id, type, name, year);
-          });
-        } else if (ret.seasons.length > 1) {
-          show_rss_seasons_modal(name, year, "TV", tmdbid, doubanid, ret.seasons, function () {
-            add_red_heart(id, type, name, year);
-          });
-        } else {
-          show_fail_modal(name + " 添加RSS订阅失败：未查询到季信息！");
-        }
-      });
-    }
-  }
-
-  //增加红字标记
-  function add_red_heart(id, type, name, year) {
-    let orgid = id.replace("DB:", "").replace("BG:", "");
-    $("#recommend_svg_" + orgid).removeClass()
-      .addClass("icon icon-filled text-red");
-    $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_del_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
-  }
-
-  //移除红字标记
-  function remove_red_heart(id, type, name, year) {
-    let orgid = id.replace("DB:", "").replace("BG:", "");
-    $("#recommend_svg_" + orgid).removeClass()
-      .addClass("icon icon-tabler icon-tabler-heart");
-    $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_add_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
-  }
-
-  // 显示添加订阅
-  function show_recommend_add_modal(id, type, name, year) {
-    show_ask_modal("是否确定订阅： " + name + "？", function () {
-      hide_ask_modal();
-      add_recommend_rss_media(type, name, year, id);
-    });
-    return false
-  }
-
-  // 显示删除订阅
-  function show_recommend_del_modal(id, type, name, year) {
-    show_ask_modal("是否确定将 " + name + " 从RSS订阅中移除？", function () {
-      hide_ask_modal();
-      remove_rss_media(name, year, type, "", "", id, function () {
-        remove_red_heart(id, type, name, year);
-      });
-    });
-    return false
-  }
-
   // 插入N个占位卡片 代替loading动画
   var page_card_num = {{ PageCount }};
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = ''
-      html += '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '">';
-        html +='<div class="card card-sm rounded-4" style="overflow: hidden;">';
-          html += '<div class="placeholder-glow">';
-            html += '<div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>';
-          html += '</div>';
-        html += '</div>';
-      html += '</div>';
+      let html = '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -278,54 +115,19 @@
         let item = ret.Items[i];
         let html = '';
         html += '<div class="col-6 col-md-3 col-xl-2">';
-          html +='<div class="card card-sm card-link-pop rounded-4 border-1 shadow" style="--tblr-border-opacity: 1;border-color:rgb(128, 128, 128);overflow: hidden;" onclick="if(is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseover="if(!is_touch_device()){showCardMore(\'' + item.orgid + '\')}" onmouseout="if(!is_touch_device()){hideCardMore(\'' + item.orgid + '\')}">';
-            html += '<div class="placeholder-glow" id="recommend_card_placeholder_' + item.orgid + '"><div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div></div>';
-            html += '<div id="recommend_card_link_' + item.orgid + '" style="display: none">';
-              html += '<div class="ratio" style="--tblr-aspect-ratio:150%;">'
-                if (item.image) {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="' + item.image + '" onerror="this.src=\'../static/img/no-image.png\'" class="card-img"  alt="">';
-                } else {
-                  html += '<img onload="loadImage(\'' + item.orgid + '\')" src="../static/img/no-image.png" class="card-img"  alt="">';
-                }
-              html += '</div>';
-            if (item.weekday) {
-              let bg_color = "bg-orange";
-              if (item.fav == 2) {
-                bg_color = "bg-green";
-              }
-              html += '<span class="badge badge-pill ' + bg_color + '" style="position:absolute;top:10px;left:10px;">' + item.weekday + '</span>'
-            } else {
-              if (item.fav == 2) {
-                html += '<div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">';
-                  html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div>';
-              }
-            }
-            if (item.vote) {
-              html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>';
-            }
-            html += '<div class="card-img-overlay ms-auto" id="recommend_card_more_' + item.orgid + '" onclick=\'show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '")\' style="display: none; background-color:rgba(0,0,0,0.5);">';
-              html += '<div style="cursor: pointer">';
-                html += '<div class="text-white"><strong>' + item.year + '</strong></div>';
-                html += '<h2 class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;"><strong>' + item.title + '</strong></h2>';
-                html += '<p class="lh-sm text-white" style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">' + item.overview + '</p>'
-              html += '</div><div class="d-flex justify-content-between">';
-                html += '<a href=\'javascript:show_mediainfo_modal("' + title_type + '", "' + item.title + '", "' + item.year + '", "' + item.id + '", "recommend?t=' + title_type + '", "", true)\' class="text-muted" title="搜索资源" onclick="window.event.cancelBubble=true;">';
-                  html += '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search icon-pulse text-white" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>';
-                html += '<div class="ms-auto"><a id="recommend_link_' + item.orgid + '" href=\'';
-                if (item.fav != 1) {
-                  html += 'javascript:show_recommend_add_modal("' + item.id + '","' + title_type + '","' + item.title + '","' + item.year + '")';
-                } else {
-                  html += 'javascript:show_recommend_del_modal("' + item.id + '","' + title_type + '","' + item.title + '","' + item.year + '")';
-                }
-                html += '\' class="text-muted" title="加入/取消订阅" onclick="window.event.cancelBubble=true;">';
-                html += '<svg id="recommend_svg_' + item.orgid + '" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-pulse text-white';
-                if (item.fav == 1){
-                  html += ' icon-filled text-red';
-                }
-                html += '" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg></a></div>'
-              html += '</div>';
-            html += '</div>';
-          html += '</div>';
+          html += `<normal-card
+                    card-id="${item.orgid}"
+                    card-tmdbId="${item.id}"
+                    card-pageType="${title_type}"
+                    card-showSub="1"
+                    card-image="${item.image}"
+                    card-weekday="${item.weekday}"
+                    card-fav="${item.fav}"
+                    card-vote="${item.vote}"
+                    card-year="${item.year}"
+                    card-title="${item.title}"
+                    card-overview="${item.overview}"
+                   ></normal-card>`;
         html += '</div>';
         $("#recommend_content").append(html);
       }
