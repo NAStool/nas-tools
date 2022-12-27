@@ -189,13 +189,13 @@ class FileTransfer:
         :param rmt_mode: RmtMode转移方式
         """
         # 字幕正则式
-        _zhcn_sub_re = r"([.\[(](((zh[-_])?(cn|ch[si]|sg|sc))|zho?"\
-                       r"|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)"\
-                       r"|简[体中]?)[.\])])"\
-                       r"|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3})"\
+        _zhcn_sub_re = r"([.\[(](((zh[-_])?(cn|ch[si]|sg|sc))|zho?" \
+                       r"|chinese|(cn|ch[si]|sg|zho?|eng)[-_&](cn|ch[si]|sg|zho?|eng)" \
+                       r"|简[体中]?)[.\])])" \
+                       r"|([\u4e00-\u9fa5]{0,3}[中双][\u4e00-\u9fa5]{0,2}[字文语][\u4e00-\u9fa5]{0,3})" \
                        r"|简体|简中"
-        _zhtw_sub_re = r"([.\[(](((zh[-_])?(hk|tw|cht|tc))"\
-                       r"|繁[体中]?)[.\])])"\
+        _zhtw_sub_re = r"([.\[(](((zh[-_])?(hk|tw|cht|tc))" \
+                       r"|繁[体中]?)[.\])])" \
                        r"|繁体中[文字]|中[文字]繁体|繁体"
         _eng_sub_re = r"[.\[(]eng[.\])]"
 
@@ -227,7 +227,7 @@ class FileTransfer:
                     if metainfo.get_episode_string() \
                             and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
-                    new_file_type = ".未知语言"
+                    new_file_type = ""
                     # 兼容jellyfin字幕识别(多重识别), emby则会识别最后一个后缀
                     if re.search(_zhcn_sub_re, file_item, re.I):
                         new_file_type = ".chi.zh-cn"
@@ -243,8 +243,13 @@ class FileTransfer:
                         ".chi.zh-cn": ".简体中文",
                         ".zh-tw": ".繁体中文"
                     }
-                    new_sub_tag_list = [new_file_type if t == 0 else "%s%s(%s)" % (
-                        new_file_type, new_sub_tag_dict.get(new_file_type, ""), t) for t in range(6)]
+                    new_sub_tag_list = [
+                        new_file_type if t == 0 else "%s%s(%s)" % (new_file_type,
+                                                                   new_sub_tag_dict.get(
+                                                                       new_file_type, ""
+                                                                   ),
+                                                                   t) for t in range(6)
+                    ]
                     for new_sub_tag in new_sub_tag_list:
                         new_file = os.path.splitext(new_name)[0] + new_sub_tag + file_ext
                         # 如果字幕文件不存在, 直接转移字幕, 并跳出循环
