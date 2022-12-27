@@ -3,19 +3,19 @@
   <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
        style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden;">
     <!-- 图像加载占位图 -->
-    <div class="placeholder-glow" id="recommend_card_placeholder">
+    <div class="placeholder-glow normalcard_placeholder">
       <div class="ratio placeholder rounded-4"
            style="--tblr-aspect-ratio: 150%">
       </div>
     </div>
     <!-- 卡片默认页面 -->
-    <div style="display: none" id="recommend_card_link">
+    <div style="display: none" class="normalcard_link">
       <div class="ratio" style="--tblr-aspect-ratio: 150%">
-        <img class="card-img" onerror="this.src='../static/img/no-image.png'"/>
+        <img class="card-img" onerror="this.src='../static/img/no-image.png'" alt="" src=""/>
       </div>
     </div>
     <!-- 卡片被选中时 -->
-    <div class="card-img-overlay ms-auto" id="recommend_card_more"
+    <div class="card-img-overlay ms-auto normalcard_more"
          style="display: none; background-color: rgba(0, 0, 0, 0.5)">
       <div style="cursor: pointer">
         <!-- 小标题 -->
@@ -88,55 +88,55 @@
   class normalCard extends HTMLElement {
     constructor() {
       super();
-      var my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
+      const my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
       // 读取参数
-      var card_id = this.getAttribute("card-id");
-      var tmdb_id = this.getAttribute("card-tmdbId");
-      var res_type = this.getAttribute("card-resType");
-      var page_type = this.getAttribute("card-pageType");
-      var showSub = this.getAttribute("card-showSub");
-      var title = this.getAttribute("card-title");
-      var fav = this.getAttribute("card-fav");
-      var date = this.getAttribute("card-date");
-      var vote = this.getAttribute("card-vote");
-      var image = this.getAttribute("card-image");
-      var overview = this.getAttribute("card-overview");
-      var year = this.getAttribute("card-year");
-      var site = this.getAttribute("card-site");
-      var weekday = this.getAttribute("card-weekday");
+      const card_id = this.getAttribute("card-id");
+      const tmdb_id = this.getAttribute("card-tmdbId");
+      const res_type = this.getAttribute("card-resType");
+      const page_type = this.getAttribute("card-pageType");
+      const showSub = this.getAttribute("card-showSub");
+      const title = this.getAttribute("card-title");
+      const fav = this.getAttribute("card-fav");
+      const date = this.getAttribute("card-date");
+      const vote = this.getAttribute("card-vote");
+      const image = this.getAttribute("card-image");
+      const overview = this.getAttribute("card-overview");
+      const year = this.getAttribute("card-year");
+      const site = this.getAttribute("card-site");
+      const weekday = this.getAttribute("card-weekday");
       // 设置元素事件与id
-      var div_card = my_card.querySelector("div.card");
+      const div_card = my_card.querySelector("div.card");
       div_card.addEventListener("click", e => {
         if (is_touch_device()){
           if (sessionStorage.normalCard_data_lastcard_more) {
-            $(`#recommend_card_more_${sessionStorage.normalCard_data_lastcard_more}`).hide();
+            $(`#normalcard_more_${sessionStorage.normalCard_data_lastcard_more}`).hide();
           }
           sessionStorage.normalCard_data_lastcard_more = card_id;
-          $(`#recommend_card_more_${card_id}`).show();
+          $(`#normalcard_more_${card_id}`).show();
         }
       });
       div_card.addEventListener("mouseenter", e => {
         if (!is_touch_device()){
-          $(`#recommend_card_more_${card_id}`).show();
+          $(`#normalcard_more_${card_id}`).show();
         }
       });
       div_card.addEventListener("mouseleave", e => {
         if (!is_touch_device()){
-          $(`#recommend_card_more_${card_id}`).hide();
+          $(`#normalcard_more_${card_id}`).hide();
         }
       });
-      my_card.querySelector("#recommend_card_placeholder").setAttribute("id", "recommend_card_placeholder_" + card_id);
-      var img = my_card.querySelector("img.card-img");
+      my_card.querySelector(".normalcard_placeholder").setAttribute("id", "normalcard_placeholder_" + card_id);
+      const img = my_card.querySelector("img.card-img");
       img.setAttribute("src", image ? image : "../static/img/no-image.png");
       img.addEventListener("load", e => {
-        $(`#recommend_card_placeholder_${card_id}`).hide();
-        $(`#recommend_card_link_${card_id}`).show();
+        $(`#normalcard_placeholder_${card_id}`).hide();
+        $(`#normalcard_link_${card_id}`).show();
       });
-      var card_link = my_card.querySelector("#recommend_card_link");
-      card_link.setAttribute("id", "recommend_card_link_" + card_id);
+      const card_link = my_card.querySelector(".normalcard_link");
+      card_link.setAttribute("id", "normalcard_link_" + card_id);
       if (weekday && weekday != "None" && weekday != "null" || res_type && res_type != "None" && res_type != "null") {
-        var card_weekday = document.getElementById("normalCard_Template_weekday").content.cloneNode(true);
-        var card_weekday_span = card_weekday.querySelector("span");
+        const card_weekday = document.getElementById("normalCard_Template_weekday").content.cloneNode(true);
+        const card_weekday_span = card_weekday.querySelector("span");
         if (weekday && weekday != "None" && weekday != "null") {
           card_weekday_span.classList.add(fav == 2 ? "bg-green" : "bg-orange");
           card_weekday_span.innerHTML = weekday;
@@ -149,12 +149,12 @@
         card_link.appendChild(document.getElementById("normalCard_Template_downloaded").content.cloneNode(true));
       }
       if (vote && vote != "None" && vote != "null") {
-        var card_vote = document.getElementById("normalCard_Template_vote").content.cloneNode(true);
+        const card_vote = document.getElementById("normalCard_Template_vote").content.cloneNode(true);
         card_vote.querySelector("div").innerHTML = vote;
         card_link.appendChild(card_vote);
       }
-      var card_more = my_card.querySelector("#recommend_card_more")
-      card_more.setAttribute("id", "recommend_card_more_" + card_id);
+      const card_more = my_card.querySelector(".normalcard_more");
+      card_more.setAttribute("id", "normalcard_more_" + card_id);
       card_more.addEventListener("click", e => {
         show_mediainfo_modal(page_type, title, year, tmdb_id, 'recommend?t=' + page_type);
       });
@@ -172,17 +172,17 @@
         my_card.querySelector("p>small").innerHTML = date;
       }
       if (showSub == "1"){
-        var card_seasub = document.getElementById("normalCard_Template_SeaSub").content.cloneNode(true);
+        const card_seasub = document.getElementById("normalCard_Template_SeaSub").content.cloneNode(true);
         card_seasub.querySelector("div.d-flex>a").setAttribute("href", `javascript:show_mediainfo_modal("${page_type}", "${title}", "${year}", "${tmdb_id}", "recommend?t=${page_type}", "", true)`);
-        var card_seasub_sub = card_seasub.querySelector("div.ms-auto>div");
-        var card_seasub_sub_love = card_seasub_sub.querySelector("svg");
+        const card_seasub_sub = card_seasub.querySelector("div.ms-auto>div");
+        const card_seasub_sub_love = card_seasub_sub.querySelector("svg");
         if (fav==1){
           card_seasub_sub_love.classList.add("icon-filled", "text-red");
         }
         card_seasub_sub.addEventListener("click", e => {
           // 如果已经订阅
           if (card_seasub_sub_love.classList.contains("text-red")){
-            show_ask_modal("是否确定将 " + title + " 从RSS订阅中移除？", function () {
+            show_ask_modal("是否确定将 " + title + " 从订阅中移除？", function () {
               hide_ask_modal();
               remove_rss_media(title, year, page_type, "", "", tmdb_id, function () {
                 card_seasub_sub_love.classList.remove("icon-filled", "text-red");

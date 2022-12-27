@@ -82,7 +82,6 @@
       del_loading_card_placeholder();
       // 插入HTML
       for (let i = 0; i < ret.Items.length; i++) {
-        let current_tooltip_id = "recommend_fresh_tooltip_" + ((CurrentPage - 1) * 30 + i);
         let item = ret.Items[i];
         let meida_type = item.TYPE == "电影" ? "MOV":"TV";
         let html = '';
@@ -102,13 +101,7 @@
                     card-date="${item.DATE}"
                    ></normal-card>`;
         html += '</div></div>';
-        debugger;
         $("#downloaded_content").append(html);
-        //更新tooltip
-        let recommendTooltipList = Array.prototype.slice.call(document.querySelectorAll('#' + current_tooltip_id))
-        let tooltipList = recommendTooltipList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
       }
     });
   }
