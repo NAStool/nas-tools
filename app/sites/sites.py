@@ -346,7 +346,7 @@ class Sites:
         """
         站点并发签到
         """
-        sites = self.get_sites()
+        sites = self.get_sites(signin=True)
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
             status = p.map(self.__signin_site, sites)
         if status:
@@ -367,7 +367,7 @@ class Sites:
             emulate = site_info.get("chrome")
             if not site_url or not site_cookie:
                 log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
-                return []
+                return ""
             chrome = ChromeHelper()
             if emulate == "Y" and chrome.get_status():
                 # 首页
@@ -375,17 +375,17 @@ class Sites:
                 home_url = StringUtils.get_base_url(site_url)
                 if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie):
                     log.warn("【Sites】%s 无法打开网站" % site)
-                    return f"{site} 无法打开网站！"
+                    return f"【{site}】无法打开网站！"
                 # 循环检测是否过cf
                 cloudflare = chrome.pass_cloudflare()
                 if not cloudflare:
                     log.warn("【Sites】%s 跳转站点失败" % site)
-                    return f"{site} 跳转站点失败！"
+                    return f"【{site}】跳转站点失败！"
                 # 判断是否已签到
                 html_text = chrome.get_html()
                 if not html_text:
                     log.warn("【Sites】%s 获取站点源码失败" % site)
-                    return f"{site} 获取站点源码失败！"
+                    return f"【{site}】获取站点源码失败！"
                 # 查找签到按钮
                 html = etree.HTML(html_text)
                 xpath_str = None
@@ -396,14 +396,14 @@ class Sites:
                 if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
                         and not xpath_str:
                     log.info("【Sites】%s 今日已签到" % site)
-                    return f"{site} 今日已签到"
+                    return f"【{site}】今日已签到"
                 if not xpath_str:
                     if SiteHelper.is_logged_in(html_text):
                         log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
-                        return f"{site} 模拟登录成功"
+                        return f"【{site}】模拟登录成功"
                     else:
                         log.info("【Sites】%s 未找到签到按钮，且模拟登录失败" % site)
-                        return f"{site} 模拟登录失败！"
+                        return f"【{site}】模拟登录失败！"
                 # 开始仿真
                 try:
                     checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
@@ -411,11 +411,11 @@ class Sites:
                     if checkin_obj:
                         checkin_obj.click()
                         log.info("【Sites】%s 仿真签到成功" % site)
-                        return f"{site} 仿真签到成功"
+                        return f"【{site}】仿真签到成功"
                 except Exception as e:
                     ExceptionUtils.exception_traceback(e)
                     log.warn("【Sites】%s 仿真签到失败：%s" % (site, str(e)))
-                    return f"{site} 签到失败！"
+                    return f"【{site}】签到失败！"
             # 模拟登录
             else:
                 proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
@@ -431,17 +431,17 @@ class Sites:
                                    ).get_res(url=site_url)
                 if res and res.status_code == 200:
                     if not SiteHelper.is_logged_in(res.text):
-                        log.warn(f"【Sites】{site} {checkin_text}失败，请检查cookie")
-                        return f"{site} {checkin_text}失败，请检查cookie！"
+                        log.warn(f"【Sites】{site} {checkin_text}失败，请检查Cookie")
+                        return f"【{site}】{checkin_text}失败，请检查Cookie！"
                     else:
                         log.info(f"【Sites】{site} {checkin_text}成功")
-                        return f"{site} {checkin_text}成功"
+                        return f"【{site}】{checkin_text}成功"
                 elif res is not None:
                     log.warn(f"【Sites】{site} {checkin_text}失败，状态码：{res.status_code}")
-                    return f"{site} {checkin_text}失败，状态码：{res.status_code}"
+                    return f"【{site}】{checkin_text}失败，状态码：{res.status_code}！"
                 else:
                     log.warn(f"【Sites】{site} {checkin_text}失败，无法打开网站")
-                    return f"{site} {checkin_text}失败，无法打开网站！"
+                    return f"【{site}】{checkin_text}失败，无法打开网站！"
         except Exception as e:
             log.error("【Sites】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
             return f"{site} 签到出错：{str(e)}！"
