@@ -70,7 +70,7 @@ class ChromeHelper(object):
         chrome.set_page_load_timeout(30)
         return chrome
 
-    def visit(self, url, ua=None, cookie=None, timeout=10):
+    def visit(self, url, ua=None, cookie=None, timeout=30):
         if not self.browser:
             return False
         try:
