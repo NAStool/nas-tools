@@ -43,7 +43,7 @@ class SmallHorseSiteUserInfo(_ISiteUserInfo):
         tmps = html.xpath('//ul[@class = "stats nobullet"]')
         if tmps:
             if tmps[1].xpath("li") and tmps[1].xpath("li")[0].xpath("span//text()"):
-                self.join_at = str(tmps[1].xpath("li")[0].xpath("span//text()")[0])
+                self.join_at = StringUtils.unify_datetime_str(tmps[1].xpath("li")[0].xpath("span//text()")[0])
             self.upload = StringUtils.num_filesize(str(tmps[1].xpath("li")[2].xpath("text()")[0]).split(":")[1].strip())
             self.download = StringUtils.num_filesize(
                 str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())
