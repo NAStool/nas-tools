@@ -58,11 +58,14 @@
             <a class="card card-link card-link-pop rounded-3"
                href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("MOV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "movie_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "MOV"){% endif %}'>
               <div class="text-center" style="overflow:hidden">
-                <img class="rounded-top w-100" src="{{ Attr.image }}"
-                     style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important; object-fit:cover; max-height:170px;" alt="">
+                <custom-img img-class="rounded-top w-100"
+                            img-src="{{ Attr.image }}"
+                            img-ratio="66%"
+                            img-style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important; object-fit:cover;"
+                ></custom-img>
               </div>
               <div class="card-body text-center">
-                <div class="card-title mb-1">
+                <div class="card-title mb-1 text-truncate">
                   {% if Attr.year %}
                     {{ Attr.name }} ({{ Attr.year }})
                   {% else %}
