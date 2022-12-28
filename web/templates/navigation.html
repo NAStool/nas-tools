@@ -841,8 +841,10 @@
         <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
         <div class="row row-0">
           <div class="col-3 d-none d-lg-block">
-            <img id="system_media_poster" src="" onerror="this.src='../static/img/no-image.png'"
-                 class="w-100 h-100 object-cover">
+            <custom-img id="system_media_poster"
+                        img-class="w-100 h-100 object-cover"
+                        img-ratio="150%"
+            ></custom-img>
           </div>
           <div class="col">
             <div class="card-body">
@@ -1506,9 +1508,9 @@
         $("#system_media_name").text(ret.title);
         $("#system_release_date").text(ret.release_date)
         if (ret.poster_path) {
-          $("#system_media_poster").attr("src", ret.poster_path);
+          $("#system_media_poster").attr("img-src", ret.poster_path);
         } else {
-          $("#system_media_poster").attr("src", "../static/img/no-image.png");
+          $("#system_media_poster").attr("img-src", "../static/img/no-image.png");
         }
         if (ret.overview && ret.overview.length > 200) {
           $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
@@ -2940,6 +2942,7 @@
   let components_list = [
     "normalCard",
     "normalCard_placeholder",
+    "custom-img",
   ]
   for (let components_name of components_list){
     $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);
