@@ -33,70 +33,73 @@
   <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
   <link href="../static/css/jquery.filetree.css" rel="stylesheet"/>
   <link href="../static/css/dropzone.css" rel="stylesheet"/>
-  <!-- 字体 -->
-  <style>
-      @import url('https://rsms.me/inter/inter.css');
-
-      :root {
-          --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
-      }
-  </style>
   <!-- 附加样式 -->
   <style>
+
       body,
       .page {
-          height: 100%;
-          overflow: hidden;
+        height: 100%;
+        overflow: hidden;
       }
 
       .tooltip-inner {
-          text-align: left;
+        text-align: left;
       }
 
       .fileTree {
-          width: 240px;
-          max-height: 200px;
-          overflow-y: scroll;
-          overflow-x: hidden;
-          position: absolute;
-          display: none;
+        width: 240px;
+        max-height: 200px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        position: absolute;
+        display: none;
       }
 
       .navbar-vertical {
-          padding-top: env(safe-area-inset-top) !important;
-          position: fixed !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+        padding-top: env(safe-area-inset-top) !important;
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
       }
 
       .navbar-expand-md {
-          position: fixed !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
       }
 
       @media (max-width: 992px) {
-          .navbar ul.navbar-nav {
-              overflow-y: auto;
-              max-height: 80vh;
-          }
+        .navbar ul.navbar-nav {
+          overflow-y: auto;
+          max-height: 80vh;
+        }
       }
 
       .page-wrapper {
-          margin-top: calc(env(safe-area-inset-top) + 50px) !important;
-          height: 100% !important;
-          overflow: scroll !important;
+        margin-top: calc(env(safe-area-inset-top) + 50px) !important;
+        height: 100% !important;
+        overflow: scroll !important;
       }
 
       .offcanvas {
-          padding-top: env(safe-area-inset-top) !important;
+        padding-top: env(safe-area-inset-top) !important;
       }
 
       .modal-dialog {
-          padding-top: env(safe-area-inset-top) !important;
+        padding-top: env(safe-area-inset-top) !important;
       }
+
+      .navbar-vertical {
+        --tw-border-opacity: 1;
+        background: linear-gradient(180deg,#1f2937,#131928);
+      }
+
+      .theme-dark {
+        background-color: #111827;
+      }
+
   </style>
   <!-- 站点图标 -->
   <style>
@@ -164,9 +167,9 @@
               <span class="input-icon-addon">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <circle cx="10" cy="10" r="7"/>
-                  <line x1="21" y1="21" x2="15" y2="15"/>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="10" cy="10" r="7"></circle>
+                  <line x1="21" y1="21" x2="15" y2="15"></line>
                 </svg>
               </span>
             <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅...">
@@ -180,10 +183,10 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <polyline points="5 12 3 12 12 3 21 12 19 12"/>
-                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>
-                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
+                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -218,9 +221,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path
-                            d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -314,9 +316,9 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <polyline points="9 11 12 14 20 6"/>
-                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <polyline points="9 11 12 14 20 6"></polyline>
+                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -416,11 +418,11 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <rect x="4" y="4" width="6" height="5" rx="2"/>
-                    <rect x="4" y="13" width="6" height="7" rx="2"/>
-                    <rect x="14" y="4" width="6" height="7" rx="2"/>
-                    <rect x="14" y="15" width="6" height="5" rx="2"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <rect x="4" y="4" width="6" height="5" rx="2"></rect>
+                    <rect x="4" y="13" width="6" height="7" rx="2"></rect>
+                    <rect x="14" y="4" width="6" height="7" rx="2"></rect>
+                    <rect x="14" y="15" width="6" height="5" rx="2"></rect>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -500,9 +502,8 @@
             <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path
-                        d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"/>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
               </svg>
               Source code
             </a>
@@ -512,16 +513,16 @@
           <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-placement="bottom">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/>
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
             </svg>
           </a>
           <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-placement="bottom">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <circle cx="12" cy="12" r="4"/>
-              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/>
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
             </svg>
           </a>
           <div class="nav-item dropdown d-none d-md-flex me-3">
@@ -529,9 +530,9 @@
                id="new_version_tip" style="display:none">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/>
-                <path d="M9 17v1a3 3 0 0 0 6 0v-1"/>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
               </svg>
               <span class="badge bg-red"></span>
             </a>
@@ -609,10 +610,9 @@
               <span class="input-icon-addon">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <desc>Download more icon variants from https://tabler-icons.io/i/search</desc>
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <circle cx="10" cy="10" r="7"/>
-                  <line x1="21" y1="21" x2="15" y2="15"/>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="10" cy="10" r="7"></circle>
+                  <line x1="21" y1="21" x2="15" y2="15"></line>
                 </svg>
               </span>
             <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…"
@@ -693,9 +693,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M12 9v2m0 4v.01"/>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M12 9v2m0 4v.01"></path>
+          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
         </svg>
         <h3>确认</h3>
         <div class="text-muted text-wrap" id="system_confirm_message" style="overflow: hidden">是否确定？</div>
@@ -729,9 +729,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M9 12l2 2l4 -4"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M9 12l2 2l4 -4"></path>
         </svg>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_action_message" style="overflow: hidden">操作成功！</div>
@@ -780,9 +780,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M9 12l2 2l4 -4"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M9 12l2 2l4 -4"></path>
         </svg>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_message" style="overflow: hidden">成功！</div>
@@ -812,9 +812,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M12 9v2m0 4v.01"/>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M12 9v2m0 4v.01"></path>
+          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
         </svg>
         <h3>失败</h3>
         <div class="text-muted text-wrap" id="system_fail_message" style="overflow:hidden">失败！</div>
