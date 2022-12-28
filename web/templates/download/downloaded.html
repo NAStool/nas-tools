@@ -14,7 +14,6 @@
         {% for item in Items %}
           <div class="col-6 col-sm-4 col-md-3 col-xl-2">
             <normal-card
-              card-id="{{ item.ID }}"
               card-tmdbId="{{ item.TMDBID }}"
               card-pageType="{% if item.TYPE == '电影' %}MOV{% else %}TV{% endif %}"
               card-resType="{{ item.TYPE }}"
@@ -87,7 +86,6 @@
         let html = '';
         html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
           html += `<normal-card
-                    card-id="${item.ID}"
                     card-tmdbId="${item.TMDBID}"
                     card-pageType="${meida_type}"
                     card-resType="${item.TYPE}"
