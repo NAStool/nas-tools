@@ -106,3 +106,4 @@ class SiteSchema(Enum):
     SmallHorse = "Small Horse"
     Unit3d = "Unit3d"
     TorrentLeech = "TorrentLeech"
+    FileList = "FileList"

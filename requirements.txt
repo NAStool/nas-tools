@@ -22,7 +22,7 @@ cryptography==38.0.3
 cssselect==1.1.0
 DBUtils==3.0.2
 decorator==5.1.1
-Delorean==1.0.0
+dateparser==1.1.4
 executing==1.1.0
 Flask==2.1.2
 Flask-Login==0.6.2
