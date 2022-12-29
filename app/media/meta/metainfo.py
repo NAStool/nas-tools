@@ -28,7 +28,8 @@ def MetaInfo(title, subtitle=None, mtype=None):
         title, msg, used_info = WordsHelper().process(title)
 
     if msg:
-        log.warn("【Meta】%s" % msg)
+        for msg_item in msg:
+            log.warn("【Meta】%s" % msg_item)
 
     # 判断是否处理文件
     if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
