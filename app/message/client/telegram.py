@@ -174,13 +174,15 @@ class Telegram(IMessageClient):
             if flag:
                 return flag, msg
             else:
-                sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
-                data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
-                files = {"photo": self.get_photo_from_web(image)}
-                res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
-                flag, msg = _res_parse(res)
-                if flag:
-                    return flag, msg
+                photo = self.get_photo_from_web(image)
+                if photo:
+                    sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
+                    data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
+                    files = {"photo": photo}
+                    res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
+                    flag, msg = _res_parse(res)
+                    if flag:
+                        return flag, msg
         # 发送文本消息
         values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
         sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
