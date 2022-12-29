@@ -137,7 +137,8 @@ SITE_LOGIN_XPATH = {
     ],
     "submit": [
         '//input[@type="submit"]',
-        '//button[@type="submit"]'
+        '//button[@type="submit"]',
+        '//button[@lay-filter="login"]'
     ],
     "error": [
         "//table[@class='main']//td[@class='text']/text()"
