@@ -154,7 +154,7 @@
       } else if (fav == "2") {
         card_link.appendChild(document.getElementById("normalCard_Template_downloaded").content.cloneNode(true));
       }
-      if (vote && vote != "0.0") {
+      if (vote && vote != "0.0" && vote != "0") {
         const card_vote = document.getElementById("normalCard_Template_vote").content.cloneNode(true);
         card_vote.querySelector("div").innerHTML = vote;
         card_link.appendChild(card_vote);
