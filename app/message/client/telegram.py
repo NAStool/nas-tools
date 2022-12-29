@@ -103,14 +103,16 @@ class Telegram(IMessageClient):
                 chat_id = user_id
             else:
                 chat_id = self._telegram_chat_id
+            # 发送图文消息
             if image:
-                # 发送图文消息
                 values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
                 sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
-            else:
-                # 发送文本
-                values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
-                sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
+                flag, msg = self.__send_request(sc_url, values)
+                if flag:
+                    return flag, msg
+            # 发送文本消息
+            values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
+            sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
             return self.__send_request(sc_url, values)
 
         except Exception as msg_e:
