@@ -1,4 +1,3 @@
-import os
 from threading import Event, Lock
 from urllib.parse import urlencode
 
@@ -174,13 +173,15 @@ class Telegram(IMessageClient):
             if flag:
                 return flag, msg
             else:
-                sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
-                data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
-                files = {"photo": self.get_photo_from_web(image)}
-                res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
-                flag, msg = _res_parse(res)
-                if flag:
-                    return flag, msg
+                photo_req = RequestUtils(proxies=self._config.get_proxies()).get_res(image)
+                if photo_req and photo_req.content:
+                    sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
+                    data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
+                    files = {"photo": photo_req.content}
+                    res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
+                    flag, msg = _res_parse(res)
+                    if flag:
+                        return flag, msg
         # 发送文本消息
         values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
         sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
@@ -307,13 +308,3 @@ class Telegram(IMessageClient):
         停止服务
         """
         self._enabled = False
-
-    def get_photo_from_web(self, img_url):
-        """
-        从网络获取图片
-        """
-        req = RequestUtils(proxies=self._config.get_proxies()).get_res(img_url)
-        if req:
-            return req.content
-        else:
-            return None
