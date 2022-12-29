@@ -174,7 +174,7 @@ class Telegram(IMessageClient):
                 return flag, msg
             else:
                 photo_req = RequestUtils(proxies=self._config.get_proxies()).get_res(image)
-                if photo_req.content:
+                if photo_req and photo_req.content:
                     sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
                     data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
                     files = {"photo": photo_req.content}
