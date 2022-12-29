@@ -84,7 +84,7 @@ class Telegram(IMessageClient):
                 return False, "参数未配置"
 
             # text中的Markdown特殊字符转义
-            text = text.replace("[", "\[").replace("_", "\_").replace("*", "\*").replace("`", "\`")
+            text = text.replace("[", r"\[").replace("_", r"\_").replace("*", r"\*").replace("`", r"\`")
             # 拼装消息内容
             titles = str(title).split('\n')
             if len(titles) > 1:
