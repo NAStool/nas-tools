@@ -90,14 +90,14 @@ class FileListSiteUserInfo(_ISiteUserInfo):
         page_seeding = 0
         page_seeding_size = 0
         page_seeding_info = []
-        seeding_sizes = html.xpath(f'//tbody/tr[position()>1]/td[{size_col}]')
-        seeding_seeders = html.xpath(f'//tbody/tr[position()>1]/td[{seeders_col}]/text()')
+        seeding_sizes = html.xpath(f'//table/tr[position()>1]/td[{size_col}]')
+        seeding_seeders = html.xpath(f'//table/tr[position()>1]/td[{seeders_col}]')
         if seeding_sizes and seeding_seeders:
             page_seeding = len(seeding_sizes)
 
             for i in range(0, len(seeding_sizes)):
                 size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
-                seeders = StringUtils.str_int(seeding_seeders[i])
+                seeders = StringUtils.str_int(seeding_seeders[i].xpath("string(.)").strip())
 
                 page_seeding_size += size
                 page_seeding_info.append([seeders, size])
