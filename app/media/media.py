@@ -1055,7 +1055,7 @@ class Media:
             if not media_info.begin_episode:
                 return None
             tv_info = self.get_tmdb_tv_season_detail(tmdbid=media_info.tmdb_id,
-                                                     season=media_info.begin_season)
+                                                     season=int(media_info.get_season_seq()))
             if tv_info:
                 for episode in tv_info.get("episodes") or []:
                     if episode.get("episode_number") == media_info.begin_episode:
