@@ -3,9 +3,8 @@ from functools import lru_cache
 import requests
 from lxml import etree
 
-from app.utils import RequestUtils
+from app.utils import RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 
 
 @singleton

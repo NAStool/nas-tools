@@ -1,11 +1,11 @@
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from app.utils.types import MediaServerType
-from plexapi.myplex import MyPlexAccount
+from app.utils.commons import singleton
 
 import log
 from config import Config
 from app.mediaserver.media_client import IMediaClient
-from app.utils.commons import singleton
+from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 
 

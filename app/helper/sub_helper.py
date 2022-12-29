@@ -4,7 +4,7 @@ from urllib.parse import quote
 from pyquery import PyQuery
 
 import log
-from app.helper import ChromeHelper
+from app.helper.chrome_helper import ChromeHelper
 from config import Config
 
 

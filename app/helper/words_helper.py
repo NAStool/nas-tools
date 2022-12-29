@@ -121,7 +121,7 @@ class WordsHelper:
                 back = offset_word_info.BACK
                 offset = offset_word_info.OFFSET
                 offset_word = f"{front}@{back}@{offset}"
-                title, offset_msg, offset_flag = self.episode_offset(front, back, offset, used_offset_words, title)
+                title, offset_msg, offset_flag = self.episode_offset(front, back, offset, title)
                 if offset_flag:
                     used_offset_words.append(offset_word)
                 elif offset_msg:
@@ -175,7 +175,6 @@ class WordsHelper:
             offset_order_flag = False
             for episode_num_str in episode_nums_str:
                 episode_num_int = int(episode_num_str)
-                EP = episode_num_int
                 episode_num_offset_int = eval(offset)
                 # 向前偏移
                 if episode_num_int > episode_num_offset_int:

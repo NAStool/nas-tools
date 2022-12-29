@@ -5,14 +5,14 @@ import log
 from app.downloader.client import Aria2, Client115, Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.helper import DbHelper, ThreadHelper
-from app.media import MetaInfo, Media
+from app.media import Media
+from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
 from app.sites import Sites
 from app.subtitle import Subtitle
-from app.utils import Torrent, StringUtils, SystemUtils
+from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 from config import Config, PT_TAG, RMT_MEDIAEXT
 

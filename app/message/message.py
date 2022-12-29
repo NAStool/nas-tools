@@ -3,12 +3,12 @@ import json
 from enum import Enum
 
 import log
-from app.utils.commons import singleton
 from config import Config
 from app.helper import DbHelper
 from app.message.client import Bark, IyuuMsg, PushDeerClient, PushPlus, ServerChan, Telegram, WeChat, Slack, Gotify
-from app.utils import StringUtils
 from app.message.message_center import MessageCenter
+from app.utils import StringUtils
+from app.utils.commons import singleton
 from app.utils.types import SearchType, MediaType
 
 

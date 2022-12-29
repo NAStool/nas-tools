@@ -4,3 +4,4 @@ from .objs.tv import TV
 from .objs.person import Person
 from .objs.find import Find
 from .tmdb import TMDb
+from .exceptions import TMDbException

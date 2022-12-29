@@ -5,7 +5,8 @@ import log
 from app.downloader import Downloader
 from app.media.douban import DouBan
 from app.helper import DbHelper, MetaHelper
-from app.media import MetaInfo, Media
+from app.media import Media
+from app.media.meta import MetaInfo
 from app.message import Message
 from app.searcher import Searcher
 from app.utils.types import MediaType, SearchType

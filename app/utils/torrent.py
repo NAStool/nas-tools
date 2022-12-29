@@ -4,7 +4,7 @@ import datetime
 from urllib.parse import quote
 
 from app.utils.torrentParser import TorrentParser
-from app.utils import RequestUtils
+from app.utils.http_utils import RequestUtils
 from config import Config
 
 

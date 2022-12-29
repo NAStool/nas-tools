@@ -2,9 +2,8 @@ import requests
 
 import log
 from app.helper import ChromeHelper, SubmoduleHelper
-from app.utils import RequestUtils
+from app.utils import RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 

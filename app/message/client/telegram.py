@@ -312,12 +312,8 @@ class Telegram(IMessageClient):
         """
         从网络获取图片
         """
-        photo_path = os.path.join(self._config.get_config_path(), "temp")
-        file_name = img_url.split('/')[-1]
-        file_path = os.path.join(photo_path, file_name)
-        if not os.path.exists(file_path):
-            req = RequestUtils(proxies=self._config.get_proxies()).get_res(img_url)
-            with open(file_path, 'wb') as f:
-                f.write(req.content)
-        return open(file_path, 'rb')
-
+        req = RequestUtils(proxies=self._config.get_proxies()).get_res(img_url)
+        if req:
+            return req.content
+        else:
+            return None

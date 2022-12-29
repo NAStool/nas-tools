@@ -21,12 +21,13 @@ from app.downloader import Downloader
 from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper, ChromeHelper, ProgressHelper, ThreadHelper, \
+from app.helper import DbHelper, DictHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
 from app.indexer import Indexer
-from app.media import Category, Media, MetaInfo, MetaBase
+from app.media import Category, Media
 from app.media.bangumi import Bangumi
 from app.media.douban import DouBan
+from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
 from app.rss import Rss
@@ -36,13 +37,10 @@ from app.sites import Sites
 from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
-from app.sync import Sync
-from app.sync import stop_monitor
+from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
-from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.utils.exception_utils import ExceptionUtils
-from app.utils.types import RMT_MODES, RmtMode, OsType
-from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
+from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
+from app.utils.types import RMT_MODES, RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 

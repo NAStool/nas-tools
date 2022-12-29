@@ -16,13 +16,12 @@ from selenium.webdriver.support import expected_conditions as es
 
 import log
 from app.message import Message
-from app.sites import SiteUserInfoFactory
+from app.sites.site_user_info_factory import SiteUserInfoFactory
 from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
-from app.utils import RequestUtils, StringUtils
+from app.utils import RequestUtils, StringUtils, ExceptionUtils
 from app.helper import ChromeHelper, SiteHelper, DbHelper
-from app.utils.exception_utils import ExceptionUtils
-from config import SITE_CHECKIN_XPATH, Config
+from config import Config
 
 lock = Lock()
 
@@ -30,7 +29,6 @@ lock = Lock()
 @singleton
 class Sites:
     message = None
-    siteconf = None
     dbhelper = None
 
     _sites = []
@@ -52,7 +50,6 @@ class Sites:
     def init_config(self):
         self.dbhelper = DbHelper()
         self.message = Message()
-        self.siteconf = SiteConf()
         # 原始站点列表
         self._sites = []
         # 站点数据
@@ -389,7 +386,7 @@ class Sites:
                 # 查找签到按钮
                 html = etree.HTML(html_text)
                 xpath_str = None
-                for xpath in SITE_CHECKIN_XPATH:
+                for xpath in SiteConf.SITE_CHECKIN_XPATH:
                     if html.xpath(xpath):
                         xpath_str = xpath
                         break
@@ -646,11 +643,12 @@ class Sites:
                 return res.text
         return ""
 
-    def get_grapsite_conf(self, url):
+    @staticmethod
+    def get_grapsite_conf(url):
         """
         根据地址找到RSS_SITE_GRAP_CONF对应配置
         """
-        for k, v in self.siteconf.RSS_SITE_GRAP_CONF.items():
+        for k, v in SiteConf.RSS_SITE_GRAP_CONF.items():
             if StringUtils.url_equal(k, url):
                 return v
         return {}
@@ -711,24 +709,26 @@ class Sites:
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr
 
-    def is_public_site(self, url):
+    @staticmethod
+    def is_public_site(url):
         """
         判断是否为公开BT站点
         """
         _, netloc = StringUtils.get_url_netloc(url)
-        if netloc in self.siteconf.PUBLIC_TORRENT_SITES.keys():
+        if netloc in SiteConf.PUBLIC_TORRENT_SITES.keys():
             return True
         return False
 
-    def get_public_sites(self, url=None):
+    @staticmethod
+    def get_public_sites(url=None):
         """
         查询所有公开BT站点
         """
         if url:
             _, netloc = StringUtils.get_url_netloc(url)
-            return self.siteconf.PUBLIC_TORRENT_SITES.get(netloc)
+            return SiteConf.PUBLIC_TORRENT_SITES.get(netloc)
         else:
-            return self.siteconf.PUBLIC_TORRENT_SITES.items()
+            return SiteConf.PUBLIC_TORRENT_SITES.items()
 
     @staticmethod
     def __get_site_note_items(note):

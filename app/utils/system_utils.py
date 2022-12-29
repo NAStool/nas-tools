@@ -4,7 +4,7 @@ import platform
 import shutil
 import subprocess
 
-from app.utils import PathUtils
+from app.utils.path_utils import PathUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import OsType
 

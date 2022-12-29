@@ -1,10 +1,9 @@
 import os.path
 import pickle
 
-from app.utils import StringUtils
-from app.utils.exception_utils import ExceptionUtils
-from config import Config
+from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
+from config import Config
 
 
 @singleton

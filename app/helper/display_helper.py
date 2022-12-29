@@ -3,7 +3,7 @@ import os
 from pyvirtualdisplay import Display
 
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from config import XVFB_PATH
 
 

@@ -7,11 +7,11 @@ from lxml import etree
 
 import log
 from app.helper import SubHelper
-from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
+from app.sites.siteconf import SiteConf
+from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
-from config import Config, RMT_SUBEXT, SITE_SUBTITLE_XPATH
+from config import Config, RMT_SUBEXT
 
 
 @singleton
@@ -278,7 +278,7 @@ class Subtitle:
                 return
             html = etree.HTML(res.text)
             sublink = None
-            for xpath in SITE_SUBTITLE_XPATH:
+            for xpath in SiteConf.SITE_SUBTITLE_XPATH:
                 sublinks = html.xpath(xpath)
                 if sublinks:
                     sublink = sublinks[0]
