@@ -1,3 +1,4 @@
+import os
 from threading import Event, Lock
 from urllib.parse import urlencode
 
@@ -103,17 +104,8 @@ class Telegram(IMessageClient):
                 chat_id = user_id
             else:
                 chat_id = self._telegram_chat_id
-            # 发送图文消息
-            if image:
-                values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
-                sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
-                flag, msg = self.__send_request(sc_url, values)
-                if flag:
-                    return flag, msg
-            # 发送文本消息
-            values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
-            sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
-            return self.__send_request(sc_url, values)
+
+            return self.__send_request(chat_id=chat_id, image=image, caption=caption)
 
         except Exception as msg_e:
             ExceptionUtils.exception_traceback(msg_e)
@@ -152,29 +144,49 @@ class Telegram(IMessageClient):
             else:
                 chat_id = self._telegram_chat_id
 
-            # 发送图文消息
-            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
-            sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
-            return self.__send_request(sc_url, values)
+            return self.__send_request(chat_id=chat_id, image=image, caption=caption)
 
         except Exception as msg_e:
             ExceptionUtils.exception_traceback(msg_e)
             return False, str(msg_e)
 
-    def __send_request(self, sc_url, values):
+    def __send_request(self, chat_id="", image="", caption=""):
         """
         向Telegram发送报文
         """
-        res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
-        if res:
-            ret_json = res.json()
-            status = ret_json.get("ok")
-            if status:
-                return True, ""
+        def _res_parse(result):
+            if result:
+                ret_json = result.json()
+                status = ret_json.get("ok")
+                if status:
+                    return True, ""
+                else:
+                    return False, ret_json.get("description")
             else:
-                return False, ret_json.get("description")
-        else:
-            return False, "未获取到返回信息"
+                return False, "未获取到返回信息"
+
+        if image:
+            # 发送图文消息
+            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
+            sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
+            res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
+            flag, msg = _res_parse(res)
+            if flag:
+                return flag, msg
+            else:
+                sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
+                data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
+                files = {"photo": self.get_photo_from_web(image)}
+                res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
+                flag, msg = _res_parse(res)
+                if flag:
+                    return flag, msg
+        # 发送文本消息
+        values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
+        sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
+        res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
+        flag, msg = _res_parse(res)
+        return flag, msg
 
     def __set_bot_webhook(self):
         """
@@ -295,3 +307,17 @@ class Telegram(IMessageClient):
         停止服务
         """
         self._enabled = False
+
+    def get_photo_from_web(self, img_url):
+        """
+        从网络获取图片
+        """
+        photo_path = os.path.join(self._config.get_config_path(), "temp")
+        file_name = img_url.split('/')[-1]
+        file_path = os.path.join(photo_path, file_name)
+        if not os.path.exists(file_path):
+            req = RequestUtils(proxies=self._config.get_proxies()).get_res(img_url)
+            with open(file_path, 'wb') as f:
+                f.write(req.content)
+        return open(file_path, 'rb')
+
