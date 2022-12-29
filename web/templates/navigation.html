@@ -78,7 +78,7 @@
       }
 
       .page-wrapper {
-        margin-top: calc(env(safe-area-inset-top) + 50px) !important;
+        margin-top: calc(env(safe-area-inset-top) + 56px) !important;
         height: 100% !important;
         overflow: scroll !important;
       }
@@ -100,6 +100,10 @@
         background-color: #111827;
       }
 
+      .theme-dark .navbar-expand-md {
+        background-color: transparent;
+      }
+
   </style>
   <!-- 站点图标 -->
   <style>
@@ -116,7 +120,7 @@
 <body>
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
-  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
+  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top" style="backdrop-filter: blur(5px);">
     <div class="container-xl">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
               data-bs-target="#navbar-menu">
