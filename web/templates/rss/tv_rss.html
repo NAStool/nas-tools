@@ -104,31 +104,31 @@
                 {% else %} class=“text-muted"{% endif %}>
                   <small>
                     {% if Attr.over_edition %}
-                      <span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>
+                      <span class="badge bg-red me-1 mb-1" title="已开启洗版">洗版</span>
+                    {% endif %}
+                    {% if Attr.download_setting != -1 and Attr.download_setting|string in DownloadSettings %}
+                      <span class="badge bg-red me-1 mb-1" title="下载设置">
+                        {{ DownloadSettings[Attr.download_setting|string].name }}
+                      </span>
                     {% endif %}
                     {% if Attr.filter_restype %}
-                      <span class="badge badge-outline text-orange me-1 mb-1" title="质量">
+                      <span class="badge bg-yellow me-1 mb-1" title="质量">
                         {{ Attr.filter_restype }}
                       </span>
                     {% endif %}
                     {% if Attr.filter_pix %}
-                      <span class="badge badge-outline text-orange me-1 mb-1" title="分辨率">
+                      <span class="badge bg-yellow me-1 mb-1" title="分辨率">
                         {{ Attr.filter_pix }}
                       </span>
                     {% endif %}
-                    {% if Attr.filter_rule|string in RuleGroups %}
-                      <span class="badge badge-outline text-orange me-1 mb-1" title="过滤规则">
-                        {{ RuleGroups[Attr.filter_rule|string] }}
-                      </span>
-                    {% endif %}
-                    {% if Attr.download_setting != -1 and Attr.download_setting|string in DownloadSettings %}
-                      <span class="badge badge-outline bg-cyan me-1 mb-1" title="下载设置">
-                        {{ DownloadSettings[Attr.download_setting|string].name }}
-                      </span>
-                    {% endif %}
                     {% if Attr.filter_team %}
-                      <span class="badge badge-outline text-blue me-1 mb-1 text-wrap text-start" title="制作组/字幕组">
+                      <span class="badge bg-yellow me-1 mb-1 text-wrap text-start" title="制作组/字幕组">
                         {{ Attr.filter_team }}
+                      </span>
+                    {% endif %}
+                    {% if Attr.filter_rule|string in RuleGroups %}
+                      <span class="badge bg-orange me-1 mb-1" title="过滤规则">
+                        {{ RuleGroups[Attr.filter_rule|string] }}
                       </span>
                     {% endif %}
                   </small>
@@ -136,12 +136,12 @@
                 <div class="text-muted">
                   <small>
                     {% for Site in Attr.rss_sites %}
-                      <span class="badge bg-lime me-1 mb-1" title="订阅站点">
+                      <span class="badge badge-outline text-azure me-1 mb-1" title="订阅站点">
                         {{ Site }}
                       </span>
                     {% endfor %}
                     {% for Site in Attr.search_sites %}
-                      <span class="badge bg-yellow me-1 mb-1" title="搜索站点">
+                      <span class="badge badge-outline text-teal me-1 mb-1" title="搜索站点">
                         {{ Site }}
                       </span>
                     {% endfor %}

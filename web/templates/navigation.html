@@ -2614,7 +2614,7 @@
             html += `<div class="list-group-item" onclick="$(this).find('input:radio').prop('checked', true);"><div class="row align-items-center">`;
             html += `<div class="col-auto"><input type="radio" name="search_tmdbid_check" value="${data[i].tmdb_id}" class="form-check-input"></div>`;
             html += `<div class="col-auto"><img class="rounded w-5 shadow" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
-            html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:2; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
+            html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
             html += `</div></div>`;
           }
           $("#"+resultid).html(html);

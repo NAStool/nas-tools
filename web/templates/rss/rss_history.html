@@ -62,10 +62,9 @@
                 {% for Item in Items %}
                   <tr>
                     <td>
-                                        <span class="d-none d-md-block" style="width: 60px">
-                                            <img class="rounded" src="{{ Item.IMAGE }}"
-                                                 onerror="this.src='../static/img/no-image.png'"/>
-                                        </span>
+                      <img class="rounded shadow w-5" src="{{ Item.IMAGE }}"
+                          onerror="this.src='../static/img/no-image.png'" alt=""
+                          style="min-width: 50px"/>
                     </td>
                     <td>
                       <div>{{ Item.NAME }} ({{ Item.YEAR }}) {{ Item.SEASON or '' }}</div>

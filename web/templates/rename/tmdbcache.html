@@ -62,8 +62,8 @@
               <thead>
               <tr>
                 <th>索引</th>
-                <th>标题</th>
                 <th></th>
+                <th>标题</th>
                 <th></th>
               </tr>
               </thead>
@@ -143,11 +143,10 @@
                     </td>
                     <td>
                       {% if TmdbCache[1].poster_path %}
-                        <span class="d-none d-md-block" style="width: 60px">
-                            <img class="rounded"
-                                 src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
-                                 onerror="this.src='../static/img/no-image.png'"/>
-                        </span>
+                        <img class="rounded shadow w-5"
+                            src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
+                            onerror="this.src='../static/img/no-image.png'" alt=""
+                            style="min-width: 50px"/>
                       {% endif %}
                     </td>
                     <td>
