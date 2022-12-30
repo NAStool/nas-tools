@@ -1,7 +1,7 @@
 import os.path
 import re
 import datetime
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from bencode import bdecode
 
@@ -157,11 +157,11 @@ class Torrent:
         disposition = req.headers.get('content-disposition') or ""
         file_name = re.findall(r"filename=\"?(.+)\"?", disposition)
         if file_name:
-            file_name = str(file_name[0].encode('ISO-8859-1').decode()).split(";")[0].strip()
+            file_name = unquote(str(file_name[0].encode('ISO-8859-1').decode()).split(";")[0].strip())
             if file_name.endswith('"'):
                 file_name = file_name[:-1]
         elif url and url.endswith(".torrent"):
-            file_name = url.split("/")[-1]
+            file_name = unquote(url.split("/")[-1])
         else:
             file_name = str(datetime.datetime.now())
         return file_name
