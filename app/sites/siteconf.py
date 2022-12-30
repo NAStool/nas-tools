@@ -451,7 +451,7 @@ class SiteConf:
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
         'rarbg.to': {
-            "parser": "rarbg",
+            "parser": "Rarbg",
             "proxy": True,
             "language": "en"
         },
@@ -480,7 +480,8 @@ class SiteConf:
         },
         'ext.to': {
             "proxy": True,
-            "language": "en"
+            "language": "en",
+            "parser": "RenderSpider"
         },
         'torrentgalaxy.to': {
             "proxy": True,
@@ -508,5 +509,10 @@ class SiteConf:
         },
         'www.hdpianyuan.com': {
             "proxy": False
+        },
+        'skrbtfi.top': {
+            "proxy": False,
+            "referer": True,
+            "parser": "RenderSpider"
         }
     }

@@ -48,25 +48,27 @@ class TorrentSpider(feapder.AirSpider):
     keyword = None
     indexer = None
     search = None
-    index = None
+    browse = None
     domain = None
     torrents = None
     article_list = None
     fields = None
+    referer = None
     page = 0
     result_num = 100
     torrents_info = {}
     torrents_info_array = []
 
-    def setparam(self, indexer, keyword=None, page=None):
+    def setparam(self, indexer, keyword=None, page=None, referer=None):
         if not indexer:
             return
         self.keyword = keyword
         self.indexerid = indexer.id
         self.indexername = indexer.name
         self.search = indexer.search
-        self.index = indexer.index
+        self.browse = indexer.browse
         self.torrents = indexer.torrents
+        self.fields = indexer.torrents.get('fields')
         self.render = indexer.render
         self.domain = indexer.domain
         self.page = page
@@ -80,7 +82,8 @@ class TorrentSpider(feapder.AirSpider):
             self.proxies = Config().get_proxies()
         if indexer.cookie:
             self.cookie = indexer.cookie
-
+        if referer:
+            self.referer = referer
         self.result_num = Config().get_config('pt').get('site_search_result_num') or 100
         self.torrents_info_array = []
 
@@ -88,48 +91,42 @@ class TorrentSpider(feapder.AirSpider):
         if not self.search or not self.domain:
             self.is_complete = True
             return
-        # 种子路径
+        # 种子路径，只支持GET方式
         torrentspath = self.search.get('paths', [{}])[0].get('path', '')
+        # 关键字搜索
         if self.keyword:
-            # 关键字搜索
             if torrentspath.find("{keyword}") != -1:
                 searchurl = self.domain + \
-                            torrentspath.replace("{keyword}", quote(self.keyword))
+                                 torrentspath.replace("{keyword}",
+                                                      quote(self.keyword))
             else:
                 searchurl = self.domain + \
-                            torrentspath + \
-                            '?stypes=s&' + \
-                            urlencode({
-                                "search": self.keyword,
-                                "search_field": self.keyword,
-                                "keyword": self.keyword
-                            })
+                                 torrentspath + \
+                                 '?stypes=s&' + \
+                                 urlencode({
+                                     "search": self.keyword,
+                                     "search_field": self.keyword,
+                                     "keyword": self.keyword
+                                 })
+        # 列表浏览
         else:
-            # 列表浏览
-            if self.index:
-                # 有单独浏览路径
-                indexpath = self.index.get("path")
-                indexstart = self.index.get("start") or 0
-                if self.page is not None:
-                    if indexpath.find("{page}") != -1:
-                        searchurl = self.domain + \
-                                    indexpath.replace("{page}", str(int(self.page) + indexstart))
-                    else:
-                        searchurl = self.domain + \
-                                    indexpath + \
-                                    "?page=%s" % (indexstart + int(self.page))
-                else:
-                    searchurl = self.domain + indexpath
-            else:
-                # 复用搜索路径浏览
-                torrentspath = torrentspath.replace("{keyword}", "")
+            torrentspath = torrentspath.replace("{keyword}", "")
+            pagestart = 0
+            # 有单独浏览路径
+            if self.browse:
+                torrentspath = self.browse.get("path")
+                pagestart = self.browse.get("start") or 0
+            if self.page is not None:
                 if torrentspath.find("{page}") != -1:
                     searchurl = self.domain + \
-                                torrentspath.replace("{page}", str(self.page or 0))
+                                     torrentspath.replace("{page}",
+                                                          str(int(self.page) + pagestart))
                 else:
                     searchurl = self.domain + \
-                                torrentspath + \
-                                "?page=%s" % (self.page or 0)
+                                     torrentspath + \
+                                     "?page=%s" % (int(self.page) + pagestart)
+            else:
+                searchurl = self.domain + torrentspath
 
         yield feapder.Request(url=searchurl,
                               use_session=True,
@@ -286,9 +283,15 @@ class TorrentSpider(feapder.AirSpider):
         if "detail" in self.fields.get('download', {}):
             selector = self.fields.get('download', {}).get("detail", {})
             if "xpath" in selector:
-                self.torrents_info['enclosure'] = "[%s]" % selector.get("xpath", "")
+                self.torrents_info['enclosure'] = f'[{selector.get("xpath", "")}' \
+                                                  f'|{self.cookie}' \
+                                                  f'|{self.ua}' \
+                                                  f'|{self.referer}]'
             elif "hash" in selector:
-                self.torrents_info['enclosure'] = "#%s#" % selector.get("hash", "")
+                self.torrents_info['enclosure'] = f'#{selector.get("hash", "")}' \
+                                                  f'|{self.cookie}' \
+                                                  f'|{self.ua}' \
+                                                  f'|{self.referer}#'
         else:
             download = torrent(self.fields.get('download', {}).get('selector', ''))
             items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
@@ -486,7 +489,6 @@ class TorrentSpider(feapder.AirSpider):
             # 获取网站文本
             self.article_list = response.extract()
             # 获取站点种子xml
-            self.fields = self.torrents.get('fields')
             html_doc = PyQuery(self.article_list)
             # 种子筛选器
             torrents_selector = self.torrents.get('list', {}).get('selector', '')

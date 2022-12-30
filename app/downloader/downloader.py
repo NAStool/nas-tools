@@ -151,7 +151,7 @@ class Downloader:
         if not url:
             return None, "Url链接为空"
         # 默认值
-        site_info, cookie, ua, dl_files_folder, dl_files = {}, None, None, "", []
+        site_info, dl_files_folder, dl_files = {}, "", []
         # 下载设置
         if download_setting:
             download_attr = self.get_download_setting(download_setting)
@@ -170,13 +170,11 @@ class Downloader:
         # HTTP协议偿试下载种子内容
         elif url.startswith("http"):
             # 获取Cookie和ua等
-            cookie, ua, referer, site_info = self.sites.get_site_attr(url)
+            site_info = self.sites.get_site_attr(url)
             if _xpath:
                 # 从详情页面解析下载链接
                 url = self.sites.parse_site_download_url(page_url=url,
-                                                         xpath=_xpath,
-                                                         cookie=cookie,
-                                                         ua=ua)
+                                                         xpath=_xpath)
                 if not url:
                     return None, "无法从详情页面：%s 解析出下载链接" % page_url
                 # 解析出来的是HASH值
@@ -192,9 +190,10 @@ class Downloader:
                 # 下载种子文件，并读取信息
                 _, content, dl_files_folder, dl_files, retmsg = Torrent().get_torrent_info(
                     url=url,
-                    cookie=cookie,
-                    ua=ua,
-                    referer=page_url if referer else None)
+                    cookie=site_info.get("cookie"),
+                    ua=site_info.get("ua"),
+                    referer=page_url if site_info.get("referer") else None
+                )
             if retmsg:
                 log.warn("【Downloader】%s" % retmsg)
             if not content:
@@ -254,7 +253,7 @@ class Downloader:
                 ret = _client.add_torrent(content,
                                           is_paused=is_paused,
                                           download_dir=download_dir,
-                                          cookie=cookie)
+                                          cookie=site_info.get("cookie"))
                 if ret:
                     _client.change_torrent(tid=ret.id,
                                            tag=tags,
@@ -273,7 +272,7 @@ class Downloader:
                                           download_limit=download_limit,
                                           ratio_limit=ratio_limit,
                                           seeding_time_limit=seeding_time_limit,
-                                          cookie=cookie)
+                                          cookie=site_info.get("cookie"))
             else:
                 ret = _client.add_torrent(content,
                                           is_paused=is_paused,
@@ -298,7 +297,7 @@ class Downloader:
                             subtitle_dir = visit_dir
                         ThreadHelper().start_thread(
                             Subtitle().download_subtitle_from_site,
-                            (media_info, cookie, ua, subtitle_dir)
+                            (media_info, site_info.get("cookie"), site_info.get("ua"), subtitle_dir)
                         )
                 return ret, ""
             else:
@@ -1000,14 +999,16 @@ class Downloader:
         解析种子文件，获取集数
         :return: 集数列表、种子路径
         """
-        cookie, ua, referer, _ = self.sites.get_site_attr(url)
-        if not cookie:
+        site_info = self.sites.get_site_attr(url)
+        if not site_info.get("cookie"):
             return [], None
         # 保存种子文件
-        file_path, _, _, files, retmsg = Torrent().get_torrent_info(url=url,
-                                                                    cookie=cookie,
-                                                                    ua=ua,
-                                                                    referer=page_url if referer else None)
+        file_path, _, _, files, retmsg = Torrent().get_torrent_info(
+            url=url,
+            cookie=site_info.get("cookie"),
+            ua=site_info.get("ua"),
+            referer=page_url if site_info.get("referer") else None
+        )
         if not files:
             log.error("【Downloader】读取种子文件集数出错：%s" % retmsg)
             return [], None
