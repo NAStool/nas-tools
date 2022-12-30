@@ -169,6 +169,10 @@ class MetaVideo(MetaBase):
             self._unknown_name_str = ""
         if self._stop_name_flag:
             return
+        if token.upper() == "AKA":
+            self._continue_flag = False
+            self._stop_name_flag = True
+            return
         if token in self._name_se_words:
             self._last_token_type = 'name_se_words'
             return
