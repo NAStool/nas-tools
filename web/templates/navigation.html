@@ -2377,10 +2377,10 @@
     }
     if (data.name) {
       const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
-      content = `${content}<span title="识别名称"><a class="badge bg-yellow me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
+      content = `${content}<span title="识别名称"><a class="badge bg-yellow text-wrap me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
     }
     if (data.title) {
-      content = `${content}<span class="badge bg-green me-1 mb-1" title="标题">${data.title}</span>`;
+      content = `${content}<span class="badge bg-green text-wrap me-1 mb-1" title="标题">${data.title}</span>`;
     } else {
       content = `${content}<span class="badge bg-red me-1 mb-1" title="标题">未匹配TMDB</span>`;
     }
@@ -2412,7 +2412,7 @@
       content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
     }
     if (data.team) {
-      content = `${content}<span class="badge bg-cyan me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
+      content = `${content}<span class="badge bg-cyan text-wrap me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
     }
     $(`#${result_div}`).empty().append(content);
   }
