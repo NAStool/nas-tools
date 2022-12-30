@@ -44,7 +44,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         # 有TMDBID或豆瓣ID
         if tmdbid:
             # 豆瓣ID
-            if tmdbid.startswith("DB:"):
+            if str(tmdbid).startswith("DB:"):
                 # 以豆瓣ID查询
                 doubanid = tmdbid[3:]
                 # 先从网页抓取（含TMDBID）

@@ -536,7 +536,7 @@ class Subscribe:
         """
         综合返回媒体信息
         """
-        if tmdbid and not tmdbid.startswith("DB:"):
+        if tmdbid and not str(tmdbid).startswith("DB:"):
             media_info = MetaInfo(title="%s %s".strip() % (name, year))
             tmdb_info = self.media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid)
             media_info.set_tmdb_info(tmdb_info)
