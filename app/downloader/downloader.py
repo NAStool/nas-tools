@@ -187,10 +187,10 @@ class Downloader:
                         return None, "%s 转换磁力链失败" % url
             if torrent_file:
                 # 已经下载过了种子文件，直接读取
-                content, dl_files_folder, dl_files, retmsg = Torrent().read_torrent_file(torrent_file)
+                content, dl_files_folder, dl_files, retmsg = Torrent().read_torrent_content(torrent_file)
             else:
                 # 下载种子文件，并读取信息
-                torrent_file, content, dl_files_folder, dl_files, retmsg = Torrent().get_torrent_info(
+                _, content, dl_files_folder, dl_files, retmsg = Torrent().get_torrent_info(
                     url=url,
                     cookie=cookie,
                     ua=ua,
@@ -283,7 +283,7 @@ class Downloader:
             if ret:
                 # 登记下载历史
                 self.dbhelper.insert_download_history(media_info)
-                # 下载字幕文件
+                # 下载站点字幕文件
                 if page_url \
                         and download_dir \
                         and dl_files \
@@ -292,14 +292,14 @@ class Downloader:
                     # 下载访问目录
                     visit_dir = self.get_download_visit_dir(download_dir)
                     if visit_dir:
-                        # 取种子文件的公共目录为下载目录
-                        if len(dl_files) > 1:
-                            sub_dir = os.path.commonpath([os.path.join(visit_dir, dl_files_folder,
-                                                                       f) for f in dl_files])
+                        if dl_files_folder:
+                            subtitle_dir = os.path.join(visit_dir, dl_files_folder)
                         else:
-                            sub_dir = os.path.dirname(os.path.join(visit_dir, dl_files_folder, dl_files[0]))
-                        ThreadHelper().start_thread(Subtitle().download_subtitle_from_site,
-                                                    (media_info, cookie, ua, sub_dir))
+                            subtitle_dir = visit_dir
+                        ThreadHelper().start_thread(
+                            Subtitle().download_subtitle_from_site,
+                            (media_info, cookie, ua, subtitle_dir)
+                        )
                 return ret, ""
             else:
                 return ret, "请检查下载任务是否已存在"
