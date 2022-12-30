@@ -33,6 +33,7 @@
   <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
   <link href="../static/css/jquery.filetree.css" rel="stylesheet"/>
   <link href="../static/css/dropzone.css" rel="stylesheet"/>
+  <link href="../static/css/nprogress.css" rel="stylesheet"/>
   <!-- 附加样式 -->
   <style>
 
@@ -89,6 +90,10 @@
 
       .modal-dialog {
         padding-top: env(safe-area-inset-top) !important;
+      }
+
+      #nprogress .bar {
+        background: var(--tblr-primary) !important;
       }
 
   </style>
@@ -614,7 +619,19 @@
     </div>
   </header>
   <div class="page-wrapper" id="page_wrapper">
-    <div id="page_content"></div>
+    <div id="page_content">
+      <div class="page-center justify-content-center">
+        <div class="container-tight py-4">
+          <div class="empty">
+            <div class="mb-3"><img src="../static/img/quitting_time.svg" height="256" alt="">
+            </div>
+            <p class="empty-subtitle text-muted">
+              页面正在加载，请稍候...
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
     <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
         <div class="row text-center align-items-center flex-row-reverse">
@@ -1346,16 +1363,30 @@
 <script src="../static/js/dropzone-min.js"></script>
 <script src="../static/js/dom-to-image.min.js"></script>
 <script src="../static/js/FileSaver.min.js"></script>
-
+<script src="../static/js/nprogress.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
+
   //是否触摸屏设备
   function is_touch_device() {
     return 'ontouchstart' in window;
   }
 
-  //显示全局加载框
-  function show_wait_process(blur) {
+  // 取消进度条Spinner
+  NProgress.configure({ showSpinner: false });
+
+  //显示全局加载进度条
+  function show_wait_process() {
+    NProgress.start();
+  }
+
+  //关闭全局加载进度条
+  function hide_wait_process() {
+    NProgress.done();
+  }
+
+  //显示全局加载蒙版
+  function show_wait_modal(blur) {
     if (blur) {
       $('#modal-wait').addClass('modal-blur');
     } else {
@@ -1364,8 +1395,8 @@
     $("#modal-wait").modal("show");
   }
 
-  //关闭全局加载框
-  function hide_wait_process() {
+  //关闭全局加载蒙版
+  function hide_wait_modal() {
     $("#modal-wait").modal("hide");
   }
 
@@ -2810,7 +2841,7 @@
       hide_confirm_modal();
       ajax_post("restart", {}, function (ret) {
       });
-      show_wait_process(true);
+      show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
   }
@@ -2827,7 +2858,7 @@
       hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      show_wait_process(true);
+      show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
   }
