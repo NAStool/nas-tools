@@ -1373,7 +1373,7 @@
   }
 
   // 取消进度条Spinner
-  NProgress.configure({ showSpinner: false });
+  NProgress.configure({ showSpinner: false, parent: '#page_wrapper' })
 
   //显示全局加载进度条
   function show_wait_process() {
