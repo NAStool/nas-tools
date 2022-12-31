@@ -10,7 +10,7 @@ from app.indexer.client.render_spider import RenderSpider
 from app.indexer.client.rarbg import Rarbg
 from app.sites import Sites
 from app.utils import StringUtils
-from app.helper import ProgressHelper, IndexerHelper
+from app.helper import ProgressHelper, IndexerHelper, IndexerConf
 
 
 class BuiltinIndexer(IIndexClient):
@@ -153,10 +153,16 @@ class BuiltinIndexer(IIndexClient):
         """
         if not index_id:
             return []
-        indexer = self.get_indexers(indexer_id=index_id)
+        indexer: IndexerConf = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_search(indexer, page=page, keyword=keyword)
+        if indexer.parser == "RenderSpider":
+            return RenderSpider().search(keyword=keyword,
+                                         indexer=indexer,
+                                         page=page)
+        return self.__spider_search(indexer=indexer,
+                                    page=page,
+                                    keyword=keyword)
 
     @staticmethod
     def __spider_search(indexer, page=None, keyword=None, timeout=30):
