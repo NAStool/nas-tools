@@ -2805,7 +2805,7 @@
     show_confirm_modal("立即重启系统？", function () {
       hide_confirm_modal();
       ajax_post("restart", {}, function (ret) {
-      });
+      }, true, false);
       show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
