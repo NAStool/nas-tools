@@ -2822,7 +2822,7 @@
     show_confirm_modal(title, function () {
       hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
-      });
+      }, true, false)
       show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
