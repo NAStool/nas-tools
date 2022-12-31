@@ -29,6 +29,7 @@ class Downloader:
     _pt_rmt_mode = None
     _downloaddir = []
     _download_setting = {}
+    _default_download_setting = None
 
     message = None
     mediaserver = None
@@ -62,13 +63,14 @@ class Downloader:
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
+            self._default_download_setting = pt.get("default_download_setting") or "-1"
         # 下载目录配置
         self._downloaddir = Config().get_config('downloaddir') or []
         # 下载设置
         self._download_setting = {
             "-1": {
                 "id": -1,
-                "name": "默认",
+                "name": "预设",
                 "category": '',
                 "tags": PT_TAG,
                 "content_layout": 0,
@@ -93,6 +95,8 @@ class Downloader:
                 "ratio_limit": download_setting.RATIO_LIMIT / 100,
                 "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT,
                 "downloader": download_setting.DOWNLOADER}
+        if not self._download_setting.get(self._default_download_setting):
+            self._default_download_setting = "-1"
 
     @property
     def default_client(self):
@@ -195,9 +199,9 @@ class Downloader:
         if download_setting:
             download_attr = self.get_download_setting(download_setting)
             if not download_attr:
-                download_attr = self.get_download_setting(-1)
+                download_attr = self.get_download_setting(self._default_download_setting)
         else:
-            download_attr = self.get_download_setting(-1)
+            download_attr = self.get_download_setting(self._default_download_setting)
         # 下载器类型
         dl_type = self.__get_client_type(download_attr.get("downloader")) or self._default_client_type
         # 下载器客户端
@@ -912,14 +916,14 @@ class Downloader:
                 can_download_list_item.append(t_item)
         return can_download_list_item
 
-    def get_download_dirs(self, setting='-1'):
+    def get_download_dirs(self, setting=None):
         """
         返回下载器中设置的保存目录
         """
         if not self._downloaddir:
             return []
         if not setting:
-            setting = "-1"
+            setting = self._default_download_setting
         # 查询下载设置
         download_setting = self.get_download_setting(sid=setting)
         # 下载设置为QB
@@ -1026,7 +1030,18 @@ class Downloader:
         return episodes, file_path
 
     def get_download_setting(self, sid=None):
+        """
+        获取下载设置
+        :return: 下载设置
+        """
         if sid:
             return self._download_setting.get(str(sid))
         else:
             return self._download_setting
+
+    def get_default_download_setting(self):
+        """
+        获取默认下载设置
+        :return: 默认下载设置id
+        """
+        return self._default_download_setting
