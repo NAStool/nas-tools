@@ -1,3 +1,4 @@
+# coding: utf-8
 import copy
 import time
 from urllib.parse import quote
@@ -35,19 +36,19 @@ class RenderSpider(object):
         chrome = ChromeHelper()
         if not chrome.get_status():
             return []
-        # ÇëÇóÂ·¾¶
+        # è¯·æ±‚è·¯å¾„
         torrentspath = indexer.search.get('paths', [{}])[0].get('path', '') or ''
         search_url = indexer.domain + torrentspath.replace("{keyword}", quote(keyword))
-        # ÇëÇó·½Ê½£¬Ö§³ÖGETºÍä¯ÀÀ·ÂÕæ
+        # è¯·æ±‚æ–¹å¼ï¼Œæ”¯æŒGETå’Œæµè§ˆä»¿çœŸ
         method = indexer.search.get('paths', [{}])[0].get('method', '')
         if method == "chrome":
-            # ÇëÇó²ÎÊı
+            # è¯·æ±‚å‚æ•°
             params = indexer.search.get('paths', [{}])[0].get('params', {})
-            # ËÑË÷¿ò
+            # æœç´¢æ¡†
             search_input = params.get('keyword')
-            # ËÑË÷°´Å¥
+            # æœç´¢æŒ‰é’®
             search_button = params.get('submit')
-            # Ô¤Ö´ĞĞ½Å±¾
+            # é¢„æ‰§è¡Œè„šæœ¬
             pre_script = params.get('script')
             # referer
             if params.get('referer'):
@@ -56,7 +57,7 @@ class RenderSpider(object):
                 referer = indexer.domain
             if not search_input or not search_button:
                 return []
-            # Ê¹ÓÃä¯ÀÀÆ÷´ò¿ªÒ³Ãæ
+            # ä½¿ç”¨æµè§ˆå™¨æ‰“å¼€é¡µé¢
             if not chrome.visit(url=search_url,
                                 cookie=indexer.cookie,
                                 ua=indexer.ua):
@@ -64,19 +65,19 @@ class RenderSpider(object):
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
                 return []
-            # Ä£ÄâËÑË÷²Ù×÷
+            # æ¨¡æ‹Ÿæœç´¢æ“ä½œ
             try:
-                # Ö´ĞĞ½Å±¾
+                # æ‰§è¡Œè„šæœ¬
                 if pre_script:
                     chrome.execute_script(pre_script)
-                # µÈ´ı¿Éµã»÷
+                # ç­‰å¾…å¯ç‚¹å‡»
                 submit_obj = WebDriverWait(driver=chrome.browser,
                                            timeout=10).until(es.element_to_be_clickable((By.XPATH,
                                                                                         search_button)))
                 if submit_obj:
-                    # ÊäÈëÓÃ»§Ãû
+                    # è¾“å…¥ç”¨æˆ·å
                     chrome.browser.find_element(By.XPATH, search_input).send_keys(keyword)
-                    # Ìá½»ËÑË÷
+                    # æäº¤æœç´¢
                     submit_obj.click()
                 else:
                     return []
@@ -86,7 +87,7 @@ class RenderSpider(object):
         else:
             # referer
             referer = indexer.domain
-            # Ê¹ÓÃä¯ÀÀÆ÷»ñÈ¡HTMLÎÄ±¾
+            # ä½¿ç”¨æµè§ˆå™¨è·å–HTMLæ–‡æœ¬
             if not chrome.visit(url=search_url,
                                 cookie=indexer.cookie,
                                 ua=indexer.ua):
@@ -94,25 +95,25 @@ class RenderSpider(object):
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
                 return []
-        # µÈ´ıÒ³Ãæ¼ÓÔØÍê³É
+        # ç­‰å¾…é¡µé¢åŠ è½½å®Œæˆ
         time.sleep(10)
-        # »ñÈ¡HTMLÎÄ±¾
+        # è·å–HTMLæ–‡æœ¬
         html_text = chrome.get_html()
         if not html_text:
             return []
-        # ÖØĞÂ»ñÈ¡CookieºÍUA
+        # é‡æ–°è·å–Cookieå’ŒUA
         indexer.cookie = chrome.get_cookies()
         indexer.ua = chrome.get_ua()
-        # ÉèÖÃ×¥³æ²ÎÊı
+        # è®¾ç½®æŠ“è™«å‚æ•°
         self.torrentspider.setparam(keyword=keyword,
                                     indexer=indexer,
                                     referer=referer,
                                     page=page)
-        # ÖÖ×ÓÉ¸Ñ¡Æ÷
+        # ç§å­ç­›é€‰å™¨
         torrents_selector = indexer.torrents.get('list', {}).get('selector', '')
         if not torrents_selector:
             return []
-        # ½âÎöHTMLÎÄ±¾
+        # è§£æHTMLæ–‡æœ¬
         html_doc = PyQuery(html_text)
         for torn in html_doc(torrents_selector):
             self.torrents_info_array.append(copy.deepcopy(self.torrentspider.Getinfo(PyQuery(torn))))
