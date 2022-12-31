@@ -205,10 +205,11 @@
       $("#search_download_btn").text("处理中...").attr("disabled", true);
       const dir = $("#search_download_dir").val();
       const setting = $("#search_download_setting").val();
-      ajax_post("download_torrent", { file_name: torrent_dropzone.files[torrent_dropzone.files.length - 1].name, dir: dir, setting: setting }, function (ret) {
+      ajax_post("download_torrent", { files: torrent_dropzone.files, dir: dir, setting: setting }, function (ret) {
         $("#search_download_btn").attr("disabled", false).text("下载");
         $("#modal-search-download").modal('hide');
         if (ret.code == 0) {
+          torrent_dropzone.removeAllFiles();
           navmenu('downloading');
         } else {
           show_fail_modal(`添加下载失败：${ret.msg}`, function() {

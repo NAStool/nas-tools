@@ -515,25 +515,26 @@ class WebAction:
         """
         dl_dir = data.get("dl_dir")
         dl_setting = data.get("dl_setting")
-        torrent_file = data.get("file_name")
-        if not torrent_file:
-            return {"code": -1, "msg": "种子信息有误"}
-        torrent_file = os.path.join(Config().get_temp_path(), torrent_file)
-        title = os.path.basename(torrent_file)
-        media = Media().get_media_info(title=title)
-        media.site = "WEB"
-        # 添加下载
-        ret, ret_msg = Downloader().download(media_info=media,
-                                             download_dir=dl_dir,
-                                             download_setting=dl_setting,
-                                             torrent_file=torrent_file)
-        if ret:
+        files = data.get("files")
+        if not files:
+            return {"code": -1, "msg": "没有种子文件"}
+        for file_item in files:
+            file_name = file_item.get("upload", {}).get("filename")
+            file_path = os.path.join(Config().get_temp_path(), file_name)
+            media = Media().get_media_info(title=file_name)
+            media.site = "WEB"
+            # 添加下载
+            ret, ret_msg = Downloader().download(media_info=media,
+                                                 download_dir=dl_dir,
+                                                 download_setting=dl_setting,
+                                                 torrent_file=file_path)
             # 发送消息
             media.user_name = current_user.username
-            Message().send_download_message(SearchType.WEB, media)
-            return {"code": 0, "msg": "下载成功"}
-        else:
-            return {"code": 1, "msg": ret_msg or "如连接正常，请检查下载任务是否存在"}
+            if ret:
+                Message().send_download_message(SearchType.WEB, media)
+            else:
+                Message().send_download_fail_message(media, ret_msg)
+        return {"code": 0, "msg": "添加下载完成！"}
 
     @staticmethod
     def __pt_start(data):
