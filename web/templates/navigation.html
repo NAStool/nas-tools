@@ -2160,6 +2160,7 @@
       if (ret.code === 0) {
         let downloadsetting_select = $("#" + obj_id);
         downloadsetting_select.empty();
+        downloadsetting_select.append(`<option value="">默认</option>`);
         for (let i = 0; i < ret.data.length; i++) {
           downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
         }
