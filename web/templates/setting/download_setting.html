@@ -409,8 +409,11 @@
 
   // 设置默认下载设置
   function set_default_download_setting(sid){
-    let params = {'pt.default_download_setting': sid };
-    ajax_post("update_config", params, function (ret) {
+    let params = {
+      'key': "DefaultDownloadSetting",
+      'value': sid
+    };
+    ajax_post("set_system_config", params, function (ret) {
       navmenu('download_setting');
     });
   }
