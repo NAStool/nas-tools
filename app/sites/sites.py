@@ -696,7 +696,7 @@ class Sites:
         """
         if url:
             _, netloc = StringUtils.get_url_netloc(url)
-            return SiteConf.PUBLIC_TORRENT_SITES.get(netloc)
+            return SiteConf.PUBLIC_TORRENT_SITES.get(netloc) or {}
         else:
             return SiteConf.PUBLIC_TORRENT_SITES.items()
 

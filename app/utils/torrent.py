@@ -8,6 +8,30 @@ from bencode import bdecode
 from app.utils.http_utils import RequestUtils
 from config import Config
 
+# Trackers列表
+trackers = [
+    "udp://tracker.opentrackr.org:1337/announce",
+    "udp://9.rarbg.com:2810/announce",
+    "udp://opentracker.i2p.rocks:6969/announce",
+    "https://opentracker.i2p.rocks:443/announce",
+    "udp://tracker.torrent.eu.org:451/announce",
+    "udp://tracker1.bt.moack.co.kr:80/announce",
+    "udp://tracker.pomf.se:80/announce",
+    "udp://tracker.moeking.me:6969/announce",
+    "udp://tracker.dler.org:6969/announce",
+    "udp://p4p.arenabg.com:1337/announce",
+    "udp://open.stealth.si:80/announce",
+    "udp://movies.zsw.ca:6969/announce",
+    "udp://ipv4.tracker.harry.lu:80/announce",
+    "udp://explodie.org:6969/announce",
+    "udp://exodus.desync.com:6969/announce",
+    "https://tracker.nanoha.org:443/announce",
+    "https://tracker.lilithraws.org:443/announce",
+    "https://tr.burnabyhighstar.com:443/announce",
+    "http://tracker.mywaifu.best:6969/announce",
+    "http://bt.okmp3.ru:2710/announce"
+]
+
 
 class Torrent:
     _torrent_temp_path = None
@@ -64,29 +88,6 @@ class Torrent:
         :param hash_text: 种子Hash值
         :param title: 种子标题
         """
-        _trackers = [
-            "udp://tracker.opentrackr.org:1337/announce",
-            "udp://9.rarbg.com:2810/announce",
-            "udp://opentracker.i2p.rocks:6969/announce",
-            "https://opentracker.i2p.rocks:443/announce",
-            "udp://tracker.torrent.eu.org:451/announce",
-            "udp://tracker1.bt.moack.co.kr:80/announce",
-            "udp://tracker.pomf.se:80/announce",
-            "udp://tracker.moeking.me:6969/announce",
-            "udp://tracker.dler.org:6969/announce",
-            "udp://p4p.arenabg.com:1337/announce",
-            "udp://open.stealth.si:80/announce",
-            "udp://movies.zsw.ca:6969/announce",
-            "udp://ipv4.tracker.harry.lu:80/announce",
-            "udp://explodie.org:6969/announce",
-            "udp://exodus.desync.com:6969/announce",
-            "https://tracker.nanoha.org:443/announce",
-            "https://tracker.lilithraws.org:443/announce",
-            "https://tr.burnabyhighstar.com:443/announce",
-            "http://tracker.mywaifu.best:6969/announce",
-            "http://bt.okmp3.ru:2710/announce"
-        ]
-
         if not hash_text or not title:
             return None
         hash_text = re.search(r'[0-9a-z]+', hash_text, re.IGNORECASE)
@@ -94,7 +95,21 @@ class Torrent:
             return None
         hash_text = hash_text.group(0)
         ret_magnet = f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}'
-        for tracker in _trackers:
+        for tracker in trackers:
+            ret_magnet = f'{ret_magnet}&tr={tracker}'
+        return ret_magnet
+
+    @staticmethod
+    def add_trackers_to_magnet(url, title=None):
+        """
+        添加tracker和标题到磁力链接
+        """
+        if not url or not title:
+            return None
+        ret_magnet = url
+        if title and url.find("&dn=") == -1:
+            ret_magnet = f'{ret_magnet}&dn={quote(title)}'
+        for tracker in trackers:
             ret_magnet = f'{ret_magnet}&tr={tracker}'
         return ret_magnet
 
