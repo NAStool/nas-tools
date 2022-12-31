@@ -1355,12 +1355,10 @@
     </div>
   </div>
 </div>
-
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
 <script src="../static/js/demo.min.js"></script>
-<script src="../static/js/util.js"></script>
 <script src="../static/js/apexcharts.min.js"></script>
 <script src="../static/js/echarts.min.js"></script>
 <script src="../static/js/numeral.min.js"></script>
@@ -1371,28 +1369,11 @@
 <script src="../static/js/dom-to-image.min.js"></script>
 <script src="../static/js/FileSaver.min.js"></script>
 <script src="../static/js/nprogress.js"></script>
+<script src="../static/js/util.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
 
-  //是否触摸屏设备
-  function is_touch_device() {
-    return 'ontouchstart' in window;
-  }
-
-  // 取消进度条Spinner
-  NProgress.configure({ showSpinner: false })
-
-  //显示全局加载进度条
-  function show_wait_process() {
-    NProgress.start();
-  }
-
-  //关闭全局加载进度条
-  function hide_wait_process() {
-    NProgress.done();
-  }
-
-  //显示全局加载蒙版
+  // 显示全局加载蒙版
   function show_wait_modal(blur) {
     if (blur) {
       $('#modal-wait').addClass('modal-blur');
@@ -1402,15 +1383,14 @@
     $("#modal-wait").modal("show");
   }
 
-  //关闭全局加载蒙版
+  // 关闭全局加载蒙版
   function hide_wait_modal() {
     $("#modal-wait").modal("hide");
   }
 
-  //刷新进度及文件
+  // 刷新进度
   let refresh_process_flag = false;
   let refresh_fail_count = 0;
-
   function refresh_process() {
     if (!refresh_process_flag) {
       return;
@@ -1425,10 +1405,10 @@
       if (refresh_fail_count < 5) {
         setTimeout("refresh_process()", 200);
       }
-    });
+    }, true, false);
   }
 
-  //显示全局进度框
+  // 显示全局进度框
   function show_refresh_process(title) {
     if (title) {
       $("#modal_process_title").text(title);
@@ -1444,37 +1424,37 @@
     refresh_process();
   }
 
-  //关闭全局进度框
+  // 关闭全局进度框
   function hide_refresh_process() {
     refresh_process_flag = false;
     $("#modal-process").modal("hide");
   }
 
-  //显示确认提示框
+  // 显示确认提示框
   function show_confirm_modal(title, func) {
     $("#system_confirm_message").text(title);
     $("#system_confirm_btn").unbind('click').click(func);
     $("#system-confirm-modal").modal("show");
   }
 
-  //隐藏确认提示框
+  // 隐藏确认提示框
   function hide_confirm_modal() {
     $("#system-confirm-modal").modal("hide");
   }
 
-  //显示询问提示框
+  // 显示询问提示框
   function show_ask_modal(title, func) {
     $("#system_ask_message").text(title);
     $("#system_ask_btn").unbind('click').click(func);
     $("#system-ask-modal").modal("show");
   }
 
-  //隐藏询问提示框
+  // 隐藏询问提示框
   function hide_ask_modal() {
     $("#system-ask-modal").modal("hide");
   }
 
-  //显示成功提示
+  // 显示成功提示
   function show_success_modal(title, func) {
     $("#system_success_message").text(title);
     if (func) {
@@ -1485,7 +1465,7 @@
     $("#system-success-modal").modal("show");
   }
 
-  //显示失败提示
+  // 显示失败提示
   function show_fail_modal(title, func) {
     $("#system_fail_message").text(title);
     if (func) {
@@ -1495,6 +1475,7 @@
     }
     $("#system-fail-modal").modal("show");
   }
+
 </script>
 
 <!-- 媒体弹窗 -->
@@ -1502,7 +1483,6 @@
   //显示媒体详情
   function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid, auto_search) {
     let doubanid;
-    show_wait_process();
     if (tmdbid.startsWith("DB:")) {
       doubanid = tmdbid.replace("DB:", "");
       tmdbid = "";
@@ -1527,7 +1507,6 @@
       "page": page,
       "rssid": rssid
     }, function (ret) {
-      hide_wait_process();
       if (ret.code === 0) {
         if (auto_search) {
           search_mediainfo_media(ret.tmdbid, ret.doubanid, ret.title, ret.type_str);
@@ -1647,9 +1626,7 @@
       "page": page,
       "season": season
     };
-    show_wait_process();
     ajax_post("add_rss_media", data, function (ret) {
-      hide_wait_process();
       if (ret.code === 0) {
         if (ret.page) {
           navmenu(ret.page);
@@ -1838,9 +1815,7 @@
       "rssid": rssid,
     };
     $("#modal-manual-rss").modal("hide");
-    show_wait_process();
     ajax_post("add_rss_media", data, function (ret) {
-      hide_wait_process();
       if (ret.code === 0) {
         if (CURRENT_PAGE_URI.startsWith("tv_rss")) {
           navmenu("tv_rss");
@@ -1899,7 +1874,6 @@
       $("#rss_search_sites_div").show();
     }
   }
-
 
   //取消订阅
   function remove_rss_manual(type, name, year, rssid) {
@@ -1990,9 +1964,7 @@
     refresh_rss_download_setting_dirs();
 
     // 获取订阅信息
-    show_wait_process();
     ajax_post("rss_detail", {"rssid": rssid, "rsstype": type}, function (ret) {
-      hide_wait_process();
       if (ret.code === 0) {
         $("#rss_tmdbid").val(ret.detail.tmdbid);
         $("#rss_name").val(ret.detail.name).attr("readonly", true);
@@ -2093,7 +2065,6 @@
 
   // 刷新订阅站点列表
   var RSS_SITES_LENGTH = 0;
-
   function refresh_rsssites_select(obj_id, aync = true) {
     ajax_post("get_sites", {rss: true, basic: true}, function (ret) {
       if (ret.code === 0) {
@@ -2169,13 +2140,11 @@
 
   // 刷新订阅框的下载设置及目录等选项
   function refresh_rss_download_setting_dirs(){
-    show_wait_process();
     refresh_rsssites_select("rss_sites_group", false);
     refresh_searchsites_select("rss_search_sites_group");
     refresh_filter_select("rss_rule");
     refresh_downloadsetting_select("rss_download_setting", false);
     refresh_savepath_select("rss_save_path", true, $("#rss_download_setting").val());
-    hide_wait_process();
   }
 
   // 刷新下载框的下载设置及目录选项
@@ -2304,18 +2273,6 @@
     $('.filetree-files-only').each(function () {
       $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',false,true);");
     });
-  }
-
-  //鼠标提示等待
-  function make_cursor_busy() {
-    const body = document.querySelector("body");
-    body.style.cursor = "wait";
-  }
-
-  //鼠标取消等待
-  function cancel_cursor_busy() {
-    const body = document.querySelector("body");
-    body.style.cursor = "default";
   }
 
   // 名称识别测试
@@ -2675,11 +2632,11 @@
       }
     });
     $("#navbar-menu").collapse('hide');
-    show_wait_process();
     $(".page-wrapper").unbind('scroll');
     page = page.replaceAll(" ", "%20");
+    NProgress.start();
     $("#page_content").load(page, {}, function (response, status, xhr) {
-      hide_wait_process();
+      NProgress.done();
       if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
         window.location.reload();
       } else {
@@ -2765,7 +2722,7 @@
       if (refresh_logging_flag == true) {
         setTimeout("refresh_logging(true)", 2000);
       }
-    });
+    }, true, false);
   }
 
   //暂停实时日志
@@ -2805,7 +2762,7 @@
         }
         setTimeout("refresh_message('" + lst_time + "')", 10000);
       }
-    });
+    }, true, false);
   }
 
   // 检查新版本
@@ -2833,7 +2790,7 @@
         } else {
           setTimeout("check_system_online()", 1000);
         }
-      });
+      }, true, false)
   }
 
   //注销
@@ -2881,10 +2838,6 @@
 
 <!-- 事件  -->
 <script type="text/javascript">
-  //浏览器兼容
-  String.prototype.replaceAll = function (s1, s2) {
-    return this.replace(new RegExp(s1, "gm"), s2)
-  }
 
   // 种子上传控件
   let torrent_dropzone;

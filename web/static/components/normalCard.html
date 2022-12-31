@@ -216,9 +216,7 @@
               if (!tid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(page_type)) {
                 add_rss_media(title, year, page_type, tid, did, "", "", add_red_heart);
               } else {
-                show_wait_process();
                 ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {
-                  hide_wait_process();
                   if (ret.seasons.length === 1) {
                     add_rss_media(title, year, "TV", tid, did, "", "", add_red_heart);
                   } else if (ret.seasons.length > 1) {

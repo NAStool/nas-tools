@@ -350,9 +350,9 @@
           $("#mediasync_btn").text("开始同步")
               .attr("href", "javascript:start_media_sync(true)");
           $("#index-mediasync-modal").modal('show');
-        });
+        }, true, false);
       }
-    });
+    }, true, false);
   }
 
   //关闭媒体库同步框
@@ -369,7 +369,7 @@
       ajax_post("start_mediasync", {}, function (ret) {
         refresh_sync_process_flag = true;
         refresh_sync_process();
-      });
+      }, true, false);
     } else {
       refresh_sync_process_flag = true;
       refresh_sync_process();
@@ -378,7 +378,6 @@
 
   //刷新进度及文件
   var refresh_sync_process_flag = false;
-
   function refresh_sync_process() {
     if (!refresh_sync_process_flag) {
       return;
@@ -392,7 +391,7 @@
       if (ret.value < 100) {
         setTimeout("refresh_sync_process()", 200);
       }
-    });
+    }, true, false);
   }
 
 </script>

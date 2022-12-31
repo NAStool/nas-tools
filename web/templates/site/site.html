@@ -775,7 +775,7 @@
       if (refresh_sitecookie_fail_count < 5) {
         setTimeout("refresh_sitecookie_process("+siteid+")", 1000);
       }
-    });
+    }, true, false);
   }
 
   // 超时隐藏验证码对话框并恢复更新进度

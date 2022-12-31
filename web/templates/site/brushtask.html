@@ -1056,9 +1056,7 @@
 
   //立即运行任务
   function run_brushtask_now(id) {
-    show_wait_process();
     ajax_post("run_brushtask", {"id": id}, function (ret) {
-      hide_wait_process();
       show_success_modal("任务运行完成！", function () {
         navmenu('brushtask');
       });
@@ -1067,10 +1065,8 @@
 
   // 刷流种子下载记录
   function show_brushtask_torrents_modal(id) {
-    show_wait_process();
     ajax_post("list_brushtask_torrents", { "id": id }, function (ret) {
       let content;
-      hide_wait_process();
       if (ret.code == 0) {
         const downloads = ret.data;
         let content_th = `<thead><tr>
