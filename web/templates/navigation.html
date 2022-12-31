@@ -2416,10 +2416,14 @@
   // 显示手动识别转移框
   // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
   // media_type: 电影，电视剧，动漫
-  function show_manual_transfer_modal(source, manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
+  function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
     // 初始化类型
     if (!syncmod) {
       syncmod = '{{ SyncMod }}';
+    }
+    let source = CURRENT_PAGE_URI;
+    if (source === 'mediafile') {
+      source = `mediafile?dir=${inpath}`;
     }
     $("#rename_source").val(source);
     $("#rename_manual_type").val(manual_type);

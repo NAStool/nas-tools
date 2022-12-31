@@ -223,12 +223,12 @@
   // 文件转移
   function mediafile_transfer(name, id) {
     let path = $("#mediafilepath_" + id).val();
-    show_manual_transfer_modal(`mediafile?dir=${path}`, 3, path, '', '', '', '');
+    show_manual_transfer_modal(3, path, '', '', '', '');
   }
 
   function mediafile_transfer_all() {
     let path = $("#mediafile_current_dir").val();
-    show_manual_transfer_modal(`mediafile?dir=${path}`, 3, path, '', '', '', '');
+    show_manual_transfer_modal(3, path, '', '', '', '');
   }
 
   // 文件重命名
