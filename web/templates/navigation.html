@@ -33,70 +33,65 @@
   <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
   <link href="../static/css/jquery.filetree.css" rel="stylesheet"/>
   <link href="../static/css/dropzone.css" rel="stylesheet"/>
-  <!-- 字体 -->
-  <style>
-      @import url('https://rsms.me/inter/inter.css');
-
-      :root {
-          --tblr-font-sans-serif: Inter, -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
-      }
-  </style>
+  <link href="../static/css/nprogress.css" rel="stylesheet"/>
   <!-- 附加样式 -->
   <style>
+
       body,
       .page {
-          height: 100%;
-          overflow: hidden;
+        height: 100%;
+        overflow: hidden;
       }
 
       .tooltip-inner {
-          text-align: left;
+        text-align: left;
       }
 
       .fileTree {
-          width: 240px;
-          max-height: 200px;
-          overflow-y: scroll;
-          overflow-x: hidden;
-          position: absolute;
-          display: none;
+        width: 240px;
+        max-height: 200px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        position: absolute;
+        display: none;
       }
 
       .navbar-vertical {
-          padding-top: env(safe-area-inset-top) !important;
-          position: fixed !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+        padding-top: env(safe-area-inset-top) !important;
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
       }
 
       .navbar-expand-md {
-          position: fixed !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
       }
 
       @media (max-width: 992px) {
-          .navbar ul.navbar-nav {
-              overflow-y: auto;
-              max-height: 80vh;
-          }
+        .navbar ul.navbar-nav {
+          overflow-y: auto;
+          max-height: 80vh;
+        }
       }
 
       .page-wrapper {
-          margin-top: calc(env(safe-area-inset-top) + 50px) !important;
-          height: 100% !important;
-          overflow: scroll !important;
+        margin-top: calc(env(safe-area-inset-top) + 56px) !important;
+        height: 100% !important;
+        overflow: scroll !important;
       }
 
       .offcanvas {
-          padding-top: env(safe-area-inset-top) !important;
+        padding-top: env(safe-area-inset-top) !important;
       }
 
       .modal-dialog {
-          padding-top: env(safe-area-inset-top) !important;
+        padding-top: env(safe-area-inset-top) !important;
       }
+
   </style>
   <!-- 站点图标 -->
   <style>
@@ -113,7 +108,7 @@
 <body>
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
-  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
+  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top" style="backdrop-filter: blur(5px);">
     <div class="container-xl">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
               data-bs-target="#navbar-menu">
@@ -164,12 +159,12 @@
               <span class="input-icon-addon">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <circle cx="10" cy="10" r="7"/>
-                  <line x1="21" y1="21" x2="15" y2="15"/>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="10" cy="10" r="7"></circle>
+                  <line x1="21" y1="21" x2="15" y2="15"></line>
                 </svg>
               </span>
-            <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅...">
+            <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅..." autocomplete="false">
           </div>
         </div>
         <ul class="navbar-nav pt-lg-3">
@@ -180,10 +175,10 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <polyline points="5 12 3 12 12 3 21 12 19 12"/>
-                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/>
-                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
+                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -218,9 +213,8 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path
-                            d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -314,9 +308,9 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <polyline points="9 11 12 14 20 6"/>
-                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <polyline points="9 11 12 14 20 6"></polyline>
+                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"></path>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -416,11 +410,11 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                        stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <rect x="4" y="4" width="6" height="5" rx="2"/>
-                    <rect x="4" y="13" width="6" height="7" rx="2"/>
-                    <rect x="14" y="4" width="6" height="7" rx="2"/>
-                    <rect x="14" y="15" width="6" height="5" rx="2"/>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <rect x="4" y="4" width="6" height="5" rx="2"></rect>
+                    <rect x="4" y="13" width="6" height="7" rx="2"></rect>
+                    <rect x="14" y="4" width="6" height="7" rx="2"></rect>
+                    <rect x="14" y="15" width="6" height="5" rx="2"></rect>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -500,9 +494,8 @@
             <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path
-                        d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"/>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
               </svg>
               Source code
             </a>
@@ -512,16 +505,16 @@
           <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-placement="bottom">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/>
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
             </svg>
           </a>
           <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-placement="bottom">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <circle cx="12" cy="12" r="4"/>
-              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/>
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
             </svg>
           </a>
           <div class="nav-item dropdown d-none d-md-flex me-3">
@@ -529,9 +522,9 @@
                id="new_version_tip" style="display:none">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/>
-                <path d="M9 17v1a3 3 0 0 0 6 0v-1"/>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
               </svg>
               <span class="badge bg-red"></span>
             </a>
@@ -609,10 +602,9 @@
               <span class="input-icon-addon">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                      stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <desc>Download more icon variants from https://tabler-icons.io/i/search</desc>
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <circle cx="10" cy="10" r="7"/>
-                  <line x1="21" y1="21" x2="15" y2="15"/>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="10" cy="10" r="7"></circle>
+                  <line x1="21" y1="21" x2="15" y2="15"></line>
                 </svg>
               </span>
             <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…"
@@ -623,7 +615,19 @@
     </div>
   </header>
   <div class="page-wrapper" id="page_wrapper">
-    <div id="page_content"></div>
+    <div id="page_content">
+      <div class="page-center justify-content-center">
+        <div class="container-tight py-4">
+          <div class="empty">
+            <div class="mb-3"><img src="../static/img/quitting_time.svg" height="256" alt="">
+            </div>
+            <p class="empty-subtitle text-muted">
+              页面正在加载，请稍候...
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
     <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
         <div class="row text-center align-items-center flex-row-reverse">
@@ -693,9 +697,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M12 9v2m0 4v.01"/>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M12 9v2m0 4v.01"></path>
+          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
         </svg>
         <h3>确认</h3>
         <div class="text-muted text-wrap" id="system_confirm_message" style="overflow: hidden">是否确定？</div>
@@ -729,9 +733,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M9 12l2 2l4 -4"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M9 12l2 2l4 -4"></path>
         </svg>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_action_message" style="overflow: hidden">操作成功！</div>
@@ -780,9 +784,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <circle cx="12" cy="12" r="9"/>
-          <path d="M9 12l2 2l4 -4"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M9 12l2 2l4 -4"></path>
         </svg>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_message" style="overflow: hidden">成功！</div>
@@ -812,9 +816,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24"
              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
              stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M12 9v2m0 4v.01"/>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/>
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M12 9v2m0 4v.01"></path>
+          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
         </svg>
         <h3>失败</h3>
         <div class="text-muted text-wrap" id="system_fail_message" style="overflow:hidden">失败！</div>
@@ -841,8 +845,10 @@
         <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
         <div class="row row-0">
           <div class="col-3 d-none d-lg-block">
-            <img id="system_media_poster" src="" onerror="this.src='../static/img/no-image.png'"
-                 class="w-100 h-100 object-cover">
+            <custom-img id="system_media_poster"
+                        img-class="w-100 h-100 object-cover"
+                        img-ratio="150%"
+            ></custom-img>
           </div>
           <div class="col">
             <div class="card-body">
@@ -1072,24 +1078,25 @@
         </div>
         <div class="row rss_sites_container" id="rss_sites_div">
           <div class="mb-3">
-            <label class="form-label">订阅站点</label>
-            <div class="form-selectgroup" id="rss_sites_group">
+            <div class="btn-list">
+              <label class="form-label">订阅站点</label>
+              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_sites_group')">全选</a>
             </div>
+            <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
         </div>
         <div class="row rss_sites_container" id="rss_search_sites_div">
           <div class="mb-3">
-            <label class="form-label">搜索站点</label>
-            <div class="form-selectgroup" id="rss_search_sites_group">
+            <div class="btn-list">
+              <label class="form-label">搜索站点</label>
+              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_search_sites_group')">全选</a>
             </div>
+            <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:rss_sites_select()" class="btn btn-link me-auto" id="rss_sites_select_btn">
-          取消全选
-        </a>
-        <a href="#" class="btn btn-link text-red" id="rss_delete_btn">
+        <a href="#" class="btn btn-link text-red me-auto" id="rss_delete_btn">
           取消订阅
         </a>
         <a href="javascript:add_rss_manual()" id="rss_add_btn" class="btn btn-primary">确定</a>
@@ -1112,6 +1119,7 @@
             <div class="mb-3">
               <label class="form-label required">路径</label>
               <input type="text" id="rename_path" class="form-control" readonly>
+              <input type="hidden" id="rename_source">
               <input type="hidden" id="rename_manual_type">
               <input type="hidden" id="unknown_id">
               <input type="hidden" id="transferlog_id" class="form-control">
@@ -1219,13 +1227,14 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-body">
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
+              <div class="input-group">
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="留空自动识别">
+                <button class="btn" type="button" onclick="show_search_tmdbid_modal('rename_tmdb', 'modal-media-identification')">查询</button>
+              </div>
             </div>
           </div>
           <div class="col-lg-4" id="rename_season_div">
@@ -1283,7 +1292,7 @@
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置" onchange="refresh_download_setting_dirs()">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置">
               </select>
               <label for="floatingSelect">下载设置</label>
             </div>
@@ -1296,16 +1305,57 @@
             </div>
           </div>
         </div>
+        <form class="dropzone" id="torrent_file" action="/upload">
+          <div class="fallback">
+            <input name="file" type="file" accept="*.zip" />
+          </div>
+          <div class="dz-message">
+            <h3 class="dropzone-msg-title">上传种子文件</h3>
+            <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
+          </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="search_download_btn" title="自动选择目录下载">
+        <button type="button" class="btn btn-primary" id="search_download_btn" title="立即开始下载">
           下载
         </button>
       </div>
     </div>
   </div>
 </div>
+<!-- 根据名称查找TMDBID的对话框 -->
+<div class="modal modal-blur fade" id="search-tmdbid-modal" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">查询TMDBID</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="名称">
+          </div>
+          <div class="col-auto">
+            <button onclick="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')" class="btn btn-primary btn-icon" aria-label="Button">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+            </button>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="list-group list-group-flush" id="search_tmdbid_list">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="search_tmdbid_btn" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -1320,16 +1370,30 @@
 <script src="../static/js/dropzone-min.js"></script>
 <script src="../static/js/dom-to-image.min.js"></script>
 <script src="../static/js/FileSaver.min.js"></script>
-
+<script src="../static/js/nprogress.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
+
   //是否触摸屏设备
   function is_touch_device() {
     return 'ontouchstart' in window;
   }
 
-  //显示全局加载框
-  function show_wait_process(blur) {
+  // 取消进度条Spinner
+  NProgress.configure({ showSpinner: false })
+
+  //显示全局加载进度条
+  function show_wait_process() {
+    NProgress.start();
+  }
+
+  //关闭全局加载进度条
+  function hide_wait_process() {
+    NProgress.done();
+  }
+
+  //显示全局加载蒙版
+  function show_wait_modal(blur) {
     if (blur) {
       $('#modal-wait').addClass('modal-blur');
     } else {
@@ -1338,8 +1402,8 @@
     $("#modal-wait").modal("show");
   }
 
-  //关闭全局加载框
-  function hide_wait_process() {
+  //关闭全局加载蒙版
+  function hide_wait_modal() {
     $("#modal-wait").modal("hide");
   }
 
@@ -1473,9 +1537,9 @@
         $("#system_media_name").text(ret.title);
         $("#system_release_date").text(ret.release_date)
         if (ret.poster_path) {
-          $("#system_media_poster").attr("src", ret.poster_path);
+          $("#system_media_poster").attr("img-src", ret.poster_path);
         } else {
-          $("#system_media_poster").attr("src", "../static/img/no-image.png");
+          $("#system_media_poster").attr("img-src", "../static/img/no-image.png");
         }
         if (ret.overview && ret.overview.length > 200) {
           $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
@@ -1803,24 +1867,18 @@
     $("#rss_season").append('<option value="' + i + '">第' + i + '季</option>');
   }
 
-  //RSS站点批量选择
-  let rss_sites_select_all = true;
-
-  function rss_sites_select() {
-    if (rss_sites_select_all) {
-      // 取消全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", false);
-      });
-      rss_sites_select_all = false;
-      $("#rss_sites_select_btn").text("全选");
-    } else {
-      //全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function () {
+  function rss_sites_select(btnobj, id) {
+    const selobj = $("#" + id);
+    if ($(btnobj).text() === "全选") {
+      selobj.find("input[type=checkbox]").each(function () {
         $(this).prop("checked", true);
       });
-      rss_sites_select_all = true;
-      $("#rss_sites_select_btn").text("取消全选");
+      $(btnobj).text("全不选");
+    } else {
+      selobj.find("input[type=checkbox]").each(function () {
+        $(this).prop("checked", false);
+      });
+      $(btnobj).text("全选");
     }
   }
 
@@ -2127,10 +2185,10 @@
   }
 
   // 显示下载提示框
-  function show_download_modal(id, name, func) {
+  function show_download_modal(id, name, func=undefined, show_file=false) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
-    $("#search_download_message").text("下载 " + name);
+    $("#search_download_message").text("新增下载 " + name);
     // 根据下载设置刷新下载目录选项
     refresh_search_download_setting_dirs();
     // 绑定下载按钮事件
@@ -2138,6 +2196,11 @@
       $("#search_download_btn").unbind("click").click(func);
     }else{
       $("#search_download_btn").unbind("click").click(download_link);
+    }
+    if (show_file) {
+      $("#torrent_file").show();
+    } else {
+      $("#torrent_file").hide();
     }
     $("#modal-search-download").modal('show');
   }
@@ -2320,10 +2383,10 @@
     }
     if (data.name) {
       const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
-      content = `${content}<span title="识别名称"><a class="badge bg-yellow me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
+      content = `${content}<span title="识别名称"><a class="badge bg-yellow text-wrap me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
     }
     if (data.title) {
-      content = `${content}<span class="badge bg-green me-1 mb-1" title="标题">${data.title}</span>`;
+      content = `${content}<span class="badge bg-green text-wrap me-1 mb-1" title="标题">${data.title}</span>`;
     } else {
       content = `${content}<span class="badge bg-red me-1 mb-1" title="标题">未匹配TMDB</span>`;
     }
@@ -2355,7 +2418,7 @@
       content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
     }
     if (data.team) {
-      content = `${content}<span class="badge bg-cyan me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
+      content = `${content}<span class="badge bg-cyan text-wrap me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
     }
     $(`#${result_div}`).empty().append(content);
   }
@@ -2368,6 +2431,11 @@
     if (!syncmod) {
       syncmod = '{{ SyncMod }}';
     }
+    let source = CURRENT_PAGE_URI;
+    if (source === 'mediafile') {
+      source = `mediafile?dir=${inpath}`;
+    }
+    $("#rename_source").val(source);
     $("#rename_manual_type").val(manual_type);
     if (manual_type === 3) {
       $('#rename_header').text("自定义识别");
@@ -2433,6 +2501,7 @@
   // 执行手动识别转移
   function manual_media_transfer() {
     let syncmod;
+    const source = $("#rename_source").val();
     const manual_type = $("#rename_manual_type").val();
     const type = $('input:radio[name=rename_type]:checked').val();
     const path = $("#rename_path").val();
@@ -2527,11 +2596,7 @@
       if (ret.retcode == 0) {
         $('#modal-media-identification').modal('hide');
         show_success_modal("处理成功！", function () {
-          if (manual_type == '2') {
-            navmenu('history');
-          } else {
-            navmenu('unidentification');
-          }
+          navmenu(source);
         });
       } else {
         //处理失败
@@ -2545,7 +2610,51 @@
         }
       }
     });
+  }
 
+  // 查示查询TMDBID的对话框
+  function show_search_tmdbid_modal(val_obj, modal_id){
+    $("#"+modal_id).modal("hide");
+    $("#search_tmdbid_btn").unbind("click").click(function(){
+      let tmdbid = $("#search_tmdbid_list input:radio[name=search_tmdbid_check]:checked").val();
+      $("#"+val_obj).val(tmdbid);
+      $("#search-tmdbid-modal").modal("hide");
+      $("#"+modal_id).modal("show");
+    });
+    $("#search-tmdbid-modal").modal("show");
+  }
+
+  //根据名称查询TMDBID
+  function search_tmdbid_by_name(keyid, resultid){
+    let name = $("#"+keyid).val();
+    if (!name) {
+      $("#"+keyid).addClass("is-invalid");
+      return;
+    } else {
+      $("#"+keyid).removeClass("is-invalid");
+    }
+    $("#"+keyid).prop("disabled", true);
+    ajax_post("search_media_infos", {"keyword": name, "searchtype": "tmdb"}, function(ret){
+      $("#"+keyid).prop("disabled", false);
+      if(ret.code == 0){
+        let data = ret.result;
+        let html = '';
+        if (data.length > 0) {
+          for(let i=0; i<data.length; i++){
+            html += `<div class="list-group-item" onclick="$(this).find('input:radio').prop('checked', true);"><div class="row align-items-center">`;
+            html += `<div class="col-auto"><input type="radio" name="search_tmdbid_check" value="${data[i].tmdb_id}" class="form-check-input"></div>`;
+            html += `<div class="col-auto"><img class="rounded w-5 shadow" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
+            html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
+            html += `</div></div>`;
+          }
+          $("#"+resultid).html(html);
+        } else {
+          $("#"+resultid).html('<div class="list-group-item text-center text-muted">未找到相关信息</div>');
+        }
+      } else {
+        $("#"+resultid).html(`<div class="list-group-item text-center text-muted">${ret.msg}</div>`);
+      }
+    });
   }
 
 </script>
@@ -2740,7 +2849,7 @@
       hide_confirm_modal();
       ajax_post("restart", {}, function (ret) {
       });
-      show_wait_process(true);
+      show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
   }
@@ -2757,7 +2866,7 @@
       hide_confirm_modal();
       ajax_post("update_system", {}, function (ret) {
       });
-      show_wait_process(true);
+      show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
     });
   }
@@ -2776,6 +2885,9 @@
   String.prototype.replaceAll = function (s1, s2) {
     return this.replace(new RegExp(s1, "gm"), s2)
   }
+
+  // 种子上传控件
+  let torrent_dropzone;
 
   //事件
   $(document).ready(function () {
@@ -2817,10 +2929,14 @@
         maxHeight: 'calc(100vh - ' + height + 'px)'
       })
     }
-
+    // 更新菜单高度
     updateMenuListHeight()
 
-    //单选框事件
+    // 初始化DropZone
+    torrent_dropzone = new Dropzone("#torrent_file");
+    torrent_dropzone.options.acceptedFiles = ".torrent";
+
+    // 单选框事件
     $('input[type=radio][name=rename_type]').change(function () {
       if (this.value == 'MOV') {
         $("#rename_season_div").hide();
@@ -2832,30 +2948,43 @@
       }
     });
 
-    //加载页面
+    // 加载页面
     const go_page = "{{ GoPage }}";
     if (go_page) {
       navmenu(go_page);
     } else {
-      //打开第一个页面
+      // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');
     }
 
     {% if "系统设置" in UserPris %}
-      //检查版本升级
+      // 检查版本升级
       check_new_version();
-      //刷新消息
+      // 刷新消息
       refresh_message("");
     {% endif %}
 
     {% if not TMDBFlag %}
-      //检查tmdb配置
+      // 检查tmdb配置
       show_fail_modal("请先配置TMDB API Key，并修改登录密码！", function () {
         navmenu('basic');
       });
     {% endif %}
 
   });
+</script>
+<!-- 动态载入自定义组件 -->
+<div id="MyWebComponents"></div>
+<script type="text/javascript">
+  let components_list = [
+    "normalCard",
+    "normalCard_placeholder",
+    "custom-img",
+  ]
+  for (let components_name of components_list){
+    $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);
+    $(`#MyWebComponents_${components_name}`).load(`../static/components/${components_name}.html`)
+  }
 </script>
 </body>
 

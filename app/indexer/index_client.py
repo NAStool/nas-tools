@@ -4,10 +4,10 @@ from abc import ABCMeta, abstractmethod
 
 import log
 from app.filter import Filter
-from app.utils import DomUtils, RequestUtils, StringUtils
+from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils
 from app.helper import ProgressHelper
-from app.media import MetaInfo, Media
-from app.utils.exception_utils import ExceptionUtils
+from app.media import Media
+from app.media.meta import MetaInfo
 from app.utils.types import MediaType, SearchType
 
 
@@ -19,7 +19,6 @@ class IIndexClient(metaclass=ABCMeta):
     filter = None
     progress = None
     _reverse_title_sites = ['keepfriends']
-    _invalid_description_sites = ['tjupt']
 
     def __init__(self):
         self.media = Media()
@@ -210,9 +209,6 @@ class IIndexClient(metaclass=ABCMeta):
             else:
                 torrent_name = item.get('title')
                 description = item.get('description')
-            # 这些站副标题无意义，需要去除
-            if indexer.id in self._invalid_description_sites:
-                description = ""
             if not torrent_name:
                 index_error += 1
                 continue

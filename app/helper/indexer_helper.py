@@ -1,10 +1,9 @@
 import os.path
 import pickle
 
-from app.utils import StringUtils
-from app.utils.exception_utils import ExceptionUtils
-from config import Config
+from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
+from config import Config
 
 
 @singleton
@@ -82,14 +81,17 @@ class IndexerConf(object):
         self.domain = self.datas.get('domain')
         self.userinfo = self.datas.get('userinfo', {})
         self.search = self.datas.get('search', {})
-        self.index = self.datas.get('index', {})
+        self.browse = self.datas.get('browse', {})
         self.torrents = self.datas.get('torrents', {})
         self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie
         self.rule = rule
         self.public = public
         self.proxy = proxy
-        self.parser = parser
+        if parser is not None:
+            self.parser = parser
+        else:
+            self.parser = self.datas.get('parser')
         self.ua = ua
         if render is not None:
             self.render = render

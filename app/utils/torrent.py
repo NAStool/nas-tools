@@ -1,20 +1,45 @@
 import os.path
 import re
 import datetime
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
-from app.utils.torrentParser import TorrentParser
-from app.utils import RequestUtils
+from bencode import bdecode
+
+from app.utils.http_utils import RequestUtils
 from config import Config
+
+# Trackers列表
+trackers = [
+    "udp://tracker.opentrackr.org:1337/announce",
+    "udp://9.rarbg.com:2810/announce",
+    "udp://opentracker.i2p.rocks:6969/announce",
+    "https://opentracker.i2p.rocks:443/announce",
+    "udp://tracker.torrent.eu.org:451/announce",
+    "udp://tracker1.bt.moack.co.kr:80/announce",
+    "udp://tracker.pomf.se:80/announce",
+    "udp://tracker.moeking.me:6969/announce",
+    "udp://tracker.dler.org:6969/announce",
+    "udp://p4p.arenabg.com:1337/announce",
+    "udp://open.stealth.si:80/announce",
+    "udp://movies.zsw.ca:6969/announce",
+    "udp://ipv4.tracker.harry.lu:80/announce",
+    "udp://explodie.org:6969/announce",
+    "udp://exodus.desync.com:6969/announce",
+    "https://tracker.nanoha.org:443/announce",
+    "https://tracker.lilithraws.org:443/announce",
+    "https://tr.burnabyhighstar.com:443/announce",
+    "http://tracker.mywaifu.best:6969/announce",
+    "http://bt.okmp3.ru:2710/announce"
+]
 
 
 class Torrent:
-    _torrent_path = None
+    _torrent_temp_path = None
 
     def __init__(self):
-        self._torrent_path = os.path.join(Config().get_config_path(), "temp")
-        if not os.path.exists(self._torrent_path):
-            os.makedirs(self._torrent_path)
+        self._torrent_temp_path = Config().get_temp_path()
+        if not os.path.exists(self._torrent_temp_path):
+            os.makedirs(self._torrent_temp_path)
 
     def get_torrent_info(self, url, cookie=None, ua=None, referer=None):
         """
@@ -40,13 +65,13 @@ class Torrent:
                 if not req.content:
                     return None, None, "", [], "未下载到种子数据"
                 # 读取种子文件名
-                file_name = self.__get_url_torrent_name(req.headers.get('content-disposition'), url)
+                file_name = self.__get_url_torrent_filename(req, url)
                 # 种子文件路径
-                file_path = os.path.join(self._torrent_path, file_name)
+                file_path = os.path.join(self._torrent_temp_path, file_name)
                 with open(file_path, 'wb') as f:
                     f.write(req.content)
                 # 解析种子文件
-                files_folder, files, retmsg = self.__get_torrent_files(file_path)
+                files_folder, files, retmsg = self.get_torrent_files(file_path)
                 # 种子文件路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
                 return file_path, req.content, files_folder, files, retmsg
             elif req is None:
@@ -63,31 +88,6 @@ class Torrent:
         :param hash_text: 种子Hash值
         :param title: 种子标题
         """
-        _trackers = [
-            "udp://tracker.cyberia.is:6969/announce",
-            "udp://tracker.port443.xyz:6969/announce",
-            "http://tracker3.itzmx.com:6961/announce",
-            "udp://tracker.moeking.me:6969/announce",
-            "http://vps02.net.orel.ru:80/announce",
-            "http://tracker.openzim.org:80/announce",
-            "udp://tracker.skynetcloud.tk:6969/announce",
-            "https://1.tracker.eu.org:443/announce",
-            "https://3.tracker.eu.org:443/announce",
-            "http://re-tracker.uz:80/announce",
-            "https://tracker.parrotsec.org:443/announce",
-            "udp://explodie.org:6969/announce",
-            "udp://tracker.filemail.com:6969/announce",
-            "udp://tracker.nyaa.uk:6969/announce",
-            "udp://retracker.netbynet.ru:2710/announce",
-            "http://tracker.gbitt.info:80/announce",
-            "http://tracker2.dler.org:80/announce",
-            "udp://tracker.openbittorrent.com:80/announce",
-            "udp://opentor.org:2710/announce",
-            "udp://tracker.ccc.de:80/announce",
-            "udp://tracker.blackunicorn.xyz:6969/announce",
-            "udp://tracker.leechers-paradise.org:6969/announce"
-        ]
-
         if not hash_text or not title:
             return None
         hash_text = re.search(r'[0-9a-z]+', hash_text, re.IGNORECASE)
@@ -95,12 +95,26 @@ class Torrent:
             return None
         hash_text = hash_text.group(0)
         ret_magnet = f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}'
-        for tracker in _trackers:
+        for tracker in trackers:
             ret_magnet = f'{ret_magnet}&tr={tracker}'
         return ret_magnet
 
     @staticmethod
-    def __get_torrent_files(path):
+    def add_trackers_to_magnet(url, title=None):
+        """
+        添加tracker和标题到磁力链接
+        """
+        if not url or not title:
+            return None
+        ret_magnet = url
+        if title and url.find("&dn=") == -1:
+            ret_magnet = f'{ret_magnet}&dn={quote(title)}'
+        for tracker in trackers:
+            ret_magnet = f'{ret_magnet}&tr={tracker}'
+        return ret_magnet
+
+    @staticmethod
+    def get_torrent_files(path):
         """
         解析Torrent文件，获取文件清单
         :return: 种子文件列表主目录、种子文件列表、错误信息
@@ -110,54 +124,57 @@ class Torrent:
         file_names = []
         file_folder = ""
         try:
-            torrent = TorrentParser().readFile(path=path)
-            if torrent.get("torrent"):
-                file_folder = torrent.get("torrent").get("info", {}).get("name") or ""
-                files = torrent.get("torrent").get("info", {}).get("files") or []
-                if not files and file_folder:
-                    file_names.append(file_folder)
-                else:
+            torrent = bdecode(open(path, 'rb').read())
+            if torrent.get("info"):
+                files = torrent.get("info", {}).get("files") or []
+                if files:
                     for item in files:
                         if item.get("path"):
                             file_names.append(item["path"][0])
+                    file_folder = torrent.get("info", {}).get("name")
+                else:
+                    file_names.append(torrent.get("info", {}).get("name"))
         except Exception as err:
-            if str(err).find("Malformed integer element") != -1:
+            if str(err).find("not a valid bencoded string") != -1:
                 err_msg = "需手工在站点下载一次种子"
             else:
                 err_msg = "解析种子文件异常：%s" % str(err)
             return file_folder, file_names, err_msg
         return file_folder, file_names, ""
 
-    def read_torrent_file(self, path):
+    def read_torrent_content(self, path):
         """
         读取本地种子文件的内容
         :return: 种子内容、种子文件列表主目录、种子文件列表、错误信息
         """
         if not path or not os.path.exists(path):
-            return None, "", "种子文件不存在：%s" % path
+            return None, "", [], "种子文件不存在：%s" % path
         content, retmsg, file_folder, files = None, "", "", []
         try:
             # 读取种子文件内容
             with open(path, 'rb') as f:
                 content = f.read()
             # 解析种子文件
-            file_folder, files, retmsg = self.__get_torrent_files(path)
+            file_folder, files, retmsg = self.get_torrent_files(path)
         except Exception as e:
             retmsg = "读取种子文件出错：%s" % str(e)
         return content, file_folder, files, retmsg
 
     @staticmethod
-    def __get_url_torrent_name(disposition, url):
+    def __get_url_torrent_filename(req, url):
         """
         从下载请求中获取种子文件名
         """
-        file_name = re.findall(r"filename=\"?(.+)\"?", disposition or "")
+        if not req:
+            return ""
+        disposition = req.headers.get('content-disposition') or ""
+        file_name = re.findall(r"filename=\"?(.+)\"?", disposition)
         if file_name:
-            file_name = str(file_name[0].encode('ISO-8859-1').decode()).split(";")[0].strip()
+            file_name = unquote(str(file_name[0].encode('ISO-8859-1').decode()).split(";")[0].strip())
             if file_name.endswith('"'):
                 file_name = file_name[:-1]
         elif url and url.endswith(".torrent"):
-            file_name = url.split("/")[-1]
+            file_name = unquote(url.split("/")[-1])
         else:
             file_name = str(datetime.datetime.now())
         return file_name

@@ -142,13 +142,13 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         size_col = 3
         seeders_col = 4
         # 搜索size列
-        if html.xpath('//tr[position()=1]/td[img[@class="size"] and img[@alt="size"]]'):
-            size_col = len(html.xpath('//tr[position()=1]/td[img[@class="size"] '
-                                      'and img[@alt="size"]]/preceding-sibling::td')) + 1
+        size_col_xpath = '//tr[position()=1]/td[(img[@class="size"] and img[@alt="size"]) or (text() = "大小")]'
+        if html.xpath(size_col_xpath):
+            size_col = len(html.xpath(f'{size_col_xpath}/preceding-sibling::td')) + 1
         # 搜索seeders列
-        if html.xpath('//tr[position()=1]/td[img[@class="seeders"] and img[@alt="seeders"]]'):
-            seeders_col = len(html.xpath('//tr[position()=1]/td[img[@class="seeders"] '
-                                         'and img[@alt="seeders"]]/preceding-sibling::td')) + 1
+        seeders_col_xpath = '//tr[position()=1]/td[(img[@class="seeders"] and img[@alt="seeders"]) or (text() = "在做种")]'
+        if html.xpath(seeders_col_xpath):
+            seeders_col = len(html.xpath(f'{seeders_col_xpath}/preceding-sibling::td')) + 1
 
         page_seeding = 0
         page_seeding_size = 0

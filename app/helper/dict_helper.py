@@ -1,4 +1,4 @@
-from app.db.main_db import MainDb, DbPersist
+from app.db import MainDb, DbPersist
 from app.db.models import SYSTEMDICT
 
 

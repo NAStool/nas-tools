@@ -12,18 +12,18 @@
           <a href="javascript:show_add_download_setting_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
               stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
             新增下载设置
           </a>
           <a href="javascript:show_add_download_setting_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
               stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </a>
           <a href="javascript:navmenu('downloader')" class="btn d-none d-sm-inline-block" title="返回">
@@ -56,31 +56,43 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ Attr.name }}</h3>
+          <div class="ms-2">
+            <a href="javascript:set_default_download_setting('{{ Attr.id }}')" class="btn-action" title="设置/取消默认">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   class="icon icon-tabler icon-tabler-star {% if DefaultDownloadSetting == Id %}icon-filled text-purple{% endif %}"
+                   width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path
+                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z">
+                </path>
+              </svg>
+            </a>
+          </div>
           <div class="card-actions btn-actions">
             <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
-                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
               </svg>
             </a>
             {% if Attr.id > 0 %}
             <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action" title="编辑设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                <line x1="16" y1="5" x2="19" y2="8" />
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path>
+                <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"></path>
+                <line x1="16" y1="5" x2="19" y2="8"></line>
               </svg>
             </a>
             <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action" title="删除设置">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </a>
             {% endif %}
@@ -179,7 +191,7 @@
 </div>
 <div class="modal modal-blur fade" id="modal-download-setting" tabindex="-1" role="dialog" aria-hidden="true"
   data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modal-download-setting-title">新增下载设置</h5>
@@ -392,6 +404,17 @@
       ajax_post("delete_download_setting", { "sid": sid }, function (ret) {
         navmenu('download_setting');
       });
+    });
+  }
+
+  // 设置默认下载设置
+  function set_default_download_setting(sid){
+    let params = {
+      'key': "DefaultDownloadSetting",
+      'value': sid
+    };
+    ajax_post("set_system_config", params, function (ret) {
+      navmenu('download_setting');
     });
   }
 

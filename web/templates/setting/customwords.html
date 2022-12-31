@@ -895,7 +895,7 @@
         } else {
           $("#new_replaced").removeClass("is-invalid");
         }
-        if (!new_replace || new_replace == new_replaced) {
+        if (!new_replace || new_replace === new_replaced) {
           $("#new_replace").addClass("is-invalid");
           return;
         } else {
@@ -965,8 +965,7 @@
         console.log("yes")
         $("#season_div").show();
         $("#help_div").attr('class', 'col-lg-6');
-        $("#custom_word_season").empty();
-        $("#custom_word_season").append('<option value="-1" selected>全部</option>');
+        $("#custom_word_season").empty().append('<option value="-1" selected>全部</option>');
         for (let i = 0; i <= seasons; i++) {
           $("#custom_word_season").append(`<option value="${i}">第${i}季</option>`);
         }
@@ -1005,10 +1004,8 @@
         $("#front_div").attr('class', 'col-lg-4');
         $("#back_div").attr('class', 'col-lg-4');
         $("#custom_word_enabled_2").val($("#custom_word_enabled_1").val());
-        $("#enable_row2_div").val("1");
-        $("#enable_row2_div").show();
-        $("#custom_word_regex").val("1");
-        $("#custom_word_regex").attr("disabled", "disabled");
+        $("#enable_row2_div").val("1").show();
+        $("#custom_word_regex").val("1").attr("disabled", "disabled");
         $("#type_offset").prop("checked", true);
       }
       else if (type == '3') {
@@ -1021,10 +1018,8 @@
         if ($("#enable_row2_div").val() == "1") {
           $("#custom_word_enabled_1").val($("#custom_word_enabled_2").val());
         }
-        $("#enable_row2_div").val("0");
-        $("#enable_row2_div").hide();
-        $("#custom_word_regex").val("1");
-        $("#custom_word_regex").attr("disabled", "disabled");
+        $("#enable_row2_div").val("0").hide();
+        $("#custom_word_regex").val("1").attr("disabled", "disabled");
         $("#type_replaced_offset").prop("checked", true);
       }
     }

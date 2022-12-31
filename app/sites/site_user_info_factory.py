@@ -2,9 +2,8 @@ import requests
 
 import log
 from app.helper import ChromeHelper, SubmoduleHelper
-from app.utils import RequestUtils
+from app.utils import RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 
@@ -15,7 +14,7 @@ class SiteUserInfoFactory(object):
         self.__site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
                                                                filter_func=lambda _, obj: hasattr(obj, 'schema'))
         self.__site_schema.sort(key=lambda x: x.order)
-        print(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
+        log.debug(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
 
     def _build_class(self, html_text):
         for site_schema in self.__site_schema:

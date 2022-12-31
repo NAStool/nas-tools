@@ -1,4 +1,56 @@
 class SiteConf:
+
+    # 站点签到支持的识别XPATH
+    SITE_CHECKIN_XPATH = [
+        '//a[@id="signed"]',
+        '//a[contains(@href, "attendance")]',
+        '//a[contains(text(), "签到")]',
+        '//a/b[contains(text(), "签 到")]',
+        '//span[@id="sign_in"]/a',
+        '//a[contains(@href, "addbonus")]',
+        '//input[@class="dt_button"][contains(@value, "打卡")]',
+        '//a[contains(@href, "sign_in")]',
+        '//a[contains(@onclick, "do_signin")]',
+        '//a[@id="do-attendance"]'
+    ]
+
+    # 站点详情页字幕下载链接识别XPATH
+    SITE_SUBTITLE_XPATH = [
+        '//td[@class="rowhead"][text()="字幕"]/following-sibling::td//a/@href',
+    ]
+
+    # 站点登录界面元素XPATH
+    SITE_LOGIN_XPATH = {
+        "username": [
+            '//input[@name="username"]'
+        ],
+        "password": [
+            '//input[@name="password"]'
+        ],
+        "captcha": [
+            '//input[@name="imagestring"]',
+            '//input[@name="captcha"]'
+        ],
+        "captcha_img": [
+            '//img[@alt="CAPTCHA"]/@src',
+            '//img[@alt="SECURITY CODE"]/@src',
+            '//img[@id="LAY-user-get-vercode"]/@src'
+        ],
+        "submit": [
+            '//input[@type="submit"]',
+            '//button[@type="submit"]',
+            '//button[@lay-filter="login"]',
+            '//button[@lay-filter="formLogin"]',
+        ],
+        "error": [
+            "//table[@class='main']//td[@class='text']/text()"
+        ],
+        "twostep": [
+            '//input[@name="two_step_code"]',
+            '//input[@name="2fa_secret"]'
+        ]
+    }
+
     # 检测种子促销的站点XPATH，不在此清单的无法开启仅RSS免费种子功能
     RSS_SITE_GRAP_CONF = {
         'jptv.club': {
@@ -285,6 +337,7 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.msg.vg': {
+            'LOGIN': 'user/login/index',
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
@@ -397,12 +450,24 @@ class SiteConf:
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "uploads.ltd": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "www.icc2022.com": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         }
     }
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
         'rarbg.to': {
-            "parser": "rarbg",
+            "parser": "Rarbg",
             "proxy": True,
             "language": "en"
         },
@@ -431,7 +496,8 @@ class SiteConf:
         },
         'ext.to': {
             "proxy": True,
-            "language": "en"
+            "language": "en",
+            "parser": "RenderSpider"
         },
         'torrentgalaxy.to': {
             "proxy": True,
@@ -459,5 +525,10 @@ class SiteConf:
         },
         'www.hdpianyuan.com': {
             "proxy": False
+        },
+        'skrbtfi.top': {
+            "proxy": False,
+            "referer": True,
+            "parser": "RenderSpider"
         }
     }

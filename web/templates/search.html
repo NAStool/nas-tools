@@ -231,13 +231,13 @@
                             <div id="search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
                                  class="accordion-collapse collapse {% if loop.index0 == 0 %}show{% endif %}"
                                  data-bs-parent="#search_results_accordion_{{ Item.key }}">
-                              <div class="accordion-body pt-0">
+                              <div class="accordion-body p-1">
                                 <div class="list-group">
-                                  <div class="list-group card-list-group mt-2">
+                                  <div class="list-group card-list-group mt-1">
                                     <!-- 种子列表 -->
                                   {% for unique_key, unique in group.group_torrents.items() %}
                                     {% for torrent in unique.torrent_list %}
-                                      <div class="list-group-item p-2 ps-1 search_results_torrent"
+                                      <div class="list-group-item p-1 search_results_torrent"
                                         data-site="{{ torrent.site }}"
                                         data-free="{{ torrent.uploadvalue|string + ' ' + torrent.downloadvalue|string }}"
                                         data-video="{{ torrent.video_encode }}"
@@ -284,7 +284,9 @@
                                                   <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                                 {% endif %}
                                               {% endif %}
+                                              {% if torrent.seeders %}
                                               <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                              {% endif %}
                                             </div>
                                           </div>
                                           <div class="col-auto ms-2 d-none d-md-inline-block">
@@ -303,9 +305,11 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                               </a>
                                               <div class="dropdown-menu dropdown-menu-end" style="">
+                                                {% if torrent.enclosure.startswith('http') %}
                                                 <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
                                                   下载种子文件
                                                 </a>
+                                                {% endif %}
                                                 <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
                                                   查看种子详情
                                                 </a>

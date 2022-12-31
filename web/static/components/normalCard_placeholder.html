@@ -1,0 +1,20 @@
+<template id="normalCard_placeholder_Template">
+  <div class="card card-sm rounded-4" style="overflow: hidden;">
+    <div class="placeholder-glow">
+      <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
+    </div>
+  </div>
+</template>
+
+<script type="text/javascript">
+  class normalCard_placeholder extends HTMLElement {
+    constructor() {
+      super();
+      const my_card_dom = document.getElementById("normalCard_placeholder_Template").content.cloneNode(true);
+      this.appendChild(my_card_dom);
+    }
+  }
+
+  // 声明自定义元素
+  window.customElements.define("normal-card-placeholder", normalCard_placeholder);
+</script>

@@ -1,4 +1,3 @@
-from app.media.tmdbv3api.as_obj import AsObj
 from app.media.tmdbv3api.tmdb import TMDb
 
 

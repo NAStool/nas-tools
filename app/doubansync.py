@@ -6,12 +6,13 @@ from time import sleep
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper
-from app.media import Media, MetaInfo
+from app.media import Media
+from app.media.meta import MetaInfo
 from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from app.utils.types import SearchType, MediaType
 from config import Config
 

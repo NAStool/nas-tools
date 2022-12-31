@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from config import Config
 
 lock = threading.Lock()

@@ -680,7 +680,8 @@ class MetaBase(object):
             "type": self.type.value if self.type else "",
             "imdb_id": self.imdb_id,
             "tmdb_id": self.tmdb_id,
-            "overview": self.overview,
+            "overview": str(self.overview).strip() if self.overview else '',
             "poster_path": self.poster_path,
             "backdrop_path": self.backdrop_path,
+            "link": self.get_detail_url()
         }

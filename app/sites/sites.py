@@ -9,20 +9,18 @@ from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
 from lxml import etree
-from requests.utils import dict_from_cookiejar
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
+from selenium.webdriver.support.wait import WebDriverWait
 
 import log
-from app.message import Message
-from app.sites import SiteUserInfoFactory
-from app.sites.siteconf import SiteConf
-from app.utils.commons import singleton
-from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, SiteHelper, DbHelper
-from app.utils.exception_utils import ExceptionUtils
-from config import SITE_CHECKIN_XPATH, Config
+from app.message import Message
+from app.sites.site_user_info_factory import SiteUserInfoFactory
+from app.sites.siteconf import SiteConf
+from app.utils import RequestUtils, StringUtils, ExceptionUtils
+from app.utils.commons import singleton
+from config import Config
 
 lock = Lock()
 
@@ -30,7 +28,6 @@ lock = Lock()
 @singleton
 class Sites:
     message = None
-    siteconf = None
     dbhelper = None
 
     _sites = []
@@ -52,7 +49,6 @@ class Sites:
     def init_config(self):
         self.dbhelper = DbHelper()
         self.message = Message()
-        self.siteconf = SiteConf()
         # 原始站点列表
         self._sites = []
         # 站点数据
@@ -389,7 +385,7 @@ class Sites:
                 # 查找签到按钮
                 html = etree.HTML(html_text)
                 xpath_str = None
-                for xpath in SITE_CHECKIN_XPATH:
+                for xpath in SiteConf.SITE_CHECKIN_XPATH:
                     if html.xpath(xpath):
                         xpath_str = xpath
                         break
@@ -557,68 +553,39 @@ class Sites:
 
     def get_site_attr(self, url):
         """
-        获取站点Cookie和UA等属性
+        整合公有站点和私有站点的属性
         """
-        cookie, ua, referer = None, None, False
         site_info = self.get_sites(siteurl=url)
-        if site_info:
-            cookie = site_info.get("cookie")
-            ua = site_info.get("ua")
-            referer = False
-        else:
-            short_url = StringUtils.get_base_url(url)
-            site_info = self.get_public_sites(url=short_url)
-            if site_info:
-                referer = site_info.get('referer')
-                if site_info.get("render"):
-                    # 开渲染
-                    chrome = ChromeHelper()
-                    if not chrome.get_status():
-                        log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
-                    else:
-                        if chrome.visit(url=short_url):
-                            cookie = chrome.get_cookies()
-                            ua = chrome.get_ua()
-                        else:
-                            log.warn("【Sites】无法打开网站：%s" % short_url)
-                else:
-                    try:
-                        res = RequestUtils(timeout=10).get_res(short_url)
-                        if res:
-                            cookie = dict_from_cookiejar(res.cookies)
-                    except Exception as err:
-                        ExceptionUtils.exception_traceback(err)
-        return cookie, ua, referer, site_info
+        public_site = self.get_public_sites(url=url)
+        if public_site:
+            site_info.update(public_site)
+        return site_info
 
-    def parse_site_download_url(self, page_url, xpath, cookie=None, ua=None):
+    def parse_site_download_url(self, page_url, xpath):
         """
         从站点详情页面中解析中下载链接
         :param page_url: 详情页面地址
-        :param xpath: 解析XPATH
-        :param cookie: 站点Cookie
-        :param ua: 站点User-Agent
+        :param xpath: 解析XPATH，同时还包括Cookie、UA和Referer
         """
         if not page_url or not xpath:
             return ""
-        page_source = ""
+        cookie, ua, referer, page_source = None, None, None, None
+        xpaths = xpath.split("|")
+        xpath = xpaths[0]
+        if len(xpaths) > 1:
+            cookie = xpaths[1]
+        if len(xpaths) > 2:
+            ua = xpaths[2]
+        if len(xpaths) > 3:
+            referer = xpaths[3]
         try:
-            short_url = StringUtils.get_base_url(page_url)
-            site_info = self.get_public_sites(url=short_url)
-            if site_info and site_info.get("render"):
-                # 开渲染
-                chrome = ChromeHelper()
-                if not chrome.get_status():
-                    log.warn("【Sites】该网站需要浏览器内核才能访问：%s" % short_url)
-                else:
-                    if chrome.visit(url=page_url):
-                        page_source = chrome.get_html()
-                    else:
-                        log.warn("【Sites】无法打开网站：%s" % short_url)
-            else:
-                req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
-                if req and req.status_code == 200:
-                    if req.text:
-                        page_source = req.text
+            site_info = self.get_public_sites(url=page_url)
+            if not site_info.get("referer"):
+                referer = None
+            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=page_url)
+            if req and req.status_code == 200:
+                if req.text:
+                    page_source = req.text
             # xpath解析
             if page_source:
                 html = etree.HTML(page_source)
@@ -637,7 +604,7 @@ class Sites:
             # 开渲染
             if chrome.visit(url=url, cookie=cookie, ua=ua):
                 # 等待页面加载完成
-                time.sleep(5)
+                time.sleep(10)
                 return chrome.get_html()
         else:
             res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
@@ -646,11 +613,12 @@ class Sites:
                 return res.text
         return ""
 
-    def get_grapsite_conf(self, url):
+    @staticmethod
+    def get_grapsite_conf(url):
         """
         根据地址找到RSS_SITE_GRAP_CONF对应配置
         """
-        for k, v in self.siteconf.RSS_SITE_GRAP_CONF.items():
+        for k, v in SiteConf.RSS_SITE_GRAP_CONF.items():
             if StringUtils.url_equal(k, url):
                 return v
         return {}
@@ -711,24 +679,26 @@ class Sites:
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr
 
-    def is_public_site(self, url):
+    @staticmethod
+    def is_public_site(url):
         """
         判断是否为公开BT站点
         """
         _, netloc = StringUtils.get_url_netloc(url)
-        if netloc in self.siteconf.PUBLIC_TORRENT_SITES.keys():
+        if netloc in SiteConf.PUBLIC_TORRENT_SITES.keys():
             return True
         return False
 
-    def get_public_sites(self, url=None):
+    @staticmethod
+    def get_public_sites(url=None):
         """
         查询所有公开BT站点
         """
         if url:
             _, netloc = StringUtils.get_url_netloc(url)
-            return self.siteconf.PUBLIC_TORRENT_SITES.get(netloc)
+            return SiteConf.PUBLIC_TORRENT_SITES.get(netloc) or {}
         else:
-            return self.siteconf.PUBLIC_TORRENT_SITES.items()
+            return SiteConf.PUBLIC_TORRENT_SITES.items()
 
     @staticmethod
     def __get_site_note_items(note):

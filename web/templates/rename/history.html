@@ -98,8 +98,9 @@
               {% if TotalCount > 0 %}
                 {% for History in Historys %}
                   <tr>
-                    <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}"
-                                           type="checkbox"></td>
+                    <td class="w-1">
+                      <input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}" type="checkbox">
+                    </td>
                     <td>
                       <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
@@ -129,7 +130,7 @@
                         {% endif %}
                       </span>
                         <div class="flex-fill">
-                          <div class="font-weight-medium">
+                          <div class="font-weight-medium text-nowrap">
                             {% if History.TMDBID %}
                               <a href="https://www.themoviedb.org/{% if History.TYPE == "电影" %}movie{% else %}tv{% endif %}/{{ History.TMDBID }}"
                                  target="_blank">
@@ -154,11 +155,11 @@
                       </div>
                     </td>
                     <td>
-                      <div>
+                      <div class="text-wrap">
                         <a href='javascript:navmenu("mediafile?dir={{ History.SOURCE_PATH.replace("\\", "/") }}")'>
                           {{ History.SOURCE_FILENAME or '' }}</a>
                       </div>
-                      <div>
+                      <div class="text-wrap">
                         {% if History.DEST_PATH or History.DEST_FILENAME %}
                         <span class="text-muted">=> </span>
                         {% endif %}
@@ -172,8 +173,9 @@
                         {% endif %}
                       </div>
                     </td>
-                    <td>{{ History.DATE }}
-                      <div class="text-muted">来自：{{ History.SOURCE or '' }}</div>
+                    <td>
+                      <small>{{ History.DATE }}</small>
+                      <div class="text-muted"><small>来自：{{ History.SOURCE or '' }}</small></div>
                     </td>
                     <td>
                       <div class="dropdown">
@@ -182,10 +184,10 @@
                                viewBox="0 0 24 24"
                                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                                stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <circle cx="12" cy="12" r="1"/>
-                            <circle cx="12" cy="19" r="1"/>
-                            <circle cx="12" cy="5" r="1"/>
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
                           </svg>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">

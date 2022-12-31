@@ -2,16 +2,17 @@ import datetime
 import os.path
 import re
 import shutil
+import time
 
 from lxml import etree
 
 import log
 from app.helper import SubHelper
-from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils
+from app.sites.siteconf import SiteConf
+from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
-from config import Config, RMT_SUBEXT, SITE_SUBTITLE_XPATH
+from config import Config, RMT_SUBEXT
 
 
 @singleton
@@ -30,7 +31,7 @@ class Subtitle:
 
     def init_config(self):
         self.subhelper = SubHelper()
-        self._save_tmp_path = os.path.join(Config().get_config_path(), "temp")
+        self._save_tmp_path = Config().get_temp_path()
         if not os.path.exists(self._save_tmp_path):
             os.makedirs(self._save_tmp_path)
         subtitle = Config().get_config('subtitle')
@@ -278,7 +279,7 @@ class Subtitle:
                 return
             html = etree.HTML(res.text)
             sublink = None
-            for xpath in SITE_SUBTITLE_XPATH:
+            for xpath in SiteConf.SITE_SUBTITLE_XPATH:
                 sublinks = html.xpath(xpath)
                 if sublinks:
                     sublink = sublinks[0]
@@ -294,9 +295,14 @@ class Subtitle:
                 # 下载
                 ret = request.get_res(sublink)
                 if ret and ret.status_code == 200:
-                    # 如果目录不存在,则先创建
-                    if not os.path.isdir(download_dir):
-                        os.makedirs(download_dir)
+                    # 检测目录是否存在，等下载器创建
+                    for tim in range(0, 30):
+                        if os.path.exists(download_dir):
+                            break
+                        time.sleep(1)
+                    if not os.path.exists(download_dir):
+                        log.warn("【Subtitle】字幕下载目录不存在：%s" % download_dir)
+                        return
                     # 保存ZIP
                     file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), sublink)
                     if not file_name:
@@ -313,9 +319,10 @@ class Subtitle:
                         shutil.unpack_archive(zip_file, zip_path, format='zip')
                         # 遍历转移文件
                         for sub_file in PathUtils.get_dir_files(in_path=zip_path, exts=RMT_SUBEXT):
-                            media_file = os.path.join(download_dir, os.path.basename(sub_file))
-                            log.info(f"【Subtitle】转移字幕 {sub_file} 到 {media_file}")
-                            self.__transfer_subtitle(sub_file, media_file)
+                            target_sub_file = os.path.join(download_dir,
+                                                           os.path.splitext(os.path.basename(sub_file))[0])
+                            log.info(f"【Subtitle】转移字幕 {sub_file} 到 {target_sub_file}")
+                            self.__transfer_subtitle(sub_file, target_sub_file)
                         # 删除临时文件
                         try:
                             shutil.rmtree(zip_path)
@@ -327,9 +334,10 @@ class Subtitle:
                         # 保存
                         with open(sub_file, 'wb') as f:
                             f.write(ret.content)
-                        media_file = os.path.join(download_dir, os.path.basename(sub_file))
-                        log.info(f"【Subtitle】转移字幕 {sub_file} 到 {media_file}")
-                        self.__transfer_subtitle(sub_file, media_file)
+                        target_sub_file = os.path.join(download_dir,
+                                                       os.path.splitext(os.path.basename(sub_file))[0])
+                        log.info(f"【Subtitle】转移字幕 {sub_file} 到 {target_sub_file}")
+                        self.__transfer_subtitle(sub_file, target_sub_file)
                 else:
                     log.error(f"【Subtitle】下载字幕文件失败：{sublink}")
                     return

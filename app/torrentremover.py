@@ -7,8 +7,8 @@ import log
 from app.downloader import Downloader
 from app.helper import DbHelper
 from app.message import Message
+from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
 

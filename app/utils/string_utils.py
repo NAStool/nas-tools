@@ -3,10 +3,10 @@ import random
 import re
 from urllib import parse
 
-import cn2an
+import dateparser
 import dateutil.parser
-from delorean import parse as delorean_parse
 
+import cn2an
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
@@ -262,9 +262,10 @@ class StringUtils:
         year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
         if year_re:
             year = year_re.group(1)
-        key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
-                          content,
-                          flags=re.IGNORECASE).strip()
+        key_word = re.sub(
+            r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
+            content,
+            flags=re.IGNORECASE).strip()
         if key_word:
             key_word = re.sub(r'\s+', ' ', key_word)
         if not key_word:
@@ -297,6 +298,13 @@ class StringUtils:
     def unify_datetime_str(datetime_str):
         """
         日期时间格式化 统一转成 2020-10-14 07:48:04 这种格式
+        # 场景1: 带有时区的日期字符串 eg: Sat, 15 Oct 2022 14:02:54 +0800
+        # 场景2: 中间带T的日期字符串 eg: 2020-10-14T07:48:04
+        # 场景3: 中间带T的日期字符串 eg: 2020-10-14T07:48:04.208
+        # 场景4: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
+        # 场景5: 日期字符串以UTC结尾 eg: Fri, 14 Oct 2022 07:48:04 UTC
+        # 场景6: 日期字符串以Z结尾 eg: Fri, 14 Oct 2022 07:48:04Z
+        # 场景7: 日期字符串为相对时间 eg: 1 month, 2 days ago
         :param datetime_str:
         :return:
         """
@@ -305,7 +313,7 @@ class StringUtils:
             return datetime_str
 
         try:
-            return delorean_parse(datetime_str, dayfirst=False).format_datetime('yyyy-MM-dd HH:mm:ss')
+            return dateparser.parse(datetime_str).strftime('%Y-%m-%d %H:%M:%S')
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return datetime_str

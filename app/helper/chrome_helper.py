@@ -120,6 +120,11 @@ class ChromeHelper(object):
             time.sleep(1)
         return cloudflare
 
+    def execute_script(self, script):
+        if not self._chrome:
+            return False
+        return self._chrome.execute_script(script)
+
     def get_title(self):
         if not self._chrome:
             return ""

@@ -13,9 +13,8 @@ from app.helper import DbHelper, DictHelper
 from app.message import Message
 from app.rss import Rss
 from app.sites import Sites
-from app.utils import StringUtils, Torrent
+from app.utils import StringUtils, Torrent, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import BrushDeleteType, SystemDictType
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL, Config
 

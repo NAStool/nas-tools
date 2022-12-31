@@ -7,6 +7,27 @@
           正在下载
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_torrent_download_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            新增下载
+          </a>
+          <a href="javascript:show_torrent_download_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -21,7 +42,7 @@
                 <div class="row align-items-center">
                   {% if Torrent.image %}
                     <div class="col-3">
-                      <img src="{{ Torrent.image }}" class="rounded">
+                      <img src="{{ Torrent.image }}" class="rounded" alt="">
                     </div>
                   {% endif %}
                   <div class="col">
@@ -55,10 +76,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                              stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                          <circle cx="12" cy="12" r="1"/>
-                          <circle cx="12" cy="19" r="1"/>
-                          <circle cx="12" cy="5" r="1"/>
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <circle cx="12" cy="12" r="1"></circle>
+                          <circle cx="12" cy="19" r="1"></circle>
+                          <circle cx="12" cy="5" r="1"></circle>
                         </svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
@@ -160,7 +181,6 @@
     });
   }
 
-
   //更新单个种子的页面信息
   function update_torrent_ui(info) {
     $("#speed_text_" + info.id).text(info.speed);
@@ -174,6 +194,30 @@
       $("#start_btn_" + info.id).hide()
       $("#stop_btn_" + info.id).show()
     }
+  }
+
+  //显示新增下载界面
+  function show_torrent_download_modal() {
+    show_download_modal('', '', function(){
+      if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0]) {
+        return;
+      }
+      $("#search_download_btn").text("处理中...").attr("disabled", true);
+      const dir = $("#search_download_dir").val();
+      const setting = $("#search_download_setting").val();
+      ajax_post("download_torrent", { files: torrent_dropzone.files, dir: dir, setting: setting }, function (ret) {
+        $("#search_download_btn").attr("disabled", false).text("下载");
+        $("#modal-search-download").modal('hide');
+        if (ret.code == 0) {
+          torrent_dropzone.removeAllFiles();
+          navmenu('downloading');
+        } else {
+          show_fail_modal(`添加下载失败：${ret.msg}`, function() {
+            $("#modal-search-download").modal('show');
+          });
+        }
+      });
+    }, true);
   }
 
   //事件

@@ -1,7 +1,7 @@
 import re
 
 from app.helper import DbHelper
-from app.media.meta.release_groups import ReleaseGroupsMatcher
+from app.media.meta import ReleaseGroupsMatcher
 from app.utils import StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType

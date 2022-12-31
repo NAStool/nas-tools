@@ -6,7 +6,8 @@ import log
 from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
 from app.indexer import Indexer
-from app.media import MetaInfo, Media
+from app.media import Media
+from app.media.meta import MetaInfo
 from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
@@ -43,7 +44,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         # 有TMDBID或豆瓣ID
         if tmdbid:
             # 豆瓣ID
-            if tmdbid.startswith("DB:"):
+            if str(tmdbid).startswith("DB:"):
                 # 以豆瓣ID查询
                 doubanid = tmdbid[3:]
                 # 先从网页抓取（含TMDBID）

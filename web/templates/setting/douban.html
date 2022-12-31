@@ -142,10 +142,9 @@
             {% for Item in DoubanHistory %}
               <tr id="douban_history_{{ Item.ID }}">
                 <td class="w-5">
-                  <span style="width: 60px">
-                      <img class="rounded" src="{{ Item.IMAGE }}"
-                           onerror="this.src='../static/img/no-image.png'"/>
-                  </span>
+                  <img class="rounded w-5" src="{{ Item.IMAGE }}"
+                       onerror="this.src='../static/img/no-image.png'" alt=""
+                       style="min-width: 50px"/>
                 </td>
                 <td>
                   <div>{{ Item.NAME }} ({{ Item.YEAR }})</div>

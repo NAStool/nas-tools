@@ -73,7 +73,7 @@
         <h5 class="modal-title">名称识别测试</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="overflow: hidden">
         <div class="row">
           <div class="col">
             <div class="mb-3">
@@ -284,15 +284,15 @@
 
   // 恢复备份
   $("#restore_btn").click(function () {
-    if (!dropzone || !dropzone.files || !dropzone.files[0]) {
+    if (!backup_dropzone || !backup_dropzone.files || !backup_dropzone.files[0]) {
       return;
     }
     $("#restore_btn").text("恢复中...").attr("disabled", true);
-    ajax_post("restory_backup", { file_name: dropzone.files[dropzone.files.length - 1].name }, function (ret) {
+    ajax_post("restory_backup", { file_name: backup_dropzone.files[backup_dropzone.files.length - 1].name }, function (ret) {
       $("#restore_btn").attr("disabled", false).text("恢复配置");
       $("#modal-backup").modal('hide');
       if (ret.code == 0) {
-        show_success_modal("备份恢复成功，请完整重启整个系统（非内置重启功能），否则配置信息可能不生效！");
+        show_success_modal("备份恢复成功，请重启系统生效！");
       } else {
         show_fail_modal(`备份恢复失败：${ret.msg}`, function() {
           $("#modal-backup").modal('show');
@@ -394,6 +394,6 @@
   }
 
   // 初始化DropZone
-  dropzone = new Dropzone("#back_file");
-  dropzone.options.acceptedFiles = ".zip";
+  var backup_dropzone = new Dropzone("#back_file");
+  backup_dropzone.options.acceptedFiles = ".zip";
 </script>

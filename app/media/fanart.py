@@ -1,7 +1,6 @@
 from functools import lru_cache
 
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import RequestUtils, ExceptionUtils
 from app.utils.types import MediaType
 from config import Config, FANART_MOVIE_API_URL, FANART_TV_API_URL
 

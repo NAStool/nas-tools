@@ -3,8 +3,7 @@ import datetime
 from functools import lru_cache
 
 from app.media import Media
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import RequestUtils, ExceptionUtils
 from config import Config
 
 

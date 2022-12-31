@@ -5,8 +5,8 @@ import time
 from enum import Enum
 from threading import RLock
 
+from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
 from config import Config
 
 lock = RLock()

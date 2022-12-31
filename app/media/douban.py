@@ -5,13 +5,12 @@ from time import sleep
 import zhconv
 
 from app.utils.commons import singleton
-from app.utils.exception_utils import ExceptionUtils
-from app.utils.string_utils import StringUtils
+from app.utils import ExceptionUtils, StringUtils
 
 import log
 from config import Config
 from app.media.doubanapi import DoubanApi, DoubanWeb
-from app.media import MetaInfo
+from app.media.meta import MetaInfo
 from app.utils import RequestUtils
 from app.utils.types import MediaType
 
