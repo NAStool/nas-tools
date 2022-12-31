@@ -1486,6 +1486,7 @@ def subscribe():
         return make_response(msg, 500)
 
 
+# 备份配置文件
 @App.route('/backup', methods=['POST'])
 @login_required
 def backup():
@@ -1532,14 +1533,15 @@ def backup():
     return send_file(zip_file)
 
 
+# 上传文件到服务器
 @App.route('/upload', methods=['POST'])
 @login_required
 def upload():
     try:
         files = request.files['file']
-        zip_file = Path(Config().get_config_path()) / files.filename
-        files.save(str(zip_file))
-        return {"code": 0, "filepath": str(zip_file)}
+        file_path = Path(Config().get_temp_path()) / files.filename
+        files.save(str(file_path))
+        return {"code": 0, "filepath": str(file_path)}
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
         return {"code": 1, "msg": str(e), "filepath": ""}

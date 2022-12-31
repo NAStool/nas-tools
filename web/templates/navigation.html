@@ -1292,7 +1292,7 @@
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置" onchange="refresh_download_setting_dirs()">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置">
               </select>
               <label for="floatingSelect">下载设置</label>
             </div>
@@ -1305,10 +1305,19 @@
             </div>
           </div>
         </div>
+        <form class="dropzone" id="torrent_file" action="/upload">
+          <div class="fallback">
+            <input name="file" type="file" accept="*.zip" />
+          </div>
+          <div class="dz-message">
+            <h3 class="dropzone-msg-title">上传种子文件</h3>
+            <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
+          </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="search_download_btn" title="自动选择目录下载">
+        <button type="button" class="btn btn-primary" id="search_download_btn" title="立即开始下载">
           下载
         </button>
       </div>
@@ -2176,10 +2185,10 @@
   }
 
   // 显示下载提示框
-  function show_download_modal(id, name, func) {
+  function show_download_modal(id, name, func=undefined, show_file=false) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
-    $("#search_download_message").text("下载 " + name);
+    $("#search_download_message").text("新增下载 " + name);
     // 根据下载设置刷新下载目录选项
     refresh_search_download_setting_dirs();
     // 绑定下载按钮事件
@@ -2187,6 +2196,11 @@
       $("#search_download_btn").unbind("click").click(func);
     }else{
       $("#search_download_btn").unbind("click").click(download_link);
+    }
+    if (show_file) {
+      $("#search_download_file").show();
+    } else {
+      $("#search_download_file").hide();
     }
     $("#modal-search-download").modal('show');
   }
@@ -2872,6 +2886,9 @@
     return this.replace(new RegExp(s1, "gm"), s2)
   }
 
+  // 种子上传控件
+  let torrent_dropzone;
+
   //事件
   $(document).ready(function () {
     // 搜索输入框
@@ -2912,10 +2929,14 @@
         maxHeight: 'calc(100vh - ' + height + 'px)'
       })
     }
-
+    // 更新菜单高度
     updateMenuListHeight()
 
-    //单选框事件
+    // 初始化DropZone
+    torrent_dropzone = new Dropzone("#torrent_file");
+    torrent_dropzone.options.acceptedFiles = ".torrent";
+
+    // 单选框事件
     $('input[type=radio][name=rename_type]').change(function () {
       if (this.value == 'MOV') {
         $("#rename_season_div").hide();
@@ -2927,24 +2948,24 @@
       }
     });
 
-    //加载页面
+    // 加载页面
     const go_page = "{{ GoPage }}";
     if (go_page) {
       navmenu(go_page);
     } else {
-      //打开第一个页面
+      // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');
     }
 
     {% if "系统设置" in UserPris %}
-      //检查版本升级
+      // 检查版本升级
       check_new_version();
-      //刷新消息
+      // 刷新消息
       refresh_message("");
     {% endif %}
 
     {% if not TMDBFlag %}
-      //检查tmdb配置
+      // 检查tmdb配置
       show_fail_modal("请先配置TMDB API Key，并修改登录密码！", function () {
         navmenu('basic');
       });

@@ -184,6 +184,9 @@ class Config(object):
     def get_config_path(self):
         return os.path.dirname(self._config_path)
 
+    def get_temp_path(self):
+        return os.path.join(self.get_config_path(), "temp")
+
     @staticmethod
     def get_root_path():
         return os.path.dirname(os.path.realpath(__file__))

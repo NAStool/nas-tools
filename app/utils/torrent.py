@@ -37,7 +37,7 @@ class Torrent:
     _torrent_temp_path = None
 
     def __init__(self):
-        self._torrent_temp_path = os.path.join(Config().get_config_path(), "temp")
+        self._torrent_temp_path = Config().get_temp_path()
         if not os.path.exists(self._torrent_temp_path):
             os.makedirs(self._torrent_temp_path)
 
@@ -148,7 +148,7 @@ class Torrent:
         :return: 种子内容、种子文件列表主目录、种子文件列表、错误信息
         """
         if not path or not os.path.exists(path):
-            return None, "", "种子文件不存在：%s" % path
+            return None, "", [], "种子文件不存在：%s" % path
         content, retmsg, file_folder, files = None, "", "", []
         try:
             # 读取种子文件内容

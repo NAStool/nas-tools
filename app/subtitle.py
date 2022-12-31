@@ -31,7 +31,7 @@ class Subtitle:
 
     def init_config(self):
         self.subhelper = SubHelper()
-        self._save_tmp_path = os.path.join(Config().get_config_path(), "temp")
+        self._save_tmp_path = Config().get_temp_path()
         if not os.path.exists(self._save_tmp_path):
             os.makedirs(self._save_tmp_path)
         subtitle = Config().get_config('subtitle')

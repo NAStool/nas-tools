@@ -1,9 +1,9 @@
 from app.helper import DictHelper
+from app.utils.commons import singleton
 
 
+@singleton
 class SystemConfig:
-
-    _dict = DictHelper()
 
     # 系统设置
     systemconfig = {
@@ -18,13 +18,14 @@ class SystemConfig:
         缓存系统设置
         """
         for key, value in self.systemconfig.items():
-            self.systemconfig[key] = self._dict.get("SystemConfig", key)
+            self.systemconfig[key] = DictHelper().get("SystemConfig", key)
 
-    def set_system_config(self, key, value):
+    @staticmethod
+    def set_system_config(key, value):
         """
         设置系统设置
         """
-        return self._dict.set("SystemConfig", key, value)
+        return DictHelper().set("SystemConfig", key, value)
 
     def get_system_config(self, key=None):
         """
