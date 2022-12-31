@@ -8,6 +8,7 @@ RUN apk add --no-cache libffi-dev \
     && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
     && pip install --upgrade pip setuptools wheel \
+    && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && apk del libffi-dev \
     && npm install pm2 -g \
