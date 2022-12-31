@@ -1043,7 +1043,7 @@ class Downloader:
         获取默认下载设置
         :return: 默认下载设置id
         """
-        default_download_setting = SystemConfig().default_download_setting or "-1"
+        default_download_setting = SystemConfig().get_system_config("DefaultDownloadSetting") or "-1"
         if not self._download_setting.get(default_download_setting):
             default_download_setting = "-1"
         return default_download_setting
