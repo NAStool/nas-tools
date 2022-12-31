@@ -65,28 +65,26 @@ class Torrent:
         :param title: 种子标题
         """
         _trackers = [
-            "udp://tracker.cyberia.is:6969/announce",
-            "udp://tracker.port443.xyz:6969/announce",
-            "http://tracker3.itzmx.com:6961/announce",
+            "udp://tracker.opentrackr.org:1337/announce",
+            "udp://9.rarbg.com:2810/announce",
+            "udp://opentracker.i2p.rocks:6969/announce",
+            "https://opentracker.i2p.rocks:443/announce",
+            "udp://tracker.torrent.eu.org:451/announce",
+            "udp://tracker1.bt.moack.co.kr:80/announce",
+            "udp://tracker.pomf.se:80/announce",
             "udp://tracker.moeking.me:6969/announce",
-            "http://vps02.net.orel.ru:80/announce",
-            "http://tracker.openzim.org:80/announce",
-            "udp://tracker.skynetcloud.tk:6969/announce",
-            "https://1.tracker.eu.org:443/announce",
-            "https://3.tracker.eu.org:443/announce",
-            "http://re-tracker.uz:80/announce",
-            "https://tracker.parrotsec.org:443/announce",
+            "udp://tracker.dler.org:6969/announce",
+            "udp://p4p.arenabg.com:1337/announce",
+            "udp://open.stealth.si:80/announce",
+            "udp://movies.zsw.ca:6969/announce",
+            "udp://ipv4.tracker.harry.lu:80/announce",
             "udp://explodie.org:6969/announce",
-            "udp://tracker.filemail.com:6969/announce",
-            "udp://tracker.nyaa.uk:6969/announce",
-            "udp://retracker.netbynet.ru:2710/announce",
-            "http://tracker.gbitt.info:80/announce",
-            "http://tracker2.dler.org:80/announce",
-            "udp://tracker.openbittorrent.com:80/announce",
-            "udp://opentor.org:2710/announce",
-            "udp://tracker.ccc.de:80/announce",
-            "udp://tracker.blackunicorn.xyz:6969/announce",
-            "udp://tracker.leechers-paradise.org:6969/announce"
+            "udp://exodus.desync.com:6969/announce",
+            "https://tracker.nanoha.org:443/announce",
+            "https://tracker.lilithraws.org:443/announce",
+            "https://tr.burnabyhighstar.com:443/announce",
+            "http://tracker.mywaifu.best:6969/announce",
+            "http://bt.okmp3.ru:2710/announce"
         ]
 
         if not hash_text or not title:

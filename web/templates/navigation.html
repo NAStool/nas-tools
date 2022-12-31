@@ -392,7 +392,7 @@
                 </span>
               </a>
               <div class="dropdown-menu">
-                <a class="dropdown-item d-none d-md-block" href="javascript:void(0)" onclick="navmenu('mediafile')">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('mediafile')">
                   文件管理
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('unidentification')">
@@ -1082,24 +1082,25 @@
         </div>
         <div class="row rss_sites_container" id="rss_sites_div">
           <div class="mb-3">
-            <label class="form-label">订阅站点</label>
-            <div class="form-selectgroup" id="rss_sites_group">
+            <div class="btn-list">
+              <label class="form-label">订阅站点</label>
+              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_sites_group')">全选</a>
             </div>
+            <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
         </div>
         <div class="row rss_sites_container" id="rss_search_sites_div">
           <div class="mb-3">
-            <label class="form-label">搜索站点</label>
-            <div class="form-selectgroup" id="rss_search_sites_group">
+            <div class="btn-list">
+              <label class="form-label">搜索站点</label>
+              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_search_sites_group')">全选</a>
             </div>
+            <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:rss_sites_select()" class="btn btn-link me-auto" id="rss_sites_select_btn">
-          取消全选
-        </a>
-        <a href="#" class="btn btn-link text-red" id="rss_delete_btn">
+        <a href="#" class="btn btn-link text-red me-auto" id="rss_delete_btn">
           取消订阅
         </a>
         <a href="javascript:add_rss_manual()" id="rss_add_btn" class="btn btn-primary">确定</a>
@@ -1860,24 +1861,18 @@
     $("#rss_season").append('<option value="' + i + '">第' + i + '季</option>');
   }
 
-  //RSS站点批量选择
-  let rss_sites_select_all = true;
-
-  function rss_sites_select() {
-    if (rss_sites_select_all) {
-      // 取消全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", false);
-      });
-      rss_sites_select_all = false;
-      $("#rss_sites_select_btn").text("全选");
-    } else {
-      //全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function () {
+  function rss_sites_select(btnobj, id) {
+    const selobj = $("#" + id);
+    if ($(btnobj).text() === "全选") {
+      selobj.find("input[type=checkbox]").each(function () {
         $(this).prop("checked", true);
       });
-      rss_sites_select_all = true;
-      $("#rss_sites_select_btn").text("取消全选");
+      $(btnobj).text("全不选");
+    } else {
+      selobj.find("input[type=checkbox]").each(function () {
+        $(this).prop("checked", false);
+      });
+      $(btnobj).text("全选");
     }
   }
 
