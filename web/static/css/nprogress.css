@@ -4,13 +4,11 @@
 }
 
 #nprogress .bar {
-  background: #29d;
-
+  background: var(--tblr-primary) !important;
   position: fixed;
   z-index: 1031;
-  top: 0;
+  top: env(safe-area-inset-top);
   left: 0;
-
   width: 100%;
   height: 2px;
 }

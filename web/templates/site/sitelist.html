@@ -20,7 +20,8 @@
             {% for Site in Sites %}
               <div class="col-md-6 col-xl-3">
                 <a class="card card-link"
-                   href='javascript:navmenu("resources?site={{ Site.id }}&title={{ Site.name }}")'>
+                   href='javascript:void(0)'
+                   onclick='open_site_resources(this, "resources?site={{ Site.id }}&title={{ Site.name }}")'>
                   <div class="card-body">
                     <div class="row">
                       <div class="col-auto">
@@ -54,3 +55,9 @@
     </div>
   </div>
 {% endif %}
+<script type="text/javascript">
+  function open_site_resources(self, url) {
+    $(self).addClass("card-inactive");
+    navmenu(url);
+  }
+</script>
