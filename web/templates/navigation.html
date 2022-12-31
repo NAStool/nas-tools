@@ -1123,6 +1123,7 @@
             <div class="mb-3">
               <label class="form-label required">路径</label>
               <input type="text" id="rename_path" class="form-control" readonly>
+              <input type="hidden" id="rename_source">
               <input type="hidden" id="rename_manual_type">
               <input type="hidden" id="unknown_id">
               <input type="hidden" id="transferlog_id" class="form-control">
@@ -2415,11 +2416,12 @@
   // 显示手动识别转移框
   // manual_type: 1-未识别手动识别，2-历史记录手动识别，3-自定义识别
   // media_type: 电影，电视剧，动漫
-  function show_manual_transfer_modal(manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
+  function show_manual_transfer_modal(source, manual_type, inpath, syncmod, media_type, unknown_id, transferlog_id) {
     // 初始化类型
     if (!syncmod) {
       syncmod = '{{ SyncMod }}';
     }
+    $("#rename_source").val(source);
     $("#rename_manual_type").val(manual_type);
     if (manual_type === 3) {
       $('#rename_header').text("自定义识别");
@@ -2485,6 +2487,7 @@
   // 执行手动识别转移
   function manual_media_transfer() {
     let syncmod;
+    const source = $("#rename_source").val();
     const manual_type = $("#rename_manual_type").val();
     const type = $('input:radio[name=rename_type]:checked').val();
     const path = $("#rename_path").val();
@@ -2579,11 +2582,7 @@
       if (ret.retcode == 0) {
         $('#modal-media-identification').modal('hide');
         show_success_modal("处理成功！", function () {
-          if (manual_type == '2') {
-            navmenu('history');
-          } else {
-            navmenu('unidentification');
-          }
+          navmenu(source);
         });
       } else {
         //处理失败
