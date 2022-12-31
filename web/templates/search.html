@@ -231,13 +231,13 @@
                             <div id="search_results_group_{{ group_key }}_{{ Item.key }}_{{ SE_key.replace(' ', '') }}"
                                  class="accordion-collapse collapse {% if loop.index0 == 0 %}show{% endif %}"
                                  data-bs-parent="#search_results_accordion_{{ Item.key }}">
-                              <div class="accordion-body pt-0">
+                              <div class="accordion-body p-1">
                                 <div class="list-group">
-                                  <div class="list-group card-list-group mt-2">
+                                  <div class="list-group card-list-group mt-1">
                                     <!-- 种子列表 -->
                                   {% for unique_key, unique in group.group_torrents.items() %}
                                     {% for torrent in unique.torrent_list %}
-                                      <div class="list-group-item p-2 ps-1 search_results_torrent"
+                                      <div class="list-group-item p-1 search_results_torrent"
                                         data-site="{{ torrent.site }}"
                                         data-free="{{ torrent.uploadvalue|string + ' ' + torrent.downloadvalue|string }}"
                                         data-video="{{ torrent.video_encode }}"
