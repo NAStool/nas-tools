@@ -4139,7 +4139,7 @@ class WebAction:
     @staticmethod
     def __set_system_config(data):
         """
-        设置配置（数据库）
+        设置系统设置（数据库）
         """
         key = data.get("key")
         value = data.get("value")
