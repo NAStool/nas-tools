@@ -38,6 +38,7 @@ from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
+from app.systemconfig import SystemConfig
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
 from app.utils.types import RMT_MODES, RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
@@ -192,7 +193,8 @@ class WebAction:
             "auto_remove_torrents": self.__auto_remove_torrents,
             "get_douban_history": self.get_douban_history,
             "delete_douban_history": self.__delete_douban_history,
-            "list_brushtask_torrents": self.__list_brushtask_torrents
+            "list_brushtask_torrents": self.__list_brushtask_torrents,
+            "set_system_config": self.__set_system_config
         }
 
     def action(self, cmd, data=None):
@@ -4133,3 +4135,20 @@ class WebAction:
         results = self.dbhelper.get_brushtask_torrents(brush_id=data.get("id"),
                                                        active=False)
         return {"code": 0, "data": [item.as_dict() for item in results]}
+
+    @staticmethod
+    def __set_system_config(data):
+        """
+        设置配置（数据库）
+        """
+        key = data.get("key")
+        value = data.get("value")
+        if not key or not value:
+            return {"code": 1}
+        try:
+            SystemConfig().set_system_config(key=key, value=value)
+            SystemConfig().init_config()
+            return {"code": 0}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1}

@@ -11,6 +11,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.sites import Sites
 from app.subtitle import Subtitle
+from app.systemconfig import SystemConfig
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
@@ -29,7 +30,6 @@ class Downloader:
     _pt_rmt_mode = None
     _downloaddir = []
     _download_setting = {}
-    _default_download_setting = None
 
     message = None
     mediaserver = None
@@ -37,6 +37,7 @@ class Downloader:
     media = None
     sites = None
     dbhelper = None
+    systemconfig = None
 
     def __init__(self):
         self.init_config()
@@ -48,6 +49,7 @@ class Downloader:
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.sites = Sites()
+        self.systemconfig = SystemConfig()
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
@@ -63,7 +65,6 @@ class Downloader:
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
-            self._default_download_setting = pt.get("default_download_setting") or "-1"
         # 下载目录配置
         self._downloaddir = Config().get_config('downloaddir') or []
         # 下载设置
@@ -95,8 +96,6 @@ class Downloader:
                 "ratio_limit": download_setting.RATIO_LIMIT / 100,
                 "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT,
                 "downloader": download_setting.DOWNLOADER}
-        if not self._download_setting.get(self._default_download_setting):
-            self._default_download_setting = "-1"
 
     @property
     def default_client(self):
@@ -199,9 +198,9 @@ class Downloader:
         if download_setting:
             download_attr = self.get_download_setting(download_setting)
             if not download_attr:
-                download_attr = self.get_download_setting(self._default_download_setting)
+                download_attr = self.get_download_setting(self.get_default_download_setting())
         else:
-            download_attr = self.get_download_setting(self._default_download_setting)
+            download_attr = self.get_download_setting(self.get_default_download_setting())
         # 下载器类型
         dl_type = self.__get_client_type(download_attr.get("downloader")) or self._default_client_type
         # 下载器客户端
@@ -923,7 +922,7 @@ class Downloader:
         if not self._downloaddir:
             return []
         if not setting:
-            setting = self._default_download_setting
+            setting = self.get_default_download_setting()
         # 查询下载设置
         download_setting = self.get_download_setting(sid=setting)
         # 下载设置为QB
@@ -1044,4 +1043,7 @@ class Downloader:
         获取默认下载设置
         :return: 默认下载设置id
         """
-        return self._default_download_setting
+        default_download_setting = SystemConfig().default_download_setting or "-1"
+        if not self._download_setting.get(default_download_setting):
+            default_download_setting = "-1"
+        return default_download_setting
