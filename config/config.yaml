@@ -207,6 +207,8 @@ pt:
   download_order: site
   # 【搜索结果数量限制】：每个站点返回搜索结果的最大数量
   site_search_result_num: 100
+  # 【默认下载设置】：默认下载设置id
+  default_download_setting: '-1'
 
 # 【配置Jackett检索器】
 jackett:

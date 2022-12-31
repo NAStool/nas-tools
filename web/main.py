@@ -920,9 +920,11 @@ def downloader():
 @login_required
 def download_setting():
     DownloadSetting = Downloader().get_download_setting()
+    DefaultDownloadSetting = Downloader().get_default_download_setting()
     Count = len(DownloadSetting)
     return render_template("setting/download_setting.html",
                            DownloadSetting=DownloadSetting,
+                           DefaultDownloadSetting=DefaultDownloadSetting,
                            DownloaderTypes=DownloaderType,
                            Count=Count)
 

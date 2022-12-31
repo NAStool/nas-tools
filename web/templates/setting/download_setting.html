@@ -56,6 +56,19 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ Attr.name }}</h3>
+          <div class="ms-2">
+            <a href="javascript:set_default_download_setting('{{ Attr.id }}')" class="btn-action" title="设置/取消默认">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   class="icon icon-tabler icon-tabler-star {% if DefaultDownloadSetting == Id %}icon-filled text-purple{% endif %}"
+                   width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path
+                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z">
+                </path>
+              </svg>
+            </a>
+          </div>
           <div class="card-actions btn-actions">
             <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
@@ -391,6 +404,14 @@
       ajax_post("delete_download_setting", { "sid": sid }, function (ret) {
         navmenu('download_setting');
       });
+    });
+  }
+
+  // 设置默认下载设置
+  function set_default_download_setting(sid){
+    let params = {'pt.default_download_setting': sid };
+    ajax_post("update_config", params, function (ret) {
+      navmenu('download_setting');
     });
   }
 

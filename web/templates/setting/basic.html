@@ -1038,8 +1038,7 @@
 
     // 保存自定义制作组/字幕组配置
   function save_release_groups_config(){
-    let params = {};
-    params['laboratory.release_groups'] = $("#release_groups").val().replace(/;$/g, '');
+    let params = {'laboratory.release_groups': $("#release_groups").val().replace(/;$/g, '')};
     $("#release_groups_save_btn").text("保存中...").attr("disabled", true);
     ajax_post("update_config", params, function (ret) {
       $("#release_groups_save_btn").text("保存").attr("disabled", false);
