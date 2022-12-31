@@ -255,7 +255,12 @@ class SiteCookie(object):
             self.progress.update(ptype='sitecookie',
                                  text="开始更新 %s Cookie和User-Agent ..." % site.get("name"))
             # 登录页面地址
-            login_url = "%s/login.php" % StringUtils.get_base_url(site.get("signurl") or site.get("rssurl"))
+            baisc_url = StringUtils.get_base_url(site.get("signurl") or site.get("rssurl"))
+            site_conf = self.sites.get_grapsite_conf(url=baisc_url)
+            if site_conf.get("LOGIN"):
+                login_url = "%s/%s" % (baisc_url, site_conf.get("LOGIN"))
+            else:
+                login_url = "%s/login.php" % baisc_url
             # 获取Cookie和User-Agent
             cookie, ua, msg = self.__get_site_cookie_ua(url=login_url,
                                                         username=username,

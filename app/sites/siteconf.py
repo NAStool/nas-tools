@@ -28,16 +28,19 @@ class SiteConf:
             '//input[@name="password"]'
         ],
         "captcha": [
-            '//input[@name="imagestring"]'
+            '//input[@name="imagestring"]',
+            '//input[@name="captcha"]'
         ],
         "captcha_img": [
             '//img[@alt="CAPTCHA"]/@src',
-            '//img[@alt="SECURITY CODE"]/@src'
+            '//img[@alt="SECURITY CODE"]/@src',
+            '//img[@id="LAY-user-get-vercode"]/@src'
         ],
         "submit": [
             '//input[@type="submit"]',
             '//button[@type="submit"]',
-            '//button[@lay-filter="login"]'
+            '//button[@lay-filter="login"]',
+            '//button[@lay-filter="formLogin"]',
         ],
         "error": [
             "//table[@class='main']//td[@class='text']/text()"
@@ -334,6 +337,7 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'pt.msg.vg': {
+            'LOGIN': 'user/login/index',
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
             'HR': [],
@@ -442,6 +446,18 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         "pt.2xfree.org": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "uploads.ltd": {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "www.icc2022.com": {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
