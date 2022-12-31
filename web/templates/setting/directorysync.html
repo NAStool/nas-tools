@@ -209,9 +209,7 @@
 
   // 打开编辑窗口
   function show_edit_sync_path_modal(sid) {
-    show_wait_process();
     ajax_post("get_sync_path", {sid: sid}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         let sync_item = ret.data;
         $("#directory_modal_title").text('编辑同步目录');
@@ -269,9 +267,7 @@
       "enabled": enabled
     };
     $("#modal-directory").modal('hide');
-    show_wait_process();
     ajax_post("add_or_edit_sync_path", params, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         navmenu('directorysync');
       } else {
@@ -284,9 +280,7 @@
 
   // 删除目录
   function delete_sync_path(sid) {
-    show_wait_process();
     ajax_post("delete_sync_path", {sid: sid}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         navmenu('directorysync');
       }
@@ -295,9 +289,7 @@
 
   // 更新目录
   function check_sync_path(flag, sid, checked) {
-    show_wait_process();
     ajax_post("check_sync_path", {flag: flag, sid: sid, checked: checked}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         navmenu('directorysync');
       }

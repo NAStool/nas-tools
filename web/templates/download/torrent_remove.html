@@ -645,9 +645,7 @@
 
   // 显示满足条件种子
   function show_remove_torrents_modal(tid){
-    show_wait_process();
     ajax_post("get_remove_torrents", { "tid": tid }, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         let torrents = ret.data;
         let thead = `<thead><tr><th>共${torrents.length}个种子</th></tr></thead>`;
@@ -691,9 +689,7 @@
 
   // 立即运行任务
   function run_torrent_remove_now(tid) {
-    show_wait_process();
     ajax_post("auto_remove_torrents", { "tid": tid }, function (ret) {
-      hide_wait_process();
       show_success_modal("任务运行完成！", function () {
         navmenu('torrent_remove');
       });

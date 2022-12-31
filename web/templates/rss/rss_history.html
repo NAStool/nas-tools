@@ -126,9 +126,7 @@
 <script type="text/javascript">
   //重新订阅
   function re_rss_history(rssid) {
-    show_wait_process();
     ajax_post("re_rss_history", {"rssid": rssid, "type": "{{ Type }}"}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         show_success_modal("重新订阅成功！");
       } else {
@@ -139,9 +137,7 @@
 
   //删除订阅历史
   function delete_rss_history(rssid) {
-    show_wait_process();
     ajax_post("delete_rss_history", {"rssid": rssid}, function (ret) {
-      hide_wait_process();
       navmenu('rss_history?t={{ Type }}');
     });
   }

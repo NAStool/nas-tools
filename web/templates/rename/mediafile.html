@@ -214,9 +214,7 @@
     if (!name) {
       return;
     }
-    show_wait_process()
     media_name_test(name, result_div, function () {
-      hide_wait_process()
     });
   }
 
@@ -251,9 +249,7 @@
   // 文件删除
   function delete_files(files) {
     hide_confirm_modal();
-    show_wait_process();
     ajax_post("delete_files", {files: files}, function (ret) {
-      hide_wait_process();
       refresh_files();
     });
   }
@@ -282,9 +278,7 @@
   // 下载字幕
   function mediafile_subtitle(name, id) {
     let path = $("#mediafilepath_" + id).val();
-    show_wait_process();
     ajax_post("download_subtitle", {path: path, name: name}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         show_success_modal(ret.msg, function () {
           refresh_files();
@@ -297,9 +291,7 @@
 
   // 查询硬链接
   function find_hardlinks(files, dir) {
-    show_wait_process();
     ajax_post("find_hardlinks", {files: files, dir: dir}, function (ret) {
-      hide_wait_process();
       $("#table-hardlinks").empty();
       if (ret.code === 0) {
         if (ret.data) {

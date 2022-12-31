@@ -276,9 +276,7 @@
   function delete_history(logids, name) {
     show_confirm_modal(name + " 对应已重命名的文件将被同步删除，是否确认？", function () {
       hide_confirm_modal();
-      show_wait_process();
       ajax_post("delete_history", {"logids": logids}, function (ret) {
-        hide_wait_process();
         navmenu('history');
       });
     });
@@ -286,9 +284,7 @@
 
   //重新识别
   function re_identification(logids) {
-    show_wait_process();
     ajax_post("re_identification", {flag: "history", ids: logids}, function (ret) {
-      hide_wait_process();
       if (ret.retcode == 0) {
         navmenu('history');
       } else {

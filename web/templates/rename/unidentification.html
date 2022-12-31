@@ -171,9 +171,7 @@
   function re_identification(unknown_ids) {
     const cmd = "re_identification";
     const data = {"flag": "unknow", "ids": unknown_ids};
-    show_wait_process();
     ajax_post(cmd, data, function (ret) {
-      hide_wait_process();
       if (ret.retcode == 0) {
         navmenu('unidentification');
       } else {

@@ -543,9 +543,7 @@
   // 显示编辑任务
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
-    show_wait_process();
     ajax_post("get_userrss_task", { id: id }, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         $("#userrss_modal_title").text("编辑订阅");
         $("#userrss_name").val(ret.detail.name);
@@ -629,9 +627,7 @@
 
   // 立即运行任务
   function run_userrss_now(id) {
-    show_wait_process();
     ajax_post("run_userrss", { "id": id }, function (ret) {
-      hide_wait_process();
       show_success_modal("任务运行完成！", function () {
         navmenu('user_rss');
       });
@@ -640,9 +636,8 @@
 
   // 报文预览
   function show_rss_articles_modal(id) {
-    show_wait_process();
     ajax_post("list_rss_articles", { "id": id }, function (ret) {
-      let content  ; hide_wait_process();
+      let content;
       $("#table-rss-articles").empty();
       if (ret.code == 0) {
         const articles = ret.data;
@@ -758,9 +753,7 @@
   // 报文处理设置
   function articles_check(id, flag, articles) {
     $("#modal-rss-articles").modal('hide');
-    show_wait_process();
     ajax_post("rss_articles_check", { "articles": articles, "flag": flag }, function (ret) {
-      hide_wait_process();
       show_rss_articles_modal(id);
     });
   }
@@ -768,9 +761,7 @@
   // 报文下载
   function articles_download(id, articles) {
     $("#modal-rss-articles").modal('hide');
-    show_wait_process();
     ajax_post("rss_articles_download", { "articles": articles, "taskid": id }, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         show_success_modal("添加下载成功！", function() {
           show_rss_articles_modal(id);//
@@ -805,10 +796,8 @@
 
   // 订阅下载记录
   function show_rss_history_modal(id) {
-    show_wait_process();
     ajax_post("list_rss_history", { "id": id }, function (ret) {
       let content;
-      hide_wait_process();
       if (ret.code == 0) {
         const downloads = ret.data;
         let content_th = `<thead><tr>
