@@ -147,10 +147,11 @@ class Message(object):
             self._client_configs[str(client_config.ID)] = client_conf
             if not client_config.ENABLED or not config:
                 continue
-            client_conf.update({
-                "client": self._build_class(ctype=client_config.TYPE, conf=client_conf)
-            })
-            self._active_clients.append(client_conf)
+            client = {
+                "client": self._build_class(ctype=client_config.TYPE, conf=config)
+            }
+            client.update(client_conf)
+            self._active_clients.append(client)
 
     def _build_class(self, ctype, conf):
         for message_schema in self._message_schemas:
