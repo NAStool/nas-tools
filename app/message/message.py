@@ -113,8 +113,10 @@ class Message(object):
     }
 
     def __init__(self):
-        self._message_schemas = SubmoduleHelper.import_submodules('app.message.client',
-                                                                  filter_func=lambda _, obj: hasattr(obj, 'schema'))
+        self._message_schemas = SubmoduleHelper.import_submodules(
+            'app.message.client',
+            filter_func=lambda _, obj: hasattr(obj, 'schema')
+        )
         log.debug(f"【Message】: 已经加载的消息服务：{self._message_schemas}")
         self.init_config()
 

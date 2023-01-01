@@ -60,8 +60,16 @@ hiddenimports = ['Crypto.Math',
                 'Crypto.Util',
                 'Crypto.Hash',
                 'Crypto.Protocol',
-                'app.sites.siteuserinfo',]
+                'app.sites.siteuserinfo',
+                'app.mediaserver.client',
+                'app.message.client',
+                'app.indexer.client',
+                'app.downloader.client']
 hiddenimports += collect_local_submodules('app.sites.siteuserinfo')
+hiddenimports += collect_local_submodules('app.mediaserver.client')
+hiddenimports += collect_local_submodules('app.message.client')
+hiddenimports += collect_local_submodules('app.indexer.client')
+hiddenimports += collect_local_submodules('app.downloader.client')
 # <<< END HIDDENIMPORTS PART
 
 block_cipher = None
