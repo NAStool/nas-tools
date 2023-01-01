@@ -40,8 +40,8 @@ from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.systemconfig import SystemConfig
 from app.torrentremover import TorrentRemover
-from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
-from app.utils.types import RMT_MODES, RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
+from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils, SystemConf
+from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
@@ -652,7 +652,7 @@ class WebAction:
         手工转移
         """
         path = dest_dir = None
-        syncmod = RMT_MODES.get(data.get("syncmod"))
+        syncmod = SystemConf.RMT_MODES.get(data.get("syncmod"))
         logid = data.get("logid")
         if logid:
             paths = self.dbhelper.get_transfer_path_by_id(logid)
@@ -737,7 +737,7 @@ class WebAction:
             outpath = os.path.normpath(data.get("outpath"))
         else:
             outpath = None
-        syncmod = RMT_MODES.get(data.get("syncmod"))
+        syncmod = SystemConf.RMT_MODES.get(data.get("syncmod"))
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
         tmdbid = data.get("tmdb")

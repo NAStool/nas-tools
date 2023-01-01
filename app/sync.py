@@ -11,8 +11,8 @@ from app.helper import DbHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
-from app.utils import PathUtils, ExceptionUtils
-from app.utils.types import SyncType, OsType, RMT_MODES
+from app.utils import PathUtils, ExceptionUtils, SystemConf
+from app.utils.types import SyncType, OsType
 
 lock = threading.Lock()
 
@@ -79,7 +79,7 @@ class Sync(object):
                 # 仅硬链接标志
                 only_link = False if sync_item.RENAME else True
                 # 转移方式
-                path_syncmode = RMT_MODES.get(sync_item.MODE)
+                path_syncmode = SystemConf.RMT_MODES.get(sync_item.MODE)
                 # 源目录|目的目录|未知目录
                 monpath = sync_item.SOURCE
                 target_path = sync_item.DEST
