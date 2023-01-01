@@ -2,7 +2,7 @@ import os
 import re
 
 from config import RMT_MEDIAEXT
-from app.media.meta.metabase import MetaBase
+from app.media.meta._base import MetaBase
 from app.utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
