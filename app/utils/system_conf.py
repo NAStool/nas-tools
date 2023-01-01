@@ -105,14 +105,16 @@ class SystemConf(object):
                         "required": True,
                         "title": "应用Secret",
                         "tooltip": "每个应用都拥有唯一的secret，获取此信息可在管理后台“应用与小程序”－“自建”下查看“Secret”（需要有管理员权限）",
-                        "type": "text"
+                        "type": "text",
+                        "placeholder": "Secret"
                     },
                     "agentid": {
                         "id": "wechat_agentid",
                         "required": True,
                         "title": "应用ID",
                         "tooltip": "每个应用都拥有唯一的agentid，获取此信息可在管理后台“应用与小程序”－“自建”下查看“AgentId”（需要有管理员权限）",
-                        "type": "text"
+                        "type": "text",
+                        "placeholder": "AgentId",
                     },
                     "default_proxy": {
                         "id": "wechat_default_proxy",
@@ -127,14 +129,16 @@ class SystemConf(object):
                         "required": False,
                         "title": "Token",
                         "tooltip": "需要交互功能时才需要填写，在微信企业应用管理后台-接收消息设置页面生成，填入完成后重启本应用，然后再在微信页面输入地址确定",
-                        "type": "text"
+                        "type": "text",
+                        "placeholder": "API接收消息Token"
                     },
                     "encodingAESKey": {
                         "id": "wechat_encodingAESKey",
                         "required": False,
                         "title": "EncodingAESKey",
                         "tooltip": "需要交互功能时才需要填写，在微信企业应用管理后台-接收消息设置页面生成，填入完成后重启本应用，然后再在微信页面输入地址确定",
-                        "type": "text"
+                        "type": "text",
+                        "placeholder": "API接收消息EncodingAESKey"
                     }
                 }
             },
@@ -162,7 +166,8 @@ class SystemConf(object):
                         "title": "Bark服务器地址",
                         "tooltip": "自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app",
                         "type": "text",
-                        "placeholder": "https://api.day.app"
+                        "placeholder": "https://api.day.app",
+                        "default": "https://api.day.app"
                     },
                     "apikey": {
                         "id": "bark_apikey",
@@ -183,7 +188,8 @@ class SystemConf(object):
                         "title": "PushDeer服务器地址",
                         "tooltip": "自己搭建pushdeer服务端请实际配置，否则可使用：https://api2.pushdeer.com",
                         "type": "text",
-                        "placeholder": "https://api2.pushdeer.com"
+                        "placeholder": "https://api2.pushdeer.com",
+                        "default": "https://api2.pushdeer.com"
                     },
                     "apikey": {
                         "id": "pushdeer_apikey",
@@ -215,7 +221,8 @@ class SystemConf(object):
                             "wechat": "微信",
                             "mail": "邮箱",
                             "webhook": "第三方Webhook"
-                        }
+                        },
+                        "default": "wechat"
                     },
                     "topic": {
                         "id": "pushplus_topic",
