@@ -15,11 +15,11 @@ from config import Config
 class Message(object):
     dbhelper = None
     messagecenter = None
+    _message_schemas = []
     _active_clients = []
     _client_configs = {}
     _webhook_ignore = None
     _domain = None
-    _message_schemas = None
 
     # 消息通知类型
     MESSAGE_DICT = {
@@ -115,7 +115,7 @@ class Message(object):
     def __init__(self):
         self._message_schemas = SubmoduleHelper.import_submodules('app.message.client',
                                                                   filter_func=lambda _, obj: hasattr(obj, 'schema'))
-        log.debug(f"【Sites】: 已经加载的消息服务 {self._message_schemas}")
+        log.debug(f"【Message】: 已经加载的消息服务 {self._message_schemas}")
         self.init_config()
 
     def init_config(self):
@@ -135,6 +135,9 @@ class Message(object):
         self._client_configs = {}
         for client_config in self.dbhelper.get_message_client() or []:
             config = json.loads(client_config.CONFIG) if client_config.CONFIG else {}
+            config.update({
+                "interactive": client_config.INTERACTIVE
+            })
             client_conf = {
                 "id": client_config.ID,
                 "name": client_config.NAME,
@@ -142,13 +145,13 @@ class Message(object):
                 "config": config,
                 "switchs": json.loads(client_config.SWITCHS) if client_config.SWITCHS else [],
                 "interactive": client_config.INTERACTIVE,
-                "enabled": client_config.ENABLED,
-                "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type')
+                "enabled": client_config.ENABLED
             }
             self._client_configs[str(client_config.ID)] = client_conf
             if not client_config.ENABLED or not config:
                 continue
             client = {
+                "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
                 "client": self._build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
