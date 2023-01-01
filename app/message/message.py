@@ -143,6 +143,7 @@ class Message(object):
                 "switchs": json.loads(client_config.SWITCHS) if client_config.SWITCHS else [],
                 "interactive": client_config.INTERACTIVE,
                 "enabled": client_config.ENABLED,
+                "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type')
             }
             self._client_configs[str(client_config.ID)] = client_conf
             if not client_config.ENABLED or not config:
@@ -584,7 +585,7 @@ class Message(object):
         查询当前可以交互的渠道
         """
         if client_type:
-            for client in Message().get_interactive_client():
+            for client in self._active_clients:
                 if client.get("search_type") == client_type:
                     return client
             return None
