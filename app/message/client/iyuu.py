@@ -1,11 +1,12 @@
 from urllib.parse import urlencode
 
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, ExceptionUtils
 
 
-class IyuuMsg(IMessageClient):
+class IyuuMsg(_IMessageClient):
+    schema = "iyuu"
+
     _token = None
     _client_config = {}
 
@@ -16,6 +17,10 @@ class IyuuMsg(IMessageClient):
     def init_config(self):
         if self._client_config:
             self._token = self._client_config.get('token')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """

@@ -1,9 +1,10 @@
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils, StringUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, StringUtils, ExceptionUtils
 
 
-class Gotify(IMessageClient):
+class Gotify(_IMessageClient):
+    schema = "gotify"
+
     _server = None
     _token = None
     _priority = None
@@ -22,6 +23,10 @@ class Gotify(IMessageClient):
             except Exception as e:
                 self._priority = 8
                 ExceptionUtils.exception_traceback(e)
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """

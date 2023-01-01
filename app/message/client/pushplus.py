@@ -1,12 +1,13 @@
 import time
 from urllib.parse import urlencode
 
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, ExceptionUtils
 
 
-class PushPlus(IMessageClient):
+class PushPlus(_IMessageClient):
+    schema = "pushplus"
+
     _token = None
     _topic = None
     _channel = None
@@ -23,6 +24,10 @@ class PushPlus(IMessageClient):
             self._topic = self._client_config.get('topic')
             self._channel = self._client_config.get('channel')
             self._webhook = self._client_config.get('webhook')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
