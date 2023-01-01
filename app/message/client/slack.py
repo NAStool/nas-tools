@@ -82,7 +82,10 @@ class Slack(_IMessageClient):
 
     def stop_service(self):
         if self._service:
-            self._service.close()
+            try:
+                self._service.close()
+            except Exception as err:
+                print(str(err))
             log.info("Slack消息接收服务已停止")
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
