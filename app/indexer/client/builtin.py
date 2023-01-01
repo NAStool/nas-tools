@@ -23,6 +23,7 @@ class BuiltinIndexer(_IIndexClient):
     def __init__(self, config=None):
         super().__init__()
         self._client_config = config or {}
+        self.init_config()
 
     def init_config(self):
         self.sites = Sites()
