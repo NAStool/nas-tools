@@ -32,9 +32,9 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
-from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils
+from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils, SystemConf
 from app.utils.types import *
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
+from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -119,8 +119,8 @@ def login():
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
-        RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-        PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        RestypeDict = SystemConf.TORRENT_SEARCH_PARAMS.get("restype")
+        PixDict = SystemConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
         return render_template('navigation.html',
                                GoPage=GoPage,
@@ -257,8 +257,8 @@ def search():
                            NeedSearch=NeedSearch or "",
                            Count=Count,
                            Results=SearchResults,
-                           RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
-                           PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
+                           RestypeDict=SystemConf.TORRENT_SEARCH_PARAMS.get("restype"),
+                           PixDict=SystemConf.TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
                            UPCHAR=chr(8593))
 
@@ -420,9 +420,8 @@ def downloaded():
 @login_required
 def torrent_remove():
     TorrentRemoveTasks = TorrentRemover().get_torrent_remove_tasks()
-    DownloaderConfig = TorrentRemover().TORRENTREMOVER_DICT
     return render_template("download/torrent_remove.html",
-                           DownloaderConfig=DownloaderConfig,
+                           DownloaderConfig=SystemConf.TORRENTREMOVER_DICT,
                            Count=len(TorrentRemoveTasks),
                            TorrentRemoveTasks=TorrentRemoveTasks)
 
@@ -729,7 +728,7 @@ def service():
        <path d="M12 15v2"></path>
     </svg>
     '''
-    targets = NETTEST_TARGETS
+    targets = SystemConf.NETTEST_TARGETS
     scheduler_cfg_list.append(
         {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
          "targets": targets})
@@ -959,8 +958,8 @@ def mediaserver():
 @login_required
 def notification():
     MessageClients = Message().get_message_client_info()
-    Channels = MESSAGE_DICT.get("client")
-    Switchs = MESSAGE_DICT.get("switch")
+    Channels = SystemConf.MESSAGE_DICT.get("client")
+    Switchs = SystemConf.MESSAGE_DICT.get("switch")
     return render_template("setting/notification.html",
                            Channels=Channels,
                            Switchs=Switchs,
@@ -1161,7 +1160,7 @@ def wechat():
                     log.info("点击菜单：%s" % event_key)
                     keys = event_key.split('#')
                     if len(keys) > 2:
-                        content = WECHAT_MENU.get(keys[2])
+                        content = SystemConf.WECHAT_MENU.get(keys[2])
             elif msg_type == "text":
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")

@@ -3,10 +3,6 @@ import shutil
 from threading import Lock
 import ruamel.yaml
 
-# 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
-# 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-# 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/rss RSS下载
-WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
 # 种子名/文件名要素分隔字符
 SPLIT_CHARS = r"\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|~"
 # 默认User-Agent
@@ -14,8 +10,10 @@ DEFAULT_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
 RMT_FAVTYPE = '精选'
 # 支持的媒体文件后缀格式
-RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso', '.rmvb', '.avi', '.mov', '.mpeg', '.mpg', '.wmv', '.3gp', '.asf', '.m4v',
-                '.flv', '.m2ts']
+RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso',
+                '.rmvb', '.avi', '.mov', '.mpeg',
+                '.mpg', '.wmv', '.3gp', '.asf',
+                '.m4v', '.flv', '.m2ts']
 # 支持的字幕文件后缀格式
 RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 电视剧动漫的分类genre_ids
@@ -58,25 +56,6 @@ TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original/%s'
 # 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
 PT_TAG = "NASTOOL"
-# 搜索种子过滤属性
-TORRENT_SEARCH_PARAMS = {
-    "restype": {
-        "BLURAY": r"Blu-?Ray|BD|BDRIP",
-        "REMUX": r"REMUX",
-        "DOLBY": r"DOLBY|DOVI|\s+DV$|\s+DV\s+",
-        "WEB": r"WEB-?DL|WEBRIP",
-        "HDTV": r"U?HDTV",
-        "UHD": r"UHD",
-        "HDR": r"HDR",
-        "3D": r"3D"
-    },
-    "pix": {
-        "8k": r"8K",
-        "4k": r"4K|2160P|X2160",
-        "1080p": r"1080[PIX]|X1080",
-        "720p": r"720P"
-    }
-}
 # 电影默认命名格式
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year})-{part} - {videoFormat}'
 # 电视剧默认命名格式
@@ -88,18 +67,8 @@ KEYWORD_SEARCH_WEIGHT_3 = [10, 2]
 KEYWORD_STR_SIMILARITY_THRESHOLD = 0.2
 KEYWORD_DIFF_SCORE_THRESHOLD = 30
 KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版',
-                     '法语',
-                     '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
+                     '法语', '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
-# 网络测试对象
-NETTEST_TARGETS = ["www.themoviedb.org",
-                   "api.themoviedb.org",
-                   "api.tmdb.org",
-                   "image.tmdb.org",
-                   "webservice.fanart.tv",
-                   "api.telegram.org",
-                   "qyapi.weixin.qq.com",
-                   "www.opensubtitles.org"]
 
 # WebDriver路径
 WEBDRIVER_PATH = {

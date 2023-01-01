@@ -4,9 +4,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import log
 from app.helper import ProgressHelper, SubmoduleHelper
 from app.indexer.client import BuiltinIndexer
-from app.utils import ExceptionUtils
+from app.utils import ExceptionUtils, SystemConf
 from app.utils.commons import singleton
-from app.utils.types import SearchType, IndexerType, INDEXER_DICT
+from app.utils.types import SearchType, IndexerType
 from config import Config
 
 
@@ -27,7 +27,7 @@ class Indexer(object):
 
     def init_config(self):
         self.progress = ProgressHelper()
-        self._client_type = INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
+        self._client_type = SystemConf.INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
         self._client = self.__get_client(self._client_type)
 
     def __build_class(self, ctype, conf):
