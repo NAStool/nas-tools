@@ -156,7 +156,7 @@ class Message(object):
         for message_schema in self._message_schemas:
             try:
                 if message_schema.match(ctype):
-                    return message_schema
+                    return message_schema()
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return None
