@@ -218,118 +218,90 @@
 <script type="text/javascript">
   // @formatter:off
   // 电影变化图
-  window.ApexCharts && (new ApexCharts(document.getElementById('chart-movie-bg'), {
-    chart: {
-      type: "area",
-      fontFamily: 'inherit',
-      height: 40.0,
-      sparkline: {
-        enabled: true
+  if (typeof (chart_movie) != 'undefined')
+      chart_movie.dispose();
+  chart_movie = echarts.init($('#chart-movie-bg')[0], null, {
+      height: 40.0
+  });
+
+  option_chart_movie = {
+      animation: true, color: [tabler.getColor('primary')],
+      legend: {
+          show: false,
       },
-      animations: {
-        enabled: true
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    fill: {
-      opacity: .16,
-      type: 'solid'
-    },
-    stroke: {
-      width: 2,
-      lineCap: "round",
-      curve: "smooth",
-    },
-    series: [{
-      name: "电影",
-      data: {{ MovieNums }}
-    }],
-    tooltip: {
-      theme: 'dark'
-    },
-    grid: {
-      strokeDashArray: 4,
-    },
-    xaxis: {
-      labels: {
-        padding: 0,
+      grid: {
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 2,
+          containLabel: false
       },
       tooltip: {
-        enabled: false
+          trigger: 'axis'
       },
-      axisBorder: {
-        show: false,
+      xAxis: {
+          type: 'category',
+          show: false,
+          data: {{ MovieChartLabels| safe }}
       },
-      type: 'category',
-    },
-    yaxis: {
-      labels: {
-        padding: 4
-      },
-    },
-    labels: {{ MovieChartLabels| safe }},
-    colors: [tabler.getColor("primary")],
-    legend: {
-      show: false,
-    },
-  })).render();
+      yAxis: {show: false,},
+      series: [{
+          name: '电影',
+          type: 'line', large: true, smooth: true, symbol: 'none',
+          data: {{ MovieNums }}
+      }]
+  };
+  chart_movie.setOption(option_chart_movie);
+
   // 电视剧变化图
-  window.ApexCharts && (new ApexCharts(document.getElementById('chart-tv-bg'), {
-    chart: {
-      type: "line",
-      fontFamily: 'inherit',
-      height: 40.0,
-      sparkline: {
-        enabled: true
+  if (typeof (chart_tv) != 'undefined')
+      chart_tv.dispose();
+  chart_tv = echarts.init($('#chart-tv-bg')[0], null, {
+      height: 40.0
+  });
+
+  option_chart_tv = {
+      animation: false, color: [tabler.getColor('primary'), tabler.getColor('gray-600')],
+      legend: {
+          show: false,
       },
-      animations: {
-        enabled: true
-      },
-    },
-    fill: {
-      opacity: 1,
-    },
-    stroke: {
-      width: [2, 1],
-      dashArray: [0, 3],
-      lineCap: "round",
-      curve: "smooth",
-    },
-    series: [{
-      name: "电视剧",
-      data: {{ TvNums }}
-    }, {
-      name: "动漫",
-      data: {{ AnimeNums }}
-    }],
-    tooltip: {
-      theme: 'dark'
-    },
-    grid: {
-      strokeDashArray: 4,
-    },
-    xaxis: {
-      labels: {
-        padding: 0,
+      grid: {
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 2,
+          containLabel: false
       },
       tooltip: {
-        enabled: false
+          trigger: 'axis'
       },
-      type: 'category',
-    },
-    yaxis: {
-      labels: {
-        padding: 4
+      xAxis: {
+          type: 'category',
+          show: false,
+          data: {{ TvChartLabels| safe }}
       },
-    },
-    labels: {{ TvChartLabels| safe }},
-    colors: [tabler.getColor("primary"), tabler.getColor("gray-600")],
-    legend: {
-      show: false,
-    },
-  })).render();
+      yAxis: {show: false,},
+      series: [{
+          name: '电视剧',
+          type: 'line', large: true, smooth: true, symbol: 'none',
+          data: {{ TvNums }}
+      }, {
+          name: '动漫',
+          type: 'line', large: true, smooth: true, symbol: 'none',
+          lineStyle: {
+              width: 1.5,
+              type: 'dashed'
+          },
+          data: {{ AnimeNums }}
+      }]
+  };
+  chart_tv.setOption(option_chart_tv);
+
+  // 响应大小调整
+  window.onresize = function () {
+      chart_tv.resize();
+      chart_movie.resize();
+  };
   // @formatter:on
 </script>
 <script type="text/javascript">
