@@ -328,7 +328,7 @@ class Subscribe:
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
                 filter_rule = desc.get("rule")
-                download_setting = -1
+                download_setting = 0
                 save_path = ""
                 fuzzy_match = False if tmdbid else True
             if note:
@@ -390,7 +390,7 @@ class Subscribe:
                 filter_team = desc.get("team")
                 filter_rule = desc.get("rule")
                 save_path = ""
-                download_setting = -1
+                download_setting = 0
                 total_ep = desc.get("total")
                 current_ep = desc.get("current")
                 fuzzy_match = False if tmdbid else True
