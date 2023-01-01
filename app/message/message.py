@@ -162,6 +162,21 @@ class Message(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
+    def get_status(self, ctype=None, config=None):
+        """
+        测试消息设置状态
+        """
+        if not config or not ctype:
+            return False
+        # 测试状态不启动监听服务
+        state, ret_msg = self._build_class(ctype=ctype,
+                                           conf=config).send_msg(title="测试",
+                                                                 text="这是一条测试消息",
+                                                                 url="https://github.com/jxxghp/nas-tools")
+        if not state:
+            log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
+        return state
+
     def get_webhook_ignore(self):
         """
         获取Emby/Jellyfin不通知的设备清单
@@ -579,19 +594,3 @@ class Message(object):
                 if client.get('interactive'):
                     ret_clients.append(client)
             return ret_clients
-
-    def get_status(self, ctype=None, config=None):
-        """
-        测试消息设置状态
-        """
-        if not config or not ctype:
-            return False
-        # 测试状态不启动监听服务
-        state, ret_msg = self.__build_client(ctype=ctype,
-                                             conf=config,
-                                             interactive=False).send_msg(title="测试",
-                                                                         text="这是一条测试消息",
-                                                                         url="https://github.com/jxxghp/nas-tools")
-        if not state:
-            log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
-        return state
