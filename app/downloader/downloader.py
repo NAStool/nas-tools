@@ -467,7 +467,7 @@ class Downloader:
         # 返回按季、集数倒序排序的列表
         download_list = self.get_download_list(media_list)
 
-        def __download(download_item, torrent_file=None, tag=None, is_paused=False):
+        def __download(download_item, torrent_file=None, tag=None, is_paused=None):
             """
             下载及发送通知
             """
@@ -826,7 +826,7 @@ class Downloader:
             if exists_movies:
                 movies_str = "\n • ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 msg = f"媒体库中已存在电影：\n • {movies_str}"
-                log.info(f"【Downloader】msg")
+                log.info(f"【Downloader】{msg}")
                 message_list.append(msg)
                 return True, {}, message_list
             return False, {}, message_list
