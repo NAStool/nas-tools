@@ -787,10 +787,10 @@ class Downloader:
                                 # 有集数，肯定只有一季
                                 if not set(search_episode).intersection(set(no_exists_episodes)):
                                     # 搜索的跟不存在的没有交集，说明都存在了
-                                    log.info("【Downloader】%s %s 在媒体库中已经存在" % (
-                                        meta_info.get_title_string(), meta_info.get_season_episode_string()))
-                                    message_list.append("%s %s 在媒体库中已经存在" % (
-                                        meta_info.get_title_string(), meta_info.get_season_episode_string()))
+                                    msg = f"媒体库中已存在剧集：\n" \
+                                          f" • {meta_info.get_title_string()} {meta_info.get_season_episode_string()}"
+                                    log.info(f"【Downloader】{msg}")
+                                    message_list.append(msg)
                                     return_flag = True
                                     break
                         else:
@@ -817,9 +817,10 @@ class Downloader:
             if exists_movies is None:
                 exists_movies = self.filetransfer.get_no_exists_medias(meta_info)
             if exists_movies:
-                movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
-                log.info("【Downloader】媒体库中已经存在以下电影：\n * %s" % movies_str)
-                message_list.append("在媒体库中已经存在以下电影：\n * %s" % movies_str)
+                movies_str = "\n • ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
+                msg = f"媒体库中已存在电影：\n • {movies_str}"
+                log.info(f"【Downloader】msg")
+                message_list.append(msg)
                 return True, {}, message_list
             return False, {}, message_list
 
