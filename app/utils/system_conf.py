@@ -55,41 +55,248 @@ class SystemConf(object):
             "telegram": {
                 "name": "Telegram",
                 "img_url": "../static/img/telegram.png",
-                "search_type": SearchType.TG
+                "search_type": SearchType.TG,
+                "config": {
+                    "token": {
+                        "id": "telegram_token",
+                        "required": True,
+                        "title": "Bot Token",
+                        "tooltip": "telegram机器人的Token，关注BotFather创建机器人",
+                        "type": "text"
+                    },
+                    "chat_id": {
+                        "id": "telegram_chat_id",
+                        "required": True,
+                        "title": "Chat ID",
+                        "tooltip": "telegram群组或用户的Chat ID，关注@getidsbot获取",
+                        "type": "text"
+                    },
+                    "user_ids": {
+                        "id": "telegram_user_ids",
+                        "required": False,
+                        "title": "User IDs",
+                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id",
+                        "type": "text",
+                        "placeholder": "允许使用机器人的用户ID，使用,分隔"
+                    },
+                    "webhook": {
+                        "id": "telegram_webhook",
+                        "required": False,
+                        "title": "Webhook",
+                        "tooltip": "Telegram机器人消息有两种模式：Webhook或消息轮循；开启后将使用Webhook方式，需要在基础设置中正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书；关闭后将使用消息轮循方式，使用该方式时，需要在基础设置->安全处将Telegram ipv4源地址设置为127.0.0.1，推荐关闭Webhook",
+                        "type": "switch"
+                    }
+                }
             },
             "wechat": {
                 "name": "微信",
                 "img_url": "../static/img/wechat.png",
-                "search_type": SearchType.WX
+                "search_type": SearchType.WX,
+                "config": {
+                    "corpid": {
+                        "id": "wechat_corpid",
+                        "required": True,
+                        "title": "企业ID",
+                        "tooltip": "每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）",
+                        "type": "text"
+                    },
+                    "corpsecret": {
+                        "id": "wechat_corpsecret",
+                        "required": True,
+                        "title": "应用Secret",
+                        "tooltip": "每个应用都拥有唯一的secret，获取此信息可在管理后台“应用与小程序”－“自建”下查看“Secret”（需要有管理员权限）",
+                        "type": "text"
+                    },
+                    "agentid": {
+                        "id": "wechat_agentid",
+                        "required": True,
+                        "title": "应用ID",
+                        "tooltip": "每个应用都拥有唯一的agentid，获取此信息可在管理后台“应用与小程序”－“自建”下查看“AgentId”（需要有管理员权限）",
+                        "type": "text"
+                    },
+                    "default_proxy": {
+                        "id": "wechat_default_proxy",
+                        "required": False,
+                        "title": "消息推送代理",
+                        "tooltip": "由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明",
+                        "type": "text",
+                        "placeholder": "https://wechat.nastool.cn"
+                    },
+                    "token": {
+                        "id": "wechat_token",
+                        "required": False,
+                        "title": "Token",
+                        "tooltip": "需要交互功能时才需要填写，在微信企业应用管理后台-接收消息设置页面生成，填入完成后重启本应用，然后再在微信页面输入地址确定",
+                        "type": "text"
+                    },
+                    "encodingAESKey": {
+                        "id": "wechat_encodingAESKey",
+                        "required": False,
+                        "title": "EncodingAESKey",
+                        "tooltip": "需要交互功能时才需要填写，在微信企业应用管理后台-接收消息设置页面生成，填入完成后重启本应用，然后再在微信页面输入地址确定",
+                        "type": "text"
+                    }
+                }
             },
             "serverchan": {
                 "name": "Server酱",
-                "img_url": "../static/img/serverchan.png"
+                "img_url": "../static/img/serverchan.png",
+                "config": {
+                    "sckey": {
+                        "id": "serverchan_sckey",
+                        "required": True,
+                        "title": "SCKEY",
+                        "tooltip": "填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请",
+                        "type": "text",
+                        "placeholder": "SCT..."
+                    }
+                }
             },
             "bark": {
                 "name": "Bark",
-                "img_url": "../static/img/bark.webp"
+                "img_url": "../static/img/bark.webp",
+                "config": {
+                    "server": {
+                        "id": "bark_server",
+                        "required": True,
+                        "title": "Bark服务器地址",
+                        "tooltip": "自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app",
+                        "type": "text",
+                        "placeholder": "https://api.day.app"
+                    },
+                    "apikey": {
+                        "id": "bark_apikey",
+                        "required": True,
+                        "title": "API Key",
+                        "tooltip": "在Bark客户端中点击右上角的“...”按钮，选择“生成Bark Key”，然后将生成的KEY填入此处",
+                        "type": "text"
+                    }
+                }
             },
             "pushdeer": {
                 "name": "PushDeer",
-                "img_url": "../static/img/pushdeer.png"
+                "img_url": "../static/img/pushdeer.png",
+                "config": {
+                    "server": {
+                        "id": "pushdeer_server",
+                        "required": True,
+                        "title": "PushDeer服务器地址",
+                        "tooltip": "自己搭建pushdeer服务端请实际配置，否则可使用：https://api2.pushdeer.com",
+                        "type": "text",
+                        "placeholder": "https://api2.pushdeer.com"
+                    },
+                    "apikey": {
+                        "id": "pushdeer_apikey",
+                        "required": True,
+                        "title": "API Key",
+                        "tooltip": "pushdeer客户端生成的KEY",
+                        "type": "text"
+                    }
+                }
             },
             "pushplus": {
                 "name": "PushPlus",
-                "img_url": "../static/img/pushplus.jpg"
+                "img_url": "../static/img/pushplus.jpg",
+                "config": {
+                    "token": {
+                        "id": "pushplus_token",
+                        "required": True,
+                        "title": "Token",
+                        "tooltip": "在PushPlus官网中申请，申请地址：http://pushplus.plus/",
+                        "type": "text"
+                    },
+                    "channel": {
+                        "id": "pushplus_channel",
+                        "required": True,
+                        "title": "推送渠道",
+                        "tooltip": "使用PushPlus中配置的发送渠道，具体参考pushplus.plus官网文档说明，支持第三方webhook、钉钉、飞书、邮箱等",
+                        "type": "select",
+                        "options": {
+                            "wechat": "微信",
+                            "mail": "邮箱",
+                            "webhook": "第三方Webhook"
+                        }
+                    },
+                    "topic": {
+                        "id": "pushplus_topic",
+                        "required": False,
+                        "title": "群组编码",
+                        "tooltip": "PushPlus中创建的群组，如未设置可为空",
+                        "type": "text"
+                    },
+                    "webhook": {
+                        "id": "pushplus_webhook",
+                        "required": False,
+                        "title": "Webhook编码",
+                        "tooltip": "PushPlus中创建的webhook编码，发送渠道为第三方webhook时需要填入",
+                    }
+                }
             },
             "iyuu": {
                 "name": "爱语飞飞",
-                "img_url": "../static/img/iyuu.png"
+                "img_url": "../static/img/iyuu.png",
+                "config": {
+                    "token": {
+                        "id": "iyuumsg_token",
+                        "required": True,
+                        "title": "令牌Token",
+                        "tooltip": "在爱语飞飞官网中申请，申请地址：https://iyuu.cn/",
+                        "type": "text",
+                        "placeholder": "登录https://iyuu.cn获取"
+                    }
+                }
             },
             "slack": {
                 "name": "Slack",
                 "img_url": "../static/img/slack.png",
-                "search_type": SearchType.SLACK
+                "search_type": SearchType.SLACK,
+                "config": {
+                    "bot_token": {
+                        "id": "slack_bot_token",
+                        "required": True,
+                        "title": "Bot User OAuth Token",
+                        "tooltip": "在Slack中创建应用，获取Bot User OAuth Token",
+                        "type": "text",
+                        "placeholder": "xoxb-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    },
+                    "app_token": {
+                        "id": "slack_app_token",
+                        "required": True,
+                        "title": "App-Level Token",
+                        "tooltip": "在Slack中创建应用，获取App-Level Token",
+                        "type": "text",
+                        "placeholder": "xapp-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    }
+                }
             },
             "gotify": {
                 "name": "Gotify",
-                "img_url": "../static/img/gotify.png"
+                "img_url": "../static/img/gotify.png",
+                "config": {
+                    "server": {
+                        "id": "gotify_server",
+                        "required": True,
+                        "title": "Gotify服务器地址",
+                        "tooltip": "自己搭建gotify服务端地址",
+                        "type": "text",
+                        "placeholder": "http://localhost:8800"
+                    },
+                    "token": {
+                        "id": "gotify_token",
+                        "required": True,
+                        "title": "令牌Token",
+                        "tooltip": "Gotify服务端APPS下创建的token",
+                        "type": "text"
+                    },
+                    "priority": {
+                        "id": "gotify_priority",
+                        "required": False,
+                        "title": "消息Priority",
+                        "tooltip": "消息通知优先级, 请填写数字(1-8), 默认: 8",
+                        "type": "text",
+                        "placeholder": "8"
+                    }
+                }
             },
         },
         "switch": {
