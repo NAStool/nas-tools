@@ -959,7 +959,6 @@ def mediaserver():
 @login_required
 def notification():
     MessageClients = Message().get_message_client_info()
-    MESSAGE_DICT = Message().MESSAGE_DICT
     Channels = MESSAGE_DICT.get("client")
     Switchs = MESSAGE_DICT.get("switch")
     return render_template("setting/notification.html",

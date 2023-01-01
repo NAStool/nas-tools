@@ -6,7 +6,7 @@ from app.helper import ProgressHelper, SubmoduleHelper
 from app.indexer.client import BuiltinIndexer
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import SearchType, IndexerType
+from app.utils.types import SearchType, IndexerType, INDEXER_DICT
 from config import Config
 
 
@@ -16,12 +16,6 @@ class Indexer(object):
     _client = None
     _client_type = None
     progress = None
-
-    INDEXER_DICT = {
-        "prowlarr": IndexerType.PROWLARR,
-        "jackett": IndexerType.JACKETT,
-        "builtin": IndexerType.BUILTIN
-    }
 
     def __init__(self):
         self._indexer_schemas = SubmoduleHelper.import_submodules(
@@ -33,7 +27,7 @@ class Indexer(object):
 
     def init_config(self):
         self.progress = ProgressHelper()
-        self._client_type = self.INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
+        self._client_type = INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
         self._client = self.__get_client(self._client_type)
 
     def __build_class(self, ctype, conf):

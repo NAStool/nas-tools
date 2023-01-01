@@ -5,7 +5,7 @@ from app.db import MediaDb
 from app.helper import ProgressHelper, SubmoduleHelper
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaServerType
+from app.utils.types import MediaServerType, MEDIASERVER_DICT
 from config import Config
 
 lock = threading.Lock()
@@ -20,12 +20,6 @@ class MediaServer:
     mediadb = None
     progress = None
 
-    MEDIASERVER_DICT = {
-        "emby": MediaServerType.EMBY,
-        "jellyfin": MediaServerType.JELLYFIN,
-        "plex": MediaServerType.PLEX
-    }
-
     def __init__(self):
         self._mediaserver_schemas = SubmoduleHelper.import_submodules(
             'app.mediaserver.client',
@@ -39,7 +33,7 @@ class MediaServer:
         self.progress = ProgressHelper()
         # 当前使用的媒体库服务器
         _type = Config().get_config('media').get('media_server') or 'emby'
-        self._server_type = self.MEDIASERVER_DICT.get(_type)
+        self._server_type = MEDIASERVER_DICT.get(_type)
         self._server = None
 
     def __build_class(self, ctype, conf):

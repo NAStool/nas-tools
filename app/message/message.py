@@ -7,7 +7,7 @@ from app.helper import DbHelper, SubmoduleHelper
 from app.message.message_center import MessageCenter
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import SearchType, MediaType
+from app.utils.types import SearchType, MediaType, MESSAGE_DICT
 from config import Config
 
 
@@ -20,97 +20,6 @@ class Message(object):
     _client_configs = {}
     _webhook_ignore = None
     _domain = None
-
-    # 消息通知类型
-    MESSAGE_DICT = {
-        "client": {
-            "telegram": {
-                "name": "Telegram",
-                "img_url": "../static/img/telegram.png",
-                "search_type": SearchType.TG
-            },
-            "wechat": {
-                "name": "微信",
-                "img_url": "../static/img/wechat.png",
-                "search_type": SearchType.WX
-            },
-            "serverchan": {
-                "name": "Server酱",
-                "img_url": "../static/img/serverchan.png"
-            },
-            "bark": {
-                "name": "Bark",
-                "img_url": "../static/img/bark.webp"
-            },
-            "pushdeer": {
-                "name": "PushDeer",
-                "img_url": "../static/img/pushdeer.png"
-            },
-            "pushplus": {
-                "name": "PushPlus",
-                "img_url": "../static/img/pushplus.jpg"
-            },
-            "iyuu": {
-                "name": "爱语飞飞",
-                "img_url": "../static/img/iyuu.png"
-            },
-            "slack": {
-                "name": "Slack",
-                "img_url": "../static/img/slack.png",
-                "search_type": SearchType.SLACK
-            },
-            "gotify": {
-                "name": "Gotify",
-                "img_url": "../static/img/gotify.png"
-            },
-        },
-        "switch": {
-            "download_start": {
-                "name": "新增下载",
-                "fuc_name": "download_start"
-            },
-            "download_fail": {
-                "name": "下载失败",
-                "fuc_name": "download_fail"
-            },
-            "transfer_finished": {
-                "name": "入库完成",
-                "fuc_name": "transfer_finished"
-            },
-            "transfer_fail": {
-                "name": "入库失败",
-                "fuc_name": "transfer_fail"
-            },
-            "rss_added": {
-                "name": "新增订阅",
-                "fuc_name": "rss_added"
-            },
-            "rss_finished": {
-                "name": "订阅完成",
-                "fuc_name": "rss_finished"
-            },
-            "site_signin": {
-                "name": "站点签到",
-                "fuc_name": "site_signin"
-            },
-            "site_message": {
-                "name": "站点消息",
-                "fuc_name": "site_message"
-            },
-            "brushtask_added": {
-                "name": "刷流下种",
-                "fuc_name": "brushtask_added"
-            },
-            "brushtask_remove": {
-                "name": "刷流删种",
-                "fuc_name": "brushtask_remove"
-            },
-            "mediaserver_message": {
-                "name": "媒体服务",
-                "fuc_name": "mediaserver_message"
-            },
-        }
-    }
 
     def __init__(self):
         self._message_schemas = SubmoduleHelper.import_submodules(
@@ -153,7 +62,7 @@ class Message(object):
             if not client_config.ENABLED or not config:
                 continue
             client = {
-                "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "search_type": MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)

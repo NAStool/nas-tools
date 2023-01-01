@@ -13,7 +13,7 @@ from app.subtitle import Subtitle
 from app.systemconfig import SystemConfig
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES, DOWNLOADER_DICT
 from config import Config, PT_TAG, RMT_MEDIAEXT
 
 lock = Lock()
@@ -39,14 +39,6 @@ class Downloader:
     dbhelper = None
     systemconfig = None
 
-    # 下载器类型
-    DOWNLOADER_DICT = {
-        "qbittorrent": DownloaderType.QB,
-        "transmission": DownloaderType.TR,
-        "client115": DownloaderType.Client115,
-        "aria2": DownloaderType.Aria2
-    }
-
     def __init__(self):
         self._downloader_schema = SubmoduleHelper.import_submodules(
             'app.downloader.client',
@@ -66,7 +58,7 @@ class Downloader:
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
-            self._default_client_type = self.DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
+            self._default_client_type = DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
