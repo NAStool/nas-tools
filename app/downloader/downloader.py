@@ -460,7 +460,7 @@ class Downloader:
         # 返回按季、集数倒序排序的列表
         download_list = self.get_download_list(media_list)
 
-        def __download(download_item, torrent_file=None, tag=None, is_paused=False):
+        def __download(download_item, torrent_file=None, tag=None, is_paused=None):
             """
             下载及发送通知
             """
