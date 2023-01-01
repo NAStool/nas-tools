@@ -115,7 +115,7 @@
       } else {
         show_fail_modal(ret.msg);
       }
-    });
+    }, true, false);
   }
 
   //点击订阅按钮
@@ -135,9 +135,7 @@
     if (!tmdbid || type === "MOV") {
       add_rss_media(name, year, type, tmdbid, doubanid);
     } else {
-      show_wait_process();
       ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function (ret) {
-        hide_wait_process();
         if (ret.seasons.length === 1) {
           add_rss_media(name, year, type, tmdbid, doubanid);
         } else if (ret.seasons.length > 1) {

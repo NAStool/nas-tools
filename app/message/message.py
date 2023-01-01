@@ -189,11 +189,16 @@ class Message:
         发送选择类消息
         """
         if not client or not client.get('client'):
-            return False, ""
-        return client.get('client').send_list_msg(medias=medias,
-                                                  user_id=user_id,
-                                                  title=title,
-                                                  url=self._domain)
+            return None
+        cname = client.get('name')
+        log.info(f"【Message】发送消息 {cname}：title={title}")
+        state, ret_msg = client.get('client').send_list_msg(medias=medias,
+                                                            user_id=user_id,
+                                                            title=title,
+                                                            url=self._domain)
+        if not state:
+            log.error(f"【Message】{cname} 发送消息失败：%s" % ret_msg)
+        return state
 
     def send_channel_list_msg(self, channel, title, medias: list, user_id=""):
         """
@@ -206,12 +211,10 @@ class Message:
         """
         for client in self._active_clients:
             if client.get("search_type") == channel:
-                state, ret_msg = self.__send_list_msg(client=client,
-                                                      title=title,
-                                                      medias=medias,
-                                                      user_id=user_id)
-                if not state:
-                    log.error(f"【Message】{client.get('name')} 发送消息失败：%s" % ret_msg)
+                state = self.__send_list_msg(client=client,
+                                             title=title,
+                                             medias=medias,
+                                             user_id=user_id)
                 return state
         return False
 

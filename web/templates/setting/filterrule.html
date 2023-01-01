@@ -603,9 +603,7 @@
 
   //分计规则组
   function share_filtergroup(id) {
-    show_wait_process();
     ajax_post("share_filtergroup", {"id": id}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         $("#share_filtergroup_code").text(ret.string);
         $("#modal-share-filtergroup").modal('show');
@@ -628,9 +626,7 @@
       return;
     }
     $("#modal-import-filtergroup").modal('hide');
-    show_wait_process();
     ajax_post("import_filtergroup", {"content": content}, function (ret) {
-      hide_wait_process();
       if (ret.code == 0) {
         navmenu('filterrule');
       } else {

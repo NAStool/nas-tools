@@ -12,22 +12,6 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards" id="recommend_content">
-      {% for item in Items %}
-      <div class="col-6 col-md-3 col-xl-2">
-        <normal-card
-          card-tmdbId="{{ item.id }}"
-          card-pageType="{{ RecommendType }}"
-          card-showSub="1"
-          card-image="{{ item.image }}"
-          card-weekday="{{ item.weekday }}"
-          card-fav="{{ item.fav }}"
-          card-vote="{{ item.vote }}"
-          card-year="{{ item.year }}"
-          card-title="{{ item.title }}"
-          card-overview="{{ item.overview }}"
-        ></normal-card>
-      </div>
-      {% endfor %}
     </div>
   </div>
 </div>
@@ -75,7 +59,7 @@
   }
 
   // 插入N个占位卡片 代替loading动画
-  var page_card_num = {{ PageCount }};
+  var page_card_num = 20;
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
       let html = '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
@@ -95,18 +79,16 @@
   var loading = false;
 
   function loading_data() {
-    if (loading) {
+    if (loading || CurrentPage > 10) {
       return;
     }
     loading = true;
-    CurrentPage++;
-    if (CurrentPage > 10) {
-      return;
-    }
     add_loading_card_placeholder();
     ajax_post("get_recommend", { "type": title_type, "page": CurrentPage }, function (ret) {
+      CurrentPage++;
       if (ret.Items.length > 0) {
         loading = false;
+        page_card_num = ret.Items.length;
       }
       del_loading_card_placeholder();
       // 插入HTML
@@ -139,5 +121,8 @@
       }
     });
   });
+
+  // 初始化数据
+  loading_data();
 
 </script>

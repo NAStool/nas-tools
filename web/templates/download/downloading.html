@@ -122,32 +122,25 @@
 <script type="text/javascript">
   // 下载控制
   function start_pt_download(id) {
-    const cmd = "pt_start";
-    const param = {"id": id};
-    ajax_post(cmd, param, function (ret) {
+    ajax_post("pt_start", {"id": id}, function (ret) {
       get_torrent_info(ret.id)
     });
   }
 
   function stop_pt_download(id) {
-    const cmd = "pt_stop";
-    const param = {"id": id};
-    ajax_post(cmd, param, function (ret) {
+    ajax_post("pt_stop", {"id": id}, function (ret) {
       get_torrent_info(ret.id)
     });
   }
 
   function remove_pt_download(id) {
-    const cmd = "pt_remove";
-    const param = {"id": id};
-    ajax_post(cmd, param, function (ret) {
+    ajax_post("pt_remove", {"id": id}, function (ret) {
       navmenu('downloading');
     });
   }
 
   //更新所有种子页面信息
   function get_all_torrents_info() {
-    const cmd = "pt_info";
     let ids = [];
     let i = 0;
     $(".download_ids").each(function () {
@@ -157,28 +150,25 @@
     if (ids.length == 0) {
       return;
     }
-    let param = {"ids": ids};
-    ajax_post(cmd, param, function (ret) {
+    ajax_post("pt_info", {"ids": ids}, function (ret) {
       if (ret.retcode == "0") {
         for (var i = 0; i < ret.torrents.length; i++) {
           update_torrent_ui(ret.torrents[i]);
         }
         setTimeout("get_all_torrents_info()", 2000);
       }
-    });
+    }, true, false);
   }
 
   //更新一个种子页面信息
   function get_torrent_info(id) {
-    const cmd = "pt_info";
-    const param = {"ids": id};
-    ajax_post(cmd, param, function (ret) {
+    ajax_post("pt_info", {"ids": id}, function (ret) {
       if (ret.retcode == "0") {
         for (var i = 0; i < ret.torrents.length; i++) {
           update_torrent_ui(ret.torrents[i]);
         }
       }
-    });
+    }, true, false);
   }
 
   //更新单个种子的页面信息

@@ -267,7 +267,6 @@
     const uploadvolumefactor = $("#uploadvolumefactor_" + id).val();
     const downloadvolumefactor = $("#downloadvolumefactor_" + id).val();
     if (!batch || current_download === 0) {
-      show_wait_process();
     }
     const params = {
       site: site,
@@ -284,7 +283,6 @@
     };
     ajax_post("download_link", params, function (ret) {
       if (!batch) {
-        hide_wait_process();
         if (ret.code === 0) {
           show_success_modal(`${title} 添加下载成功！`);
         } else {
@@ -301,7 +299,6 @@
             download_resource(total_downloads[current_download], true);
           }
         } else {
-          hide_wait_process();
           show_success_modal("添加下载完成！");
         }
       }
@@ -340,9 +337,7 @@
 
   //名称测试
   function nametest(id, title) {
-    show_wait_process();
     media_name_test(title, `testresults_${id}`, function () {
-      hide_wait_process();
     });
   }
 
