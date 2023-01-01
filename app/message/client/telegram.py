@@ -28,10 +28,10 @@ class Telegram(_IMessageClient):
     _interactive = False
     _enabled = True
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._config = Config()
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self._domain = self._config.get_domain()
         if self._domain and self._domain.endswith("/"):
             self._domain = self._domain[:-1]

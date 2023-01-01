@@ -148,15 +148,15 @@ class Message(object):
             if not client_config.ENABLED or not config:
                 continue
             client_conf.update({
-                "client": self._build_class(client_config.TYPE)
+                "client": self._build_class(ctype=client_config.TYPE, conf=client_conf)
             })
             self._active_clients.append(client_conf)
 
-    def _build_class(self, ctype):
+    def _build_class(self, ctype, conf):
         for message_schema in self._message_schemas:
             try:
                 if message_schema.match(ctype):
-                    return message_schema()
+                    return message_schema(conf)
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return None

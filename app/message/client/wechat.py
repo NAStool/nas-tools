@@ -26,9 +26,9 @@ class WeChat(_IMessageClient):
     _send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
     _token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self.init_config()
 
     def init_config(self):

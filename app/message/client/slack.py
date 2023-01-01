@@ -23,10 +23,10 @@ class Slack(_IMessageClient):
     _service = None
     _client = None
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._config = Config()
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self.init_config()
 
     def init_config(self):
