@@ -21,16 +21,16 @@ class _IIndexClient(metaclass=ABCMeta):
     _reverse_title_sites = ['keepfriends']
 
     def __init__(self):
-        self.init_config()
+        self.media = Media()
+        self.filter = Filter()
+        self.progress = ProgressHelper()
 
     @abstractmethod
     def init_config(self):
         """
         初始化配置
         """
-        self.media = Media()
-        self.filter = Filter()
-        self.progress = ProgressHelper()
+        pass
 
     @abstractmethod
     def get_status(self):
