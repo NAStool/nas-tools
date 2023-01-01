@@ -143,14 +143,16 @@ class Message(object):
                 "switchs": json.loads(client_config.SWITCHS) if client_config.SWITCHS else [],
                 "interactive": client_config.INTERACTIVE,
                 "enabled": client_config.ENABLED,
+                "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type')
             }
             self._client_configs[str(client_config.ID)] = client_conf
             if not client_config.ENABLED or not config:
                 continue
-            client_conf.update({
-                "client": self._build_class(ctype=client_config.TYPE, conf=client_conf)
-            })
-            self._active_clients.append(client_conf)
+            client = {
+                "client": self._build_class(ctype=client_config.TYPE, conf=config)
+            }
+            client.update(client_conf)
+            self._active_clients.append(client)
 
     def _build_class(self, ctype, conf):
         for message_schema in self._message_schemas:
@@ -160,6 +162,21 @@ class Message(object):
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return None
+
+    def get_status(self, ctype=None, config=None):
+        """
+        测试消息设置状态
+        """
+        if not config or not ctype:
+            return False
+        # 测试状态不启动监听服务
+        state, ret_msg = self._build_class(ctype=ctype,
+                                           conf=config).send_msg(title="测试",
+                                                                 text="这是一条测试消息",
+                                                                 url="https://github.com/jxxghp/nas-tools")
+        if not state:
+            log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
+        return state
 
     def get_webhook_ignore(self):
         """
@@ -568,7 +585,7 @@ class Message(object):
         查询当前可以交互的渠道
         """
         if client_type:
-            for client in Message().get_interactive_client():
+            for client in self._active_clients:
                 if client.get("search_type") == client_type:
                     return client
             return None
@@ -578,19 +595,3 @@ class Message(object):
                 if client.get('interactive'):
                     ret_clients.append(client)
             return ret_clients
-
-    def get_status(self, ctype=None, config=None):
-        """
-        测试消息设置状态
-        """
-        if not config or not ctype:
-            return False
-        # 测试状态不启动监听服务
-        state, ret_msg = self.__build_client(ctype=ctype,
-                                             conf=config,
-                                             interactive=False).send_msg(title="测试",
-                                                                         text="这是一条测试消息",
-                                                                         url="https://github.com/jxxghp/nas-tools")
-        if not state:
-            log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
-        return state
