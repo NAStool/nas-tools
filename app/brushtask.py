@@ -294,7 +294,7 @@ class BrushTask(object):
                 client_type = downloader_cfg.get("type")
                 # qbittorrent
                 if client_type == self._qb_client:
-                    downloader = Qbittorrent(user_config=downloader_cfg)
+                    downloader = Qbittorrent(config=downloader_cfg)
                     # 检查完成状态的
                     torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["completed"])
                     # 看看是否有错误, 有错误的话就不处理了
@@ -374,7 +374,7 @@ class BrushTask(object):
                     # 将查询的torrent_ids转为数字型
                     torrent_ids = [int(x) for x in torrent_ids if str(x).isdigit()]
                     # 检查完成状态
-                    downloader = Transmission(user_config=downloader_cfg)
+                    downloader = Transmission(config=downloader_cfg)
                     torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
                     # 看看是否有错误, 有错误的话就不处理了
                     if has_err:
@@ -511,14 +511,14 @@ class BrushTask(object):
         if not downloadercfg:
             return 0
         if downloadercfg.get("type") == self._qb_client:
-            downloader = Qbittorrent(user_config=downloadercfg)
+            downloader = Qbittorrent(config=downloadercfg)
             if not downloader.qbc:
                 return None
             dlitems = downloader.get_downloading_torrents()
             if dlitems is not None:
                 return int(len(dlitems))
         else:
-            downloader = Transmission(user_config=downloadercfg)
+            downloader = Transmission(config=downloadercfg)
             if not downloader.trc:
                 return None
             dlitems = downloader.get_downloading_torrents()
@@ -571,7 +571,7 @@ class BrushTask(object):
             # 添加下载
             if downloadercfg.get("type") == self._qb_client:
                 # 初始化下载器
-                downloader = Qbittorrent(user_config=downloadercfg)
+                downloader = Qbittorrent(config=downloadercfg)
                 if not downloader.qbc:
                     log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                     return False
@@ -596,7 +596,7 @@ class BrushTask(object):
                             downloader.torrents_set_force_start(download_id)
             else:
                 # 初始化下载器
-                downloader = Transmission(user_config=downloadercfg)
+                downloader = Transmission(config=downloadercfg)
                 if not downloader.trc:
                     log.error("【Brush】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                     return False

@@ -8,31 +8,48 @@ from pkg_resources import parse_version as v
 
 import log
 import qbittorrentapi
-from app.downloader.download_client import IDownloadClient
-from app.utils.exception_utils import ExceptionUtils
+from app.downloader.client._base import _IDownloadClient
+from app.utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
 
 
-class Qbittorrent(IDownloadClient):
+class Qbittorrent(_IDownloadClient):
+    schema = "qbittorrent"
+    client_type = DownloaderType.QB.value
+    _client_config = {}
+
     _force_upload = False
     _auto_management = False
     qbc = None
     ver = None
-    client_type = DownloaderType.QB
+    host = None
+    port = None
+    username = None
+    password = None
 
-    def get_config(self):
-        # 读取配置文件
-        qbittorrent = Config().get_config('qbittorrent')
-        if qbittorrent:
-            self.host = qbittorrent.get('qbhost')
-            self.port = int(qbittorrent.get('qbport')) if str(qbittorrent.get('qbport')).isdigit() else 0
-            self.username = qbittorrent.get('qbusername')
-            self.password = qbittorrent.get('qbpassword')
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('qbittorrent')
+        self.init_config()
+        self.connect()
+
+    def init_config(self):
+        if self._client_config:
+            self.host = self._client_config.get('qbhost')
+            self.port = int(self._client_config.get('qbport')) if str(self._client_config.get('qbport')).isdigit() else 0
+            self.username = self._client_config.get('qbusername')
+            self.password = self._client_config.get('qbpassword')
             # 强制做种开关
-            self._force_upload = qbittorrent.get('force_upload')
+            self._force_upload = self._client_config.get('force_upload')
             # 自动管理模式开关
-            self._auto_management = qbittorrent.get('auto_management')
+            self._auto_management = self._client_config.get('auto_management')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.client_type] else False
 
     def connect(self):
         if self.host and self.port:

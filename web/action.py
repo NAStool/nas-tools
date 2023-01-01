@@ -1902,9 +1902,9 @@ class WebAction:
         if test:
             # 测试
             if dl_type == "qbittorrent":
-                downloader = Qbittorrent(user_config=user_config)
+                downloader = Qbittorrent(config=user_config)
             else:
-                downloader = Transmission(user_config=user_config)
+                downloader = Transmission(config=user_config)
             if downloader.get_status():
                 return {"code": 0}
             else:

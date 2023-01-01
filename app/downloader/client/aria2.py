@@ -1,33 +1,47 @@
 import os
 import re
 
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import RequestUtils, ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.download_client import IDownloadClient
-from app.downloader.client.pyaria2 import PyAria2
+from app.downloader.client._base import _IDownloadClient
+from app.downloader.client._pyaria2 import PyAria2
 
 
-class Aria2(IDownloadClient):
+class Aria2(_IDownloadClient):
+    schema = "aria2"
+    client_type = DownloaderType.Aria2.value
+    _client_config = {}
 
     _client = None
-    client_type = DownloaderType.Aria2.value
+    host = None
+    port = None
+    secret = None
 
-    def get_config(self):
-        # 读取配置文件
-        aria2config = Config().get_config('aria2')
-        if aria2config:
-            self.host = aria2config.get("host")
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('aria2')
+        self.init_config()
+        self.connect()
+
+    def init_config(self):
+        if self._client_config:
+            self.host = self._client_config.get("host")
             if self.host:
                 if not self.host.startswith('http'):
                     self.host = "http://" + self.host
                 if self.host.endswith('/'):
                     self.host = self.host[:-1]
-            self.port = aria2config.get("port")
-            self.secret = aria2config.get("secret")
+            self.port = self._client_config.get("port")
+            self.secret = self._client_config.get("secret")
             if self.host and self.port:
                 self._client = PyAria2(secret=self.secret, host=self.host, port=self.port)
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.client_type] else False
 
     def connect(self):
         pass

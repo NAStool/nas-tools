@@ -4,7 +4,7 @@ from threading import Lock
 import log
 from app.downloader.client import Aria2, Client115, Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
-from app.helper import DbHelper, ThreadHelper
+from app.helper import DbHelper, ThreadHelper, SubmoduleHelper
 from app.media import Media
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
@@ -24,6 +24,7 @@ client_lock = Lock()
 @singleton
 class Downloader:
     clients = {}
+    _downloader_schema = []
     _default_client_type = None
     _pt_monitor_only = None
     _download_order = None
@@ -39,7 +40,20 @@ class Downloader:
     dbhelper = None
     systemconfig = None
 
+    # 下载器类型
+    DOWNLOADER_DICT = {
+        "qbittorrent": DownloaderType.QB,
+        "transmission": DownloaderType.TR,
+        "client115": DownloaderType.Client115,
+        "aria2": DownloaderType.Aria2
+    }
+
     def __init__(self):
+        self._downloader_schema = SubmoduleHelper.import_submodules(
+            'app.downloader.client',
+            filter_func=lambda _, obj: hasattr(obj, 'schema')
+        )
+        log.debug(f"【Downloader】: 已经加载的下载器 {self._downloader_schema}")
         self.init_config()
 
     def init_config(self):
@@ -53,15 +67,7 @@ class Downloader:
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
-            pt_client = pt.get('pt_client')
-            if pt_client == "qbittorrent":
-                self._default_client_type = DownloaderType.QB
-            elif pt_client == "transmission":
-                self._default_client_type = DownloaderType.TR
-            elif pt_client == "client115":
-                self._default_client_type = DownloaderType.Client115
-            elif pt_client == "aria2":
-                self._default_client_type = DownloaderType.Aria2
+            self._default_client_type = self.DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
@@ -97,23 +103,25 @@ class Downloader:
                 "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT,
                 "downloader": download_setting.DOWNLOADER}
 
+    def __build_class(self, ctype, conf=None):
+        for downloader_schema in self._downloader_schema:
+            try:
+                if downloader_schema.match(ctype):
+                    return downloader_schema(conf)
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+        return None
+
     @property
     def default_client(self):
         return self.__get_client(self._default_client_type)
 
-    def __get_client(self, ctype):
+    def __get_client(self, ctype: DownloaderType, conf: dict = None):
         if not ctype:
             return None
         with client_lock:
             if not self.clients.get(ctype.value):
-                if ctype == DownloaderType.TR:
-                    self.clients[ctype.value] = Transmission()
-                elif ctype == DownloaderType.Client115:
-                    self.clients[ctype.value] = Client115()
-                elif ctype == DownloaderType.Aria2:
-                    self.clients[ctype.value] = Aria2()
-                else:
-                    self.clients[ctype.value] = Qbittorrent()
+                self.clients[ctype.value] = self.__build_class(ctype.value, conf)
             return self.clients.get(ctype.value)
 
     def download(self,
