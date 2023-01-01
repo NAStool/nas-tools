@@ -499,6 +499,28 @@ class BrushTask(object):
         if dlid:
             for downloader in self._downloader_infos:
                 if downloader.get('id') == int(dlid):
+                    if downloader.get('type') == self._qb_client:
+                        return {
+                            "id": downloader.get("id"),
+                            "name": downloader.get("name"),
+                            "type": downloader.get("type"),
+                            "save_dir": downloader.get("save_dir"),
+                            "qbhost": downloader.get("host"),
+                            "qbport": downloader.get("port"),
+                            "qbusername": downloader.get("username"),
+                            "qbpassword": downloader.get("password")
+                        }
+                    elif downloader.get('type') == self._tr_client:
+                        return {
+                            "id": downloader.get("id"),
+                            "name": downloader.get("name"),
+                            "type": downloader.get("type"),
+                            "save_dir": downloader.get("save_dir"),
+                            "trhost": downloader.get("host"),
+                            "trport": downloader.get("port"),
+                            "trusername": downloader.get("username"),
+                            "trpassword": downloader.get("password")
+                        }
                     return downloader
             return {}
         else:

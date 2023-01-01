@@ -1894,25 +1894,42 @@ class WebAction:
         dl_id = data.get("id")
         dl_name = data.get("name")
         dl_type = data.get("type")
-        user_config = {"host": data.get("host"),
-                       "port": data.get("port"),
-                       "username": data.get("username"),
-                       "password": data.get("password"),
-                       "save_dir": data.get("save_dir")}
         if test:
             # 测试
             if dl_type == "qbittorrent":
-                downloader = Qbittorrent(config=user_config)
+                downloader = Qbittorrent(
+                    config={
+                        "qbhost": data.get("host"),
+                        "qbport": data.get("port"),
+                        "qbusername": data.get("username"),
+                        "qbpassword": data.get("password")
+                    })
             else:
-                downloader = Transmission(config=user_config)
+                downloader = Transmission(
+                    config={
+                        "trhost": data.get("host"),
+                        "trport": data.get("port"),
+                        "trusername": data.get("username"),
+                        "trpassword": data.get("password")
+                    })
             if downloader.get_status():
                 return {"code": 0}
             else:
                 return {"code": 1}
         else:
             # 保存
-            self.dbhelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config,
-                                                 note=None)
+            self.dbhelper.update_user_downloader(
+                did=dl_id,
+                name=dl_name,
+                dtype=dl_type,
+                user_config={
+                    "host": data.get("host"),
+                    "port": data.get("port"),
+                    "username": data.get("username"),
+                    "password": data.get("password"),
+                    "save_dir": data.get("save_dir")
+                },
+                note=None)
             BrushTask().init_config()
             return {"code": 0}
 
