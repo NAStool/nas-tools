@@ -819,7 +819,7 @@ class Downloader:
             if exists_movies:
                 movies_str = "\n • ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 msg = f"媒体库中已存在电影：\n • {movies_str}"
-                log.info(f"【Downloader】msg")
+                log.info(f"【Downloader】{msg}")
                 message_list.append(msg)
                 return True, {}, message_list
             return False, {}, message_list
