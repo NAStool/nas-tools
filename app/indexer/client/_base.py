@@ -11,7 +11,7 @@ from app.media.meta import MetaInfo
 from app.utils.types import MediaType, SearchType
 
 
-class IIndexClient(metaclass=ABCMeta):
+class _IIndexClient(metaclass=ABCMeta):
     media = None
     index_type = None
     api_key = None
@@ -21,9 +21,6 @@ class IIndexClient(metaclass=ABCMeta):
     _reverse_title_sites = ['keepfriends']
 
     def __init__(self):
-        self.media = Media()
-        self.filter = Filter()
-        self.progress = ProgressHelper()
         self.init_config()
 
     @abstractmethod
@@ -31,7 +28,9 @@ class IIndexClient(metaclass=ABCMeta):
         """
         初始化配置
         """
-        pass
+        self.media = Media()
+        self.filter = Filter()
+        self.progress = ProgressHelper()
 
     @abstractmethod
     def get_status(self):

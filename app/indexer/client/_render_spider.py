@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as es
 from selenium.webdriver.support.wait import WebDriverWait
 
 from app.helper import ChromeHelper
-from app.indexer.client.spider import TorrentSpider
+from app.indexer.client._spider import TorrentSpider
 from app.utils import ExceptionUtils
 from config import Config
 

@@ -31,7 +31,7 @@ class MediaServer:
             'app.mediaserver.client',
             filter_func=lambda _, obj: hasattr(obj, 'schema')
         )
-        log.debug(f"【MediaServer】: 已经加载的媒体服务器 {self._mediaserver_schemas}")
+        log.debug(f"【MediaServer】: 已经加载的媒体服务器：{self._mediaserver_schemas}")
         self.init_config()
 
     def init_config(self):

@@ -930,7 +930,7 @@ def download_setting():
 @App.route('/indexer', methods=['POST', 'GET'])
 @login_required
 def indexer():
-    indexers = Indexer.get_builtin_indexers(check=False)
+    indexers = Indexer().get_builtin_indexers(check=False)
     private_count = len([item.id for item in indexers if not item.public])
     public_count = len([item.id for item in indexers if item.public])
     return render_template("setting/indexer.html",
