@@ -222,7 +222,7 @@
                 {% if Task.download_setting|string in DownloadSettings %}
                 <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string].name }}</span>
                 {% else %}
-                <span class="badge me-2 bg-red">{{ DownloadSettings["-1"].name }}</span>
+                <span class="badge me-2 bg-red">默认</span>
                 {% endif %}
               </div>
             </div>
@@ -389,6 +389,7 @@
             <div class="mb-3">
               <label class="form-label">下载设置</label>
               <select class="form-select" id="userrss_download_setting">
+                <option value="0">默认</option>
                 {% for Id, Attr in DownloadSettings.items() %}
                 <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                 {% endfor %}
@@ -536,7 +537,7 @@
     $("#userrss_state").val('N');
     show_userrss_uses('D');
     $("#userrss_save_path").val('');
-    $("#userrss_download_setting").val('-1');
+    $("#userrss_download_setting").val('0');
     $("#modal-userrss").modal('show');
   }
 

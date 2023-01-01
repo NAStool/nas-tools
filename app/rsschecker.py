@@ -88,10 +88,8 @@ class RssChecker(object):
             if str(note).find('seeding_time_limit') != -1:
                 note = json.loads(task.NOTE)
                 save_path = note.get("save_path")
-                download_setting = -1
             else:
                 save_path = note
-                download_setting = -1
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -109,7 +107,7 @@ class RssChecker(object):
                 "counter": task.PROCESS_COUNT,
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
-                "download_setting": task.DOWNLOAD_SETTING or download_setting
+                "download_setting": task.DOWNLOAD_SETTING or 0
             })
         if not self._rss_tasks:
             return

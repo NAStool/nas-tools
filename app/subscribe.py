@@ -81,7 +81,7 @@ class Subscribe:
         filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
         total_ep = int(total_ep) if str(total_ep).isdigit() else None
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
-        download_setting = int(download_setting) if str(download_setting).isdigit() else -1
+        download_setting = int(download_setting) if str(download_setting).isdigit() else 0
         fuzzy_match = True if fuzzy_match else False
         # 检索媒体信息
         if not fuzzy_match:
@@ -328,7 +328,7 @@ class Subscribe:
                 filter_pix = desc.get("pix")
                 filter_team = desc.get("team")
                 filter_rule = desc.get("rule")
-                download_setting = -1
+                download_setting = 0
                 save_path = ""
                 fuzzy_match = False if tmdbid else True
             if note:
@@ -390,7 +390,7 @@ class Subscribe:
                 filter_team = desc.get("team")
                 filter_rule = desc.get("rule")
                 save_path = ""
-                download_setting = -1
+                download_setting = 0
                 total_ep = desc.get("total")
                 current_ep = desc.get("current")
                 fuzzy_match = False if tmdbid else True
