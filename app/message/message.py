@@ -152,12 +152,12 @@ class Message(object):
                 continue
             client = {
                 "search_type": self.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
-                "client": self._build_class(ctype=client_config.TYPE, conf=config)
+                "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
             self._active_clients.append(client)
 
-    def _build_class(self, ctype, conf):
+    def __build_class(self, ctype, conf):
         for message_schema in self._message_schemas:
             try:
                 if message_schema.match(ctype):
@@ -173,10 +173,10 @@ class Message(object):
         if not config or not ctype:
             return False
         # 测试状态不启动监听服务
-        state, ret_msg = self._build_class(ctype=ctype,
-                                           conf=config).send_msg(title="测试",
-                                                                 text="这是一条测试消息",
-                                                                 url="https://github.com/jxxghp/nas-tools")
+        state, ret_msg = self.__build_class(ctype=ctype,
+                                            conf=config).send_msg(title="测试",
+                                                                  text="这是一条测试消息",
+                                                                  url="https://github.com/jxxghp/nas-tools")
         if not state:
             log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
         return state

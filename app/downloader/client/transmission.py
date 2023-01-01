@@ -6,29 +6,46 @@ from datetime import datetime
 import transmission_rpc
 
 import log
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.download_client import IDownloadClient
+from app.downloader.client._base import _IDownloadClient
 
 
-class Transmission(IDownloadClient):
+class Transmission(_IDownloadClient):
+    schema = "transmission"
+    client_type = DownloaderType.TR.value
+    _client_config = {}
+
     # 参考transmission web，仅查询需要的参数，加速种子检索
     _trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
               "error", "errorString", "doneDate", "queuePosition", "activityDate", "trackers"]
     trc = None
-    client_type = DownloaderType.TR
+    host = None
+    port = None
+    username = None
+    password = None
 
-    def get_config(self):
-        # 读取配置文件
-        transmission = Config().get_config('transmission')
-        if transmission:
-            self.host = transmission.get('trhost')
-            self.port = int(transmission.get('trport')) if str(transmission.get('trport')).isdigit() else 0
-            self.username = transmission.get('trusername')
-            self.password = transmission.get('trpassword')
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('transmission')
+        self.init_config()
+        self.connect()
+
+    def init_config(self):
+        if self._client_config:
+            self.host = self._client_config.get('trhost')
+            self.port = int(self._client_config.get('trport')) if str(self._client_config.get('trport')).isdigit() else 0
+            self.username = self._client_config.get('trusername')
+            self.password = self._client_config.get('trpassword')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.client_type] else False
 
     def connect(self):
         if self.host and self.port:

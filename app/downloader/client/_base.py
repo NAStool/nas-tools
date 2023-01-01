@@ -4,31 +4,12 @@ from abc import ABCMeta, abstractmethod
 from config import Config
 
 
-class IDownloadClient(metaclass=ABCMeta):
-    user_config = None
-    host = None
-    port = None
-    username = None
-    password = None
-    secret = None
-
-    def __init__(self, user_config=None):
-        if user_config:
-            self.user_config = user_config
-        self.init_config()
-
-    def init_config(self):
-        """
-        检查连通性
-        """
-        self.get_config()
-        self.set_user_config()
-        self.connect()
+class _IDownloadClient(metaclass=ABCMeta):
 
     @abstractmethod
-    def get_config(self):
+    def init_config(self):
         """
-        获取配置
+        初始化配置
         """
         pass
 
@@ -38,14 +19,6 @@ class IDownloadClient(metaclass=ABCMeta):
         连接
         """
         pass
-
-    def set_user_config(self):
-        if self.user_config:
-            # 使用输入配置
-            self.host = self.user_config.get("host")
-            self.port = self.user_config.get("port")
-            self.username = self.user_config.get("username")
-            self.password = self.user_config.get("password")
 
     @abstractmethod
     def get_status(self):
