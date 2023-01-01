@@ -1,11 +1,12 @@
 from urllib.parse import urlencode
 
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, ExceptionUtils
 
 
-class ServerChan(IMessageClient):
+class ServerChan(_IMessageClient):
+    schema = "serverchan"
+
     _sckey = None
     _client_config = {}
 
@@ -16,6 +17,10 @@ class ServerChan(IMessageClient):
     def init_config(self):
         if self._client_config:
             self._sckey = self._client_config.get('sckey')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """

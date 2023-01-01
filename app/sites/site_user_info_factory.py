@@ -11,13 +11,13 @@ from config import Config
 class SiteUserInfoFactory(object):
 
     def __init__(self):
-        self.__site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
-                                                               filter_func=lambda _, obj: hasattr(obj, 'schema'))
-        self.__site_schema.sort(key=lambda x: x.order)
-        log.debug(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
+        self._site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
+                                                              filter_func=lambda _, obj: hasattr(obj, 'schema'))
+        self._site_schema.sort(key=lambda x: x.order)
+        log.debug(f"【Sites】: 已经加载的站点解析 {self._site_schema}")
 
     def _build_class(self, html_text):
-        for site_schema in self.__site_schema:
+        for site_schema in self._site_schema:
             try:
                 if site_schema.match(html_text):
                     return site_schema

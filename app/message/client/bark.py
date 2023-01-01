@@ -1,11 +1,12 @@
 from urllib.parse import quote_plus
 
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils, StringUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, StringUtils, ExceptionUtils
 
 
-class Bark(IMessageClient):
+class Bark(_IMessageClient):
+    schema = "bark"
+
     _server = None
     _apikey = None
     _client_config = {}
@@ -18,6 +19,10 @@ class Bark(IMessageClient):
         if self._client_config:
             self._server = StringUtils.get_base_url(self._client_config.get('server'))
             self._apikey = self._client_config.get('apikey')
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
