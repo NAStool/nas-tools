@@ -49,6 +49,12 @@
   //状态标记
   var loading = false;
   var CurrentPage = 1;
+  // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
+  if (sessionStorage.CurrentPage) {
+    CurrentPage = sessionStorage.CurrentPage;
+  } else {
+    // 否则初始化数据
+  }
 
   // 插入N个占位卡片 代替loading动画
   var page_card_num = {{ Count }};
@@ -73,6 +79,8 @@
     }
     loading = true;
     CurrentPage++;
+    // 记录页码
+    sessionStorage.CurrentPage = CurrentPage;
     add_loading_card_placeholder();
     ajax_post("get_downloaded", {"page": CurrentPage}, function (ret) {
       if (ret.Items.length > 0) {
@@ -101,6 +109,7 @@
         html += '</div></div>';
         $("#downloaded_content").append(html);
       }
+      window_history("更新");
     });
   }
 

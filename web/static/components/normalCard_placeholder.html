@@ -11,6 +11,7 @@
     constructor() {
       super();
       const my_card_dom = document.getElementById("normalCard_placeholder_Template").content.cloneNode(true);
+      this.innerHTML = "";
       this.appendChild(my_card_dom);
     }
   }
