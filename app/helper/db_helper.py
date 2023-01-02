@@ -1945,6 +1945,7 @@ class DbHelper:
                 PARAMS=item.get("params")
             ))
 
+    @DbPersist(_db)
     def excute(self, sql):
         return self._db.excute(sql)
 
@@ -1966,7 +1967,7 @@ class DbHelper:
         """
         if not task_id:
             return []
-        return self._db.query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id)\
+        return self._db.query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id) \
             .order_by(USERRSSTASKHISTORY.DATE.desc()).all()
 
     def get_rss_history(self, rtype=None, rid=None):
@@ -1976,7 +1977,7 @@ class DbHelper:
         if rid:
             return self._db.query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
         elif rtype:
-            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype)\
+            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype) \
                 .order_by(RSSHISTORY.FINISH_TIME.desc()).all()
         return self._db.query(RSSHISTORY).order_by(RSSHISTORY.FINISH_TIME.desc()).all()
 
@@ -2066,15 +2067,15 @@ class DbHelper:
         查询自定义识别词
         """
         if wid:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid))\
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)) \
                 .order_by(CUSTOMWORDS.GROUP_ID).all()
         elif gid:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid))\
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)) \
                 .order_by(CUSTOMWORDS.GROUP_ID).all()
         elif wtype and enabled is not None and regex is not None:
             return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
                                                       CUSTOMWORDS.TYPE == int(wtype),
-                                                      CUSTOMWORDS.REGEX == int(regex))\
+                                                      CUSTOMWORDS.REGEX == int(regex)) \
                 .order_by(CUSTOMWORDS.GROUP_ID).all()
         return self._db.query(CUSTOMWORDS).all().order_by(CUSTOMWORDS.GROUP_ID)
 
