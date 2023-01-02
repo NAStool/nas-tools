@@ -310,11 +310,9 @@
     } else {
       $("#test_name").removeClass("is-invalid");
     }
-    $("#nametest_btn").text("识别中...");
-    $("#nametest_btn").attr("disabled", true);
+    $("#nametest_btn").text("识别中...").attr("disabled", true);
     media_name_test(name, "test_result", function () {
-      $("#nametest_btn").text("识别");
-      $("#nametest_btn").attr("disabled", false);
+      $("#nametest_btn").text("识别").attr("disabled", false);
     });
   }
 
@@ -394,6 +392,6 @@
   }
 
   // 初始化DropZone
-  var backup_dropzone = new Dropzone("#back_file");
+  backup_dropzone = new Dropzone("#back_file");
   backup_dropzone.options.acceptedFiles = ".zip";
 </script>

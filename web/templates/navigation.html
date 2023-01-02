@@ -1,6 +1,6 @@
+<!doctype html>
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/oops.html' as OOPS %}
-<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -1520,7 +1520,7 @@
   //显示订阅季选择框
   function show_rss_seasons_modal(name, year, type, tmdbid, doubanid, seasons, func) {
     $("#system_rss_seasons_group").empty();
-    for (var i = 0; i < seasons.length; i++) {
+    for (let i = 0; i < seasons.length; i++) {
       $("#system_rss_seasons_group").append('<label class="form-selectgroup-item"><input type="checkbox" name="system_rss_season" value="' + seasons[i].num + '" class="form-selectgroup-input"><span class="form-selectgroup-label">' + seasons[i].text + '</span></label>');
     }
     $("#system_rss_seasons_btn").unbind('click').click(function () {
