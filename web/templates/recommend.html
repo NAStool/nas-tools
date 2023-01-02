@@ -77,7 +77,6 @@
 
   //状态标记
   var loading = false;
-
   function loading_data() {
     if (loading || CurrentPage > 10) {
       return;
@@ -85,12 +84,16 @@
     loading = true;
     add_loading_card_placeholder();
     ajax_post("get_recommend", { "type": title_type, "page": CurrentPage }, function (ret) {
-      CurrentPage++;
-      // 记录页码
-      sessionStorage.CurrentPage = CurrentPage;
       if (ret.Items.length > 0) {
+        // 记录页码
+        CurrentPage++;
+        sessionStorage.CurrentPage = CurrentPage;
         loading = false;
         page_card_num = ret.Items.length;
+      } else {
+        if (CurrentPage == 1) {
+          $("#recommend_content").html($("#no_recommend_html").text());
+        }
       }
       del_loading_card_placeholder();
       // 插入HTML
@@ -133,4 +136,18 @@
     loading_data();
   }
 
+</script>
+<script type="text/html" id="no_recommend_html">
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+      </div>
+      <p class="empty-title" id="search_tip_title">没有记录</p>
+      <p class="empty-subtitle text-muted" id="search_tip_text">
+        请检查TMDB API Key是否设置，以及网络是否连通。
+      </p>
+    </div>
+  </div>
+</div>
 </script>
