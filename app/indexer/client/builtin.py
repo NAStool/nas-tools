@@ -138,13 +138,17 @@ class BuiltinIndexer(_IIndexClient):
         if indexer.language == "en" and StringUtils.is_chinese(search_word):
             log.warn(f"【{self.index_type}】{indexer.name} 无法使用中文名搜索")
             return []
-        if indexer.parser == "Rarbg":
-            imdb_id = match_media.imdb_id if match_media else None
-            result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
-        elif indexer.parser == "RenderSpider":
-            result_array = RenderSpider().search(keyword=search_word, indexer=indexer)
-        else:
-            result_array = self.__spider_search(keyword=search_word, indexer=indexer)
+        result_array = []
+        try:
+            if indexer.parser == "Rarbg":
+                imdb_id = match_media.imdb_id if match_media else None
+                result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
+            elif indexer.parser == "RenderSpider":
+                result_array = RenderSpider().search(keyword=search_word, indexer=indexer)
+            else:
+                result_array = self.__spider_search(keyword=search_word, indexer=indexer)
+        except Exception as err:
+            print(str(err))
         if len(result_array) == 0:
             log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")
             self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")

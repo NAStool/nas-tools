@@ -123,7 +123,10 @@ class ChromeHelper(object):
     def execute_script(self, script):
         if not self._chrome:
             return False
-        return self._chrome.execute_script(script)
+        try:
+            return self._chrome.execute_script(script)
+        except Exception as err:
+            print(str(err))
 
     def get_title(self):
         if not self._chrome:
@@ -139,14 +142,21 @@ class ChromeHelper(object):
         if not self._chrome:
             return ""
         cookie_str = ""
-        for _cookie in self._chrome.get_cookies():
-            if not _cookie:
-                continue
-            cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
+        try:
+            for _cookie in self._chrome.get_cookies():
+                if not _cookie:
+                    continue
+                cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
+        except Exception as err:
+            print(str(err))
         return cookie_str
 
     def get_ua(self):
-        return self._chrome.execute_script("return navigator.userAgent")
+        try:
+            return self._chrome.execute_script("return navigator.userAgent")
+        except Exception as err:
+            print(str(err))
+            return None
 
     def quit(self):
         if self._chrome:
