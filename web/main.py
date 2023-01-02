@@ -246,7 +246,7 @@ def search():
     # 站点列表
     SiteDict = {}
     for item in Indexer().get_indexers() or []:
-        SiteDict[item.name] = {
+        SiteDict[md5_hash(item.name)] = {
             "id": item.id,
             "name": item.name,
             "public": item.public,
@@ -1569,5 +1569,5 @@ def str_filesize(size):
 
 # MD5 HASH过滤器
 @App.template_filter('hash')
-def md5_hash(size):
-    return WebAction.md5_hash(size)
+def md5_hash(text):
+    return WebAction.md5_hash(text)

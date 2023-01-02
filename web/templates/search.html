@@ -246,11 +246,9 @@
                                         <div class="row g-2 align-items-center">
                                           <div class="col-auto">
                                             <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
-                                            {% if SiteDict[torrent.site] %}
-                                              {% if SiteDict[torrent.site].public %}
-                                              BT
-                                              {% elif not SiteDict[torrent.site].builtin %}
-                                              PT
+                                            {% if SiteDict[torrent.site|hash] %}
+                                              {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
+                                              {{ torrent.site|first }}
                                               {% endif %}
                                             {% endif %}
                                             </span>
