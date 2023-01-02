@@ -86,6 +86,8 @@
     add_loading_card_placeholder();
     ajax_post("get_recommend", { "type": title_type, "page": CurrentPage }, function (ret) {
       CurrentPage++;
+      // 记录页码
+      sessionStorage.CurrentPage = CurrentPage;
       if (ret.Items.length > 0) {
         loading = false;
         page_card_num = ret.Items.length;
@@ -111,6 +113,7 @@
         html += '</div>';
         $("#recommend_content").append(html);
       }
+      window_history("更新");
     });
   }
 
@@ -122,7 +125,12 @@
     });
   });
 
-  // 初始化数据
-  loading_data();
+  // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
+  if (sessionStorage.CurrentPage) {
+    CurrentPage = sessionStorage.CurrentPage;
+  } else {
+    // 否则初始化数据
+    loading_data();
+  }
 
 </script>

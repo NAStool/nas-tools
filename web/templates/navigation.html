@@ -2621,8 +2621,28 @@
   //当前页面地址
   let CURRENT_PAGE_URI = "";
 
+  function window_history(api_type){
+    const state = {
+      title: document.title,
+      menu: $("#navbar-menu").html(),          // 导航当前选中
+      html: $("#page_content").html(),         // 页面内容
+      scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
+      page: sessionStorage.CurrentPage,        // 页面当前页码
+    };
+    if (api_type == "更新") {
+      window.history.replaceState(state, "");
+    } else if (api_type == "新增"){
+      window.history.pushState(state, "");
+    }
+  }
+
   //导航点击
   function navmenu(page) {
+    // 更新当前历史记录
+    window_history("更新");
+    // 主动点击时清除页码
+    sessionStorage.removeItem("CurrentPage");
+
     $("#navbar-menu li").find("a").removeClass("active").each(function () {
       if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + page + "')")) {
         $(this).addClass("active");
@@ -2646,6 +2666,8 @@
       if (page != CURRENT_PAGE_URI) {
         ScrollToTop();
         CURRENT_PAGE_URI = page;
+        // 并记录当前历史记录
+        window_history("新增");
       }
     });
   }
@@ -2844,6 +2866,19 @@
 
   //事件
   $(document).ready(function () {
+    window.addEventListener('popstate', function(e) {
+        if (e.state) {
+          // 开始还原页面
+          if (e.state.page) {
+            sessionStorage.CurrentPage = e.state.page;
+          }
+          document.title = e.state.title;
+          $('#navbar-menu').html(e.state.menu);
+          $('#page_content').html(e.state.html);
+          $("#page_wrapper").scrollTop(e.state.scroll);
+        }
+    });
+
     // 搜索输入框
     $('.home_search_word').bind('keypress', function (event) {
       if (event.keyCode == "13") {
