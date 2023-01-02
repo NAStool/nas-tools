@@ -1292,7 +1292,8 @@
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置"
+                  onchange="refresh_savepath_select('search_download_dir', true, $(this).val())">
               </select>
               <label for="floatingSelect">下载设置</label>
             </div>
@@ -1910,7 +1911,7 @@
     $("#rss_team").val('');
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
-    $("#rss_download_setting").val('0');
+    $("#rss_download_setting").val('');
     $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
       $(this).prop("checked", false);
     });
@@ -1941,7 +1942,7 @@
     $("#rss_team").val('');
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
-    $("#rss_download_setting").val('0');
+    $("#rss_download_setting").val('');
     $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
       $(this).prop("checked", false);
     });
@@ -2130,7 +2131,7 @@
       if (ret.code === 0) {
         let downloadsetting_select = $("#" + obj_id);
         downloadsetting_select.empty();
-        downloadsetting_select.append(`<option value="0">默认</option>`);
+        downloadsetting_select.append(`<option value="" selected>默认</option>`);
         for (let i = 0; i < ret.data.length; i++) {
           downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
         }
