@@ -250,6 +250,8 @@
                                               {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
                                               {{ torrent.site|first }}
                                               {% endif %}
+                                            {% else %}
+                                              {{ torrent.site|first }}
                                             {% endif %}
                                             </span>
                                           </div>
