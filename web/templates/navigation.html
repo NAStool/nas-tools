@@ -1,4 +1,5 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -497,17 +498,7 @@
   </header>
   <div class="page-wrapper" id="page_wrapper">
     <div id="page_content">
-      <div class="page-center justify-content-center">
-        <div class="container-tight py-4">
-          <div class="empty">
-            <div class="mb-3"><img src="../static/img/quitting_time.svg" height="256" alt="">
-            </div>
-            <p class="empty-subtitle text-muted">
-              页面正在加载，请稍候...
-            </p>
-          </div>
-        </div>
-      </div>
+      {{ OOPS.loading() }}
     </div>
     <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
