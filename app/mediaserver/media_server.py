@@ -1,9 +1,10 @@
 import threading
 
 import log
+from app.conf import ModuleConf
 from app.db import MediaDb
 from app.helper import ProgressHelper, SubmoduleHelper
-from app.utils import ExceptionUtils, SystemConf
+from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaServerType
 from config import Config
@@ -33,7 +34,7 @@ class MediaServer:
         self.progress = ProgressHelper()
         # 当前使用的媒体库服务器
         _type = Config().get_config('media').get('media_server') or 'emby'
-        self._server_type = SystemConf.MEDIASERVER_DICT.get(_type)
+        self._server_type = ModuleConf.MEDIASERVER_DICT.get(_type)
         self._server = None
 
     def __build_class(self, ctype, conf):

@@ -4,10 +4,11 @@ from threading import Lock
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
+from app.conf import ModuleConf
 from app.downloader import Downloader
 from app.helper import DbHelper
 from app.message import Message
-from app.utils import ExceptionUtils, SystemConf
+from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from config import Config
 
@@ -107,7 +108,7 @@ class TorrentRemover(object):
             try:
                 lock.acquire()
                 # 获取需删除种子列表
-                downloader_type = SystemConf.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type")
+                downloader_type = ModuleConf.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type")
                 task.get("config")["samedata"] = task.get("samedata")
                 task.get("config")["onlynastool"] = task.get("onlynastool")
                 torrents = self.downloader.get_remove_torrents(
@@ -223,7 +224,7 @@ class TorrentRemover(object):
         savepath_key = data.get("savepath_key")
         tracker_key = data.get("tracker_key")
         downloader = data.get("downloader")
-        if downloader not in SystemConf.TORRENTREMOVER_DICT.keys():
+        if downloader not in ModuleConf.TORRENTREMOVER_DICT.keys():
             return False, "下载器参数不合法"
         if downloader == "Qb":
             qb_state = data.get("qb_state")
@@ -231,7 +232,7 @@ class TorrentRemover(object):
             qb_state = [state for state in qb_state if state]
             if qb_state:
                 for qb_state_item in qb_state:
-                    if qb_state_item not in SystemConf.TORRENTREMOVER_DICT.get("Qb").get("torrent_state").keys():
+                    if qb_state_item not in ModuleConf.TORRENTREMOVER_DICT.get("Qb").get("torrent_state").keys():
                         return False, "种子状态参数不合法"
             qb_category = data.get("qb_category")
             qb_category = qb_category.split(";") if qb_category else []
@@ -246,7 +247,7 @@ class TorrentRemover(object):
             tr_state = [state for state in tr_state if state]
             if tr_state:
                 for tr_state_item in tr_state:
-                    if tr_state_item not in SystemConf.TORRENTREMOVER_DICT.get("Tr").get("torrent_state").keys():
+                    if tr_state_item not in ModuleConf.TORRENTREMOVER_DICT.get("Tr").get("torrent_state").keys():
                         return False, "种子状态参数不合法"
             tr_error_key = data.get("tr_error_key")
         config = {
@@ -297,7 +298,7 @@ class TorrentRemover(object):
             task.get("config")["samedata"] = task.get("samedata")
             task.get("config")["onlynastool"] = task.get("onlynastool")
             torrents = self.downloader.get_remove_torrents(
-                downloader=SystemConf.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type"),
+                downloader=ModuleConf.TORRENTREMOVER_DICT.get(task.get("downloader")).get("downloader_type"),
                 config=task.get("config")
             )
             return True, torrents

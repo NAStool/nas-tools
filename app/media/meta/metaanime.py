@@ -5,8 +5,7 @@ import zhconv
 import anitopy
 from app.media.meta._base import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
-from app.utils import StringUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
 
 

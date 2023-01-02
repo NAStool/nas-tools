@@ -1,11 +1,10 @@
 import re
 
 import log
-from app.utils.exception_utils import ExceptionUtils
-from app.utils.types import MediaServerType
 from config import Config
 from app.mediaserver.client._base import _IMediaClient
-from app.utils import RequestUtils, SystemUtils
+from app.utils.types import MediaServerType
+from app.utils import RequestUtils, SystemUtils, ExceptionUtils
 
 
 class Jellyfin(_IMediaClient):

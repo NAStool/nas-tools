@@ -7,14 +7,14 @@ from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
 from app.indexer import Indexer
 from app.media import Media
-from app.media.meta import MetaInfo
 from app.media.douban import DouBan
+from app.media.meta import MetaInfo
 from app.message import Message
 from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import StringUtils
-from app.utils.types import SearchType, MediaType, IndexerType
+from app.utils.types import SearchType, IndexerType
 from config import Config
 
 SEARCH_MEDIA_CACHE = {}

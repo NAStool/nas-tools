@@ -8,7 +8,7 @@ from lxml import etree
 
 import log
 from app.helper import SubHelper
-from app.sites.siteconf import SiteConf
+from app.conf import SiteConf
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType

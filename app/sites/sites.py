@@ -17,7 +17,7 @@ import log
 from app.helper import ChromeHelper, SiteHelper, DbHelper
 from app.message import Message
 from app.sites.site_user_info_factory import SiteUserInfoFactory
-from app.sites.siteconf import SiteConf
+from app.conf import SiteConf
 from app.utils import RequestUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from config import Config

@@ -2,10 +2,9 @@ import os
 import re
 
 import log
-from app.utils.exception_utils import ExceptionUtils
 from config import Config
 from app.mediaserver.client._base import _IMediaClient
-from app.utils import RequestUtils, SystemUtils
+from app.utils import RequestUtils, SystemUtils, ExceptionUtils
 from app.utils.types import MediaType, MediaServerType
 
 

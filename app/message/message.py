@@ -3,9 +3,10 @@ import re
 from enum import Enum
 
 import log
+from app.conf import ModuleConf
 from app.helper import DbHelper, SubmoduleHelper
 from app.message.message_center import MessageCenter
-from app.utils import StringUtils, ExceptionUtils, SystemConf
+from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, MediaType
 from config import Config
@@ -62,7 +63,7 @@ class Message(object):
             if not client_config.ENABLED or not config:
                 continue
             client = {
-                "search_type": SystemConf.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "search_type": ModuleConf.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)

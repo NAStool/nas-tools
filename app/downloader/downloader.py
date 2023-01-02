@@ -2,6 +2,7 @@ import os
 from threading import Lock
 
 import log
+from app.conf import ModuleConf
 from app.filetransfer import FileTransfer
 from app.helper import DbHelper, ThreadHelper, SubmoduleHelper
 from app.media import Media
@@ -10,8 +11,8 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.sites import Sites
 from app.subtitle import Subtitle
-from app.systemconfig import SystemConfig
-from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils, SystemConf
+from app.conf import SystemConfig
+from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
 from config import Config, PT_TAG, RMT_MEDIAEXT
@@ -58,10 +59,10 @@ class Downloader:
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
-            self._default_client_type = SystemConf.DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
+            self._default_client_type = ModuleConf.DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
-            self._pt_rmt_mode = SystemConf.RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
+            self._pt_rmt_mode = ModuleConf.RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
         # 下载目录配置
         self._downloaddir = Config().get_config('downloaddir') or []
         # 下载设置
