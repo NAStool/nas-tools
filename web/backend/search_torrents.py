@@ -269,7 +269,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         indexers = Indexer().get_indexers()
 
         # 获取字符串中可能的搜索站点列表
-        if indexer_type == IndexerType.BUILTIN.value:
+        if indexer_type == IndexerType.BUILTIN:
             search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
                 "id": indexer.name,
                 "name": indexer.name

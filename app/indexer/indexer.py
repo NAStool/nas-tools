@@ -28,7 +28,9 @@ class Indexer(object):
 
     def init_config(self):
         self.progress = ProgressHelper()
-        self._client_type = ModuleConf.INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
+        self._client_type = ModuleConf.INDEXER_DICT.get(
+            Config().get_config("pt").get('search_indexer') or 'builtin'
+        )
         self._client = self.__get_client(self._client_type)
 
     def __build_class(self, ctype, conf):
@@ -100,15 +102,15 @@ class Indexer(object):
 
         indexers = self.get_indexers()
         if not indexers:
-            log.error(f"【{self._client_type}】没有有效的索引器配置！")
+            log.error(f"【{self._client_type.value}】没有有效的索引器配置！")
             return []
         # 计算耗时
         start_time = datetime.datetime.now()
         if filter_args and filter_args.get("site"):
-            log.info(f"【{self._client_type}】开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
+            log.info(f"【{self._client_type.value}】开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
             self.progress.update(ptype='search', text="开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
         else:
-            log.info(f"【{self._client_type}】开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
+            log.info(f"【{self._client_type.value}】开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
             self.progress.update(ptype='search', text="开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
         # 多线程
         executor = ThreadPoolExecutor(max_workers=len(indexers))
@@ -133,7 +135,7 @@ class Indexer(object):
                 ret_array = ret_array + result
         # 计算耗时
         end_time = datetime.datetime.now()
-        log.info(f"【{self._client_type}】所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
+        log.info(f"【{self._client_type.value}】所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
                  % (len(ret_array), (end_time - start_time).seconds))
         self.progress.update(ptype='search', text="所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
                                                   % (len(ret_array), (end_time - start_time).seconds),

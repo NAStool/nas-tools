@@ -236,6 +236,7 @@ class Subtitle:
                             else:
                                 log.info("【Subtitle】ChineseSubFinder任务添加成功：%s" % job_id)
                                 ret_msg = "ChineseSubFinder任务添加成功：%s" % job_id
+                                success = True
                         else:
                             log.error("【Subtitle】%s 目录缺失nfo元数据" % file_path)
                             ret_msg = "%s 目录下缺失nfo元数据：" % file_path
