@@ -107,6 +107,12 @@ def action_login_check(func):
     return login_check
 
 
+# SVG宏
+@App.route('/svg')
+def svg():
+    return render_template('SVG.html')
+
+
 # 主页面
 @App.route('/', methods=['GET', 'POST'])
 def login():
