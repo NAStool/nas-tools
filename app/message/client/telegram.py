@@ -21,6 +21,7 @@ class Telegram(_IMessageClient):
     _webhook = None
     _webhook_url = None
     _telegram_user_ids = []
+    _telegram_admin_ids = []
     _domain = None
     _config = None
     _message_proxy_event = None
@@ -42,11 +43,16 @@ class Telegram(_IMessageClient):
             self._telegram_token = self._client_config.get('token')
             self._telegram_chat_id = self._client_config.get('chat_id')
             self._webhook = self._client_config.get('webhook')
+            telegram_admin_ids = self._client_config.get('admin_ids')
+            if telegram_admin_ids:
+                self._telegram_admin_ids = telegram_admin_ids.split(",").append(str(self._telegram_chat_id))
+            else:
+                self._telegram_admin_ids = [str(self._telegram_chat_id)]
             telegram_user_ids = self._client_config.get('user_ids')
             if telegram_user_ids:
-                self._telegram_user_ids = telegram_user_ids.split(",")
+                self._telegram_user_ids = telegram_user_ids.split(",") + self._telegram_admin_ids
             else:
-                self._telegram_user_ids = []
+                self._telegram_user_ids = self._telegram_admin_ids
             if self._telegram_token and self._telegram_chat_id:
                 if self._webhook:
                     if self._domain:
@@ -66,11 +72,17 @@ class Telegram(_IMessageClient):
     def match(cls, ctype):
         return True if ctype == cls.schema else False
 
-    def get_admin_user(self):
+    def get_admin(self):
         """
-        获取Telegram配置文件中的ChatId，即管理员用户ID
+        获取允许使用远程命令的user_id列表
         """
-        return str(self._telegram_chat_id)
+        return self._telegram_admin_ids
+
+    def get_users(self):
+        """
+        获取允许使用telegram机器人的user_id列表
+        """
+        return self._telegram_user_ids
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
@@ -265,12 +277,6 @@ class Telegram(_IMessageClient):
             return True
         else:
             return False
-
-    def get_users(self):
-        """
-        获取Telegram配置文件中的User Ids，即允许使用telegram机器人的user_id列表
-        """
-        return self._telegram_user_ids
 
     def __start_telegram_message_proxy(self, event: Event):
         log.info("Telegram消息接收服务启动")
