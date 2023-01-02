@@ -247,10 +247,11 @@ class Downloader:
                 if not category:
                     category = download_label
             # 添加下载
+            print_url = content if isinstance(content, str) else url
             if is_paused:
-                log.info("【Downloader】添加下载任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, url))
+                log.info("【Downloader】添加下载任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             else:
-                log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
+                log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             if dl_type == DownloaderType.TR:
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,

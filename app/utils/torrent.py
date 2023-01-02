@@ -96,7 +96,7 @@ class Torrent:
         hash_text = hash_text.group(0)
         ret_magnet = f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}'
         for tracker in trackers:
-            ret_magnet = f'{ret_magnet}&tr={tracker}'
+            ret_magnet = f'{ret_magnet}&tr={quote(tracker)}'
         return ret_magnet
 
     @staticmethod
@@ -110,7 +110,7 @@ class Torrent:
         if title and url.find("&dn=") == -1:
             ret_magnet = f'{ret_magnet}&dn={quote(title)}'
         for tracker in trackers:
-            ret_magnet = f'{ret_magnet}&tr={tracker}'
+            ret_magnet = f'{ret_magnet}&tr={quote(tracker)}'
         return ret_magnet
 
     @staticmethod

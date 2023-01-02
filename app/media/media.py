@@ -12,7 +12,7 @@ import log
 from app.helper import MetaHelper
 from app.media.meta.metainfo import MetaInfo
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException
-from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman, ExceptionUtils
+from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
@@ -212,7 +212,6 @@ class Media:
             log.error(f"【Meta】连接TMDB出错：{str(err)}")
             return None
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
             log.error(f"【Meta】连接TMDB出错：{str(e)}")
             return None
         log.debug(f"【Meta】API返回：{str(self.search.total_results)}")
@@ -272,7 +271,6 @@ class Media:
             log.error(f"【Meta】连接TMDB出错：{str(err)}")
             return None
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
             log.error(f"【Meta】连接TMDB出错：{str(e)}")
             return None
         log.debug(f"【Meta】API返回：{str(self.search.total_results)}")
@@ -336,7 +334,6 @@ class Media:
                                 and season.get("season_number") == int(season_number):
                             return True
             except Exception as e1:
-                ExceptionUtils.exception_traceback(e1)
                 log.error(f"【Meta】连接TMDB出错：{e1}")
                 return False
             return False
@@ -347,7 +344,6 @@ class Media:
             log.error(f"【Meta】连接TMDB出错：{str(err)}")
             return None
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
             log.error(f"【Meta】连接TMDB出错：{e}")
             return None
 
@@ -381,7 +377,6 @@ class Media:
             log.error(f"【Meta】连接TMDB出错：{str(err)}")
             return None
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
             log.error(f"【Meta】连接TMDB出错：{str(e)}")
             return None
         log.debug(f"【Meta】API返回：{str(self.search.total_results)}")
@@ -468,7 +463,7 @@ class Media:
                 else:
                     log.info("【Meta】%s TMDB网站未查询到媒体信息！" % file_media_name)
             except Exception as err:
-                ExceptionUtils.exception_traceback(err)
+                print(str(err))
                 return None
         return None
 
@@ -880,7 +875,7 @@ class Media:
                 # 按文件路程存储
                 return_media_infos[file_path] = meta_info
             except Exception as err:
-                ExceptionUtils.exception_traceback(err)
+                print(str(err))
                 log.error("【Rmt】发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         return return_media_infos
@@ -948,7 +943,7 @@ class Media:
             tmdbinfo = self.movie.details(tmdbid, append_to_response)
             return tmdbinfo or {}
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             return None
 
     def __get_tmdb_tv_detail(self, tmdbid, append_to_response=None):
@@ -964,7 +959,7 @@ class Media:
             tmdbinfo = self.tv.details(tmdbid, append_to_response)
             return tmdbinfo or {}
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             return None
 
     def get_tmdb_tv_season_detail(self, tmdbid, season):
@@ -981,7 +976,7 @@ class Media:
             tmdbinfo = self.tv.season_details(tmdbid, season)
             return tmdbinfo or {}
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             return {}
 
     def get_tmdb_seasons_list(self, tv_info=None, tmdbid=None):
@@ -1069,7 +1064,7 @@ class Media:
             movies = self.movie.discover(page)
             return movies
         except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+            print(str(e))
             return {}
 
     @staticmethod
@@ -1210,7 +1205,7 @@ class Media:
                     titles_info = self.tv.alternative_titles(tmdbid) or {}
                     alternative_titles = titles_info.get("results", [])
             except Exception as err:
-                ExceptionUtils.exception_traceback(err)
+                print(str(err))
                 return None
         for alternative_title in alternative_titles:
             iso_3166_1 = alternative_title.get("iso_3166_1")
@@ -1233,7 +1228,7 @@ class Media:
         try:
             aka_names = self.person.details(person_id).get("also_known_as", []) or []
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
+            print(str(err))
             return ""
         for aka_name in aka_names:
             if StringUtils.is_chinese(aka_name):
@@ -1256,7 +1251,7 @@ class Media:
             aka_names = self.person.details(person_id).get("also_known_as", []) or []
             return aka_names
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
+            print(str(err))
             return []
 
     def get_random_discover_backdrop(self):
@@ -1303,7 +1298,7 @@ class Media:
                 tmdbinfo = tmdbinfo[0]
                 return tmdbinfo.get("id")
         except Exception as err:
-            ExceptionUtils.exception_traceback(err)
+            print(str(err))
         return None
 
     @staticmethod
