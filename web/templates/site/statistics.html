@@ -420,19 +420,16 @@
                     type: 'cross'
                   },
                   formatter: function (params) {
-                    let up = params[0].data[params[0].encode.y[0]];
-                    let dl = params[1].data[params[1].encode.y[0]];
-                    let size = params[2].data[params[2].encode.y[0]];
-                    let bouns = params[3].data[params[3].encode.y[0]];
-                    return params[0].axisValueLabel +
-                        '</br>' +
-                        params[0].marker + ' ' + params[0].seriesName + ' ：' + numeral(up).format('0.0 ib') +
-                        '</br>' +
-                        params[1].marker + ' ' + params[1].seriesName + ' ：' + numeral(dl).format('0.0 ib') +
-                        '</br>' +
-                        params[2].marker + ' ' + params[2].seriesName + ' ：' + numeral(size).format('0.0 ib') +
-                        '</br>' +
-                        params[3].marker + ' ' + params[3].seriesName + ' ：' + bouns + ' (' + numeral(bouns).format('0.0 a') + ')';
+                      let html = params[0].axisValueLabel + '<br>';
+                      for (let i = 0; i < params.length; i++) {
+                          let value = params[i].data[params[i].encode.y[0]];
+                          if (params[i].seriesIndex == 3) {
+                              html += params[i].marker + params[i].seriesName + ': ' + value + ' (' + numeral(value).format('0.0 a') + ')' + '<br>';
+                          } else {
+                              html += params[i].marker + params[i].seriesName + ': ' + numeral(value).format('0.0 ib') + '<br>';
+                          }
+                      }
+                      return html;
                   }
                 },
                 grid: {
