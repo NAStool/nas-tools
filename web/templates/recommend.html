@@ -1,3 +1,4 @@
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -138,16 +139,5 @@
 
 </script>
 <script type="text/html" id="no_recommend_html">
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
-      </div>
-      <p class="empty-title" id="search_tip_title">没有记录</p>
-      <p class="empty-subtitle text-muted" id="search_tip_text">
-        请检查TMDB API Key是否设置，以及网络是否连通。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.empty('没有媒体', '请检查TMDB API Key是否设置，以及网络是否连通。') }}
 </script>

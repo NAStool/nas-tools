@@ -1,4 +1,5 @@
-{% import 'SVG.html' as SVG %}
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -212,18 +213,7 @@
   </div>
 </div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
-      </div>
-      <p class="empty-title" id="search_tip_title">没有记录</p>
-      <p class="empty-subtitle text-muted" id="search_tip_text">
-        当前没有正在运行的自动删种任务。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.nodatafound('没有任务', '当前没有正在运行的自动删种任务。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="modal-torrent-remove-task" tabindex="-1" role="dialog" aria-hidden="true"
   data-bs-backdrop="static" data-bs-keyboard="false">
