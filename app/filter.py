@@ -1,11 +1,11 @@
 import re
 
+from app.conf import ModuleConf
 from app.helper import DbHelper
 from app.media.meta import ReleaseGroupsMatcher
 from app.utils import StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType
-from config import TORRENT_SEARCH_PARAMS
 
 
 @singleton
@@ -239,14 +239,14 @@ class Filter:
         """
         # 过滤质量
         if filter_args.get("restype"):
-            restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
+            restype_re = ModuleConf.TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
             if not meta_info.get_edtion_string():
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
             if restype_re and not re.search(r"%s" % restype_re, meta_info.get_edtion_string(), re.I):
                 return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
         # 过滤分辨率
         if filter_args.get("pix"):
-            pix_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
+            pix_re = ModuleConf.TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
             if not meta_info.resource_pix:
                 return False, 0, f"{meta_info.org_string} 不符合分辨率 {filter_args.get('pix')} 要求"
             if pix_re and not re.search(r"%s" % pix_re, meta_info.resource_pix, re.I):

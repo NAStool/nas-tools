@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 import log
 from app.helper import ChromeHelper, ProgressHelper, DbHelper, OcrHelper, SiteHelper
 from app.sites.sites import Sites
-from app.sites.siteconf import SiteConf
+from app.conf import SiteConf
 from app.utils import StringUtils, RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
 
@@ -64,7 +64,7 @@ class SiteCookie(object):
         # 全局锁
         chrome = ChromeHelper()
         if not chrome.get_status():
-            return -1, ["需要浏览器内核环境才能更新站点信息"]
+            return None, None, "需要浏览器内核环境才能更新站点信息"
         if not chrome.visit(url=url):
             return None, None, "Chrome模拟访问失败"
         # 循环检测是否过cf

@@ -1,24 +1,36 @@
-from app.utils.exception_utils import ExceptionUtils
+from app.utils import ExceptionUtils
 from app.utils.types import IndexerType
 from config import Config
-from app.indexer.index_client import IIndexClient
+from app.indexer.client._base import _IIndexClient
 from app.utils import RequestUtils
 from app.helper import IndexerConf
 
 
-class Prowlarr(IIndexClient):
+class Prowlarr(_IIndexClient):
+    schema = "prowlarr"
+    _client_config = {}
     index_type = IndexerType.PROWLARR.value
 
+    def __init__(self, config=None):
+        super().__init__()
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('prowlarr')
+
     def init_config(self):
-        prowlarr = Config().get_config('prowlarr')
-        if prowlarr:
-            self.api_key = prowlarr.get('api_key')
-            self.host = prowlarr.get('host')
+        if self._client_config:
+            self.api_key = self._client_config.get('api_key')
+            self.host = self._client_config.get('host')
             if self.host:
                 if not self.host.startswith('http'):
                     self.host = "http://" + self.host
                 if not self.host.endswith('/'):
                     self.host = self.host + "/"
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.index_type] else False
 
     def get_status(self):
         """

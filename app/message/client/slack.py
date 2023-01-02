@@ -5,8 +5,8 @@ import requests
 from slack_sdk.errors import SlackApiError
 
 import log
-from app.message.message_client import IMessageClient
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import ExceptionUtils
 from config import Config
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -14,17 +14,19 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 lock = Lock()
 
 
-class Slack(IMessageClient):
+class Slack(_IMessageClient):
+    schema = "slack"
+
     _client_config = {}
     _interactive = False
     _ds_url = None
     _service = None
     _client = None
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._config = Config()
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self.init_config()
 
     def init_config(self):
@@ -74,9 +76,16 @@ class Slack(IMessageClient):
                     ExceptionUtils.exception_traceback(err)
                     log.error("Slack消息接收服务启动失败: %s" % str(err))
 
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
+
     def stop_service(self):
         if self._service:
-            self._service.close()
+            try:
+                self._service.close()
+            except Exception as err:
+                print(str(err))
             log.info("Slack消息接收服务已停止")
 
     def send_msg(self, title, text="", image="", url="", user_id=""):

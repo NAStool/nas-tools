@@ -307,8 +307,8 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdmayi.com': {
-            'FREE': ["//font[@class='free'][text()='免费']"],
-            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },

@@ -2,25 +2,36 @@ import datetime
 import time
 
 import log
-from app.utils.types import SearchType, IndexerType
-from config import Config
-from app.indexer.index_client import IIndexClient
-from app.indexer.client.spider import TorrentSpider
-from app.indexer.client.render_spider import RenderSpider
-from app.indexer.client.rarbg import Rarbg
+from app.helper import IndexerHelper, IndexerConf, ProgressHelper
+from app.indexer.client._base import _IIndexClient
+from app.indexer.client._rarbg import Rarbg
+from app.indexer.client._render_spider import RenderSpider
+from app.indexer.client._spider import TorrentSpider
 from app.sites import Sites
 from app.utils import StringUtils
-from app.helper import ProgressHelper, IndexerHelper, IndexerConf
+from app.utils.types import SearchType, IndexerType
+from config import Config
 
 
-class BuiltinIndexer(IIndexClient):
+class BuiltinIndexer(_IIndexClient):
+    schema = "builtin"
+    _client_config = {}
     index_type = IndexerType.BUILTIN.value
     progress = None
     sites = None
 
+    def __init__(self, config=None):
+        super().__init__()
+        self._client_config = config or {}
+        self.init_config()
+
     def init_config(self):
         self.sites = Sites()
         self.progress = ProgressHelper()
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.index_type] else False
 
     def get_status(self):
         """
@@ -127,13 +138,17 @@ class BuiltinIndexer(IIndexClient):
         if indexer.language == "en" and StringUtils.is_chinese(search_word):
             log.warn(f"【{self.index_type}】{indexer.name} 无法使用中文名搜索")
             return []
-        if indexer.parser == "Rarbg":
-            imdb_id = match_media.imdb_id if match_media else None
-            result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
-        elif indexer.parser == "RenderSpider":
-            result_array = RenderSpider().search(keyword=search_word, indexer=indexer)
-        else:
-            result_array = self.__spider_search(keyword=search_word, indexer=indexer)
+        result_array = []
+        try:
+            if indexer.parser == "Rarbg":
+                imdb_id = match_media.imdb_id if match_media else None
+                result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
+            elif indexer.parser == "RenderSpider":
+                result_array = RenderSpider().search(keyword=search_word, indexer=indexer)
+            else:
+                result_array = self.__spider_search(keyword=search_word, indexer=indexer)
+        except Exception as err:
+            print(str(err))
         if len(result_array) == 0:
             log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")
             self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")

@@ -1292,7 +1292,8 @@
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_setting" aria-label="下载设置">
+              <select class="form-select" id="search_download_setting" aria-label="下载设置"
+                  onchange="refresh_savepath_select('search_download_dir', true, $(this).val())">
               </select>
               <label for="floatingSelect">下载设置</label>
             </div>
@@ -1359,7 +1360,6 @@
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
 <script src="../static/js/demo.min.js"></script>
-<script src="../static/js/apexcharts.min.js"></script>
 <script src="../static/js/echarts.min.js"></script>
 <script src="../static/js/numeral.min.js"></script>
 <script src="../static/js/fullcalendar.min.js"></script>
@@ -1911,7 +1911,7 @@
     $("#rss_team").val('');
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
-    $("#rss_download_setting").val('-1');
+    $("#rss_download_setting").val('');
     $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
       $(this).prop("checked", false);
     });
@@ -1942,7 +1942,7 @@
     $("#rss_team").val('');
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
-    $("#rss_download_setting").val('-1');
+    $("#rss_download_setting").val('');
     $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
       $(this).prop("checked", false);
     });
@@ -2131,6 +2131,7 @@
       if (ret.code === 0) {
         let downloadsetting_select = $("#" + obj_id);
         downloadsetting_select.empty();
+        downloadsetting_select.append(`<option value="" selected>默认</option>`);
         for (let i = 0; i < ret.data.length; i++) {
           downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
         }

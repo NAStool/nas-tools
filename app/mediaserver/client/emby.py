@@ -2,38 +2,45 @@ import os
 import re
 
 import log
-from app.utils.exception_utils import ExceptionUtils
 from config import Config
-from app.mediaserver.media_client import IMediaClient
-from app.utils.commons import singleton
-from app.utils import RequestUtils, SystemUtils
+from app.mediaserver.client._base import _IMediaClient
+from app.utils import RequestUtils, SystemUtils, ExceptionUtils
 from app.utils.types import MediaType, MediaServerType
 
 
-@singleton
-class Emby(IMediaClient):
+class Emby(_IMediaClient):
+    schema = "emby"
+    server_type = MediaServerType.EMBY.value
+    _client_config = {}
+
     _apikey = None
     _host = None
     _user = None
     _libraries = []
-    server_type = MediaServerType.EMBY.value
 
-    def __init__(self):
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('emby')
         self.init_config()
 
     def init_config(self):
-        emby = Config().get_config('emby')
-        if emby:
-            self._host = emby.get('host')
+        if self._client_config:
+            self._host = self._client_config.get('host')
             if self._host:
                 if not self._host.startswith('http'):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
-            self._apikey = emby.get('api_key')
+            self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
                 self._libraries = self.__get_emby_librarys()
                 self._user = self.get_admin_user()
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.server_type] else False
 
     def get_status(self):
         """

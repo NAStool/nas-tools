@@ -38,10 +38,10 @@ from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
-from app.systemconfig import SystemConfig
+from app.conf import SystemConfig, ModuleConf
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
-from app.utils.types import RMT_MODES, RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
+from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
@@ -652,7 +652,7 @@ class WebAction:
         手工转移
         """
         path = dest_dir = None
-        syncmod = RMT_MODES.get(data.get("syncmod"))
+        syncmod = ModuleConf.RMT_MODES.get(data.get("syncmod"))
         logid = data.get("logid")
         if logid:
             paths = self.dbhelper.get_transfer_path_by_id(logid)
@@ -737,7 +737,7 @@ class WebAction:
             outpath = os.path.normpath(data.get("outpath"))
         else:
             outpath = None
-        syncmod = RMT_MODES.get(data.get("syncmod"))
+        syncmod = ModuleConf.RMT_MODES.get(data.get("syncmod"))
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
         tmdbid = data.get("tmdb")
@@ -1828,13 +1828,11 @@ class WebAction:
             "transfer": brushtask_transfer,
             "state": brushtask_state,
             "rss_rule": rss_rule,
-            "remove_rule": remove_rule
+            "remove_rule": remove_rule,
+            "sendmessage": brushtask_sendmessage,
+            "forceupload": brushtask_forceupload
         }
         self.dbhelper.insert_brushtask(brushtask_id, item)
-        # 存储消息开关
-        DictHelper().set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
-        # 存储是否强制做种的开关
-        DictHelper().set(SystemDictType.BrushForceUpSwitch.value, brushtask_site, brushtask_forceupload)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1861,8 +1859,6 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         site_info = Sites().get_sites(siteid=brushtask.SITE)
-        sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
-        forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
         task = {
             "id": brushtask.ID,
             "name": brushtask.NAME,
@@ -1881,8 +1877,8 @@ class WebAction:
             "upload_size": StringUtils.str_filesize(brushtask.UPLOAD_SIZE),
             "lst_mod_date": brushtask.LST_MOD_DATE,
             "site_url": StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl")),
-            "sendmessage": sendmessage_switch,
-            "forceupload": forceupload_switch
+            "sendmessage": brushtask.SENDMESSAGE,
+            "forceupload": brushtask.FORCEUPLOAD
         }
         return {"code": 0, "task": task}
 
@@ -1894,25 +1890,42 @@ class WebAction:
         dl_id = data.get("id")
         dl_name = data.get("name")
         dl_type = data.get("type")
-        user_config = {"host": data.get("host"),
-                       "port": data.get("port"),
-                       "username": data.get("username"),
-                       "password": data.get("password"),
-                       "save_dir": data.get("save_dir")}
         if test:
             # 测试
             if dl_type == "qbittorrent":
-                downloader = Qbittorrent(user_config=user_config)
+                downloader = Qbittorrent(
+                    config={
+                        "qbhost": data.get("host"),
+                        "qbport": data.get("port"),
+                        "qbusername": data.get("username"),
+                        "qbpassword": data.get("password")
+                    })
             else:
-                downloader = Transmission(user_config=user_config)
+                downloader = Transmission(
+                    config={
+                        "trhost": data.get("host"),
+                        "trport": data.get("port"),
+                        "trusername": data.get("username"),
+                        "trpassword": data.get("password")
+                    })
             if downloader.get_status():
                 return {"code": 0}
             else:
                 return {"code": 1}
         else:
             # 保存
-            self.dbhelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config,
-                                                 note=None)
+            self.dbhelper.update_user_downloader(
+                did=dl_id,
+                name=dl_name,
+                dtype=dl_type,
+                user_config={
+                    "host": data.get("host"),
+                    "port": data.get("port"),
+                    "username": data.get("username"),
+                    "password": data.get("password"),
+                    "save_dir": data.get("save_dir")
+                },
+                note=None)
             BrushTask().init_config()
             return {"code": 0}
 

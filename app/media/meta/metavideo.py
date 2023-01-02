@@ -2,7 +2,7 @@ import os
 import re
 
 from config import RMT_MEDIAEXT
-from app.media.meta.metabase import MetaBase
+from app.media.meta._base import MetaBase
 from app.utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
@@ -112,11 +112,10 @@ class MetaVideo(MetaBase):
             self.resource_effect = " ".join(self._effect)
         if self._source:
             self.resource_type = self._source.strip()
-        # 副标题提取原盘DIY
-        if self.resource_type \
-                and "BluRay" in self.resource_type \
-                and self.subtitle:
-            if re.findall(r'DIY', self.subtitle):
+        # 提取原盘DIY
+        if self.resource_type and "BluRay" in self.resource_type:
+            if (self.subtitle and re.findall(r'D[Ii]Y', self.subtitle)) \
+                    or re.findall(r'-D[Ii]Y@', original_title):
                 self.resource_type = f"{self.resource_type} DIY"
         # 解析副标题，只要季和集
         self.init_subtitle(self.org_string)

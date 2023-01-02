@@ -20,6 +20,7 @@ from flask_login import LoginManager, login_user, login_required, current_user
 
 import log
 from app.brushtask import BrushTask
+from app.conf import ModuleConf
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper
@@ -34,7 +35,7 @@ from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils
 from app.utils.types import *
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, NETTEST_TARGETS, Config
+from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -119,8 +120,8 @@ def login():
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
-        RestypeDict = TORRENT_SEARCH_PARAMS.get("restype")
-        PixDict = TORRENT_SEARCH_PARAMS.get("pix")
+        RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
+        PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
         return render_template('navigation.html',
                                GoPage=GoPage,
@@ -245,7 +246,7 @@ def search():
     # 站点列表
     SiteDict = {}
     for item in Indexer().get_indexers() or []:
-        SiteDict[item.name] = {
+        SiteDict[md5_hash(item.name)] = {
             "id": item.id,
             "name": item.name,
             "public": item.public,
@@ -257,8 +258,8 @@ def search():
                            NeedSearch=NeedSearch or "",
                            Count=Count,
                            Results=SearchResults,
-                           RestypeDict=TORRENT_SEARCH_PARAMS.get("restype"),
-                           PixDict=TORRENT_SEARCH_PARAMS.get("pix"),
+                           RestypeDict=ModuleConf.TORRENT_SEARCH_PARAMS.get("restype"),
+                           PixDict=ModuleConf.TORRENT_SEARCH_PARAMS.get("pix"),
                            SiteDict=SiteDict,
                            UPCHAR=chr(8593))
 
@@ -420,9 +421,8 @@ def downloaded():
 @login_required
 def torrent_remove():
     TorrentRemoveTasks = TorrentRemover().get_torrent_remove_tasks()
-    DownloaderConfig = TorrentRemover().TORRENTREMOVER_DICT
     return render_template("download/torrent_remove.html",
-                           DownloaderConfig=DownloaderConfig,
+                           DownloaderConfig=ModuleConf.TORRENTREMOVER_DICT,
                            Count=len(TorrentRemoveTasks),
                            TorrentRemoveTasks=TorrentRemoveTasks)
 
@@ -729,7 +729,7 @@ def service():
        <path d="M12 15v2"></path>
     </svg>
     '''
-    targets = NETTEST_TARGETS
+    targets = ModuleConf.NETTEST_TARGETS
     scheduler_cfg_list.append(
         {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
          "targets": targets})
@@ -930,7 +930,7 @@ def download_setting():
 @App.route('/indexer', methods=['POST', 'GET'])
 @login_required
 def indexer():
-    indexers = Indexer.get_builtin_indexers(check=False)
+    indexers = Indexer().get_builtin_indexers(check=False)
     private_count = len([item.id for item in indexers if not item.public])
     public_count = len([item.id for item in indexers if item.public])
     return render_template("setting/indexer.html",
@@ -959,9 +959,8 @@ def mediaserver():
 @login_required
 def notification():
     MessageClients = Message().get_message_client_info()
-    MESSAGE_DICT = Message().MESSAGE_DICT
-    Channels = MESSAGE_DICT.get("client")
-    Switchs = MESSAGE_DICT.get("switch")
+    Channels = ModuleConf.MESSAGE_DICT.get("client")
+    Switchs = ModuleConf.MESSAGE_DICT.get("switch")
     return render_template("setting/notification.html",
                            Channels=Channels,
                            Switchs=Switchs,
@@ -1162,7 +1161,7 @@ def wechat():
                     log.info("点击菜单：%s" % event_key)
                     keys = event_key.split('#')
                     if len(keys) > 2:
-                        content = WECHAT_MENU.get(keys[2])
+                        content = ModuleConf.WECHAT_MENU.get(keys[2])
             elif msg_type == "text":
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")
@@ -1570,5 +1569,5 @@ def str_filesize(size):
 
 # MD5 HASH过滤器
 @App.template_filter('hash')
-def md5_hash(size):
-    return WebAction.md5_hash(size)
+def md5_hash(text):
+    return WebAction.md5_hash(text)

@@ -1,50 +1,60 @@
 import threading
 
 import log
+from app.conf import ModuleConf
 from app.db import MediaDb
-from app.helper import ProgressHelper
+from app.helper import ProgressHelper, SubmoduleHelper
+from app.utils import ExceptionUtils
+from app.utils.commons import singleton
 from app.utils.types import MediaServerType
 from config import Config
-from app.mediaserver.client import Emby, Jellyfin, Plex
 
 lock = threading.Lock()
 server_lock = threading.Lock()
 
 
+@singleton
 class MediaServer:
+    _mediaserver_schemas = []
     _server_type = None
     _server = None
     mediadb = None
     progress = None
 
     def __init__(self):
-        self.mediadb = MediaDb()
-        self.progress = ProgressHelper()
+        self._mediaserver_schemas = SubmoduleHelper.import_submodules(
+            'app.mediaserver.client',
+            filter_func=lambda _, obj: hasattr(obj, 'schema')
+        )
+        log.debug(f"【MediaServer】: 已经加载的媒体服务器：{self._mediaserver_schemas}")
         self.init_config()
 
     def init_config(self):
-        _type = Config().get_config('media').get('media_server')
-        if _type == "jellyfin":
-            self._server_type = MediaServerType.JELLYFIN
-        elif _type == "plex":
-            self._server_type = MediaServerType.PLEX
-        else:
-            self._server_type = MediaServerType.EMBY
+        self.mediadb = MediaDb()
+        self.progress = ProgressHelper()
+        # 当前使用的媒体库服务器
+        _type = Config().get_config('media').get('media_server') or 'emby'
+        self._server_type = ModuleConf.MEDIASERVER_DICT.get(_type)
+        self._server = None
+
+    def __build_class(self, ctype, conf):
+        for mediaserver_schema in self._mediaserver_schemas:
+            try:
+                if mediaserver_schema.match(ctype):
+                    return mediaserver_schema(conf)
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+        return None
 
     @property
     def server(self):
         with server_lock:
             if not self._server:
-                self._server = self.__get_server()
+                self._server = self.__get_server(self._server_type)
             return self._server
 
-    def __get_server(self):
-        if self._server_type == MediaServerType.JELLYFIN:
-            return Jellyfin()
-        elif self._server_type == MediaServerType.PLEX:
-            return Plex()
-        else:
-            return Emby()
+    def __get_server(self, ctype: MediaServerType, conf=None):
+        return self.__build_class(ctype=ctype.value, conf=conf)
 
     def get_type(self):
         """
@@ -158,7 +168,7 @@ class MediaServer:
             return
         with lock:
             # 开始进度条
-            log.info("【MEDIASERVER】开始同步媒体库数据...")
+            log.info("【MediaServer】开始同步媒体库数据...")
             self.progress.start("mediasync")
             self.progress.update(ptype="mediasync", text="请稍候...")
             # 汇总统计
@@ -183,8 +193,9 @@ class MediaServer:
                         elif item.get("type") in ['Series', 'show']:
                             tv_count += 1
                         self.progress.update(ptype="mediasync",
-                                             text="正在同步 %s，已完成：%s / %s ..." % (library.get("name"), total_count, total_media_count),
-                                             value=round(100 * total_count/total_media_count, 1))
+                                             text="正在同步 %s，已完成：%s / %s ..." % (
+                                                 library.get("name"), total_count, total_media_count),
+                                             value=round(100 * total_count / total_media_count, 1))
             # 更新总体同步情况
             self.mediadb.statistics(server_type=self._server_type.value,
                                     total_count=total_count,
@@ -195,7 +206,7 @@ class MediaServer:
                                  value=100,
                                  text="媒体库数据同步完成，同步数量：%s" % total_count)
             self.progress.end("mediasync")
-            log.info("【MEDIASERVER】媒体库数据同步完成，同步数量：%s" % total_count)
+            log.info("【MediaServer】媒体库数据同步完成，同步数量：%s" % total_count)
 
     def check_item_exists(self, title, year=None, tmdbid=None):
         """
@@ -211,4 +222,4 @@ class MediaServer:
         if not status:
             return {}
         else:
-            return {"movie_count":  status.MOVIE_COUNT, "tv_count": status.TV_COUNT, "time": status.UPDATE_TIME}
+            return {"movie_count": status.MOVIE_COUNT, "tv_count": status.TV_COUNT, "time": status.UPDATE_TIME}

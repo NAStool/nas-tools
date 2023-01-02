@@ -2,19 +2,19 @@ import os
 from threading import Lock
 
 import log
-from app.downloader.client import Aria2, Client115, Qbittorrent, Transmission
+from app.conf import ModuleConf
 from app.filetransfer import FileTransfer
-from app.helper import DbHelper, ThreadHelper
+from app.helper import DbHelper, ThreadHelper, SubmoduleHelper
 from app.media import Media
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
 from app.sites import Sites
 from app.subtitle import Subtitle
-from app.systemconfig import SystemConfig
+from app.conf import SystemConfig
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
 from config import Config, PT_TAG, RMT_MEDIAEXT
 
 lock = Lock()
@@ -24,6 +24,7 @@ client_lock = Lock()
 @singleton
 class Downloader:
     clients = {}
+    _downloader_schema = []
     _default_client_type = None
     _pt_monitor_only = None
     _download_order = None
@@ -40,6 +41,11 @@ class Downloader:
     systemconfig = None
 
     def __init__(self):
+        self._downloader_schema = SubmoduleHelper.import_submodules(
+            'app.downloader.client',
+            filter_func=lambda _, obj: hasattr(obj, 'schema')
+        )
+        log.debug(f"【Downloader】: 已经加载的下载器：{self._downloader_schema}")
         self.init_config()
 
     def init_config(self):
@@ -53,18 +59,10 @@ class Downloader:
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
-            pt_client = pt.get('pt_client')
-            if pt_client == "qbittorrent":
-                self._default_client_type = DownloaderType.QB
-            elif pt_client == "transmission":
-                self._default_client_type = DownloaderType.TR
-            elif pt_client == "client115":
-                self._default_client_type = DownloaderType.Client115
-            elif pt_client == "aria2":
-                self._default_client_type = DownloaderType.Aria2
+            self._default_client_type = ModuleConf.DOWNLOADER_DICT.get(pt.get('pt_client')) or DownloaderType.QB
             self._pt_monitor_only = pt.get("pt_monitor_only")
             self._download_order = pt.get("download_order")
-            self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
+            self._pt_rmt_mode = ModuleConf.RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
         # 下载目录配置
         self._downloaddir = Config().get_config('downloaddir') or []
         # 下载设置
@@ -97,23 +95,25 @@ class Downloader:
                 "seeding_time_limit": download_setting.SEEDING_TIME_LIMIT,
                 "downloader": download_setting.DOWNLOADER}
 
+    def __build_class(self, ctype, conf=None):
+        for downloader_schema in self._downloader_schema:
+            try:
+                if downloader_schema.match(ctype):
+                    return downloader_schema(conf)
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+        return None
+
     @property
     def default_client(self):
         return self.__get_client(self._default_client_type)
 
-    def __get_client(self, ctype):
+    def __get_client(self, ctype: DownloaderType, conf: dict = None):
         if not ctype:
             return None
         with client_lock:
             if not self.clients.get(ctype.value):
-                if ctype == DownloaderType.TR:
-                    self.clients[ctype.value] = Transmission()
-                elif ctype == DownloaderType.Client115:
-                    self.clients[ctype.value] = Client115()
-                elif ctype == DownloaderType.Aria2:
-                    self.clients[ctype.value] = Aria2()
-                else:
-                    self.clients[ctype.value] = Qbittorrent()
+                self.clients[ctype.value] = self.__build_class(ctype.value, conf)
             return self.clients.get(ctype.value)
 
     def download(self,
@@ -247,10 +247,11 @@ class Downloader:
                 if not category:
                     category = download_label
             # 添加下载
+            print_url = content if isinstance(content, str) else url
             if is_paused:
-                log.info("【Downloader】添加下载任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, url))
+                log.info("【Downloader】添加下载任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             else:
-                log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
+                log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             if dl_type == DownloaderType.TR:
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,
@@ -460,7 +461,7 @@ class Downloader:
         # 返回按季、集数倒序排序的列表
         download_list = self.get_download_list(media_list)
 
-        def __download(download_item, torrent_file=None, tag=None, is_paused=False):
+        def __download(download_item, torrent_file=None, tag=None, is_paused=None):
             """
             下载及发送通知
             """
@@ -819,7 +820,7 @@ class Downloader:
             if exists_movies:
                 movies_str = "\n • ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 msg = f"媒体库中已存在电影：\n • {movies_str}"
-                log.info(f"【Downloader】msg")
+                log.info(f"【Downloader】{msg}")
                 message_list.append(msg)
                 return True, {}, message_list
             return False, {}, message_list

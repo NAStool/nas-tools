@@ -11,13 +11,13 @@ from config import Config
 class SiteUserInfoFactory(object):
 
     def __init__(self):
-        self.__site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
-                                                               filter_func=lambda _, obj: hasattr(obj, 'schema'))
-        self.__site_schema.sort(key=lambda x: x.order)
-        log.debug(f"【Sites】: 已经加载的站点解析 {self.__site_schema}")
+        self._site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
+                                                              filter_func=lambda _, obj: hasattr(obj, 'schema'))
+        self._site_schema.sort(key=lambda x: x.order)
+        log.debug(f"【Sites】: 已经加载的站点解析 {self._site_schema}")
 
-    def _build_class(self, html_text):
-        for site_schema in self.__site_schema:
+    def __build_class(self, html_text):
+        for site_schema in self._site_schema:
             try:
                 if site_schema.match(html_text):
                     return site_schema
@@ -103,7 +103,7 @@ class SiteUserInfoFactory(object):
                 log.error(f"【Sites】站点 {site_name} 无法访问：{url}")
                 return None
         # 解析站点类型
-        site_schema = self._build_class(html_text)
+        site_schema = self.__build_class(html_text)
         if not site_schema:
             log.error("【Sites】站点 %s 无法识别站点类型" % site_name)
             return None

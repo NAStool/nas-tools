@@ -5,16 +5,17 @@ import requests
 
 import log
 from app.helper import ThreadHelper
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, ExceptionUtils
 from config import Config
 
 lock = Lock()
 WEBHOOK_STATUS = False
 
 
-class Telegram(IMessageClient):
+class Telegram(_IMessageClient):
+    schema = "telegram"
+
     _telegram_token = None
     _telegram_chat_id = None
     _webhook = None
@@ -27,10 +28,10 @@ class Telegram(IMessageClient):
     _interactive = False
     _enabled = True
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._config = Config()
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self._domain = self._config.get_domain()
         if self._domain and self._domain.endswith("/"):
             self._domain = self._domain[:-1]
@@ -60,6 +61,10 @@ class Telegram(IMessageClient):
                         event = Event()
                         self._message_proxy_event = event
                         ThreadHelper().start_thread(self.__start_telegram_message_proxy, [event])
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def get_admin_user(self):
         """

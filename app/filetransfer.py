@@ -9,6 +9,7 @@ from threading import Lock
 from time import sleep
 
 import log
+from app.conf import ModuleConf
 from app.helper import DbHelper
 from app.helper import ThreadHelper
 from app.media import Media, Category, Scraper
@@ -17,7 +18,7 @@ from app.mediaserver import MediaServer
 from app.message import Message
 from app.subtitle import Subtitle
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils
-from app.utils.types import MediaType, SyncType, RmtMode, RMT_MODES
+from app.utils.types import MediaType, SyncType, RmtMode
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
 
@@ -142,7 +143,7 @@ class FileTransfer:
                 if len(tv_formats) > 2:
                     self._tv_season_rmt_format = tv_formats[-2]
                     self._tv_file_rmt_format = tv_formats[-1]
-        self._default_rmt_mode = RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
+        self._default_rmt_mode = ModuleConf.RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
 
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):
@@ -828,7 +829,7 @@ class FileTransfer:
             if not os.path.exists(t_path):
                 print("【Rmt】目的目录不存在：%s" % t_path)
                 return
-        rmt_mode = RMT_MODES.get(mode)
+        rmt_mode = ModuleConf.RMT_MODES.get(mode)
         if not rmt_mode:
             print("【Rmt】转移模式错误！")
             return

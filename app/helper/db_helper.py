@@ -1548,7 +1548,9 @@ class DbHelper:
                 DOWNLOAD_SIZE='0',
                 UPLOAD_SIZE='0',
                 STATE=item.get('state'),
-                LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                SENDMESSAGE=item.get('sendmessage'),
+                FORCEUPLOAD=item.get('forceupload')
             ))
         else:
             self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
@@ -1564,6 +1566,8 @@ class DbHelper:
                     "TRANSFER": item.get('transfer'),
                     "STATE": item.get('state'),
                     "LST_MOD_DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                    "SENDMESSAGE": item.get('sendmessage'),
+                    "FORCEUPLOAD": item.get('forceupload')
                 }
             )
 

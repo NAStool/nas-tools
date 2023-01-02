@@ -95,7 +95,7 @@
                     {% if Attr.over_edition %}
                       <span class="badge bg-red me-1 mb-1" title="已开启洗版">洗版</span>
                     {% endif %}
-                    {% if Attr.download_setting != -1 and Attr.download_setting|string in DownloadSettings %}
+                    {% if Attr.download_setting|string in DownloadSettings %}
                       <span class="badge bg-red me-1 mb-1" title="下载设置">
                         {{ DownloadSettings[Attr.download_setting|string].name }}
                       </span>

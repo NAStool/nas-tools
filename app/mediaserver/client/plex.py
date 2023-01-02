@@ -1,16 +1,18 @@
 from app.utils import ExceptionUtils
 from app.utils.types import MediaServerType
-from app.utils.commons import singleton
 
 import log
 from config import Config
-from app.mediaserver.media_client import IMediaClient
+from app.mediaserver.client._base import _IMediaClient
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
 
 
-@singleton
-class Plex(IMediaClient):
+class Plex(_IMediaClient):
+    schema = "plex"
+    server_type = MediaServerType.PLEX.value
+    _client_config = {}
+
     _host = None
     _token = None
     _username = None
@@ -18,24 +20,26 @@ class Plex(IMediaClient):
     _servername = None
     _plex = None
     _libraries = []
-    server_type = MediaServerType.PLEX.value
 
-    def __init__(self):
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('plex')
         self.init_config()
 
     def init_config(self):
-        plex = Config().get_config('plex')
-        if plex:
-            self._host = plex.get('host')
-            self._token = plex.get('token')
+        if self._client_config:
+            self._host = self._client_config.get('host')
+            self._token = self._client_config.get('token')
             if self._host:
                 if not self._host.startswith('http'):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
-            self._username = plex.get('username')
-            self._password = plex.get('password')
-            self._servername = plex.get('servername')
+            self._username = self._client_config.get('username')
+            self._password = self._client_config.get('password')
+            self._servername = self._client_config.get('servername')
             if self._host and self._token:
                 try:
                     self._plex = PlexServer(self._host, self._token)
@@ -50,6 +54,10 @@ class Plex(IMediaClient):
                     ExceptionUtils.exception_traceback(e)
                     self._plex = None
                     log.error(f"【{self.server_type}】Plex服务器连接失败：{str(e)}")
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.server_type] else False
 
     def get_status(self):
         """

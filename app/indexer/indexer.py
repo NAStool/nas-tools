@@ -2,38 +2,51 @@ import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
-from app.helper import ProgressHelper
-from app.indexer.client import Prowlarr, Jackett, BuiltinIndexer
-from app.utils.types import SearchType
+from app.conf import ModuleConf
+from app.helper import ProgressHelper, SubmoduleHelper
+from app.indexer.client import BuiltinIndexer
+from app.utils import ExceptionUtils
+from app.utils.commons import singleton
+from app.utils.types import SearchType, IndexerType
 from config import Config
 
 
+@singleton
 class Indexer(object):
-
+    _indexer_schemas = []
     _client = None
     _client_type = None
     progress = None
 
     def __init__(self):
-        self.progress = ProgressHelper()
+        self._indexer_schemas = SubmoduleHelper.import_submodules(
+            'app.indexer.client',
+            filter_func=lambda _, obj: hasattr(obj, 'schema')
+        )
+        log.debug(f"【Indexer】: 已经加载的索引器：{self._indexer_schemas}")
         self.init_config()
 
     def init_config(self):
-        if Config().get_config("pt").get('search_indexer') == "prowlarr":
-            self._client = Prowlarr()
-        elif Config().get_config("pt").get('search_indexer') == "jackett":
-            self._client = Jackett()
-        else:
-            self._client = BuiltinIndexer()
-        self._client_type = self._client.index_type
+        self.progress = ProgressHelper()
+        self._client_type = ModuleConf.INDEXER_DICT.get(Config().get_config("pt").get('search_indexer') or 'builtin')
+        self._client = self.__get_client(self._client_type)
 
-    def get_indexers(self):
+    def __build_class(self, ctype, conf):
+        for indexer_schema in self._indexer_schemas:
+            try:
+                if indexer_schema.match(ctype):
+                    return indexer_schema(conf)
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+        return None
+
+    def get_indexers(self, check=True):
         """
         获取当前索引器的索引站点
         """
         if not self._client:
             return []
-        return self._client.get_indexers()
+        return self._client.get_indexers(check)
 
     @staticmethod
     def get_builtin_indexers(check=True, public=True, indexer_id=None):
@@ -51,6 +64,9 @@ class Indexer(object):
         :param keyword: 搜索关键字
         """
         return BuiltinIndexer().list(index_id=index_id, page=page, keyword=keyword)
+
+    def __get_client(self, ctype: IndexerType, conf=None):
+        return self.__build_class(ctype=ctype.value, conf=conf)
 
     def get_client(self):
         """

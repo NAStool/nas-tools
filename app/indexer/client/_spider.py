@@ -284,14 +284,14 @@ class TorrentSpider(feapder.AirSpider):
             selector = self.fields.get('download', {}).get("detail", {})
             if "xpath" in selector:
                 self.torrents_info['enclosure'] = f'[{selector.get("xpath", "")}' \
-                                                  f'|{self.cookie}' \
-                                                  f'|{self.ua}' \
-                                                  f'|{self.referer}]'
+                                                  f'|{self.cookie or ""}' \
+                                                  f'|{self.ua or ""}' \
+                                                  f'|{self.referer or ""}]'
             elif "hash" in selector:
                 self.torrents_info['enclosure'] = f'#{selector.get("hash", "")}' \
-                                                  f'|{self.cookie}' \
-                                                  f'|{self.ua}' \
-                                                  f'|{self.referer}#'
+                                                  f'|{self.cookie or ""}' \
+                                                  f'|{self.ua or ""}' \
+                                                  f'|{self.referer or ""}#'
         else:
             download = torrent(self.fields.get('download', {}).get('selector', ''))
             items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]

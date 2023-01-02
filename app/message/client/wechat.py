@@ -2,15 +2,16 @@ import json
 import threading
 from datetime import datetime
 
-from app.message.message_client import IMessageClient
-from app.utils import RequestUtils
-from app.utils.exception_utils import ExceptionUtils
+from app.message.client._base import _IMessageClient
+from app.utils import RequestUtils, ExceptionUtils
 from config import DEFAULT_WECHAT_PROXY
 
 lock = threading.Lock()
 
 
-class WeChat(IMessageClient):
+class WeChat(_IMessageClient):
+    schema = "wechat"
+
     _instance = None
     _access_token = None
     _expires_in = None
@@ -25,9 +26,9 @@ class WeChat(IMessageClient):
     _send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
     _token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
-    def __init__(self, config, interactive=False):
+    def __init__(self, config):
         self._client_config = config
-        self._interactive = interactive
+        self._interactive = config.get("interactive")
         self.init_config()
 
     def init_config(self):
@@ -45,6 +46,10 @@ class WeChat(IMessageClient):
                 self._token_url = f"{self._default_proxy}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
         if self._corpid and self._corpsecret and self._agent_id:
             self.__get_access_token()
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype == cls.schema else False
 
     def __get_access_token(self, force=False):
         """

@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class IMessageClient(metaclass=ABCMeta):
+class _IMessageClient(metaclass=ABCMeta):
 
     @abstractmethod
     def init_config(self):

@@ -77,24 +77,6 @@ class BrushDeleteType(Enum):
     AVGUPSPEED = "平均上传速度"
 
 
-class SystemDictType(Enum):
-    BrushMessageSwitch = "刷流消息开关"
-    BrushForceUpSwitch = "刷流强制做种开关"
-
-
-# 转移模式
-RMT_MODES = {
-    "copy": RmtMode.COPY,
-    "link": RmtMode.LINK,
-    "softlink": RmtMode.SOFTLINK,
-    "move": RmtMode.MOVE,
-    "rclone": RmtMode.RCLONE,
-    "rclonecopy": RmtMode.RCLONECOPY,
-    "minio": RmtMode.MINIO,
-    "miniocopy": RmtMode.MINIOCOPY
-}
-
-
 # 站点框架
 class SiteSchema(Enum):
     DiscuzX = "Discuz!"

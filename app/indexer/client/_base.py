@@ -11,7 +11,7 @@ from app.media.meta import MetaInfo
 from app.utils.types import MediaType, SearchType
 
 
-class IIndexClient(metaclass=ABCMeta):
+class _IIndexClient(metaclass=ABCMeta):
     media = None
     index_type = None
     api_key = None
@@ -24,7 +24,6 @@ class IIndexClient(metaclass=ABCMeta):
         self.media = Media()
         self.filter = Filter()
         self.progress = ProgressHelper()
-        self.init_config()
 
     @abstractmethod
     def init_config(self):

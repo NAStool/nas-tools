@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class IMediaClient(metaclass=ABCMeta):
+class _IMediaClient(metaclass=ABCMeta):
 
     @abstractmethod
     def get_status(self):

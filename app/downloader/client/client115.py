@@ -1,21 +1,33 @@
 import log
 from app.utils.types import DownloaderType
 from config import Config
-from app.downloader.download_client import IDownloadClient
-from app.downloader.client.py115 import Py115
+from app.downloader.client._base import _IDownloadClient
+from app.downloader.client._py115 import Py115
 
 
-class Client115(IDownloadClient):
+class Client115(_IDownloadClient):
+    schema = "client115"
+    client_type = DownloaderType.Client115.value
+    _client_config = {}
 
     downclient = None
     lasthash = None
-    client_type = DownloaderType.Client115.value
 
-    def get_config(self):
-        # 读取配置文件
-        cloudconfig = Config().get_config('client115')
-        if cloudconfig:
-            self.downclient = Py115(cloudconfig.get("cookie"))
+    def __init__(self, config=None):
+        if config:
+            self._client_config = config
+        else:
+            self._client_config = Config().get_config('client115')
+        self.init_config()
+        self.connect()
+
+    def init_config(self):
+        if self._client_config:
+            self.downclient = Py115(self._client_config.get("cookie"))
+
+    @classmethod
+    def match(cls, ctype):
+        return True if ctype in [cls.schema, cls.client_type] else False
 
     def connect(self):
         self.downclient.login()
