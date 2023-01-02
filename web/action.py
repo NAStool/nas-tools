@@ -41,7 +41,7 @@ from app.sync import Sync, stop_monitor
 from app.conf import SystemConfig, ModuleConf
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
-from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, SystemDictType
+from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 
@@ -1828,13 +1828,11 @@ class WebAction:
             "transfer": brushtask_transfer,
             "state": brushtask_state,
             "rss_rule": rss_rule,
-            "remove_rule": remove_rule
+            "remove_rule": remove_rule,
+            "sendmessage": brushtask_sendmessage,
+            "forceupload": brushtask_forceupload
         }
         self.dbhelper.insert_brushtask(brushtask_id, item)
-        # 存储消息开关
-        DictHelper().set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
-        # 存储是否强制做种的开关
-        DictHelper().set(SystemDictType.BrushForceUpSwitch.value, brushtask_site, brushtask_forceupload)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1861,8 +1859,6 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         site_info = Sites().get_sites(siteid=brushtask.SITE)
-        sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, brushtask.SITE)
-        forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, brushtask.SITE)
         task = {
             "id": brushtask.ID,
             "name": brushtask.NAME,
@@ -1881,8 +1877,8 @@ class WebAction:
             "upload_size": StringUtils.str_filesize(brushtask.UPLOAD_SIZE),
             "lst_mod_date": brushtask.LST_MOD_DATE,
             "site_url": StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl")),
-            "sendmessage": sendmessage_switch,
-            "forceupload": forceupload_switch
+            "sendmessage": brushtask.SENDMESSAGE,
+            "forceupload": brushtask.FORCEUPLOAD
         }
         return {"code": 0, "task": task}
 

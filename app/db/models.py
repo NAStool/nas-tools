@@ -380,6 +380,8 @@ class SITEBRUSHTASK(Base):
     REMOVE_COUNT = Column(Text)
     DOWNLOAD_SIZE = Column(Text)
     UPLOAD_SIZE = Column(Text)
+    SENDMESSAGE = Column(Text)
+    FORCEUPLOAD = Column(Text)
     STATE = Column(Text)
     LST_MOD_DATE = Column(Text)
 

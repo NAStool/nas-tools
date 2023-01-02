@@ -1,21 +1,21 @@
 import re
 import sys
 import time
-import pytz
 from datetime import datetime
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
 from app.downloader.client import Qbittorrent, Transmission
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper
+from app.helper import DbHelper
 from app.message import Message
 from app.rss import Rss
 from app.sites import Sites
 from app.utils import StringUtils, Torrent, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import BrushDeleteType, SystemDictType
+from app.utils.types import BrushDeleteType
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL, Config
 
 
@@ -95,8 +95,6 @@ class BrushTask(object):
         brushtasks = self.dbhelper.get_brushtasks()
         _brush_tasks = []
         for task in brushtasks:
-            sendmessage_switch = DictHelper().get(SystemDictType.BrushMessageSwitch.value, task.SITE)
-            forceupload_switch = DictHelper().get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             if site_info:
                 site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
@@ -119,8 +117,8 @@ class BrushTask(object):
                 "seed_size": task.SEED_SIZE,
                 "rss_url": site_info.get("rssurl"),
                 "cookie": site_info.get("cookie"),
-                "sendmessage": sendmessage_switch,
-                "forceupload": forceupload_switch,
+                "sendmessage": task.SENDMESSAGE,
+                "forceupload": task.FORCEUPLOAD,
                 "ua": site_info.get("ua"),
                 "download_count": task.DOWNLOAD_COUNT,
                 "remove_count": task.REMOVE_COUNT,
