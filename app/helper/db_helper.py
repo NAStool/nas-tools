@@ -1397,7 +1397,7 @@ class DbHelper:
         date_ret = self._db.query(func.max(SITESTATISTICSHISTORY.DATE),
                                   func.MIN(SITESTATISTICSHISTORY.DATE)).filter(
             SITESTATISTICSHISTORY.DATE > b_date).all()
-        if date_ret:
+        if date_ret and date_ret[0][0]:
             total_upload = 0
             total_download = 0
             ret_sites = []
