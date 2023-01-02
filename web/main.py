@@ -245,7 +245,7 @@ def search():
     Count = res.get("total")
     # 站点列表
     SiteDict = {}
-    for item in Indexer().get_indexers() or []:
+    for item in Indexer().get_indexers(check=False) or []:
         SiteDict[md5_hash(item.name)] = {
             "id": item.id,
             "name": item.name,
