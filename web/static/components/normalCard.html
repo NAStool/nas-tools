@@ -1,3 +1,4 @@
+{% import 'SVG.html' as SVG %}
 <!-- 卡片主体 -->
 <template id="normalCard_Template">
   <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
@@ -47,12 +48,7 @@
 <!-- 已下载图标 -->
 <template id="normalCard_Template_downloaded">
   <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
-      class="h-3 w-3 sm:h-4 sm:w-4">
-      <path fill-rule="evenodd"
-        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-        clip-rule="evenodd"></path>
-    </svg>
+    {{ SVG.check() }}
   </div>
 </template>
 <!-- 评分图标 -->
@@ -65,20 +61,11 @@
 <template id="normalCard_Template_SeaSub">
   <div class="d-flex justify-content-between">
     <a class="text-muted" title="搜索资源" onclick="window.event.cancelBubble=true;">
-      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search icon-pulse text-white" width="24" height="24"
-           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <circle cx="10" cy="10" r="7"></circle>
-        <line x1="21" y1="21" x2="15" y2="15"></line>
-      </svg>
+      <span class="icon-pulse text-white">{{ SVG.search() }}</span>
     </a>
     <div class="ms-auto">
       <div class="text-muted" title="加入/取消订阅" style="cursor: pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-pulse text-white"
-             width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-        </svg>
+        <span class="icon-pulse text-white">{{ SVG.heart() }}</span>
       </div>
     </div>
   </div>
