@@ -2622,7 +2622,7 @@
   //当前页面地址
   let CURRENT_PAGE_URI = "";
 
-  function window_history(api_type){
+  function window_history(newflag=false){
     const state = {
       title: document.title,
       menu: $("#navbar-menu").html(),          // 导航当前选中
@@ -2630,17 +2630,17 @@
       scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
       page: sessionStorage.CurrentPage,        // 页面当前页码
     };
-    if (api_type == "更新") {
-      window.history.replaceState(state, "");
-    } else if (api_type == "新增"){
+    if (newflag) {
       window.history.pushState(state, "");
+    } else {
+      window.history.replaceState(state, "");
     }
   }
 
   //导航点击
   function navmenu(page) {
     // 更新当前历史记录
-    window_history("更新");
+    window_history();
     // 主动点击时清除页码
     sessionStorage.removeItem("CurrentPage");
 
@@ -2668,7 +2668,7 @@
         ScrollToTop();
         CURRENT_PAGE_URI = page;
         // 并记录当前历史记录
-        window_history("新增");
+        window_history(true);
       }
     });
   }
