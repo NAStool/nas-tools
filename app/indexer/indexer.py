@@ -42,13 +42,13 @@ class Indexer(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
-    def get_indexers(self, check=True):
+    def get_indexers(self):
         """
         获取当前索引器的索引站点
         """
         if not self._client:
             return []
-        return self._client.get_indexers(check)
+        return self._client.get_indexers()
 
     @staticmethod
     def get_builtin_indexers(check=True, public=True, indexer_id=None):

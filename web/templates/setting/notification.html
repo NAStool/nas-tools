@@ -265,7 +265,7 @@
     $("#client_id").val('');
     $("#client_modal_title").text("新增消息通知");
     reset_message_config_fields();
-    show_client_type("{{ (Channels.keys()|list)[0] }}");
+    show_client_type("{{ Channels.keys()|first }}");
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
       $(this).prop("checked", true);
