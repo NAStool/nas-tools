@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
@@ -42,25 +43,12 @@
               <div class="d-flex">
                 <a href='javascript:add_medialist_rss_media("{{ Media.title }}","{{ Media.year }}","{{ Media.type}}","{{ Media.tmdb_id }}")'
                    class="card-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss me-2 text-muted"
-                       width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <circle cx="5" cy="19" r="1"></circle>
-                    <path d="M4 4a16 16 0 0 1 16 16"></path>
-                    <path d="M4 11a9 9 0 0 1 9 9"></path>
-                  </svg>
+                  <span class="me-2 text-muted">{{ SVG.rss() }}</span>
                   订阅
                 </a>
                 <a href='javascript:medialist_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
                    class="card-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-2 text-muted"
-                       width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <circle cx="10" cy="10" r="7"></circle>
-                    <line x1="21" y1="21" x2="15" y2="15"></line>
-                  </svg>
+                  <span class="me-2 text-muted">{{ SVG.search() }}</span>
                   搜索
                 </a>
               </div>
@@ -88,13 +76,7 @@
         {% if OperType == 'search' %}
           <div class="empty-action">
             <a href='javascript:navmenu("search?s={{ SearchWord }}")' class="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <line x1="5" y1="12" x2="11" y2="18"></line>
-                <line x1="5" y1="12" x2="11" y2="6"></line>
-              </svg>
+              {{ SVG.arrow_left() }}
               返回
             </a>
           </div>

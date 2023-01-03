@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,21 +11,11 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_sync_path_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            {{ SVG.plus() }}
             新增同步目录
           </a>
           <a href="javascript:show_add_sync_path_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            {{ SVG.plus() }}
           </a>
         </div>
       </div>
@@ -86,25 +77,11 @@
                     </td>
                     <td>
                       <div class="d-flex">
-                        <a href="javascript:show_edit_sync_path_modal('{{ SyncPath.id }}')" title="编辑替换词">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
-                               viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-                            <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-                            <line x1="16" y1="5" x2="19" y2="8"/>
-                          </svg>
+                        <a href="javascript:show_edit_sync_path_modal('{{ SyncPath.id }}')" title="编辑目录">
+                          {{ SVG.edit() }}
                         </a>
                         <a href="javascript:delete_sync_path('{{ SyncPath.id }}')" title="删除目录" class="ms-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                               height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                               stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                          </svg>
+                          {{ SVG.x() }}
                         </a>
                       </div>
                     </td>

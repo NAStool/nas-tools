@@ -1,6 +1,7 @@
 <!doctype html>
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <html lang="en">
-
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport"
@@ -123,13 +124,7 @@
         <div class="nav-item dropdown">
           <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
               <span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
-                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                </svg>
+                {{ SVG.user() }}
               </span>
             <div class="d-none d-xl-block ps-2">
               <div>{{ UserName }}</div>
@@ -157,12 +152,7 @@
         <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
           <div class="input-icon">
               <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <circle cx="10" cy="10" r="7"></circle>
-                  <line x1="21" y1="21" x2="15" y2="15"></line>
-                </svg>
+                {{ SVG.search() }}
               </span>
             <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅..." autocomplete="false">
           </div>
@@ -172,14 +162,7 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('index')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
-                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
-                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
-                  </svg>
+                  {{ SVG.home() }}
                 </span>
                 <span class="nav-link-title">
                   开始
@@ -191,13 +174,7 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('search')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <circle cx="10" cy="10" r="7"></circle>
-                    <line x1="21" y1="21" x2="15" y2="15"></line>
-                  </svg>
+                  {{ SVG.search() }}
                 </span>
                 <span class="nav-link-title">
                   资源搜索
@@ -210,12 +187,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                  </svg>
+                  {{ SVG.star() }}
                 </span>
                 <span class="nav-link-title">
                   推荐
@@ -268,17 +240,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-server-2" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <rect x="3" y="4" width="18" height="8" rx="3"></rect>
-                    <rect x="3" y="12" width="18" height="8" rx="3"></rect>
-                    <line x1="7" y1="8" x2="7" y2="8.01"></line>
-                    <line x1="7" y1="16" x2="7" y2="16.01"></line>
-                    <path d="M11 8h6"></path>
-                    <path d="M11 16h6"></path>
-                  </svg>
+                  {{ SVG.server_2() }}
                 </span>
                 <span class="nav-link-title">
                   站点管理
@@ -305,13 +267,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <polyline points="9 11 12 14 20 6"></polyline>
-                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"></path>
-                  </svg>
+                  {{ SVG.checkbox() }}
                 </span>
                 <span class="nav-link-title">
                   订阅管理
@@ -338,14 +294,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                    <polyline points="7 11 12 16 17 11"></polyline>
-                    <line x1="12" y1="4" x2="12" y2="16"></line>
-                  </svg>
+                  {{ SVG.download() }}
                 </span>
                 <span class="nav-link-title">
                   下载管理
@@ -369,19 +318,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                    <line x1="8" y1="4" x2="8" y2="20"></line>
-                    <line x1="16" y1="4" x2="16" y2="20"></line>
-                    <line x1="4" y1="8" x2="8" y2="8"></line>
-                    <line x1="4" y1="16" x2="8" y2="16"></line>
-                    <line x1="4" y1="12" x2="20" y2="12"></line>
-                    <line x1="16" y1="8" x2="20" y2="8"></line>
-                    <line x1="16" y1="16" x2="20" y2="16"></line>
-                  </svg>
+                  {{ SVG.movie() }}
                 </span>
                 <span class="nav-link-title">
                   媒体整理
@@ -407,15 +344,7 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('service')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <rect x="4" y="4" width="6" height="5" rx="2"></rect>
-                    <rect x="4" y="13" width="6" height="7" rx="2"></rect>
-                    <rect x="14" y="4" width="6" height="7" rx="2"></rect>
-                    <rect x="14" y="15" width="6" height="5" rx="2"></rect>
-                  </svg>
+                  {{ SVG.layout_2() }}
                 </span>
                 <span class="nav-link-title">
                   服务
@@ -428,15 +357,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path
-                            d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
-                    </path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
+                  {{ SVG.settings() }}
                 </span>
                 <span class="nav-link-title">
                   设置
@@ -492,40 +413,22 @@
         <div class="nav-item d-none d-md-flex me-3">
           <div class="btn-list">
             <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
-              </svg>
+              {{ SVG.brand_github() }}
               Source code
             </a>
           </div>
         </div>
         <div class="d-none d-md-flex">
           <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-placement="bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
-            </svg>
+            {{ SVG.moon() }}
           </a>
           <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-placement="bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <circle cx="12" cy="12" r="4"></circle>
-              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
-            </svg>
+            {{ SVG.sun() }}
           </a>
           <div class="nav-item dropdown d-none d-md-flex me-3">
             <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="新版本提示"
                id="new_version_tip" style="display:none">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
-                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
-              </svg>
+              {{ SVG.bell() }}
               <span class="badge bg-red"></span>
             </a>
             <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
@@ -544,17 +447,7 @@
                       {% if SystemFlag > 0 and "系统设置" in UserPris %}
                         <div class="col-auto">
                           <a href="javascript:update(NewVersion)" class="list-group-item-actions" title="升级版本">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24"
-                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <path
-                                      d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z">
-                              </path>
-                              <path d="M9 21h6"></path>
-                              <path d="M9 18h6"></path>
-                            </svg>
+                            {{ SVG.arrow_big_up_lines() }}
                           </a>
                         </div>
                       {% endif %}
@@ -569,13 +462,7 @@
           <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
              aria-label="Open user menu">
               <span class="avatar avatar-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
-                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                </svg>
+                {{ SVG.user() }}
               </span>
             <div class="d-none d-xl-block ps-2">
               <div>{{ UserName }}</div>
@@ -600,12 +487,7 @@
         <div>
           <div class="input-icon">
               <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <circle cx="10" cy="10" r="7"></circle>
-                  <line x1="21" y1="21" x2="15" y2="15"></line>
-                </svg>
+                {{ SVG.search() }}
               </span>
             <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…"
                    aria-label="资源搜索/订阅">
@@ -616,17 +498,7 @@
   </header>
   <div class="page-wrapper" id="page_wrapper">
     <div id="page_content">
-      <div class="page-center justify-content-center">
-        <div class="container-tight py-4">
-          <div class="empty">
-            <div class="mb-3"><img src="../static/img/quitting_time.svg" height="256" alt="">
-            </div>
-            <p class="empty-subtitle text-muted">
-              页面正在加载，请稍候...
-            </p>
-          </div>
-        </div>
-      </div>
+      {{ OOPS.loading() }}
     </div>
     <footer class="footer footer-transparent d-print-none" style="padding: 0;">
       <div class="container-xl">
@@ -694,13 +566,7 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-danger"></div>
       <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
-             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M12 9v2m0 4v.01"></path>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
-        </svg>
+       <span class="mb-2 text-danger">{{ SVG.alert_triangle('icon-lg') }}</span>
         <h3>确认</h3>
         <div class="text-muted text-wrap" id="system_confirm_message" style="overflow: hidden">是否确定？</div>
       </div>
@@ -730,13 +596,7 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-success"></div>
       <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
-             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <circle cx="12" cy="12" r="9"></circle>
-          <path d="M9 12l2 2l4 -4"></path>
-        </svg>
+        <span class="mb-2 text-green">{{ SVG.circle_check('icon-lg') }}</span>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_action_message" style="overflow: hidden">操作成功！</div>
       </div>
@@ -781,13 +641,7 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-success"></div>
       <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
-             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <circle cx="12" cy="12" r="9"></circle>
-          <path d="M9 12l2 2l4 -4"></path>
-        </svg>
+        <span class="mb-2 text-green">{{ SVG.circle_check('icon-lg') }}</span>
         <h3>成功</h3>
         <div class="text-muted text-wrap" id="system_success_message" style="overflow: hidden">成功！</div>
       </div>
@@ -813,13 +667,7 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-warning"></div>
       <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24"
-             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M12 9v2m0 4v.01"></path>
-          <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
-        </svg>
+        <span class="mb-2 text-warning">{{ SVG.alert_triangle('icon-lg') }}</span>
         <h3>失败</h3>
         <div class="text-muted text-wrap" id="system_fail_message" style="overflow:hidden">失败！</div>
       </div>
@@ -1341,7 +1189,7 @@
           </div>
           <div class="col-auto">
             <button onclick="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')" class="btn btn-primary btn-icon" aria-label="Button">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+              {{ SVG.search() }}
             </button>
           </div>
         </div>
@@ -1672,7 +1520,7 @@
   //显示订阅季选择框
   function show_rss_seasons_modal(name, year, type, tmdbid, doubanid, seasons, func) {
     $("#system_rss_seasons_group").empty();
-    for (var i = 0; i < seasons.length; i++) {
+    for (let i = 0; i < seasons.length; i++) {
       $("#system_rss_seasons_group").append('<label class="form-selectgroup-item"><input type="checkbox" name="system_rss_season" value="' + seasons[i].num + '" class="form-selectgroup-input"><span class="form-selectgroup-label">' + seasons[i].text + '</span></label>');
     }
     $("#system_rss_seasons_btn").unbind('click').click(function () {

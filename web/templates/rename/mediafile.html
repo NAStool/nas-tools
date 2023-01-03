@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="page-body">
   <div class="container-xl">
     <div class="card">
@@ -7,22 +8,13 @@
             <h4 class="subheader">目录</h4>
             <div class="input-icon mb-2">
               <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24"
-                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-                  <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
-                </svg>
+                {{ SVG.folders() }}
               </span>
               <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
                      aria-label="Search in website">
             </div>
             <a href="javascript:return_to_parentdir()">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-              </svg>
+              {{ SVG.arrow_back_up() }}
               上级目录
             </a>
             <div id="mediafile_tree" style="overflow-y: auto;"></div>
@@ -37,27 +29,11 @@
             </div>
             <div class="card-actions">
               <a href="javascript:mediafile_transfer_all()" class="btn" title="转移当前目录">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24"
-                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
-                  <circle cx="6" cy="6" r="3"></circle>
-                  <circle cx="18" cy="18" r="3"></circle>
-                  <path d="M16 9l2 2l2 -2"></path>
-                  <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
-                  <path d="M3 15l2 -2l2 2"></path>
-                </svg>
+                {{ SVG.transform() }}
                 转移目录
               </a>
               <a href="javascript:mediafile_findlinks_all()" class="btn" title="查询所有文件硬链接">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24"
-                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
-                  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
-                </svg>
+                {{ SVG.link() }}
                 所有硬链接
               </a>
             </div>
@@ -315,11 +291,7 @@
                       </td>
                       <td>
                         <div class="ms-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
-                             <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
-                          </svg>
+                          <span class="text-muted">{{ SVG.link() }}</span>
                           ${hardlink.filename}
                         </div>
                         <div class="ms-3"><span class="text-muted">${hardlink.filepath}</span></div>
@@ -448,13 +420,7 @@
               <div class="col">
                 <div class="mt-3 list-inline list-inline-dots mb-0 text-muted">
                   <div class="list-inline-item d-none d-lg-block">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-                          <path d="M11 14h1v4h1"></path>
-                          <path d="M12 11h.01"></path>
-                      </svg>
+                      {{ SVG.file_info() }}
                       {FILESIZE}
                   </div>
                 </div>

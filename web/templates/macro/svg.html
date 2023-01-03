@@ -1,0 +1,974 @@
+<!-- 加号（新增） -->
+<!-- http://tabler-icons.io/i/plus -->
+{% macro plus(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 历史 -->
+<!-- http://tabler-icons.io/i/history -->
+{% macro history(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="12 8 12 12 14 14"></polyline>
+    <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 左箭头（返回） -->
+<!-- http://tabler-icons.io/i/arrow-left -->
+{% macro arrow_left(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+    <line x1="5" y1="12" x2="11" y2="18"></line>
+    <line x1="5" y1="12" x2="11" y2="6"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 刷新 -->
+<!-- http://tabler-icons.io/i/refresh -->
+{% macro refresh(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 刷新（点） -->
+<!-- http://tabler-icons.io/i/refresh-dot -->
+{% macro refresh_dot(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh-dot {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+    <circle cx="12" cy="12" r="1"></circle>
+  </svg>
+{% endmacro %}
+
+<!-- 用户 -->
+<!-- http://tabler-icons.io/i/user -->
+{% macro user(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 右三角（播放） -->
+<!-- http://tabler-icons.io/i/player-play -->
+{% macro player_play(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M7 4v16l13 -8z"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 三点竖直（菜单） -->
+<!-- http://tabler-icons.io/i/dots-vertical -->
+{% macro dots_vertical(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="1"></circle>
+    <circle cx="12" cy="19" r="1"></circle>
+    <circle cx="12" cy="5" r="1"></circle>
+  </svg>
+{% endmacro %}
+
+<!-- 闪电（立即执行） -->
+<!-- http://tabler-icons.io/i/bolt -->
+{% macro bolt(class) %}
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3"></polyline>
+  </svg>
+{% endmacro %}
+
+<!-- 菜单（三横） -->
+<!-- http://tabler-icons.io/i/menu-2 -->
+{% macro menu_2(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu-2 {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="4" y1="6" x2="20" y2="6"></line>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+    <line x1="4" y1="18" x2="20" y2="18"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 眼睛（详情） -->
+<!-- http://tabler-icons.io/i/eye -->
+{% macro eye(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye {{ class }}"
+       width="24" height="24" viewBox="0 0 24 24"
+       stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="2"></circle>
+    <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 编辑 -->
+<!-- http://tabler-icons.io/i/edit -->
+{% macro edit(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+    <path d="M16 5l3 3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- x（删除） -->
+<!-- http://tabler-icons.io/i/x -->
+{% macro x(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 返回箭头 -->
+<!-- http://tabler-icons.io/i/arrow-back-up -->
+{% macro arrow_back_up(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 键盘（密码） -->
+<!-- http://tabler-icons.io/i/keyboard -->
+{% macro keyboard(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+    <line x1="6" y1="10" x2="6" y2="10"></line>
+    <line x1="10" y1="10" x2="10" y2="10"></line>
+    <line x1="14" y1="10" x2="14" y2="10"></line>
+    <line x1="18" y1="10" x2="18" y2="10"></line>
+    <line x1="6" y1="14" x2="6" y2="14.01"></line>
+    <line x1="18" y1="14" x2="18" y2="14.01"></line>
+    <line x1="10" y1="14" x2="14" y2="14"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 订阅 -->
+<!-- http://tabler-icons.io/i/rss -->
+{% macro rss(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="5" cy="19" r="1"></circle>
+    <path d="M4 4a16 16 0 0 1 16 16"></path>
+    <path d="M4 11a9 9 0 0 1 9 9"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 搜索 -->
+<!-- http://tabler-icons.io/i/search -->
+{% macro search(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="10" cy="10" r="7"></circle>
+    <line x1="21" y1="21" x2="15" y2="15"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 家 -->
+<!-- http://tabler-icons.io/i/home -->
+{% macro home(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="5 12 3 12 12 3 21 12 19 12"></polyline>
+    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 垃圾 -->
+<!-- http://tabler-icons.io/i/trash -->
+{% macro trash(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="4" y1="7" x2="20" y2="7"></line>
+    <line x1="10" y1="11" x2="10" y2="17"></line>
+    <line x1="14" y1="11" x2="14" y2="17"></line>
+    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 星星 -->
+<!-- http://tabler-icons.io/i/star -->
+{% macro star(class) %}
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 服务器 -->
+<!-- http://tabler-icons.io/i/server-2 -->
+{% macro server_2(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-server-2 {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="3" y="4" width="18" height="8" rx="3"></rect>
+    <rect x="3" y="12" width="18" height="8" rx="3"></rect>
+    <line x1="7" y1="8" x2="7" y2="8.01"></line>
+    <line x1="7" y1="16" x2="7" y2="16.01"></line>
+    <path d="M11 8h6"></path>
+    <path d="M11 16h6"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 电影 -->
+<!-- http://tabler-icons.io/i/movie -->
+{% macro movie(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+    <line x1="8" y1="4" x2="8" y2="20"></line>
+    <line x1="16" y1="4" x2="16" y2="20"></line>
+    <line x1="4" y1="8" x2="8" y2="8"></line>
+    <line x1="4" y1="16" x2="8" y2="16"></line>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+    <line x1="16" y1="8" x2="20" y2="8"></line>
+    <line x1="16" y1="16" x2="20" y2="16"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 电视 -->
+<!-- http://tabler-icons.io/i/device-tv -->
+{% macro device_tv(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+    <polyline points="16 3 12 7 8 3"></polyline>
+  </svg>
+{% endmacro %}
+
+<!-- 左V（前页） -->
+<!-- http://tabler-icons.io/i/chevron-left -->
+{% macro chevron_left(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="15 6 9 12 15 18"></polyline>
+  </svg>
+{% endmacro %}
+
+<!-- 右V（后页） -->
+<!-- http://tabler-icons.io/i/chevron-right -->
+{% macro chevron_right(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="9 6 15 12 9 18"></polyline>
+  </svg>
+{% endmacro %}
+
+<!-- 文件夹 -->
+<!-- http://tabler-icons.io/i/folders -->
+{% macro folders(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+    <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 转移 -->
+<!-- http://tabler-icons.io/i/transform -->
+{% macro transform(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
+    <circle cx="6" cy="6" r="3"></circle>
+    <circle cx="18" cy="18" r="3"></circle>
+    <path d="M16 9l2 2l2 -2"></path>
+    <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
+    <path d="M3 15l2 -2l2 2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 链接 -->
+<!-- http://tabler-icons.io/i/link -->
+{% macro link(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+    <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 文件详情 -->
+<!-- http://tabler-icons.io/i/file-info -->
+{% macro file_info(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-info {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+    <path d="M11 14h1v4h1"></path>
+    <path d="M12 11h.01"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 橡皮擦 -->
+<!-- http://tabler-icons.io/i/eraser -->
+{% macro eraser(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3"></path>
+    <path d="M18 13.3l-6.3 -6.3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- CPU -->
+<!-- http://tabler-icons.io/i/cpu -->
+{% macro cpu(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="5" y="5" width="14" height="14" rx="1"></rect>
+    <path d="M9 9h6v6h-6z"></path>
+    <path d="M3 10h2"></path>
+    <path d="M3 14h2"></path>
+    <path d="M10 3v2"></path>
+    <path d="M14 3v2"></path>
+    <path d="M21 10h-2"></path>
+    <path d="M21 14h-2"></path>
+    <path d="M14 21v-2"></path>
+    <path d="M10 21v-2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 下载 -->
+<!-- http://tabler-icons.io/i/download -->
+{% macro download(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+    <polyline points="7 11 12 16 17 11"></polyline>
+    <line x1="12" y1="4" x2="12" y2="16"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 圆圈√ -->
+<!-- http://tabler-icons.io/i/circle-check -->
+{% macro circle_check(class) %}
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M9 12l2 2l4 -4"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 圆圈x -->
+<!-- http://tabler-icons.io/i/circle-x -->
+{% macro circle_x(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M10 10l4 4m0 -4l-4 4"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 文字识别 -->
+<!-- http://tabler-icons.io/i/text-recognition -->
+{% macro text_recognition(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-text-recognition {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 8v-2a2 2 0 0 1 2 -2h2"></path>
+    <path d="M4 16v2a2 2 0 0 0 2 2h2"></path>
+    <path d="M16 4h2a2 2 0 0 1 2 2v2"></path>
+    <path d="M16 20h2a2 2 0 0 0 2 -2v-2"></path>
+    <path d="M12 16v-7"></path>
+    <path d="M9 9h6"></path>
+  </svg>
+{% endmacro %}
+
+<!-- √ -->
+<!-- http://tabler-icons.io/i/check -->
+{% macro check(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M5 12l5 5l10 -10"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 视频 -->
+<!-- http://tabler-icons.io/i/video -->
+{% macro video(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-video {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"></path>
+    <rect x="3" y="6" width="12" height="12" rx="2"></rect>
+  </svg>
+{% endmacro %}
+
+<!-- 详情圈 -->
+<!-- http://tabler-icons.io/i/info-circle -->
+{% macro info_circle(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="9"></circle>
+    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    <polyline points="11 12 12 12 12 16 13 16"></polyline>
+  </svg>
+{% endmacro %}
+
+<!-- 水平三点（菜单） -->
+<!-- http://tabler-icons.io/i/dots -->
+{% macro dots(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="5" cy="12" r="1"></circle>
+    <circle cx="12" cy="12" r="1"></circle>
+    <circle cx="19" cy="12" r="1"></circle>
+  </svg>
+{% endmacro %}
+
+<!-- 幻灯片 -->
+<!-- http://tabler-icons.io/i/slideshow -->
+{% macro slideshow(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-slideshow {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="15" y1="6" x2="15.01" y2="6"></line>
+    <rect x="3" y="3" width="18" height="14" rx="3"></rect>
+    <path d="M3 13l4 -4a3 5 0 0 1 3 0l4 4"></path>
+    <path d="M13 12l2 -2a3 5 0 0 1 3 0l3 3"></path>
+    <line x1="8" y1="21" x2="8.01" y2="21"></line>
+    <line x1="12" y1="21" x2="12.01" y2="21"></line>
+    <line x1="16" y1="21" x2="16.01" y2="21"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 文本排版 -->
+<!-- http://tabler-icons.io/i/tex -->
+{% macro tex(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tex {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M9 8v-1h-6v1"></path>
+    <path d="M6 15v-8"></path>
+    <path d="M21 15l-5 -8"></path>
+    <path d="M16 15l5 -8"></path>
+    <path d="M14 11h-4v8h4"></path>
+    <path d="M10 15h3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 详情圆角 -->
+<!-- http://tabler-icons.io/i/info-square-rounded -->
+{% macro info_square_rounded(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-square-rounded {{ class }}" width="24"
+       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 8h.01"></path>
+    <path d="M11 12h1v4h1"></path>
+    <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 图片 -->
+<!-- http://tabler-icons.io/i/photo -->
+{% macro photo(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="15" y1="8" x2="15.01" y2="8"></line>
+    <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+    <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
+    <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 播放停止 -->
+<!-- http://tabler-icons.io/i/player-stop -->
+{% macro player_stop(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-stop {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+  </svg>
+{% endmacro %}
+
+<!-- 导入 -->
+<!-- http://tabler-icons.io/i/transfer-in -->
+{% macro transfer_in(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
+    <path d="M4 14h9"></path>
+    <path d="M10 11l3 3l-3 3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 导出 -->
+<!-- http://tabler-icons.io/i/transfer-out -->
+{% macro transfer_out(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-out {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 19v2h16v-14l-8 -4l-8 4v2"></path>
+    <path d="M13 14h-9"></path>
+    <path d="M7 11l-3 3l3 3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 设置 -->
+<!-- http://tabler-icons.io/i/settings -->
+{% macro settings(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+{% endmacro %}
+
+<!-- 负号圆圈 -->
+<!-- http://tabler-icons.io/i/circle-minus -->
+{% macro circle_minus(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="9"></circle>
+    <line x1="9" y1="12" x2="15" y2="12"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 增加目录 -->
+<!-- http://tabler-icons.io/i/folder-plus -->
+{% macro folder_plus(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+    <line x1="12" y1="10" x2="12" y2="16"></line>
+    <line x1="9" y1="13" x2="15" y2="13"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 重载 -->
+<!-- http://tabler-icons.io/i/reload -->
+{% macro reload(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-reload {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1.002 7.935 1.007 9.425 4.747"></path>
+    <path d="M20 4v5h-5"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 分享 -->
+<!-- http://tabler-icons.io/i/share -->
+{% macro share(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-share {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="6" cy="12" r="3"></circle>
+    <circle cx="18" cy="6" r="3"></circle>
+    <circle cx="18" cy="18" r="3"></circle>
+    <line x1="8.7" y1="10.7" x2="15.3" y2="7.3"></line>
+    <line x1="8.7" y1="13.3" x2="15.3" y2="16.7"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 应用 -->
+<!-- http://tabler-icons.io/i/apps -->
+{% macro apps(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+    <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+    <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+    <line x1="14" y1="7" x2="20" y2="7"></line>
+    <line x1="17" y1="4" x2="17" y2="10"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 下箭头（大） -->
+<!-- http://tabler-icons.io/i/arrow-big-down -->
+{% macro arrow_big_down(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M15 4v8h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-8a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1z"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 活动心跳 -->
+<!-- http://tabler-icons.io/i/activity-heartbeat -->
+{% macro activity_heartbeat(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 上传世界 -->
+<!-- http://tabler-icons.io/i/world-upload  -->
+{% macro world_upload(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M21 12a9 9 0 1 0 -9 9"></path>
+    <path d="M3.6 9h16.8"></path>
+    <path d="M3.6 15h8.4"></path>
+    <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+    <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+    <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 下载世界 -->
+<!-- http://tabler-icons.io/i/world-download  -->
+{% macro world_download(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-download {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M21 12a9 9 0 1 0 -9 9"></path>
+    <path d="M3.6 9h16.8"></path>
+    <path d="M3.6 15h8.4"></path>
+    <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+    <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+    <path d="M18 14v7m-3 -3l3 3l3 -3"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 上箭头（大带线） -->
+<!-- http://tabler-icons.io/i/arrow-big-up-lines  -->
+{% macro arrow_big_up_lines(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z"></path>
+    <path d="M9 21h6"></path>
+    <path d="M9 18h6"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 上传云 -->
+<!-- http://tabler-icons.io/i/cloud-upload  -->
+{% macro cloud_upload(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-upload {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"></path>
+    <polyline points="9 15 12 12 15 15"></polyline>
+    <line x1="12" y1="12" x2="12" y2="21"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 消息 -->
+<!-- http://tabler-icons.io/i/message  -->
+{% macro message(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
+    <line x1="8" y1="9" x2="16" y2="9"></line>
+    <line x1="8" y1="13" x2="14" y2="13"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 上箭头（小头） -->
+<!-- http://tabler-icons.io/i/arrow-narrow-up  -->
+{% macro arrow_narrow_up(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-narrow-up {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="16" y1="9" x2="12" y2="5"></line>
+    <line x1="8" y1="9" x2="12" y2="5"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 下箭头（小头） -->
+<!-- http://tabler-icons.io/i/arrow-narrow-down  -->
+{% macro arrow_narrow_down(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-narrow-down {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="16" y1="15" x2="12" y2="19"></line>
+    <line x1="8" y1="15" x2="12" y2="19"></line>
+  </svg>
+{% endmacro %}
+
+<!-- 活动 -->
+<!-- http://tabler-icons.io/i/activity  -->
+{% macro activity(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M3 12h4l3 8l4 -16l3 8h4"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 复选框 -->
+<!-- http://tabler-icons.io/i/checkbox -->
+{% macro checkbox(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-checkbox {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <polyline points="9 11 12 14 20 6"></polyline>
+    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 布局2 -->
+<!-- http://tabler-icons.io/i/layout-2 -->
+{% macro layout_2(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-2 {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <rect x="4" y="4" width="6" height="5" rx="2"></rect>
+    <rect x="4" y="13" width="6" height="7" rx="2"></rect>
+    <rect x="14" y="4" width="6" height="7" rx="2"></rect>
+    <rect x="14" y="15" width="6" height="5" rx="2"></rect>
+  </svg>
+{% endmacro %}
+
+<!-- github -->
+<!-- http://tabler-icons.io/i/brand-github -->
+{% macro brand_github(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 月亮 -->
+<!-- http://tabler-icons.io/i/moon -->
+{% macro moon(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-moon {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 太阳 -->
+<!-- http://tabler-icons.io/i/sun -->
+{% macro sun(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-sun {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 铃 -->
+<!-- http://tabler-icons.io/i/bell -->
+{% macro bell(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bell {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+    <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 警告三角 -->
+<!-- http://tabler-icons.io/i/alert-triangle -->
+{% macro alert_triangle(class) %}
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 9v2m0 4v.01"></path>
+    <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 心 -->
+<!-- http://tabler-icons.io/i/heart -->
+{% macro heart(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {{ class }}" width="24" height="24"
+       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+       stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+  </svg>
+{% endmacro %}

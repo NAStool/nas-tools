@@ -75,9 +75,17 @@ class ModuleConf(object):
                         "id": "telegram_user_ids",
                         "required": False,
                         "title": "User IDs",
-                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id",
+                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，关注@getidsbot获取",
                         "type": "text",
-                        "placeholder": "允许使用机器人的用户ID，使用,分隔"
+                        "placeholder": "使用,分隔多个Id"
+                    },
+                    "admin_id": {
+                        "id": "telegram_admin_ids",
+                        "required": False,
+                        "title": "Admin IDs",
+                        "tooltip": "允许使用远程命令的管理员Id，关注@getidsbot获取",
+                        "type": "text",
+                        "placeholder": "使用,分隔多个Id"
                     },
                     "webhook": {
                         "id": "telegram_webhook",

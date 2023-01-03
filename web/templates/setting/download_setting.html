@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,38 +11,18 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_download_setting_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
             新增下载设置
           </a>
           <a href="javascript:show_add_download_setting_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
           </a>
           <a href="javascript:navmenu('downloader')" class="btn d-none d-sm-inline-block" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
-              height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-            </svg>
+            {{ SVG.arrow_back_up() }}
             返回
           </a>
           <a href="javascript:navmenu('downloader')" class="btn d-sm-none btn-icon" title="返回">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
-              height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-            </svg>
+            {{ SVG.arrow_back_up() }}
           </a>
         </div>
       </div>
@@ -58,42 +39,23 @@
           <h3 class="card-title">{{ Attr.name }}</h3>
           <div class="ms-2">
             <a href="javascript:set_default_download_setting('{{ Attr.id }}')" class="btn-action" title="设置/取消默认">
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   class="icon icon-tabler icon-tabler-star {% if DefaultDownloadSetting == Id %}icon-filled text-purple{% endif %}"
-                   width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path
-                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z">
-                </path>
-              </svg>
+              {% if DefaultDownloadSetting == Id %}
+                <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
+              {% else %}
+                {{ SVG.star() }}
+              {% endif %}
             </a>
           </div>
           <div class="card-actions btn-actions">
-            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
-                viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
-              </svg>
+            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action ms-1">
+              {{ SVG.menu_2() }}
             </a>
             {% if Attr.id > 0 %}
-            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action" title="编辑设置">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path>
-                <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"></path>
-                <line x1="16" y1="5" x2="19" y2="8"></line>
-              </svg>
+            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action ms-1" title="编辑设置">
+              {{ SVG.edit() }}
             </a>
-            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action" title="删除设置">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action ms-1" title="删除设置">
+              {{ SVG.x() }}
             </a>
             {% endif %}
           </div>

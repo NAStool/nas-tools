@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -337,30 +338,13 @@
                   刮削设置
                 </a>
                 <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-scraper" title="刮削设置">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-slideshow" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <line x1="15" y1="6" x2="15.01" y2="6"></line>
-                     <rect x="3" y="3" width="18" height="14" rx="3"></rect>
-                     <path d="M3 13l4 -4a3 5 0 0 1 3 0l4 4"></path>
-                     <path d="M13 12l2 -2a3 5 0 0 1 3 0l3 3"></path>
-                     <line x1="8" y1="21" x2="8.01" y2="21"></line>
-                     <line x1="12" y1="21" x2="12.01" y2="21"></line>
-                     <line x1="16" y1="21" x2="16.01" y2="21"></line>
-                  </svg>
+                  {{ SVG.slideshow() }}
                 </a>
                 <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-release-groups">
                   自定义制作组/字幕组
                 </a>
                 <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-release-groups" title="自定义制作组/字幕组">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tex" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M9 8v-1h-6v1"></path>
-                     <path d="M6 15v-8"></path>
-                     <path d="M21 15l-5 -8"></path>
-                     <path d="M16 15l5 -8"></path>
-                     <path d="M14 11h-4v8h4"></path>
-                     <path d="M10 15h3"></path>
-                  </svg>
+                  {{ SVG.tex() }}
                 </a>
               </div>
               <div class="col"></div>
@@ -640,25 +624,14 @@
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
                aria-selected="true" role="tab">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-square-rounded me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <path d="M12 8h.01"></path>
-                 <path d="M11 12h1v4h1"></path>
-                 <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
-              </svg>
+              <span class="me-2">{{ SVG.info_square_rounded() }}</span>
               元数据
             </a>
           </li>
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
                aria-selected="false" role="tab" tabindex="-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <line x1="15" y1="8" x2="15.01" y2="8"></line>
-                 <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-                 <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
-                 <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
-              </svg>
+              <span class="me-2">{{ SVG.photo() }}</span>
               图片
             </a>
           </li>

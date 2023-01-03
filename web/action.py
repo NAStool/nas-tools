@@ -270,7 +270,7 @@ class WebAction:
 
         if command:
             if in_from == SearchType.TG:
-                if str(user_id) != client.get("client").get_admin_user():
+                if str(user_id) not in client.get("client").get_admin():
                     message.send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
@@ -279,8 +279,7 @@ class WebAction:
         else:
             # 检查用户权限
             if in_from == SearchType.TG:
-                if not str(user_id) in client.get("client").get_users() \
-                        and str(user_id) != client.get("client").get_admin_user():
+                if not str(user_id) in client.get("client").get_users():
                     message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
                                              user_id=user_id)
                     return

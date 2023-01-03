@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,27 +11,11 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:clear_tmdb_cache()" class="btn btn-danger d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="40"
-                 height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path
-                      d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3">
-              </path>
-              <path d="M18 13.3l-6.3 -6.3"></path>
-            </svg>
+            {{ SVG.eraser() }}
             清空TMDB缓存
           </a>
           <a href="javascript:clear_tmdb_cache()" class="btn btn-danger d-sm-none btn-icon" title="清空TMDB缓存">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="40"
-                 height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path
-                      d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3">
-              </path>
-              <path d="M18 13.3l-6.3 -6.3"></path>
-            </svg>
+            {{ SVG.eraser() }}
           </a>
         </div>
       </div>
@@ -75,30 +60,9 @@
                       <div class="d-flex py-1 align-items-center">
                         <span class="avatar me-2 text-nowrap">
                           {% if TmdbCache[1].media_type == "电影" %}
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 class="icon icon-tabler icon-tabler-movie" width="24" height="24"
-                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                              <line x1="8" y1="4" x2="8" y2="20"></line>
-                              <line x1="16" y1="4" x2="16" y2="20"></line>
-                              <line x1="4" y1="8" x2="8" y2="8"></line>
-                              <line x1="4" y1="16" x2="8" y2="16"></line>
-                              <line x1="4" y1="12" x2="20" y2="12"></line>
-                              <line x1="16" y1="8" x2="20" y2="8"></line>
-                              <line x1="16" y1="16" x2="20" y2="16"></line>
-                          </svg>
+                            {{ SVG.movie() }}
                           {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 class="icon icon-tabler icon-tabler-device-tv" width="24"
-                                 height="24" viewBox="0 0 24 24" stroke-width="2"
-                                 stroke="currentColor" fill="none" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-                              <polyline points="16 3 12 7 8 3"></polyline>
-                          </svg>
+                            {{ SVG.device_tv() }}
                           {% endif %}
                         </span>
                         <div class="flex-fill">
@@ -113,30 +77,12 @@
                           <a class="ms-1"
                              href="https://www.themoviedb.org/movie/{{ TmdbCache[1].id }}"
                              target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                 height="24" viewBox="0 0 24 24" stroke-width="2"
-                                 stroke="currentColor" fill="none" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5">
-                              </path>
-                              <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5">
-                              </path>
-                            </svg>
+                            {{ SVG.link() }}
                           </a>
                         {% else %}
                           <a class="ms-1" href="https://www.themoviedb.org/tv/{{ TmdbCache[1].id }}"
                              target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                 height="24" viewBox="0 0 24 24" stroke-width="2"
-                                 stroke="currentColor" fill="none" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5">
-                              </path>
-                              <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5">
-                              </path>
-                            </svg>
+                            {{ SVG.link() }}
                           </a>
                         {% endif %}
                       </div>
@@ -153,15 +99,7 @@
                       <div class="dropdown">
                         <a href="#" class="btn-action" data-bs-toggle="dropdown"
                            aria-expanded="false">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                               height="24" viewBox="0 0 24 24" stroke-width="2"
-                               stroke="currentColor" fill="none" stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="12" cy="19" r="1"></circle>
-                            <circle cx="12" cy="5" r="1"></circle>
-                          </svg>
+                          {{ SVG.dots_vertical() }}
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                           <a class="dropdown-item"
@@ -192,12 +130,7 @@
                 <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
                   <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})"
                      tabindex="-1" aria-disabled="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <polyline points="15 6 9 12 15 18"></polyline>
-                    </svg>
+                    {{ SVG.chevron_left() }}
                   </a>
                 </li>
                 {% for page in PageRange %}
@@ -209,12 +142,7 @@
                 <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
                   <a class="page-link"
                      href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <polyline points="9 6 15 12 9 18"></polyline>
-                    </svg>
+                    {{ SVG.chevron_right() }}
                   </a>
                 </li>
               </ul>

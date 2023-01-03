@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,21 +11,11 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
             新增消息通知
           </a>
           <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
           </a>
         </div>
       </div>
@@ -102,26 +93,12 @@
                   </td>
                   <td>
                     <div class="d-flex">
-                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
-                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                             stroke-linecap="round"
-                             stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path>
-                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"></path>
-                          <line x1="16" y1="5" x2="19" y2="8"></line>
-                        </svg>
+                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑消息服务">
+                        {{ SVG.edit() }}
                       </a>
-                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除"
+                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除消息服务"
                          class="ms-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                             stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        {{ SVG.x() }}
                       </a>
                     </div>
                   </td>
@@ -288,6 +265,7 @@
     $("#client_id").val('');
     $("#client_modal_title").text("新增消息通知");
     reset_message_config_fields();
+    show_client_type("{{ Channels.keys()|first }}");
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     $("#div_message_switchs").find("input[type=checkbox]").each(function () {
       $(this).prop("checked", true);
@@ -436,79 +414,22 @@
 
   // 消息服务端类型
   function show_client_type(type) {
-    if (type === 'telegram') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_telegram").show();
-      $("#div_client_name").attr('class', 'col-lg-6');
-      $("#div_client_interactive").show();
-      $("#type_telegram").prop("checked", true);
-    } else if (type === 'wechat') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_wechat").show();
-      $("#div_client_name").attr('class', 'col-lg-6');
-      $("#div_client_interactive").show();
-      $("#type_wechat").prop("checked", true);
-    } else if (type === 'serverchan') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_serverchan").show();
-      $("#div_client_name").attr('class', 'col-lg-9');
-      $("#div_client_interactive").hide();
-      $("#type_serverchan").prop("checked", true);
-    } else if (type === 'bark') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_bark").show();
-      $("#div_client_name").attr('class', 'col-lg-9');
-      $("#div_client_interactive").hide();
-      $("#type_bark").prop("checked", true);
-    } else if (type === 'pushdeer') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_pushdeer").show();
-      $("#div_client_name").attr('class', 'col-lg-9');
-      $("#div_client_interactive").hide();
-      $("#type_pushdeer").prop("checked", true);
-    } else if (type === 'pushplus') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_pushplus").show();
-      $("#div_client_name").attr('class', 'col-lg-9');
-      $("#div_client_interactive").hide();
-      $("#type_pushplus").prop("checked", true);
-    } else if (type === 'iyuu') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_iyuu").show();
-      $("#div_client_name").attr('class', 'col-lg-9');
-      $("#div_client_interactive").hide();
-      $("#type_iyuu").prop("checked", true);
-    } else if (type === 'slack') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_slack").show();
-      $("#div_client_name").attr('class', 'col-lg-6');
-      $("#div_client_interactive").show();
-      $("#type_slack").prop("checked", true);
-    } else if (type === 'gotify') {
-      $("div[id^='div_client_config']").each(function () {
-        $(this).hide();
-      });
-      $("#div_client_config_gotify").show();
-      $("#div_client_name").attr('class', 'col-lg-6');
-      $("#div_client_interactive").show();
-      $("#type_gotify").prop("checked", true);
-    }
+    {% for ClientId, ClientAttr in Channels.items() %}
+      if (type === "{{ ClientId }}") {
+        $("div[id^='div_client_config']").each(function () {
+          $(this).hide();
+        });
+        $("#div_client_config_{{ ClientId }}").show();
+          {% if ClientAttr.get("search_type") %}
+            $("#div_client_name").attr('class', 'col-lg-6');
+            $("#div_client_interactive").show();
+          {% else %}
+            $("#div_client_name").attr('class', 'col-lg-9');
+            $("#div_client_interactive").hide();
+          {% endif %}
+        $("#type_{{ ClientId }}").prop("checked", true);
+      }
+    {% endfor %}
   }
 
 </script>

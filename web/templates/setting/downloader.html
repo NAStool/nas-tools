@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,42 +11,18 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-              <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
-            </svg>
+            {{ SVG.folders() }}
             下载目录
           </a>
           <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-              <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
-            </svg>
+            {{ SVG.folders() }}
           </a>
           <a href="javascript:navmenu('download_setting')" class="btn d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+            {{ SVG.settings() }}
             下载设置
           </a>
           <a href="javascript:navmenu('download_setting')" class="btn d-sm-none btn-icon" title="下载设置">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+            {{ SVG.settings() }}
           </a>
         </div>
       </div>
@@ -371,14 +348,8 @@
                            placeholder="分类标签" autocomplete="off">
                   </div>
                   <div class="col-12 col-lg-1 mb-1 mt-2">
-                    <a href="javascript:del_downloaddir('{{ loop.index0 }}')" class="btn-icon" title="删除下载目录">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red"
-                           width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                           stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <circle cx="12" cy="12" r="9"></circle>
-                        <line x1="9" y1="12" x2="15" y2="12"></line>
-                      </svg>
+                    <a href="javascript:del_downloaddir('{{ loop.index0 }}')" class="btn-icon text-red" title="删除下载目录">
+                      {{ SVG.circle_minus() }}
                     </a>
                   </div>
                 </div>
@@ -412,14 +383,8 @@
                          autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
-                  <a href="javascript:del_downloaddir('0')" class="btn-icon" title="删除目录">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red"
-                         width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <circle cx="12" cy="12" r="9"></circle>
-                      <line x1="9" y1="12" x2="15" y2="12"></line>
-                    </svg>
+                  <a href="javascript:del_downloaddir('0')" class="btn-icon text-red" title="删除目录">
+                    {{ SVG.circle_minus() }}
                   </a>
                 </div>
               </div>
@@ -427,14 +392,7 @@
             <div class="row" id="dirdiv_add">
               <div class="mt-2">
                 <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24"
-                       height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                       stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                    <line x1="12" y1="10" x2="12" y2="16"></line>
-                    <line x1="9" y1="13" x2="15" y2="13"></line>
-                  </svg>
+                  {{ SVG.folder_plus() }}
                 </a>
               </div>
             </div>
@@ -623,12 +581,8 @@
     <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
   </div>
   <div class="col-12 col-lg-1 mb-1 mt-2">
-    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon" title="删除目录">
-      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-         <circle cx="12" cy="12" r="9"></circle>
-         <line x1="9" y1="12" x2="15" y2="12"></line>
-      </svg>
+    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon text-red" title="删除目录">
+      {{ SVG.circle_minus() }}
     </a>
   </div>
 </div>

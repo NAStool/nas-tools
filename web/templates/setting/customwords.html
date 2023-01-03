@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,98 +11,40 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_custom_word_group_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
+            {{ SVG.plus() }}
             新增
           </a>
           <a href="javascript:show_add_custom_word_group_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
+            {{ SVG.plus() }}
           </a>
           <a href="javascript:batch_check_action('enable')" class="btn btn-success ms-auto d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M7 4v16l13 -8z"></path>
-            </svg>
+            {{ SVG.player_play() }}
             启用
           </a>
           <a href="javascript:batch_check_action('enable')" class="btn btn-success d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M7 4v16l13 -8z"></path>
-            </svg>
+            {{ SVG.player_play() }}
           </a>
           <a href="javascript:batch_check_action('disable')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-stop" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <rect x="5" y="5" width="14" height="14" rx="2"></rect>
-            </svg>
+            {{ SVG.player_stop() }}
             停用
           </a>
           <a href="javascript:batch_check_action('disable')" class="btn btn-secondary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-stop" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <rect x="5" y="5" width="14" height="14" rx="2"></rect>
-            </svg>
+            {{ SVG.player_stop() }}
           </a>
           <a href="javascript:show_import_custom_words_modal()"
             class="btn btn-twitter ms-auto d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
-              <path d="M4 14h9"></path>
-              <path d="M10 11l3 3l-3 3"></path>
-            </svg>
+            {{ SVG.transfer_in() }}
             导入
           </a>
           <a href="javascript:show_import_custom_words_modal()" class="btn btn-twitter d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
-              <path d="M4 14h9"></path>
-              <path d="M10 11l3 3l-3 3"></path>
-            </svg>
+            {{ SVG.transfer_in() }}
           </a>
           <a href="javascript:batch_check_action('export')" class="btn btn-info btn-twitter d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-out" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 19v2h16v-14l-8 -4l-8 4v2"></path>
-              <path d="M13 14h-9"></path>
-              <path d="M7 11l-3 3l3 3"></path>
-            </svg>
+            {{ SVG.transfer_out() }}
             导出
           </a>
           <a href="javascript:batch_check_action('export')" class="btn btn-twitter d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-out" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 19v2h16v-14l-8 -4l-8 4v2"></path>
-              <path d="M13 14h-9"></path>
-              <path d="M7 11l-3 3l3 3"></path>
-            </svg>
+            {{ SVG.transfer_out() }}
           </a>
         </div>
       </div>
@@ -121,32 +64,16 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action" title="折叠">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
-                  viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
-                </svg>
+              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action ms-1" title="折叠">
+                {{ SVG.menu_2() }}
               </a>
               <a href="javascript:show_add_custom_word_modal('{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
-                class="btn-action" title="增加识别词">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40"
-                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                  stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
+                class="btn-action ms-1" title="增加识别词">
+                {{ SVG.plus() }}
               </a>
               {% if Group.id != "-1" %}
-              <a href="javascript:delete_custom_word_group('{{ Group.id }}')" class="btn-action" title="删除识别词组">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24"
-                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                  stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+              <a href="javascript:delete_custom_word_group('{{ Group.id }}')" class="btn-action ms-1" title="删除识别词组">
+                {{ SVG.x() }}
               </a>
               {% endif %}
             </div>
@@ -212,24 +139,11 @@
                   <td>
                     <div class="d-flex">
                       <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
-                        title="编辑替换词">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                          stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                          <line x1="16" y1="5" x2="19" y2="8" />
-                        </svg>
+                        title="编辑替换词" class='ms-1'>
+                        {{ SVG.edit() }}
                       </a>
                       <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词" class="ms-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                          stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        {{ SVG.x() }}
                       </a>
                     </div>
                   </td>
