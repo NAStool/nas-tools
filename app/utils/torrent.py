@@ -84,6 +84,8 @@ class Torrent:
         if req and req.status_code == 200:
             if not req.content:
                 return None, None, "未下载到种子数据"
+            if isinstance(req.content, str):
+                return None, None, "种子数据为文本，无法解析"
             # 读取种子文件名
             file_name = self.__get_url_torrent_filename(req, url)
             # 种子文件路径
