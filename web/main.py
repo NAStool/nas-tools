@@ -395,11 +395,19 @@ def recommend():
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 
-# 推荐页面
-@App.route('/discovery', methods=['POST', 'GET'])
+
+# 电影推荐页面
+@App.route('/discovery_movie', methods=['POST', 'GET'])
 @login_required
-def discovery():
-    return render_template("discovery.html")
+def discovery_movie():
+    return render_template("discovery/movie.html")
+
+
+# 电视剧推荐页面
+@App.route('/discovery_tv', methods=['POST', 'GET'])
+@login_required
+def discovery_tv():
+    return render_template("discovery/tv.html")
 
 
 # 正在下载页面

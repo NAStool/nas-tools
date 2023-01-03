@@ -1,0 +1,73 @@
+<div class="container-xl" id="media_slide_content">
+</div>
+<script type="text/javascript">
+  // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
+  if (sessionStorage.CurrentPage) {
+    // 重载
+    init_data(true);
+  } else {
+    // 否则初始化数据
+    sessionStorage.CurrentPage = 1;
+    init_data();
+  }
+
+  function init_data(newflag=false){
+    let media_slide_list = [
+    //   {title:"最近添加",
+    //    icon :"refresh",
+    //    type :"media_server",
+    //    click:"javascript:show_mediasync_modal()",
+    //   },
+      {title:"TMDB最新电视剧",
+       type :"nt",
+       click:"javascript:navmenu('recommend?t=nt')",
+      },
+      {title:"TMDB热门电视剧",
+       type :"ht",
+       click:"javascript:navmenu('recommend?t=ht')",
+      },
+      {title:"豆瓣热门电视剧",
+       type :"dbht",
+       click:"javascript:navmenu('recommend?t=dbht')",
+      },
+      {title:"豆瓣热门动漫",
+       type :"dbdh",
+       click:"javascript:navmenu('recommend?t=dbdh')",
+      },
+      {title:"豆瓣热门综艺",
+       type :"dbzy",
+       click:"javascript:navmenu('recommend?t=dbzy')",
+      },
+      {title:"Bangumi每日放送",
+       type :"bangumi",
+       click:"javascript:navmenu('recommend?t=bangumi')",
+      },
+    ]
+    for (let slide of media_slide_list){
+      if (!newflag){
+        // 创建media_slide组件
+        $("#media_slide_content").append(`
+          <media-slide id="media_slide_${slide.type}"
+            slide-title="${slide.title}"
+            slide-icon="${slide.icon}"
+            slide-click="${slide.click}"
+          ></media-slide>
+        `);
+      }
+      // 获取数据
+      if (slide.type && slide.type != "media_server"){
+        // 获取media_slide组件
+        const media_slide = document.querySelector(`#media_slide_${slide.type}`);
+        // 判断media_slide组件是否需要获取数据
+        if (media_slide.is_placeholder()){
+          ajax_post("get_recommend", { "type": slide.type, "page": 1 }, function (ret) {
+            if (ret.Items.length > 0){
+              // 更新组件内容
+              media_slide.update_slide_card(ret.Items, slide.type);
+            }
+          });
+        }
+      }
+    }
+  }
+</script>
