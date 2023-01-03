@@ -284,7 +284,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                         meta_info.org_string = content
                     meta_info.set_torrent_info(
                         enclosure=content,
-                        download_volume_factor=0
+                        download_volume_factor=0,
+                        upload_volume_factor=1
                     )
                 else:
                     # 识别文件名
@@ -305,9 +306,11 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                     meta_info.org_string = input_str
                 meta_info.set_torrent_info(
                     enclosure=input_str,
-                    download_volume_factor=0
+                    download_volume_factor=0,
+                    upload_volume_factor=1
                 )
             # 开始下载
+            meta_info.user_name = user_name
             state, retmsg = Downloader().download(media_info=meta_info,
                                                   torrent_file=filepath)
             if state:
