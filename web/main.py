@@ -395,6 +395,12 @@ def recommend():
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 
+# 推荐页面
+@App.route('/discovery', methods=['POST', 'GET'])
+@login_required
+def discovery():
+    return render_template("discovery.html")
+
 
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
