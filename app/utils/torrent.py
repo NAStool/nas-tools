@@ -92,7 +92,7 @@ class Torrent:
                     bdecode(req.content)
                 except Exception as err:
                     print(str(err))
-                    return None, None, "链接有误，即不是种子文件下载链接也不是磁力链接"
+                    return None, None, "种子数据有误，请确认链接是否正确，如为PT站点则需手工在站点下载一次种子"
             # 读取种子文件名
             file_name = self.__get_url_torrent_filename(req, url)
             # 种子文件路径
@@ -163,11 +163,7 @@ class Torrent:
                 else:
                     file_names.append(torrent.get("info", {}).get("name"))
         except Exception as err:
-            if str(err).find("not a valid bencoded string") != -1:
-                err_msg = "需手工在站点下载一次种子"
-            else:
-                err_msg = "解析种子文件异常：%s" % str(err)
-            return file_folder, file_names, err_msg
+            return file_folder, file_names, "解析种子文件异常：%s" % str(err)
         return file_folder, file_names, ""
 
     def read_torrent_content(self, path):
