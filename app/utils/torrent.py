@@ -210,5 +210,5 @@ class Torrent:
         """
         if not url:
             return ""
-        title = re.findall(r"dn=(.+)&", url)
+        title = re.findall(r"dn=(.+)&?", url)
         return unquote(title[0]) if title else ""

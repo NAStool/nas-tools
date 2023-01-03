@@ -283,7 +283,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                         meta_info = MetaInfo(title="磁力链接")
                         meta_info.org_string = content
                     meta_info.set_torrent_info(
-                        enclosure=content
+                        enclosure=content,
+                        download_volume_factor=0
                     )
                 else:
                     # 识别文件名
@@ -303,7 +304,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                     meta_info = MetaInfo(title="磁力链接")
                     meta_info.org_string = input_str
                 meta_info.set_torrent_info(
-                    enclosure=input_str
+                    enclosure=input_str,
+                    download_volume_factor=0
                 )
             # 开始下载
             state, retmsg = Downloader().download(media_info=meta_info,
