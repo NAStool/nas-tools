@@ -183,9 +183,8 @@
             </li>
           {% endif %}
           {% if "推荐" in UserPris %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
-                 role="button" aria-expanded="false">
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('discovery')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                   {{ SVG.star() }}
                 </span>
@@ -193,46 +192,6 @@
                   推荐
                 </span>
               </a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=hm')">
-                  TMDB热门电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=ht')">
-                  TMDB热门电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=nm')">
-                  TMDB最新电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=nt')">
-                  TMDB最新电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbom')">
-                  正在热映
-                  <span class="badge badge-sm bg-orange text-case ms-2">HOT</span>
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbnm')">
-                  即将上映
-                  <span class="badge badge-sm bg-green text-case ms-2">NEW</span>
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbhm')">
-                  豆瓣热门电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbtop')">
-                  豆瓣电影TOP250
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbht')">
-                  豆瓣热门电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbdh')">
-                  豆瓣热门动漫
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbzy')">
-                  豆瓣热门综艺
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=bangumi')">
-                  Bangumi每日放送
-                </a>
-              </div>
             </li>
           {% endif %}
           {% if "站点管理" in UserPris %}
@@ -2817,6 +2776,7 @@
     "normalCard",
     "normalCard_placeholder",
     "custom-img",
+    "media-slide",
   ]
   for (let components_name of components_list){
     $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);
