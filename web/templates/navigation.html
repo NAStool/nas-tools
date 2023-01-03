@@ -817,7 +817,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="fuzzy_match"
-                       onclick="javascript:change_match_check(this)">
+                       onclick="change_match_check(this)">
                 <span class="form-check-label">模糊匹配 <span class="form-help"
                                                               title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配"
                                                               data-bs-toggle="tooltip">?</span></span>
@@ -828,7 +828,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="over_edition"
-                       onclick="javascript:change_over_edition_check(this)">
+                       onclick="change_over_edition_check(this)">
                 <span class="form-check-label">洗版 <span class="form-help"
                                                           title="开启后RSS不检查媒体库是否已存在，命中即会下载"
                                                           data-bs-toggle="tooltip">?</span></span>
@@ -896,7 +896,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">订阅站点</label>
-              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="selectgroup_selectALL(this, 'rss_sites_group')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
@@ -905,7 +905,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">搜索站点</label>
-              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_search_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="selectgroup_selectALL(this, 'rss_search_sites_group')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
@@ -1186,6 +1186,7 @@
 <script src="../static/js/FileSaver.min.js"></script>
 <script src="../static/js/nprogress.js"></script>
 <script src="../static/js/util.js"></script>
+<script src="../static/js/common.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
 
@@ -1656,21 +1657,6 @@
   $("#rss_season").empty().append('<option value="">请选择</option>');
   for (let i = 1; i <= 50; i++) {
     $("#rss_season").append('<option value="' + i + '">第' + i + '季</option>');
-  }
-
-  function rss_sites_select(btnobj, id) {
-    const selobj = $("#" + id);
-    if ($(btnobj).text() === "全选") {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", true);
-      });
-      $(btnobj).text("全不选");
-    } else {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", false);
-      });
-      $(btnobj).text("全选");
-    }
   }
 
   // 选择模糊匹配

@@ -494,7 +494,7 @@ def statistics():
         days=2)
 
     # 站点用户数据
-    SiteUserStatistics = Sites().get_site_user_statistics(encoding="DICT")
+    SiteUserStatistics = WebAction().get_site_user_statistics({"encoding": "DICT"}).get("data")
 
     return render_template("site/statistics.html",
                            CurrentDownload=CurrentDownload,

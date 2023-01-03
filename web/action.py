@@ -195,7 +195,8 @@ class WebAction:
             "get_douban_history": self.get_douban_history,
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
-            "set_system_config": self.__set_system_config
+            "set_system_config": self.__set_system_config,
+            "get_site_user_statistics": self.get_site_user_statistics
         }
 
     def action(self, cmd, data=None):
@@ -4204,3 +4205,24 @@ class WebAction:
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1}
+
+    @staticmethod
+    def get_site_user_statistics(data):
+        """
+        获取站点用户统计信息
+        """
+        sites = data.get("sites")
+        encoding = data.get("encoding") or "RAW"
+        sort_by = data.get("sort_by")
+        sort_on = data.get("sort_on")
+        site_hash = data.get("site_hash")
+        statistics = Sites().get_site_user_statistics(sites=sites, encoding=encoding)
+        if sort_by and sort_on in ["asc", "desc"]:
+            if sort_on == "asc":
+                statistics.sort(key=lambda x: x[sort_by])
+            else:
+                statistics.sort(key=lambda x: x[sort_by], reverse=True)
+        if site_hash == "Y":
+            for item in statistics:
+                item["site_hash"] = WebAction.md5_hash(item.get("site"))
+        return {"code": 0, "data": statistics}
