@@ -184,7 +184,8 @@
           {% endif %}
           {% if "推荐" in UserPris %}
             <li class="nav-item">
-              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('discovery')">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                 role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                   {{ SVG.star() }}
                 </span>
@@ -192,11 +193,19 @@
                   推荐
                 </span>
               </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_movie')">
+                  电影
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_tv')">
+                  电视剧
+                </a>
+              </div>
             </li>
           {% endif %}
           {% if "站点管理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                   {{ SVG.server_2() }}
