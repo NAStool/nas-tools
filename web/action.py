@@ -795,81 +795,88 @@ class WebAction:
         """
         删除识别记录及文件
         """
+        def __delete_file(__path, __filename):
+            try:
+                __file = os.path.join(__path, __filename)
+                os.remove(__file)
+                # 如果上级文件夹为空，删除上级文件夹
+                if re.findall(r"^S\d{2}|^Season", os.path.basename(__path), re.I):
+                    __seaon_path = __path
+                    __media_path = os.path.dirname(__seaon_path)
+                    if not PathUtils.get_dir_files(__seaon_path, exts=RMT_MEDIAEXT):
+                        shutil.rmtree(__seaon_path)
+                else:
+                    __media_path = __path
+                if not PathUtils.get_dir_files(__media_path, exts=RMT_MEDIAEXT):
+                    shutil.rmtree(__media_path)
+            except Exception as __e:
+                ExceptionUtils.exception_traceback(__e)
+
         logids = data.get('logids')
+        flag = data.get('flag')
         for logid in logids:
             # 读取历史记录
             paths = self.dbhelper.get_transfer_path_by_id(logid)
             if paths:
+                # 删除记录
+                self.dbhelper.delete_transfer_log_by_id(logid)
+                # 根据flag删除文件
+                source_path = paths[0].SOURCE_PATH
+                source_filename = paths[0].SOURCE_FILENAME
                 dest = paths[0].DEST
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
-                if dest_path and dest_filename:
-                    dest_file = os.path.join(dest_path, dest_filename)
-                    # 删除文件
-                    try:
-                        os.remove(dest_file)
-                        # 如果上级文件夹为空，删除上级文件夹
-                        if re.findall(r"^S\d{2}|^Season", os.path.basename(dest_path), re.I):
-                            seaon_path = dest_path
-                            media_path = os.path.dirname(seaon_path)
-                            if not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
-                                shutil.rmtree(seaon_path)
-                        else:
-                            media_path = dest_path
-                        if not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
-                            shutil.rmtree(media_path)
-                    except Exception as e:
-                        ExceptionUtils.exception_traceback(e)
-                    # 删除记录
-                    self.dbhelper.delete_transfer_log_by_id(logid)
-                else:
-                    meta_info = MetaInfo(title=paths[0].SOURCE_FILENAME)
-                    meta_info.title = paths[0].TITLE
-                    meta_info.category = paths[0].CATEGORY
-                    meta_info.year = paths[0].YEAR
-                    if paths[0].SEASON_EPISODE:
-                        meta_info.begin_season = int(str(paths[0].SEASON_EPISODE).replace("S", ""))
-                    if paths[0].TYPE == MediaType.MOVIE.value:
-                        meta_info.type = MediaType.MOVIE
+                if flag in ["del_source", "del_all"]:
+                    __delete_file(source_path, source_filename)
+                if flag in ["del_dest", "del_all"]:
+                    if dest_path and dest_filename :
+                        __delete_file(dest_path, dest_filename)
                     else:
-                        meta_info.type = MediaType.TV
-                    # 删除记录
-                    self.dbhelper.delete_transfer_log_by_id(logid)
-                    # 删除文件
-                    dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
-                    if dest_path and dest_path.find(meta_info.title) != -1:
-                        rm_parent_dir = False
-                        if not meta_info.get_season_list():
-                            # 电影，删除整个目录
-                            try:
-                                shutil.rmtree(dest_path)
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
-                        elif not meta_info.get_episode_string():
-                            # 电视剧但没有集数，删除季目录
-                            try:
-                                shutil.rmtree(dest_path)
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
-                            rm_parent_dir = True
+                        meta_info = MetaInfo(title=source_filename)
+                        meta_info.title = paths[0].TITLE
+                        meta_info.category = paths[0].CATEGORY
+                        meta_info.year = paths[0].YEAR
+                        if paths[0].SEASON_EPISODE:
+                            meta_info.begin_season = int(str(paths[0].SEASON_EPISODE).replace("S", ""))
+                        if paths[0].TYPE == MediaType.MOVIE.value:
+                            meta_info.type = MediaType.MOVIE
                         else:
-                            # 有集数的电视剧，删除对应的集数文件
-                            for dest_file in PathUtils.get_dir_files(dest_path):
-                                file_meta_info = MetaInfo(os.path.basename(dest_file))
-                                if file_meta_info.get_episode_list() and set(
-                                        file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
-                                    try:
-                                        os.remove(dest_file)
-                                    except Exception as e:
-                                        ExceptionUtils.exception_traceback(e)
-                            rm_parent_dir = True
-                        if rm_parent_dir \
-                                and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
-                            # 没有媒体文件时，删除整个目录
-                            try:
-                                shutil.rmtree(os.path.dirname(dest_path))
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
+                            meta_info.type = MediaType.TV
+                        # 删除文件
+                        dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
+                        if dest_path and dest_path.find(meta_info.title) != -1:
+                            rm_parent_dir = False
+                            if not meta_info.get_season_list():
+                                # 电影，删除整个目录
+                                try:
+                                    shutil.rmtree(dest_path)
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
+                            elif not meta_info.get_episode_string():
+                                # 电视剧但没有集数，删除季目录
+                                try:
+                                    shutil.rmtree(dest_path)
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
+                                rm_parent_dir = True
+                            else:
+                                # 有集数的电视剧，删除对应的集数文件
+                                for dest_file in PathUtils.get_dir_files(dest_path):
+                                    file_meta_info = MetaInfo(os.path.basename(dest_file))
+                                    if file_meta_info.get_episode_list() and set(
+                                            file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                        try:
+                                            os.remove(dest_file)
+                                        except Exception as e:
+                                            ExceptionUtils.exception_traceback(e)
+                                rm_parent_dir = True
+                            if rm_parent_dir \
+                                    and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                                # 没有媒体文件时，删除整个目录
+                                try:
+                                    shutil.rmtree(os.path.dirname(dest_path))
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
         return {"retcode": 0}
 
     @staticmethod
