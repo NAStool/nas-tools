@@ -277,7 +277,11 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 if isinstance(content, str):
                     # 磁力链
                     title = Torrent().get_magnet_title(content)
-                    meta_info = MetaInfo(title=title)
+                    if title:
+                        meta_info = Media().get_media_info(title=title)
+                    else:
+                        meta_info = MetaInfo(title="磁力链接")
+                        meta_info.org_string = content
                     meta_info.set_torrent_info(
                         enclosure=content
                     )
@@ -293,7 +297,11 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 # 磁力链
                 filepath = None
                 title = Torrent().get_magnet_title(input_str)
-                meta_info = MetaInfo(title=title)
+                if title:
+                    meta_info = Media().get_media_info(title=title)
+                else:
+                    meta_info = MetaInfo(title="磁力链接")
+                    meta_info.org_string = input_str
                 meta_info.set_torrent_info(
                     enclosure=input_str
                 )
