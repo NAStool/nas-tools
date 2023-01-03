@@ -2686,6 +2686,8 @@
     window.addEventListener('popstate', function(e) {
         if (e.state) {
           // 开始还原页面
+          $("#navbar-menu").collapse('hide');
+          $(".page-wrapper").unbind('scroll');
           if (e.state.CurrentPage) {
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
