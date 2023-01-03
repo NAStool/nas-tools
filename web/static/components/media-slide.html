@@ -86,34 +86,33 @@
   class extends HTMLElement {
     constructor() {
       super();
-      const media_slide = document.getElementById("media_slide_Template").content.cloneNode(true);
+    }
+
+    connectedCallback() {
+      let media_slide;
+      if (this.innerHTML == "") {
+        //console.log("初始化..")
+        media_slide = document.getElementById("media_slide_Template").content.cloneNode(true);
+      } else {
+        //console.log("被重载..")
+        media_slide = this;
+      }
       // 读取参数
       const slide_title = this.getArgs("slide-title");
       const slide_icon = this.getArgs("slide-icon");
       const slide_click = this.getArgs("slide-click");
       const slide_card = this.getArgs("slide-card");
-      // 组件内容
+      // 选择节点
       const media_slide_icon = media_slide.querySelector(".media-slide-icon");
-      if (slide_icon == "refresh") {
-        media_slide_icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path></svg>`;
-      }
       const media_slide_title = media_slide.querySelector(".media-slide-title>strong");
-      media_slide_title.innerHTML = slide_title
       const media_slide_title_click = media_slide.querySelector(".media-slide-title-click");
-      if (slide_click) {
-        media_slide_title_click.setAttribute("href", slide_click);
-      }
-      // 生成占位卡片
       const div_row = media_slide.querySelector("div.row");
-      let html = "";
-      for (let i=0; i<10; i++) {
-        html += "<normal-card-placeholder></normal-card-placeholder>";
-      }
-      div_row.innerHTML = html;
-      // 监听事件
       const media_slide_left = media_slide.querySelector(".media-slide-left");
       const media_slide_right = media_slide.querySelector(".media-slide-right");
       const media_slide_scrollbar = media_slide.querySelector(".media-slide-hide-scrollbar");
+      // 需要更新状态的组件
+      this.div_row = div_row;
+      // 监听事件
       media_slide_left.addEventListener("click", e => {
         const scroll_px = media_slide_scrollbar.scrollLeft;
         const card_width = div_row.getBoundingClientRect().width;
@@ -154,11 +153,32 @@
           media_slide_right.classList.remove("disabled");
         }
       })
-      // 先清空组件, 再输出组件内容
-      this.innerHTML = "";
-      this.appendChild(media_slide);
-      // 需要更新状态的组件
-      this.div_row = div_row;
+      // 初始化数据
+      if (this.innerHTML == "") {
+        if (slide_icon == "refresh") {
+          media_slide_icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path></svg>`;
+        }
+        media_slide_title.innerHTML = slide_title
+        if (slide_click) {
+          media_slide_title_click.setAttribute("href", slide_click);
+        }
+        // 生成占位卡片
+        let html = "";
+        for (let i=0; i<10; i++) {
+          html += "<normal-card-placeholder></normal-card-placeholder>";
+        }
+        div_row.innerHTML = html;
+        // 往组件内部加入初始化数据
+        this.appendChild(media_slide);
+      }
+    }
+
+    is_placeholder(){
+      if (this.querySelector("normal-card-placeholder")){
+        return true;
+      } else {
+        return false;
+      };
     }
 
     update_slide_card(newValue, page_type){
