@@ -305,7 +305,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                                 can_item=meta_info)
             else:
                 Message().send_channel_msg(channel=in_from,
-                                           title=retmsg,
+                                           title=f"添加下载失败，{retmsg}",
                                            user_id=user_id)
 
         # 搜索或订阅
