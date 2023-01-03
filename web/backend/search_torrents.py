@@ -275,13 +275,9 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                                user_id=user_id)
                     return
                 if isinstance(content, str):
-                    if not content.startswith("magnet:"):
-                        Message().send_channel_msg(channel=in_from,
-                                                   title="链接有误，即不是种子文件下载链接也不是磁力链接",
-                                                   user_id=user_id)
-                        return
                     # 磁力链
-                    meta_info = MetaInfo(title="磁力下载")
+                    title = Torrent().get_magnet_title(content)
+                    meta_info = MetaInfo(title=title)
                     meta_info.set_torrent_info(
                         enclosure=content
                     )
@@ -296,7 +292,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             else:
                 # 磁力链
                 filepath = None
-                meta_info = MetaInfo(title="磁力下载")
+                title = Torrent().get_magnet_title(input_str)
+                meta_info = MetaInfo(title=title)
                 meta_info.set_torrent_info(
                     enclosure=input_str
                 )

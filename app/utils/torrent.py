@@ -84,8 +84,15 @@ class Torrent:
         if req and req.status_code == 200:
             if not req.content:
                 return None, None, "未下载到种子数据"
-            if isinstance(req.content, str):
-                return None, None, "种子数据为文本，无法解析"
+            # 解析内容格式
+            if req.text and str(req.text).startswith("magnet:"):
+                return None, req.text, "磁力链接"
+            else:
+                try:
+                    bdecode(req.content)
+                except Exception as err:
+                    print(str(err))
+                    return None, None, "链接有误，即不是种子文件下载链接也不是磁力链接"
             # 读取种子文件名
             file_name = self.__get_url_torrent_filename(req, url)
             # 种子文件路径
@@ -199,3 +206,17 @@ class Torrent:
         else:
             file_name = str(datetime.datetime.now())
         return file_name
+
+    @staticmethod
+    def get_magnet_title(url):
+        """
+        从磁力链接中获取标题
+        """
+        if not url:
+            return ""
+        title = re.findall(r"dn=(.+)&", url)
+        if title:
+            title = unquote(title[0])
+        else:
+            title = "磁力链接"
+        return title
