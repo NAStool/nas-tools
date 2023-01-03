@@ -2435,7 +2435,8 @@
       menu: $("#navbar-menu").html(),          // 导航当前选中
       html: $("#page_content").html(),         // 页面内容
       scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
-      page: sessionStorage.CurrentPage,        // 页面当前页码
+      CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
+      page: CURRENT_PAGE_URI,                  // 当前页面地址
     };
     if (newflag) {
       window.history.pushState(state, "");
@@ -2472,11 +2473,11 @@
         init_filetree_element();
       }
       if (page != CURRENT_PAGE_URI) {
-        ScrollToTop();
+        $("#page_wrapper").scrollTop(0);
         CURRENT_PAGE_URI = page;
-        // 并记录当前历史记录
-        window_history(true);
       }
+      // 并记录当前历史记录
+      window_history(true);
     });
   }
 
@@ -2677,13 +2678,14 @@
     window.addEventListener('popstate', function(e) {
         if (e.state) {
           // 开始还原页面
-          if (e.state.page) {
-            sessionStorage.CurrentPage = e.state.page;
+          if (e.state.CurrentPage) {
+            sessionStorage.CurrentPage = e.state.CurrentPage;
           }
           document.title = e.state.title;
           $('#navbar-menu').html(e.state.menu);
           $('#page_content').html(e.state.html);
           $("#page_wrapper").scrollTop(e.state.scroll);
+          CURRENT_PAGE_URI = e.state.page;
         }
     });
 
