@@ -3,13 +3,15 @@
 <script type="text/javascript">
   // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
   if (sessionStorage.CurrentPage) {
+    // 重载
+    init_data(true);
   } else {
     // 否则初始化数据
     sessionStorage.CurrentPage = 1;
     init_data();
   }
 
-  function init_data(){
+  function init_data(newflag=false){
     let media_slide_list = [
     //   {title:"最近添加",
     //    icon :"refresh",
@@ -65,24 +67,30 @@
        click:"javascript:navmenu('recommend?t=bangumi')",
       },
     ]
-    // 更新占位界面
     for (let slide of media_slide_list){
-      $("#media_slide_content").append(`
-        <media-slide id="media_slide_${slide.type}"
-          slide-title="${slide.title}"
-          slide-icon="${slide.icon}"
-          slide-click="${slide.click}"
-        ></media-slide>
-      `);
+      if (!newflag){
+        // 创建media_slide组件
+        $("#media_slide_content").append(`
+          <media-slide id="media_slide_${slide.type}"
+            slide-title="${slide.title}"
+            slide-icon="${slide.icon}"
+            slide-click="${slide.click}"
+          ></media-slide>
+        `);
+      }
       // 获取数据
       if (slide.type && slide.type != "media_server"){
-        ajax_post("get_recommend", { "type": slide.type, "page": 1 }, function (ret) {
-          if (ret.Items.length > 0){
-            // 对卡片内容预处理
-            const media_slide = document.querySelector(`#media_slide_${slide.type}`);
-            media_slide.update_slide_card(ret.Items, slide.type);
-          }
-        });
+        // 获取media_slide组件
+        const media_slide = document.querySelector(`#media_slide_${slide.type}`);
+        // 判断media_slide组件是否需要获取数据
+        if (media_slide.is_placeholder()){
+          ajax_post("get_recommend", { "type": slide.type, "page": 1 }, function (ret) {
+            if (ret.Items.length > 0){
+              // 更新组件内容
+              media_slide.update_slide_card(ret.Items, slide.type);
+            }
+          });
+        }
       }
     }
   }
