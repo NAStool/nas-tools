@@ -2441,7 +2441,6 @@
   function window_history(newflag=false){
     const state = {
       title: document.title,
-      menu: $("#navbar-menu").html(),          // 导航当前选中
       html: $("#page_content").html(),         // 页面内容
       scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
       CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
@@ -2691,10 +2690,17 @@
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
           document.title = e.state.title;
-          $('#navbar-menu').html(e.state.menu);
           $('#page_content').html(e.state.html);
           $("#page_wrapper").scrollTop(e.state.scroll);
           CURRENT_PAGE_URI = e.state.page;
+          $("#navbar-menu li").find("a").removeClass("active").each(function () {
+            if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + CURRENT_PAGE_URI + "')")) {
+              $(this).addClass("active");
+              if ($(this).hasClass('dropdown-item')) {
+                $(this).parent().addClass("show");
+              }
+            }
+          });
         }
     });
 
