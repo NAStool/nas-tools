@@ -3,7 +3,7 @@ RUN apk add --no-cache libffi-dev  \
     git  \
     gcc  \
     musl-dev  \
-    python3  \
+    python3-dev  \
     py3-pip  \
     libxml2-dev  \
     libxslt-dev  \
@@ -16,7 +16,7 @@ RUN apk add --no-cache libffi-dev  \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && npm install pm2 -g \
     && apk del --purge libffi-dev gcc musl-dev libxml2-dev libxslt-dev \
     && pip uninstall -y cython \
