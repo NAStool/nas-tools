@@ -18,7 +18,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git clean -dffx
     git reset --hard HEAD
     git pull
-    if [ $? -eq 0 ]; then
+        if [ $? -eq 0 ]; then
         echo "更新成功..."
         # Python依赖包更新
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
@@ -67,13 +67,15 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
 else
     echo "程序自动升级已关闭，如需自动升级请在创建容器时设置环境变量：NASTOOL_AUTO_UPDATE=true"
 fi
-
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
-
 mkdir -p /.local
 mkdir -p /.pm2
-chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2
-export PATH=$PATH:/usr/lib/chromium
+if [ "$NASTOOL_VERSION" = "lite" ]; then
+  chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.local /.pm2
+else
+  chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2
+  export PATH=$PATH:/usr/lib/chromium
+fi
 umask "${UMASK}"
 if ! which dumb-init; then
     apk add --no-cache dumb-init

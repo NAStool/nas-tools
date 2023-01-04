@@ -1,5 +1,7 @@
 FROM alpine
-RUN apk add --no-cache libffi-dev \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk update -f \
+    && apk add --no-cache libffi-dev \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/dev/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
@@ -7,6 +9,8 @@ RUN apk add --no-cache libffi-dev \
     && curl https://rclone.org/install.sh | bash \
     && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
+    && pip config set global.index-url https://pypi.douban.com/simple \
+    && npm config set registry https://registry.npmmirror.com \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
