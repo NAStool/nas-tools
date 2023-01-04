@@ -367,6 +367,10 @@ class ModuleConf(object):
                 "name": "媒体服务",
                 "fuc_name": "mediaserver_message"
             },
+            "custom_message": {
+                "name": "自定义消息",
+                "fuc_name": "custom_message"
+            }
         }
     }
 
