@@ -64,7 +64,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
         fi
     fi
     else
-    if [ "$NASTOOL_VERSION" != "lite" ]; then
+    if [ ! -n "$NASTOOL_VERSION" ]; then
         hash_old=$(cat /tmp/package_list.txt.sha256sum)
         hash_new=$(sha256sum package_list.txt)
         if [ "$hash_old" != "$hash_new" ]; then
