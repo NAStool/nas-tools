@@ -1,5 +1,5 @@
 FROM alpine
-RUN apk add --no-cache --no-install-recommends libffi-dev  \
+RUN apk add --no-cache libffi-dev  \
     git  \
     gcc  \
     musl-dev  \
@@ -19,7 +19,7 @@ RUN apk add --no-cache --no-install-recommends libffi-dev  \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
     && npm install pm2 -g \
     && apk del libffi-dev gcc musl-dev libxml2-dev libxslt-dev cython \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/* /var/lib/apt/lists/*
+    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
