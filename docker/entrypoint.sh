@@ -47,6 +47,23 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             fi
         fi
         # 系统软件包更新
+    if [ "$NASTOOL_VERSION" = "lite" ]; then
+        hash_old=$(cat /tmp/package_list_lite.txt.sha256sum)
+        hash_new=$(sha256sum package_list_lite.txt)
+        if [ "$hash_old" != "$hash_new" ]; then
+            echo "检测到package_list_lite.txt有变化，更新软件包..."
+            apk add --no-cache libffi-dev
+            apk add --no-cache $(echo $(cat package_list_lite.txt))
+            if [ $? -ne 0 ]; then
+                echo "无法更新软件包，请更新镜像..."
+            else
+                apk del libffi-dev
+                echo "软件包安装成功..."
+                sha256sum package_list_lite.txt > /tmp/package_list_lite.txt.sha256sum
+            fi
+        fi
+    else
+    if [ "$NASTOOL_VERSION" != "lite" ]; then
         hash_old=$(cat /tmp/package_list.txt.sha256sum)
         hash_new=$(sha256sum package_list.txt)
         if [ "$hash_old" != "$hash_new" ]; then
@@ -60,7 +77,6 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                 echo "软件包安装成功..."
                 sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
             fi
-        fi
     else
         echo "更新失败，继续使用旧的程序来启动..."
     fi
