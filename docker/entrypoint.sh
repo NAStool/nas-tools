@@ -85,7 +85,7 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 if [ "$NASTOOL_VERSION" = "lite" ]; then
     mkdir -p /.pm2
-    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.local /.pm2
+    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.pm2
 else
     mkdir -p /.local
     mkdir -p /.pm2
