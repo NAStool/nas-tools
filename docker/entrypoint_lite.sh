@@ -55,7 +55,4 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 mkdir -p /.pm2
 chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.pm2
 umask "${UMASK}"
-if ! which dumb-init; then
-    apk add --no-cache dumb-init
-fi
 exec su-exec "${PUID}":"${PGID}" "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
