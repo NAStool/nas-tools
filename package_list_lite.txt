@@ -1,0 +1,7 @@
+dumb-init
+git
+npm
+python3-dev
+py3-pip
+su-exec
+tzdata
