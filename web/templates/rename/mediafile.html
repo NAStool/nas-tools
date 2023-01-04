@@ -112,7 +112,7 @@
         <table id="table-hardlinks" class="table table-vcenter card-table"></table>
       </div>
       <div class="modal-footer">
-        <a type="button" id="hardlinks_check_all_btn" class="btn btn-link me-auto">全选</a>
+        <a href="javascript:void(0)" class="me-auto ms-3" onclick="selectgroup_selectALL(this, 'table-hardlinks')">全选</a>
         <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
          批量删除
         </a>
@@ -367,20 +367,6 @@
   set_mediafile_height();
   $(window).bind('resize', function () {
     set_mediafile_height();
-  });
-
-  // 绑定全选事件
-  var check_all = false;
-  $("#hardlinks_check_all_btn").click(function () {
-    if(check_all){
-      check_all = false;
-      $(this).text("全选");
-      $("#modal-hardlinks input[type=checkbox]").prop("checked", false);
-    }else{
-      check_all = true;
-      $(this).text("全不选");
-      $("#modal-hardlinks input[type=checkbox]").prop("checked", true);
-    }
   });
 
 </script>
