@@ -402,15 +402,16 @@ def recommend():
 @App.route('/discovery_movie', methods=['POST', 'GET'])
 @login_required
 def discovery_movie():
-    return render_template("discovery/movie.html")
+    return render_template("discovery/discovery.html",
+                           DiscoveryType="movie")
 
 
 # 电视剧推荐页面
 @App.route('/discovery_tv', methods=['POST', 'GET'])
 @login_required
 def discovery_tv():
-    return render_template("discovery/tv.html")
-
+    return render_template("discovery/discovery.html",
+                           DiscoveryType="tv")
 
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
