@@ -71,7 +71,10 @@
                     <div class="col-2 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
                       <!-- 图片 -->
                       {% if Item.poster %}
-                      <img class="rounded object-cover shadow" src="{{ Item.poster }}" alt="">
+                      <custom-img img-src="{{ Item.poster }}"
+                                  img-class="rounded object-cover shadow"
+                                  img-ratio="150%"
+                      ></custom-img>
                       {% endif %}
                       <!-- 过滤条件 -->
                       {% if Item.filter.season %}
