@@ -4235,9 +4235,9 @@ class WebAction:
         """
         发送自定义消息
         """
-        title = str(data.get("title"))
-        text = str(data.get("text")) or ""
-        image = str(data.get("image")) or ""
+        title = data.get("title")
+        text = data.get("text") or ""
+        image = data.get("image") or ""
         Message().send_custom_message(title=title, text=text, image=image)
         return {"code": 0}
 
