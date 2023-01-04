@@ -12,7 +12,8 @@ RUN apk add --no-cache libffi-dev \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && apk del libffi-dev \
     && npm install pm2 -g \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+    && rm -rf /tmp/* /root/.cache /var/cache/apk/* \
+    && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
