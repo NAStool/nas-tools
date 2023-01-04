@@ -5,16 +5,11 @@
  * @param: id  selectgroup元素id
  **/
 function selectgroup_selectALL(btnobj, id) {
-  const selobj = $("#" + id);
   if ($(btnobj).text() === "全选") {
-    selobj.find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", true);
-    });
+    $(`#${id} input[type=checkbox]`).prop("checked", true);
     $(btnobj).text("全不选");
   } else {
-    selobj.find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
+    $(`#${id} input[type=checkbox]`).prop("checked", false);
     $(btnobj).text("全选");
   }
 }
