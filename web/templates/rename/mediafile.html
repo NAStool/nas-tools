@@ -112,7 +112,7 @@
         <table id="table-hardlinks" class="table table-vcenter card-table"></table>
       </div>
       <div class="modal-footer">
-        <a href="javascript:void(0)" class="me-auto ms-3" onclick="btn_selectALL(this, 'table-hardlinks')">全选</a>
+        <a href="javascript:void(0)" class="me-auto ms-3" onclick="select_btn_selectALL(this, 'table-hardlinks')">全选</a>
         <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
          批量删除
         </a>
@@ -231,7 +231,7 @@
 
   // 多个文件删除
   function mediafile_delete_all() {
-    let files = get_hardlink_checked();
+    let files = select_get_selectedITEMs('table-hardlinks');
     if (files.length === 0) {
       show_fail_modal("没有硬链接文件被选中！");
       return;
@@ -285,7 +285,6 @@
               .replaceAll("{FILE}", file)
               .replaceAll("{TBODY_CONTENT}", tbody_content);
           }
-          console.log(table_content)
           $("#table-hardlinks").empty().append(table_content);
           $("#modal-hardlinks").modal("show");
         } else {
@@ -328,21 +327,6 @@
       find_hardlinks(files, dir);
     });
     $("#modal-find-links-dir").modal("show");
-  }
-
-    // 获取选中按钮
-  function get_hardlink_checked(){
-    let hardlinks = [];
-    $("[id^='check_hardlink_']").each(function () {
-      if ($(this).prop("checked")) {
-        let checkid = $(this).attr("id");
-        if(checkid){
-          let file = checkid.replace("check_hardlink_", "");
-          hardlinks.push(file);
-        }
-      }
-    });
-    return hardlinks;
   }
 
   // 设置高度
@@ -430,7 +414,7 @@
 <script id="hardlinks_tbody_template" type="text/html">
 <tr class="ms-3">
   <td class="w-1">
-    <input class="form-check-input m-0 align-middle" id="check_hardlink_{HARDLINK_FILE}" type="checkbox">
+    <input class="form-check-input m-0 align-middle" value="{HARDLINK_FILE}" type="checkbox">
   </td>
   <td>
     <div class="ms-3">
