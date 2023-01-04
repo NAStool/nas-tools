@@ -476,11 +476,10 @@ class Sites:
         """
         statistic_sites = self.get_sites(statistic=True)
         if not sites:
-            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites
-                         if self.__get_site_strict_url(site)]
+            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites]
         else:
             site_urls = [self.__get_site_strict_url(site) for site in statistic_sites
-                         if self.__get_site_strict_url(site) and site.get("name") in sites]
+                         if site.get("name") in sites]
 
         raw_statistics = self.dbhelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":

@@ -391,7 +391,7 @@ def resources():
 def recommend():
     RecommendType = request.args.get("t")
     CurrentPage = request.args.get("page") or 1
-    return render_template("recommend.html",
+    return render_template("discovery/recommend.html",
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
 
