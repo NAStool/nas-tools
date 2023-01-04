@@ -1,7 +1,7 @@
+dumb-init
 git
+npm
 python3-dev
 py3-pip
-tzdata
 su-exec
-dumb-init
-npm
+tzdata
