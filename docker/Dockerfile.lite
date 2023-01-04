@@ -1,16 +1,6 @@
 FROM alpine
-RUN apk add --no-cache libffi-dev  \
-    git  \
-    gcc  \
-    musl-dev  \
-    python3-dev  \
-    py3-pip  \
-    libxml2-dev  \
-    libxslt-dev  \
-    tzdata  \
-    su-exec  \
-    dumb-init  \
-    npm \
+RUN apk add --no-cache libffi-dev gcc musl-dev libxml2-dev libxslt-dev \
+    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/master/package_list_lite.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
@@ -43,4 +33,4 @@ RUN python_ver=$(python3 -V | awk '{print $2}') \
     && git config --global --add safe.directory ${WORKDIR}
 EXPOSE 3000
 VOLUME ["/config"]
-ENTRYPOINT ["/nas-tools/docker/entrypoint.sh"]
+ENTRYPOINT ["/nas-tools/docker/entrypoint_lite.sh"]
