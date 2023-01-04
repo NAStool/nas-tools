@@ -1,5 +1,5 @@
 FROM alpine
-RUN apk add --no-cache --no-install-recommends libffi-dev  \
+RUN apk add --no-cache libffi-dev  \
     git  \
     gcc  \
     musl-dev  \
