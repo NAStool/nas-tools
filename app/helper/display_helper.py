@@ -20,7 +20,7 @@ class DisplayHelper(object):
             try:
                 self._display = Display(visible=False, size=(1024, 768))
                 self._display.start()
-                os.environ["NASTOOL_DISPLAY"] = "YES"
+                os.environ["NASTOOL_DISPLAY"] = "true"
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
 

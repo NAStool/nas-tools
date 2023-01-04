@@ -40,11 +40,11 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        # 指定了WebDriver路径的，如果路径不存在则不启用
+        if SystemUtils.is_lite_version():
+            return True
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
             return False
-        # 否则自动下载WebDriver
         return True
 
     def __get_browser(self):

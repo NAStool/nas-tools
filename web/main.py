@@ -115,11 +115,12 @@ def login():
         跳转到导航页面
         """
         # 判断当前的运营环境
-        SystemFlag = 0 if SystemUtils.is_windows() or SystemUtils.is_lite_version() else 1
+        SystemFlag = 1 if SystemUtils.is_docker() or SystemUtils.is_synology() else 0
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
+        RmtModeDict = WebAction().get_rmt_modes()
         RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
@@ -133,7 +134,8 @@ def login():
                                RestypeDict=RestypeDict,
                                PixDict=PixDict,
                                SyncMod=SyncMod,
-                               SiteFavicons=SiteFavicons)
+                               SiteFavicons=SiteFavicons,
+                               RmtModeDict=RmtModeDict)
 
     def redirect_to_login(errmsg=''):
         """
@@ -882,9 +884,11 @@ def basic():
     proxy = Config().get_config('app').get("proxies", {}).get("http")
     if proxy:
         proxy = proxy.replace("http://", "")
+    RmtModeDict = WebAction().get_rmt_modes()
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
-                           Proxy=proxy)
+                           Proxy=proxy,
+                           RmtModeDict=RmtModeDict)
 
 
 # 自定义识别词设置页面
@@ -901,10 +905,12 @@ def customwords():
 @App.route('/directorysync', methods=['POST', 'GET'])
 @login_required
 def directorysync():
+    RmtModeDict = WebAction().get_rmt_modes()
     SyncPaths = WebAction().get_directorysync().get("result")
     return render_template("setting/directorysync.html",
                            SyncPaths=SyncPaths,
-                           SyncCount=len(SyncPaths))
+                           SyncCount=len(SyncPaths),
+                           RmtModeDict=RmtModeDict)
 
 
 # 豆瓣页面

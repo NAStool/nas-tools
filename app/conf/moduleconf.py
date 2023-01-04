@@ -15,7 +15,7 @@ class ModuleConf(object):
         '_2_0': '/pts'
     }
 
-    # 转移模式
+    # 全量转移模式
     RMT_MODES = {
         "copy": RmtMode.COPY,
         "link": RmtMode.LINK,
@@ -25,6 +25,14 @@ class ModuleConf(object):
         "rclonecopy": RmtMode.RCLONECOPY,
         "minio": RmtMode.MINIO,
         "miniocopy": RmtMode.MINIOCOPY
+    }
+
+    # 精简版转移模式
+    RMT_MODES_LITE = {
+        "copy": RmtMode.COPY,
+        "link": RmtMode.LINK,
+        "softlink": RmtMode.SOFTLINK,
+        "move": RmtMode.MOVE
     }
 
     # 下载器
