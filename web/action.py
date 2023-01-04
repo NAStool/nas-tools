@@ -196,7 +196,8 @@ class WebAction:
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
-            "get_site_user_statistics": self.get_site_user_statistics
+            "get_site_user_statistics": self.get_site_user_statistics,
+            "send_custom_message": self.send_custom_message
         }
 
     def action(self, cmd, data=None):
@@ -4228,6 +4229,17 @@ class WebAction:
             for item in statistics:
                 item["site_hash"] = WebAction.md5_hash(item.get("site"))
         return {"code": 0, "data": statistics}
+
+    @staticmethod
+    def send_custom_message(data):
+        """
+        发送自定义消息
+        """
+        title = data.get("title")
+        text = data.get("text") or ""
+        image = data.get("image") or ""
+        Message().send_custom_message(title=title, text=text, image=image)
+        return {"code": 0}
 
     @staticmethod
     def get_rmt_modes():
