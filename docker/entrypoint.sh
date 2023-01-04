@@ -25,8 +25,13 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
         hash_new=$(sha256sum requirements.txt)
         if [ "$hash_old" != "$hash_new" ]; then
             echo "检测到requirements.txt有变化，重新安装依赖..."
-            pip install --upgrade pip setuptools wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
-            pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+            if [ "$CN_UPDATE" = "true" ]; then
+                pip install --upgrade pip setuptools wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
+                pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+            else
+                pip install --upgrade pip setuptools wheel
+                pip install -r requirements.txt
+            fi
             if [ $? -ne 0 ]; then
                 echo "无法安装依赖，请更新镜像..."
             else
@@ -51,6 +56,9 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
         hash_new=$(sha256sum package_list.txt)
         if [ "$hash_old" != "$hash_new" ]; then
             echo "检测到package_list.txt有变化，更新软件包..."
+            if [ "$CN_UPDATE" = "true" ]; then
+                sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
+            fi
             apk add --no-cache libffi-dev
             apk add --no-cache $(echo $(cat package_list.txt))
             if [ $? -ne 0 ]; then
