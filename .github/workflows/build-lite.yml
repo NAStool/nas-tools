@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - dev
     paths:
       - version.py
       - docker/Dockerfile.lite
