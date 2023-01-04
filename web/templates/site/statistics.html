@@ -306,79 +306,80 @@
     </div>
   </div>
   <div class="modal modal-blur fade" id="modal-statistics-pic-setting" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">分享设置 </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="mb-3">
-            <div class="btn-list">
-              <label class="form-label">分享站点</label>
-              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="selectgroup_selectALL(this, 'statistic_sites_group')">全选</a>
-            </div>
-            <div class="form-selectgroup" id="statistic_sites_group">
-            {% for item in SiteUserStatistics %}
-              <label class="form-selectgroup-item">
-                <input type="checkbox" name="statistic_sites" value="{{ item.site }}" class="form-selectgroup-input">
-                <span class="form-selectgroup-label">{{ item.site }}</span>
-              </label>
-            {% endfor %}
-            </div>
-          </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">分享设置 </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="row">
-          <div class="col-lg-3">
+        <div class="modal-body">
+          <div class="row">
             <div class="mb-3">
-              <label class="form-label">排序依据</label>
-                <select class="form-select" id="statistics_pic_sort_by">
-                  <option value="upload" selected>上传量</option>
-                  <option value="download">下载量</option>
-                  <option value="ratio">分享率</option>
-                  <option value="seeding_size">做种体积</option>
-                  <option value="seeding">做种数量</option>
-                </select>
+              <div class="btn-list">
+                <label class="form-label">分享站点</label>
+                <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="selectgroup_selectALL(this, 'statistic_sites_group')">全选</a>
+              </div>
+              <div class="form-selectgroup" id="statistic_sites_group">
+              {% for item in SiteUserStatistics %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="statistic_sites" value="{{ item.site }}" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label">{{ item.site }}</span>
+                </label>
+              {% endfor %}
+              </div>
             </div>
           </div>
-          <div class="col-lg-3">
-            <div class="mb-3">
-              <label class="form-label">排序方式</label>
-                <select class="form-select" id="statistics_pic_sort_on">
-                  <option value="desc" selected>降序</option>
-                  <option value="asc">升序</option>
-                </select>
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">排序依据</label>
+                  <select class="form-select" id="statistics_pic_sort_by">
+                    <option value="upload" selected>上传量</option>
+                    <option value="download">下载量</option>
+                    <option value="ratio">分享率</option>
+                    <option value="seeding_size">做种体积</option>
+                    <option value="seeding">做种数量</option>
+                  </select>
+              </div>
             </div>
-          </div>
-          <div class="col-xl-3">
-            <div class="mb-3" style="height: 25%;"></div>
-            <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="statistics_pic_site_blur">
-                <span class="form-check-label">站点图片模糊 </span>
-              </label>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">排序方式</label>
+                  <select class="form-select" id="statistics_pic_sort_on">
+                    <option value="desc" selected>降序</option>
+                    <option value="asc">升序</option>
+                  </select>
+              </div>
             </div>
-          </div>
-          <div class="col-xl-3">
-            <div class="mb-3" style="height: 25%;"></div>
-            <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="statistics_pic_username_blur">
-                <span class="form-check-label">站点用户名模糊 </span>
-              </label>
+            <div class="col-xl-3">
+              <div class="mb-3" style="height: 25%;"></div>
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="statistics_pic_site_blur">
+                  <span class="form-check-label">站点图片模糊 </span>
+                </label>
+              </div>
             </div>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="statistics_photo_generate_btn" href="javascript:gen_and_save_statistics_pic()" class="btn btn-primary">
-          生成图片
-        </a>
+            <div class="col-xl-3">
+              <div class="mb-3" style="height: 25%;"></div>
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="statistics_pic_username_blur">
+                  <span class="form-check-label">站点用户名模糊 </span>
+                </label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+          <a id="statistics_photo_generate_btn" href="javascript:gen_and_save_statistics_pic()" class="btn btn-primary">
+            生成图片
+          </a>
+        </div>
       </div>
     </div>
+    </div>
   </div>
-</div>
   <script type="text/javascript">
     $('#site-activity').off('shown.bs.modal').on('shown.bs.modal', function (e) {
       let site_name = $('#site-activity-name').val();
@@ -896,8 +897,17 @@
       let sort_on = $('#statistics_pic_sort_on').val();
       let site_blur = $('#statistics_pic_site_blur').prop("checked");
       let username_blur = $('#statistics_pic_username_blur').prop("checked");
+      // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
       let theme = localStorage.getItem("tablerTheme");
-      console.log(theme);
+      let pic_bgcolor = '';
+      let card_bgcolor = '';
+      if (theme === "light") {
+       pic_bgcolor = '#ffffff';
+       card_bgcolor = '#f8fafc';
+      } else {
+       pic_bgcolor = '#1f273c';
+       card_bgcolor = '#1a2234';
+      }
       let sites = [];
       $("input[name='statistic_sites']").each(function () {
         if ($(this).prop("checked")) {
@@ -925,6 +935,10 @@
         let table_content = '';
         let site_blur_text = '';
         let username_blur_text = '';
+        let total_upload = 0;
+        let total_download = 0;
+        let total_seeding = 0;
+        let total_seeding_size = 0;
         if (site_blur) {
           site_blur_text = 'filter:blur(3px)';
         }
@@ -949,46 +963,109 @@
             .replaceAll('{RATIO}', ratio)
             .replaceAll('{SEEDING}', statistic.seeding)
             .replaceAll('{SEEDING_SIZE}', bytesToSize(statistic.seeding_size))
-          table_content = `${table_content}${tr}`;
+          table_content += tr;
+          total_upload += statistic.upload;
+          total_download += statistic.download;
+          total_seeding += statistic.seeding;
+          total_seeding_size += statistic.seeding_size;
         }
-        let table_text = $("#statistics_pic_table_template").text().replaceAll('{TBODY_CONTENT}', table_content);
-        let table = document.createElement('div');
-        table.setAttribute('style', 'min-height: 300px; max-width: 800px');
-        table.innerHTML = table_text;
-        // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
-        let bgcolor = '';
-        if (theme === "light") {
-         bgcolor = '#ffffff';
-        } else {
-         bgcolor = '#1f273c';
-        }
-        $('body').append(table);
-        domtoimage.toBlob(table, {bgcolor: bgcolor}).then(function (blob) {
+        let table_text = $("#statistics_pic_table_template").text()
+          .replaceAll('{TBODY_CONTENT}', table_content)
+          .replaceAll('{TOTALUPLOAD}', bytesToSize(total_upload))
+          .replaceAll('{TOTALDOWNLOAD}', bytesToSize(total_download))
+          .replaceAll('{TOTALSEEDING}', total_seeding)
+          .replaceAll('{TOTALSEEDINGSIZE}', bytesToSize(total_seeding_size))
+          .replaceAll('{BGCOLOR}', card_bgcolor);
+        let pic = document.createElement('div');
+        pic.setAttribute('style', 'max-width: 800px');
+        pic.innerHTML = table_text;
+        $('body').append(pic);
+        domtoimage.toBlob(pic, {bgcolor: pic_bgcolor}).then(function (blob) {
          saveAs(blob, 'nastool_statistics.png');
+         $('#modal-statistics-pic-setting').modal("hide");
         });
       });
     }
 
   </script>
-  <script id="statistics_pic_table_template" type="text">
-  <table class="table table-vcenter card-table table-hover table-striped">
-    <thead>
-    <tr>
-      <th class="flex-fill">站点</th>
-      <th>上传量</th>
-      <th>下载量</th>
-      <th>分享率</th>
-      <th>做种数</th>
-      <th>做种体积</th>
-    </tr>
-    </thead>
-    <tbody class="table-tbody">
-      {TBODY_CONTENT}
-    </tbody>
-  </table>
+  <script id="statistics_pic_table_template" type="text/html">
+  <div class="container-xl" style="padding: 0.25rem;">
+    <div class="row row-cards mb-3">
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-blue avatar text-white">{{ SVG.world_upload() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总上传量</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALUPLOAD}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-red avatar text-white">{{ SVG.world_download() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总下载量</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALDOWNLOAD}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-green avatar text-white">{{ SVG.arrow_big_up_lines() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总做种数</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALSEEDING}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-green avatar text-white">{{ SVG.cloud_upload() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总做种体积</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALSEEDINGSIZE}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-vcenter card-table table-hover table-striped">
+      <thead>
+      <tr>
+        <th class="flex-fill">站点</th>
+        <th>上传量</th>
+        <th>下载量</th>
+        <th>分享率</th>
+        <th>做种数</th>
+        <th>做种体积</th>
+      </tr>
+      </thead>
+      <tbody class="table-tbody">
+        {TBODY_CONTENT}
+      </tbody>
+    </table>
+  </div>
+
 
   </script>
-  <script id="statistics_pic_tr_template" type="text">
+  <script id="statistics_pic_tr_template" type="text/html">
   <tr>
     <td>
       <div class="d-flex py-1 align-items-center">
@@ -1009,7 +1086,6 @@
         <span class="text-red">{{ SVG.arrow_narrow_down() }}</span>
         {DOWNLOAD}
       </div>
-    </td>
     </td>
     <td><strong>{RATIO}</strong></td>
     <td>{SEEDING}</td>
