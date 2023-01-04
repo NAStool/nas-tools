@@ -68,14 +68,14 @@ class ModuleConf(object):
                         "id": "telegram_chat_id",
                         "required": True,
                         "title": "Chat ID",
-                        "tooltip": "telegram群组或用户的Chat ID，关注@getidsbot获取",
+                        "tooltip": "接受消息通知的用户、群组或频道Chat ID，关注@getidsbot获取",
                         "type": "text"
                     },
                     "user_ids": {
                         "id": "telegram_user_ids",
                         "required": False,
                         "title": "User IDs",
-                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，关注@getidsbot获取",
+                        "tooltip": "允许使用交互的用户Chat ID，留空则只允许管理用户使用，关注@getidsbot获取",
                         "type": "text",
                         "placeholder": "使用,分隔多个Id"
                     },
@@ -83,7 +83,7 @@ class ModuleConf(object):
                         "id": "telegram_admin_ids",
                         "required": False,
                         "title": "Admin IDs",
-                        "tooltip": "允许使用远程命令的管理员Id，关注@getidsbot获取",
+                        "tooltip": "允许使用管理命令的用户Chat ID，关注@getidsbot获取",
                         "type": "text",
                         "placeholder": "使用,分隔多个Id"
                     },
