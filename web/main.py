@@ -115,7 +115,7 @@ def login():
         跳转到导航页面
         """
         # 判断当前的运营环境
-        SystemFlag = 0 if SystemUtils.is_windows() else 1
+        SystemFlag = 0 if SystemUtils.is_windows() or SystemUtils.is_lite_version() else 1
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:

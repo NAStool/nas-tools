@@ -7,6 +7,7 @@ on:
     paths:
       - version.py
       - docker/Dockerfile
+      - docker/Dockerfile.lite
       - .github/workflows/build.yml
       - requirements.txt
 jobs:
@@ -41,7 +42,19 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       -
-        name: Buildx
+        name: Build Lite Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile.lite
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}-lite
+
+      - name: Build Image
         uses: docker/build-push-action@v2
         with:
           context: .

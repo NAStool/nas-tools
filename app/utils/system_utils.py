@@ -110,6 +110,11 @@ class SystemUtils:
         return True if platform.system() == 'Darwin' else False
 
     @staticmethod
+    def is_lite_version():
+        return True if os.path.exists('/.dockerenv') \
+                       and os.environ.get("NASTOOL_VERSION") else False
+
+    @staticmethod
     def copy(src, dest):
         """
         复制

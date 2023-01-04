@@ -16,7 +16,8 @@ from feapder.utils.tools import urlencode
 
 
 class TorrentSpider(feapder.AirSpider):
-    _webdriver_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+    _webdriver_path = None if SystemUtils.is_lite_version() \
+        else WEBDRIVER_PATH.get(SystemUtils.get_system().value)
     __custom_setting__ = dict(
         USE_SESSION=True,
         SPIDER_THREAD_COUNT=1,
