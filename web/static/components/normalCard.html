@@ -1,6 +1,6 @@
 <!-- 卡片主体 -->
 <template id="normalCard_Template">
-  <div class="card card-sm card-link-pop rounded-4 border-1 shadow"
+  <div class="card card-sm card-link-pop rounded-4 border-1 shadow-sm"
        style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden;">
     <!-- 图像加载占位图 -->
     <div class="placeholder-glow normalcard_placeholder">
@@ -102,7 +102,6 @@
       }
       const my_card = document.getElementById("normalCard_Template").content.cloneNode(true);
       // 读取参数
-      const shadow = this.getArgs("card-shadow");
       const card_id = this.getArgs("card-id", sessionStorage.normalCard_data_card_id);
       const tmdb_id = this.getArgs("card-tmdbId");
       const res_type = this.getArgs("card-resType");
@@ -138,11 +137,6 @@
           $(`#normalcard_more_${card_id}`).hide();
         }
       });
-      if (shadow) {
-        div_card.classList.add("shadow")
-      } else {
-        div_card.classList.add("shadow-sm")
-      }
       my_card.querySelector(".normalcard_placeholder").setAttribute("id", "normalcard_placeholder_" + card_id);
       const img = my_card.querySelector("img.card-img");
       img.setAttribute("src", image ? image : "../static/img/no-image.png");
