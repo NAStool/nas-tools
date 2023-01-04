@@ -4,7 +4,7 @@
  * @param: btnobj 按钮对象
  * @param: id  selectgroup元素id
  **/
-function selectgroup_selectALL(btnobj, id) {
+function btn_selectALL(btnobj, id) {
   if ($(btnobj).text() === "全选") {
     $(`#${id} input[type=checkbox]`).prop("checked", true);
     $(btnobj).text("全不选");

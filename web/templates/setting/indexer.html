@@ -165,7 +165,7 @@
                 <label class="form-label required">私有站点 <span class="form-help"
                                                                   title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持"
                                                                   data-bs-toggle="tooltip">?</span></label>
-                <a href="javascript:void(0)" class="ms-auto" onclick="selectgroup_selectALL(this, 'indexer_private_sites_group')">全选</a>
+                <a href="javascript:void(0)" class="ms-auto" onclick="btn_selectALL(this, 'indexer_private_sites_group')">全选</a>
               </div>
               <div class="form-selectgroup" id="indexer_private_sites_group">
                 {% if PrivateCount > 0 %}
@@ -191,7 +191,7 @@
                 <label class="form-label">公开站点 <span class="form-help"
                                                          title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示；部分站点需要有浏览器内核环境才能使用；同时大部分公开站点都需要网络代理才能访问"
                                                          data-bs-toggle="tooltip">?</span></label>
-                <a href="javascript:void(0)" class="ms-auto" onclick="selectgroup_selectALL(this, 'indexer_public_sites_group')">全选</a>
+                <a href="javascript:void(0)" class="ms-auto" onclick="btn_selectALL(this, 'indexer_public_sites_group')">全选</a>
               </div>
               <div class="form-selectgroup" id="indexer_public_sites_group">
                 {% if PublicCount > 0 %}
