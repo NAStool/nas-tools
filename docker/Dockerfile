@@ -1,7 +1,5 @@
 FROM alpine
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk update -f \
-    && apk add --no-cache libffi-dev \
+RUN apk add --no-cache libffi-dev \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/jxxghp/nas-tools/master/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
@@ -21,12 +19,14 @@ ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
+    NASTOOL_VERSION=full \
     PS1="\u@\h:\w \$ " \
     REPO_URL="https://github.com/jxxghp/nas-tools.git" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
-    WORKDIR="/nas-tools"
+    WORKDIR="/nas-tools" \
+    CN_UPDATE=false
 WORKDIR ${WORKDIR}
 RUN python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
