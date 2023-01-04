@@ -8,7 +8,7 @@ RUN apk add --no-cache libffi-dev \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
     && npm install pm2 -g \
-    && apk del libffi-dev git gcc musl-dev libxml2-dev libxslt-dev tzdata \
+    && apk del libffi-dev gcc musl-dev libxml2-dev libxslt-dev tzdata \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
