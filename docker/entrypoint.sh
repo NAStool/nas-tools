@@ -72,8 +72,12 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 mkdir -p /.local
 mkdir -p /.pm2
-chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2
-export PATH=$PATH:/usr/lib/chromium
+if [ "$NASTOOL_VERSION" = "lite" ]; then
+  chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.local /.pm2
+else
+  chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2
+  export PATH=$PATH:/usr/lib/chromium
+fi
 umask "${UMASK}"
 if ! which dumb-init; then
     apk add --no-cache dumb-init
