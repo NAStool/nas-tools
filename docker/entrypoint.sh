@@ -27,7 +27,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
         hash_new=$(sha256sum requirements.txt)
         if [ "$hash_old" != "$hash_new" ]; then
             echo "检测到requirements.txt有变化，重新安装依赖..."
-            if [ "$CN_UPDATE" = "true" ]; then
+            if [ "$NASTOOL_CN_UPDATE" = "true" ]; then
                 pip install --upgrade pip setuptools wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
                 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
             else
@@ -59,7 +59,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             hash_new=$(sha256sum package_list.txt)
             if [ "$hash_old" != "$hash_new" ]; then
                 echo "检测到package_list.txt有变化，更新软件包..."
-                if [ "$CN_UPDATE" = "true" ]; then
+                if [ "$NASTOOL_CN_UPDATE" = "true" ]; then
                     sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
                     apk update -f
                 fi

@@ -26,7 +26,7 @@ ENV LANG="C.UTF-8" \
     PGID=0 \
     UMASK=000 \
     WORKDIR="/nas-tools" \
-    CN_UPDATE=false
+    NASTOOL_CN_UPDATE=false
 WORKDIR ${WORKDIR}
 RUN python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
