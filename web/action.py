@@ -276,13 +276,12 @@ class WebAction:
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
-            message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
+            message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"), user_id=user_id)
         else:
             # 检查用户权限
             if in_from == SearchType.TG:
                 if not str(user_id) in client.get("client").get_users():
-                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
-                                             user_id=user_id)
+                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人", user_id=user_id)
                     return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id, user_name))
