@@ -8,9 +8,6 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     if [ ! -s /tmp/third_party.txt.sha256sum ]; then
         sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
     fi
-    if [ ! -s /tmp/package_list_lite.txt.sha256sum ]; then
-        sha256sum package_list_lite.txt > /tmp/package_list_lite.txt.sha256sum
-    fi
     echo "更新程序..."
     git remote set-url origin ${REPO_URL} &>/dev/null
     echo "windows/" > .gitignore
@@ -44,19 +41,6 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                         sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
                     fi
                 fi
-            fi
-        fi
-        # 系统软件包更新
-        hash_old=$(cat /tmp/package_list_lite.txt.sha256sum)
-        hash_new=$(sha256sum package_list_lite.txt)
-        if [ "$hash_old" != "$hash_new" ]; then
-            echo "检测到package_list_lite.txt有变化，更新软件包..."
-            apk add --no-cache $(echo $(cat package_list_lite.txt))
-            if [ $? -ne 0 ]; then
-                echo "无法更新软件包，请更新镜像..."
-            else
-                echo "软件包安装成功..."
-                sha256sum package_list_lite.txt > /tmp/package_list_lite.txt.sha256sum
             fi
         fi
     else
