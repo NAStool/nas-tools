@@ -213,7 +213,10 @@
         </div>
         {% endfor %}
         <details>
-          <summary class="summary">推送设置</summary>
+          <summary class="summary">
+            推送设置
+            <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'div_message_switchs')">全选</a>
+          </summary>
           <div class="row mt-2">
             <div class="form-selectgroup" id="div_message_switchs">
               {% for SwitchID in Switchs %}
