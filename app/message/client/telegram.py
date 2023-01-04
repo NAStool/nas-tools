@@ -45,12 +45,11 @@ class Telegram(_IMessageClient):
             self._webhook = self._client_config.get('webhook')
             telegram_admin_ids = self._client_config.get('admin_ids')
             if telegram_admin_ids:
-                self._telegram_admin_ids = telegram_admin_ids.split(",").append(str(self._telegram_chat_id))
-            else:
-                self._telegram_admin_ids = [str(self._telegram_chat_id)]
+                self._telegram_admin_ids = telegram_admin_ids.split(",")
             telegram_user_ids = self._client_config.get('user_ids')
             if telegram_user_ids:
-                self._telegram_user_ids = telegram_user_ids.split(",") + self._telegram_admin_ids
+                self._telegram_user_ids = telegram_user_ids.split(",")
+                self._telegram_user_ids.extend(self._telegram_admin_ids)
             else:
                 self._telegram_user_ids = self._telegram_admin_ids
             if self._telegram_token and self._telegram_chat_id:

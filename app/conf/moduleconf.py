@@ -79,7 +79,7 @@ class ModuleConf(object):
                         "type": "text",
                         "placeholder": "使用,分隔多个Id"
                     },
-                    "admin_id": {
+                    "admin_ids": {
                         "id": "telegram_admin_ids",
                         "required": False,
                         "title": "Admin IDs",
