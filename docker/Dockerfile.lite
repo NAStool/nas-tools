@@ -14,8 +14,6 @@ RUN apk add --no-cache libffi-dev  \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
-    && pip config set global.index-url https://pypi.douban.com/simple \
-    && npm config set registry https://registry.npmmirror.com \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
