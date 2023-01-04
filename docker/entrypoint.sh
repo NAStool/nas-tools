@@ -62,6 +62,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                 sha256sum package_list_lite.txt > /tmp/package_list_lite.txt.sha256sum
             fi
         fi
+    fi
     else
     if [ "$NASTOOL_VERSION" != "lite" ]; then
         hash_old=$(cat /tmp/package_list.txt.sha256sum)
@@ -77,15 +78,15 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                 echo "软件包安装成功..."
                 sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
             fi
+        fi
     else
         echo "更新失败，继续使用旧的程序来启动..."
     fi
+fi
 else
     echo "程序自动升级已关闭，如需自动升级请在创建容器时设置环境变量：NASTOOL_AUTO_UPDATE=true"
-fi
-
-echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
-
+    fi
+ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 mkdir -p /.local
 mkdir -p /.pm2
 if [ "$NASTOOL_VERSION" = "lite" ]; then
@@ -95,7 +96,4 @@ else
   export PATH=$PATH:/usr/lib/chromium
 fi
 umask "${UMASK}"
-if ! which dumb-init; then
-    apk add --no-cache dumb-init
-fi
 exec su-exec "${PUID}":"${PGID}" "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
