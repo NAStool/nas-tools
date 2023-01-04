@@ -7,8 +7,6 @@ RUN apk add --no-cache libffi-dev \
     && curl https://rclone.org/install.sh | bash \
     && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
-    && pip config set global.index-url https://pypi.douban.com/simple \
-    && npm config set registry https://registry.npmmirror.com \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
