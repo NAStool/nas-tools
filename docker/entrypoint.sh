@@ -96,4 +96,7 @@ else
   export PATH=$PATH:/usr/lib/chromium
 fi
 umask "${UMASK}"
+if ! which dumb-init; then
+    apk add --no-cache dumb-init
+fi
 exec su-exec "${PUID}":"${PGID}" "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
