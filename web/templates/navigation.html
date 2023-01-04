@@ -170,18 +170,6 @@
               </a>
             </li>
           {% endif %}
-          {% if "资源搜索" in UserPris %}
-            <li class="nav-item">
-              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('search')">
-                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  {{ SVG.search() }}
-                </span>
-                <span class="nav-link-title">
-                  资源搜索
-                </span>
-              </a>
-            </li>
-          {% endif %}
           {% if "推荐" in UserPris %}
             <li class="nav-item">
               <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
@@ -201,6 +189,18 @@
                   电视剧
                 </a>
               </div>
+            </li>
+          {% endif %}
+          {% if "资源搜索" in UserPris %}
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('search')">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  {{ SVG.search() }}
+                </span>
+                <span class="nav-link-title">
+                  资源搜索
+                </span>
+              </a>
             </li>
           {% endif %}
           {% if "站点管理" in UserPris %}
