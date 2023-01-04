@@ -946,16 +946,9 @@
             <div class="mb-3">
               <label class="form-label required">转移方式</label>
               <select id="rename_syncmod_manual" class="form-select">
-                <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
-                <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
-                <option value="copy" {% if SyncMod=="copy" %} selected="selected" {% endif %}>复制</option>
-                <option value="move" {% if SyncMod=="move" %} selected="selected" {% endif %}>移动</option>
-                <option value="rclonecopy" {% if SyncMod=="rclonecopy" %} selected="selected" {% endif %}>Rclone复制
-                </option>
-                <option value="rclone" {% if SyncMod=="rclone" %} selected="selected" {% endif %}>Rclone移动</option>
-                <option value="miniocopy" {% if SyncMod=="miniocopy" %} selected="selected" {% endif %}>Minio复制
-                </option>
-                <option value="minio" {% if SyncMod=="minio" %} selected="selected" {% endif %}>Minio移动</option>
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}" {% if SyncMod==mode.value %}selected{% endif %}>{{ mode.name }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>

@@ -1,6 +1,16 @@
 FROM alpine
-RUN apk add --no-cache libffi-dev \
-    && apk add --no-cache git gcc musl-dev python3-dev py3-pip libxml2-dev libxslt-dev tzdata su-exec zip dumb-init npm \
+RUN apk add --no-cache --no-install-recommends libffi-dev  \
+    git  \
+    gcc  \
+    musl-dev  \
+    python3-dev  \
+    py3-pip  \
+    libxml2-dev  \
+    libxslt-dev  \
+    tzdata  \
+    su-exec  \
+    dumb-init  \
+    npm \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
@@ -8,8 +18,8 @@ RUN apk add --no-cache libffi-dev \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
     && npm install pm2 -g \
-    && apk del libffi-dev gcc musl-dev libxml2-dev libxslt-dev tzdata \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+    && apk del libffi-dev gcc musl-dev libxml2-dev libxslt-dev cython \
+    && rm -rf /tmp/* /root/.cache /var/cache/apk/* /var/lib/apt/lists/*
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \

@@ -112,7 +112,7 @@ class SystemUtils:
     @staticmethod
     def is_lite_version():
         return True if os.path.exists('/.dockerenv') \
-                       and os.environ.get("NASTOOL_VERSION") else False
+                       and os.environ.get("NASTOOL_VERSION") == "lite" else False
 
     @staticmethod
     def copy(src, dest):

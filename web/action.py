@@ -281,7 +281,8 @@ class WebAction:
             # 检查用户权限
             if in_from == SearchType.TG:
                 if not str(user_id) in client.get("client").get_users():
-                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人", user_id=user_id)
+                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
+                                             user_id=user_id)
                     return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id, user_name))
@@ -795,6 +796,7 @@ class WebAction:
         """
         删除识别记录及文件
         """
+
         def __delete_file(__path, __filename):
             try:
                 __file = os.path.join(__path, __filename)
@@ -829,7 +831,7 @@ class WebAction:
                 if flag in ["del_source", "del_all"]:
                     __delete_file(source_path, source_filename)
                 if flag in ["del_dest", "del_all"]:
-                    if dest_path and dest_filename :
+                    if dest_path and dest_filename:
                         __delete_file(dest_path, dest_filename)
                     else:
                         meta_info = MetaInfo(title=source_filename)
@@ -864,7 +866,8 @@ class WebAction:
                                 for dest_file in PathUtils.get_dir_files(dest_path):
                                     file_meta_info = MetaInfo(os.path.basename(dest_file))
                                     if file_meta_info.get_episode_list() and set(
-                                            file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                            file_meta_info.get_episode_list()).issubset(
+                                        set(meta_info.get_episode_list())):
                                         try:
                                             os.remove(dest_file)
                                         except Exception as e:
@@ -4225,3 +4228,11 @@ class WebAction:
             for item in statistics:
                 item["site_hash"] = WebAction.md5_hash(item.get("site"))
         return {"code": 0, "data": statistics}
+
+    @staticmethod
+    def get_rmt_modes():
+        RmtModes = ModuleConf.RMT_MODES_LITE if SystemUtils.is_lite_version() else ModuleConf.RMT_MODES
+        return [{
+            "value": value,
+            "name": name.value
+        } for value, name in RmtModes.items()]
