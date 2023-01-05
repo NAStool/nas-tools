@@ -183,7 +183,6 @@ function select_GetSelectedVAL(name) {
         selectedVAL.push($(this).val());
         }
     });
-    console.log(selectedVAL);
     return selectedVAL;
 }
 
