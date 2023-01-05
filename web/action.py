@@ -812,14 +812,14 @@ class WebAction:
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
                 if flag in ["del_source", "del_all"]:
-                    del_flag, del_msg = SystemUtils.delete_file(source_path, source_filename)
+                    del_flag, del_msg = self.delete_media_file(source_path, source_filename)
                     if not del_flag:
                         log.error(f"【History】{del_msg}")
                     else:
                         log.info(f"【History】{del_msg}")
                 if flag in ["del_dest", "del_all"]:
                     if dest_path and dest_filename:
-                        del_flag, del_msg = SystemUtils.delete_file(dest_path, dest_filename)
+                        del_flag, del_msg = self.delete_media_file(dest_path, dest_filename)
                         if not del_flag:
                             log.error(f"【History】{del_msg}")
                         else:
@@ -872,6 +872,38 @@ class WebAction:
                                 except Exception as e:
                                     ExceptionUtils.exception_traceback(e)
         return {"retcode": 0}
+
+    @staticmethod
+    def delete_media_file(filedir, filename):
+        """
+        删除媒体文件，空目录也支被删除
+        """
+        filedir = os.path.normpath(filedir).replace("\\", "/")
+        file = os.path.join(filedir, filename)
+        try:
+            if not os.path.exists(file):
+                return False, f"{file} 不存在"
+            os.remove(file)
+            # 检查空目录并删除
+            if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
+                # 当前是季文件夹，判断并删除
+                seaon_dir = filedir
+                if seaon_dir.count('/') > 1 and not PathUtils.get_dir_files(seaon_dir, exts=RMT_MEDIAEXT):
+                    shutil.rmtree(seaon_dir)
+                # 媒体文件夹
+                media_dir = os.path.dirname(seaon_dir)
+            else:
+                media_dir = filedir
+            # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
+            if media_dir != '/' \
+                    and media_dir.count('/') > 1 \
+                    and not re.search(r'[a-zA-Z]:/$', media_dir) \
+                    and not PathUtils.get_dir_files(media_dir, exts=RMT_MEDIAEXT):
+                shutil.rmtree(media_dir)
+            return True, f"{file} 删除成功"
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return True, f"{file} 删除失败"
 
     @staticmethod
     def __logging(data):
@@ -3831,8 +3863,7 @@ class WebAction:
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
 
-    @staticmethod
-    def __delete_files(data):
+    def __delete_files(self, data):
         """
         删除文件
         """
@@ -3840,8 +3871,8 @@ class WebAction:
         if files:
             # 删除文件
             for file in files:
-                del_flag, del_msg = SystemUtils.delete_file(filedir=os.path.dirname(file),
-                                                            filename=os.path.basename(file))
+                del_flag, del_msg = self.delete_media_file(filedir=os.path.dirname(file),
+                                                           filename=os.path.basename(file))
                 if not del_flag:
                     log.error(f"【History】{del_msg}")
                 else:

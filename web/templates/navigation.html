@@ -2222,6 +2222,18 @@
 
   }
 
+
+  // 重新识别
+  function re_identification(flag, ids) {
+    ajax_post("re_identification", {"flag": flag, "ids": ids}, function (ret) {
+        if (ret.retcode == 0) {
+        navmenu(flag);
+        } else {
+        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
+        }
+    });
+  }
+
   // 执行手动识别转移
   function manual_media_transfer() {
     let syncmod;

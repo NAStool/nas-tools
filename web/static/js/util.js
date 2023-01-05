@@ -253,18 +253,3 @@ function bytesToSize(bytes) {
     }
     return size
 }
-
-/**
- * 重新识别
- * @param: flag 识别标志（未识别/历史记录）
- * @param: ids 未识别/历史记录记录id
- **/
-function re_identification(flag, ids) {
-    ajax_post("re_identification", {"flag": flag, "ids": ids}, function (ret) {
-        if (ret.retcode == 0) {
-        navmenu(flag);
-        } else {
-        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
-        }
-    });
-}
