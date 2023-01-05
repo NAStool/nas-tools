@@ -2,7 +2,7 @@ import datetime
 import time
 
 import log
-from app.helper import IndexerHelper, IndexerConf, ProgressHelper
+from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper
 from app.indexer.client._base import _IIndexClient
 from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
@@ -45,6 +45,8 @@ class BuiltinIndexer(_IIndexClient):
         # 选中站点配置
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
         _indexer_domains = []
+        # 检查浏览器状态
+        chrome_ok = ChromeHelper().get_status()
         # 私有站点
         for site in Sites().get_sites():
             if not site.get("rssurl") and not site.get("signurl"):
@@ -77,7 +79,8 @@ class BuiltinIndexer(_IIndexClient):
                                                   proxy=proxy,
                                                   render=render,
                                                   language=language,
-                                                  parser=parser)
+                                                  parser=parser,
+                                                  chrome=chrome_ok)
             if indexer:
                 if indexer_id and indexer.id == indexer_id:
                     return indexer
@@ -95,7 +98,8 @@ class BuiltinIndexer(_IIndexClient):
                                                       proxy=attr.get("proxy"),
                                                       render=attr.get("render"),
                                                       language=attr.get("language"),
-                                                      parser=attr.get("parser"))
+                                                      parser=attr.get("parser"),
+                                                      chrome=chrome_ok)
                 if indexer:
                     if indexer_id and indexer.id == indexer_id:
                         return indexer
