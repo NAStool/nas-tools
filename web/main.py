@@ -128,7 +128,7 @@ def login():
                                GoPage=GoPage,
                                UserName=userinfo.username,
                                UserPris=str(userinfo.pris).split(","),
-                               SystemFlag=SystemFlag,
+                               SystemFlag=SystemFlag.value,
                                TMDBFlag=TMDBFlag,
                                AppVersion=WebUtils.get_current_version(),
                                RestypeDict=RestypeDict,
