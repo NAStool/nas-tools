@@ -6,7 +6,7 @@ from functools import reduce
 from threading import Lock
 
 import undetected_chromedriver as uc
-from undetected_chromedriver._compat import ChromeDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 
 from app.utils import SystemUtils, RequestUtils
 
@@ -23,7 +23,7 @@ class ChromeHelper(object):
 
         self._executable_path = SystemUtils.get_webdriver_path()
         if not self._executable_path:
-            ChromeDriverManager().install()
+            self._executable_path = ChromeDriverManager().install()
 
         if SystemUtils.is_windows():
             self._headless = False
@@ -55,6 +55,11 @@ class ChromeHelper(object):
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-plugins-discovery")
+        options.add_argument('--no-first-run')
+        options.add_argument('--no-service-autorun')
+        options.add_argument('--no-default-browser-check')
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
         if self._headless:
             options.add_argument('--headless')
