@@ -22,6 +22,8 @@ class ChromeHelper(object):
     def __init__(self, headless=False):
 
         self._executable_path = SystemUtils.get_webdriver_path()
+        if not self._executable_path:
+            self._executable_path = ChromeDriverManager().install()
 
         if SystemUtils.is_windows():
             self._headless = False
@@ -38,8 +40,6 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        if not self._executable_path:
-            self._executable_path = ChromeDriverManager().install()
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
             return False
