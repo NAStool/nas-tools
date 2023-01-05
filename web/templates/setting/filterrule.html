@@ -227,7 +227,7 @@
                   {% for Rule in Init_RuleGroup.rules %}
                     <label class="form-selectgroup-item">
                       <input type="button" value="{{ Rule | safe }}" class="form-selectgroup-input"
-                             onclick="javascript:apply_templated(this)">
+                             onclick="apply_templated(this)">
                       <span class="form-selectgroup-label">{{ Rule.name }}</span>
                     </label>
                   {% endfor %}
@@ -241,7 +241,7 @@
         <button id="filterrule_close_btn" class="btn btn-link">
           取消
         </button>
-        <button id="add_or_edit_filterrule_btn" class="btn btn-primary ms-auto" onclick="javascript:add_filterrule()">
+        <button id="add_or_edit_filterrule_btn" class="btn btn-primary ms-auto" onclick="add_filterrule()">
           新增
         </button>
       </div>
@@ -272,7 +272,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="rulegroup_default"
-                       onclick="javascript:change_over_edition_check(this)">
+                       onclick="change_over_edition_check(this)">
                 <span class="form-check-label">默认 <span class="form-help"
                                                           title="将该规则组设为默认规则，在远程搜索、订阅等未指定规则组的场景下默认使用"
                                                           data-bs-toggle="tooltip">?</span></span>

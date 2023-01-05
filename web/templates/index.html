@@ -178,109 +178,111 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 电影变化图
-  if (typeof (chart_movie) != 'undefined')
-    chart_movie.dispose();
+  if ('{{ ServerSucess }}' != 'False') {
+    // 电影变化图
+    if (typeof (chart_movie) != 'undefined')
+      chart_movie.dispose();
 
-  chart_movie = echarts.init($('#chart-movie-bg')[0], null, {
-    height: 40.0
-  });
+    chart_movie = echarts.init($('#chart-movie-bg')[0], null, {
+      height: 40.0
+    });
 
-  option_chart_movie = {
-    animation: true,
-    color: [
-        tabler.getColor('primary')
-    ],
-    legend: {
-      show: false,
-    },
-    grid: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 2,
-      containLabel: false
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      show: false,
-      data: {{ MovieChartLabels| safe }}
-    },
-    yAxis: {show: false,},
-    series: [{
-      name: '电影',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      data: {{ MovieNums }}
-    }]
-  };
-  chart_movie.setOption(option_chart_movie);
-
-  // 电视剧变化图
-  if (typeof (chart_tv) != 'undefined')
-    chart_tv.dispose();
-
-  chart_tv = echarts.init($('#chart-tv-bg')[0], null, {
-    height: 40.0
-  });
-
-  option_chart_tv = {
-    animation: true,
-    color: [
-        tabler.getColor('primary'),
-      tabler.getColor('gray-600')
-    ],
-    legend: {
-      show: false,
-    },
-    grid: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 2,
-      containLabel: false
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      show: false,
-      data: {{ TvChartLabels| safe }}
-    },
-    yAxis: {show: false,},
-    series: [{
-      name: '电视剧',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      data: {{ TvNums }}
-    }, {
-      name: '动漫',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      lineStyle: {
-        width: 1.5,
-        type: 'dashed'
+    option_chart_movie = {
+      animation: true,
+      color: [
+          tabler.getColor('primary')
+      ],
+      legend: {
+        show: false,
       },
-      data: {{ AnimeNums }}
-    }]
-  };
-  chart_tv.setOption(option_chart_tv);
+      grid: {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 2,
+        containLabel: false
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        show: false,
+        data: {{ MovieChartLabels| safe }}
+      },
+      yAxis: {show: false,},
+      series: [{
+        name: '电影',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        data: {{ MovieNums }}
+      }]
+    };
+    chart_movie.setOption(option_chart_movie);
 
-  // 响应大小调整
-  window.onresize = function () {
-    chart_tv.resize();
-    chart_movie.resize();
-  };
+    // 电视剧变化图
+    if (typeof (chart_tv) != 'undefined')
+      chart_tv.dispose();
+
+    chart_tv = echarts.init($('#chart-tv-bg')[0], null, {
+      height: 40.0
+    });
+
+    option_chart_tv = {
+      animation: true,
+      color: [
+          tabler.getColor('primary'),
+        tabler.getColor('gray-600')
+      ],
+      legend: {
+        show: false,
+      },
+      grid: {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 2,
+        containLabel: false
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        show: false,
+        data: {{ TvChartLabels| safe }}
+      },
+      yAxis: {show: false,},
+      series: [{
+        name: '电视剧',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        data: {{ TvNums }}
+      }, {
+        name: '动漫',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: {
+          width: 1.5,
+          type: 'dashed'
+        },
+        data: {{ AnimeNums }}
+      }]
+    };
+    chart_tv.setOption(option_chart_tv);
+
+    // 响应大小调整
+    window.onresize = function () {
+      chart_tv.resize();
+      chart_movie.resize();
+    };
+  }
 </script>
 <script type="text/javascript">
   //显示媒体库同步框

@@ -467,18 +467,19 @@ class Sites:
 
         return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
-    def get_site_user_statistics(self, encoding="RAW"):
+    def get_site_user_statistics(self, sites=None, encoding="RAW"):
         """
         获取站点用户数据
+        :param sites: 站点名称
         :param encoding: RAW/DICT
         :return:
         """
-
-        site_urls = []
-        for site in self.get_sites(statistic=True):
-            site_url = self.__get_site_strict_url(site)
-            if site_url:
-                site_urls.append(site_url)
+        statistic_sites = self.get_sites(statistic=True)
+        if not sites:
+            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites]
+        else:
+            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites
+                         if site.get("name") in sites]
 
         raw_statistics = self.dbhelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":

@@ -170,6 +170,27 @@
               </a>
             </li>
           {% endif %}
+          {% if "推荐" in UserPris %}
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                 role="button" aria-expanded="false">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  {{ SVG.star() }}
+                </span>
+                <span class="nav-link-title">
+                  推荐
+                </span>
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_movie')">
+                  电影
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_tv')">
+                  电视剧
+                </a>
+              </div>
+            </li>
+          {% endif %}
           {% if "资源搜索" in UserPris %}
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('search')">
@@ -182,62 +203,9 @@
               </a>
             </li>
           {% endif %}
-          {% if "推荐" in UserPris %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
-                 role="button" aria-expanded="false">
-                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  {{ SVG.star() }}
-                </span>
-                <span class="nav-link-title">
-                  推荐
-                </span>
-              </a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=hm')">
-                  TMDB热门电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=ht')">
-                  TMDB热门电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=nm')">
-                  TMDB最新电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=nt')">
-                  TMDB最新电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbom')">
-                  正在热映
-                  <span class="badge badge-sm bg-orange text-case ms-2">HOT</span>
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbnm')">
-                  即将上映
-                  <span class="badge badge-sm bg-green text-case ms-2">NEW</span>
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbhm')">
-                  豆瓣热门电影
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbtop')">
-                  豆瓣电影TOP250
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbht')">
-                  豆瓣热门电视剧
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbdh')">
-                  豆瓣热门动漫
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbzy')">
-                  豆瓣热门综艺
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=bangumi')">
-                  Bangumi每日放送
-                </a>
-              </div>
-            </li>
-          {% endif %}
           {% if "站点管理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
                  role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                   {{ SVG.server_2() }}
@@ -849,7 +817,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="fuzzy_match"
-                       onclick="javascript:change_match_check(this)">
+                       onclick="change_match_check(this)">
                 <span class="form-check-label">模糊匹配 <span class="form-help"
                                                               title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配"
                                                               data-bs-toggle="tooltip">?</span></span>
@@ -860,7 +828,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="over_edition"
-                       onclick="javascript:change_over_edition_check(this)">
+                       onclick="change_over_edition_check(this)">
                 <span class="form-check-label">洗版 <span class="form-help"
                                                           title="开启后RSS不检查媒体库是否已存在，命中即会下载"
                                                           data-bs-toggle="tooltip">?</span></span>
@@ -928,7 +896,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">订阅站点</label>
-              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'rss_sites_group')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
@@ -937,7 +905,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">搜索站点</label>
-              <a href="javascript:void(0)" class="ms-auto" id="rss_sites_select_btn" onclick="rss_sites_select(this, 'rss_search_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'rss_search_sites_group')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
@@ -978,16 +946,9 @@
             <div class="mb-3">
               <label class="form-label required">转移方式</label>
               <select id="rename_syncmod_manual" class="form-select">
-                <option value="link" {% if SyncMod=="link" %} selected="selected" {% endif %}>硬链接</option>
-                <option value="softlink" {% if SyncMod=="softlink" %} selected="selected" {% endif %}>软链接</option>
-                <option value="copy" {% if SyncMod=="copy" %} selected="selected" {% endif %}>复制</option>
-                <option value="move" {% if SyncMod=="move" %} selected="selected" {% endif %}>移动</option>
-                <option value="rclonecopy" {% if SyncMod=="rclonecopy" %} selected="selected" {% endif %}>Rclone复制
-                </option>
-                <option value="rclone" {% if SyncMod=="rclone" %} selected="selected" {% endif %}>Rclone移动</option>
-                <option value="miniocopy" {% if SyncMod=="miniocopy" %} selected="selected" {% endif %}>Minio复制
-                </option>
-                <option value="minio" {% if SyncMod=="minio" %} selected="selected" {% endif %}>Minio移动</option>
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}" {% if SyncMod==mode.value %}selected{% endif %}>{{ mode.name }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -1690,21 +1651,6 @@
     $("#rss_season").append('<option value="' + i + '">第' + i + '季</option>');
   }
 
-  function rss_sites_select(btnobj, id) {
-    const selobj = $("#" + id);
-    if ($(btnobj).text() === "全选") {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", true);
-      });
-      $(btnobj).text("全不选");
-    } else {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", false);
-      });
-      $(btnobj).text("全选");
-    }
-  }
-
   // 选择模糊匹配
   function change_match_check(obj) {
     if ($(obj).prop("checked")) {
@@ -2064,7 +2010,7 @@
     // create a random id
     const r = Math.floor((Math.random() * 1000) + 1);
     // Add a new span and load fileTree
-    p.after("<div id='fileTree" + r + "' class='fileTree card shadow' style='z-index: 99999'></div>");
+    p.after("<div id='fileTree" + r + "' class='fileTree card shadow-sm' style='z-index: 99999'></div>");
     const ft = $('#fileTree' + r);
     ft.fileTree({
           script: 'dirlist',
@@ -2449,7 +2395,7 @@
           for(let i=0; i<data.length; i++){
             html += `<div class="list-group-item" onclick="$(this).find('input:radio').prop('checked', true);"><div class="row align-items-center">`;
             html += `<div class="col-auto"><input type="radio" name="search_tmdbid_check" value="${data[i].tmdb_id}" class="form-check-input"></div>`;
-            html += `<div class="col-auto"><img class="rounded w-5 shadow" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
+            html += `<div class="col-auto"><img class="rounded w-5 shadow-sm" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
             html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
             html += `</div></div>`;
           }
@@ -2473,10 +2419,10 @@
   function window_history(newflag=false){
     const state = {
       title: document.title,
-      menu: $("#navbar-menu").html(),          // 导航当前选中
       html: $("#page_content").html(),         // 页面内容
       scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
-      page: sessionStorage.CurrentPage,        // 页面当前页码
+      CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
+      page: CURRENT_PAGE_URI,                  // 当前页面地址
     };
     if (newflag) {
       window.history.pushState(state, "");
@@ -2513,11 +2459,11 @@
         init_filetree_element();
       }
       if (page != CURRENT_PAGE_URI) {
-        ScrollToTop();
+        $("#page_wrapper").scrollTop(0);
         CURRENT_PAGE_URI = page;
-        // 并记录当前历史记录
-        window_history(true);
       }
+      // 并记录当前历史记录
+      window_history(true);
     });
   }
 
@@ -2718,11 +2664,21 @@
     window.addEventListener('popstate', function(e) {
         if (e.state) {
           // 开始还原页面
-          if (e.state.page) {
-            sessionStorage.CurrentPage = e.state.page;
+          if (e.state.CurrentPage) {
+            sessionStorage.CurrentPage = e.state.CurrentPage;
           }
+          CURRENT_PAGE_URI = e.state.page;
+          $("#navbar-menu li").find("a").removeClass("active").each(function () {
+            if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + CURRENT_PAGE_URI + "')")) {
+              $(this).addClass("active");
+              if ($(this).hasClass('dropdown-item')) {
+                $(this).parent().addClass("show");
+              }
+            }
+          });
+          $("#navbar-menu").collapse('hide');
+          $(".page-wrapper").unbind('scroll');
           document.title = e.state.title;
-          $('#navbar-menu').html(e.state.menu);
           $('#page_content').html(e.state.html);
           $("#page_wrapper").scrollTop(e.state.scroll);
         }
@@ -2817,6 +2773,7 @@
     "normalCard",
     "normalCard_placeholder",
     "custom-img",
+    "media-slide",
   ]
   for (let components_name of components_list){
     $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);

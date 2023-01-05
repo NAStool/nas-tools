@@ -15,7 +15,8 @@ _Engine = create_engine(
     poolclass=QueuePool,
     pool_pre_ping=True,
     pool_size=50,
-    pool_recycle=60 * 30
+    pool_recycle=60 * 10,
+    max_overflow=0
 )
 _Session = scoped_session(sessionmaker(bind=_Engine,
                                        autoflush=True,

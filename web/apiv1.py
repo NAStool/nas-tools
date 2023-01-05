@@ -244,7 +244,7 @@ class SiteStatistic(ApiResource):
             "code": 0,
             "success": True,
             "data": {
-                "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
+                "user_statistics": WebAction().get_site_user_statistics({"encoding": "DICT"}).get("data")
             }
         }
 

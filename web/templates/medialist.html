@@ -19,8 +19,10 @@
               <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0 0">
                 <span class="badge badge-pill {% if Media.type== '电影' %}bg-green{% else %}bg-blue{% endif %}"
                     style="position:absolute;top:10px;left:10px;">{{ Media.type}}</span>
-                <img src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
-                    class="w-100 h-100 object-cover shadow" alt="">
+                <custom-img img-src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
+                            img-class="w-100 h-100 object-cover shadow"
+                            img-ratio="150%"
+                ></custom-img>
               </div>
               <div class="col">
                 <div class="card-body">

@@ -15,7 +15,7 @@ class ModuleConf(object):
         '_2_0': '/pts'
     }
 
-    # 转移模式
+    # 全量转移模式
     RMT_MODES = {
         "copy": RmtMode.COPY,
         "link": RmtMode.LINK,
@@ -25,6 +25,14 @@ class ModuleConf(object):
         "rclonecopy": RmtMode.RCLONECOPY,
         "minio": RmtMode.MINIO,
         "miniocopy": RmtMode.MINIOCOPY
+    }
+
+    # 精简版转移模式
+    RMT_MODES_LITE = {
+        "copy": RmtMode.COPY,
+        "link": RmtMode.LINK,
+        "softlink": RmtMode.SOFTLINK,
+        "move": RmtMode.MOVE
     }
 
     # 下载器
@@ -68,22 +76,22 @@ class ModuleConf(object):
                         "id": "telegram_chat_id",
                         "required": True,
                         "title": "Chat ID",
-                        "tooltip": "telegram群组或用户的Chat ID，关注@getidsbot获取",
+                        "tooltip": "接受消息通知的用户、群组或频道Chat ID，关注@getidsbot获取",
                         "type": "text"
                     },
                     "user_ids": {
                         "id": "telegram_user_ids",
                         "required": False,
                         "title": "User IDs",
-                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，关注@getidsbot获取",
+                        "tooltip": "允许使用交互的用户Chat ID，留空则只允许管理用户使用，关注@getidsbot获取",
                         "type": "text",
                         "placeholder": "使用,分隔多个Id"
                     },
-                    "admin_id": {
+                    "admin_ids": {
                         "id": "telegram_admin_ids",
                         "required": False,
                         "title": "Admin IDs",
-                        "tooltip": "允许使用远程命令的管理员Id，关注@getidsbot获取",
+                        "tooltip": "允许使用管理命令的用户Chat ID，关注@getidsbot获取",
                         "type": "text",
                         "placeholder": "使用,分隔多个Id"
                     },
@@ -359,6 +367,10 @@ class ModuleConf(object):
                 "name": "媒体服务",
                 "fuc_name": "mediaserver_message"
             },
+            "custom_message": {
+                "name": "自定义消息",
+                "fuc_name": "custom_message"
+            }
         }
     }
 

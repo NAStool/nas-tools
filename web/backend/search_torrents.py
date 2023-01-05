@@ -1,3 +1,4 @@
+import os.path
 import re
 
 import cn2an
@@ -13,7 +14,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
-from app.utils import StringUtils
+from app.utils import StringUtils, Torrent
 from app.utils.types import SearchType, IndexerType
 from config import Config
 
@@ -250,134 +251,204 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         if input_str.startswith("订阅"):
             SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
+        elif input_str.startswith("http") or input_str.startswith("magnet:"):
+            SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
         else:
             input_str = re.sub(r"[搜索|下载][:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
-        # 去掉查询中的电影或电视剧关键字
-        mtype, _, _, _, _, org_content = StringUtils.get_keyword_from_string(input_str)
-
-        # 获取字符串中可能的RSS站点列表
-        rss_sites, content = StringUtils.get_idlist_from_string(org_content,
-                                                                [{
-                                                                    "id": site.get("name"),
-                                                                    "name": site.get("name")
-                                                                } for site in Sites().get_sites(rss=True)])
-
-        # 索引器类型
-        indexer_type = Indexer().get_client_type()
-        indexers = Indexer().get_indexers()
-
-        # 获取字符串中可能的搜索站点列表
-        if indexer_type == IndexerType.BUILTIN:
-            search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
-                "id": indexer.name,
-                "name": indexer.name
-            } for indexer in indexers])
-        else:
-            search_sites, content = StringUtils.get_idlist_from_string(content, [{
-                "id": indexer.name,
-                "name": indexer.name
-            } for indexer in indexers])
-
-        # 获取字符串中可能的下载设置
-        download_setting, content = StringUtils.get_idlist_from_string(content, [{
-            "id": dl.get("id"),
-            "name": dl.get("name")
-        } for dl in Downloader().get_download_setting().values()])
-        if download_setting:
-            download_setting = download_setting[0]
-
-        # 识别媒体信息，列出匹配到的所有媒体
-        log.info("【Web】正在识别 %s 的媒体信息..." % content)
-        media_info = MetaInfo(title=content, mtype=mtype)
-        if not media_info.get_name():
-            Message().send_channel_msg(channel=in_from,
-                                       title="无法识别搜索内容！",
-                                       user_id=user_id)
-            return
-
-        # 搜索名称
-        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
-        if use_douban_titles:
-            tmdb_infos = DouBan().search_douban_medias(
-                keyword=media_info.get_name() if not media_info.year else "%s %s" % (
-                    media_info.get_name(), media_info.year),
-                mtype=mtype,
-                num=6,
-                season=media_info.begin_season,
-                episode=media_info.begin_episode)
-        else:
-            tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
-        if not tmdb_infos:
-            # 查询不到媒体信息
-            Message().send_channel_msg(channel=in_from,
-                                       title="%s 查询不到媒体信息！" % content,
-                                       user_id=user_id)
-            return
-
-        # 保存识别信息到临时结果中
-        SEARCH_MEDIA_CACHE[user_id] = []
-        if use_douban_titles:
-            for meta_info in tmdb_infos:
-                # 合并站点和下载设置信息
-                meta_info.rss_sites = rss_sites
-                meta_info.search_sites = search_sites
-                media_info.set_download_info(download_setting=download_setting)
-                SEARCH_MEDIA_CACHE[user_id].append(meta_info)
-        else:
-            for tmdb_info in tmdb_infos:
-                meta_info = MetaInfo(title=content)
-                meta_info.set_tmdb_info(tmdb_info)
-                if meta_info.begin_season:
-                    meta_info.title = "%s 第%s季" % (meta_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
-                if meta_info.begin_episode:
-                    meta_info.title = "%s 第%s集" % (meta_info.title, meta_info.begin_episode)
-                # 合并站点和下载设置信息
-                meta_info.rss_sites = rss_sites
-                meta_info.search_sites = search_sites
-                media_info.set_download_info(download_setting=download_setting)
-                SEARCH_MEDIA_CACHE[user_id].append(meta_info)
-
-        if 1 == len(SEARCH_MEDIA_CACHE[user_id]):
-            # 只有一条数据，直接开始搜索
-            media_info = SEARCH_MEDIA_CACHE[user_id][0]
-            if not SEARCH_MEDIA_TYPE.get(user_id) \
-                    or SEARCH_MEDIA_TYPE.get(user_id) == "SEARCH":
-                # 如果是豆瓣数据，需要重新查询TMDB的数据
-                if media_info.douban_id:
-                    _title = media_info.get_title_string()
-                    media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
-                                                        mtype=media_info.type, strict=True)
-                    if not media_info or not media_info.tmdb_info:
-                        Message().send_channel_msg(channel=in_from,
-                                                   title="%s 从TMDB查询不到媒体信息！" % _title,
-                                                   user_id=user_id)
-                        return
-                # 发送消息
-                Message().send_channel_msg(channel=in_from,
-                                           title=media_info.get_title_vote_string(),
-                                           text=media_info.get_overview_string(),
-                                           image=media_info.get_message_image(),
-                                           url=media_info.get_detail_url(),
-                                           user_id=user_id)
-                # 开始搜索
-                __search_media(in_from=in_from,
-                               media_info=media_info,
-                               user_id=user_id,
-                               user_name=user_name)
+        # 下载链接
+        if SEARCH_MEDIA_TYPE[user_id] == "DOWNLOAD":
+            if input_str.startswith("http"):
+                # 检查是不是有这个站点
+                site_info = Sites().get_sites(siteurl=input_str)
+                # 偿试下载种子文件
+                filepath, content, retmsg = Torrent().save_torrent_file(
+                    url=input_str,
+                    cookie=site_info.get("cookie"),
+                    ua=site_info.get("ua")
+                )
+                # 下载种子出错
+                if not content and retmsg:
+                    Message().send_channel_msg(channel=in_from,
+                                               title=retmsg,
+                                               user_id=user_id)
+                    return
+                if isinstance(content, str):
+                    # 磁力链
+                    title = Torrent().get_magnet_title(content)
+                    if title:
+                        meta_info = Media().get_media_info(title=title)
+                    else:
+                        meta_info = MetaInfo(title="磁力链接")
+                        meta_info.org_string = content
+                    meta_info.set_torrent_info(
+                        enclosure=content,
+                        download_volume_factor=0,
+                        upload_volume_factor=1
+                    )
+                else:
+                    # 识别文件名
+                    filename = os.path.basename(filepath)
+                    # 识别
+                    meta_info = Media().get_media_info(title=filename)
+                    meta_info.set_torrent_info(
+                        enclosure=input_str
+                    )
             else:
-                # 添加订阅
-                __rss_media(in_from=in_from,
-                            media_info=media_info,
-                            user_id=user_id,
-                            user_name=user_name)
+                # 磁力链
+                filepath = None
+                title = Torrent().get_magnet_title(input_str)
+                if title:
+                    meta_info = Media().get_media_info(title=title)
+                else:
+                    meta_info = MetaInfo(title="磁力链接")
+                    meta_info.org_string = input_str
+                meta_info.set_torrent_info(
+                    enclosure=input_str,
+                    download_volume_factor=0,
+                    upload_volume_factor=1
+                )
+            # 开始下载
+            meta_info.user_name = user_name
+            state, retmsg = Downloader().download(media_info=meta_info,
+                                                  torrent_file=filepath)
+            if state:
+                Message().send_download_message(in_from=in_from,
+                                                can_item=meta_info)
+            else:
+                Message().send_channel_msg(channel=in_from,
+                                           title=f"添加下载失败，{retmsg}",
+                                           user_id=user_id)
+
+        # 搜索或订阅
         else:
-            # 发送消息通知选择
-            Message().send_channel_list_msg(channel=in_from,
-                                            title="共找到%s条相关信息，请回复对应序号" % len(SEARCH_MEDIA_CACHE[user_id]),
-                                            medias=SEARCH_MEDIA_CACHE[user_id],
-                                            user_id=user_id)
+            # 去掉查询中的电影或电视剧关键字
+            mtype, _, _, _, _, org_content = StringUtils.get_keyword_from_string(input_str)
+
+            # 获取字符串中可能的RSS站点列表
+            rss_sites, content = StringUtils.get_idlist_from_string(org_content,
+                                                                    [{
+                                                                        "id": site.get("name"),
+                                                                        "name": site.get("name")
+                                                                    } for site in Sites().get_sites(rss=True)])
+
+            # 索引器类型
+            indexer_type = Indexer().get_client_type()
+            indexers = Indexer().get_indexers()
+
+            # 获取字符串中可能的搜索站点列表
+            if indexer_type == IndexerType.BUILTIN:
+                search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
+                    "id": indexer.name,
+                    "name": indexer.name
+                } for indexer in indexers])
+            else:
+                search_sites, content = StringUtils.get_idlist_from_string(content, [{
+                    "id": indexer.name,
+                    "name": indexer.name
+                } for indexer in indexers])
+
+            # 获取字符串中可能的下载设置
+            download_setting, content = StringUtils.get_idlist_from_string(content, [{
+                "id": dl.get("id"),
+                "name": dl.get("name")
+            } for dl in Downloader().get_download_setting().values()])
+            if download_setting:
+                download_setting = download_setting[0]
+
+            # 识别媒体信息，列出匹配到的所有媒体
+            log.info("【Web】正在识别 %s 的媒体信息..." % content)
+            media_info = MetaInfo(title=content, mtype=mtype)
+            if not media_info.get_name():
+                Message().send_channel_msg(channel=in_from,
+                                           title="无法识别搜索内容！",
+                                           user_id=user_id)
+                return
+
+            # 搜索名称
+            use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
+            if use_douban_titles:
+                tmdb_infos = DouBan().search_douban_medias(
+                    keyword=media_info.get_name() if not media_info.year else "%s %s" % (
+                        media_info.get_name(), media_info.year),
+                    mtype=mtype,
+                    num=6,
+                    season=media_info.begin_season,
+                    episode=media_info.begin_episode)
+            else:
+                tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
+            if not tmdb_infos:
+                # 查询不到媒体信息
+                Message().send_channel_msg(channel=in_from,
+                                           title="%s 查询不到媒体信息！" % content,
+                                           user_id=user_id)
+                return
+
+            # 保存识别信息到临时结果中
+            SEARCH_MEDIA_CACHE[user_id] = []
+            if use_douban_titles:
+                for meta_info in tmdb_infos:
+                    # 合并站点和下载设置信息
+                    meta_info.rss_sites = rss_sites
+                    meta_info.search_sites = search_sites
+                    media_info.set_download_info(download_setting=download_setting)
+                    SEARCH_MEDIA_CACHE[user_id].append(meta_info)
+            else:
+                for tmdb_info in tmdb_infos:
+                    meta_info = MetaInfo(title=content)
+                    meta_info.set_tmdb_info(tmdb_info)
+                    if meta_info.begin_season:
+                        meta_info.title = "%s 第%s季" % (
+                            meta_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
+                    if meta_info.begin_episode:
+                        meta_info.title = "%s 第%s集" % (meta_info.title, meta_info.begin_episode)
+                    # 合并站点和下载设置信息
+                    meta_info.rss_sites = rss_sites
+                    meta_info.search_sites = search_sites
+                    media_info.set_download_info(download_setting=download_setting)
+                    SEARCH_MEDIA_CACHE[user_id].append(meta_info)
+
+            if 1 == len(SEARCH_MEDIA_CACHE[user_id]):
+                # 只有一条数据，直接开始搜索
+                media_info = SEARCH_MEDIA_CACHE[user_id][0]
+                if not SEARCH_MEDIA_TYPE.get(user_id) \
+                        or SEARCH_MEDIA_TYPE.get(user_id) == "SEARCH":
+                    # 如果是豆瓣数据，需要重新查询TMDB的数据
+                    if media_info.douban_id:
+                        _title = media_info.get_title_string()
+                        media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
+                                                            mtype=media_info.type, strict=True)
+                        if not media_info or not media_info.tmdb_info:
+                            Message().send_channel_msg(channel=in_from,
+                                                       title="%s 从TMDB查询不到媒体信息！" % _title,
+                                                       user_id=user_id)
+                            return
+                    # 发送消息
+                    Message().send_channel_msg(channel=in_from,
+                                               title=media_info.get_title_vote_string(),
+                                               text=media_info.get_overview_string(),
+                                               image=media_info.get_message_image(),
+                                               url=media_info.get_detail_url(),
+                                               user_id=user_id)
+                    # 开始搜索
+                    __search_media(in_from=in_from,
+                                   media_info=media_info,
+                                   user_id=user_id,
+                                   user_name=user_name)
+                else:
+                    # 添加订阅
+                    __rss_media(in_from=in_from,
+                                media_info=media_info,
+                                user_id=user_id,
+                                user_name=user_name)
+            else:
+                # 发送消息通知选择
+                Message().send_channel_list_msg(channel=in_from,
+                                                title="共找到%s条相关信息，请回复对应序号" % len(
+                                                    SEARCH_MEDIA_CACHE[user_id]),
+                                                medias=SEARCH_MEDIA_CACHE[user_id],
+                                                user_id=user_id)
 
 
 def __search_media(in_from, media_info, user_id, user_name=None):

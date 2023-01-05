@@ -55,31 +55,59 @@ class Torrent:
         if url.startswith("magnet:"):
             return None, url, "", [], f"{url} 为磁力链接"
         try:
-            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
-            while req and req.status_code in [301, 302]:
-                url = req.headers['Location']
-                if url and url.startswith("magnet:"):
-                    return None, url, "", [], f"获取到磁力链接：{url}"
-                req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
-            if req and req.status_code == 200:
-                if not req.content:
-                    return None, None, "", [], "未下载到种子数据"
-                # 读取种子文件名
-                file_name = self.__get_url_torrent_filename(req, url)
-                # 种子文件路径
-                file_path = os.path.join(self._torrent_temp_path, file_name)
-                with open(file_path, 'wb') as f:
-                    f.write(req.content)
-                # 解析种子文件
-                files_folder, files, retmsg = self.get_torrent_files(file_path)
-                # 种子文件路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
-                return file_path, req.content, files_folder, files, retmsg
-            elif req is None:
-                return None, None, "", [], "无法打开链接：%s" % url
-            else:
-                return None, None, "", [], "下载种子出错，状态码：%s" % req.status_code
+            # 下载保存种子文件
+            file_path, content, errmsg = self.save_torrent_file(url=url,
+                                                                cookie=cookie,
+                                                                ua=ua,
+                                                                referer=referer)
+            if not file_path:
+                return None, content, "", [], errmsg
+            # 解析种子文件
+            files_folder, files, retmsg = self.get_torrent_files(file_path)
+            # 种子文件路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
+            return file_path, content, files_folder, files, retmsg
+
         except Exception as err:
             return None, None, "", [], "下载种子文件出现异常：%s" % str(err)
+
+    def save_torrent_file(self, url, cookie=None, ua=None, referer=None):
+        """
+        把种子下载到本地
+        :return: 种子保存路径，错误信息
+        """
+        req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
+        while req and req.status_code in [301, 302]:
+            url = req.headers['Location']
+            if url and url.startswith("magnet:"):
+                return None, url, f"获取到磁力链接：{url}"
+            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
+        if req and req.status_code == 200:
+            if not req.content:
+                return None, None, "未下载到种子数据"
+            # 解析内容格式
+            if req.text and str(req.text).startswith("magnet:"):
+                return None, req.text, "磁力链接"
+            else:
+                try:
+                    bdecode(req.content)
+                except Exception as err:
+                    print(str(err))
+                    return None, None, "种子数据有误，请确认链接是否正确，如为PT站点则需手工在站点下载一次种子"
+            # 读取种子文件名
+            file_name = self.__get_url_torrent_filename(req, url)
+            # 种子文件路径
+            file_path = os.path.join(self._torrent_temp_path, file_name)
+            # 种子内容
+            file_content = req.content
+            # 写入磁盘
+            with open(file_path, 'wb') as f:
+                f.write(file_content)
+        elif req is None:
+            return None, None, "无法打开链接：%s" % url
+        else:
+            return None, None, "下载种子出错，状态码：%s" % req.status_code
+
+        return file_path, file_content, ""
 
     @staticmethod
     def convert_hash_to_magnet(hash_text, title):
@@ -135,11 +163,7 @@ class Torrent:
                 else:
                     file_names.append(torrent.get("info", {}).get("name"))
         except Exception as err:
-            if str(err).find("not a valid bencoded string") != -1:
-                err_msg = "需手工在站点下载一次种子"
-            else:
-                err_msg = "解析种子文件异常：%s" % str(err)
-            return file_folder, file_names, err_msg
+            return file_folder, file_names, "解析种子文件异常：%s" % str(err)
         return file_folder, file_names, ""
 
     def read_torrent_content(self, path):
@@ -178,3 +202,13 @@ class Torrent:
         else:
             file_name = str(datetime.datetime.now())
         return file_name
+
+    @staticmethod
+    def get_magnet_title(url):
+        """
+        从磁力链接中获取标题
+        """
+        if not url:
+            return ""
+        title = re.findall(r"dn=(.+)&?", url)
+        return unquote(title[0]) if title else ""
