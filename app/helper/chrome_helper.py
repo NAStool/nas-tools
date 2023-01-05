@@ -6,7 +6,7 @@ from functools import reduce
 from threading import Lock
 
 import undetected_chromedriver as uc
-from webdriver_manager.chrome import ChromeDriverManager
+from undetected_chromedriver._compat import ChromeDriverManager
 
 from app.utils import SystemUtils, RequestUtils
 
@@ -23,7 +23,7 @@ class ChromeHelper(object):
 
         self._executable_path = SystemUtils.get_webdriver_path()
         if not self._executable_path:
-            self._executable_path = ChromeDriverManager().install()
+            ChromeDriverManager().install()
 
         if SystemUtils.is_windows():
             self._headless = False
