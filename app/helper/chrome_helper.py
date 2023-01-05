@@ -72,6 +72,7 @@ class ChromeHelper(object):
         options.add_argument('--no-first-run')
         options.add_argument('--no-service-autorun')
         options.add_argument('--no-default-browser-check')
+        options.add_argument('--password-store=basic')
         if self._headless:
             options.add_argument('--headless')
         prefs = {
