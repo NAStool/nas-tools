@@ -52,3 +52,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}-lite
+            ${{ secrets.DOCKER_USERNAME }}/nas-tools:latest-lite
