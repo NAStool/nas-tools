@@ -5,25 +5,23 @@ import time
 from functools import reduce
 from threading import Lock
 
-from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
+from webdriver_manager.chrome import ChromeDriverManager
 
-from config import WEBDRIVER_PATH
+from app.utils import SystemUtils, RequestUtils
 
 lock = Lock()
 
 
 class ChromeHelper(object):
-
     _executable_path = None
-        
+
     _chrome = None
     _headless = False
 
     def __init__(self, headless=False):
 
-        if not SystemUtils.is_lite_version():
-            self._executable_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+        self._executable_path = SystemUtils.get_webdriver_path()
 
         if SystemUtils.is_windows():
             self._headless = False
@@ -40,8 +38,8 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        if SystemUtils.is_lite_version():
-            return True
+        if not self._executable_path:
+            self._executable_path = ChromeDriverManager().install()
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
             return False

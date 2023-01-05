@@ -16,12 +16,13 @@ from werkzeug.security import generate_password_hash
 
 import log
 from app.brushtask import BrushTask
+from app.conf import SystemConfig, ModuleConf
 from app.doubansync import DoubanSync
 from app.downloader import Downloader
 from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper, ProgressHelper, ThreadHelper, \
+from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
 from app.indexer import Indexer
 from app.media import Category, Media
@@ -38,7 +39,6 @@ from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
-from app.conf import SystemConfig, ModuleConf
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
@@ -867,8 +867,8 @@ class WebAction:
                                 for dest_file in PathUtils.get_dir_files(dest_path):
                                     file_meta_info = MetaInfo(os.path.basename(dest_file))
                                     if file_meta_info.get_episode_list() and set(
-                                            file_meta_info.get_episode_list()).issubset(
-                                        set(meta_info.get_episode_list())):
+                                            file_meta_info.get_episode_list()
+                                    ).issubset(set(meta_info.get_episode_list())):
                                         try:
                                             os.remove(dest_file)
                                         except Exception as e:
