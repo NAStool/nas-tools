@@ -85,7 +85,7 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 if [ "$NASTOOL_VERSION" = "lite" ]; then
     mkdir -p /.pm2
-    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.pm2
+    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /root/.wdm/drivers/chromedriver /.pm2
     export PATH=$PATH:/root/.wdm/drivers/chromedriver
 else
     mkdir -p /.local
