@@ -14,12 +14,12 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
         fi
     fi
     echo "更新程序..."
-    git remote set-url origin ${REPO_URL} &>/dev/null
+    git remote set-url origin "${REPO_URL}" &> /dev/null
     echo "windows/" > .gitignore
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     git clean -dffx
     git reset --hard HEAD
-    git pull --depth=1 --rebase
+    git pull --depth=1 origin
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         # Python依赖包更新
@@ -85,8 +85,7 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 if [ "$NASTOOL_VERSION" = "lite" ]; then
     mkdir -p /.pm2
-    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /root/.wdm/drivers/chromedriver /.pm2
-    export PATH=$PATH:/root/.wdm/drivers/chromedriver
+    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.pm2
 else
     mkdir -p /.local
     mkdir -p /.pm2
