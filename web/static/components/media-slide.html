@@ -55,7 +55,7 @@
         </div>
         <div class="col-auto ms-auto d-print-none">
           <div class="d-inline-flex">
-            <a class="media-slide-left btn btn-sm btn-icon btn-link text-muted border-0 disabled" aria-label="Button">
+            <a class="media-slide-left btn btn-sm btn-icon btn-link text-muted border-0" aria-label="Button">
               <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon icon-tabler icon-tabler-chevron-left" width="24" height="24"
                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                    stroke-linejoin="round">
@@ -153,6 +153,9 @@
           media_slide_right.classList.remove("disabled");
         }
       })
+      // 重置箭头状态
+      media_slide_left.classList.add("disabled");
+      media_slide_right.classList.remove("disabled");
       // 初始化数据
       if (this.innerHTML == "") {
         if (slide_icon == "refresh") {
