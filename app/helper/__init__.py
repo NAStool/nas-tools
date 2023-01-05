@@ -9,6 +9,6 @@ from .dict_helper import DictHelper
 from .display_helper import DisplayHelper
 from .site_helper import SiteHelper
 from .ocr_helper import OcrHelper
-from .sub_helper import SubHelper
+from .opensubtitles import OpenSubtitles
 from .words_helper import WordsHelper
 from .submodule_helper import SubmoduleHelper
