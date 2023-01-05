@@ -1565,7 +1565,7 @@ def upload():
         temp_path = Config().get_temp_path()
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
-        file_path = Path() / files.filename
+        file_path = Path(temp_path) / files.filename
         files.save(str(file_path))
         return {"code": 0, "filepath": str(file_path)}
     except Exception as e:
