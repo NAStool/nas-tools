@@ -23,7 +23,7 @@ class ChromeHelper(object):
 
         self._executable_path = SystemUtils.get_webdriver_path()
         if not self._executable_path:
-            self._executable_path = ChromeDriverManager().install()
+            ChromeDriverManager().install()
 
         if SystemUtils.is_windows():
             self._headless = False
