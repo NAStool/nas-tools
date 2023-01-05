@@ -322,9 +322,9 @@ class SystemUtils:
 
     @staticmethod
     def delete_file(filedir, filename):
+        filedir = os.path.normpath(filedir).replace("\\", "/")
+        file = os.path.join(filedir, filename)
         try:
-            filedir = os.path.normpath(filedir).replace("\\", "/")
-            file = os.path.join(filedir, filename)
             if not os.path.exists(file):
                 return False, f"{file} 不存在"
             os.remove(file)
@@ -347,3 +347,4 @@ class SystemUtils:
             return True, f"{file} 删除成功"
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
+            return True, f"{file} 删除失败"
