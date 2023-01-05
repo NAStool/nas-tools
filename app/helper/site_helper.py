@@ -13,7 +13,9 @@ class SiteHelper:
         html = etree.HTML(html_text)
         if not html:
             return False
-
+        # 存在明显的密码输入框，说明未登录
+        if html.xpath("//input[@type='password']"):
+            return False
         # 是否存在登出和用户面板等链接
         logout_or_usercp = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
                                       ' or contains(@href, "mybonus") '
