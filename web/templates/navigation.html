@@ -1900,7 +1900,7 @@
         for (let downloadsetting of ret.data) {
           downloadsetting_select_content += `<option value="${downloadsetting.id}">${downloadsetting.name}</option>`;
         }
-        downloadsetting_select.empty().append();
+        downloadsetting_select.empty().append(downloadsetting_select_content);
       }
     }, aync);
   }
