@@ -896,7 +896,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">订阅站点</label>
-              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'rss_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'rss_sites')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
@@ -905,7 +905,7 @@
           <div class="mb-3">
             <div class="btn-list">
               <label class="form-label">搜索站点</label>
-              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'rss_search_sites_group')">全选</a>
+              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'search_sites')">全选</a>
             </div>
             <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
@@ -1480,20 +1480,17 @@
 
   //显示订阅季选择框
   function show_rss_seasons_modal(name, year, type, tmdbid, doubanid, seasons, func) {
-    $("#system_rss_seasons_group").empty();
-    for (let i = 0; i < seasons.length; i++) {
-      $("#system_rss_seasons_group").append('<label class="form-selectgroup-item"><input type="checkbox" name="system_rss_season" value="' + seasons[i].num + '" class="form-selectgroup-input"><span class="form-selectgroup-label">' + seasons[i].text + '</span></label>');
+    let system_rss_seasons_content = "";
+    for (let season of seasons) {
+      system_rss_seasons_content += `<label class="form-selectgroup-item">
+                                      <input type="checkbox" name="system_rss_season" value="${season.num}" class="form-selectgroup-input">
+                                      <span class="form-selectgroup-label">${season.text}</span>
+                                    </label>`;
     }
+    $("#system_rss_seasons_group").empty().append(system_rss_seasons_content)
     $("#system_rss_seasons_btn").unbind('click').click(function () {
       $("#system-rss-seasons").modal('hide');
-      let i = 0;
-      let rss_seasons = [];
-      $("input[name='system_rss_season']").each(function () {
-        if ($(this).prop("checked")) {
-          rss_seasons[i] = $(this).val();
-          i = i + 1;
-        }
-      });
+      let rss_seasons = select_GetSelectedVAL("system_rss_season");
       if (rss_seasons.length > 0) {
         add_rss_media(name, year, type, tmdbid, doubanid, '', rss_seasons, func);
       }
@@ -1575,30 +1572,15 @@
       doubanid = "";
     }
     //订阅站点
-    let rss_sites = [];
-    let rss_all = true;
-    $("input[name=rss_sites]").each(function () {
-      if ($(this).prop("checked")) {
-        rss_sites.push($(this).val());
-      } else {
-        rss_all = false;
-      }
-    });
-    if (rss_all) {
+    let rss_sites = select_GetSelectedVAL("rss_sites");
+    if (rss_sites.length === $("input[name=rss_sites][type=checkbox]").val()) {
       rss_sites = [];
     }
     //搜索站点
     let search_sites = [];
     if (!fuzzy_match) {
-      let search_all = true;
-      $("input[name=search_sites]").each(function () {
-        if ($(this).prop("checked")) {
-          search_sites.push($(this).val());
-        } else {
-          search_all = false;
-        }
-      });
-      if (search_all) {
+      search_sites = select_GetSelectedVAL("search_sites");
+      if (search_sites.length === $("input[name=search_sites][type=checkbox]").val()) {
         search_sites = [];
       }
     }
@@ -1646,10 +1628,11 @@
   }
 
   //初始化下拉框
-  $("#rss_season").empty().append('<option value="">请选择</option>');
+  let rss_season_content = `<option value="">请选择</option>`;
   for (let i = 1; i <= 50; i++) {
-    $("#rss_season").append('<option value="' + i + '">第' + i + '季</option>');
+    rss_season_content += `<option value="${i}">第${i}季</option>`;
   }
+  $("#rss_season").empty().append(rss_season_content);
 
   // 选择模糊匹配
   function change_match_check(obj) {
@@ -1706,12 +1689,8 @@
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
     $("#rss_download_setting").val('');
-    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
-    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
+    select_SelectALL(false, "rss_sites");
+    select_SelectALL(false, "search_sites");
     $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
   }
@@ -1737,12 +1716,8 @@
     $("#rss_rule").val('');
     $("#rss_save_path").val('');
     $("#rss_download_setting").val('');
-    $("#rss_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
-    $("#rss_search_sites_div").show().find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", false);
-    });
+    select_SelectALL(false, "rss_sites");
+    select_SelectALL(false, "search_sites");
     $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
   }
@@ -1804,20 +1779,16 @@
         $("#rss_rule").val(ret.detail.filter_rule);
         $("#rss_save_path").val(ret.detail.save_path);
         $("#rss_download_setting").val(ret.detail.download_setting);
-        $("#rss_sites_div").find("input[type=checkbox]").each(function () {
-          if (ret.detail.rss_sites && (ret.detail.rss_sites.length === 0 || ret.detail.rss_sites.includes($(this).val()))) {
-            $(this).prop("checked", true);
-          } else {
-            $(this).prop("checked", false);
-          }
-        });
-        $("#rss_search_sites_div").find("input[type=checkbox]").each(function () {
-          if (ret.detail.search_sites && (ret.detail.search_sites.length === 0 || ret.detail.search_sites.includes($(this).val()))) {
-            $(this).prop("checked", true);
-          } else {
-            $(this).prop("checked", false);
-          }
-        });
+        if (ret.detail.rss_sites.length === 0) {
+          select_SelectALL(true, 'rss_sites');
+        } else {
+          select_SelectPart(ret.detail.rss_sites, 'rss_sites')
+        }
+        if (ret.detail.search_sites.length === 0) {
+          select_SelectALL(true, 'search_sites');
+        } else {
+          select_SelectPart(ret.detail.search_sites, 'search_sites')
+        }
         $("#rss_delete_btn").attr("href",
             `javascript:remove_rss_manual('${ret.detail.type}','${ret.detail.name}','${ret.detail.year}','${rssid}')`)
             .show();
@@ -1847,12 +1818,12 @@
   function refresh_filter_select(obj_id, aync = true) {
     ajax_post("get_filterrules", {}, function (ret) {
       if (ret.code === 0) {
-        let rule_select = $("#" + obj_id);
-        rule_select.empty();
-        rule_select.append(`<option value="">站点规则</option>`);
-        for (let i = 0; i < ret.ruleGroups.length; i++) {
-          rule_select.append(`<option value="${ret.ruleGroups[i].id}">${ret.ruleGroups[i].name}</option>`);
+        let rule_select = $(`#${obj_id}`);
+        let rule_select_content = `<option value="">站点规则</option>`;
+        for (let ruleGroup of ret.ruleGroups) {
+          rule_select_content += `<option value="${ruleGroup.id}">${ruleGroup.name}</option>`;
         }
+        rule_select.empty().append(rule_select_content);
       }
     }, aync);
   }
@@ -1862,22 +1833,22 @@
   function refresh_rsssites_select(obj_id, aync = true) {
     ajax_post("get_sites", {rss: true, basic: true}, function (ret) {
       if (ret.code === 0) {
-        let rsssites_select = $("#" + obj_id);
-        rsssites_select.empty();
+        let rsssites_select = $(`#${obj_id}`);
+        let rsssites_select_content = "";
         RSS_SITES_LENGTH = ret.sites.length;
         if (ret.sites.length > 0) {
           rsssites_select.parent().parent().show();
         } else {
           rsssites_select.parent().parent().hide();
         }
-        for (let i = 0; i < ret.sites.length; i++) {
-          rsssites_select.append(`
+        for (let site of ret.sites) {
+          rsssites_select_content += `
           <label class="form-selectgroup-item">
-            <input type="checkbox" name="rss_sites" value="${ret.sites[i].name}" class="form-selectgroup-input">
-            <span class="form-selectgroup-label">${ret.sites[i].name}</span>
-          </label>
-          `);
+            <input type="checkbox" name="rss_sites" value="${site.name}" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">${site.name}</span>
+          </label>`;
         }
+        rsssites_select.empty().append(rsssites_select_content);
       }
     }, aync);
   }
@@ -1886,21 +1857,22 @@
   function refresh_searchsites_select(obj_id, aync = true) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
-        let searchsites_select = $("#" + obj_id);
+        let searchsites_select = $(`#${obj_id}`);
+        let searchsites_select_content = "";
         if (ret.indexers.length > 0) {
           searchsites_select.parent().parent().show();
         } else {
           searchsites_select.parent().parent().hide();
         }
-        searchsites_select.empty();
-        for (let i = 0; i < ret.indexers.length; i++) {
-          searchsites_select.append(`
+        for (let indexer of ret.indexers) {
+          searchsites_select_content += `
           <label class="form-selectgroup-item">
-            <input type="checkbox" name="search_sites" value="${ret.indexers[i].name}" class="form-selectgroup-input">
-            <span class="form-selectgroup-label">${ret.indexers[i].name}</span>
+            <input type="checkbox" name="search_sites" value="${indexer.name}" class="form-selectgroup-input">
+            <span class="form-selectgroup-label">${indexer.name}</span>
           </label>
-          `);
+          `;
         }
+        searchsites_select.empty().append(searchsites_select_content);
       }
     }, aync);
   }
@@ -1909,12 +1881,12 @@
   function refresh_savepath_select(obj_id, aync = true, sid = "") {
     ajax_post("get_download_dirs", {sid: sid}, function (ret) {
       if (ret.code === 0) {
-        let savepath_select = $("#" + obj_id);
-        savepath_select.empty();
-        savepath_select.append(`<option value="">自动</option>`);
-        for (let i = 0; i < ret.paths.length; i++) {
-          savepath_select.append(`<option value="${ret.paths[i]}">${ret.paths[i]}</option>`);
+        let savepath_select = $(`#${obj_id}`);
+        let savepath_select_content = `<option value="">自动</option>`;
+        for (let path of ret.paths) {
+          savepath_select_content += `<option value="${path}">${path}</option>`;
         }
+        savepath_select.empty().append(savepath_select_content);
       }
     }, aync);
   }
@@ -1923,12 +1895,12 @@
   function refresh_downloadsetting_select(obj_id, aync = true) {
     ajax_post("get_download_setting", {}, function (ret) {
       if (ret.code === 0) {
-        let downloadsetting_select = $("#" + obj_id);
-        downloadsetting_select.empty();
-        downloadsetting_select.append(`<option value="" selected>默认</option>`);
-        for (let i = 0; i < ret.data.length; i++) {
-          downloadsetting_select.append(`<option value="${ret.data[i].id}">${ret.data[i].name}</option>`);
+        let downloadsetting_select = $(`#${obj_id}`);
+        let downloadsetting_select_content = `<option value="" selected>默认</option>`;
+        for (let downloadsetting of ret.data) {
+          downloadsetting_select_content += `<option value="${downloadsetting.id}">${downloadsetting.name}</option>`;
         }
+        downloadsetting_select.empty().append();
       }
     }, aync);
   }
@@ -2210,11 +2182,11 @@
       $("#transferlog_id").val(transferlog_id);
     }
     // 初始化季列表
-    $("#rename_season").empty()
-        .append('<option value="" selected>请选择</option>');
+    let rename_season_content = `<option value="" selected>请选择</option>`;
     for (let i = 0; i <= 50; i++) {
-      $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
+      rename_season_content += `<option value="${i}">第${i}季</option>`;
     }
+    $("#rename_season").empty().append(rename_season_content);
     // 初始化媒体类型
     if (media_type === "电视剧") {
       $("#rename_type_tv").prop("checked", true);

@@ -797,24 +797,6 @@ class WebAction:
         """
         删除识别记录及文件
         """
-
-        def __delete_file(__path, __filename):
-            try:
-                __file = os.path.join(__path, __filename)
-                os.remove(__file)
-                # 如果上级文件夹为空，删除上级文件夹
-                if re.findall(r"^S\d{2}|^Season", os.path.basename(__path), re.I):
-                    __seaon_path = __path
-                    __media_path = os.path.dirname(__seaon_path)
-                    if not PathUtils.get_dir_files(__seaon_path, exts=RMT_MEDIAEXT):
-                        shutil.rmtree(__seaon_path)
-                else:
-                    __media_path = __path
-                if not PathUtils.get_dir_files(__media_path, exts=RMT_MEDIAEXT):
-                    shutil.rmtree(__media_path)
-            except Exception as __e:
-                ExceptionUtils.exception_traceback(__e)
-
         logids = data.get('logids')
         flag = data.get('flag')
         for logid in logids:
@@ -830,10 +812,18 @@ class WebAction:
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
                 if flag in ["del_source", "del_all"]:
-                    __delete_file(source_path, source_filename)
+                    del_flag, del_msg = SystemUtils.delete_file(source_path, source_filename)
+                    if not del_flag:
+                        log.error(f"【History】{del_msg}")
+                    else:
+                        log.info(f"【History】{del_msg}")
                 if flag in ["del_dest", "del_all"]:
                     if dest_path and dest_filename:
-                        __delete_file(dest_path, dest_filename)
+                        del_flag, del_msg = SystemUtils.delete_file(dest_path, dest_filename)
+                        if not del_flag:
+                            log.error(f"【History】{del_msg}")
+                        else:
+                            log.info(f"【History】{del_msg}")
                     else:
                         meta_info = MetaInfo(title=source_filename)
                         meta_info.title = paths[0].TITLE
@@ -1325,7 +1315,7 @@ class WebAction:
         ids = data.get("ids")
         ret_flag = True
         ret_msg = []
-        if flag == "unknow":
+        if flag == "unidentification":
             for wid in ids:
                 paths = self.dbhelper.get_unknown_path_by_id(wid)
                 if paths:
@@ -3848,36 +3838,14 @@ class WebAction:
         """
         files = data.get("files")
         if files:
-            try:
-                # 删除文件
-                for file in files:
-                    os.remove(file)
-                # 取公共上级目录
-                file_dir = os.path.commonpath(files)
-                if not os.path.isdir(file_dir):
-                    file_dir = os.path.dirname(file_dir)
-                # 检查空目录并删除
-                if re.findall(r"^S\d{2}|^Season", os.path.basename(file_dir), re.I):
-                    # 当前是季文件夹，判断并删除
-                    seaon_path = os.path.normpath(file_dir).replace("\\", "/")
-                    # 删除空的季文件夹
-                    if seaon_path.count('/') > 1 \
-                            and not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
-                        shutil.rmtree(seaon_path)
-                    # 媒体文件夹
-                    media_path = os.path.dirname(seaon_path)
+            # 删除文件
+            for file in files:
+                del_flag, del_msg = SystemUtils.delete_file(filedir=os.path.dirname(file),
+                                                            filename=os.path.basename(file))
+                if not del_flag:
+                    log.error(f"【History】{del_msg}")
                 else:
-                    media_path = file_dir
-                # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
-                media_path = os.path.normpath(media_path).replace("\\", "/")
-                if media_path != '/' \
-                        and media_path.count('/') > 1 \
-                        and not re.search(r'[a-zA-Z]:/$', media_path) \
-                        and not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
-                    shutil.rmtree(media_path)
-            except Exception as e:
-                ExceptionUtils.exception_traceback(e)
-                return {"code": -1, "msg": str(e)}
+                    log.info(f"【History】{del_msg}")
         return {"code": 0}
 
     @staticmethod

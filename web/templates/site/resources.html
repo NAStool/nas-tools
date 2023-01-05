@@ -51,8 +51,10 @@
             <table id="site-resources-table" class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
-                <th class="w-1"><input class="form-check-input m-0 align-middle" id="resources_check_all_btn"
-                                       type="checkbox" aria-label="全选"></th>
+                <th class="w-1">
+                  <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'resources_item')">
+                </th>
                 <th>标题</th>
                 <th>
                   <button class="table-sort" data-sort="sort-pubdate">发布时间</button>
@@ -77,7 +79,7 @@
                 {% for Result in Results %}
                   <tr>
                     <td>
-                      <input class="form-check-input m-0 align-middle" id="check_{{ loop.index0 }}" type="checkbox">
+                      <input class="form-check-input m-0 align-middle" name="resources_item" value="{{ loop.index0 }}" type="checkbox">
                       <input type="hidden" id="enclosure_{{ loop.index0 }}" value="{{ Result.enclosure }}">
                       <input type="hidden" id="title_{{ loop.index0 }}" value="{{ Result.title }}">
                       <input type="hidden" id="description_{{ loop.index0 }}" value="{{ Result.description }}">
@@ -257,31 +259,18 @@
   //批量下载
   function batch_download() {
     total_downloads = [];
-    let i = 0;
-    $(".table-responsive input[type=checkbox]").each(function () {
-      if ($(this).prop("checked")) {
-        let checkid = $(this).attr("id");
-        if (checkid && checkid.startsWith("check_")) {
-          let id = checkid.replace("check_", "");
-          let name = $("#title_" + id).val();
-          if (name) {
-            total_downloads[i] = id
-            i = i + 1;
-          }
-        }
+    let download_items_id = select_GetSelectedVAL("resources_item");
+    for (let id in download_items_id) {
+      if ($(`#title_${id}`).val()) {
+        total_downloads.push(id);
       }
-    });
+    }
     if (total_downloads.length === 0) {
       return;
     }
     current_download = 0;
     download_resource(total_downloads[current_download], true);
   }
-
-  //全选事件
-  $("#resources_check_all_btn").change(function () {
-    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
-  });
 
   //名称测试
   function nametest(id, title) {

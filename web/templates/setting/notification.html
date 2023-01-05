@@ -222,10 +222,10 @@
         <details>
           <summary class="summary">
             推送设置
-            <a href="javascript:void(0)" class="ms-2" onclick="select_btn_selectALL(this, 'div_message_switchs')">全选</a>
+            <a href="javascript:void(0)" class="ms-2" onclick="select_btn_SelectALL(this, 'message_switchs')">全选</a>
           </summary>
           <div class="row mt-2">
-            <div class="form-selectgroup" id="div_message_switchs">
+            <div class="form-selectgroup">
               {% for SwitchID in Switchs %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="message_switchs" value="{{ SwitchID }}" class="form-selectgroup-input">
@@ -315,9 +315,7 @@
     reset_message_config_fields();
     show_client_type("{{ Channels.keys()|first }}");
     $("#test_message_client_btn").text("测试").attr("disabled", false);
-    $("#div_message_switchs").find("input[type=checkbox]").each(function () {
-      $(this).prop("checked", true);
-    });
+    select_SelectALL(true, "message_switchs")
     $("#modal-message-client").modal("show");
   }
 
@@ -350,13 +348,11 @@
         {% endfor %}
         show_client_type(type);
         $("#test_message_client_btn").text("测试").attr("disabled", false);
-        $("#div_message_switchs").find("input[type=checkbox]").each(function () {
-          if (ret.detail.switchs && (ret.detail.switchs.length === 0 || ret.detail.switchs.includes($(this).val()))) {
-            $(this).prop("checked", true);
-          } else {
-            $(this).prop("checked", false);
-          }
-        });
+        if (ret.detail.switchs.length === 0) {
+          select_SelectALL(true, "message_switchs");
+        } else {
+          select_SelectPart(ret.detail.switchs, "message_switchs");
+        }
         $("#modal-message-client").modal("show");
       }
     });
@@ -400,12 +396,7 @@
     let name = $("#client_name").val();
     let enabled = $("#client_enabled").val();
     // 推送设置
-    let switchs = [];
-    $("input[name=message_switchs]").each(function () {
-      if ($(this).prop("checked")) {
-        switchs.push($(this).val());
-      }
-    });
+    let switchs = select_GetSelectedVAL("message_switchs")
     const params = {
       cid: cid,
       name: name,

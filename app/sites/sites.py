@@ -79,11 +79,16 @@ class Sites:
             site_signurl = site.SIGNURL
             site_cookie = site.COOKIE
             site_uses = site.INCLUDE or ''
+            uses = []
             if site_uses:
                 signin_enable = True if "Q" in site_uses and site_signurl and site_cookie else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
                 brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
                 statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
+                uses.append("Q") if signin_enable else None
+                uses.append("D") if rss_enable else None
+                uses.append("S") if brush_enable else None
+                uses.append("T") if statistic_enable else None
             else:
                 signin_enable = False
                 rss_enable = False
@@ -102,6 +107,7 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
+                "uses": uses,
                 "ua": site_note.get("ua"),
                 "unread_msg_notify": site_note.get("message") or 'N',
                 "chrome": site_note.get("chrome") or 'N',

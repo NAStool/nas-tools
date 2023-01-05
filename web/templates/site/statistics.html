@@ -317,9 +317,9 @@
             <div class="mb-3">
               <div class="btn-list">
                 <label class="form-label">分享站点</label>
-                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_selectALL(this, 'statistic_sites_group')">全选</a>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'statistic_sites')">全选</a>
               </div>
-              <div class="form-selectgroup" id="statistic_sites_group">
+              <div class="form-selectgroup">
               {% for item in SiteUserStatistics %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="statistic_sites" value="{{ item.site }}" class="form-selectgroup-input">
@@ -872,21 +872,13 @@
         $('#statistics_pic_sort_on').val(statistics_pic_setting["sort_on"]);
         $('#statistics_pic_site_blur').prop("checked", statistics_pic_setting["site_blur"]);
         $('#statistics_pic_username_blur').prop("checked", statistics_pic_setting["username_blur"]);
-        $("input[name='statistic_sites']").each(function () {
-          if (statistics_pic_setting["sites"].includes($(this).val())) {
-            $(this).prop("checked", true);
-          } else {
-            $(this).prop("checked", false);
-          }
-        });
+        select_SelectPart(statistics_pic_setting["sites"], "statistic_sites")
       } else {
         $('#statistics_pic_sort_by').val("upload");
         $('#statistics_pic_sort_on').val("desc");
         $('#statistics_pic_site_blur').prop("checked", true);
         $('#statistics_pic_username_blur').prop("checked", true);
-        $("input[name='statistic_sites']").each(function () {
-          $(this).prop("checked", true);
-        });
+        select_SelectALL(true, "statistic_sites")
       }
       $('#modal-statistics-pic-setting').modal("show");
     }
@@ -908,12 +900,7 @@
        pic_bgcolor = '#1f273c';
        card_bgcolor = '#1a2234';
       }
-      let sites = [];
-      $("input[name='statistic_sites']").each(function () {
-        if ($(this).prop("checked")) {
-          sites.push($(this).val());
-        }
-      });
+      let sites = select_GetSelectedVAL("statistic_sites")
       // 储存生成设置
       let statistics_pic_setting = {
         "sort_by": sort_by,
