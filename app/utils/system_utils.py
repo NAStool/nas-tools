@@ -3,11 +3,12 @@ import os
 import platform
 import shutil
 import subprocess
+import re
 
 from app.utils.path_utils import PathUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import OsType
-from config import WEBDRIVER_PATH
+from config import WEBDRIVER_PATH, RMT_MEDIAEXT
 
 
 class SystemUtils:

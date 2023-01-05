@@ -971,18 +971,8 @@
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
-    let params = {};
-    $("#" + type + " input").each(function () {
-      let value;
-      const key = $(this).attr("id");
-      if ($(this).attr("type") === "checkbox") {
-        value = !!$(this).prop("checked");
-      } else {
-        value = $(this).val();
-      }
-      params[key] = value;
-    });
-    $("#" + type + " select").each(function () {
+    let params = input_GetInputVal(type);
+    $(`#${type} select`).each(function () {
       const key = $(this).attr("id");
       params[key] = $(this).val();
     });

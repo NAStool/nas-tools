@@ -150,17 +150,8 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    let params = {"test": test || false};
-    $("#modal-" + type + " input").each(function () {
-      let value;
-      const key = $(this).attr("id");
-      if ($(this).attr("type") == "checkbox") {
-        value = !!$(this).prop("checked");
-      } else {
-        value = $(this).val();
-      }
-      params[key] = value;
-    });
+    const params = input_GetInputVal(`modal-${type}`);
+    params['test'] = test || false;
     params['subtitle.server'] = type;
     ajax_post("update_config", params, func);
   }

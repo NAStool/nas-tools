@@ -125,33 +125,84 @@ String.prototype.replaceAll = function (s1, s2) {
     return this.replace(new RegExp(s1, "gm"), s2)
 }
 
+function select_name(name) {
+    if (name.startsWith("\^")) {
+        return `name^=${name.substring(1)}`;
+    } else {
+        return `name=${name}`;
+    }
+}
+
 /**
  * 全选按钮绑定
  * @param: btnobj 按钮对象
- * @param: id 元素id
+ * @param: name 被管理checkbox的name
  **/
-function select_btn_selectALL(btnobj, id) {
+function select_btn_SelectALL(btnobj, name) {
     if ($(btnobj).text() === "全选") {
-        $(`#${id} input[type=checkbox]`).prop("checked", true);
+        $(`input[${select_name(name)}][type=checkbox]`).prop("checked", true);
         $(btnobj).text("全不选");
     } else {
-        $(`#${id} input[type=checkbox]`).prop("checked", false);
+        $(`input[${select_name(name)}][type=checkbox]`).prop("checked", false);
         $(btnobj).text("全选");
     }
 }
 
 /**
- * 获取选中元素value
- * @param: id  元素id
+ * 全选事件
+ * @param: status 全选框状态
+ * @param: name 被管理checkbox的name
  **/
-function select_get_selectedITEMs(id) {
-    let selectedITEMs = [];
-    $(`#${id}`).find("input[type=checkbox]").each(function () {
-        if ($(this).prop("checked")) {
-        selectedITEMs.push($(this).val());
+function select_SelectALL(status, name) {
+    $(`input[${select_name(name)}][type=checkbox]`).prop("checked", status);
+}
+
+/**
+ * 部分选定事件
+ * @param: status 全选框状态
+ * @param: name 被管理checkbox的name
+ **/
+function select_SelectPart(condition, name) {
+    $(`input[${select_name(name)}][type=checkbox]`).each(function () {
+        if (condition && condition.includes($(this).val())) {
+            $(this).prop("checked", true);
+        } else {
+            $(this).prop("checked", false);
         }
     });
-    return selectedITEMs;
+}
+
+/**
+ * 获取选中元素value
+ * @param: name 被管理checkbox的name
+ **/
+function select_GetSelectedVAL(name) {
+    let selectedVAL = [];
+    $(`input[${select_name(name)}][type=checkbox]`).each(function () {
+        if ($(this).prop("checked")) {
+        selectedVAL.push($(this).val());
+        }
+    });
+    return selectedVAL;
+}
+
+/**
+ * 获取元素下input设置
+ * @param: id 元素id
+ **/
+function input_GetInputVal(id) {
+    let params = {};
+    $(`#${id} input`).each(function () {
+        let value;
+        const key = $(this).attr("id");
+        if ($(this).attr("type") === "checkbox") {
+            value = !!$(this).prop("checked");
+        } else {
+            value = $(this).val();
+        }
+        params[key] = value;
+    });
+    return params;
 }
 
 /**
