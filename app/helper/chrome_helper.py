@@ -6,7 +6,7 @@ from functools import reduce
 from threading import Lock
 
 import undetected_chromedriver as uc
-from webdriver_manager.chrome import ChromeDriverManager
+from undetected_chromedriver._compat import ChromeDriverManager
 
 from app.utils import SystemUtils, RequestUtils
 
