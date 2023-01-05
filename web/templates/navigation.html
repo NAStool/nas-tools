@@ -139,7 +139,7 @@
                  aria-controls="offcanvasEnd">消息中心</a>
               <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
               <div class="dropdown-divider"></div>
-              {% if SystemFlag > 0 %}
+              {% if SystemFlag in ['Docker', 'Synology'] %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
               {% endif %}
@@ -412,7 +412,7 @@
                         <div class="d-block text-muted text-truncate mt-n1" id="new_version_info">
                         </div>
                       </div>
-                      {% if SystemFlag > 0 and "系统设置" in UserPris %}
+                      {% if SystemFlag in ['Docker', 'Synology'] and "系统设置" in UserPris %}
                         <div class="col-auto">
                           <a href="javascript:update(NewVersion)" class="list-group-item-actions" title="升级版本">
                             {{ SVG.arrow_big_up_lines() }}
@@ -442,7 +442,7 @@
                  aria-controls="offcanvasEnd">消息中心</a>
               <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
               <div class="dropdown-divider"></div>
-              {% if SystemFlag > 0 %}
+              {% if SystemFlag in ['Docker', 'Synology'] %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
               {% endif %}

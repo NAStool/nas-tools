@@ -115,7 +115,7 @@ def login():
         跳转到导航页面
         """
         # 判断当前的运营环境
-        SystemFlag = 1 if SystemUtils.is_docker() or SystemUtils.is_synology() else 0
+        SystemFlag = SystemUtils.get_system()
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
@@ -351,9 +351,11 @@ def rss_calendar():
 def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
+    SystemFlag = "Lite" if SystemUtils.is_lite_version() else SystemUtils.get_system()
     return render_template("site/site.html",
                            Sites=CfgSites,
-                           RuleGroups=RuleGroups)
+                           RuleGroups=RuleGroups,
+                           SystemFlag=SystemFlag)
 
 
 # 站点列表页面
@@ -412,6 +414,7 @@ def discovery_movie():
 def discovery_tv():
     return render_template("discovery/discovery.html",
                            DiscoveryType="tv")
+
 
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
