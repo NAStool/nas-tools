@@ -19,8 +19,8 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     git clean -dffx
     git reset --hard HEAD
-    git pull --depth=1
-        if [ $? -eq 0 ]; then
+    git pull --depth=1 --rebase
+    if [ $? -eq 0 ]; then
         echo "更新成功..."
         # Python依赖包更新
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
