@@ -50,7 +50,7 @@
               <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action ms-1" title="编辑站点">
                 {{ SVG.edit() }}
               </a>
-              {% if SystemFlag in ['Docker', 'Synology'] %}
+              {% if ChromeOk %}
               <a href="javascript:show_site_cookie_ua_modal('{{ Site.id }}', '{{ Site.name }}')" class="btn-action ms-1" title="更新站点Cookie和User-Agent">
                 {{ SVG.refresh_dot() }}
               </a>
@@ -235,7 +235,9 @@
               <label class="form-label required">开启浏览器仿真 <span class="form-help"
                   title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_chrome">
+                {% if ChromeOk %}
                 <option value="Y">是</option>
+                {% endif %}
                 <option value="N" selected>否</option>
               </select>
             </div>

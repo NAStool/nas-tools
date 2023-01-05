@@ -51,7 +51,7 @@ import log
 from web.main import App
 from app.brushtask import BrushTask
 from app.db import init_db, update_db
-from app.helper import IndexerHelper, DisplayHelper
+from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
@@ -131,6 +131,8 @@ def start_service():
     TorrentRemover()
     # 加载索引器配置
     IndexerHelper()
+    # 初始化浏览器
+    ChromeHelper().init_driver()
 
 
 def monitor_config():

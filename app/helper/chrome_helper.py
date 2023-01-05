@@ -12,6 +12,8 @@ from app.utils import SystemUtils, RequestUtils
 
 lock = Lock()
 
+driver_executable_path = None
+
 
 class ChromeHelper(object):
     _executable_path = None
@@ -21,9 +23,7 @@ class ChromeHelper(object):
 
     def __init__(self, headless=False):
 
-        self._executable_path = SystemUtils.get_webdriver_path()
-        if not self._executable_path:
-            self._executable_path = ChromeDriverManager().install()
+        self._executable_path = SystemUtils.get_webdriver_path() or driver_executable_path
 
         if SystemUtils.is_windows():
             self._headless = False
@@ -31,6 +31,13 @@ class ChromeHelper(object):
             self._headless = True
         else:
             self._headless = headless
+
+    @staticmethod
+    def init_driver():
+        global driver_executable_path
+        if not uc.find_chrome_executable():
+            return
+        driver_executable_path = ChromeDriverManager().install()
 
     @property
     def browser(self):
@@ -40,8 +47,12 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
+        if not self._executable_path:
+            return False
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
+            return False
+        if not uc.find_chrome_executable():
             return False
         return True
 

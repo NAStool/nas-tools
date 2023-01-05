@@ -23,7 +23,7 @@ from app.brushtask import BrushTask
 from app.conf import ModuleConf
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import SecurityHelper, MetaHelper
+from app.helper import SecurityHelper, MetaHelper, ChromeHelper
 from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import WebhookEvent
@@ -351,11 +351,11 @@ def rss_calendar():
 def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    SystemFlag = "Lite" if SystemUtils.is_lite_version() else SystemUtils.get_system()
+    ChromeOk = ChromeHelper().get_status()
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
-                           SystemFlag=SystemFlag)
+                           ChromeOk=ChromeOk)
 
 
 # 站点列表页面
@@ -996,7 +996,10 @@ def notification():
 @App.route('/subtitle', methods=['POST', 'GET'])
 @login_required
 def subtitle():
-    return render_template("setting/subtitle.html", Config=Config().get_config())
+    ChromeOk = ChromeHelper().get_status()
+    return render_template("setting/subtitle.html",
+                           Config=Config().get_config(),
+                           ChromeOk=ChromeOk)
 
 
 # 用户管理页面

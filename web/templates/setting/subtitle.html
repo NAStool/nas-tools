@@ -14,6 +14,7 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
+      {% if ChromeOk %}
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-opensubtitles">
           <div class="card-cover card-cover-blurred text-center">
@@ -28,6 +29,7 @@
           </div>
         </a>
       </div>
+      {% endif %}
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal"
            data-bs-target="#modal-chinesesubfinder">
