@@ -590,33 +590,13 @@
       $(this).text($(this).attr("data-total"));
     });
     // 过滤站点
-    let filter_site;
-    $(`${filter_obj} input[name=filter_site]`).each(function () {
-      if($(this).prop('checked')){
-        filter_site = $(this).val();
-      }
-    });
+    let filter_site = select_GetSelectedVAL("filter_site")[0];
     // 过滤促销
-    let filter_free;
-    $(`${filter_obj} input[name=filter_free]`).each(function () {
-      if($(this).prop('checked')){
-        filter_free = $(this).val();
-      }
-    });
+    let filter_free = select_GetSelectedVAL("filter_free")[0];
     // 过滤编码
-    let filter_video;
-    $(`${filter_obj} input[name=filter_video]`).each(function () {
-      if($(this).prop('checked')){
-        filter_video = $(this).val();
-      }
-    });
+    let filter_video = select_GetSelectedVAL("filter_video")[0];
     //过滤剧集
-    let filter_season;
-    $(`${filter_obj} input[name=filter_season]`).each(function () {
-      if($(this).prop('checked')){
-        filter_season = $(this).val();
-      }
-    });
+    let filter_season = select_GetSelectedVAL("filter_season")[0];
     // 有过滤则展开，无过滤则收起
     if (filter_site || filter_free || filter_video) {
       $(`${torrent_obj} .accordion-button`).each(function () {
@@ -681,21 +661,27 @@
 
   // 过滤媒体展示
   function filter_medias(obj, key, modal) {
-    // 处理UI
-    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
-      $(this).prop("checked", false);
-    });
+    filter_reset()
     $(obj).prop("checked", true);
     // 开始过滤
     filter_do(key, modal);
   }
 
   // 重置过滤条件
+  function filter_reset() {
+    // 过滤站点
+    select_SelectALL(false, "filter_site");
+    // 过滤促销
+    select_SelectALL(false, "filter_free");
+    // 过滤编码
+    select_SelectALL(false, "filter_video");
+    //过滤剧集
+    select_SelectALL(false, "filter_season");
+  }
+
+  // 重置过滤条件
   function reset_filter(obj, key, modal) {
-    // 处理UI
-    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
-      $(this).prop("checked", false);
-    });
+    filter_reset()
     // 开始过滤
     filter_do(key, modal);
   }

@@ -530,7 +530,10 @@
       if (ret.code == 0) {
         const articles = ret.data;
         let content_th = `<thead><tr>
-                          <th class="w-1"><input class="form-check-input m-0 align-middle" id="articles_check_all_btn" type="checkbox" aria-label="全选"></th>
+                          <th class="w-1">
+                            <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                                   onclick="select_SelectALL($(this).prop('checked'), 'rss_articles_item')">
+                          </th>
                           <th>标题</th>
                           <th>状态</th>
                           <th>发布时间</th>
@@ -546,7 +549,7 @@
           let input_checkbox = '';
           if (article.title) {
             const title_param = article.title.replace(/\'/g, "&#39;");
-            input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox">
+            input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
             title = `<span>${article.title}</span> 
@@ -576,10 +579,6 @@
         }
 
         $("#table-rss-articles").append(content);
-        // 绑定全选事件
-        $("#articles_check_all_btn").bind("change", function () {
-          $(".table-responsive input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
-        });
       } else {
         content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
@@ -592,18 +591,13 @@
   // 获取选中按钮
   function get_article_checked(){
     let articles = [];
-    $(".table-responsive input[type=checkbox]").each(function () {
-      if ($(this).prop("checked")) {
-        const checkid = $(this).attr("id");
-        if (checkid && checkid.startsWith("check_")) {
-          const title = $(`#${checkid.replace("check", "title")}`).val();
-          const enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
-          if (title || enclosure) {
-            articles.push({ title: title, enclosure: enclosure })
-          }
-        }
-      }
-    });
+    let articles_id = select_GetSelectedVAL("rss_articles_item");
+    for (let id of articles_id) {
+      articles.push({
+        "title": $(`#title_${id}`).val(),
+        "enclosure": $(`#enclosure_${id}`).val(),
+      });
+    }
     return articles;
   }
 

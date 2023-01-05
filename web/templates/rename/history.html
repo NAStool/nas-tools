@@ -71,8 +71,10 @@
               <thead>
               <tr>
                 {% if TotalCount > 0 %}
-                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="history_check_all_btn"
-                                         type="checkbox" aria-label="全选"></th>
+                  <th class="w-1">
+                    <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'transfer_history')">
+                  </th>
                 {% endif %}
                 <th>媒体信息</th>
                 <th>文件信息</th>
@@ -85,7 +87,7 @@
                 {% for History in Historys %}
                   <tr>
                     <td class="w-1">
-                      <input class="form-check-input m-0 align-middle" id="check_{{ History.ID }}" type="checkbox">
+                      <input class="form-check-input m-0 align-middle" name="transfer_history" value="{{ History.ID }}" type="checkbox">
                     </td>
                     <td>
                       <div class="d-flex py-1 align-items-center">
@@ -151,7 +153,7 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                           <a class="dropdown-item"
-                             href='javascript:single_re_identification_history("{{ History.ID }}",)'>
+                             href='javascript:re_identification("history", ["{{ History.ID }}"])'>
                             重新识别
                           </a>
                           <a class="dropdown-item"
@@ -247,17 +249,6 @@
     });
   }
 
-  //重新识别
-  function re_identification(logids) {
-    ajax_post("re_identification", {flag: "history", ids: logids}, function (ret) {
-      if (ret.retcode == 0) {
-        navmenu('history');
-      } else {
-        show_fail_modal(`重新识别失败：${ret.retmsg}！`);
-      }
-    });
-  }
-
   // 搜索按钮
   $('#search_word').bind('keypress', function (event) {
     if (event.keyCode == "13") {
@@ -266,38 +257,16 @@
     }
   });
 
-  //单选框事件
-  $('input[type=radio][name=rename_type]').change(function () {
-    if (this.value === 'MOV') {
-      $("#rename_season_div").hide();
-      $("#rename_episode_div").hide();
-      $("#rename_season").val("");
-    } else {
-      $("#rename_season_div").show();
-      $("#rename_episode_div").show();
-    }
-  });
-
-  //全选事件
-  $("#history_check_all_btn").change(function () {
-    $(".table-responsive input[type=checkbox]").prop("checked", $(this).prop("checked"));
-  });
-
   // 批量删除/重新识别
   function batch_check_action(flag) {
-    let logids = [];
-    $("[id^='check_']").each(function () {
-      if ($(this).prop("checked")) {
-        logids.push($(this).attr("id").replace("check_", ""));
-      }
-    });
+    let logids = select_GetSelectedVAL("transfer_history")
     if (logids.length === 0) {
       return;
     }
     if (flag.startsWith("del")) {
       delete_history(flag, logids, "");
     } else if (flag === "reidentification") {
-      re_identification(logids);
+      re_identification("history", logids);
     }
   }
 
@@ -305,12 +274,6 @@
   function single_delete_history(flag, logid, name) {
     const logids = [logid];
     delete_history(flag, logids, name);
-  }
-
-  //单条记录重新识别
-  function single_re_identification_history(logid) {
-    const logids = [logid];
-    re_identification(logids);
   }
 
 </script>

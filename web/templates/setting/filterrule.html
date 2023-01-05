@@ -400,14 +400,7 @@
   // 恢复初始规则
   function restore_filtergroup() {
     let init_rulegroups = {{ Init_RuleGroups | safe }};
-    let need_init_groupid = [];
-    let i = 0;
-    $("input[name=init_rulegroup]").each(function () {
-      if ($(this).prop("checked")) {
-        need_init_groupid[i] = $(this).val();
-        i = i + 1;
-      }
-    });
+    let need_init_groupid = select_GetSelectedVAL("init_rulegroup");
     $("#restore_rulegroup_btn").text("恢复中").attr("disabled", true);
     ajax_post("restore_filtergroup", {
       "groupids": need_init_groupid,

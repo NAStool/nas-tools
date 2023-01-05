@@ -84,8 +84,10 @@
               <thead>
                 <tr>
                   {% if Group.words %}
-                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="all_check_group{{ Group.id }}"
-                      type="checkbox" aria-label="全选"></th>
+                  <th class="w-1">
+                    <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'custom_words_{{ Group.id }}')">
+                 </th>
                   {% endif %}
                   <th>被替换词</th>
                   <th>替换词</th>
@@ -101,8 +103,10 @@
                 {% if Group.words %}
                 {% for Word in Group.words %}
                 <tr>
-                  <td><input class="form-check-input m-0 align-middle" id="check_group{{ Group.id }}_{{ Word.id }}"
-                      type="checkbox"></td>
+                  <td>
+                    <input class="form-check-input m-0 align-middle" name="custom_words_{{ Group.id }}"
+                           value="{{ Group.id }}_{{ Word.id }}" type="checkbox">
+                  </td>
                   <td>{{ Word.replaced }}</td>
                   <td>{{ Word.replace }}</td>
                   <td>
@@ -467,19 +471,9 @@
     </div>
   </div>
   <script type="text/javascript">
-    // 绑定识别词词全选事件
-    $("[id^='all_check_group']").change(function () {
-      $(`[id^='check_group${$(this).attr("id").replace("all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
-    })
-
     // 批量启用/停用/导出
     function batch_check_action(flag) {
-      let ids_info = [];
-      $("[id^='check_group']").each(function () {
-        if ($(this).prop("checked")) {
-          ids_info.push($(this).attr("id").replace("check_group", ""));
-        }
-      });
+      let ids_info = select_GetSelectedVAL("^custom_words")
       if (ids_info.length == 0) {
         return;
       }
@@ -546,20 +540,27 @@
         if (ret.code == 0) {
           $("#import_note").text(ret.note_string);
           const Groups = ret.groups;
-          for (Group of Groups) {
-            let thead = `<thead><tr>
-                       <th class="w-1"><input class="form-check-input m-0 align-middle" id="import_all_check_group${Group.id}" type="checkbox" aria-label="全选"></th>
-                       <th>被替换词</th>
-                       <th>替换词</th>
-                       <th>偏移集数</th>
-                       <th>前定位词</th>
-                       <th>后定位词</th>
-                       <th>状态</th>
-                       <th>备注</th></tr></thead>`;
+          for (let Group of Groups) {
+            let thead = `<thead>
+                          <tr>
+                            <th class="w-1">
+                              <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                                     onclick="select_SelectALL($(this).prop('checked'), 'import_custom_words_${Group.id}')">
+                            </th>
+                            <th>被替换词</th>
+                            <th>替换词</th>
+                            <th>偏移集数</th>
+                            <th>前定位词</th>
+                            <th>后定位词</th>
+                            <th>状态</th>
+                            <th>备注</th>
+                          </tr>
+                        </thead>`;
             let tbody_content = "";
-            for (word_id in Group["words"]) {
+            for (let word_id in Group["words"]) {
               let Word = Group["words"][word_id];
-              let checkbox = `<td><input class="form-check-input m-0 align-middle" id="import_check_group${Group.id}_${Word.id}" type="checkbox"></td>`;
+              let checkbox = `<td><input class="form-check-input m-0 align-middle" name="import_custom_words_${Group.id}" value="${Group.id}_${Word.id}"
+                      type="checkbox"></td>`;
               let replaced = `<td>${Word.replaced}</td>`;
               let replace = `<td>${Word.replace}</td>`;
               let offset;
@@ -597,10 +598,6 @@
             }
             $("#import_groups_div").append(`${head}${table}`);
           }
-          // 绑定全选事件
-          $("[id^='import_all_check_group']").bind("change", function () {
-            $(`[id^='import_check_group${$(this).attr("id").replace("import_all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
-          });
           $("#modal-import-custom-words-table").modal('show');
         }
       });
@@ -609,17 +606,11 @@
     // 导入选择的识别词
     function import_custom_words() {
       const import_code = $("#import_code").val();
-      let ids_info = [];
-      $("[id^='import_check_group']").each(function () {
-        if ($(this).prop("checked")) {
-          ids_info.push($(this).attr("id").replace("import_check_group", ""));
-        }
-      });
+      let ids_info = select_GetSelectedVAL("import_custom_words");
       $("#modal-import-custom-words-table").modal('hide');
       ajax_post("import_custom_words", { ids_info: ids_info, import_code: import_code }, function (ret) {
         if (ret.code == 0) {
           $("#import_groups_div").empty();
-
           navmenu('customwords');
         } else {
           show_fail_modal(ret.msg, function() {
