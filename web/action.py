@@ -1074,9 +1074,10 @@ class WebAction:
                 os.system(f"git config --global https.proxy {https_proxy or http_proxy}")
             # 清理
             os.system("git clean -dffx")
-            os.system("git reset --hard HEAD")
             # 升级
-            os.system("git pull")
+            branch = "dev" if os.environ.get("NASTOOL_VERSION") == "dev" else "master"
+            os.system(f"git fetch --depth 1 origin {branch}")
+            os.system(f"git reset --hard origin/{branch}")
             os.system("git submodule update --init --recursive")
             # 安装依赖
             os.system('pip install -r /nas-tools/requirements.txt')
