@@ -1109,8 +1109,7 @@
           </div>
           <div class="col-md">
             <div class="form-floating mb-1">
-              <select class="form-select" id="search_download_dir" aria-label="保存目录">
-              </select>
+              <select class="form-select" id="search_download_dir" aria-label="保存目录"></select>
               <label for="floatingSelect">保存目录</label>
             </div>
           </div>
@@ -1573,18 +1572,34 @@
     }
     //订阅站点
     let rss_sites = select_GetSelectedVAL("rss_sites");
-    if (rss_sites.length === $("input[name=rss_sites][type=checkbox]").val()) {
+    if (rss_sites.length === RSS_SITES_LENGTH) {
       rss_sites = [];
     }
     //搜索站点
     let search_sites = [];
     if (!fuzzy_match) {
       search_sites = select_GetSelectedVAL("search_sites");
-      if (search_sites.length === $("input[name=search_sites][type=checkbox]").val()) {
+      if (search_sites.length === SEARCH_SITES_LENGTH) {
         search_sites = [];
       }
     }
-    const data = {
+    // 储存订阅设置
+    const rss_setting = {
+      "filter_restype": filter_restype,
+      "filter_pix": filter_pix,
+      "filter_team": filter_team,
+      "filter_rule": filter_rule,
+      "save_path": save_path,
+      "download_setting": download_setting,
+      "rss_sites": rss_sites,
+      "search_sites": search_sites
+    };
+    if (mtype === "TV") {
+      localStorage.setItem("RssSettingTV", JSON.stringify(rss_setting));
+    } else if (mtype === "MOV") {
+      localStorage.setItem("RssSettingMOV", JSON.stringify(rss_setting));
+    }
+    const data = {...{
       "type": mtype,
       "name": name,
       "year": year,
@@ -1592,19 +1607,11 @@
       "fuzzy_match": fuzzy_match,
       "doubanid": doubanid,
       "tmdbid": tmdbid,
-      "rss_sites": rss_sites,
-      "search_sites": search_sites,
       "over_edition": over_edition,
-      "filter_restype": filter_restype,
-      "filter_pix": filter_pix,
-      "filter_team": filter_team,
-      "filter_rule": filter_rule,
-      "save_path": save_path,
-      "download_setting": download_setting,
       "total_ep": total_ep,
       "current_ep": current_ep,
       "rssid": rssid,
-    };
+    }, ...rss_setting};
     $("#modal-manual-rss").modal("hide");
     ajax_post("add_rss_media", data, function (ret) {
       if (ret.code === 0) {
@@ -1666,58 +1673,52 @@
     remove_rss_media(name, year, type, rssid, page);
   }
 
-  // 显示新增电视剧订阅
-  function show_add_tvrss_media_modal() {
+  //初始化订阅设置
+  function show_add_rss_media_modal(mtype) {
     // 刷新下拉框
     refresh_rss_download_setting_dirs();
-
     // 界面初始化
     $("#rss_id").val("");
     $("#rss_modal_title").text("新增订阅");
-    $("#rss_type").val("TV");
     $("#rss_name").val("").attr("readonly", false);
     $("#rss_year").val("").attr("readonly", false);
     $("#rss_tmdbid").val("");
+    $("#fuzzy_match").prop("checked", false);
+    $("#over_edition").prop("checked", false);
     $("#rss_season").val("");
     $("#rss_total_ep").val("");
     $("#rss_current_ep").val("");
-    $("#fuzzy_match").prop("checked", false);
-    $("#over_edition").prop("checked", false);
-    $("#rss_restype").val('');
-    $("#rss_pix").val('');
-    $("#rss_team").val('');
-    $("#rss_rule").val('');
-    $("#rss_save_path").val('');
-    $("#rss_download_setting").val('');
-    select_SelectALL(false, "rss_sites");
-    select_SelectALL(false, "search_sites");
-    $("#rss_delete_btn").hide();
-    $("#modal-manual-rss").modal('show');
-  }
-
-  // 显示新增电影订阅
-  function show_add_movierss_media_modal() {
-    // 刷新下拉框
-    refresh_rss_download_setting_dirs();
-
-    // 界面初始化
-    $("#rss_id").val("");
-    $("#rss_modal_title").text("新增订阅");
-    $("#rss_type").val("MOV");
-    $("#rss_name").val("").attr("readonly", false);
-    $("#rss_year").val("").attr("readonly", false);
-    $("#rss_tmdbid").val("");
-    $("#rss_tv_season_div").hide();
-    $("#fuzzy_match").prop("checked", false);
-    $("#over_edition").prop("checked", false);
-    $("#rss_restype").val('');
-    $("#rss_pix").val('');
-    $("#rss_team").val('');
-    $("#rss_rule").val('');
-    $("#rss_save_path").val('');
-    $("#rss_download_setting").val('');
-    select_SelectALL(false, "rss_sites");
-    select_SelectALL(false, "search_sites");
+    let rss_setting;
+    if (mtype === "TV") {
+      $("#rss_type").val("TV");
+      $("#rss_tv_season_div").show();
+      rss_setting = localStorage.getItem("RssSettingTV");
+    } else if (mtype === "MOV") {
+      $("#rss_type").val("MOV");
+      $("#rss_tv_season_div").hide();
+      rss_setting = localStorage.getItem("RssSettingMOV");
+    }
+    if (rss_setting) {
+      rss_setting = JSON.parse(rss_setting);
+      console.log(rss_setting);
+      $("#rss_restype").val(rss_setting.filter_restype);
+      $("#rss_pix").val(rss_setting.filter_pix);
+      $("#rss_team").val(rss_setting.filter_team);
+      $("#rss_rule").val(rss_setting.filter_rule);
+      $("#rss_save_path").val(rss_setting.save_path);
+      $("#rss_download_setting").val(rss_setting.download_setting);
+      select_SelectPart(rss_setting.search_sites, 'search_sites');
+      select_SelectPart(rss_setting.rss_sites, 'rss_sites');
+    } else {
+      $("#rss_restype").val('');
+      $("#rss_pix").val('');
+      $("#rss_team").val('');
+      $("#rss_rule").val('');
+      $("#rss_save_path").val('');
+      $("#rss_download_setting").val('');
+      select_SelectALL(false, "rss_sites");
+      select_SelectALL(false, "search_sites");
+    }
     $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
   }
@@ -1854,11 +1855,13 @@
   }
 
   // 刷新搜索站点列表
+  var SEARCH_SITES_LENGTH = 0;
   function refresh_searchsites_select(obj_id, aync = true) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let searchsites_select = $(`#${obj_id}`);
         let searchsites_select_content = "";
+        SEARCH_SITES_LENGTH = ret.indexers.length;
         if (ret.indexers.length > 0) {
           searchsites_select.parent().parent().show();
         } else {
@@ -1869,8 +1872,7 @@
           <label class="form-selectgroup-item">
             <input type="checkbox" name="search_sites" value="${indexer.name}" class="form-selectgroup-input">
             <span class="form-selectgroup-label">${indexer.name}</span>
-          </label>
-          `;
+          </label>`;
         }
         searchsites_select.empty().append(searchsites_select_content);
       }
@@ -1882,7 +1884,7 @@
     ajax_post("get_download_dirs", {sid: sid}, function (ret) {
       if (ret.code === 0) {
         let savepath_select = $(`#${obj_id}`);
-        let savepath_select_content = `<option value="">自动</option>`;
+        let savepath_select_content = `<option value="" selected>自动</option>`;
         for (let path of ret.paths) {
           savepath_select_content += `<option value="${path}">${path}</option>`;
         }
@@ -1908,10 +1910,10 @@
   // 刷新订阅框的下载设置及目录等选项
   function refresh_rss_download_setting_dirs(){
     refresh_rsssites_select("rss_sites_group", false);
-    refresh_searchsites_select("rss_search_sites_group");
-    refresh_filter_select("rss_rule");
+    refresh_searchsites_select("rss_search_sites_group", false);
+    refresh_filter_select("rss_rule", false);
     refresh_downloadsetting_select("rss_download_setting", false);
-    refresh_savepath_select("rss_save_path", true, $("#rss_download_setting").val());
+    refresh_savepath_select("rss_save_path", false, $("#rss_download_setting").val());
   }
 
   // 刷新下载框的下载设置及目录选项
