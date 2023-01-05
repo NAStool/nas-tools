@@ -2186,7 +2186,7 @@
     for (let i = 0; i <= 50; i++) {
       rename_season_content += `<option value="${i}">第${i}季</option>`;
     }
-    $("#rename_season").empty().append();
+    $("#rename_season").empty().append(rename_season_content);
     // 初始化媒体类型
     if (media_type === "电视剧") {
       $("#rename_type_tv").prop("checked", true);
