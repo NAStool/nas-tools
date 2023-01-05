@@ -32,11 +32,12 @@ class ChromeHelper(object):
         else:
             self._headless = headless
 
-    @staticmethod
-    def init_driver():
-        global driver_executable_path
+    def init_driver(self):
+        if self._executable_path:
+            return
         if not uc.find_chrome_executable():
             return
+        global driver_executable_path
         driver_executable_path = ChromeDriverManager().install()
 
     @property
