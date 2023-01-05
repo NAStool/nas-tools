@@ -17,7 +17,7 @@ from config import Config, RMT_SUBEXT
 
 @singleton
 class Subtitle:
-    subhelper = None
+    opensubtitles = None
     _save_tmp_path = None
     _server = None
     _host = None
