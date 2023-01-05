@@ -22,8 +22,8 @@ class ChromeHelper(object):
 
     def __init__(self, headless=False):
 
-        chrome_path = SystemUtils.get_system().value
-        self._executable_path = WEBDRIVER_PATH.get(chrome_path)
+        if not SystemUtils.is_lite_version():
+            self._executable_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
 
         if SystemUtils.is_windows():
             self._headless = False
