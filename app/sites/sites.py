@@ -349,6 +349,8 @@ class Sites:
         站点并发签到
         """
         sites = self.get_sites(signin=True)
+        if not sites:
+            return
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
             status = p.map(self.__signin_site, sites)
         if status:
