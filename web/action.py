@@ -40,7 +40,7 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
-from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
+from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
@@ -514,27 +514,43 @@ class WebAction:
         """
         从种子文件添加下载
         """
+        def __download(_media_info, _file_path):
+            _media_info.site = "WEB"
+            # 添加下载
+            ret, ret_msg = Downloader().download(media_info=_media_info,
+                                                 download_dir=dl_dir,
+                                                 download_setting=dl_setting,
+                                                 torrent_file=_file_path)
+            # 发送消息
+            _media_info.user_name = current_user.username
+            if ret:
+                Message().send_download_message(SearchType.WEB, _media_info)
+            else:
+                Message().send_download_fail_message(_media_info, ret_msg)
+
         dl_dir = data.get("dl_dir")
         dl_setting = data.get("dl_setting")
         files = data.get("files")
-        if not files:
-            return {"code": -1, "msg": "没有种子文件"}
+        magnets = data.get("magnets")
+        if not files and not magnets:
+            return {"code": -1, "msg": "没有种子文件或磁链"}
         for file_item in files:
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
-            media = Media().get_media_info(title=file_name)
-            media.site = "WEB"
-            # 添加下载
-            ret, ret_msg = Downloader().download(media_info=media,
-                                                 download_dir=dl_dir,
-                                                 download_setting=dl_setting,
-                                                 torrent_file=file_path)
-            # 发送消息
-            media.user_name = current_user.username
-            if ret:
-                Message().send_download_message(SearchType.WEB, media)
+            media_info = Media().get_media_info(title=file_name)
+            __download(media_info, file_path)
+        for magnet in magnets:
+            file_path = None
+            title = Torrent().get_magnet_title(magnet)
+            if title:
+                media_info = Media().get_media_info(title=title)
             else:
-                Message().send_download_fail_message(media, ret_msg)
+                media_info = MetaInfo(title="磁力链接")
+                media_info.org_string = magnet
+            media_info.set_torrent_info(enclosure=magnet,
+                                        download_volume_factor=0,
+                                        upload_volume_factor=1)
+            __download(media_info, file_path)
         return {"code": 0, "msg": "添加下载完成！"}
 
     @staticmethod

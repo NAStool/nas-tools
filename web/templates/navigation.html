@@ -1117,15 +1117,18 @@
             </div>
           </div>
         </div>
-        <form class="dropzone" id="torrent_file" action="/upload">
-          <div class="fallback">
-            <input name="file" type="file" accept="*.zip" />
-          </div>
-          <div class="dz-message">
-            <h3 class="dropzone-msg-title">上传种子文件</h3>
-            <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
-          </div>
-        </form>
+        <div id="manul_add_torrent">
+          <form class="dropzone mb-1" id="torrent_files" action="/upload">
+            <div class="fallback">
+              <input name="file" type="file" accept="*.zip" />
+            </div>
+            <div class="dz-message">
+              <h3 class="dropzone-msg-title">上传种子文件</h3>
+              <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
+            </div>
+          </form>
+          <textarea class="form-control" id="torrent_magnets" rows="5" placeholder="magnet:?xt=urn:btih:xxx，\n换行添加多个磁链"></textarea>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -1942,9 +1945,9 @@
       $("#search_download_btn").unbind("click").click(download_link);
     }
     if (show_file) {
-      $("#torrent_file").show();
+      $("#manul_add_torrent").show();
     } else {
-      $("#torrent_file").hide();
+      $("#manul_add_torrent").hide();
     }
     $("#modal-search-download").modal('show');
   }
@@ -2718,7 +2721,7 @@
     updateMenuListHeight()
 
     // 初始化DropZone
-    torrent_dropzone = new Dropzone("#torrent_file");
+    torrent_dropzone = new Dropzone("#torrent_files");
     torrent_dropzone.options.acceptedFiles = ".torrent";
 
     // 单选框事件
