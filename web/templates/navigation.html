@@ -915,7 +915,10 @@
         <a href="#" class="btn btn-link text-red me-auto" id="rss_delete_btn">
           取消订阅
         </a>
-        <a href="javascript:add_rss_manual()" id="rss_add_btn" class="btn btn-primary">确定</a>
+        <div class="btn-list">
+          <a href="javascript:add_rss_manual(true)" id="rss_add_btn" class="btn btn-secondary">添加并继续</a>
+          <a href="javascript:add_rss_manual(false)" id="rss_add_btn" class="btn btn-primary">添加</a>
+        </div>
       </div>
     </div>
   </div>
@@ -1516,7 +1519,7 @@
   }
 
   //新增订阅
-  function add_rss_manual() {
+  function add_rss_manual(flag) {
     const mtype = $("#rss_type").val();
     const name = $("#rss_name").val();
     const year = $("#rss_year").val();
@@ -1620,7 +1623,10 @@
         } else if (CURRENT_PAGE_URI.startsWith("movie_rss")) {
           navmenu("movie_rss");
         } else {
-          show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！")
+          show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！");
+        }
+        if (flag) {
+          show_add_rss_media_modal(mtype);
         }
       } else {
         if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
