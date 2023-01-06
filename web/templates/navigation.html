@@ -2424,11 +2424,13 @@
   }
 
   //导航点击
-  function navmenu(page) {
-    // 更新当前历史记录
-    window_history();
-    // 主动点击时清除页码
-    sessionStorage.removeItem("CurrentPage");
+  function navmenu(page, newflag=false) {
+    if (!newflag) {
+      // 更新当前历史记录
+      window_history();
+      // 主动点击时清除页码
+      sessionStorage.removeItem("CurrentPage");
+    }
 
     $("#navbar-menu li").find("a").removeClass("active").each(function () {
       if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + page + "')")) {
@@ -2436,7 +2438,7 @@
         if ($(this).hasClass('dropdown-item')) {
           $(this).parent().addClass("show");
         }
-      }
+      } 
     });
     $("#navbar-menu").collapse('hide');
     $(".page-wrapper").unbind('scroll');
@@ -2455,7 +2457,7 @@
         CURRENT_PAGE_URI = page;
       }
       // 并记录当前历史记录
-      window_history(true);
+      window_history(!newflag);
     });
   }
 
@@ -2737,6 +2739,9 @@
     const go_page = "{{ GoPage }}";
     if (go_page) {
       navmenu(go_page);
+    } else if (window.history.state?.page) {
+      //console.log("刷新页面");
+      navmenu(window.history.state.page, true);
     } else {
       // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');
