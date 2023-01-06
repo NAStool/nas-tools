@@ -53,6 +53,7 @@
                   </th>
                 {% endif %}
                 <th>文件名</th>
+                <th class="w-5">转移方式</th>
                 <th class="w-5"></th>
               </tr>
               </thead>
@@ -72,6 +73,10 @@
                       {% endif %}
                     </td>
                     <td>
+                      <div class="text-muted">
+                        {{ Path.sync_mode }}
+                      </div>
+                    <td>
                       <div class="dropdown">
                         <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                           {{ SVG.dots_vertical() }}
@@ -81,7 +86,7 @@
                             重新识别
                           </a>
                           <a class="dropdown-item"
-                             href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
+                             href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}", "{{ Path.rmt_mode }}")'>
                             手动识别
                           </a>
                           <div class="dropdown-divider"></div>
@@ -109,8 +114,8 @@
 <script type="text/javascript">
 
   //显示弹出窗口
-  function show_rename_modal(id, path) {
-    show_manual_transfer_modal(1, path, '', '', id, '');
+  function show_rename_modal(id, path, rmt_mode) {
+    show_manual_transfer_modal(1, path, rmt_mode, '', id, '');
   }
 
   //显示自定义识别窗口

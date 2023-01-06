@@ -40,7 +40,8 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
-from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
+from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
+    SystemUtils, ExceptionUtils, Torrent, KVPrUtils
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
@@ -74,6 +75,7 @@ class WebAction:
             "get_site_favicon": self.__get_site_favicon,
             "restart": self.__restart,
             "update_system": self.__update_system,
+            "reset_db_version": self.__reset_db_version,
             "logout": self.__logout,
             "update_config": self.__update_config,
             "update_directory": self.__update_directory,
@@ -514,27 +516,43 @@ class WebAction:
         """
         从种子文件添加下载
         """
+        def __download(_media_info, _file_path):
+            _media_info.site = "WEB"
+            # 添加下载
+            ret, ret_msg = Downloader().download(media_info=_media_info,
+                                                 download_dir=dl_dir,
+                                                 download_setting=dl_setting,
+                                                 torrent_file=_file_path)
+            # 发送消息
+            _media_info.user_name = current_user.username
+            if ret:
+                Message().send_download_message(SearchType.WEB, _media_info)
+            else:
+                Message().send_download_fail_message(_media_info, ret_msg)
+
         dl_dir = data.get("dl_dir")
         dl_setting = data.get("dl_setting")
         files = data.get("files")
-        if not files:
-            return {"code": -1, "msg": "没有种子文件"}
+        magnets = data.get("magnets")
+        if not files and not magnets:
+            return {"code": -1, "msg": "没有种子文件或磁链"}
         for file_item in files:
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
-            media = Media().get_media_info(title=file_name)
-            media.site = "WEB"
-            # 添加下载
-            ret, ret_msg = Downloader().download(media_info=media,
-                                                 download_dir=dl_dir,
-                                                 download_setting=dl_setting,
-                                                 torrent_file=file_path)
-            # 发送消息
-            media.user_name = current_user.username
-            if ret:
-                Message().send_download_message(SearchType.WEB, media)
+            media_info = Media().get_media_info(title=file_name)
+            __download(media_info, file_path)
+        for magnet in magnets:
+            file_path = None
+            title = Torrent().get_magnet_title(magnet)
+            if title:
+                media_info = Media().get_media_info(title=title)
             else:
-                Message().send_download_fail_message(media, ret_msg)
+                media_info = MetaInfo(title="磁力链接")
+                media_info.org_string = magnet
+            media_info.set_torrent_info(enclosure=magnet,
+                                        download_volume_factor=0,
+                                        upload_volume_factor=1)
+            __download(media_info, file_path)
         return {"code": 0, "msg": "添加下载完成！"}
 
     @staticmethod
@@ -1107,6 +1125,18 @@ class WebAction:
             self.restart_server()
         return {"code": 0}
 
+    def __reset_db_version(self, data):
+        """
+        重置数据库版本
+        """
+        try:
+            self.dbhelper.drop_table("alembic_version")
+            return {"code": 0}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": str(e)}
+
+
     @staticmethod
     def __logout(data):
         """
@@ -1353,6 +1383,7 @@ class WebAction:
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
+                    rmt_mode = KVPrUtils().RmtMode_REVERSE.get(paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1360,6 +1391,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if succ_flag:
@@ -1374,6 +1406,7 @@ class WebAction:
                 if paths:
                     path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
+                    rmt_mode = KVPrUtils().RmtMode_REVERSE.get(paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:
@@ -1381,6 +1414,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if not succ_flag:
@@ -3611,13 +3645,23 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
         totalCount, historys = self.dbhelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
-
+        historys_list = []
+        for history in historys:
+            history = history.as_dict()
+            sync_mode = history.get("MODE")
+            rmt_mode = KVPrUtils().RMT_MODES_REVERSE.get(KVPrUtils().RmtMode_REVERSE.get(sync_mode)) \
+                if sync_mode else ""
+            history.update({
+                "SYNC_MODE": sync_mode,
+                "RMT_MODE": rmt_mode
+            })
+            historys_list.append(history)
         TotalPage = floor(totalCount / PageNum) + 1
 
         return {
             "code": 0,
             "total": totalCount,
-            "result": [his.as_dict() for his in historys],
+            "result": historys_list,
             "totalPage": TotalPage,
             "pageNum": PageNum,
             "currentPage": CurrentPage
@@ -3634,7 +3678,17 @@ class WebAction:
                 continue
             path = rec.PATH.replace("\\", "/") if rec.PATH else ""
             path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
-            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
+            sync_mode = rec.MODE or ""
+            rmt_mode = rmt_mode = KVPrUtils().RMT_MODES_REVERSE.get(KVPrUtils().RmtMode_REVERSE.get(sync_mode)) \
+                if sync_mode else ""
+            Items.append({
+                "id": rec.ID,
+                "path": path,
+                "to": path_to,
+                "name": path,
+                "sync_mode": sync_mode,
+                "rmt_mode": rmt_mode,
+            })
 
         return {"code": 0, "items": Items}
 

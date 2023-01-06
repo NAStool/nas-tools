@@ -12,3 +12,4 @@ from .web_utils import WebUtils
 from .cache_manager import cacheman, TokenCache, ConfigLoadCache
 from .exception_utils import ExceptionUtils
 from .rsstitle_utils import RssTitleUtils
+from .kvpr_utils import KVPrUtils

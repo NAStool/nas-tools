@@ -116,18 +116,16 @@
   //更新所有种子页面信息
   function get_all_torrents_info() {
     let ids = [];
-    let i = 0;
     $(".download_ids").each(function () {
-      ids[i] = $(this).val();
-      i++;
+      ids.push($(this).val());
     });
     if (ids.length == 0) {
       return;
     }
     ajax_post("pt_info", {"ids": ids}, function (ret) {
       if (ret.retcode == "0") {
-        for (var i = 0; i < ret.torrents.length; i++) {
-          update_torrent_ui(ret.torrents[i]);
+        for (let torrent of ret.torrents) {
+          update_torrent_ui(torrent);
         }
         setTimeout("get_all_torrents_info()", 2000);
       }
@@ -138,8 +136,8 @@
   function get_torrent_info(id) {
     ajax_post("pt_info", {"ids": id}, function (ret) {
       if (ret.retcode == "0") {
-        for (var i = 0; i < ret.torrents.length; i++) {
-          update_torrent_ui(ret.torrents[i]);
+        for (let torrent of ret.torrents) {
+          update_torrent_ui(torrent);
         }
       }
     }, true, false);
@@ -147,33 +145,39 @@
 
   //更新单个种子的页面信息
   function update_torrent_ui(info) {
-    $("#speed_text_" + info.id).text(info.speed);
-    $("#progress_text_" + info.id).text(info.progress + "%");
-    $("#progress_" + info.id).attr("style", "width: " + info.progress + "%")
+    $(`#speed_text_${info.id}`).text(info.speed);
+    $(`#progress_text_${info.id}`).text(`${info.progress}%`);
+    $(`#progress_${info.id}`).attr("style", `width: ${info.progress}%`)
         .attr("aria-valuenow", info.progress);
-    if (info.state == "Stoped") {
-      $("#start_btn_" + info.id).show()
-      $("#stop_btn_" + info.id).hide()
+    if (info.state === "Stoped") {
+      $(`#start_btn_${info.id}`).show()
+      $(`#stop_btn_${info.id}`).hide()
     } else {
-      $("#start_btn_" + info.id).hide()
-      $("#stop_btn_" + info.id).show()
+      $(`#start_btn_${info.id}`).hide()
+      $(`#stop_btn_${info.id}`).show()
     }
   }
 
   //显示新增下载界面
   function show_torrent_download_modal() {
     show_download_modal('', '', function(){
-      if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0]) {
+      let magnet = $("#torrent_magnets").val();
+      if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0] && !magnet) {
         return;
       }
       $("#search_download_btn").text("处理中...").attr("disabled", true);
-      const dir = $("#search_download_dir").val();
-      const setting = $("#search_download_setting").val();
-      ajax_post("download_torrent", { files: torrent_dropzone.files, dir: dir, setting: setting }, function (ret) {
+      const params = {
+        "files": torrent_dropzone.files,
+        "magnets": magnet.split("\n"),
+        "dir": $("#search_download_dir").val(),
+        "setting": $("#search_download_setting").val()
+      }
+      ajax_post("download_torrent", params, function (ret) {
         $("#search_download_btn").attr("disabled", false).text("下载");
         $("#modal-search-download").modal('hide');
         if (ret.code == 0) {
           torrent_dropzone.removeAllFiles();
+          $("#torrent_magnets").val("");
           navmenu('downloading');
         } else {
           show_fail_modal(`添加下载失败：${ret.msg}`, function() {

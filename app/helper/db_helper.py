@@ -384,7 +384,7 @@ class DbHelper:
             return True
 
     @DbPersist(_db)
-    def insert_transfer_unknown(self, path, dest):
+    def insert_transfer_unknown(self, path, dest, rmt_mode):
         """
         插入未识别记录
         """
@@ -401,7 +401,8 @@ class DbHelper:
             self._db.insert(TRANSFERUNKNOWN(
                 PATH=path,
                 DEST=dest,
-                STATE='N'
+                STATE='N',
+                MODE=str(rmt_mode.value)
             ))
 
     def is_transfer_in_blacklist(self, path):
@@ -1948,6 +1949,10 @@ class DbHelper:
     @DbPersist(_db)
     def excute(self, sql):
         return self._db.excute(sql)
+
+    @DbPersist(_db)
+    def drop_table(self, table_name):
+        return self._db.excute(f"""DROP TABLE IF EXISTS {table_name}""")
 
     @DbPersist(_db)
     def insert_userrss_task_history(self, task_id, title, downloader):
