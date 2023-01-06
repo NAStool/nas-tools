@@ -14,5 +14,14 @@ class KVPrUtils:
 
     def init_config(self):
         # 初始化反查
-        self.RMT_MODES_REVERSE = {v: k for k, v in ModuleConf.RMT_MODES.items()}
-        self.RmtMode_REVERSE = {e.value: e for e in RmtMode}
+        self.RMT_MODES_REVERSE = self.__gen_dict_reverse(ModuleConf.RMT_MODES)
+        self.RmtMode_REVERSE = self.__gen_enum_reverse(RmtMode)
+
+    @staticmethod
+    def __gen_dict_reverse(d: dict):
+        return {v: k for k, v in d.items()}
+
+    @staticmethod
+    def __gen_enum_reverse(enum):
+        return {e.value: e for e in enum}
+
