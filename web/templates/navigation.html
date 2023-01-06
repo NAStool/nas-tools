@@ -2741,7 +2741,10 @@
       navmenu(go_page);
     } else if (window.history.state?.page) {
       //console.log("刷新页面");
-      navmenu(window.history.state.page, true);
+      // 延迟触发调整, 自定义组件的页面不知为何会异常, 大概率是需要再研究一下它的生命周期等等
+      setTimeout(function(){
+        navmenu(window.history.state.page, true);
+      }, 200);
     } else {
       // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');
