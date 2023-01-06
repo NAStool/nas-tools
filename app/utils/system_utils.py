@@ -319,3 +319,21 @@ class SystemUtils:
                         })
 
         return ret_files
+
+    @staticmethod
+    def get_key_by_value(dict_enum, val):
+        """
+        通过value获取key
+        :param dict_enum: 字典或枚举类
+        :param val: 值
+        :return: key或name
+        """
+        if isinstance(dict_enum, dict):
+            for key, value in dict_enum.items():
+                if val == value:
+                    return key
+        else:
+            for enum in dict_enum:
+                if val == enum.value:
+                    return enum.name
+        return None

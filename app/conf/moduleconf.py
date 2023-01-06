@@ -15,18 +15,6 @@ class ModuleConf(object):
         '_2_0': '/pts'
     }
 
-    # 转移模式对应
-    RMT_MODE_NAME = {
-        "硬链接": "link",
-        "软链接": "softlink",
-        "复制": "copy",
-        "移动": "move",
-        "Rclone复制": "rclonecopy",
-        "Rclone移动": "rclone",
-        "Minio复制": "miniocopy",
-        "Minio移动":  "minio",
-    }
-
     # 全量转移模式
     RMT_MODES = {
         "copy": RmtMode.COPY,
