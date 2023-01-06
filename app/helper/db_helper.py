@@ -384,7 +384,7 @@ class DbHelper:
             return True
 
     @DbPersist(_db)
-    def insert_transfer_unknown(self, path, dest):
+    def insert_transfer_unknown(self, path, dest, rmt_mode):
         """
         插入未识别记录
         """
@@ -401,7 +401,8 @@ class DbHelper:
             self._db.insert(TRANSFERUNKNOWN(
                 PATH=path,
                 DEST=dest,
-                STATE='N'
+                STATE='N',
+                MODE=str(rmt_mode.value)
             ))
 
     def is_transfer_in_blacklist(self, path):

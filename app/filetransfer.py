@@ -569,7 +569,7 @@ class FileTransfer:
                     # 记录未识别
                     is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                     if is_need_insert_unknown:
-                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                         alert_count += 1
                     failed_count += 1
                     if error_message not in alert_messages and is_need_insert_unknown:
@@ -665,7 +665,7 @@ class FileTransfer:
                         # 记录未识别
                         is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                         if is_need_insert_unknown:
-                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                             alert_count += 1
                         failed_count += 1
                         if error_message not in alert_messages and is_need_insert_unknown:
@@ -700,7 +700,7 @@ class FileTransfer:
                             # 记录未识别
                             is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                             if is_need_insert_unknown:
-                                self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                                self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                                 alert_count += 1
                             failed_count += 1
                             if error_message not in alert_messages and is_need_insert_unknown:

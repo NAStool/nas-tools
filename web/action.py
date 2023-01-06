@@ -1369,6 +1369,8 @@ class WebAction:
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
+                    rmt_mode = ModuleConf.RMT_MODES.get(ModuleConf.RMT_MODE_NAME.get(paths[0].MODE)) \
+                        if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1376,6 +1378,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if succ_flag:
@@ -1390,6 +1393,8 @@ class WebAction:
                 if paths:
                     path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
+                    rmt_mode = ModuleConf.RMT_MODES.get(ModuleConf.RMT_MODE_NAME.get(paths[0].MODE)) \
+                        if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:
@@ -1397,6 +1402,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if not succ_flag:
@@ -3627,13 +3633,20 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
         totalCount, historys = self.dbhelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
-
+        historys_list = []
+        for history in historys:
+            history = history.as_dict()
+            history.update({
+                "SYNC_MODE": history.get("MODE"),
+                "RMT_MODE": ModuleConf.RMT_MODE_NAME.get(history.get("MODE")) or ""
+            })
+            historys_list.append(history)
         TotalPage = floor(totalCount / PageNum) + 1
 
         return {
             "code": 0,
             "total": totalCount,
-            "result": [his.as_dict() for his in historys],
+            "result": historys_list,
             "totalPage": TotalPage,
             "pageNum": PageNum,
             "currentPage": CurrentPage
@@ -3650,7 +3663,14 @@ class WebAction:
                 continue
             path = rec.PATH.replace("\\", "/") if rec.PATH else ""
             path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
-            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
+            Items.append({
+                "id": rec.ID,
+                "path": path,
+                "to": path_to,
+                "name": path,
+                "sync_mode": rec.MODE or "",
+                "rmt_mode": ModuleConf.RMT_MODE_NAME.get(rec.MODE) or "",
+            })
 
         return {"code": 0, "items": Items}
 

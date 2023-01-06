@@ -143,8 +143,11 @@
                       </div>
                     </td>
                     <td>
-                      <small>{{ History.DATE }}</small>
-                      <div class="text-muted"><small>来自：{{ History.SOURCE or '' }}</small></div>
+                      <div class="text-nowrap">
+                        <small>{{ History.DATE }}</small>
+                        <div class="text-muted"><small>来自：{{ History.SOURCE or '' }}</small></div>
+                        <div class="text-muted"><small>转移方式：{{ History.SYNC_MODE }}</small></div>
+                      </div>
                     </td>
                     <td>
                       <div class="dropdown">
@@ -157,7 +160,7 @@
                             重新识别
                           </a>
                           <a class="dropdown-item"
-                             href='javascript:rename_history("{{ History.TYPE }}", "{{ History.SOURCE_FILENAME }}", "{{ History.ID }}")'>
+                             href='javascript:rename_history("{{ History.TYPE }}", "{{ History.SOURCE_FILENAME }}", "{{ History.ID }}", "{{ History.RMT_MODE }}")'>
                             手动识别
                           </a>
                           <a class="dropdown-item text-danger"
@@ -227,8 +230,8 @@
   }
 
   //手动重新识别
-  function rename_history(type, path, id) {
-    show_manual_transfer_modal(2, path, '', type, '', id);
+  function rename_history(type, path, id, rmt_mode) {
+    show_manual_transfer_modal(2, path, rmt_mode, type, '', id);
   }
 
   //删除
