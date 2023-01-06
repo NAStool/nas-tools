@@ -480,7 +480,7 @@
       if (flag == "disable" || flag == "enable") {
         ajax_post("check_custom_words", { flag: flag, ids_info: ids_info }, function (ret) {
           if (ret.code == 0) {
-            navmenu('customwords');
+            navmenu(window.history.state.page, true);
           } else {
             show_fail_modal(ret.msg);
           }
@@ -495,7 +495,8 @@
     function delete_custom_word(id) {
       ajax_post("delete_custom_word", { id: id }, function (ret) {
         if (ret.code == 0) {
-          navmenu('customwords');
+          // window.history.go(0);
+          navmenu(window.history.state.page, true);
         }
       });
     }
@@ -611,7 +612,7 @@
       ajax_post("import_custom_words", { ids_info: ids_info, import_code: import_code }, function (ret) {
         if (ret.code == 0) {
           $("#import_groups_div").empty();
-          navmenu('customwords');
+          navmenu(window.history.state.page, true);
         } else {
           show_fail_modal(ret.msg, function() {
             $("#modal-import-custom-words-table").modal('show');
@@ -639,7 +640,7 @@
       $("#modal-add-custom-word-group").modal('hide');
       ajax_post("add_custom_word_group", { tmdb_id: tmdb_id, tmdb_type: tmdb_type }, function (ret) {
         if (ret.code == 0) {
-          navmenu('customwords');
+          navmenu(window.history.state.page, true);
         } else {
           show_fail_modal(ret.msg, function() {
             $("#modal-add-custom-word-group").modal('show');
@@ -654,7 +655,7 @@
         hide_confirm_modal();
         ajax_post("delete_custom_word_group", { gid: gid }, function (ret) {
           if (ret.code == 0) {
-            navmenu('customwords');
+            navmenu(window.history.state.page, true);
           } else {
             show_fail_modal(ret.msg);
           }
@@ -828,7 +829,7 @@
       $("#modal-set-custom-word").modal('hide');
       ajax_post("add_or_edit_custom_word", custom_word, function (ret) {
         if (ret.code == 0) {
-          navmenu('customwords');
+          navmenu(window.history.state.page, true);
         } else {
           show_fail_modal(ret.msg, function() {
             $("#modal-set-custom-word").modal('show');
