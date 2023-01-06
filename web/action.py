@@ -74,6 +74,7 @@ class WebAction:
             "get_site_favicon": self.__get_site_favicon,
             "restart": self.__restart,
             "update_system": self.__update_system,
+            "reset_db_version": self.__reset_db_version,
             "logout": self.__logout,
             "update_config": self.__update_config,
             "update_directory": self.__update_directory,
@@ -1122,6 +1123,18 @@ class WebAction:
             # 重启
             self.restart_server()
         return {"code": 0}
+
+    def __reset_db_version(self, data):
+        """
+        重置数据库版本
+        """
+        try:
+            self.dbhelper.drop_table("alembic_version")
+            return {"code": 0}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": str(e)}
+
 
     @staticmethod
     def __logout(data):

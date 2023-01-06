@@ -1951,6 +1951,10 @@ class DbHelper:
         return self._db.excute(sql)
 
     @DbPersist(_db)
+    def drop_table(self, table_name):
+        return self._db.excute(f"""DROP TABLE IF EXISTS {table_name}""")
+
+    @DbPersist(_db)
     def insert_userrss_task_history(self, task_id, title, downloader):
         """
         增加自定义RSS订阅任务的下载记录
