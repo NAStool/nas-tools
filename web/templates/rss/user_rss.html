@@ -455,7 +455,7 @@
     show_confirm_modal("删除订阅任务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_userrss_task", { "id": taskid }, function (ret) {
-        navmenu('user_rss');
+        window_history_refresh();
       });
     });
   }
@@ -509,7 +509,7 @@
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
       $("#add_or_edit_userrss_btn").attr("disabled", false);
-      navmenu('user_rss');
+      window_history_refresh();
     });
   }
 
@@ -517,7 +517,7 @@
   function run_userrss_now(id) {
     ajax_post("run_userrss", { "id": id }, function (ret) {
       show_success_modal("任务运行完成！", function () {
-        navmenu('user_rss');
+        window_history_refresh();
       });
     });
   }

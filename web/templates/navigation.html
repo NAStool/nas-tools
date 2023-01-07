@@ -1100,7 +1100,7 @@
     <input type="hidden" id="search_download_name">
     <div class="modal-content">
       <div class="modal-body">
-        <div class="modal-title" id="search_download_message">添加下载</div>
+        <div class="modal-title">添加下载</div>
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
@@ -1117,7 +1117,7 @@
             </div>
           </div>
         </div>
-        <form class="dropzone" id="torrent_file" action="/upload">
+        <form class="dropzone mt-2" id="torrent_files" action="/upload">
           <div class="fallback">
             <input name="file" type="file" accept="*.zip" />
           </div>
@@ -1126,6 +1126,7 @@
             <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
           </div>
         </form>
+        <textarea class="form-control mt-2" id="torrent_magnets" rows="8" placeholder="magnet:?xt=urn:btih:xxx，换行添加多个磁链"></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -1929,10 +1930,10 @@
   }
 
   // 显示下载提示框
-  function show_download_modal(id, name, func=undefined, show_file=false) {
+  function show_download_modal(id, name, func=undefined, show_type=undefined) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
-    $("#search_download_message").text("新增下载 " + name);
+    $("#search_download_message").text(`新增下载 ${name}`);
     // 根据下载设置刷新下载目录选项
     refresh_search_download_setting_dirs();
     // 绑定下载按钮事件
@@ -1941,10 +1942,18 @@
     }else{
       $("#search_download_btn").unbind("click").click(download_link);
     }
-    if (show_file) {
-      $("#torrent_file").show();
+    // 清空
+    torrent_dropzone.removeAllFiles();
+    $("#torrent_magnets").val("");
+    if (show_type == 'torrent') {
+      $("#torrent_files").show();
+      $("#torrent_magnets").hide();
+    } else if (show_type == 'magnet') {
+      $("#torrent_magnets").show();
+      $("#torrent_files").hide();
     } else {
-      $("#torrent_file").hide();
+      $("#torrent_files").hide();
+      $("#torrent_magnets").hide();
     }
     $("#modal-search-download").modal('show');
   }
@@ -2408,6 +2417,12 @@
   //当前页面地址
   let CURRENT_PAGE_URI = "";
 
+  function window_history_refresh() {
+    if (window.history.state?.page) {
+      navmenu(window.history.state.page, true);
+    }
+  }
+
   function window_history(newflag=false){
     const state = {
       title: document.title,
@@ -2424,10 +2439,12 @@
   }
 
   //导航点击
-  function navmenu(page) {
-    // 更新当前历史记录
-    window_history();
-    // 主动点击时清除页码
+  function navmenu(page, newflag=false) {
+    if (!newflag) {
+      // 更新当前历史记录
+      window_history();
+    }
+    // 主动点击时清除页码, 刷新页面也需要清除
     sessionStorage.removeItem("CurrentPage");
 
     $("#navbar-menu li").find("a").removeClass("active").each(function () {
@@ -2436,7 +2453,7 @@
         if ($(this).hasClass('dropdown-item')) {
           $(this).parent().addClass("show");
         }
-      }
+      } 
     });
     $("#navbar-menu").collapse('hide');
     $(".page-wrapper").unbind('scroll');
@@ -2455,7 +2472,7 @@
         CURRENT_PAGE_URI = page;
       }
       // 并记录当前历史记录
-      window_history(true);
+      window_history(!newflag);
     });
   }
 
@@ -2718,7 +2735,7 @@
     updateMenuListHeight()
 
     // 初始化DropZone
-    torrent_dropzone = new Dropzone("#torrent_file");
+    torrent_dropzone = new Dropzone("#torrent_files");
     torrent_dropzone.options.acceptedFiles = ".torrent";
 
     // 单选框事件
@@ -2737,6 +2754,9 @@
     const go_page = "{{ GoPage }}";
     if (go_page) {
       navmenu(go_page);
+    } else if (window.history.state?.page) {
+      //console.log("刷新页面");
+      window_history_refresh();
     } else {
       // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');

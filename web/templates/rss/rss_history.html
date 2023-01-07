@@ -121,7 +121,7 @@
   //删除订阅历史
   function delete_rss_history(rssid) {
     ajax_post("delete_rss_history", {"rssid": rssid}, function (ret) {
-      navmenu('rss_history?t={{ Type }}');
+      window_history_refresh();
     });
   }
 </script>

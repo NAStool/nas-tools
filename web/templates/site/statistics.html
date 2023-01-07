@@ -893,7 +893,7 @@
       let theme = localStorage.getItem("tablerTheme");
       let pic_bgcolor = '';
       let card_bgcolor = '';
-      if (theme === "light") {
+      if (!theme || theme === "light") {
        pic_bgcolor = '#ffffff';
        card_bgcolor = '#f8fafc';
       } else {

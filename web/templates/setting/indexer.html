@@ -230,7 +230,7 @@
     currType = type;
     let params = {};
     if (type !== "builtin") {
-      params = input_GetInputVal("modal-${type}");
+      params = input_GetInputVal(`modal-${type}`);
       $(`#modal-${type} textarea`).each(function () {
         const key = $(this).attr("id");
         params[key] = $(this).val();
@@ -248,7 +248,7 @@
   function save_indexer_config(type) {
     $(`#modal-${type}`).modal('hide');
     save_config(type, function (ret) {
-      navmenu('indexer');
+      window_history_refresh();
     });
   }
 

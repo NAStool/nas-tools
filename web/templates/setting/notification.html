@@ -411,7 +411,7 @@
       ajax_post("update_message_client", params, function (ret) {
         $("#modal-message-client").modal('hide');
         $("#add_or_edit_message_client_btn").attr("disabled", false);
-        navmenu('notification');
+        window_history_refresh();
       });
     } else if (action === "test") {
       $("#test_message_client_btn").text("测试中").attr("disabled", true);
@@ -430,7 +430,7 @@
   function check_message_client(flag, cid, checked, type) {
     ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked, type: type}, function (ret) {
       if (ret.code === 0) {
-        navmenu('notification');
+        window_history_refresh();
       }
     });
   }
@@ -440,7 +440,7 @@
     show_confirm_modal("删除消息服务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_message_client", {"cid": cid}, function (ret) {
-        navmenu('notification');
+        window_history_refresh();
       });
     });
   }

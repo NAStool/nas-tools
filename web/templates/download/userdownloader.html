@@ -225,7 +225,7 @@
         }
       } else {
         $("#modal-add-downloader").modal('hide');
-        navmenu('userdownloader');
+        window_history_refresh();
       }
     });
   }
@@ -236,7 +236,7 @@
       hide_ask_modal();
       const params = {"id": id};
       ajax_post("delete_downloader", params, function (ret) {
-        navmenu('userdownloader');
+        window_history_refresh();
       });
     });
   }

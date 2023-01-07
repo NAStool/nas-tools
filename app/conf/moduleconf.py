@@ -449,3 +449,19 @@ class ModuleConf(object):
         "qyapi.weixin.qq.com",
         "www.opensubtitles.org"
     ]
+
+    # 根据Enum的value查询name
+    @staticmethod
+    def get_enum_name(enum, value):
+        for k, v in enum.__members__.items():
+            if v.value == value:
+                return k
+        return None
+
+    # 根据Enum dict的value查询key
+    @staticmethod
+    def get_dictenum_key(dictenum, value):
+        for k, v in dictenum.items():
+            if v.value == value:
+                return k
+        return None

@@ -221,7 +221,7 @@
   function save_mediaserver_config(type) {
     $("#modal-" + type).modal('hide');
     save_config(type, function (ret) {
-      navmenu('mediaserver');
+      window_history_refresh();
     });
   }
 

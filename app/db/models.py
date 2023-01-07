@@ -523,6 +523,7 @@ class TRANSFERUNKNOWN(Base):
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     PATH = Column(Text, index=True)
     DEST = Column(Text)
+    MODE = Column(Text)
     STATE = Column(Text, index=True)
 
 

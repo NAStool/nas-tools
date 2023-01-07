@@ -466,7 +466,7 @@
   //删除站点
   function del_site(tid) {
     ajax_post("del_site", { "id": tid }, function (ret) {
-      navmenu('site');
+      window_history_refresh();
     });
   }
 
@@ -549,7 +549,7 @@
       $("#add_or_edit_site_btn").attr("disabled", false).text("新增");
       $("#modal-site").modal("hide");
       //刷新页面
-      navmenu('site');
+      window_history_refresh();
     });
   }
 

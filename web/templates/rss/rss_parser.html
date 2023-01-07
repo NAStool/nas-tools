@@ -195,7 +195,7 @@
     };
     ajax_post("update_rssparser", params, function (ret) {
       $("#modal-userrss-parser").modal('hide');
-      navmenu('rss_parser');
+      window_history_refresh();
     });
   }
 
@@ -205,7 +205,7 @@
       hide_ask_modal();
       const params = {"id": id};
       ajax_post("delete_rssparser", params, function (ret) {
-        navmenu('rss_parser');
+        window_history_refresh();
       });
     });
   }
