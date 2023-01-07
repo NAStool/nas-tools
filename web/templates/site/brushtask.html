@@ -709,7 +709,7 @@
     show_confirm_modal("删除刷流任务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("del_brushtask", {"id": brushid}, function (ret) {
-        navmenu('brushtask');
+        window_history_refresh();
       });
     });
   }
@@ -975,7 +975,7 @@
 
     ajax_post("add_brushtask", params, function (ret) {
       $("#modal-brushtask").modal('hide');
-      navmenu('brushtask');
+      window_history_refresh();
     });
   }
 
@@ -990,7 +990,7 @@
   function run_brushtask_now(id) {
     ajax_post("run_brushtask", {"id": id}, function (ret) {
       show_success_modal("任务运行完成！", function () {
-        navmenu('brushtask');
+        window_history_refresh();
       });
     });
   }

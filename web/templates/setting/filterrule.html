@@ -407,14 +407,14 @@
       "init_rulegroups": init_rulegroups
     }, function (ret) {
       $("#modal-restore-filtergroup").modal('hide');
-      navmenu('filterrule');
+      window_history_refresh();
     });
   }
 
   // 设置默认规则组
   function set_default_filtergroup(id) {
     ajax_post("set_default_filtergroup", {"id": id}, function (ret) {
-      navmenu('filterrule');
+      window_history_refresh();
     });
   }
 
@@ -460,7 +460,7 @@
     ajax_post("add_filtergroup", params, function (ret) {
       if (ret.code == 0) {
         $("#modal-add-filtergroup").modal('hide');
-        navmenu('filterrule');
+        window_history_refresh();
       }
     });
   }
@@ -470,7 +470,7 @@
     show_confirm_modal("删除规则组后，该组下所有的规则将会同时被删除，是否确认删除 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("del_filtergroup", {"id": id}, function (ret) {
-        navmenu('filterrule');
+        window_history_refresh();
       });
     });
   }
@@ -510,7 +510,7 @@
     ajax_post("add_filterrule", params, function (ret) {
       if (ret.code == 0) {
         $("#modal-add-filterrule").modal('hide');
-        navmenu('filterrule');
+        window_history_refresh();
       }
     });
   }
@@ -520,7 +520,7 @@
     const params = {"id": id};
     ajax_post("del_filterrule", params, function (ret) {
       $("#modal-add-filterrule").modal('hide');
-      navmenu('filterrule');
+      window_history_refresh();
     });
   }
 
@@ -561,7 +561,7 @@
     $("#modal-import-filtergroup").modal('hide');
     ajax_post("import_filtergroup", {"content": content}, function (ret) {
       if (ret.code == 0) {
-        navmenu('filterrule');
+        window_history_refresh();
       } else {
         show_fail_modal(`规则导入失败：${ret.msg}`, function () {
           $("#modal-import-filtergroup").modal('show');

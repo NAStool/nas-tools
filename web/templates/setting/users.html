@@ -179,7 +179,7 @@
     $("#modal-user").modal('hide');
     const params = {"oper": "add", "name": name, "password": password, "pris": pris};
     ajax_post("user_manager", params, function (ret) {
-      navmenu('users');
+      window_history_refresh();
     });
   }
 
@@ -187,7 +187,7 @@
   function delete_user(name) {
     const params = {"oper": "del", "name": name};
     ajax_post("user_manager", params, function (ret) {
-      navmenu('users');
+      window_history_refresh();
     });
   }
 </script>

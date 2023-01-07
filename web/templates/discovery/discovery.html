@@ -74,15 +74,18 @@
       }
       // 获取数据
       if (slide.type && slide.type != "media_server"){
-        // 判断media_slide组件是否需要获取数据
-        if (media_slide?.is_placeholder()){
-          ajax_post("get_recommend", { "type": slide.type, "page": 1 }, function (ret) {
-            if (ret.Items.length > 0){
-              // 更新组件内容
-              media_slide.update_slide_card(ret.Items, slide.type);
-            }
-          });
-        }
+        // 需要确保自定义组件已经被浏览器初始化成功, 因为要调用组件内部的自定义方法
+        window.customElements.whenDefined("media-slide").then(function(){
+          // 判断media_slide组件是否需要获取数据
+          if (media_slide?.is_placeholder()){
+            ajax_post("get_recommend", { "type": slide.type, "page": 1 }, function (ret) {
+              if (ret.Items.length > 0){
+                // 更新组件内容
+                media_slide.update_slide_card(ret.Items, slide.type);
+              }
+            });
+          }
+        })
       }
     }
   }
