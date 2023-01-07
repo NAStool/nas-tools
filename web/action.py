@@ -1470,6 +1470,7 @@ class WebAction:
             vote_average = rssinfo[rssid].get("vote")
             year = rssinfo[rssid].get("year")
             release_date = rssinfo[rssid].get("release_date")
+            link_url = Media().get_detail_url(mtype=media_type, tmdbid=rssinfo[rssid].get("tmdbid"))
             if overview and poster_path:
                 rssid_ok = True
 
