@@ -423,7 +423,7 @@
   function save_downloader_config(type) {
     $("#modal-" + type).modal('hide');
     save_config(type, function (ret) {
-      navmenu('downloader');
+      window_history_refresh();
     });
   }
 
@@ -486,7 +486,7 @@
       });
     });
     ajax_post("update_config", {downloaddir: download_dir}, function () {
-      navmenu('downloader');
+      window_history_refresh();
     });
 
   }

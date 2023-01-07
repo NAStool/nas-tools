@@ -248,7 +248,7 @@
   function save_indexer_config(type) {
     $(`#modal-${type}`).modal('hide');
     save_config(type, function (ret) {
-      navmenu('indexer');
+      window_history_refresh();
     });
   }
 

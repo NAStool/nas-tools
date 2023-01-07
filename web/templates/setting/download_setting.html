@@ -355,7 +355,7 @@
     ajax_post("update_download_setting", params, function (ret) {
       $("#modal-download-setting").modal('hide');
       $("#add_or_edit_download_setting_btn").text("保存").attr("disabled", false);
-      navmenu('download_setting');
+      window_history_refresh();
     });
   }
 
@@ -364,7 +364,7 @@
     show_confirm_modal("删除下载设置 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_download_setting", { "sid": sid }, function (ret) {
-        navmenu('download_setting');
+        window_history_refresh();
       });
     });
   }
@@ -376,7 +376,7 @@
       'value': sid
     };
     ajax_post("set_system_config", params, function (ret) {
-      navmenu('download_setting');
+      window_history_refresh();
     });
   }
 

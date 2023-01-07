@@ -224,7 +224,7 @@
     const params = {"oper": "add", "key": "media." + type + "_path", "value": value};
     $("#modal-dirctory").modal('hide');
     ajax_post("update_directory", params, function (ret) {
-      navmenu('library');
+      window_history_refresh();
     });
   }
 
@@ -232,7 +232,7 @@
   function sub_directory_config(type, value) {
     const params = {"oper": "sub", "key": "media." + type + "_path", "value": value};
     ajax_post("update_directory", params, function (ret) {
-      navmenu('library');
+      window_history_refresh();
     });
   }
 </script>

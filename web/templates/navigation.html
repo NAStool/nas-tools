@@ -2433,6 +2433,12 @@
   //当前页面地址
   let CURRENT_PAGE_URI = "";
 
+  function window_history_refresh() {
+    if (window.history.state?.page) {
+      navmenu(window.history.state.page, true);
+    }
+  }
+
   function window_history(newflag=false){
     const state = {
       title: document.title,
@@ -2780,10 +2786,7 @@
       navmenu(go_page);
     } else if (window.history.state?.page) {
       //console.log("刷新页面");
-      // 延迟触发调整, 自定义组件的页面不知为何会异常, 大概率是需要再研究一下它的生命周期等等
-      setTimeout(function(){
-        navmenu(window.history.state.page, true);
-      }, 200);
+      window_history_refresh();
     } else {
       // 打开第一个页面
       $("#navbar-menu").find("a[onclick]").first().trigger('click');

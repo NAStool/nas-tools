@@ -109,7 +109,7 @@
 
   function remove_pt_download(id) {
     ajax_post("pt_remove", {"id": id}, function (ret) {
-      navmenu('downloading');
+      window_history_refresh();
     });
   }
 
@@ -178,7 +178,7 @@
         if (ret.code == 0) {
           torrent_dropzone.removeAllFiles();
           $("#torrent_magnets").val("");
-          navmenu('downloading');
+          window_history_refresh();
         } else {
           show_fail_modal(`添加下载失败：${ret.msg}`, function() {
             $("#modal-search-download").modal('show');

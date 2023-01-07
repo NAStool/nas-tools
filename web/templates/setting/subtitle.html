@@ -160,7 +160,7 @@
   function save_subtitle_config(type) {
     $("#modal-" + type).modal('hide');
     save_config(type, function (ret) {
-      navmenu('subtitle');
+      window_history_refresh();
     });
   }
 

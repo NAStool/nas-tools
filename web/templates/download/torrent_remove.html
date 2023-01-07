@@ -577,7 +577,7 @@
       $("#modal-torrent-remove-task").modal('hide');
       if (ret.code == 0) {
         $("#add_or_edit_torrent_remove_task_btn").text("保存").attr("disabled", false);
-        navmenu('torrent_remove');
+        window_history_refresh();
       } else {
         show_fail_modal(ret.msg, function () {
           $("#modal-torrent-remove-task").modal('show');
@@ -592,7 +592,7 @@
     show_confirm_modal("删除下载设置 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_torrent_remove_task", { "tid": tid }, function (ret) {
-        navmenu('torrent_remove');
+        window_history_refresh();
       });
     });
   }
@@ -645,7 +645,7 @@
   function run_torrent_remove_now(tid) {
     ajax_post("auto_remove_torrents", { "tid": tid }, function (ret) {
       show_success_modal("任务运行完成！", function () {
-        navmenu('torrent_remove');
+        window_history_refresh();
       });
     });
   }
