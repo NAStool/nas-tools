@@ -58,7 +58,7 @@ class Gotify(_IMessageClient):
             }
             res = RequestUtils(content_type="application/json").post_res(sc_url, json=sc_data)
             if res and res.status_code == 200:
-                return True, res.json()
+                return True, "发送成功"
             elif res:
                 return False, f"错误码：{res.status_code}"
             else:
