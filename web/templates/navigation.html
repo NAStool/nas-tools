@@ -144,7 +144,6 @@
                 <a href="javascript:update()" class="dropdown-item">更新</a>
               {% endif %}
             {% endif %}
-            <a href="javascript:reset_db_version()" class="dropdown-item">重置数据库版本</a>
             <a href="javascript:logout()" class="dropdown-item">注销</a>
           </div>
         </div>
@@ -448,7 +447,6 @@
                 <a href="javascript:update()" class="dropdown-item">更新</a>
               {% endif %}
             {% endif %}
-            <a href="javascript:reset_db_version()" class="dropdown-item">重置数据库版本</a>
             <a href="javascript:logout()" class="dropdown-item">注销</a>
           </div>
         </div>
@@ -2653,20 +2651,6 @@
       }, true, false)
       show_wait_modal(true);
       setTimeout("check_system_online()", 5000);
-    });
-  }
-
-  // 重置数据库版本
-  function reset_db_version() {
-    show_confirm_modal("是否确认重置数据库版本？", function () {
-      hide_confirm_modal();
-      ajax_post("reset_db_version", {}, function (ret) {
-        if (ret.code === 0) {
-          show_success_modal("重置成功！请重启系统")
-        } else {
-          show_fail_modal(`重置失败！${ret.msg}`);
-        }
-      }, true, false)
     });
   }
 
