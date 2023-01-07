@@ -19,13 +19,9 @@ def MetaInfo(title, subtitle=None, mtype=None):
     """
 
     # 应用自定义识别词
-    if subtitle and title not in subtitle:
-        name = f'{title}@@@{subtitle}'
-        name, msg, used_info = WordsHelper().process(name)
-        title = name.split('@@@')[0]
-        subtitle = name.split('@@@')[-1]
-    else:
-        title, msg, used_info = WordsHelper().process(title)
+    title, msg, used_info = WordsHelper().process(title)
+    if subtitle:
+        subtitle, _, _ = WordsHelper().process(subtitle)
 
     if msg:
         for msg_item in msg:

@@ -607,7 +607,7 @@
     // 导入选择的识别词
     function import_custom_words() {
       const import_code = $("#import_code").val();
-      let ids_info = select_GetSelectedVAL("import_custom_words");
+      let ids_info = select_GetSelectedVAL("^import_custom_words");
       $("#modal-import-custom-words-table").modal('hide');
       ajax_post("import_custom_words", { ids_info: ids_info, import_code: import_code }, function (ret) {
         if (ret.code == 0) {
