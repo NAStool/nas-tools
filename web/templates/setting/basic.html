@@ -50,9 +50,28 @@
                          placeholder="127.0.0.1:514" autocomplete="off">
                 </div>
               </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">日志级别 <span class="form-help"
+                                                               title="一般情况下请选择INFO，排查问题可选择DEBUG"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="app.wallpaper">
+                    <option value="info"
+                      {% if not Config.app.loglevel or Config.app.loglevel=='info' %}selected{% endif %}>
+                      INFO
+                    </option>
+                    <option value="debug" {% if Config.app.wallpaper=='debug' %}selected{% endif %}>
+                      DEBUG
+                    </option>
+                    <option value="error" {% if Config.app.wallpaper=='error' %}selected{% endif %}>
+                      ERROR
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div class="row">
-              <div class="col-xl-2">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB壁纸来源 <span class="form-help"
                                                                title="登录界面壁纸来源：TMDB、Bing，设置为TMDB时需在媒体配置TMDB API Key"
@@ -60,29 +79,29 @@
                   <select class="form-select" id="app.wallpaper">
                     <option value="themoviedb"
                       {% if not Config.app.wallpaper or Config.app.wallpaper=='themoviedb' %}selected{% endif %}>
-                      TMDB
+                      电影海报
                     </option>
                     <option value="bing" {% if Config.app.wallpaper=='bing' %}selected{% endif %}>
-                      Bing
+                      Bing每日壁纸
                     </option>
                   </select>
                 </div>
               </div>
-              <div class="col-xl-2">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB服务端口</label>
                   <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port"
                          placeholder="3000" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理用户</label>
                   <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user"
                          placeholder="admin" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理密码</label>
                   <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control"
@@ -115,9 +134,7 @@
                          placeholder="127.0.0.1:7890" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">外网访问地址 <span class="form-help"
                                                                title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443"
@@ -126,7 +143,9 @@
                          placeholder="http://IP:PORT" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg-8">
+            </div>
+            <div class="row">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">User-Agent <span class="form-help"
                                                              title="如发现被豆瓣、PT站等封堵，请适当修改此项"
