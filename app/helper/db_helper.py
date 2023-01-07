@@ -1851,9 +1851,9 @@ class DbHelper:
                 NOTE=item.get("free")
             ))
 
-    def get_userrss_tasks(self, taskid=None):
-        if taskid:
-            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(taskid)).all()
+    def get_userrss_tasks(self, tid=None):
+        if tid:
+            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()
         else:
             return self._db.query(CONFIGUSERRSS).all()
 
@@ -1912,6 +1912,14 @@ class DbHelper:
                 SAVE_PATH=item.get("save_path"),
                 DOWNLOAD_SETTING=item.get("download_setting"),
             ))
+
+    def insert_userrss_mediainfo(self, tid=None, note=None):
+        if not tid or not note:
+            return
+        self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
+            {
+                "NOTE": note,
+            })
 
     def get_userrss_parser(self, pid=None):
         if pid:

@@ -8,7 +8,7 @@ import time
 import traceback
 import urllib
 import xml.dom.minidom
-from functools import wraps
+from functools import wraps, reduce
 from math import floor
 from pathlib import Path
 from threading import Lock
@@ -339,6 +339,12 @@ def rss_calendar():
         "season": int(str(tv.get('season')).replace("S", "")),
         "name": tv.get("name"),
     } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
+    RssChecker().init_config()
+    UserrssTVTitems = [mediainfo
+                       for taskinfo in RssChecker().get_rsstask_info() if taskinfo.get('mediainfo')
+                       for mediainfo in taskinfo.get("mediainfo")]
+    RssTvItems += UserrssTVTitems
+    RssTvItems = reduce(lambda x, y: y in x and x or x + [y], RssTvItems, [])
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,

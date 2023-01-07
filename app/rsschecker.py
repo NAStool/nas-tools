@@ -84,12 +84,14 @@ class RssChecker(object):
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = task.NOTE
-            if str(note).find('seeding_time_limit') != -1:
+            note = json.loads(task.NOTE) if task.NOTE else {}
+            save_path = ""
+            if isinstance(note, dict) and note.get("seeding_time_limit"):
                 note = json.loads(task.NOTE)
                 save_path = note.get("save_path")
-            else:
+            elif isinstance(note, str):
                 save_path = note
+                note = {}
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -108,7 +110,8 @@ class RssChecker(object):
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
-                "recognization": json.loads(task.NOTE).get("recognization") or "Y" if task.NOTE else "Y",
+                "recognization": note.get("recognization") or "Y" if note else "Y",
+                "mediainfo": note.get("mediainfo") or [] if note else [],
             })
         if not self._rss_tasks:
             return
@@ -274,6 +277,37 @@ class RssChecker(object):
                             if not media_info.tmdb_info:
                                 media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
                                                                                   tmdbid=media_info.tmdb_id))
+                            # TMDB信息插入订阅任务
+                            if media_info.type != MediaType.MOVIE:
+                                tmdbid = str(media_info.tmdb_id)
+                                season = int(media_info.get_season_seq())
+                                name = media_info.title
+                                if taskinfo.get("mediainfo"):
+                                    mediainfos = taskinfo.get("mediainfo")
+                                    insert_flag = True
+                                    for mediainfo in mediainfos:
+                                        if mediainfo.get("tmdbid") == tmdbid and mediainfo.get("season") == season:
+                                            insert_flag = False
+                                            break
+                                    if insert_flag:
+                                        mediainfos.append({
+                                            "id": tmdbid,
+                                            "rssid": "",
+                                            "season": season,
+                                            "name": name
+                                        })
+                                else:
+                                    mediainfos = [{
+                                        "id": tmdbid,
+                                        "rssid": "",
+                                        "season": season,
+                                        "name": name
+                                    }]
+                                note = json.dumps({
+                                    "recognization": taskinfo.get("recognization"),
+                                    "mediainfo": mediainfos
+                                })
+                                self.dbhelper.insert_userrss_mediainfo(taskid, note)
                         else:
                             log.info(f"【RssChecker】{title}  匹配成功")
                 else:
