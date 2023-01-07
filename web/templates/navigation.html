@@ -1462,7 +1462,7 @@
       if (func) {
         func();
       } else if (ret.page) {
-        navmenu(ret.page);
+        window_history_refresh();
       } else {
         show_success_modal(ret.name + " 已从订阅中移除！");
       }
@@ -1474,7 +1474,7 @@
     hide_mediainfo_modal();
     ajax_post("refresh_rss", {"type": type, "rssid": rssid, "page": page}, function (ret) {
       if (ret.page) {
-        navmenu(ret.page);
+        window_history_refresh();
       } else {
 
       }
@@ -1619,10 +1619,8 @@
     $("#modal-manual-rss").modal("hide");
     ajax_post("add_rss_media", data, function (ret) {
       if (ret.code === 0) {
-        if (CURRENT_PAGE_URI.startsWith("tv_rss")) {
-          navmenu("tv_rss");
-        } else if (CURRENT_PAGE_URI.startsWith("movie_rss")) {
-          navmenu("movie_rss");
+        if (CURRENT_PAGE_URI.startsWith("tv_rss") || CURRENT_PAGE_URI.startsWith("movie_rss")) {
+          window_history_refresh();
         } else {
           show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！");
         }
