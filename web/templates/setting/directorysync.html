@@ -242,7 +242,7 @@
     $("#modal-directory").modal('hide');
     ajax_post("add_or_edit_sync_path", params, function (ret) {
       if (ret.code == 0) {
-        navmenu('directorysync');
+        window_history_refresh();
       } else {
         show_fail_modal(ret.msg, function () {
           $("#modal-directory").modal('show');
@@ -255,7 +255,7 @@
   function delete_sync_path(sid) {
     ajax_post("delete_sync_path", {sid: sid}, function (ret) {
       if (ret.code == 0) {
-        navmenu('directorysync');
+        window_history_refresh();
       }
     });
   }
@@ -264,7 +264,7 @@
   function check_sync_path(flag, sid, checked) {
     ajax_post("check_sync_path", {flag: flag, sid: sid, checked: checked}, function (ret) {
       if (ret.code == 0) {
-        navmenu('directorysync');
+        window_history_refresh();
       }
     });
   }

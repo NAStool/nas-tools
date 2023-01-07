@@ -247,7 +247,7 @@
     show_confirm_modal(`${name} 对应${msg}文件将被同步删除，是否确认？`, function () {
       hide_confirm_modal();
       ajax_post("delete_history", {"flag": flag, "logids": logids}, function (ret) {
-        navmenu('history');
+        window_history_refresh();
       });
     });
   }
