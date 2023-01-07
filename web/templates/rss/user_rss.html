@@ -322,7 +322,7 @@
             <div class="mb-3">
               <label class="form-label">下载设置</label>
               <select class="form-select" id="userrss_download_setting">
-                <option value="0">默认</option>
+                <option value="">默认</option>
                 {% for Id, Attr in DownloadSettings.items() %}
                 <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                 {% endfor %}

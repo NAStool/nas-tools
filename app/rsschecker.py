@@ -107,7 +107,7 @@ class RssChecker(object):
                 "counter": task.PROCESS_COUNT,
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
-                "download_setting": task.DOWNLOAD_SETTING or 0,
+                "download_setting": task.DOWNLOAD_SETTING or "",
                 "recognization": json.loads(task.NOTE).get("recognization") or "Y" if task.NOTE else "Y",
             })
         if not self._rss_tasks:
