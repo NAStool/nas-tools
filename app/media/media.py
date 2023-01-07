@@ -1332,3 +1332,17 @@ class Media:
             target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
             target[title][index]["episodes"] = target_episodes
         return target
+
+    @staticmethod
+    def get_detail_url(mtype, tmdbid):
+        """
+        获取TMDB/豆瓣详情页地址
+        """
+        if not tmdbid:
+            return ""
+        if str(tmdbid).startswith("DB:"):
+            return "https://movie.douban.com/subject/%s" % str(tmdbid).replace("DB:", "")
+        elif mtype == MediaType.MOVIE:
+            return "https://www.themoviedb.org/movie/%s" % tmdbid
+        else:
+            return "https://www.themoviedb.org/tv/%s" % tmdbid
