@@ -1129,7 +1129,8 @@ class FileTransfer:
         if not media:
             return {}
         episode_title = self.media.get_episode_title(media)
-        en_title = self.media.get_tmdb_en_title(media)
+        # 此处使用独立对象，避免影响语言
+        en_title = Media().get_tmdb_en_title(media)
         return {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(en_title),
