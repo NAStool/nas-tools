@@ -11,13 +11,23 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:show_torrent_download_modal()" class="btn btn-primary d-none d-sm-inline-block">
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-none d-sm-inline-block dropdown-toggle">
             {{ SVG.plus() }}
             新增下载
-          </a>
-          <a href="javascript:show_torrent_download_modal()" class="btn btn-primary d-sm-none btn-icon">
+          </button>
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-sm-none btn-icon dropdown-toggle">
             {{ SVG.plus() }}
-          </a>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item" onclick="show_torrent_download_modal('torrent')">
+              种子文件
+            </button>
+            <button class="dropdown-item" onclick="show_torrent_download_modal('magnet')">
+              磁力链接
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -159,7 +169,7 @@
   }
 
   //显示新增下载界面
-  function show_torrent_download_modal() {
+  function show_torrent_download_modal(type) {
     show_download_modal('', '', function(){
       let magnet = $("#torrent_magnets").val();
       if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0] && !magnet) {
@@ -185,7 +195,7 @@
           });
         }
       });
-    }, true);
+    }, type);
   }
 
   //事件

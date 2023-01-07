@@ -1102,21 +1102,7 @@
     <input type="hidden" id="search_download_name">
     <div class="modal-content">
       <div class="modal-body">
-        <div class="modal-title row">
-          <div class="col">
-            <span id="search_download_message">添加下载</span>
-          </div>
-          <div class="col-auto">
-            <a href="javascript:void(0)" id="torrent_files_btn" onclick="change_torrent_files_or_magnets('magnets')">
-              {{ SVG.link() }}
-              磁链
-            </a>
-            <a href="javascript:void(0)" id="torrent_magnets_btn" onclick="change_torrent_files_or_magnets('files')">
-              {{ SVG.file_info() }}
-              种子
-            </a>
-          </div>
-        </div>
+        <div class="modal-title">添加下载</div>
         <div class="row mt-3">
           <div class="col-md">
             <div class="form-floating mb-1">
@@ -1142,7 +1128,7 @@
             <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
           </div>
         </form>
-        <textarea class="form-control mt-2" id="torrent_magnets" rows="8" placeholder="magnet:?xt=urn:btih:xxx，\n换行添加多个磁链"></textarea>
+        <textarea class="form-control mt-2" id="torrent_magnets" rows="8" placeholder="magnet:?xt=urn:btih:xxx，换行添加多个磁链"></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -1946,7 +1932,7 @@
   }
 
   // 显示下载提示框
-  function show_download_modal(id, name, func=undefined, show_file=false) {
+  function show_download_modal(id, name, func=undefined, show_type=undefined) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
     $("#search_download_message").text(`新增下载 ${name}`);
@@ -1958,20 +1944,20 @@
     }else{
       $("#search_download_btn").unbind("click").click(download_link);
     }
-    if (show_file) {
-      torrent_dropzone.removeAllFiles();
-      $("#torrent_magnets").val("");
-      change_torrent_files_or_magnets('files')
+    // 清空
+    torrent_dropzone.removeAllFiles();
+    $("#torrent_magnets").val("");
+    if (show_type == 'torrent') {
+      $("#torrent_files").show();
+      $("#torrent_magnets").hide();
+    } else if (show_type == 'magnet') {
+      $("#torrent_magnets").show();
+      $("#torrent_files").hide();
     } else {
-      $("[id^='torrent_']").hide()
+      $("#torrent_files").hide();
+      $("#torrent_magnets").hide();
     }
     $("#modal-search-download").modal('show');
-  }
-
-  // 切换下载种子或者磁链
-  function change_torrent_files_or_magnets(flag) {
-    $("[id^='torrent_']").hide();
-    $(`[id^='torrent_${flag}']`).show()
   }
 
   //点击链接下载
