@@ -172,17 +172,21 @@
     } else {
       $("#rssparser_name").removeClass("is-invalid");
     }
-    const params = {
-      id: $("#rssparser_id").val(),
-      name: $("#rssparser_name").val(),
-      type: $("#rssparser_type").val(),
-      format: JSON.stringify(json_editor.get()),
-      params: $("#rssparser_params").val()
-    };
-    ajax_post("update_rssparser", params, function (ret) {
-      $("#modal-userrss-parser").modal('hide');
-      window_history_refresh();
-    });
+    try {
+      const params = {
+        id: $("#rssparser_id").val(),
+        name: $("#rssparser_name").val(),
+        type: $("#rssparser_type").val(),
+        format: JSON.stringify(json_editor.get()),
+        params: $("#rssparser_params").val()
+      };
+      ajax_post("update_rssparser", params, function (ret) {
+        $("#modal-userrss-parser").modal('hide');
+        window_history_refresh();
+      });
+    } catch(err) {
+        console.log(err);
+    }
   }
 
   // 删除下载器
@@ -203,7 +207,11 @@
       if (ret.code == 0) {
         $("#rssparser_name").val(ret.detail.name);
         $("#rssparser_type").val(ret.detail.type);
-        json_editor.set(JSON.parse(ret.detail.format));
+        try {
+          json_editor.set(JSON.parse(ret.detail.format));
+        } catch(err) {
+          console.log(err);
+        }
         $("#rssparser_params").val(ret.detail.params);
         $("#add_or_edit_rssparser_btn").text('保存');
         $("#modal-userrss-parser").modal('show');
