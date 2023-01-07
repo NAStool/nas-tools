@@ -37,6 +37,9 @@
       {% for Task in Tasks %}
       <div class="card">
         <div class="card-header">
+          <span class="badge bg-{% if Task.uses == "D" %}blue{% elif Task.uses == "R" %}orange{% elif Task.uses == "S" %}cyan{% endif %} badge-notification badge-pill">
+          {{ Task.uses_text }}
+          </span>
           {% if Task.state == 'Y' %}
           <span class="badge bg-green"></span>
           {% else %}
@@ -49,7 +52,12 @@
               {{ SVG.bolt('icon-filled') }}
             </a>
           </div>
+          {% if Task.uses == 'D' and Task.recognization == "Y" %}
+          <span class="badge bg-azure ms-auto">TMDB</span>
+          <div class="card-actions btn-actions" style="margin-left: unset">
+          {% else %}
           <div class="card-actions btn-actions">
+          {% endif %}
             <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action ms-1" title="展开/折叠">
               {{ SVG.menu_2() }}
             </a>
@@ -304,13 +312,13 @@
           </div>
         </div>
         <div class="row" id="downloader_setting_div">
-          <div class="col-lg-8">
+          <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">保存路径</label>
               <input type="text" id="userrss_save_path" class="form-control" placeholder="留空自动选择保存路径">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-3">
             <div class="mb-3">
               <label class="form-label">下载设置</label>
               <select class="form-select" id="userrss_download_setting">
@@ -318,6 +326,16 @@
                 {% for Id, Attr in DownloadSettings.items() %}
                 <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                 {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="userrss_recognization">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
               </select>
             </div>
           </div>
@@ -425,6 +443,7 @@
     show_userrss_uses('D');
     $("#userrss_save_path").val('');
     $("#userrss_download_setting").val('');
+    $("#userrss_recognization").val('Y');
     $("#modal-userrss").modal('show');
   }
 
@@ -445,6 +464,7 @@
         show_userrss_uses(ret.detail.uses);
         $("#userrss_save_path").val(ret.detail.save_path);
         $("#userrss_download_setting").val(ret.detail.download_setting);
+        $("#userrss_recognization").val(ret.detail.recognization);
         $("#modal-userrss").modal('show');
       }
     });
@@ -504,6 +524,7 @@
       state: $("#userrss_state").val(),
       save_path: $("#userrss_save_path").val(),
       download_setting: $("#userrss_download_setting").val(),
+      recognization: $("#userrss_recognization").val(),
     };
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {

@@ -2593,7 +2593,8 @@ class WebAction:
             "filterrule": data.get("filterrule"),
             "state": data.get("state"),
             "save_path": data.get("save_path"),
-            "download_setting": data.get("download_setting")
+            "download_setting": data.get("download_setting"),
+            "note": json.dumps({"recognization": data.get("recognization")})
         }
         if self.dbhelper.update_userrss_task(params):
             RssChecker().init_config()
