@@ -41,7 +41,7 @@ from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
-    SystemUtils, ExceptionUtils, Torrent, KVPrUtils
+    SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
@@ -516,6 +516,7 @@ class WebAction:
         """
         从种子文件添加下载
         """
+
         def __download(_media_info, _file_path):
             _media_info.site = "WEB"
             # 添加下载
@@ -1136,7 +1137,6 @@ class WebAction:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": str(e)}
 
-
     @staticmethod
     def __logout(data):
         """
@@ -1383,7 +1383,7 @@ class WebAction:
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
-                    rmt_mode = KVPrUtils().RmtMode_REVERSE.get(paths[0].MODE) if paths[0].MODE else None
+                    rmt_mode = ModuleConf.get_enum_name(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1406,7 +1406,7 @@ class WebAction:
                 if paths:
                     path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
-                    rmt_mode = KVPrUtils().RmtMode_REVERSE.get(paths[0].MODE) if paths[0].MODE else None
+                    rmt_mode = ModuleConf.get_enum_name(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:
@@ -3649,8 +3649,7 @@ class WebAction:
         for history in historys:
             history = history.as_dict()
             sync_mode = history.get("MODE")
-            rmt_mode = KVPrUtils().RMT_MODES_REVERSE.get(KVPrUtils().RmtMode_REVERSE.get(sync_mode)) \
-                if sync_mode else ""
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES, sync_mode) if sync_mode else ""
             history.update({
                 "SYNC_MODE": sync_mode,
                 "RMT_MODE": rmt_mode
@@ -3679,8 +3678,8 @@ class WebAction:
             path = rec.PATH.replace("\\", "/") if rec.PATH else ""
             path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
             sync_mode = rec.MODE or ""
-            rmt_mode = rmt_mode = KVPrUtils().RMT_MODES_REVERSE.get(KVPrUtils().RmtMode_REVERSE.get(sync_mode)) \
-                if sync_mode else ""
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES,
+                                                   sync_mode) if sync_mode else ""
             Items.append({
                 "id": rec.ID,
                 "path": path,
