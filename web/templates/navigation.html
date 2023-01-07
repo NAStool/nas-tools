@@ -2445,9 +2445,9 @@
     if (!newflag) {
       // 更新当前历史记录
       window_history();
-      // 主动点击时清除页码
-      sessionStorage.removeItem("CurrentPage");
     }
+    // 主动点击时清除页码, 刷新页面也需要清除
+    sessionStorage.removeItem("CurrentPage");
 
     $("#navbar-menu li").find("a").removeClass("active").each(function () {
       if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + page + "')")) {
