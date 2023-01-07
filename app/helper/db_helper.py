@@ -1893,7 +1893,8 @@ class DbHelper:
                     "STATE": item.get("state"),
                     "SAVE_PATH": item.get("save_path"),
                     "DOWNLOAD_SETTING": item.get("download_setting"),
-                    "NOTE": item.get("note")
+                    "RECOGNIZATION": item.get("recognization"),
+                    "NOTE": ""
                 }
             )
         else:
@@ -1911,14 +1912,15 @@ class DbHelper:
                 STATE=item.get("state"),
                 SAVE_PATH=item.get("save_path"),
                 DOWNLOAD_SETTING=item.get("download_setting"),
+                RECOGNIZATION=item.get("recognization")
             ))
 
-    def insert_userrss_mediainfo(self, tid=None, note=None):
-        if not tid or not note:
+    def insert_userrss_mediainfos(self, tid=None, mediainfos=None):
+        if not tid or not mediainfos:
             return
         self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
             {
-                "NOTE": note,
+                "MEDIAINFOS": json.dumps(mediainfos)
             })
 
     def get_userrss_parser(self, pid=None):

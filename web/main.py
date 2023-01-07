@@ -341,10 +341,11 @@ def rss_calendar():
     } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
     RssChecker().init_config()
     UserrssTVTitems = [mediainfo
-                       for taskinfo in RssChecker().get_rsstask_info() if taskinfo.get('mediainfo')
-                       for mediainfo in taskinfo.get("mediainfo")]
+                       for taskinfo in RssChecker().get_rsstask_info() if taskinfo.get('mediainfos')
+                       for mediainfo in taskinfo.get("mediainfos")]
     RssTvItems += UserrssTVTitems
     RssTvItems = reduce(lambda x, y: y in x and x or x + [y], RssTvItems, [])
+    print(RssTvItems)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,

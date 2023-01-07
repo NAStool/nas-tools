@@ -86,12 +86,14 @@ class RssChecker(object):
             # 兼容旧配置
             note = json.loads(task.NOTE) if task.NOTE else {}
             save_path = ""
-            if isinstance(note, dict) and note.get("seeding_time_limit"):
-                note = json.loads(task.NOTE)
-                save_path = note.get("save_path")
+            recognization = "Y"
+            if note and isinstance(note, dict):
+                if note.get("save_path"):
+                    save_path = note.get("save_path")
+                if note.get("recognization"):
+                    recognization = note.get("recognization")
             elif isinstance(note, str):
                 save_path = note
-                note = {}
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -110,8 +112,8 @@ class RssChecker(object):
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
-                "recognization": note.get("recognization") or "Y" if note else "Y",
-                "mediainfo": note.get("mediainfo") or [] if note else [],
+                "recognization": task.RECOGNIZATION or recognization,
+                "mediainfos": json.loads(task.MEDIAINFOS) if task.MEDIAINFOS else []
             })
         if not self._rss_tasks:
             return
@@ -282,8 +284,8 @@ class RssChecker(object):
                                 tmdbid = str(media_info.tmdb_id)
                                 season = int(media_info.get_season_seq())
                                 name = media_info.title
-                                if taskinfo.get("mediainfo"):
-                                    mediainfos = taskinfo.get("mediainfo")
+                                if taskinfo.get("mediainfos"):
+                                    mediainfos = taskinfo.get("mediainfos")
                                     insert_flag = True
                                     for mediainfo in mediainfos:
                                         if mediainfo.get("tmdbid") == tmdbid and mediainfo.get("season") == season:
@@ -303,11 +305,7 @@ class RssChecker(object):
                                         "season": season,
                                         "name": name
                                     }]
-                                note = json.dumps({
-                                    "recognization": taskinfo.get("recognization"),
-                                    "mediainfo": mediainfos
-                                })
-                                self.dbhelper.insert_userrss_mediainfo(taskid, note)
+                                self.dbhelper.insert_userrss_mediainfos(taskid, mediainfos)
                         else:
                             log.info(f"【RssChecker】{title}  匹配成功")
                 else:
