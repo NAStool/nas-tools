@@ -450,17 +450,40 @@ class ModuleConf(object):
         "www.opensubtitles.org"
     ]
 
-    # 根据Enum的value查询name
     @staticmethod
     def get_enum_name(enum, value):
-        for k, v in enum.__members__.items():
-            if v.value == value:
-                return k
+        """
+        根据Enum的value查询name
+        :param enum: 枚举
+        :param value: 枚举值
+        :return: 枚举名或None
+        """
+        for e in enum:
+            if e.value == value:
+                return e.name
         return None
 
-    # 根据Enum dict的value查询key
+    @staticmethod
+    def get_enum_item(enum, value):
+        """
+        根据Enum的value查询name
+        :param enum: 枚举
+        :param value: 枚举值
+        :return: 枚举项
+        """
+        for e in enum:
+            if e.value == value:
+                return e
+        return None
+
     @staticmethod
     def get_dictenum_key(dictenum, value):
+        """
+        根据Enum dict的value查询key
+        :param dictenum: 枚举字典
+        :param value: 枚举类（字典值）的值
+        :return: 字典键或None
+        """
         for k, v in dictenum.items():
             if v.value == value:
                 return k
