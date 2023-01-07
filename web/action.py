@@ -1383,7 +1383,7 @@ class WebAction:
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
-                    rmt_mode = ModuleConf.get_enum_name(RmtMode, paths[0].MODE) if paths[0].MODE else None
+                    rmt_mode = ModuleConf.get_enum_item(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1406,7 +1406,7 @@ class WebAction:
                 if paths:
                     path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
-                    rmt_mode = ModuleConf.get_enum_name(RmtMode, paths[0].MODE) if paths[0].MODE else None
+                    rmt_mode = ModuleConf.get_enum_item(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:
