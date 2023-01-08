@@ -5,6 +5,7 @@ import jsonpath
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
+from functools import reduce
 
 import log
 from app.downloader import Downloader
@@ -284,27 +285,16 @@ class RssChecker(object):
                                 tmdbid = str(media_info.tmdb_id)
                                 season = int(media_info.get_season_seq())
                                 name = media_info.title
+                                mediainfos = []
                                 if taskinfo.get("mediainfos"):
-                                    mediainfos = taskinfo.get("mediainfos")
-                                    insert_flag = True
-                                    for mediainfo in mediainfos:
-                                        if mediainfo.get("tmdbid") == tmdbid and mediainfo.get("season") == season:
-                                            insert_flag = False
-                                            break
-                                    if insert_flag:
-                                        mediainfos.append({
-                                            "id": tmdbid,
-                                            "rssid": "",
-                                            "season": season,
-                                            "name": name
-                                        })
-                                else:
-                                    mediainfos = [{
-                                        "id": tmdbid,
-                                        "rssid": "",
-                                        "season": season,
-                                        "name": name
-                                    }]
+                                    mediainfos += taskinfo.get("mediainfos")
+                                mediainfos.append({
+                                    "id": tmdbid,
+                                    "rssid": "",
+                                    "season": season,
+                                    "name": name
+                                })
+                                mediainfos = json.dumps(reduce(lambda x, y: y in x and x or x + [y], mediainfos, []))
                                 self.dbhelper.insert_userrss_mediainfos(taskid, mediainfos)
                         else:
                             log.info(f"【RssChecker】{title}  匹配成功")

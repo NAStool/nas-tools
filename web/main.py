@@ -345,7 +345,6 @@ def rss_calendar():
                        for mediainfo in taskinfo.get("mediainfos")]
     RssTvItems += UserrssTVTitems
     RssTvItems = reduce(lambda x, y: y in x and x or x + [y], RssTvItems, [])
-    print(RssTvItems)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
