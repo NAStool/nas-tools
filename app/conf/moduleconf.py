@@ -321,6 +321,28 @@ class ModuleConf(object):
                     }
                 }
             },
+            "chanify": {
+                "name": "Chanify",
+                "img_url": "../static/img/chanify.png",
+                "config": {
+                    "server": {
+                        "id": "chanify_server",
+                        "required": True,
+                        "title": "Chanify服务器地址",
+                        "tooltip": "自己搭建Chanify服务端地址或使用https://api.chanify.net",
+                        "type": "text",
+                        "placeholder": "https://api.chanify.net",
+                        "default": "https://api.chanify.net"
+                    },
+                    "token": {
+                        "id": "chanify_token",
+                        "required": True,
+                        "title": "令牌",
+                        "tooltip": "在Chanify客户端频道中获取",
+                        "type": "text"
+                    }
+                }
+            },
         },
         "switch": {
             "download_start": {
