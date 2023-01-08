@@ -94,6 +94,8 @@ class CONFIGUSERRSS(Base):
     STATE = Column(Text)
     SAVE_PATH = Column(Text)
     DOWNLOAD_SETTING = Column(Integer)
+    RECOGNIZATION = Column(Text)
+    MEDIAINFOS = Column(Text)
     NOTE = Column(Text)
 
 

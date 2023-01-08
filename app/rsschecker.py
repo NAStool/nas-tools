@@ -84,11 +84,15 @@ class RssChecker(object):
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = task.NOTE
-            if str(note).find('seeding_time_limit') != -1:
-                note = json.loads(task.NOTE)
-                save_path = note.get("save_path")
-            else:
+            note = json.loads(task.NOTE) if task.NOTE else {}
+            save_path = ""
+            recognization = "Y"
+            if note and isinstance(note, dict):
+                if note.get("save_path"):
+                    save_path = note.get("save_path")
+                if note.get("recognization"):
+                    recognization = note.get("recognization")
+            elif isinstance(note, str):
                 save_path = note
             self._rss_tasks.append({
                 "id": task.ID,
@@ -108,7 +112,7 @@ class RssChecker(object):
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
-                "recognization": json.loads(task.NOTE).get("recognization") or "Y" if task.NOTE else "Y",
+                "recognization": task.RECOGNIZATION or recognization
             })
         if not self._rss_tasks:
             return
@@ -274,6 +278,9 @@ class RssChecker(object):
                             if not media_info.tmdb_info:
                                 media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
                                                                                   tmdbid=media_info.tmdb_id))
+                            # TMDB信息插入订阅任务
+                            if media_info.type != MediaType.MOVIE:
+                                self.dbhelper.insert_userrss_mediainfos(taskid, media_info)
                         else:
                             log.info(f"【RssChecker】{title}  匹配成功")
                 else:
@@ -637,3 +644,12 @@ class RssChecker(object):
                     self.message.send_download_fail_message(media, ret_msg)
                 return False
         return True
+
+    def get_userrss_mediainfos(self):
+        taskinfos = self.dbhelper.get_userrss_tasks()
+        mediainfos_all = []
+        for taskinfo in taskinfos:
+            mediainfos = json.loads(taskinfo.MEDIAINFOS) if taskinfo.MEDIAINFOS else []
+            if mediainfos:
+                mediainfos_all += mediainfos
+        return mediainfos_all
