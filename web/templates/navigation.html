@@ -925,8 +925,9 @@
           取消订阅
         </a>
         <div class="btn-list">
-          <a href="javascript:add_rss_manual(true)" id="rss_add_btn" class="btn btn-secondary">添加并继续</a>
-          <a href="javascript:add_rss_manual(false)" id="rss_add_btn" class="btn btn-primary">添加</a>
+          <a href="javascript:add_rss_manual(true)" name="rss_add_btn" class="btn btn-secondary">添加并继续</a>
+          <a href="javascript:add_rss_manual(false)" name="rss_add_btn" class="btn btn-primary">添加</a>
+          <a href="javascript:add_rss_manual(false)" name="rss_edit_btn" class="btn btn-primary">确定</a>
         </div>
       </div>
     </div>
@@ -1688,7 +1689,7 @@
     remove_rss_media(name, year, type, rssid, page);
   }
 
-  //初始化订阅设置
+  // 新增订阅
   function show_add_rss_media_modal(mtype) {
     // 刷新下拉框
     refresh_rss_download_setting_dirs();
@@ -1734,7 +1735,9 @@
       select_SelectALL(false, "rss_sites");
       select_SelectALL(false, "search_sites");
     }
+    $("[name='rss_edit_btn']").hide();
     $("#rss_delete_btn").hide();
+    $("[name='rss_add_btn']").show();
     $("#modal-manual-rss").modal('show');
   }
 
@@ -1805,6 +1808,7 @@
         } else {
           select_SelectPart(ret.detail.search_sites, 'search_sites')
         }
+        $("[name='rss_add_btn']").hide();
         $("#rss_delete_btn").attr("href",
             `javascript:remove_rss_manual('${ret.detail.type}','${ret.detail.name}','${ret.detail.year}','${rssid}')`)
             .show();
