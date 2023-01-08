@@ -350,12 +350,12 @@ def rss_calendar():
     # 自定义订阅
     RssTvItems += RssChecker().get_userrss_mediainfos()
     # 电视剧订阅去重
-    Uniques = []
+    Uniques = set()
     UniqueTvItems = []
     for item in RssTvItems:
         unique = f"{item.get('id')}_{item.get('season')}"
         if unique not in Uniques:
-            Uniques.append(unique)
+            Uniques.add(unique)
             UniqueTvItems.append(item)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
