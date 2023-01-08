@@ -117,7 +117,7 @@
                         {% endif %}
                         {{ Result.description }}
                       </div>
-                      <div id="testresults_{{ loop.index0 }}" class="text-muted"></div>
+                      <custom-chips id="testresults_{{ loop.index0 }}" class="text-muted"></custom-chips>
                     </td>
                     <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
                     <td class="sort-size" data-size="{{ Result.size }}">

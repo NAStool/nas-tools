@@ -2124,17 +2124,17 @@
         content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
       }
     }
-    // 创建自定义chips组件
-    const my_chips = document.createElement("custom-chips");
+    $(`#${result_div}`).empty().append(content);
+
+    // 以下就是修改部分
+    // result_div 这个组件就是自定义chips组件
     // 需要确保自定义组件已经被浏览器初始化成功, 因为要调用组件内部的自定义方法
+    const my_chips = document.querySelector(`#${result_div}`);
     window.customElements.whenDefined("custom-chips").then(function(){
       // 希望chips按此数组的顺序生成..
       const sort_array = ["type","category","name","title","tmdbid","year","season_episode","part","restype","effect","pix","video_codec","audio_codec","team"]
       // 调用组件实例的自定义方法.. 一次性添加chips
       my_chips.add_chips_all(sort_array, data);
-      // [可修改] 此为未修改部分 还是老办法用拼接到想要加入的元素内
-      content += my_chips.innerHTML;
-      $(`#${result_div}`).empty().append(content);
     });
   }
 
