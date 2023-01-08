@@ -23,17 +23,15 @@ class Telegram(_IMessageClient):
     _telegram_user_ids = []
     _telegram_admin_ids = []
     _domain = None
-    _config = None
     _message_proxy_event = None
     _client_config = {}
     _interactive = False
     _enabled = True
 
     def __init__(self, config):
-        self._config = Config()
         self._client_config = config
         self._interactive = config.get("interactive")
-        self._domain = self._config.get_domain()
+        self._domain = Config().get_domain()
         if self._domain and self._domain.endswith("/"):
             self._domain = self._domain[:-1]
         self.init_config()
@@ -178,28 +176,29 @@ class Telegram(_IMessageClient):
             else:
                 return False, "未获取到返回信息"
 
+        proxies = Config().get_proxies()
         if image:
             # 发送图文消息
             values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
             sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self._telegram_token
-            res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
+            res = RequestUtils(proxies=proxies).get_res(sc_url + urlencode(values))
             flag, msg = _res_parse(res)
             if flag:
                 return flag, msg
             else:
-                photo_req = RequestUtils(proxies=self._config.get_proxies()).get_res(image)
+                photo_req = RequestUtils(proxies=proxies).get_res(image)
                 if photo_req and photo_req.content:
                     sc_url = "https://api.telegram.org/bot%s/sendPhoto" % self._telegram_token
                     data = {"chat_id": chat_id, "caption": caption, "parse_mode": "Markdown"}
                     files = {"photo": photo_req.content}
-                    res = requests.post(sc_url, proxies=self._config.get_proxies(), data=data, files=files)
+                    res = requests.post(sc_url, proxies=proxies, data=data, files=files)
                     flag, msg = _res_parse(res)
                     if flag:
                         return flag, msg
         # 发送文本消息
         values = {"chat_id": chat_id, "text": caption, "parse_mode": "Markdown"}
         sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self._telegram_token
-        res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
+        res = RequestUtils(proxies=proxies).get_res(sc_url + urlencode(values))
         flag, msg = _res_parse(res)
         return flag, msg
 
@@ -226,7 +225,7 @@ class Telegram(_IMessageClient):
                 self.__del_bot_webhook()
             values = {"url": self._webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self._telegram_token
-            res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url + urlencode(values))
+            res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url + urlencode(values))
             if res is not None:
                 json = res.json()
                 if json.get("ok"):
@@ -242,7 +241,7 @@ class Telegram(_IMessageClient):
         :return: 状态：1-存在且相等，2-存在不相等，3-不存在，0-网络出错
         """
         sc_url = "https://api.telegram.org/bot%s/getWebhookInfo" % self._telegram_token
-        res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url)
+        res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url)
         if res is not None and res.json():
             if res.json().get("ok"):
                 result = res.json().get("result") or {}
@@ -269,7 +268,7 @@ class Telegram(_IMessageClient):
         :return: 是否成功
         """
         sc_url = "https://api.telegram.org/bot%s/deleteWebhook" % self._telegram_token
-        res = RequestUtils(proxies=self._config.get_proxies()).get_res(sc_url)
+        res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url)
         if res and res.json() and res.json().get("ok"):
             return True
         else:
