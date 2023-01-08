@@ -903,6 +903,10 @@ class WebAction:
             if not os.path.exists(file):
                 return False, f"{file} 不存在"
             os.remove(file)
+            nfoname = f"{os.path.splitext(filename)[0]}.nfo"
+            nfofile = os.path.join(filedir, nfoname)
+            if os.path.exists(file):
+                os.remove(nfofile)
             # 检查空目录并删除
             if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
                 # 当前是季文件夹，判断并删除
@@ -3929,9 +3933,9 @@ class WebAction:
                 del_flag, del_msg = self.delete_media_file(filedir=os.path.dirname(file),
                                                            filename=os.path.basename(file))
                 if not del_flag:
-                    log.error(f"【History】{del_msg}")
+                    log.error(f"【MediaFile】{del_msg}")
                 else:
-                    log.info(f"【History】{del_msg}")
+                    log.info(f"【MediaFile】{del_msg}")
         return {"code": 0}
 
     @staticmethod
