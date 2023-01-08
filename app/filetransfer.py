@@ -388,13 +388,14 @@ class FileTransfer:
             log.error("【Rmt】%s %s到unknown失败，错误码 %s" % (file_item, rmt_mode.value, retcode))
         return retcode
 
-    def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
+    def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False, ret_file=None):
         """
         转移一个文件，同时处理字幕
         :param file_item: 原文件路径
         :param new_file: 新文件路径
         :param rmt_mode: RmtMode转移方式
         :param over_flag: 是否覆盖，为True时会先删除再转移
+        :param ret_file: 原重命名后的文件名
         """
         file_name = os.path.basename(file_item)
         if not over_flag and os.path.exists(new_file):
@@ -403,6 +404,9 @@ class FileTransfer:
         if over_flag and os.path.isfile(new_file):
             log.info("【Rmt】正在删除已存在的文件：%s" % new_file)
             os.remove(new_file)
+        if over_flag and ret_file is not None and os.path.isfile(ret_file):
+            log.info("【Rmt】正在删除已存在的文件：%s" % ret_file)
+            os.remove(ret_file)
         log.info("【Rmt】正在转移文件：%s 到 %s" % (file_name, new_file))
         retcode = self.__transfer_command(file_item=file_item,
                                           target_file=new_file,
@@ -628,13 +632,14 @@ class FileTransfer:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
                             if media.size > os.path.getsize(ret_file_path) and self._filesize_cover or udf_flag:
-                                ret_file_path = os.path.splitext(ret_file_path)[0]
-                                new_file = "%s%s" % (ret_file_path, file_ext)
+                                ret_file_name = os.path.splitext(ret_file_path)[0]
+                                new_file = "%s%s" % (ret_file_name, file_ext)
                                 log.info("【Rmt】文件 %s 已存在，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item=file_item,
-                                                           new_file=new_file,
+                                                           new_file=new_file,                                                           
                                                            rmt_mode=rmt_mode,
-                                                           over_flag=True)
+                                                           over_flag=True,
+                                                           ret_file=ret_file_path)
                                 if ret != 0:
                                     success_flag = False
                                     error_message = "文件转移失败，错误码 %s" % ret
