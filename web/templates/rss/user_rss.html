@@ -37,9 +37,6 @@
       {% for Task in Tasks %}
       <div class="card">
         <div class="card-header">
-          <span class="badge bg-{% if Task.uses == "D" %}blue{% elif Task.uses == "R" %}orange{% elif Task.uses == "S" %}cyan{% endif %} badge-notification badge-pill">
-          {{ Task.uses_text }}
-          </span>
           {% if Task.state == 'Y' %}
           <span class="badge bg-green"></span>
           {% else %}
