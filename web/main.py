@@ -339,16 +339,19 @@ def rss_calendar():
         "season": int(str(tv.get('season')).replace("S", "")),
         "name": tv.get("name"),
     } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
-    RssChecker().init_config()
-    UserrssTVTitems = [mediainfo
-                       for taskinfo in RssChecker().get_rsstask_info() if taskinfo.get('mediainfos')
-                       for mediainfo in taskinfo.get("mediainfos")]
-    RssTvItems += UserrssTVTitems
-    RssTvItems = reduce(lambda x, y: y in x and x or x + [y], RssTvItems, [])
+    UserrssTVTitems = RssChecker().get_userrss_mediainfos()
+    TvItems = UserrssTVTitems + RssTvItems
+    Uniques = []
+    UniqueTvItems = []
+    for item in TvItems:
+        unique = f"{item.get('id')}_{item.get('season')}"
+        if unique not in Uniques:
+            Uniques.append(unique)
+            UniqueTvItems.append(item)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
-                           RssTvItems=RssTvItems)
+                           RssTvItems=UniqueTvItems)
 
 
 # 站点维护页面

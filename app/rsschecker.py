@@ -113,8 +113,7 @@ class RssChecker(object):
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
-                "recognization": task.RECOGNIZATION or recognization,
-                "mediainfos": json.loads(task.MEDIAINFOS) if task.MEDIAINFOS else []
+                "recognization": task.RECOGNIZATION or recognization
             })
         if not self._rss_tasks:
             return
@@ -282,18 +281,7 @@ class RssChecker(object):
                                                                                   tmdbid=media_info.tmdb_id))
                             # TMDB信息插入订阅任务
                             if media_info.type != MediaType.MOVIE:
-                                tmdbid = str(media_info.tmdb_id)
-                                season = int(media_info.get_season_seq())
-                                name = media_info.title
-                                mediainfos = taskinfo.get("mediainfos")
-                                mediainfos.append({
-                                    "id": tmdbid,
-                                    "rssid": "",
-                                    "season": season,
-                                    "name": name
-                                })
-                                mediainfos = json.dumps(reduce(lambda x, y: y in x and x or x + [y], mediainfos, []))
-                                self.dbhelper.insert_userrss_mediainfos(taskid, mediainfos)
+                                self.dbhelper.insert_userrss_mediainfos(taskid, media_info)
                         else:
                             log.info(f"【RssChecker】{title}  匹配成功")
                 else:
@@ -657,3 +645,12 @@ class RssChecker(object):
                     self.message.send_download_fail_message(media, ret_msg)
                 return False
         return True
+
+    def get_userrss_mediainfos(self):
+        taskinfos = self.dbhelper.get_userrss_tasks()
+        mediainfos_all = []
+        for taskinfo in taskinfos:
+            mediainfos = json.loads(taskinfo.MEDIAINFOS) if taskinfo.MEDIAINFOS else []
+            if mediainfos:
+                mediainfos_all += mediainfos
+        return mediainfos_all

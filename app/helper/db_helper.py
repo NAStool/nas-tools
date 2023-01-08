@@ -4,7 +4,6 @@ import time
 import json
 from enum import Enum
 from sqlalchemy import cast, func
-
 from app.db import MainDb, DbPersist
 from app.db.models import *
 from app.utils import StringUtils
@@ -1915,9 +1914,24 @@ class DbHelper:
                 RECOGNIZATION=item.get("recognization")
             ))
 
-    def insert_userrss_mediainfos(self, tid=None, mediainfos=None):
-        if not tid or not mediainfos:
+    def insert_userrss_mediainfos(self, tid=None, mediainfo=None):
+        if not tid or not mediainfo:
             return
+        taskinfo = self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()
+        if not taskinfo:
+            return
+        mediainfos = json.loads(taskinfo[0].MEDIAINFOS) if taskinfo[0].MEDIAINFOS else []
+        tmdbid = str(mediainfo.tmdb_id)
+        season = int(mediainfo.get_season_seq())
+        for media in mediainfos:
+            if media.get("id") == tmdbid and media.get("season") == season:
+                return
+        mediainfos.append({
+            "id": tmdbid,
+            "rssid": "",
+            "season": season,
+            "name": mediainfo.title
+        })
         self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
             {
                 "MEDIAINFOS": json.dumps(mediainfos)
