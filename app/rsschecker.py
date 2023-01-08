@@ -285,9 +285,7 @@ class RssChecker(object):
                                 tmdbid = str(media_info.tmdb_id)
                                 season = int(media_info.get_season_seq())
                                 name = media_info.title
-                                mediainfos = []
-                                if taskinfo.get("mediainfos"):
-                                    mediainfos += taskinfo.get("mediainfos")
+                                mediainfos = taskinfo.get("mediainfos")
                                 mediainfos.append({
                                     "id": tmdbid,
                                     "rssid": "",
