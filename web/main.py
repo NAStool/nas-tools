@@ -8,7 +8,7 @@ import time
 import traceback
 import urllib
 import xml.dom.minidom
-from functools import wraps, reduce
+from functools import wraps
 from math import floor
 from pathlib import Path
 from threading import Lock

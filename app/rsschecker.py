@@ -5,7 +5,6 @@ import jsonpath
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
-from functools import reduce
 
 import log
 from app.downloader import Downloader
