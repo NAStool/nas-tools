@@ -331,18 +331,36 @@ def rss_history():
 @login_required
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    RssMovieItems = [{"tmdbid": movie.get("tmdbid"), "rssid": movie.get("id")} for movie in
-                     Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
-    RssTvItems = [{
-        "id": tv.get("tmdbid"),
-        "rssid": tv.get("id"),
-        "season": int(str(tv.get('season')).replace("S", "")),
-        "name": tv.get("name"),
-    } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
+    # 电影订阅
+    RssMovieItems = [
+        {
+            "tmdbid": movie.get("tmdbid"),
+            "rssid": movie.get("id")
+        } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
+    ]
+    # 电视剧订阅
+    RssTvItems = [
+        {
+            "id": tv.get("tmdbid"),
+            "rssid": tv.get("id"),
+            "season": int(str(tv.get('season')).replace("S", "")),
+            "name": tv.get("name"),
+        } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
+    ]
+    # 自定义订阅
+    RssTvItems += RssChecker().get_userrss_mediainfos()
+    # 电视剧订阅去重
+    Uniques = set()
+    UniqueTvItems = []
+    for item in RssTvItems:
+        unique = f"{item.get('id')}_{item.get('season')}"
+        if unique not in Uniques:
+            Uniques.add(unique)
+            UniqueTvItems.append(item)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
-                           RssTvItems=RssTvItems)
+                           RssTvItems=UniqueTvItems)
 
 
 # 站点维护页面
