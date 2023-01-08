@@ -1,0 +1,104 @@
+<script type="text/javascript">
+  window.customElements.define("custom-chips",
+  class extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    // 被载入文档时
+    connectedCallback() {
+      // 获取是否有属性值, 生成html
+      // this.innerHTML == "" 表示当前是第一次初始化, 没有被重载
+      if (this.innerHTML == ""){
+        this.render(this.getArgs("data-type"), this.getArgs("data-text"), this.getArgs("data-href"));
+      }
+    }
+
+    // 自定义方法, 按指定数组排序, 遍历字典, 一次性生成多个chips
+    add_chips_all(sort_array, data_dict) {
+      // 清空组件内容
+      this.innerHTML == ""
+      // 开始遍历排序列表生成chips
+      for (let key of sort_array) {
+        let href = "";
+        // 对特定的标签指定herf属性
+        switch(key){
+          case "name":
+            href = `https://www.themoviedb.org/search?query=${encodeURI(data_dict.name)}`;
+            break;
+          case "tmdbid":
+            href = data_dict.tmdblink;
+            break;
+          case "season_episode":
+            href = data_dict.tmdb_S_E_link;
+            break;
+        }
+        console.log("正在新增chips: ", key, data_dict[key], href);
+        this.render(key, data_dict[key], href);
+      }
+    }
+
+    render(chips_type, chips_text, chips_href) {
+      // 支持的标题
+      const title = {
+        type:"类型",
+        category:"类别",
+        name:"识别名称",
+        title:"标题",
+        tmdbid:"TMDB ID",
+        year:"年份",
+        season_episode:"季集",
+        part:"分集",
+        restype:"质量",
+        effect:"特性",
+        pix:"分辨率",
+        video_codec:"视频编码",
+        audio_codec:"音频编码",
+        team:"制作组/字幕组",
+      }
+      // 所对应样式
+      const color = {
+        type:"bg-blue",
+        category:"bg-blue",
+        name:"bg-yellow text-wrap",
+        title:"bg-green",
+        tmdbid:"bg-green",
+        year:"bg-orange",
+        season_episode:"bg-orange",
+        part:"bg-orange",
+        restype:"",
+        effect:"",
+        pix:"",
+        video_codec:"",
+        audio_codec:"",
+        team:"bg-cyan text-wrap",
+      }
+      if (chips_text && chips_type && title.hasOwnProperty(chips_type)) {
+        // 开始创建元素 可以模版字符串 也可以使用 document.createElement();
+        const my_span = document.createElement("span");
+        my_span.setAttribute("title", title[chips_type]);
+        // 如果存在href属性
+        if (chips_href) {
+          my_span.innerHTML = `<a class="badge me-1 mb-1 ${color[chips_type]}" href="${chips_href}" target="_blank">${chips_text}</a>`;
+        } else {
+          my_span.innerHTML = chips_text;
+          $(my_span).addClass(`badge me-1 mb-1 ${color[chips_type]}`);
+        }
+        // 该组件不需要区分重载与初始化 直接赋值组件内部为空 并刷新内容
+        this.appendChild(my_span);
+      }
+    }
+
+    getArgs(name, default_value) {
+      if (!default_value) {
+        default_value = "";
+      }
+      let value = this.getAttribute(name);
+      if (!value || value == "None" || value == "null") {
+        return default_value;
+      } else {
+        return value;
+      }
+    }
+  });
+</script>
