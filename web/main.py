@@ -23,7 +23,7 @@ from app.brushtask import BrushTask
 from app.conf import ModuleConf
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import SecurityHelper, MetaHelper
+from app.helper import SecurityHelper, MetaHelper, ChromeHelper
 from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import WebhookEvent
@@ -115,11 +115,12 @@ def login():
         跳转到导航页面
         """
         # 判断当前的运营环境
-        SystemFlag = 0 if SystemUtils.is_windows() else 1
+        SystemFlag = SystemUtils.get_system()
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         if not SyncMod:
             SyncMod = "link"
+        RmtModeDict = WebAction().get_rmt_modes()
         RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
@@ -127,13 +128,14 @@ def login():
                                GoPage=GoPage,
                                UserName=userinfo.username,
                                UserPris=str(userinfo.pris).split(","),
-                               SystemFlag=SystemFlag,
+                               SystemFlag=SystemFlag.value,
                                TMDBFlag=TMDBFlag,
                                AppVersion=WebUtils.get_current_version(),
                                RestypeDict=RestypeDict,
                                PixDict=PixDict,
                                SyncMod=SyncMod,
-                               SiteFavicons=SiteFavicons)
+                               SiteFavicons=SiteFavicons,
+                               RmtModeDict=RmtModeDict)
 
     def redirect_to_login(errmsg=''):
         """
@@ -329,18 +331,36 @@ def rss_history():
 @login_required
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    RssMovieItems = [{"tmdbid": movie.get("tmdbid"), "rssid": movie.get("id")} for movie in
-                     Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")]
-    RssTvItems = [{
-        "id": tv.get("tmdbid"),
-        "rssid": tv.get("id"),
-        "season": int(str(tv.get('season')).replace("S", "")),
-        "name": tv.get("name"),
-    } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")]
+    # 电影订阅
+    RssMovieItems = [
+        {
+            "tmdbid": movie.get("tmdbid"),
+            "rssid": movie.get("id")
+        } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
+    ]
+    # 电视剧订阅
+    RssTvItems = [
+        {
+            "id": tv.get("tmdbid"),
+            "rssid": tv.get("id"),
+            "season": int(str(tv.get('season')).replace("S", "")),
+            "name": tv.get("name"),
+        } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
+    ]
+    # 自定义订阅
+    RssTvItems += RssChecker().get_userrss_mediainfos()
+    # 电视剧订阅去重
+    Uniques = set()
+    UniqueTvItems = []
+    for item in RssTvItems:
+        unique = f"{item.get('id')}_{item.get('season')}"
+        if unique not in Uniques:
+            Uniques.add(unique)
+            UniqueTvItems.append(item)
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
-                           RssTvItems=RssTvItems)
+                           RssTvItems=UniqueTvItems)
 
 
 # 站点维护页面
@@ -349,9 +369,11 @@ def rss_calendar():
 def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
+    ChromeOk = ChromeHelper().get_status()
     return render_template("site/site.html",
                            Sites=CfgSites,
-                           RuleGroups=RuleGroups)
+                           RuleGroups=RuleGroups,
+                           ChromeOk=ChromeOk)
 
 
 # 站点列表页面
@@ -391,9 +413,25 @@ def resources():
 def recommend():
     RecommendType = request.args.get("t")
     CurrentPage = request.args.get("page") or 1
-    return render_template("recommend.html",
+    return render_template("discovery/recommend.html",
                            RecommendType=RecommendType,
                            CurrentPage=CurrentPage)
+
+
+# 电影推荐页面
+@App.route('/discovery_movie', methods=['POST', 'GET'])
+@login_required
+def discovery_movie():
+    return render_template("discovery/discovery.html",
+                           DiscoveryType="movie")
+
+
+# 电视剧推荐页面
+@App.route('/discovery_tv', methods=['POST', 'GET'])
+@login_required
+def discovery_tv():
+    return render_template("discovery/discovery.html",
+                           DiscoveryType="tv")
 
 
 # 正在下载页面
@@ -480,7 +518,7 @@ def statistics():
         days=2)
 
     # 站点用户数据
-    SiteUserStatistics = Sites().get_site_user_statistics(encoding="DICT")
+    SiteUserStatistics = WebAction().get_site_user_statistics({"encoding": "DICT"}).get("data")
 
     return render_template("site/statistics.html",
                            CurrentDownload=CurrentDownload,
@@ -868,9 +906,11 @@ def basic():
     proxy = Config().get_config('app').get("proxies", {}).get("http")
     if proxy:
         proxy = proxy.replace("http://", "")
+    RmtModeDict = WebAction().get_rmt_modes()
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
-                           Proxy=proxy)
+                           Proxy=proxy,
+                           RmtModeDict=RmtModeDict)
 
 
 # 自定义识别词设置页面
@@ -887,10 +927,12 @@ def customwords():
 @App.route('/directorysync', methods=['POST', 'GET'])
 @login_required
 def directorysync():
+    RmtModeDict = WebAction().get_rmt_modes()
     SyncPaths = WebAction().get_directorysync().get("result")
     return render_template("setting/directorysync.html",
                            SyncPaths=SyncPaths,
-                           SyncCount=len(SyncPaths))
+                           SyncCount=len(SyncPaths),
+                           RmtModeDict=RmtModeDict)
 
 
 # 豆瓣页面
@@ -972,7 +1014,10 @@ def notification():
 @App.route('/subtitle', methods=['POST', 'GET'])
 @login_required
 def subtitle():
-    return render_template("setting/subtitle.html", Config=Config().get_config())
+    ChromeOk = ChromeHelper().get_status()
+    return render_template("setting/subtitle.html",
+                           Config=Config().get_config(),
+                           ChromeOk=ChromeOk)
 
 
 # 用户管理页面
@@ -1535,7 +1580,10 @@ def backup():
 def upload():
     try:
         files = request.files['file']
-        file_path = Path(Config().get_temp_path()) / files.filename
+        temp_path = Config().get_temp_path()
+        if not os.path.exists(temp_path):
+            os.makedirs(temp_path)
+        file_path = Path(temp_path) / files.filename
         files.save(str(file_path))
         return {"code": 0, "filepath": str(file_path)}
     except Exception as e:

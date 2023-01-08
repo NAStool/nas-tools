@@ -7,6 +7,7 @@ import subprocess
 from app.utils.path_utils import PathUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import OsType
+from config import WEBDRIVER_PATH
 
 
 class SystemUtils:
@@ -99,6 +100,8 @@ class SystemUtils:
 
     @staticmethod
     def is_synology():
+        if SystemUtils.is_windows():
+            return False
         return True if "synology" in SystemUtils.execute('uname -a') else False
         
     @staticmethod
@@ -108,6 +111,18 @@ class SystemUtils:
     @staticmethod
     def is_macos():
         return True if platform.system() == 'Darwin' else False
+
+    @staticmethod
+    def is_lite_version():
+        return True if SystemUtils.is_docker() \
+                       and os.environ.get("NASTOOL_VERSION") == "lite" else False
+
+    @staticmethod
+    def get_webdriver_path():
+        if SystemUtils.is_lite_version():
+            return None
+        else:
+            return WEBDRIVER_PATH.get(SystemUtils.get_system().value)
 
     @staticmethod
     def copy(src, dest):

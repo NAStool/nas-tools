@@ -1,3 +1,5 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -19,15 +21,7 @@
             </button>
             <button id="search_icon" onclick="search_media_list()"
                     class="btn btn-primary d-sm-none btn-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search"
-                   width="24" height="24"
-                   viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                   stroke-linecap="round"
-                   stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <circle cx="10" cy="10" r="7"></circle>
-                <line x1="21" y1="21" x2="15" y2="15"></line>
-              </svg>
+              {{ SVG.search() }}
             </button>
             <button id="quick_search_btn" data-bs-toggle="dropdown" type="button"
                     class="btn btn-primary dropdown-toggle dropdown-toggle-split"
@@ -43,13 +37,7 @@
             {% if SearchWord %}
             <a href='javascript:navmenu("medialist?s={{ SearchWord }}&f=1&t=search")' class="btn btn-icon ms-1" title="返回"
               style="border-top-left-radius:4px;border-bottom-left-radius:4px;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40"
-                   height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                   stroke-linecap="round"
-                   stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-              </svg>
+              {{ SVG.arrow_back_up() }}
             </a>
             {% endif %}
           </div>
@@ -74,15 +62,8 @@
                 </div>
                 <!-- 是否存在 -->
                 {% if Item.exist %}
-                <div class="badge badge-pill bg-green"
-                     style="position:absolute;top:20px;right:50px;padding:0;">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                       fill="currentColor" aria-hidden="true"
-                       class="h-3 w-3 sm:h-4 sm:w-4">
-                    <path fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd"></path>
-                  </svg>
+                <div class="badge badge-pill bg-green" style="position:absolute;top:20px;right:50px;padding:0;">
+                  {{ SVG.check() }}
                 </div>
                 {% endif %}
                 <div class="card-body ps-1 pe-1">
@@ -90,7 +71,10 @@
                     <div class="col-2 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
                       <!-- 图片 -->
                       {% if Item.poster %}
-                      <img class="rounded object-cover shadow" src="{{ Item.poster }}" alt="">
+                      <custom-img img-src="{{ Item.poster }}"
+                                  img-class="rounded object-cover shadow"
+                                  img-ratio="150%"
+                      ></custom-img>
                       {% endif %}
                       <!-- 过滤条件 -->
                       {% if Item.filter.season %}
@@ -162,27 +146,15 @@
                           {% if Item.tmdbid and Item.tmdbid!= '0' %}
                           <div class="list-inline list-inline-dots mb-0 text-muted">
                             <div class="list-inline-item">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-video" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                 <path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z"></path>
-                                 <rect x="3" y="6" width="12" height="12" rx="2"></rect>
-                              </svg>
+                              {{ SVG.video() }}
                               {{ Item.type }}
                             </div>
                             <div class="list-inline-item">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                 <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                              </svg>
+                              {{ SVG.star() }}
                               {{ Item.vote or '暂无评分' }}
                             </div>
                             <div class="list-inline-item">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                 <circle cx="12" cy="12" r="9"></circle>
-                                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                 <polyline points="11 12 12 12 12 16 13 16"></polyline>
-                              </svg>
+                              {{ SVG.info_circle() }}
                               <a href="{% if Item.type == '电影' %}https://www.themoviedb.org/movie/{{ Item.tmdbid }}{% else %}https://www.themoviedb.org/tv/{{ Item.tmdbid }}{% endif %}" target="_blank">{{ Item.tmdbid }}</a>
                             </div>
                           </div>
@@ -291,21 +263,16 @@
                                           </div>
                                           <div class="col-auto ms-2 d-none d-md-inline-block">
                                             <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}")' class="link-secondary" title="下载">
-                                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                 <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                                 <polyline points="7 11 12 16 17 11"></polyline>
-                                                 <line x1="12" y1="4" x2="12" y2="16"></line>
-                                              </svg>
+                                              {{ SVG.download() }}
                                             </a>
                                           </div>
                                           <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
                                             <div class="dropdown">
                                               <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                                {{ SVG.dots() }}
                                               </a>
                                               <div class="dropdown-menu dropdown-menu-end" style="">
-                                                {% if torrent.enclosure.startswith('http') %}
+                                                {% if torrent.enclosure and torrent.enclosure.startswith('http') %}
                                                 <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
                                                   下载种子文件
                                                 </a>
@@ -340,18 +307,7 @@
     </div>
   </div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
-      </div>
-      <p class="empty-title" id="search_tip_title">没有记录</p>
-      <p class="empty-subtitle text-muted" id="search_tip_text">
-        输入想看的电影、电视剧名称，点击搜索试试看吧。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.empty('没有搜索结果', '输入想看的电影、电视剧名称，点击搜索试试看吧。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
@@ -634,33 +590,13 @@
       $(this).text($(this).attr("data-total"));
     });
     // 过滤站点
-    let filter_site;
-    $(`${filter_obj} input[name=filter_site]`).each(function () {
-      if($(this).prop('checked')){
-        filter_site = $(this).val();
-      }
-    });
+    let filter_site = select_GetSelectedVAL("filter_site")[0];
     // 过滤促销
-    let filter_free;
-    $(`${filter_obj} input[name=filter_free]`).each(function () {
-      if($(this).prop('checked')){
-        filter_free = $(this).val();
-      }
-    });
+    let filter_free = select_GetSelectedVAL("filter_free")[0];
     // 过滤编码
-    let filter_video;
-    $(`${filter_obj} input[name=filter_video]`).each(function () {
-      if($(this).prop('checked')){
-        filter_video = $(this).val();
-      }
-    });
+    let filter_video = select_GetSelectedVAL("filter_video")[0];
     //过滤剧集
-    let filter_season;
-    $(`${filter_obj} input[name=filter_season]`).each(function () {
-      if($(this).prop('checked')){
-        filter_season = $(this).val();
-      }
-    });
+    let filter_season = select_GetSelectedVAL("filter_season")[0];
     // 有过滤则展开，无过滤则收起
     if (filter_site || filter_free || filter_video) {
       $(`${torrent_obj} .accordion-button`).each(function () {
@@ -725,21 +661,27 @@
 
   // 过滤媒体展示
   function filter_medias(obj, key, modal) {
-    // 处理UI
-    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
-      $(this).prop("checked", false);
-    });
+    filter_reset()
     $(obj).prop("checked", true);
     // 开始过滤
     filter_do(key, modal);
   }
 
   // 重置过滤条件
+  function filter_reset() {
+    // 过滤站点
+    select_SelectALL(false, "filter_site");
+    // 过滤促销
+    select_SelectALL(false, "filter_free");
+    // 过滤编码
+    select_SelectALL(false, "filter_video");
+    //过滤剧集
+    select_SelectALL(false, "filter_season");
+  }
+
+  // 重置过滤条件
   function reset_filter(obj, key, modal) {
-    // 处理UI
-    $(obj).parent().parent().find("input[type=checkbox]").each(function(){
-      $(this).prop("checked", false);
-    });
+    filter_reset()
     // 开始过滤
     filter_do(key, modal);
   }

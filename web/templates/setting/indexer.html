@@ -165,14 +165,14 @@
                 <label class="form-label required">私有站点 <span class="form-help"
                                                                   title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持"
                                                                   data-bs-toggle="tooltip">?</span></label>
-                <a href="javascript:void(0)" class="ms-auto" id="indexer_sites_select_btn" onclick="indexer_sites_select(this, 'indexer_private_sites_group')">全选</a>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_private')">全选</a>
               </div>
-              <div class="form-selectgroup" id="indexer_private_sites_group">
+              <div class="form-selectgroup">
                 {% if PrivateCount > 0 %}
                   {% for Indexer in Indexers %}
                     {% if not Indexer.public %}
                       <label class="form-selectgroup-item">
-                        <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}"
+                        <input type="checkbox" name="indexer_sites_private" value="{{ Indexer.id }}"
                                class="form-selectgroup-input"
                                {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
                         <span class="form-selectgroup-label">{{ Indexer.name }}</span>
@@ -191,14 +191,14 @@
                 <label class="form-label">公开站点 <span class="form-help"
                                                          title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示；部分站点需要有浏览器内核环境才能使用；同时大部分公开站点都需要网络代理才能访问"
                                                          data-bs-toggle="tooltip">?</span></label>
-                <a href="javascript:void(0)" class="ms-auto" id="indexer_sites_select_btn" onclick="indexer_sites_select(this, 'indexer_public_sites_group')">全选</a>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_public')">全选</a>
               </div>
-              <div class="form-selectgroup" id="indexer_public_sites_group">
+              <div class="form-selectgroup">
                 {% if PublicCount > 0 %}
                   {% for Indexer in Indexers %}
                     {% if Indexer.public %}
                       <label class="form-selectgroup-item">
-                        <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}"
+                        <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
                                class="form-selectgroup-input"
                                {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
                         <span class="form-selectgroup-label">{{ Indexer.name }}</span>
@@ -228,48 +228,33 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    let  params = {"test": test || false};
+    let params = {};
     if (type !== "builtin") {
-      $("#modal-" + type + " input").each(function () {
-        let value;
-        const key = $(this).attr("id");
-        if ($(this).attr("type") === "checkbox") {
-          value = !!$(this).prop("checked");
-        } else {
-          value = $(this).val();
-        }
-        params[key] = value;
-      });
-      $("#modal-" + type + " textarea").each(function () {
+      params = input_GetInputVal(`modal-${type}`);
+      $(`#modal-${type} textarea`).each(function () {
         const key = $(this).attr("id");
         params[key] = $(this).val();
       });
     } else {
-      let sites = [];
-      let i = 0;
-      $("input[name=indexer_site]").each(function () {
-        if ($(this).prop("checked")) {
-          sites[i] = $(this).val();
-          i = i + 1;
-        }
-      });
+      let sites = select_GetSelectedVAL("^indexer_sites");
       params['pt.indexer_sites'] = sites
     }
+    params['test'] = test || false;
     params['pt.search_indexer'] = type;
     ajax_post("update_config", params, func);
   }
 
   //保存配置、关闭和刷新页面
   function save_indexer_config(type) {
-    $("#modal-" + type).modal('hide');
+    $(`#modal-${type}`).modal('hide');
     save_config(type, function (ret) {
-      navmenu('indexer');
+      window_history_refresh();
     });
   }
 
   //保存配置和测试配置
   function test_indexer_config(type) {
-    $("#" + type + "_test_btn").text("测试中...");
+    $(`#${type}_test_btn`).text("测试中...");
     save_config(type, function (ret) {
       let command;
       if (currType === "jackett") {
@@ -279,27 +264,12 @@
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {
-          $("#" + currType + "_test_btn").text("测试成功");
+          $(`#${currType}_test_btn`).text("测试成功");
         } else {
-          $("#" + currType + "_test_btn").text("测试失败！");
+          $(`#${currType}_test_btn`).text("测试失败！");
         }
       });
     }, true);
   }
 
-  // 全选/全不选
-  function indexer_sites_select(btnobj, id) {
-    const selobj = $("#" + id);
-    if ($(btnobj).text() === "全选") {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", true);
-      });
-      $(btnobj).text("全不选");
-    } else {
-      selobj.find("input[type=checkbox]").each(function () {
-        $(this).prop("checked", false);
-      });
-      $(btnobj).text("全选");
-    }
-  }
 </script>

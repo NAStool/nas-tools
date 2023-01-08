@@ -183,16 +183,16 @@ class DbHelper:
         return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title,
                                                          DOUBANMEDIAS.YEAR == str(year)).all()
 
-    def is_transfer_history_exists(self, file_path, file_name, title, se):
+    def is_transfer_history_exists(self, source_path, source_filename, dest_path, dest_filename):
         """
         查询识别转移记录
         """
-        if not file_path:
+        if not source_path or not source_filename or not dest_path or not dest_filename:
             return False
-        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == file_path,
-                                                     TRANSFERHISTORY.SOURCE_FILENAME == file_name,
-                                                     TRANSFERHISTORY.TITLE == title,
-                                                     TRANSFERHISTORY.SEASON_EPISODE == se).count()
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == source_path,
+                                                     TRANSFERHISTORY.SOURCE_FILENAME == source_filename,
+                                                     TRANSFERHISTORY.DEST_PATH == dest_path,
+                                                     TRANSFERHISTORY.DEST_FILENAME == dest_filename).count()
         return True if ret > 0 else False
 
     @DbPersist(_db)
@@ -218,7 +218,7 @@ class DbHelper:
             dest_filename = ""
             season_episode = media_info.get_season_string()
         title = media_info.title
-        if self.is_transfer_history_exists(source_path, source_filename, title, season_episode):
+        if self.is_transfer_history_exists(source_path, source_filename, dest_path, dest_filename):
             return
         dest = dest or ""
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -384,7 +384,7 @@ class DbHelper:
             return True
 
     @DbPersist(_db)
-    def insert_transfer_unknown(self, path, dest):
+    def insert_transfer_unknown(self, path, dest, rmt_mode):
         """
         插入未识别记录
         """
@@ -401,7 +401,8 @@ class DbHelper:
             self._db.insert(TRANSFERUNKNOWN(
                 PATH=path,
                 DEST=dest,
-                STATE='N'
+                STATE='N',
+                MODE=str(rmt_mode.value)
             ))
 
     def is_transfer_in_blacklist(self, path):
@@ -1850,9 +1851,9 @@ class DbHelper:
                 NOTE=item.get("free")
             ))
 
-    def get_userrss_tasks(self, taskid=None):
-        if taskid:
-            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(taskid)).all()
+    def get_userrss_tasks(self, tid=None):
+        if tid:
+            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()
         else:
             return self._db.query(CONFIGUSERRSS).all()
 
@@ -1892,7 +1893,8 @@ class DbHelper:
                     "STATE": item.get("state"),
                     "SAVE_PATH": item.get("save_path"),
                     "DOWNLOAD_SETTING": item.get("download_setting"),
-                    "NOTE": item.get("note")
+                    "RECOGNIZATION": item.get("recognization"),
+                    "NOTE": ""
                 }
             )
         else:
@@ -1910,7 +1912,31 @@ class DbHelper:
                 STATE=item.get("state"),
                 SAVE_PATH=item.get("save_path"),
                 DOWNLOAD_SETTING=item.get("download_setting"),
+                RECOGNIZATION=item.get("recognization")
             ))
+
+    def insert_userrss_mediainfos(self, tid=None, mediainfo=None):
+        if not tid or not mediainfo:
+            return
+        taskinfo = self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()
+        if not taskinfo:
+            return
+        mediainfos = json.loads(taskinfo[0].MEDIAINFOS) if taskinfo[0].MEDIAINFOS else []
+        tmdbid = str(mediainfo.tmdb_id)
+        season = int(mediainfo.get_season_seq())
+        for media in mediainfos:
+            if media.get("id") == tmdbid and media.get("season") == season:
+                return
+        mediainfos.append({
+            "id": tmdbid,
+            "rssid": "",
+            "season": season,
+            "name": mediainfo.title
+        })
+        self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
+            {
+                "MEDIAINFOS": json.dumps(mediainfos)
+            })
 
     def get_userrss_parser(self, pid=None):
         if pid:
@@ -1948,6 +1974,10 @@ class DbHelper:
     @DbPersist(_db)
     def excute(self, sql):
         return self._db.excute(sql)
+
+    @DbPersist(_db)
+    def drop_table(self, table_name):
+        return self._db.excute(f"""DROP TABLE IF EXISTS {table_name}""")
 
     @DbPersist(_db)
     def insert_userrss_task_history(self, task_id, title, downloader):

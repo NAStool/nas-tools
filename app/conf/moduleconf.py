@@ -15,7 +15,7 @@ class ModuleConf(object):
         '_2_0': '/pts'
     }
 
-    # 转移模式
+    # 全量转移模式
     RMT_MODES = {
         "copy": RmtMode.COPY,
         "link": RmtMode.LINK,
@@ -25,6 +25,14 @@ class ModuleConf(object):
         "rclonecopy": RmtMode.RCLONECOPY,
         "minio": RmtMode.MINIO,
         "miniocopy": RmtMode.MINIOCOPY
+    }
+
+    # 精简版转移模式
+    RMT_MODES_LITE = {
+        "copy": RmtMode.COPY,
+        "link": RmtMode.LINK,
+        "softlink": RmtMode.SOFTLINK,
+        "move": RmtMode.MOVE
     }
 
     # 下载器
@@ -68,16 +76,24 @@ class ModuleConf(object):
                         "id": "telegram_chat_id",
                         "required": True,
                         "title": "Chat ID",
-                        "tooltip": "telegram群组或用户的Chat ID，关注@getidsbot获取",
+                        "tooltip": "接受消息通知的用户、群组或频道Chat ID，关注@getidsbot获取",
                         "type": "text"
                     },
                     "user_ids": {
                         "id": "telegram_user_ids",
                         "required": False,
                         "title": "User IDs",
-                        "tooltip": "允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id",
+                        "tooltip": "允许使用交互的用户Chat ID，留空则只允许管理用户使用，关注@getidsbot获取",
                         "type": "text",
-                        "placeholder": "允许使用机器人的用户ID，使用,分隔"
+                        "placeholder": "使用,分隔多个Id"
+                    },
+                    "admin_ids": {
+                        "id": "telegram_admin_ids",
+                        "required": False,
+                        "title": "Admin IDs",
+                        "tooltip": "允许使用管理命令的用户Chat ID，关注@getidsbot获取",
+                        "type": "text",
+                        "placeholder": "使用,分隔多个Id"
                     },
                     "webhook": {
                         "id": "telegram_webhook",
@@ -305,6 +321,28 @@ class ModuleConf(object):
                     }
                 }
             },
+            "chanify": {
+                "name": "Chanify",
+                "img_url": "../static/img/chanify.png",
+                "config": {
+                    "server": {
+                        "id": "chanify_server",
+                        "required": True,
+                        "title": "Chanify服务器地址",
+                        "tooltip": "自己搭建Chanify服务端地址或使用https://api.chanify.net",
+                        "type": "text",
+                        "placeholder": "https://api.chanify.net",
+                        "default": "https://api.chanify.net"
+                    },
+                    "token": {
+                        "id": "chanify_token",
+                        "required": True,
+                        "title": "令牌",
+                        "tooltip": "在Chanify客户端频道中获取",
+                        "type": "text"
+                    }
+                }
+            },
         },
         "switch": {
             "download_start": {
@@ -351,6 +389,10 @@ class ModuleConf(object):
                 "name": "媒体服务",
                 "fuc_name": "mediaserver_message"
             },
+            "custom_message": {
+                "name": "自定义消息",
+                "fuc_name": "custom_message"
+            }
         }
     }
 
@@ -429,3 +471,42 @@ class ModuleConf(object):
         "qyapi.weixin.qq.com",
         "www.opensubtitles.org"
     ]
+
+    @staticmethod
+    def get_enum_name(enum, value):
+        """
+        根据Enum的value查询name
+        :param enum: 枚举
+        :param value: 枚举值
+        :return: 枚举名或None
+        """
+        for e in enum:
+            if e.value == value:
+                return e.name
+        return None
+
+    @staticmethod
+    def get_enum_item(enum, value):
+        """
+        根据Enum的value查询name
+        :param enum: 枚举
+        :param value: 枚举值
+        :return: 枚举项
+        """
+        for e in enum:
+            if e.value == value:
+                return e
+        return None
+
+    @staticmethod
+    def get_dictenum_key(dictenum, value):
+        """
+        根据Enum dict的value查询key
+        :param dictenum: 枚举字典
+        :param value: 枚举类（字典值）的值
+        :return: 字典键或None
+        """
+        for k, v in dictenum.items():
+            if v.value == value:
+                return k
+        return None

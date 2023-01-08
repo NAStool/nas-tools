@@ -8,7 +8,7 @@ from app.helper.chrome_helper import ChromeHelper
 from config import Config
 
 
-class SubHelper:
+class OpenSubtitles:
     _cookie = ""
     _ua = None
     _url_imdbid = "https://www.opensubtitles.org/zh/search/imdbid-%s/sublanguageid-chi"

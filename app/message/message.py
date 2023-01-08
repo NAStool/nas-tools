@@ -487,6 +487,24 @@ class Message(object):
                     image=image
                 )
 
+    def send_custom_message(self, title, text="", image=""):
+        """
+        发送自定义消息
+        """
+        if not title:
+            return
+        # 插入消息中心
+        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 发送消息
+        for client in self._active_clients:
+            if "custom_message" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text,
+                    image=image
+                )
+
     def get_message_client_info(self, cid=None):
         """
         获取消息端信息

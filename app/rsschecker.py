@@ -84,11 +84,15 @@ class RssChecker(object):
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = task.NOTE
-            if str(note).find('seeding_time_limit') != -1:
-                note = json.loads(task.NOTE)
-                save_path = note.get("save_path")
-            else:
+            note = json.loads(task.NOTE) if task.NOTE else {}
+            save_path = ""
+            recognization = "Y"
+            if note and isinstance(note, dict):
+                if note.get("save_path"):
+                    save_path = note.get("save_path")
+                if note.get("recognization"):
+                    recognization = note.get("recognization")
+            elif isinstance(note, str):
                 save_path = note
             self._rss_tasks.append({
                 "id": task.ID,
@@ -107,7 +111,8 @@ class RssChecker(object):
                 "counter": task.PROCESS_COUNT,
                 "state": task.STATE,
                 "save_path": task.SAVE_PATH or save_path,
-                "download_setting": task.DOWNLOAD_SETTING or 0
+                "download_setting": task.DOWNLOAD_SETTING or "",
+                "recognization": task.RECOGNIZATION or recognization
             })
         if not self._rss_tasks:
             return
@@ -206,43 +211,44 @@ class RssChecker(object):
                                           subtitle=description,
                                           mtype=mediatype)
                     cache_info = self.media.get_cache_info(media_info)
-                    if cache_info.get("id"):
-                        # 有缓存，直接使用缓存
-                        media_info.tmdb_id = cache_info.get("id")
-                        media_info.type = cache_info.get("type")
-                        media_info.title = cache_info.get("title")
-                        media_info.year = cache_info.get("year")
-                    else:
-                        media_info = self.media.get_media_info(title=meta_name,
-                                                               subtitle=description,
-                                                               mtype=mediatype)
-                        if not media_info:
-                            log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
-                            continue
-                        if not media_info.tmdb_info:
-                            log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
-                            continue
-                    # 检查是否已存在
-                    if media_info.type == MediaType.MOVIE:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        if exist_flag:
-                            log.info("【RssChecker】电影 %s 已存在" % media_info.get_title_string())
-                            continue
-                    else:
-                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       no_exists=no_exists)
-                        # 当前剧集已存在，跳过
-                        if exist_flag:
-                            # 已全部存在
-                            if not no_exists or not no_exists.get(
-                                    media_info.tmdb_id):
-                                log.info("【RssChecker】电视剧 %s %s 已存在" % (
-                                    media_info.get_title_string(), media_info.get_season_episode_string()))
-                            continue
-                        if no_exists.get(media_info.tmdb_id):
-                            log.info("【RssChecker】%s 缺失季集：%s"
-                                     % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
+                    if taskinfo.get("recognization") == "Y":
+                        if cache_info.get("id"):
+                            # 有缓存，直接使用缓存
+                            media_info.tmdb_id = cache_info.get("id")
+                            media_info.type = cache_info.get("type")
+                            media_info.title = cache_info.get("title")
+                            media_info.year = cache_info.get("year")
+                        else:
+                            media_info = self.media.get_media_info(title=meta_name,
+                                                                   subtitle=description,
+                                                                   mtype=mediatype)
+                            if not media_info:
+                                log.warn("【RssChecker】%s 识别媒体信息出错！" % title)
+                                continue
+                            if not media_info.tmdb_info:
+                                log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
+                                continue
+                        # 检查是否已存在
+                        if media_info.type == MediaType.MOVIE:
+                            exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                           no_exists=no_exists)
+                            if exist_flag:
+                                log.info("【RssChecker】电影 %s 已存在" % media_info.get_title_string())
+                                continue
+                        else:
+                            exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                           no_exists=no_exists)
+                            # 当前剧集已存在，跳过
+                            if exist_flag:
+                                # 已全部存在
+                                if not no_exists or not no_exists.get(
+                                        media_info.tmdb_id):
+                                    log.info("【RssChecker】电视剧 %s %s 已存在" % (
+                                        media_info.get_title_string(), media_info.get_season_episode_string()))
+                                continue
+                            if no_exists.get(media_info.tmdb_id):
+                                log.info("【RssChecker】%s 缺失季集：%s"
+                                         % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
                     # 大小及种子页面
                     media_info.set_torrent_info(size=size,
                                                 page_url=page_url,
@@ -263,14 +269,20 @@ class RssChecker(object):
                     else:
                         # 匹配优先级
                         media_info.set_torrent_info(res_order=res_order)
-                        log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
-                            title,
-                            media_info.get_title_string(),
-                            media_info.get_season_episode_string()))
-                        # 补充TMDB完整信息
-                        if not media_info.tmdb_info:
-                            media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
-                                                                              tmdbid=media_info.tmdb_id))
+                        if taskinfo.get("recognization") == "Y":
+                            log.info("【RssChecker】%s 识别为 %s %s 匹配成功" % (
+                                title,
+                                media_info.get_title_string(),
+                                media_info.get_season_episode_string()))
+                            # 补充TMDB完整信息
+                            if not media_info.tmdb_info:
+                                media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
+                                                                                  tmdbid=media_info.tmdb_id))
+                            # TMDB信息插入订阅任务
+                            if media_info.type != MediaType.MOVIE:
+                                self.dbhelper.insert_userrss_mediainfos(taskid, media_info)
+                        else:
+                            log.info(f"【RssChecker】{title}  匹配成功")
                 else:
                     media_info = MetaInfo(title=meta_name, subtitle=description, mtype=mediatype)
 
@@ -632,3 +644,12 @@ class RssChecker(object):
                     self.message.send_download_fail_message(media, ret_msg)
                 return False
         return True
+
+    def get_userrss_mediainfos(self):
+        taskinfos = self.dbhelper.get_userrss_tasks()
+        mediainfos_all = []
+        for taskinfo in taskinfos:
+            mediainfos = json.loads(taskinfo.MEDIAINFOS) if taskinfo.MEDIAINFOS else []
+            if mediainfos:
+                mediainfos_all += mediainfos
+        return mediainfos_all

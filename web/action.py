@@ -16,12 +16,13 @@ from werkzeug.security import generate_password_hash
 
 import log
 from app.brushtask import BrushTask
+from app.conf import SystemConfig, ModuleConf
 from app.doubansync import DoubanSync
 from app.downloader import Downloader
 from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
-from app.helper import DbHelper, DictHelper, ProgressHelper, ThreadHelper, \
+from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper
 from app.indexer import Indexer
 from app.media import Category, Media
@@ -38,9 +39,9 @@ from app.sites.sitecookie import SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
-from app.conf import SystemConfig, ModuleConf
 from app.torrentremover import TorrentRemover
-from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, SystemUtils, ExceptionUtils
+from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
+    SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
@@ -74,6 +75,7 @@ class WebAction:
             "get_site_favicon": self.__get_site_favicon,
             "restart": self.__restart,
             "update_system": self.__update_system,
+            "reset_db_version": self.__reset_db_version,
             "logout": self.__logout,
             "update_config": self.__update_config,
             "update_directory": self.__update_directory,
@@ -195,7 +197,9 @@ class WebAction:
             "get_douban_history": self.get_douban_history,
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
-            "set_system_config": self.__set_system_config
+            "set_system_config": self.__set_system_config,
+            "get_site_user_statistics": self.get_site_user_statistics,
+            "send_custom_message": self.send_custom_message
         }
 
     def action(self, cmd, data=None):
@@ -270,17 +274,16 @@ class WebAction:
 
         if command:
             if in_from == SearchType.TG:
-                if str(user_id) != client.get("client").get_admin_user():
+                if str(user_id) not in client.get("client").get_admin():
                     message.send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
-            message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
+            message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"), user_id=user_id)
         else:
             # 检查用户权限
             if in_from == SearchType.TG:
-                if not str(user_id) in client.get("client").get_users() \
-                        and str(user_id) != client.get("client").get_admin_user():
+                if not str(user_id) in client.get("client").get_users():
                     message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
                                              user_id=user_id)
                     return
@@ -513,27 +516,44 @@ class WebAction:
         """
         从种子文件添加下载
         """
+
+        def __download(_media_info, _file_path):
+            _media_info.site = "WEB"
+            # 添加下载
+            ret, ret_msg = Downloader().download(media_info=_media_info,
+                                                 download_dir=dl_dir,
+                                                 download_setting=dl_setting,
+                                                 torrent_file=_file_path)
+            # 发送消息
+            _media_info.user_name = current_user.username
+            if ret:
+                Message().send_download_message(SearchType.WEB, _media_info)
+            else:
+                Message().send_download_fail_message(_media_info, ret_msg)
+
         dl_dir = data.get("dl_dir")
         dl_setting = data.get("dl_setting")
         files = data.get("files")
-        if not files:
-            return {"code": -1, "msg": "没有种子文件"}
+        magnets = data.get("magnets")
+        if not files and not magnets:
+            return {"code": -1, "msg": "没有种子文件或磁链"}
         for file_item in files:
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
-            media = Media().get_media_info(title=file_name)
-            media.site = "WEB"
-            # 添加下载
-            ret, ret_msg = Downloader().download(media_info=media,
-                                                 download_dir=dl_dir,
-                                                 download_setting=dl_setting,
-                                                 torrent_file=file_path)
-            # 发送消息
-            media.user_name = current_user.username
-            if ret:
-                Message().send_download_message(SearchType.WEB, media)
+            media_info = Media().get_media_info(title=file_name)
+            __download(media_info, file_path)
+        for magnet in magnets:
+            file_path = None
+            title = Torrent().get_magnet_title(magnet)
+            if title:
+                media_info = Media().get_media_info(title=title)
             else:
-                Message().send_download_fail_message(media, ret_msg)
+                media_info = MetaInfo(title="磁力链接")
+                media_info.org_string = magnet
+            media_info.set_torrent_info(enclosure=magnet,
+                                        download_volume_factor=0,
+                                        upload_volume_factor=1)
+            __download(media_info, file_path)
         return {"code": 0, "msg": "添加下载完成！"}
 
     @staticmethod
@@ -797,81 +817,116 @@ class WebAction:
         删除识别记录及文件
         """
         logids = data.get('logids')
+        flag = data.get('flag')
         for logid in logids:
             # 读取历史记录
             paths = self.dbhelper.get_transfer_path_by_id(logid)
             if paths:
+                # 删除记录
+                self.dbhelper.delete_transfer_log_by_id(logid)
+                # 根据flag删除文件
+                source_path = paths[0].SOURCE_PATH
+                source_filename = paths[0].SOURCE_FILENAME
                 dest = paths[0].DEST
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
-                if dest_path and dest_filename:
-                    dest_file = os.path.join(dest_path, dest_filename)
-                    # 删除文件
-                    try:
-                        os.remove(dest_file)
-                        # 如果上级文件夹为空，删除上级文件夹
-                        if re.findall(r"^S\d{2}|^Season", os.path.basename(dest_path), re.I):
-                            seaon_path = dest_path
-                            media_path = os.path.dirname(seaon_path)
-                            if not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
-                                shutil.rmtree(seaon_path)
-                        else:
-                            media_path = dest_path
-                        if not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
-                            shutil.rmtree(media_path)
-                    except Exception as e:
-                        ExceptionUtils.exception_traceback(e)
-                    # 删除记录
-                    self.dbhelper.delete_transfer_log_by_id(logid)
-                else:
-                    meta_info = MetaInfo(title=paths[0].SOURCE_FILENAME)
-                    meta_info.title = paths[0].TITLE
-                    meta_info.category = paths[0].CATEGORY
-                    meta_info.year = paths[0].YEAR
-                    if paths[0].SEASON_EPISODE:
-                        meta_info.begin_season = int(str(paths[0].SEASON_EPISODE).replace("S", ""))
-                    if paths[0].TYPE == MediaType.MOVIE.value:
-                        meta_info.type = MediaType.MOVIE
+                if flag in ["del_source", "del_all"]:
+                    del_flag, del_msg = self.delete_media_file(source_path, source_filename)
+                    if not del_flag:
+                        log.error(f"【History】{del_msg}")
                     else:
-                        meta_info.type = MediaType.TV
-                    # 删除记录
-                    self.dbhelper.delete_transfer_log_by_id(logid)
-                    # 删除文件
-                    dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
-                    if dest_path and dest_path.find(meta_info.title) != -1:
-                        rm_parent_dir = False
-                        if not meta_info.get_season_list():
-                            # 电影，删除整个目录
-                            try:
-                                shutil.rmtree(dest_path)
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
-                        elif not meta_info.get_episode_string():
-                            # 电视剧但没有集数，删除季目录
-                            try:
-                                shutil.rmtree(dest_path)
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
-                            rm_parent_dir = True
+                        log.info(f"【History】{del_msg}")
+                if flag in ["del_dest", "del_all"]:
+                    if dest_path and dest_filename:
+                        del_flag, del_msg = self.delete_media_file(dest_path, dest_filename)
+                        if not del_flag:
+                            log.error(f"【History】{del_msg}")
                         else:
-                            # 有集数的电视剧，删除对应的集数文件
-                            for dest_file in PathUtils.get_dir_files(dest_path):
-                                file_meta_info = MetaInfo(os.path.basename(dest_file))
-                                if file_meta_info.get_episode_list() and set(
-                                        file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
-                                    try:
-                                        os.remove(dest_file)
-                                    except Exception as e:
-                                        ExceptionUtils.exception_traceback(e)
-                            rm_parent_dir = True
-                        if rm_parent_dir \
-                                and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
-                            # 没有媒体文件时，删除整个目录
-                            try:
-                                shutil.rmtree(os.path.dirname(dest_path))
-                            except Exception as e:
-                                ExceptionUtils.exception_traceback(e)
+                            log.info(f"【History】{del_msg}")
+                    else:
+                        meta_info = MetaInfo(title=source_filename)
+                        meta_info.title = paths[0].TITLE
+                        meta_info.category = paths[0].CATEGORY
+                        meta_info.year = paths[0].YEAR
+                        if paths[0].SEASON_EPISODE:
+                            meta_info.begin_season = int(str(paths[0].SEASON_EPISODE).replace("S", ""))
+                        if paths[0].TYPE == MediaType.MOVIE.value:
+                            meta_info.type = MediaType.MOVIE
+                        else:
+                            meta_info.type = MediaType.TV
+                        # 删除文件
+                        dest_path = FileTransfer().get_dest_path_by_info(dest=dest, meta_info=meta_info)
+                        if dest_path and dest_path.find(meta_info.title) != -1:
+                            rm_parent_dir = False
+                            if not meta_info.get_season_list():
+                                # 电影，删除整个目录
+                                try:
+                                    shutil.rmtree(dest_path)
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
+                            elif not meta_info.get_episode_string():
+                                # 电视剧但没有集数，删除季目录
+                                try:
+                                    shutil.rmtree(dest_path)
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
+                                rm_parent_dir = True
+                            else:
+                                # 有集数的电视剧，删除对应的集数文件
+                                for dest_file in PathUtils.get_dir_files(dest_path):
+                                    file_meta_info = MetaInfo(os.path.basename(dest_file))
+                                    if file_meta_info.get_episode_list() and set(
+                                            file_meta_info.get_episode_list()
+                                    ).issubset(set(meta_info.get_episode_list())):
+                                        try:
+                                            os.remove(dest_file)
+                                        except Exception as e:
+                                            ExceptionUtils.exception_traceback(e)
+                                rm_parent_dir = True
+                            if rm_parent_dir \
+                                    and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                                # 没有媒体文件时，删除整个目录
+                                try:
+                                    shutil.rmtree(os.path.dirname(dest_path))
+                                except Exception as e:
+                                    ExceptionUtils.exception_traceback(e)
         return {"retcode": 0}
+
+    @staticmethod
+    def delete_media_file(filedir, filename):
+        """
+        删除媒体文件，空目录也支被删除
+        """
+        filedir = os.path.normpath(filedir).replace("\\", "/")
+        file = os.path.join(filedir, filename)
+        try:
+            if not os.path.exists(file):
+                return False, f"{file} 不存在"
+            os.remove(file)
+            nfoname = f"{os.path.splitext(filename)[0]}.nfo"
+            nfofile = os.path.join(filedir, nfoname)
+            if os.path.exists(file):
+                os.remove(nfofile)
+            # 检查空目录并删除
+            if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
+                # 当前是季文件夹，判断并删除
+                seaon_dir = filedir
+                if seaon_dir.count('/') > 1 and not PathUtils.get_dir_files(seaon_dir, exts=RMT_MEDIAEXT):
+                    shutil.rmtree(seaon_dir)
+                # 媒体文件夹
+                media_dir = os.path.dirname(seaon_dir)
+            else:
+                media_dir = filedir
+            # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
+            if media_dir != '/' \
+                    and media_dir.count('/') > 1 \
+                    and not re.search(r'[a-zA-Z]:/$', media_dir) \
+                    and not PathUtils.get_dir_files(media_dir, exts=RMT_MEDIAEXT):
+                shutil.rmtree(media_dir)
+            return True, f"{file} 删除成功"
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return True, f"{file} 删除失败"
 
     @staticmethod
     def __logging(data):
@@ -1064,15 +1119,27 @@ class WebAction:
                 os.system(f"git config --global https.proxy {https_proxy or http_proxy}")
             # 清理
             os.system("git clean -dffx")
-            os.system("git reset --hard HEAD")
             # 升级
-            os.system("git pull")
+            branch = "dev" if os.environ.get("NASTOOL_VERSION") == "dev" else "master"
+            os.system(f"git fetch --depth 1 origin {branch}")
+            os.system(f"git reset --hard origin/{branch}")
             os.system("git submodule update --init --recursive")
             # 安装依赖
             os.system('pip install -r /nas-tools/requirements.txt')
             # 重启
             self.restart_server()
         return {"code": 0}
+
+    def __reset_db_version(self, data):
+        """
+        重置数据库版本
+        """
+        try:
+            self.dbhelper.drop_table("alembic_version")
+            return {"code": 0}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __logout(data):
@@ -1314,12 +1381,13 @@ class WebAction:
         ids = data.get("ids")
         ret_flag = True
         ret_msg = []
-        if flag == "unknow":
+        if flag == "unidentification":
             for wid in ids:
                 paths = self.dbhelper.get_unknown_path_by_id(wid)
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
+                    rmt_mode = ModuleConf.get_enum_item(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1327,6 +1395,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if succ_flag:
@@ -1341,6 +1410,7 @@ class WebAction:
                 if paths:
                     path = os.path.join(paths[0].SOURCE_PATH, paths[0].SOURCE_FILENAME)
                     dest_dir = paths[0].DEST
+                    rmt_mode = ModuleConf.get_enum_item(RmtMode, paths[0].MODE) if paths[0].MODE else None
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:
@@ -1348,6 +1418,7 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                               rmt_mode=rmt_mode,
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if not succ_flag:
@@ -1403,6 +1474,7 @@ class WebAction:
             vote_average = rssinfo[rssid].get("vote")
             year = rssinfo[rssid].get("year")
             release_date = rssinfo[rssid].get("release_date")
+            link_url = Media().get_detail_url(mtype=media_type, tmdbid=rssinfo[rssid].get("tmdbid"))
             if overview and poster_path:
                 rssid_ok = True
 
@@ -2525,7 +2597,8 @@ class WebAction:
             "filterrule": data.get("filterrule"),
             "state": data.get("state"),
             "save_path": data.get("save_path"),
-            "download_setting": data.get("download_setting")
+            "download_setting": data.get("download_setting"),
+            "recognization": data.get("recognization")
         }
         if self.dbhelper.update_userrss_task(params):
             RssChecker().init_config()
@@ -3578,13 +3651,22 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
         totalCount, historys = self.dbhelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
-
+        historys_list = []
+        for history in historys:
+            history = history.as_dict()
+            sync_mode = history.get("MODE")
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES, sync_mode) if sync_mode else ""
+            history.update({
+                "SYNC_MODE": sync_mode,
+                "RMT_MODE": rmt_mode
+            })
+            historys_list.append(history)
         TotalPage = floor(totalCount / PageNum) + 1
 
         return {
             "code": 0,
             "total": totalCount,
-            "result": [his.as_dict() for his in historys],
+            "result": historys_list,
             "totalPage": TotalPage,
             "pageNum": PageNum,
             "currentPage": CurrentPage
@@ -3601,7 +3683,17 @@ class WebAction:
                 continue
             path = rec.PATH.replace("\\", "/") if rec.PATH else ""
             path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
-            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
+            sync_mode = rec.MODE or ""
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES,
+                                                   sync_mode) if sync_mode else ""
+            Items.append({
+                "id": rec.ID,
+                "path": path,
+                "to": path_to,
+                "name": path,
+                "sync_mode": sync_mode,
+                "rmt_mode": rmt_mode,
+            })
 
         return {"code": 0, "items": Items}
 
@@ -3830,43 +3922,20 @@ class WebAction:
                 return {"code": -1, "msg": str(e)}
         return {"code": 0}
 
-    @staticmethod
-    def __delete_files(data):
+    def __delete_files(self, data):
         """
         删除文件
         """
         files = data.get("files")
         if files:
-            try:
-                # 删除文件
-                for file in files:
-                    os.remove(file)
-                # 取公共上级目录
-                file_dir = os.path.commonpath(files)
-                if not os.path.isdir(file_dir):
-                    file_dir = os.path.dirname(file_dir)
-                # 检查空目录并删除
-                if re.findall(r"^S\d{2}|^Season", os.path.basename(file_dir), re.I):
-                    # 当前是季文件夹，判断并删除
-                    seaon_path = os.path.normpath(file_dir).replace("\\", "/")
-                    # 删除空的季文件夹
-                    if seaon_path.count('/') > 1 \
-                            and not PathUtils.get_dir_files(seaon_path, exts=RMT_MEDIAEXT):
-                        shutil.rmtree(seaon_path)
-                    # 媒体文件夹
-                    media_path = os.path.dirname(seaon_path)
+            # 删除文件
+            for file in files:
+                del_flag, del_msg = self.delete_media_file(filedir=os.path.dirname(file),
+                                                           filename=os.path.basename(file))
+                if not del_flag:
+                    log.error(f"【MediaFile】{del_msg}")
                 else:
-                    media_path = file_dir
-                # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
-                media_path = os.path.normpath(media_path).replace("\\", "/")
-                if media_path != '/' \
-                        and media_path.count('/') > 1 \
-                        and not re.search(r'[a-zA-Z]:/$', media_path) \
-                        and not PathUtils.get_dir_files(media_path, exts=RMT_MEDIAEXT):
-                    shutil.rmtree(media_path)
-            except Exception as e:
-                ExceptionUtils.exception_traceback(e)
-                return {"code": -1, "msg": str(e)}
+                    log.info(f"【MediaFile】{del_msg}")
         return {"code": 0}
 
     @staticmethod
@@ -4198,3 +4267,43 @@ class WebAction:
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1}
+
+    @staticmethod
+    def get_site_user_statistics(data):
+        """
+        获取站点用户统计信息
+        """
+        sites = data.get("sites")
+        encoding = data.get("encoding") or "RAW"
+        sort_by = data.get("sort_by")
+        sort_on = data.get("sort_on")
+        site_hash = data.get("site_hash")
+        statistics = Sites().get_site_user_statistics(sites=sites, encoding=encoding)
+        if sort_by and sort_on in ["asc", "desc"]:
+            if sort_on == "asc":
+                statistics.sort(key=lambda x: x[sort_by])
+            else:
+                statistics.sort(key=lambda x: x[sort_by], reverse=True)
+        if site_hash == "Y":
+            for item in statistics:
+                item["site_hash"] = WebAction.md5_hash(item.get("site"))
+        return {"code": 0, "data": statistics}
+
+    @staticmethod
+    def send_custom_message(data):
+        """
+        发送自定义消息
+        """
+        title = data.get("title")
+        text = data.get("text") or ""
+        image = data.get("image") or ""
+        Message().send_custom_message(title=title, text=text, image=image)
+        return {"code": 0}
+
+    @staticmethod
+    def get_rmt_modes():
+        RmtModes = ModuleConf.RMT_MODES_LITE if SystemUtils.is_lite_version() else ModuleConf.RMT_MODES
+        return [{
+            "value": value,
+            "name": name.value
+        } for value, name in RmtModes.items()]

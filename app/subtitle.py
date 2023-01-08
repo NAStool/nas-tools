@@ -7,7 +7,7 @@ import time
 from lxml import etree
 
 import log
-from app.helper import SubHelper
+from app.helper import OpenSubtitles
 from app.conf import SiteConf
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
@@ -17,7 +17,7 @@ from config import Config, RMT_SUBEXT
 
 @singleton
 class Subtitle:
-    subhelper = None
+    opensubtitles = None
     _save_tmp_path = None
     _server = None
     _host = None
@@ -30,7 +30,7 @@ class Subtitle:
         self.init_config()
 
     def init_config(self):
-        self.subhelper = SubHelper()
+        self.opensubtitles = OpenSubtitles()
         self._save_tmp_path = Config().get_temp_path()
         if not os.path.exists(self._save_tmp_path):
             os.makedirs(self._save_tmp_path)
@@ -73,15 +73,15 @@ class Subtitle:
         """
         爬取OpenSubtitles.org字幕
         """
-        if not self.subhelper:
+        if not self.opensubtitles:
             return []
-        return self.subhelper.search_subtitles(item)
+        return self.opensubtitles.search_subtitles(item)
 
     def __download_opensubtitles(self, items):
         """
         调用OpenSubtitles Api下载字幕
         """
-        if not self.subhelper:
+        if not self.opensubtitles:
             return False, "未配置OpenSubtitles"
         subtitles_cache = {}
         success = False
@@ -132,8 +132,8 @@ class Subtitle:
                 Media_File = "%s.chi.zh-cn%s" % (item.get("file"), item.get("file_ext"))
                 log.info("【Subtitle】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
-                ret = RequestUtils(cookies=self.subhelper.get_cookie(),
-                                   headers=self.subhelper.get_ua()).get_res(Download_Link)
+                ret = RequestUtils(cookies=self.opensubtitles.get_cookie(),
+                                   headers=self.opensubtitles.get_ua()).get_res(Download_Link)
                 if ret and ret.status_code == 200:
                     # 保存ZIP
                     file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), Download_Link)
@@ -296,14 +296,9 @@ class Subtitle:
                 # 下载
                 ret = request.get_res(sublink)
                 if ret and ret.status_code == 200:
-                    # 检测目录是否存在，等下载器创建
-                    for tim in range(0, 30):
-                        if os.path.exists(download_dir):
-                            break
-                        time.sleep(1)
+                    # 创建目录
                     if not os.path.exists(download_dir):
-                        log.warn("【Subtitle】字幕下载目录不存在：%s" % download_dir)
-                        return
+                        os.makedirs(download_dir)
                     # 保存ZIP
                     file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), sublink)
                     if not file_name:

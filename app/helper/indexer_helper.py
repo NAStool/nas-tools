@@ -36,7 +36,8 @@ class IndexerHelper:
                     ua=None,
                     render=None,
                     language=None,
-                    pri=None):
+                    pri=None,
+                    chrome=True):
         if not url:
             return None
         for indexer in self._indexers:
@@ -54,7 +55,8 @@ class IndexerHelper:
                                    render=render,
                                    builtin=True,
                                    language=language,
-                                   pri=pri)
+                                   pri=pri,
+                                   chrome=chrome)
         return None
 
 
@@ -72,7 +74,8 @@ class IndexerConf(object):
                  render=None,
                  builtin=True,
                  language=None,
-                 pri=None):
+                 pri=None,
+                 chrome=True):
         if not datas:
             return
         self.datas = datas
@@ -93,10 +96,13 @@ class IndexerConf(object):
         else:
             self.parser = self.datas.get('parser')
         self.ua = ua
-        if render is not None:
-            self.render = render
+        if not chrome:
+            self.render = False
         else:
-            self.render = True if self.datas.get("render") else False
+            if render is not None:
+                self.render = render
+            else:
+                self.render = True if self.datas.get("render") else False
         self.builtin = builtin
         self.language = language
         self.pri = pri if pri else 0

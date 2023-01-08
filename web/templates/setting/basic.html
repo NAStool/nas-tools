@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -49,9 +50,28 @@
                          placeholder="127.0.0.1:514" autocomplete="off">
                 </div>
               </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">日志级别 <span class="form-help"
+                                                               title="一般情况下请选择INFO，排查问题可选择DEBUG"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="app.wallpaper">
+                    <option value="info"
+                      {% if not Config.app.loglevel or Config.app.loglevel=='info' %}selected{% endif %}>
+                      INFO
+                    </option>
+                    <option value="debug" {% if Config.app.wallpaper=='debug' %}selected{% endif %}>
+                      DEBUG
+                    </option>
+                    <option value="error" {% if Config.app.wallpaper=='error' %}selected{% endif %}>
+                      ERROR
+                    </option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div class="row">
-              <div class="col-xl-2">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB壁纸来源 <span class="form-help"
                                                                title="登录界面壁纸来源：TMDB、Bing，设置为TMDB时需在媒体配置TMDB API Key"
@@ -59,29 +79,29 @@
                   <select class="form-select" id="app.wallpaper">
                     <option value="themoviedb"
                       {% if not Config.app.wallpaper or Config.app.wallpaper=='themoviedb' %}selected{% endif %}>
-                      TMDB
+                      电影海报
                     </option>
                     <option value="bing" {% if Config.app.wallpaper=='bing' %}selected{% endif %}>
-                      Bing
+                      Bing每日壁纸
                     </option>
                   </select>
                 </div>
               </div>
-              <div class="col-xl-2">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB服务端口</label>
                   <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port"
                          placeholder="3000" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理用户</label>
                   <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user"
                          placeholder="admin" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">WEB管理密码</label>
                   <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control"
@@ -114,9 +134,7 @@
                          placeholder="127.0.0.1:7890" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-lg-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">外网访问地址 <span class="form-help"
                                                                title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443"
@@ -125,7 +143,9 @@
                          placeholder="http://IP:PORT" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg-8">
+            </div>
+            <div class="row">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">User-Agent <span class="form-help"
                                                              title="如发现被豆瓣、PT站等封堵，请适当修改此项"
@@ -210,16 +230,9 @@
                                                                             title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
                                                                             data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.rmt_mode">
-                    <option value="link" {% if Config.pt.rmt_mode=='link' %}selected{% endif %}>硬链接</option>
-                    <option value="softlink" {% if Config.pt.rmt_mode=='softlink' %}selected{% endif %}>软链接</option>
-                    <option value="copy" {% if Config.pt.rmt_mode=='copy' %}selected{% endif %}>复制</option>
-                    <option value="move" {% if Config.pt.rmt_mode=='move' %}selected{% endif %}>移动</option>
-                    <option value="rclonecopy" {% if Config.pt.rmt_mode=='rclonecopy' %}selected{% endif %}>Rclone复制
-                    </option>
-                    <option value="rclone" {% if Config.pt.rmt_mode=='rclone' %}selected{% endif %}>Rclone移动</option>
-                    <option value="miniocopy" {% if Config.pt.rmt_mode=='miniocopy' %}selected{% endif %}>Minio复制
-                    </option>
-                    <option value="minio" {% if Config.pt.rmt_mode=='minio' %}selected{% endif %}>Minio移动</option>
+                  {% for mode in RmtModeDict %}
+                    <option value="{{ mode.value }}" {% if Config.pt.rmt_mode==mode.value %}selected{% endif %}>{{ mode.name }}</option>
+                  {% endfor %}
                   </select>
                 </div>
               </div>
@@ -337,30 +350,13 @@
                   刮削设置
                 </a>
                 <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-scraper" title="刮削设置">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-slideshow" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <line x1="15" y1="6" x2="15.01" y2="6"></line>
-                     <rect x="3" y="3" width="18" height="14" rx="3"></rect>
-                     <path d="M3 13l4 -4a3 5 0 0 1 3 0l4 4"></path>
-                     <path d="M13 12l2 -2a3 5 0 0 1 3 0l3 3"></path>
-                     <line x1="8" y1="21" x2="8.01" y2="21"></line>
-                     <line x1="12" y1="21" x2="12.01" y2="21"></line>
-                     <line x1="16" y1="21" x2="16.01" y2="21"></line>
-                  </svg>
+                  {{ SVG.slideshow() }}
                 </a>
                 <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-release-groups">
                   自定义制作组/字幕组
                 </a>
                 <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-release-groups" title="自定义制作组/字幕组">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tex" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M9 8v-1h-6v1"></path>
-                     <path d="M6 15v-8"></path>
-                     <path d="M21 15l-5 -8"></path>
-                     <path d="M16 15l5 -8"></path>
-                     <path d="M14 11h-4v8h4"></path>
-                     <path d="M10 15h3"></path>
-                  </svg>
+                  {{ SVG.tex() }}
                 </a>
               </div>
               <div class="col"></div>
@@ -640,25 +636,14 @@
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-nfo" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
                aria-selected="true" role="tab">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-square-rounded me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <path d="M12 8h.01"></path>
-                 <path d="M11 12h1v4h1"></path>
-                 <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
-              </svg>
+              <span class="me-2">{{ SVG.info_square_rounded() }}</span>
               元数据
             </a>
           </li>
           <li class="nav-item" role="presentation">
             <a href="#tabs-scraper-pic" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
                aria-selected="false" role="tab" tabindex="-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-photo me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <line x1="15" y1="8" x2="15.01" y2="8"></line>
-                 <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-                 <path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path>
-                 <path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path>
-              </svg>
+              <span class="me-2">{{ SVG.photo() }}</span>
               图片
             </a>
           </li>
@@ -1005,18 +990,8 @@
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
-    let params = {};
-    $("#" + type + " input").each(function () {
-      let value;
-      const key = $(this).attr("id");
-      if ($(this).attr("type") === "checkbox") {
-        value = !!$(this).prop("checked");
-      } else {
-        value = $(this).val();
-      }
-      params[key] = value;
-    });
-    $("#" + type + " select").each(function () {
+    let params = input_GetInputVal(type);
+    $(`#${type} select`).each(function () {
       const key = $(this).attr("id");
       params[key] = $(this).val();
     });

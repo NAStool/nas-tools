@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,21 +11,11 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_user_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            {{ SVG.plus() }}
             新增用户
           </a>
           <a href="javascript:show_user_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            {{ SVG.plus() }}
           </a>
         </div>
       </div>
@@ -67,13 +58,7 @@
                     </td>
                     <td>
                       <a href="javascript:delete_user('{{ User.name }}')" title="删除用户">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                             stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
+                        {{ SVG.x() }}
                       </a>
                     </td>
                   </tr>
@@ -175,14 +160,7 @@
   function add_user() {
     const name = $("#user_name").val();
     const password = $("#user_password").val();
-    let pris = [];
-    let i = 0;
-    $("input[name=user_pris]").each(function () {
-      if ($(this).prop("checked")) {
-        pris[i] = $(this).val();
-        i = i + 1;
-      }
-    });
+    let pris = select_GetSelectedVAL("user_pris");
     if (!name) {
       $("#user_name").addClass("is-invalid");
       return;
@@ -201,7 +179,7 @@
     $("#modal-user").modal('hide');
     const params = {"oper": "add", "name": name, "password": password, "pris": pris};
     ajax_post("user_manager", params, function (ret) {
-      navmenu('users');
+      window_history_refresh();
     });
   }
 
@@ -209,7 +187,7 @@
   function delete_user(name) {
     const params = {"oper": "del", "name": name};
     ajax_post("user_manager", params, function (ret) {
-      navmenu('users');
+      window_history_refresh();
     });
   }
 </script>

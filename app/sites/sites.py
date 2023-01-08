@@ -79,11 +79,16 @@ class Sites:
             site_signurl = site.SIGNURL
             site_cookie = site.COOKIE
             site_uses = site.INCLUDE or ''
+            uses = []
             if site_uses:
                 signin_enable = True if "Q" in site_uses and site_signurl and site_cookie else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
                 brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
                 statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
+                uses.append("Q") if signin_enable else None
+                uses.append("D") if rss_enable else None
+                uses.append("S") if brush_enable else None
+                uses.append("T") if statistic_enable else None
             else:
                 signin_enable = False
                 rss_enable = False
@@ -102,6 +107,7 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
+                "uses": uses,
                 "ua": site_note.get("ua"),
                 "unread_msg_notify": site_note.get("message") or 'N',
                 "chrome": site_note.get("chrome") or 'N',
@@ -343,6 +349,8 @@ class Sites:
         站点并发签到
         """
         sites = self.get_sites(signin=True)
+        if not sites:
+            return
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
             status = p.map(self.__signin_site, sites)
         if status:
@@ -467,18 +475,19 @@ class Sites:
 
         return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
-    def get_site_user_statistics(self, encoding="RAW"):
+    def get_site_user_statistics(self, sites=None, encoding="RAW"):
         """
         获取站点用户数据
+        :param sites: 站点名称
         :param encoding: RAW/DICT
         :return:
         """
-
-        site_urls = []
-        for site in self.get_sites(statistic=True):
-            site_url = self.__get_site_strict_url(site)
-            if site_url:
-                site_urls.append(site_url)
+        statistic_sites = self.get_sites(statistic=True)
+        if not sites:
+            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites]
+        else:
+            site_urls = [self.__get_site_strict_url(site) for site in statistic_sites
+                         if site.get("name") in sites]
 
         raw_statistics = self.dbhelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":

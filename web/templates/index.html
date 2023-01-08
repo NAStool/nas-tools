@@ -1,3 +1,5 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,23 +12,11 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_mediasync_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-            </svg>
+            {{ SVG.refresh() }}
             媒体库同步
           </a>
           <a href="javascript:show_mediasync_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24"
-                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                 stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-            </svg>
+            {{ SVG.refresh() }}
           </a>
         </div>
       </div>
@@ -136,22 +126,9 @@
                           <div class="col-auto">
                         <span class="avatar">
                           {% if Activity.type == "LG" %}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24"
-                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                            <desc>Download more icon variants from https://tabler-icons.io/i/user</desc>
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                          </svg>
+                            {{ SVG.user() }}
                           {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play"
-                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <desc>Download more icon variants from https://tabler-icons.io/i/player-play</desc>
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M7 4v16l13 -8z"></path>
-                          </svg>
+                            {{ SVG.player_play() }}
                           {% endif %}
                         </span>
                           </div>
@@ -177,18 +154,7 @@
     </div>
   </div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/bug_fixing.svg" height="128" alt="">
-      </div>
-      <p class="empty-title" id="search_tip_title">媒体服务器连接失败！</p>
-      <p class="empty-subtitle text-muted" id="search_tip_text">
-        当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.systemerror('媒体服务器连接失败！', '当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="index-mediasync-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered" role="document">
@@ -212,109 +178,111 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 电影变化图
-  if (typeof (chart_movie) != 'undefined')
-    chart_movie.dispose();
+  if ('{{ ServerSucess }}' != 'False') {
+    // 电影变化图
+    if (typeof (chart_movie) != 'undefined')
+      chart_movie.dispose();
 
-  chart_movie = echarts.init($('#chart-movie-bg')[0], null, {
-    height: 40.0
-  });
+    chart_movie = echarts.init($('#chart-movie-bg')[0], null, {
+      height: 40.0
+    });
 
-  option_chart_movie = {
-    animation: true,
-    color: [
-        tabler.getColor('primary')
-    ],
-    legend: {
-      show: false,
-    },
-    grid: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 2,
-      containLabel: false
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      show: false,
-      data: {{ MovieChartLabels| safe }}
-    },
-    yAxis: {show: false,},
-    series: [{
-      name: '电影',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      data: {{ MovieNums }}
-    }]
-  };
-  chart_movie.setOption(option_chart_movie);
-
-  // 电视剧变化图
-  if (typeof (chart_tv) != 'undefined')
-    chart_tv.dispose();
-
-  chart_tv = echarts.init($('#chart-tv-bg')[0], null, {
-    height: 40.0
-  });
-
-  option_chart_tv = {
-    animation: true,
-    color: [
-        tabler.getColor('primary'),
-      tabler.getColor('gray-600')
-    ],
-    legend: {
-      show: false,
-    },
-    grid: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 2,
-      containLabel: false
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      show: false,
-      data: {{ TvChartLabels| safe }}
-    },
-    yAxis: {show: false,},
-    series: [{
-      name: '电视剧',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      data: {{ TvNums }}
-    }, {
-      name: '动漫',
-      type: 'line',
-      large: true,
-      smooth: true,
-      symbol: 'none',
-      lineStyle: {
-        width: 1.5,
-        type: 'dashed'
+    option_chart_movie = {
+      animation: true,
+      color: [
+          tabler.getColor('primary')
+      ],
+      legend: {
+        show: false,
       },
-      data: {{ AnimeNums }}
-    }]
-  };
-  chart_tv.setOption(option_chart_tv);
+      grid: {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 2,
+        containLabel: false
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        show: false,
+        data: {{ MovieChartLabels| safe }}
+      },
+      yAxis: {show: false,},
+      series: [{
+        name: '电影',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        data: {{ MovieNums }}
+      }]
+    };
+    chart_movie.setOption(option_chart_movie);
 
-  // 响应大小调整
-  window.onresize = function () {
-    chart_tv.resize();
-    chart_movie.resize();
-  };
+    // 电视剧变化图
+    if (typeof (chart_tv) != 'undefined')
+      chart_tv.dispose();
+
+    chart_tv = echarts.init($('#chart-tv-bg')[0], null, {
+      height: 40.0
+    });
+
+    option_chart_tv = {
+      animation: true,
+      color: [
+          tabler.getColor('primary'),
+        tabler.getColor('gray-600')
+      ],
+      legend: {
+        show: false,
+      },
+      grid: {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 2,
+        containLabel: false
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        show: false,
+        data: {{ TvChartLabels| safe }}
+      },
+      yAxis: {show: false,},
+      series: [{
+        name: '电视剧',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        data: {{ TvNums }}
+      }, {
+        name: '动漫',
+        type: 'line',
+        large: true,
+        smooth: true,
+        symbol: 'none',
+        lineStyle: {
+          width: 1.5,
+          type: 'dashed'
+        },
+        data: {{ AnimeNums }}
+      }]
+    };
+    chart_tv.setOption(option_chart_tv);
+
+    // 响应大小调整
+    window.onresize = function () {
+      chart_tv.resize();
+      chart_movie.resize();
+    };
+  }
 </script>
 <script type="text/javascript">
   //显示媒体库同步框

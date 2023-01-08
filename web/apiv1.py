@@ -244,7 +244,7 @@ class SiteStatistic(ApiResource):
             "code": 0,
             "success": True,
             "data": {
-                "user_statistics": Sites().get_site_user_statistics(encoding="DICT")
+                "user_statistics": WebAction().get_site_user_statistics({"encoding": "DICT"}).get("data")
             }
         }
 
@@ -777,7 +777,7 @@ class TransferCacheEmpty(ClientResource):
         return WebAction().api_action(cmd='truncate_blacklist')
 
 
-@library.route('/library/start')
+@library.route('/sync/start')
 class LibrarySyncStart(ClientResource):
 
     @staticmethod
@@ -788,7 +788,7 @@ class LibrarySyncStart(ClientResource):
         return WebAction().api_action(cmd='start_mediasync')
 
 
-@library.route('/library/status')
+@library.route('/sync/status')
 class LibrarySyncStatus(ClientResource):
 
     @staticmethod
@@ -799,7 +799,7 @@ class LibrarySyncStatus(ClientResource):
         return WebAction().api_action(cmd='mediasync_state')
 
 
-@library.route('/library/playhistory')
+@library.route('/mediaserver/playhistory')
 class LibraryPlayHistory(ClientResource):
 
     @staticmethod
@@ -810,7 +810,7 @@ class LibraryPlayHistory(ClientResource):
         return WebAction().api_action(cmd='get_library_playhistory')
 
 
-@library.route('/library/statistics')
+@library.route('/mediaserver/statistics')
 class LibraryStatistics(ClientResource):
 
     @staticmethod
@@ -821,7 +821,7 @@ class LibraryStatistics(ClientResource):
         return WebAction().api_action(cmd="get_library_mediacount")
 
 
-@library.route('/library/space')
+@library.route('/space')
 class LibrarySpace(ClientResource):
 
     @staticmethod
@@ -1931,7 +1931,7 @@ class WordItemImport(ClientResource):
     @words.doc(parser=parser)
     def post(self):
         """
-        分析识别词
+        导入识别词
         """
         return WebAction().api_action(cmd='import_custom_words', data=self.parser.parse_args())
 

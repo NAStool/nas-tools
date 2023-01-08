@@ -1,3 +1,4 @@
+{% import 'macro/svg.html' as SVG %}
 <div class="page-body">
   <div class="container-xl">
     <div class="card">
@@ -7,22 +8,13 @@
             <h4 class="subheader">目录</h4>
             <div class="input-icon mb-2">
               <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24"
-                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
-                  <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
-                </svg>
+                {{ SVG.folders() }}
               </span>
               <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
                      aria-label="Search in website">
             </div>
             <a href="javascript:return_to_parentdir()">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
-              </svg>
+              {{ SVG.arrow_back_up() }}
               上级目录
             </a>
             <div id="mediafile_tree" style="overflow-y: auto;"></div>
@@ -37,27 +29,11 @@
             </div>
             <div class="card-actions">
               <a href="javascript:mediafile_transfer_all()" class="btn" title="转移当前目录">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transform" width="24"
-                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M5 13v.875c0 3.383 2.686 6.125 6 6.125"></path>
-                  <circle cx="6" cy="6" r="3"></circle>
-                  <circle cx="18" cy="18" r="3"></circle>
-                  <path d="M16 9l2 2l2 -2"></path>
-                  <path d="M18 10v-.875c0 -3.383 -2.686 -6.125 -6 -6.125"></path>
-                  <path d="M3 15l2 -2l2 2"></path>
-                </svg>
+                {{ SVG.transform() }}
                 转移目录
               </a>
               <a href="javascript:mediafile_findlinks_all()" class="btn" title="查询所有文件硬链接">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24"
-                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
-                  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
-                </svg>
+                {{ SVG.link() }}
                 所有硬链接
               </a>
             </div>
@@ -132,12 +108,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>
-      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
-        <table id="table-hardlinks" class="table table-vcenter card-table">
-        </table>
+      <div class="table-responsive"  style="overflow-y: auto; max-height: 35em;">
+        <table id="table-hardlinks" class="table table-vcenter card-table"></table>
       </div>
       <div class="modal-footer">
-        <a type="button" id="hardlinks_check_all_btn" class="btn btn-link me-auto">全选</a>
+        <a href="javascript:void(0)" class="me-auto ms-3" onclick="select_btn_SelectALL(this, 'hardlink_files')">全选</a>
         <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
          批量删除
         </a>
@@ -256,7 +231,7 @@
 
   // 多个文件删除
   function mediafile_delete_all() {
-    let files = get_hardlink_checked();
+    let files = select_GetSelectedVAL("hardlink_files");
     if (files.length === 0) {
       show_fail_modal("没有硬链接文件被选中！");
       return;
@@ -277,7 +252,7 @@
 
   // 下载字幕
   function mediafile_subtitle(name, id) {
-    let path = $("#mediafilepath_" + id).val();
+    let path = $(`#mediafilepath_${id}`).val();
     ajax_post("download_subtitle", {path: path, name: name}, function (ret) {
       if (ret.code == 0) {
         show_success_modal(ret.msg, function () {
@@ -292,44 +267,25 @@
   // 查询硬链接
   function find_hardlinks(files, dir) {
     ajax_post("find_hardlinks", {files: files, dir: dir}, function (ret) {
-      $("#table-hardlinks").empty();
       if (ret.code === 0) {
         if (ret.data) {
-          let tbody = ``;
+          let table_content = '';
           for (let file in ret.data) {
-            // 查询文件
-            let thead = `<thead><tr>
-             <th class="w-1">
-              <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选">
-             </th>
-             <th>${file}</th>
-             <tr></thead>`;
-            tbody = `${tbody}${thead}`;
             // 查询文件的硬链接文件
             let hardlinks = ret.data[file];
-            for (let i in hardlinks) {
-              let hardlink = hardlinks[i];
-              let tr = `<tr class="ms-3">
-                      <td class="w-1">
-                        <input class="form-check-input m-0 align-middle" id="check_hardlink_${hardlink.file}" type="checkbox">
-                      </td>
-                      <td>
-                        <div class="ms-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
-                             <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
-                          </svg>
-                          ${hardlink.filename}
-                        </div>
-                        <div class="ms-3"><span class="text-muted">${hardlink.filepath}</span></div>
-                      </td>
-                      </tr>`;
-              tbody = `${tbody}${tr}`;
+            let tbody_content = '';
+            for (let hardlink of hardlinks) {
+              tbody_content += $("#hardlinks_tbody_template").text()
+                .replaceAll("{HARDLINK_FILE}", hardlink.file)
+                .replaceAll("{HARDLINK_FILENAME}", hardlink.filename)
+                .replaceAll("{HARDLINK_FILEPATH}", hardlink.filepath);
             }
+            // 查询文件
+            table_content += $("#hardlinks_table_content_template").text()
+              .replaceAll("{FILE}", file)
+              .replaceAll("{TBODY_CONTENT}", tbody_content);
           }
-          tbody = `<tbody>${tbody}</tbody>`;
-          $("#table-hardlinks").append(`${tbody}`);
+          $("#table-hardlinks").empty().append(table_content);
           $("#modal-hardlinks").modal("show");
         } else {
           show_success_modal("查询成功，但未找到硬链接文件！");
@@ -373,26 +329,11 @@
     $("#modal-find-links-dir").modal("show");
   }
 
-    // 获取选中按钮
-  function get_hardlink_checked(){
-    let hardlinks = [];
-    $("[id^='check_hardlink_']").each(function () {
-      if ($(this).prop("checked")) {
-        let checkid = $(this).attr("id");
-        if(checkid){
-          let file = checkid.replace("check_hardlink_", "");
-          hardlinks.push(file);
-        }
-      }
-    });
-    return hardlinks;
-  }
-
   // 设置高度
   function set_mediafile_height() {
     let height = $(window).height();
-    $("#mediafile_tree").css("height", (height - 240) + "px");
-    $("#mediafile_file_container").css("height", (height - 225) + "px");
+    $("#mediafile_tree").css("height", `${(height - 240)}px`);
+    $("#mediafile_file_container").css("height", `${(height - 225)}px`);
   }
 
   // 返回上级目录
@@ -412,67 +353,76 @@
     set_mediafile_height();
   });
 
-  // 绑定全选事件
-  var check_all = false;
-  $("#hardlinks_check_all_btn").click(function () {
-    if(check_all){
-      check_all = false;
-      $(this).text("全选");
-      $("#modal-hardlinks input[type=checkbox]").prop("checked", false);
-    }else{
-      check_all = true;
-      $(this).text("全不选");
-      $("#modal-hardlinks input[type=checkbox]").prop("checked", true);
-    }
-  });
-
 </script>
-<script type="text" id="mediafile_item_template">
-    <div class="card card-link-pop">
-      <div class="row g-0">
-        <div class="col-auto">
-          <div class="p-2">
-            <div class="avatar avatar-md">{FILEEXT}</div>
+<script id="mediafile_item_template" type="text/html">
+<div class="card card-link-pop">
+  <div class="row g-0">
+    <div class="col-auto">
+      <div class="p-2">
+        <div class="avatar avatar-md">{FILEEXT}</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="p-2 ps-0">
+        <div class="row">
+          <div class="col">
+            <h3 class="mb-0"><a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")'>{FILENAME}</a></h3>
+            <div id="testresults_{FILEPOS}" class="text-muted"></div>
+            <input type="hidden" value="{FILEPATH}" id="mediafilepath_{FILEPOS}">
           </div>
         </div>
-        <div class="col">
-          <div class="p-2 ps-0">
-            <div class="row">
-              <div class="col">
-                <h3 class="mb-0"><a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")'>{FILENAME}</a></h3>
-                <div id="testresults_{FILEPOS}" class="text-muted"></div>
-                <input type="hidden" value="{FILEPATH}" id="mediafilepath_{FILEPOS}">
+        <div class="row">
+          <div class="col">
+            <div class="mt-3 list-inline list-inline-dots mb-0 text-muted">
+              <div class="list-inline-item d-none d-lg-block">
+                  {{ SVG.file_info() }}
+                  {FILESIZE}
               </div>
             </div>
-            <div class="row">
-              <div class="col">
-                <div class="mt-3 list-inline list-inline-dots mb-0 text-muted">
-                  <div class="list-inline-item d-none d-lg-block">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-info" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-                          <path d="M11 14h1v4h1"></path>
-                          <path d="M12 11h.01"></path>
-                      </svg>
-                      {FILESIZE}
-                  </div>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="mt-3 badges">
-                  <a href='javascript:mediafile_name_test("{FILENAME}", "testresults_{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">识别</a>
-                  <a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">转移</a>
-                  <a href='javascript:mediafile_subtitle("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">下载字幕</a>
-                  <a href='javascript:mediafile_findlinks("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">硬链接查询</a>
-                  <a href='javascript:show_mediafile_rename_modal("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">重命名</a>
-                  <a href='javascript:mediafile_delete("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">删除</a>
-                </div>
-              </div>
+          </div>
+          <div class="col-auto">
+            <div class="mt-3 badges">
+              <a href='javascript:mediafile_name_test("{FILENAME}", "testresults_{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">识别</a>
+              <a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">转移</a>
+              <a href='javascript:mediafile_subtitle("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">下载字幕</a>
+              <a href='javascript:mediafile_findlinks("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">硬链接查询</a>
+              <a href='javascript:show_mediafile_rename_modal("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">重命名</a>
+              <a href='javascript:mediafile_delete("{FILENAME}", "{FILEPOS}")' class="badge badge-outline text-muted border fw-normal badge-pill mb-1">删除</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+</script>
+
+<script id="hardlinks_table_content_template" type="text/html">
+<thead>
+  <tr>
+    <th class="w-1"></th>
+    <th>{FILE}</th>
+  </tr>
+</thead>
+<tbody>
+  {TBODY_CONTENT}
+</tbody>
+
+</script>
+
+<script id="hardlinks_tbody_template" type="text/html">
+<tr class="ms-3">
+  <td class="w-1">
+    <input class="form-check-input m-0 align-middle" name="hardlink_files" value="{HARDLINK_FILE}" type="checkbox">
+  </td>
+  <td>
+    <div class="ms-3">
+      <span class="text-muted">{{ SVG.link() }}</span>
+      {HARDLINK_FILENAME}
+    </div>
+    <div class="ms-3"><span class="text-muted">{HARDLINK_FILEPATH}</span></div>
+  </td>
+</tr>
 
 </script>

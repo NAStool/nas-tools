@@ -573,7 +573,7 @@ class FileTransfer:
                     # 记录未识别
                     is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                     if is_need_insert_unknown:
-                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                        self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                         alert_count += 1
                     failed_count += 1
                     if error_message not in alert_messages and is_need_insert_unknown:
@@ -670,7 +670,7 @@ class FileTransfer:
                         # 记录未识别
                         is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                         if is_need_insert_unknown:
-                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                            self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                             alert_count += 1
                         failed_count += 1
                         if error_message not in alert_messages and is_need_insert_unknown:
@@ -705,7 +705,7 @@ class FileTransfer:
                             # 记录未识别
                             is_need_insert_unknown = self.dbhelper.is_need_insert_transfer_unknown(reg_path)
                             if is_need_insert_unknown:
-                                self.dbhelper.insert_transfer_unknown(reg_path, target_dir)
+                                self.dbhelper.insert_transfer_unknown(reg_path, target_dir, rmt_mode)
                                 alert_count += 1
                             failed_count += 1
                             if error_message not in alert_messages and is_need_insert_unknown:
@@ -1134,7 +1134,8 @@ class FileTransfer:
         if not media:
             return {}
         episode_title = self.media.get_episode_title(media)
-        en_title = self.media.get_tmdb_en_title(media)
+        # 此处使用独立对象，避免影响语言
+        en_title = Media().get_tmdb_en_title(media)
         return {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(en_title),

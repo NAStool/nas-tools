@@ -11,12 +11,12 @@ import feapder
 import log
 from app.utils import StringUtils, SystemUtils
 from app.utils.exception_utils import ExceptionUtils
-from config import Config, DEFAULT_UA, WEBDRIVER_PATH
+from config import Config
 from feapder.utils.tools import urlencode
 
 
 class TorrentSpider(feapder.AirSpider):
-    _webdriver_path = WEBDRIVER_PATH.get(SystemUtils.get_system().value)
+    _webdriver_path = SystemUtils.get_webdriver_path()
     __custom_setting__ = dict(
         USE_SESSION=True,
         SPIDER_THREAD_COUNT=1,
@@ -77,7 +77,7 @@ class TorrentSpider(feapder.AirSpider):
         if indexer.ua:
             self.ua = indexer.ua
         else:
-            self.ua = Config().get_config('app').get('user_agent') or DEFAULT_UA
+            self.ua = Config().get_ua()
         if indexer.proxy:
             self.proxies = Config().get_proxies()
         if indexer.cookie:

@@ -1,3 +1,5 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -11,38 +13,18 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_site_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
             新增站点
           </a>
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
           </a>
           <a href="javascript:show_sitetest_modal()" class="btn d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
-            </svg>
+            {{ SVG.activity_heartbeat() }}
             站点测试
           </a>
           <a href="javascript:show_sitetest_modal()" class="btn d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity-heartbeat" width="24"
-              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5"></path>
-            </svg>
+            {{ SVG.activity_heartbeat() }}
           </a>
         </div>
       </div>
@@ -59,35 +41,22 @@
           <div class="card-header">
             <h3 class="card-title">
               <span class="badge badge-pill bg-teal"><small>{{ Site.pri }}</small></span>
-              <a href="{% if Site.signurl %}{{ Site.signurl }}{% else %}javascript:void(0){% endif %}" {% if Site.signurl
-                %}target="_blank" {% endif %}><strong>{{ Site.name }}</strong></a>
+              <a href="{% if Site.signurl %}{{ Site.signurl }}{% else %}javascript:void(0){% endif %}"
+              {% if Site.signurl %}target="_blank" {% endif %} class="ms-1">
+                <strong>{{ Site.name }}</strong>
+                </a>
             </h3>
             <div class="card-actions btn-actions">
-              <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action" title="编辑站点">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                  <line x1="16" y1="5" x2="19" y2="8" />
-                </svg>
+              <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action ms-1" title="编辑站点">
+                {{ SVG.edit() }}
               </a>
-              <a href="javascript:show_site_cookie_ua_modal('{{ Site.id }}', '{{ Site.name }}')" class="btn-action" title="更新站点Cookie和User-Agent">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh-dot" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                   <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                   <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                   <circle cx="12" cy="12" r="1"></circle>
-                </svg>
+              {% if ChromeOk %}
+              <a href="javascript:show_site_cookie_ua_modal('{{ Site.id }}', '{{ Site.name }}')" class="btn-action ms-1" title="更新站点Cookie和User-Agent">
+                {{ SVG.refresh_dot() }}
               </a>
-              <a href="javascript:remove_site('{{ Site.name }}', '{{ Site.id }}')" class="btn-action" title="删除站点">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+              {% endif %}
+              <a href="javascript:remove_site('{{ Site.name }}', '{{ Site.id }}')" class="btn-action ms-1" title="删除站点">
+                {{ SVG.x() }}
               </a>
             </div>
           </div>
@@ -146,18 +115,7 @@
   </div>
 </div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
-      </div>
-      <p class="empty-title">没有站点</p>
-      <p class="empty-subtitle text-muted">
-        没有添加任何站点，请点击”新增站点“按钮。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.nodatafound('没有站点', '没有添加任何站点，请点击”新增站点“按钮。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="modal-site" tabindex="-1" role="dialog" aria-hidden="true"
   data-bs-backdrop="static" data-bs-keyboard="false">
@@ -277,8 +235,10 @@
               <label class="form-label required">开启浏览器仿真 <span class="form-help"
                   title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_chrome">
-                <option value="Y" selected>是</option>
-                <option value="N">否</option>
+                {% if ChromeOk %}
+                <option value="Y">是</option>
+                {% endif %}
+                <option value="N" selected>否</option>
               </select>
             </div>
           </div>
@@ -336,8 +296,10 @@
         <table class="table table-vcenter card-table">
           <thead>
             <tr>
-              <th class="w-1"><input class="form-check-input m-0 align-middle" id="sitetest_check_all_btn"
-                  type="checkbox" aria-label="全选"></th>
+              <th>
+                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                       onclick="select_SelectALL($(this).prop('checked'), 'test_sites_item')">
+              </th>
               <th>站点</th>
               <th>连通性</th>
               <th>耗时</th>
@@ -347,7 +309,7 @@
           <tbody>
             {% for Site in Sites %}
             <tr>
-              <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ Site.id }}" type="checkbox">
+              <td class="w-1"><input class="form-check-input m-0 align-middle" name="test_sites_item" value="{{ Site.id }}" type="checkbox">
               </td>
               <td><span>{{ Site.name }}</span></td>
               <td id="sitetest_item{{ Site.id }}"></td>
@@ -492,23 +454,7 @@
         $("#site_proxy").val(ret.site.proxy);
         $("#site_subtitle").val(ret.site.subtitle);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
-        $("input[name=site_uses]").each(function () {
-          $(this).prop("checked", false);
-        });
-        $("input[name=site_uses]").each(function () {
-          if ($(this).val() == "Q" && ret.site.signin_enable) {
-            $(this).prop("checked", true);
-          }
-          if ($(this).val() == "D" && ret.site.rss_enable) {
-            $(this).prop("checked", true);
-          }
-          if ($(this).val() == "S" && ret.site.brush_enable) {
-            $(this).prop("checked", true);
-          }
-          if ($(this).val() == "T" && ret.site.statistic_enable) {
-            $(this).prop("checked", true);
-          }
-        });
+        select_SelectPart(ret.site.uses, "site_uses")
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -520,7 +466,7 @@
   //删除站点
   function del_site(tid) {
     ajax_post("del_site", { "id": tid }, function (ret) {
-      navmenu('site');
+      window_history_refresh();
     });
   }
 
@@ -567,12 +513,7 @@
     let site_rule = $("#site_rule").val();
     let site_parse = $("#site_parse").val();
     let site_unread_msg_notify = $("#site_unread_msg_notify").val();
-    let site_uses = "";
-    $("input[name=site_uses]").each(function () {
-      if ($(this).prop("checked")) {
-        site_uses = site_uses + $(this).val();
-      }
-    });
+    let site_uses = select_GetSelectedVAL("site_uses").join("");
     if (site_uses.match(/[DS]/) && !site_rssurl) {
       $("#site_rssurl").addClass("is-invalid");
       return;
@@ -608,7 +549,7 @@
       $("#add_or_edit_site_btn").attr("disabled", false).text("新增");
       $("#modal-site").modal("hide");
       //刷新页面
-      navmenu('site');
+      window_history_refresh();
     });
   }
 
@@ -642,11 +583,6 @@
     $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
-  //全选事件
-  $("#sitetest_check_all_btn").change(function () {
-    $("#modal-sitetest input[type=checkbox]").prop("checked", $(this).prop("checked"));
-  });
-
   //显示测试站点
   function show_sitetest_modal() {
     $("#modal-sitetest").modal("show");
@@ -659,14 +595,10 @@
     if (!siteid) {
       return;
     }
-    $("#sitetest_btn").attr("disabled", true);
-    $("#sitetest_btn").text("测试中...");
     total_test_sites = total_test_sites + 1;
     ajax_post("test_site", { id: siteid }, function (ret) {
       finished_test_sites = finished_test_sites + 1;
       if (finished_test_sites >= total_test_sites) {
-        $("#sitetest_btn").attr("disabled", false);
-        $("#sitetest_btn").text("测试");
         total_test_sites = 0
         finished_test_sites = 0
       }
@@ -833,12 +765,12 @@
 
   // 站点测试按钮
   $("#sitetest_btn").click(function () {
-    $("#modal-sitetest input[type=checkbox]").each(function () {
-      if ($(this).attr("id").startsWith("check_") && $(this).prop("checked")) {
-        let siteid = $(this).attr("id").replace("check_", "");
-        test_one_site(siteid);
-      }
-    });
+    let siteids = select_GetSelectedVAL("test_sites_item");
+    $("#sitetest_btn").text("测试中...").attr("disabled", true);
+    for (let siteid of siteids) {
+      test_one_site(siteid);
+    }
+    $("#sitetest_btn").text("测试").attr("disabled", false);
   });
 
 </script>

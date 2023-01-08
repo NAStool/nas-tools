@@ -5,25 +5,25 @@ import time
 from functools import reduce
 from threading import Lock
 
-from app.utils import SystemUtils, RequestUtils
 import undetected_chromedriver as uc
+from webdriver_manager.chrome import ChromeDriverManager
 
-from config import WEBDRIVER_PATH
+from app.utils import SystemUtils, RequestUtils
 
 lock = Lock()
 
+driver_executable_path = None
+
 
 class ChromeHelper(object):
-
     _executable_path = None
-        
+
     _chrome = None
     _headless = False
 
     def __init__(self, headless=False):
 
-        chrome_path = SystemUtils.get_system().value
-        self._executable_path = WEBDRIVER_PATH.get(chrome_path)
+        self._executable_path = SystemUtils.get_webdriver_path() or driver_executable_path
 
         if SystemUtils.is_windows():
             self._headless = False
@@ -31,6 +31,14 @@ class ChromeHelper(object):
             self._headless = True
         else:
             self._headless = headless
+
+    def init_driver(self):
+        if self._executable_path:
+            return
+        if not uc.find_chrome_executable():
+            return
+        global driver_executable_path
+        driver_executable_path = ChromeDriverManager().install()
 
     @property
     def browser(self):
@@ -40,11 +48,13 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        # 指定了WebDriver路径的，如果路径不存在则不启用
+        if not self._executable_path:
+            return False
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
             return False
-        # 否则自动下载WebDriver
+        if not uc.find_chrome_executable():
+            return False
         return True
 
     def __get_browser(self):
@@ -57,7 +67,12 @@ class ChromeHelper(object):
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-plugins-discovery")
+        options.add_argument('--no-first-run')
+        options.add_argument('--no-service-autorun')
+        options.add_argument('--no-default-browser-check')
+        options.add_argument('--password-store=basic')
         if self._headless:
             options.add_argument('--headless')
         prefs = {

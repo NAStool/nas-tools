@@ -1,3 +1,5 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -10,56 +12,18 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_userrss_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
             新建订阅任务
           </a>
           <a href="javascript:show_userrss_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            {{ SVG.plus() }}
           </a>
           <a href="javascript:navmenu('rss_parser')" class="btn d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <rect x="5" y="5" width="14" height="14" rx="1"></rect>
-              <path d="M9 9h6v6h-6z"></path>
-              <path d="M3 10h2"></path>
-              <path d="M3 14h2"></path>
-              <path d="M10 3v2"></path>
-              <path d="M14 3v2"></path>
-              <path d="M21 10h-2"></path>
-              <path d="M21 14h-2"></path>
-              <path d="M14 21v-2"></path>
-              <path d="M10 21v-2"></path>
-            </svg>
+            {{ SVG.cpu() }}
             RSS解析器
           </a>
           <a href="javascript:navmenu('rss_parser')" class="btn d-sm-none btn-icon" title="RSS解析器">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24"
-              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <rect x="5" y="5" width="14" height="14" rx="1"></rect>
-              <path d="M9 9h6v6h-6z"></path>
-              <path d="M3 10h2"></path>
-              <path d="M3 14h2"></path>
-              <path d="M10 3v2"></path>
-              <path d="M14 3v2"></path>
-              <path d="M21 10h-2"></path>
-              <path d="M21 14h-2"></path>
-              <path d="M14 21v-2"></path>
-              <path d="M10 21v-2"></path>
-            </svg>
+            {{ SVG.cpu() }}
           </a>
         </div>
       </div>
@@ -82,51 +46,28 @@
           <div class="ms-2">
             <a href="javascript:run_userrss_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
               data-bs-toggle="tooltip">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bolt icon-filled" width="24"
-                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <polyline points="13 3 13 10 19 10 11 21 11 14 5 14 13 3"></polyline>
-              </svg>
+              {{ SVG.bolt('icon-filled') }}
             </a>
           </div>
+          {% if Task.uses == 'D' and Task.recognization == "Y" %}
+          <span class="badge bg-azure ms-auto">TMDB</span>
+          <div class="card-actions btn-actions" style="margin-left: unset">
+          {% else %}
           <div class="card-actions btn-actions">
-            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action" title="展开/折叠">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"
-                viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
-              </svg>
+          {% endif %}
+            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action ms-1" title="展开/折叠">
+              {{ SVG.menu_2() }}
             </a>
             {% if Task.uses == 'D' %}
-            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action" title="预览">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <circle cx="12" cy="12" r="2"></circle>
-                <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7">
-                </path>
-              </svg>
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action ms-1" title="预览报文">
+              {{ SVG.eye() }}
             </a>
             {% endif %}
-            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path>
-                <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"></path>
-                <line x1="16" y1="5" x2="19" y2="8"></line>
-              </svg>
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action ms-1" title="编辑任务">
+              {{ SVG.edit() }}
             </a>
-            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <desc>Download more icon variants from https://tabler-icons.io/i/x</desc>
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action ms-1" title="删除任务">
+              {{ SVG.x() }}
             </a>
           </div>
         </div>
@@ -235,18 +176,7 @@
   </div>
 </div>
 {% else %}
-<div class="page-body">
-  <div class="container-xl d-flex flex-column justify-content-center">
-    <div class="empty">
-      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
-      </div>
-      <p class="empty-title">没有记录</p>
-      <p class="empty-subtitle text-muted">
-        当前没有订阅任何内容。
-      </p>
-    </div>
-  </div>
-</div>
+{{ OOPS.nodatafound('没有订阅任务', '当前没有自定义订阅任何内容。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="modal-userrss" tabindex="-1" role="dialog" aria-hidden="true"
   data-bs-backdrop="static" data-bs-keyboard="false">
@@ -379,13 +309,13 @@
           </div>
         </div>
         <div class="row" id="downloader_setting_div">
-          <div class="col-lg-8">
+          <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">保存路径</label>
               <input type="text" id="userrss_save_path" class="form-control" placeholder="留空自动选择保存路径">
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-3">
             <div class="mb-3">
               <label class="form-label">下载设置</label>
               <select class="form-select" id="userrss_download_setting">
@@ -393,6 +323,16 @@
                 {% for Id, Attr in DownloadSettings.items() %}
                 <option value="{{ Attr.id }}">{{ Attr.name }}</option>
                 {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="userrss_recognization">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
               </select>
             </div>
           </div>
@@ -441,68 +381,30 @@
       <div class="modal-footer">
         <a href="javascript:batch_articles_action('download')"
           class="btn btn-primary me-auto d-none d-sm-inline-block">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
-            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-            <polyline points="7 11 12 16 17 11"></polyline>
-            <line x1="12" y1="4" x2="12" y2="16"></line>
-          </svg>
+          {{ SVG.download() }}
           批量下载
         </a>
         <a href="javascript:batch_articles_action('download')"
           class="btn btn-primary btn-icon me-auto d-sm-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24"
-            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-            <polyline points="7 11 12 16 17 11"></polyline>
-            <line x1="12" y1="4" x2="12" y2="16"></line>
-          </svg>
+          {{ SVG.download() }}
         </a>
         <a href="javascript:batch_articles_action('set_finished')"
           class="btn btn-green d-none d-sm-inline-block">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
-            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M9 12l2 2l4 -4"></path>
-          </svg>
+          {{ SVG.circle_check() }}
           已处理
         </a>
         <a href="javascript:batch_articles_action('set_finished')"
           class="btn btn-green btn-icon d-sm-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24"
-            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M9 12l2 2l4 -4"></path>
-          </svg>
+          {{ SVG.circle_check() }}
         </a>
         <a href="javascript:batch_articles_action('set_unfinish')"
           class="btn btn-yellow d-none d-sm-inline-block">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
-            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M10 10l4 4m0 -4l-4 4"></path>
-          </svg>
+          {{ SVG.circle_x() }}
           未处理
         </a>
         <a href="javascript:batch_articles_action('set_unfinish')"
           class="btn btn-yellow btn-icon d-sm-none">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24"
-            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M10 10l4 4m0 -4l-4 4"></path>
-          </svg>
+          {{ SVG.circle_x() }}
         </a>
       </div>
     </div>
@@ -538,6 +440,7 @@
     show_userrss_uses('D');
     $("#userrss_save_path").val('');
     $("#userrss_download_setting").val('');
+    $("#userrss_recognization").val('Y');
     $("#modal-userrss").modal('show');
   }
 
@@ -558,6 +461,7 @@
         show_userrss_uses(ret.detail.uses);
         $("#userrss_save_path").val(ret.detail.save_path);
         $("#userrss_download_setting").val(ret.detail.download_setting);
+        $("#userrss_recognization").val(ret.detail.recognization);
         $("#modal-userrss").modal('show');
       }
     });
@@ -568,7 +472,7 @@
     show_confirm_modal("删除订阅任务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_userrss_task", { "id": taskid }, function (ret) {
-        navmenu('user_rss');
+        window_history_refresh();
       });
     });
   }
@@ -617,12 +521,13 @@
       state: $("#userrss_state").val(),
       save_path: $("#userrss_save_path").val(),
       download_setting: $("#userrss_download_setting").val(),
+      recognization: $("#userrss_recognization").val(),
     };
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
       $("#add_or_edit_userrss_btn").attr("disabled", false);
-      navmenu('user_rss');
+      window_history_refresh();
     });
   }
 
@@ -630,7 +535,7 @@
   function run_userrss_now(id) {
     ajax_post("run_userrss", { "id": id }, function (ret) {
       show_success_modal("任务运行完成！", function () {
-        navmenu('user_rss');
+        window_history_refresh();
       });
     });
   }
@@ -643,7 +548,10 @@
       if (ret.code == 0) {
         const articles = ret.data;
         let content_th = `<thead><tr>
-                          <th class="w-1"><input class="form-check-input m-0 align-middle" id="articles_check_all_btn" type="checkbox" aria-label="全选"></th>
+                          <th class="w-1">
+                            <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                                   onclick="select_SelectALL($(this).prop('checked'), 'rss_articles_item')">
+                          </th>
                           <th>标题</th>
                           <th>状态</th>
                           <th>发布时间</th>
@@ -659,20 +567,12 @@
           let input_checkbox = '';
           if (article.title) {
             const title_param = article.title.replace(/\'/g, "&#39;");
-            input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox">
+            input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
             title = `<span>${article.title}</span> 
                       <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-text-recognition" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <path d="M4 8v-2a2 2 0 0 1 2 -2h2"></path>
-                           <path d="M4 16v2a2 2 0 0 0 2 2h2"></path>
-                           <path d="M16 4h2a2 2 0 0 1 2 2v2"></path>
-                           <path d="M16 20h2a2 2 0 0 0 2 -2v-2"></path>
-                           <path d="M12 16v-7"></path>
-                           <path d="M9 9h6"></path>
-                        </svg>
+                        {{ SVG.text_recognition() }}
                       </a>`;
             if (article.link) {
               title = `<a href="${article.link}" target="_blank">${title}</a>`;
@@ -690,24 +590,13 @@
           } else {
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
           }
-          let download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                              <polyline points="7 11 12 16 17 11"></polyline>
-                              <line x1="12" y1="4" x2="12" y2="16"></line>
-                            </svg>
-                          </a>`
+          let download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
           content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }
 
         $("#table-rss-articles").append(content);
-        // 绑定全选事件
-        $("#articles_check_all_btn").bind("change", function () {
-          $(".table-responsive input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
-        });
       } else {
         content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
@@ -720,18 +609,13 @@
   // 获取选中按钮
   function get_article_checked(){
     let articles = [];
-    $(".table-responsive input[type=checkbox]").each(function () {
-      if ($(this).prop("checked")) {
-        const checkid = $(this).attr("id");
-        if (checkid && checkid.startsWith("check_")) {
-          const title = $(`#${checkid.replace("check", "title")}`).val();
-          const enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
-          if (title || enclosure) {
-            articles.push({ title: title, enclosure: enclosure })
-          }
-        }
-      }
-    });
+    let articles_id = select_GetSelectedVAL("rss_articles_item");
+    for (let id of articles_id) {
+      articles.push({
+        "title": $(`#title_${id}`).val(),
+        "enclosure": $(`#enclosure_${id}`).val(),
+      });
+    }
     return articles;
   }
 

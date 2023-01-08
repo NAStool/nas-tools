@@ -94,6 +94,8 @@ class CONFIGUSERRSS(Base):
     STATE = Column(Text)
     SAVE_PATH = Column(Text)
     DOWNLOAD_SETTING = Column(Integer)
+    RECOGNIZATION = Column(Text)
+    MEDIAINFOS = Column(Text)
     NOTE = Column(Text)
 
 
@@ -523,6 +525,7 @@ class TRANSFERUNKNOWN(Base):
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     PATH = Column(Text, index=True)
     DEST = Column(Text)
+    MODE = Column(Text)
     STATE = Column(Text, index=True)
 
 

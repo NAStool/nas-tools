@@ -1,0 +1,63 @@
+<!-- 没有记录 -->
+{% macro nodatafound(title, text) %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
+      </div>
+      <p class="empty-title">{{ title }}</p>
+      <p class="empty-subtitle text-muted">
+        {{ text }}
+      </p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+<!-- 内容为空 -->
+{% macro empty(title, text) %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+      </div>
+      <p class="empty-title">{{ title }}</p>
+      <p class="empty-subtitle text-muted">
+        {{ text }}
+      </p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+<!-- 系统错误 -->
+{% macro systemerror(title, text) %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/bug_fixing.svg" height="128" alt="">
+      </div>
+      <p class="empty-title">{{ title }}</p>
+      <p class="empty-subtitle text-muted">
+        {{ text }}
+      </p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+<!-- 系统错误 -->
+{% macro loading() %}
+<div class="page-center justify-content-center">
+  <div class="container-tight py-4">
+    <div class="empty">
+      <div class="mb-3"><img src="../static/img/quitting_time.svg" height="256" alt="">
+      </div>
+      <p class="empty-subtitle text-muted">
+        页面正在加载，请稍候...
+      </p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
