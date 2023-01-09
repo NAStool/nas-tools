@@ -85,10 +85,20 @@ class RssChecker(object):
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = json.loads(task.NOTE) if task.NOTE else {}
+            note = task.NOTE
+            if isinstance(note, bytes):
+                try:
+                    note = json.loads(note.decode("utf-8"))
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    note = {}
+            elif isinstance(note, str):
+                note = json.loads(note)
+            else:
+                note = {}
             save_path = ""
             recognization = "Y"
-            if note and isinstance(note, dict):
+            if isinstance(note, dict):
                 if note.get("save_path"):
                     save_path = note.get("save_path")
                 if note.get("recognization"):
