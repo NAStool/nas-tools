@@ -42,7 +42,7 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
             "path": ".//description/text()"
         },
         "size": {
-            "path": ".//link/@length"
+            "path": ".//enclosure[@type=''application/x-bittorrent'']/@length"
         }
     }
 }', '', '', 'Y');
@@ -74,3 +74,27 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
         }
     }
 }', 'api_key={TMDBKEY}&language=zh-CN', '', 'Y');
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('5', 'Nyaa', 'XML', '{
+    "list": "//channel/item",
+    "item": {
+    "title": {
+        "path": ".//title/text()"
+    },
+    "enclosure": {
+         "path": ".//link/text()"
+    },
+    "link": {
+        "path": ".//guid/text()"
+    },
+    "date": {
+        "path": ".//pubDate/text()"
+    },
+    "description": {
+        "path": ".//description/text()"
+    },
+    "size": {
+        "path": "size/text()",
+        "namespaces": "https://nyaa.si/xmlns/nyaa"
+    }
+    }
+}', '', '', 'Y');
