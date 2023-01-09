@@ -74,7 +74,7 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
         }
     }
 }', 'api_key={TMDBKEY}&language=zh-CN', '', 'Y');
-INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('5', 'nyaa', 'XML', '{
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('5', 'Nyaa', 'XML', '{
     "list": "//channel/item",
     "item": {
     "title": {
