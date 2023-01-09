@@ -265,30 +265,24 @@
 
   // 名称测试
   $("#nametest_btn").unbind("click").click(function () {
-    name_test(this);
+    name_test($(this));
   });
 
   // 规则测试
   $("#ruletest_btn").unbind("click").click(function () {
-    rule_test(this);
+    rule_test($(this));
   });
 
   // 网络测试
+  var NETTEST_COUNT_TOTAL = 0;
+  var NETTEST_COUNT_FINISHED = 0;
   $("#nettest_btn").unbind("click").click(async function () {
     let url_indexs = select_GetHiddenVAL("nettest_item");
-    let total_test_count = 0;
+    NETTEST_COUNT_TOTAL = url_indexs.length;
     $(this).text("测试中...").attr("disabled", true);
     for (let url_index of url_indexs){
-      net_test_one(url_index, res=>{
-        if (res) {
-          total_test_count += 1;
-        }
-      });
+      net_test_one(url_index);
     }
-    while (total_test_count !== url_indexs.length) {
-      await sleep(1000);
-    }
-    $(this).text("测试").attr("disabled", false);
   });
 
   // 备份
@@ -328,9 +322,9 @@
     } else {
       name_obj.removeClass("is-invalid");
     }
-    $(btn_obj).text("识别中...").attr("disabled", true);
+    btn_obj.text("识别中...").attr("disabled", true);
     media_name_test(name, "test_result", function () {
-      $(btn_obj).text("识别").attr("disabled", false);
+      btn_obj.text("识别").attr("disabled", false);
     });
   }
 
@@ -362,7 +356,7 @@
     }
 
     const subtitle = $("#test_subtitle").val();
-    $(btn_obj).text("测试中...").attr("disabled", true);
+    btn_obj.text("测试中...").attr("disabled", true);
     const params = {
       "title": title,
       "size": size,
@@ -370,7 +364,7 @@
       "subtitle": subtitle
     };
     ajax_post("rule_test", params, function (ret) {
-      $(btn_obj).text("测试").attr("disabled", false);
+      btn_obj.text("测试").attr("disabled", false);
       if (ret.code === 0) {
         let content = "";
         if (ret.flag) {
@@ -385,7 +379,7 @@
   }
 
   // 单个网络测试
-  function net_test_one(url_index, callBack) {
+  function net_test_one(url_index) {
     if (!url_index) {
       return;
     }
@@ -399,7 +393,14 @@
         $(`#nettest_item_res_${index}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
         $(`#nettest_item_res_time_${index}`).html(`<span class="text-red">${ret.time}</span>`);
       }
-      callBack(true);
+      NETTEST_COUNT_FINISHED++;
+      console.log(NETTEST_COUNT_FINISHED);
+      console.log(NETTEST_COUNT_TOTAL);
+      if (NETTEST_COUNT_FINISHED >= NETTEST_COUNT_TOTAL) {
+        NETTEST_COUNT_FINISHED = 0;
+        NETTEST_COUNT_TOTAL = 0;
+        $("#nettest_btn").text("测试").attr("disabled", false);
+      }
     });
   }
 
