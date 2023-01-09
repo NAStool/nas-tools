@@ -56,7 +56,8 @@ class RssChecker(object):
         try:
             if self._scheduler:
                 self._scheduler.remove_all_jobs()
-                self._scheduler.shutdown()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -187,7 +188,7 @@ class RssChecker(object):
                 # 副标题
                 description = res.get('description')
                 # 种子大小
-                size = res.get('size')
+                size = StringUtils.str_filesize(res.get('size'))
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
@@ -491,7 +492,7 @@ class RssChecker(object):
                 # 副标题
                 description = res.get('description')
                 # 种子大小
-                size = res.get('size')
+                size = StringUtils.str_filesize(res.get('size'))
                 # 发布日期
                 date = StringUtils.unify_datetime_str(res.get('date'))
                 # 年份
