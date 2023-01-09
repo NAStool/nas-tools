@@ -589,7 +589,7 @@
   }
 
   //测试一个站点
-  function test_one_site(siteid) {
+  function test_one_site(siteid, callBack) {
     if (!siteid) {
       return;
     }
@@ -603,12 +603,7 @@
         $(`#sitetest_item${siteid}_time`).html(`<span class="text-red">${ret.time} 毫秒</span>`);
         $(`#sitetest_item${siteid}_msg`).html(`<span class="text-muted">${ret.msg}</span>`);
       }
-      SITETEST_COUNT_FINISHED++;
-      if (SITETEST_COUNT_FINISHED >= SITETEST_COUNT_TOTOL) {
-        SITETEST_COUNT_TOTOL = 0;
-        SITETEST_COUNT_FINISHED = 0;
-        $("#sitetest_btn").text("测试").attr("disabled", false);
-      }
+      callBack(true);
     });
   }
 
@@ -762,14 +757,21 @@
   }
 
   // 站点测试按钮
-  var SITETEST_COUNT_TOTOL = 0;
-  var SITETEST_COUNT_FINISHED = 0;
   $("#sitetest_btn").unbind("click").click(async function () {
+    let btn_obj = $(this);
     let siteids = select_GetSelectedVAL("test_sites_item");
-    SITETEST_COUNT_TOTOL = siteids.length;
-    $(this).text("测试中...").attr("disabled", true);
+    let sitetest_count_totol = siteids.length;
+    let sitetest_count_finished = 0;
+    btn_obj.text("测试中...").attr("disabled", true);
     for (let siteid of siteids) {
-      test_one_site(siteid)
+      test_one_site(siteid, ret=>{
+        if (ret) {
+          sitetest_count_finished++;
+          if (sitetest_count_finished >= sitetest_count_totol) {
+            btn_obj.text("测试完成").attr("disabled", false);
+          }
+        }
+      })
     }
   });
 

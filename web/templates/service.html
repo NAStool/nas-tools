@@ -274,14 +274,21 @@
   });
 
   // 网络测试
-  var NETTEST_COUNT_TOTAL = 0;
-  var NETTEST_COUNT_FINISHED = 0;
   $("#nettest_btn").unbind("click").click(async function () {
+    let btn_obj = $(this);
     let url_indexs = select_GetHiddenVAL("nettest_item");
-    NETTEST_COUNT_TOTAL = url_indexs.length;
-    $(this).text("测试中...").attr("disabled", true);
+    let nettest_count_total = url_indexs.length;
+    let nettest_count_finished = 0;
+    btn_obj.text("测试中...").attr("disabled", true);
     for (let url_index of url_indexs){
-      net_test_one(url_index);
+      net_test_one(url_index, ret=>{
+        if (ret) {
+          nettest_count_finished++;
+          if (nettest_count_finished >= nettest_count_total) {
+            btn_obj.text("测试").attr("disabled", false);
+          }
+        }
+      });
     }
   });
 
@@ -379,7 +386,7 @@
   }
 
   // 单个网络测试
-  function net_test_one(url_index) {
+  function net_test_one(url_index, callBack) {
     if (!url_index) {
       return;
     }
@@ -393,12 +400,7 @@
         $(`#nettest_item_res_${index}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
         $(`#nettest_item_res_time_${index}`).html(`<span class="text-red">${ret.time}</span>`);
       }
-      NETTEST_COUNT_FINISHED++;
-      if (NETTEST_COUNT_FINISHED >= NETTEST_COUNT_TOTAL) {
-        NETTEST_COUNT_FINISHED = 0;
-        NETTEST_COUNT_TOTAL = 0;
-        $("#nettest_btn").text("测试").attr("disabled", false);
-      }
+      callBack(true)
     });
   }
 
