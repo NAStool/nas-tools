@@ -98,12 +98,12 @@ class RssChecker(object):
                 note = {}
             save_path = ""
             recognization = "Y"
-            if note and isinstance(note, dict):
+            if isinstance(note, dict):
                 if note.get("save_path"):
                     save_path = note.get("save_path")
                 if note.get("recognization"):
                     recognization = note.get("recognization")
-            elif note and isinstance(note, str):
+            elif isinstance(note, str):
                 save_path = note
             self._rss_tasks.append({
                 "id": task.ID,
