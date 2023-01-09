@@ -2088,58 +2088,10 @@
 
   // 处理识别结果UI
   function media_name_test_ui(data, result_div) {
-    let content = '';
-    let ignored_words = [];
-    let replaced_words = [];
-    let offset_words = [];
-    if (data.ignored_words) {
-      ignored_words = data.ignored_words;
-    }
-    if (data.replaced_words) {
-      replaced_words = data.replaced_words;
-    }
-    if (data.offset_words) {
-      offset_words = data.offset_words;
-    }
-    const words = ignored_words + replaced_words + offset_words;
-    if (words.length !== 0) {
-      if (data.org_string) {
-        content = `${content}<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${data.org_string}</span></label></div>`;
-      }
-      if (ignored_words.length !== 0) {
-        let ignored_word_content = '';
-        for (ignored_word of ignored_words) {
-          ignored_word_content = `${ignored_word_content}<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
-        }
-        content = `${content}<div class="mb-3"><label class="form-label">应用屏蔽词：${ignored_word_content}</label></div>`;
-      }
-      if (replaced_words.length !== 0) {
-        let replaced_words_content = '';
-        for (replaced_word of replaced_words) {
-          replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
-        }
-        content = `${content}<div class="mb-3"><label class="form-label">应用替换词：${replaced_words_content}</label></div>`;
-      }
-      if (offset_words.length !== 0) {
-        let offset_words_content = '';
-        for (offset_word of offset_words) {
-          offset_words_content = offset_words_content + `<span class="badge badge-outline text-wrap text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
-        }
-        content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
-      }
-    }
-    $(`#${result_div}`).empty().append(content);
-
-    // 以下就是修改部分
-    // result_div 这个组件就是自定义chips组件
-    // 需要确保自定义组件已经被浏览器初始化成功, 因为要调用组件内部的自定义方法
-    const my_chips = document.querySelector(`#${result_div}`);
-    window.customElements.whenDefined("custom-chips").then(function(){
-      // 希望chips按此数组的顺序生成..
-      const sort_array = ["type","category","name","title","tmdbid","year","season_episode","part","restype","effect","pix","video_codec","audio_codec","team"]
-      // 调用组件实例的自定义方法.. 一次性添加chips
-      my_chips.add_chips_all(sort_array, data);
-    });
+    // 希望chips按此数组的顺序生成..
+    const sort_array = ["type","category","name","title","tmdbid","year","season_episode","part","restype","effect","pix","video_codec","audio_codec","team"]
+    // 调用组件实例的自定义方法.. 一次性添加chips
+    document.querySelector(`#${result_div}`).add_chips_all(sort_array, data);
   }
 
   // 显示手动识别转移框
@@ -2324,20 +2276,19 @@
     ajax_post(cmd, data, function (ret) {
       $("#identification_action_btn").attr("disabled", false)
           .text("转移");
-      if (ret.retcode == 0) {
+      if (ret.retcode === 0) {
         $('#modal-media-identification').modal('hide');
         show_success_modal("处理成功！", function () {
           navmenu(source);
         });
       } else {
         //处理失败
-        regmsg = ret.retmsg;
         if (manual_type == '3') {
           $("#rename_udf_retmsg").show()
-              .text(regmsg)
+              .text(ret.retmsg)
         } else {
           $("#rename_retmsg").show()
-              .text(regmsg)
+              .text(ret.retmsg)
         }
       }
     });
