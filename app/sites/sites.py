@@ -133,7 +133,8 @@ class Sites:
                   rss=False,
                   brush=False,
                   signin=False,
-                  statistic=False):
+                  statistic=False,
+                  content=None):
         """
         获取站点配置
         """
@@ -152,7 +153,16 @@ class Sites:
                 continue
             if statistic and not site.get('statistic_enable'):
                 continue
-            ret_sites.append(site)
+            match content:
+                case 'basic':
+                    ret_sites.append({
+                        "id": site.get('id'),
+                        "name": site.get('name')
+                    })
+                case 'name':
+                    ret_sites.append(site.get('name'))
+                case _:
+                    ret_sites.append(site)
         if siteid or siteurl:
             return {}
         return ret_sites

@@ -1059,19 +1059,11 @@ class WebAction:
         signin = True if data.get("signin") else False
         statistic = True if data.get("statistic") else False
         basic = True if data.get("basic") else False
-        if basic:
-            sites = [{
-                "id": site.get("id"),
-                "name": site.get("name")
-            } for site in Sites().get_sites(rss=rss,
-                                            brush=brush,
-                                            signin=signin,
-                                            statistic=statistic)]
-        else:
-            sites = Sites().get_sites(rss=rss,
-                                      brush=brush,
-                                      signin=signin,
-                                      statistic=statistic)
+        sites = Sites().get_sites(rss=rss,
+                                  brush=brush,
+                                  signin=signin,
+                                  statistic=statistic,
+                                  content="basic" if basic else None)
         return {"code": 0, "sites": sites}
 
     def __del_site(self, data):
