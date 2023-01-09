@@ -2575,11 +2575,11 @@
   }
 
   //实时日志关闭
-  $("#logging_close_btn").click(function () {
+  $("#logging_close_btn").unbind("click").click(function () {
     stop_logging();
   });
 
-  $("#logging_close_head").click(function () {
+  $("#logging_close_head").unbind("click").click(function () {
     stop_logging();
   });
 
