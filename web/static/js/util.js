@@ -173,7 +173,7 @@ function select_SelectPart(condition, name) {
 }
 
 /**
- * 获取选中元素value
+ * 获取选中input元素value
  * @param: name 被管理checkbox的name
  **/
 function select_GetSelectedVAL(name) {
@@ -184,6 +184,18 @@ function select_GetSelectedVAL(name) {
         }
     });
     return selectedVAL;
+}
+
+/**
+ * 获取隐藏input元素value
+ * @param: name 被管理checkbox的name
+ **/
+function select_GetHiddenVAL(name) {
+    let hiddenVAL = [];
+    $(`input[${select_name(name)}][type=hidden]`).each(function () {
+        hiddenVAL.push($(this).val());
+    });
+    return hiddenVAL;
 }
 
 /**
@@ -252,4 +264,12 @@ function bytesToSize(bytes) {
         size = (bytes / (1024 * 1024 * 1024 * 1024 * 1024)).toFixed(2) + ' PB'
     }
     return size
+}
+
+/**
+ * 暂停
+ * @param: ms 暂停毫秒数
+ **/
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

@@ -384,9 +384,8 @@
     $("#rule_exclude").val('');
     $("#rule_sizelimit").val('');
     $("#rule_free").val('');
-    $("#filterrule_close_btn").text("取消");
     $("#add_or_edit_filterrule_btn").text("新增");
-    $("#filterrule_close_btn").unbind('click').click(function () {
+    $("#filterrule_close_btn").text("取消").unbind('click').click(function () {
       $("#modal-add-filterrule").modal('hide');
     });
     $("#modal-add-filterrule").modal('show');
