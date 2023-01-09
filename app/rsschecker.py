@@ -84,27 +84,16 @@ class RssChecker(object):
                 filterrule = self.filter.get_rule_groups(groupid=task.FILTER)
             else:
                 filterrule = {}
-            # 兼容旧配置
-            note = task.NOTE
-            if note and isinstance(note, bytes):
+            # 解析属性
+            note = {}
+            if task.NOTE:
                 try:
-                    note = json.loads(note.decode("utf-8"))
+                    note = json.loads(task.NOTE)
                 except Exception as e:
-                    ExceptionUtils.exception_traceback(e)
+                    print(str(e))
                     note = {}
-            elif note and isinstance(note, str):
-                note = json.loads(note)
-            else:
-                note = {}
-            save_path = ""
-            recognization = "Y"
-            if isinstance(note, dict):
-                if note.get("save_path"):
-                    save_path = note.get("save_path")
-                if note.get("recognization"):
-                    recognization = note.get("recognization")
-            elif isinstance(note, str):
-                save_path = note
+            save_path = note.get("save_path") or ""
+            recognization = note.get("recognization") or "Y"
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
