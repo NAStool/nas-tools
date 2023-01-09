@@ -394,8 +394,6 @@
         $(`#nettest_item_res_time_${index}`).html(`<span class="text-red">${ret.time}</span>`);
       }
       NETTEST_COUNT_FINISHED++;
-      console.log(NETTEST_COUNT_FINISHED);
-      console.log(NETTEST_COUNT_TOTAL);
       if (NETTEST_COUNT_FINISHED >= NETTEST_COUNT_TOTAL) {
         NETTEST_COUNT_FINISHED = 0;
         NETTEST_COUNT_TOTAL = 0;
