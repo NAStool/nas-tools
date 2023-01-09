@@ -166,7 +166,7 @@ class StringUtils:
         """
         将字节计算为文件大小描述（带单位的格式化后返回）
         """
-        size = re.sub(r"\s|B|iB", "", size, re.I)
+        size = re.sub(r"\s|B|iB", "", str(size), re.I)
         if size.replace(".", "").isdigit():
             try:
                 size = float(size)
