@@ -9,6 +9,8 @@ from app.media import Media
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.searcher import Searcher
+from app.sites import Sites
+from app.indexer import Indexer
 from app.utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -302,14 +304,14 @@ class Subscribe:
         """
         ret_dict = {}
         rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
+        rss_sites_valid = [site["name"] for site in Sites().get_sites(rss=True)]
+        search_sites_valid = [site.name for site in Indexer().get_indexers()]
         for rss_movie in rss_movies:
             desc = rss_movie.DESC
             note = rss_movie.NOTE
             tmdbid = rss_movie.TMDBID
-            rss_sites = rss_movie.RSS_SITES
-            rss_sites = json.loads(rss_sites) if rss_sites else []
-            search_sites = rss_movie.SEARCH_SITES
-            search_sites = json.loads(search_sites) if search_sites else []
+            rss_sites = json.loads(rss_movie.RSS_SITES) if rss_movie.RSS_SITES else []
+            search_sites = json.loads(rss_movie.SEARCH_SITES) if rss_movie.SEARCH_SITES else []
             over_edition = True if rss_movie.OVER_EDITION == 1 else False
             filter_restype = rss_movie.FILTER_RESTYPE
             filter_pix = rss_movie.FILTER_PIX
@@ -335,6 +337,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
+            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
+            search_sites = [site for site in search_sites if site in search_sites_valid]
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
                 "name": rss_movie.NAME,
@@ -363,6 +367,8 @@ class Subscribe:
     def get_subscribe_tvs(self, rid=None, state=None):
         ret_dict = {}
         rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
+        rss_sites_valid = [site["name"] for site in Sites().get_sites(rss=True)]
+        search_sites_valid = [site.name for site in Indexer().get_indexers()]
         for rss_tv in rss_tvs:
             desc = rss_tv.DESC
             note = rss_tv.NOTE
@@ -398,6 +404,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
+            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
+            search_sites = [site for site in search_sites if site in search_sites_valid]
             ret_dict[str(rss_tv.ID)] = {
                 "id": rss_tv.ID,
                 "name": rss_tv.NAME,

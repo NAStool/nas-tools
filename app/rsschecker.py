@@ -92,8 +92,8 @@ class RssChecker(object):
                 except Exception as e:
                     print(str(e))
                     note = {}
-            save_path = note.get("save_path") or ""
-            recognization = note.get("recognization") or "Y"
+            save_path = note.get("save_path") or "" if isinstance(note, dict) else ""
+            recognization = note.get("recognization") or "Y" if isinstance(note, dict) else "Y"
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
