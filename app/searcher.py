@@ -147,7 +147,7 @@ class Searcher:
             log.info("【Searcher】%s 未搜索到任何资源" % second_search_name)
             return False, no_exists, 0, 0
         else:
-            if in_from in [SearchType.WX, SearchType.TG, SearchType.SLACK]:
+            if in_from in self.message.get_search_types():
                 # 保存搜索记录
                 self.dbhelper.delete_all_search_torrents()
                 # 搜索结果排序
