@@ -561,6 +561,7 @@
         for (let i = 0; i < articles.length; i++) {
           const article = articles[i];
           let title = '';
+          let recognization = '';
           let size = '';
           let date = '';
           let finish_flag = '';
@@ -570,10 +571,10 @@
             input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
-            title = `<span>${article.title}</span> 
-                      <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
-                        {{ SVG.text_recognition() }}
-                      </a>`;
+            title = `<span>${article.title}</span>`;
+            recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
+                              {{ SVG.text_recognition() }}
+                              </a>`;
             if (article.link) {
               title = `<a href="${article.link}" target="_blank">${title}</a>`;
             }
@@ -583,7 +584,7 @@
             date = `<small>${date[0]}<br>${date[1]}</small>`;
           }
           if (article.size) {
-            size = `<span class="badge badge-outline text-green me-1 mb-1" title="大小">${article.size}</span>`;
+            size = `<span class="badge badge-outline text-green me-1 ms-2" title="大小">${article.size}</span>`;
           }
           if (article.finish_flag) {
             finish_flag = `<span class="badge badge-outline text-blue me-1 mb-1">已处理</span>`;
@@ -591,7 +592,7 @@
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
           }
           let download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
-          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<div id='info_${i}'></div></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }

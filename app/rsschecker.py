@@ -56,7 +56,8 @@ class RssChecker(object):
         try:
             if self._scheduler:
                 self._scheduler.remove_all_jobs()
-                self._scheduler.shutdown()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -84,10 +85,20 @@ class RssChecker(object):
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = json.loads(task.NOTE) if task.NOTE else {}
+            note = task.NOTE
+            if isinstance(note, bytes):
+                try:
+                    note = json.loads(note.decode("utf-8"))
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    note = {}
+            elif isinstance(note, str):
+                note = json.loads(note)
+            else:
+                note = {}
             save_path = ""
             recognization = "Y"
-            if note and isinstance(note, dict):
+            if isinstance(note, dict):
                 if note.get("save_path"):
                     save_path = note.get("save_path")
                 if note.get("recognization"):
@@ -187,7 +198,7 @@ class RssChecker(object):
                 # 副标题
                 description = res.get('description')
                 # 种子大小
-                size = res.get('size')
+                size = StringUtils.str_filesize(res.get('size'))
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
@@ -491,7 +502,7 @@ class RssChecker(object):
                 # 副标题
                 description = res.get('description')
                 # 种子大小
-                size = res.get('size')
+                size = StringUtils.str_filesize(res.get('size'))
                 # 发布日期
                 date = StringUtils.unify_datetime_str(res.get('date'))
                 # 年份

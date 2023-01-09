@@ -556,17 +556,17 @@
   //关闭或者删除
   function close_or_del() {
     $("#modal-site").modal("hide");
-    tid = $("#site_id").val();
+    let tid = $("#site_id").val();
     if (tid) {
       del_site(tid);
     }
   }
 
   //绑定事件
-  $("#add_or_edit_site_btn").click(function () {
+  $("#add_or_edit_site_btn").unbind("click").click(function () {
     add_or_edit_site();
   });
-  $("#site_close_btn").click(function () {
+  $("#site_close_btn").unbind("click").click(function () {
     close_or_del();
   });
 
@@ -589,20 +589,12 @@
   }
 
   //测试一个站点
-  var total_test_sites = 0
-  var finished_test_sites = 0
-  function test_one_site(siteid) {
+  function test_one_site(siteid, callBack) {
     if (!siteid) {
       return;
     }
-    total_test_sites = total_test_sites + 1;
     ajax_post("test_site", { id: siteid }, function (ret) {
-      finished_test_sites = finished_test_sites + 1;
-      if (finished_test_sites >= total_test_sites) {
-        total_test_sites = 0
-        finished_test_sites = 0
-      }
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         $(`#sitetest_item${siteid}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
         $(`#sitetest_item${siteid}_time`).html(`<span class="text-green">${ret.time} 毫秒</span>`);
         $(`#sitetest_item${siteid}_msg`).html('');
@@ -611,6 +603,7 @@
         $(`#sitetest_item${siteid}_time`).html(`<span class="text-red">${ret.time} 毫秒</span>`);
         $(`#sitetest_item${siteid}_msg`).html(`<span class="text-muted">${ret.msg}</span>`);
       }
+      callBack(true);
     });
   }
 
@@ -736,7 +729,7 @@
     $("#captcha_code").val("");
     $("#modal-captcha-code").modal("show");
     // 超时关闭
-    setTimeout("sitecookie_captcha_timeout("+siteid+")", 30000);
+    setTimeout(`sitecookie_captcha_timeout(${siteid})`, 30000);
   }
 
   // 输入验证码
@@ -754,7 +747,7 @@
         // 重新刷新状态
         refresh_sitecookie_process_flag = true;
         refresh_sitecookie_fail_count = 0;
-        setTimeout("refresh_sitecookie_process("+refresh_sitecookie_current+")", 2000);
+        setTimeout(`refresh_sitecookie_process(${refresh_sitecookie_current})`, 2000);
         // 关闭框
         $("#modal-captcha-code").modal("hide");
         // 显示原框
@@ -764,13 +757,22 @@
   }
 
   // 站点测试按钮
-  $("#sitetest_btn").click(function () {
+  $("#sitetest_btn").unbind("click").click(async function () {
+    let btn_obj = $(this);
     let siteids = select_GetSelectedVAL("test_sites_item");
-    $("#sitetest_btn").text("测试中...").attr("disabled", true);
+    let sitetest_count_totol = siteids.length;
+    let sitetest_count_finished = 0;
+    btn_obj.text("测试中...").attr("disabled", true);
     for (let siteid of siteids) {
-      test_one_site(siteid);
+      test_one_site(siteid, ret=>{
+        if (ret) {
+          sitetest_count_finished++;
+          if (sitetest_count_finished >= sitetest_count_totol) {
+            btn_obj.text("测试完成").attr("disabled", false);
+          }
+        }
+      })
     }
-    $("#sitetest_btn").text("测试").attr("disabled", false);
   });
 
 </script>
