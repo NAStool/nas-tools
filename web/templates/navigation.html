@@ -2128,52 +2128,18 @@
         content = `${content}<div class="mb-3"><label class="form-label">应用集数偏移：${offset_words_content}</label></div>`;
       }
     }
-    if (data.type) {
-      content = `${content}<span class="badge bg-blue me-1 mb-1" title="类型">${data.type}</span>`;
-    }
-    if (data.category) {
-      content = `${content}<span class="badge bg-blue me-1 mb-1" title="类别">${data.category}</span>`;
-    }
-    if (data.name) {
-      const name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(data.name)}`;
-      content = `${content}<span title="识别名称"><a class="badge bg-yellow text-wrap me-1 mb-1" href="${name_query_link}" target="_blank">${data.name}</a></span>`;
-    }
-    if (data.title) {
-      content = `${content}<span class="badge bg-green text-wrap me-1 mb-1" title="标题">${data.title}</span>`;
-    } else {
-      content = `${content}<span class="badge bg-red me-1 mb-1" title="标题">未匹配TMDB</span>`;
-    }
-    if (data.tmdbid) {
-      content = `${content}<span title="TMDB ID"><a class="badge bg-green me-1 mb-1" href="${data.tmdblink}" target="_blank">${data.tmdbid}</a></span>`;
-    }
-    if (data.year) {
-      content = `${content}<span class="badge bg-orange me-1 mb-1" title="年份">${data.year}</span>`;
-    }
-    if (data.season_episode) {
-      content = `${content}<span title="季集"><a class="badge bg-orange me-1 mb-1" href="${data.tmdb_S_E_link}" target="_blank">${data.season_episode}</a></span>`;
-    }
-    if (data.part) {
-      content = `${content}<span class="badge bg-orange me-1 mb-1" title="分集">${data.part}</span>`;
-    }
-    if (data.restype) {
-      content = `${content}<span class="badge me-1 mb-1" title="质量">${data.restype}</span>`;
-    }
-    if (data.effect) {
-      content = `${content}<span class="badge me-1 mb-1" title="特性">${data.effect}</span>`;
-    }
-    if (data.pix) {
-      content = `${content}<span class="badge me-1 mb-1" title="分辨率">${data.pix}</span>`;
-    }
-    if (data.video_codec) {
-      content = `${content}<span class="badge me-1 mb-1" title="视频编码">${data.video_codec}</span>`;
-    }
-    if (data.audio_codec) {
-      content = `${content}<span class="badge me-1 mb-1" title="音频编码">${data.audio_codec}</span>`;
-    }
-    if (data.team) {
-      content = `${content}<span class="badge bg-cyan text-wrap me-1 mb-1" title="制作组/字幕组">${data.team}</span>`;
-    }
     $(`#${result_div}`).empty().append(content);
+
+    // 以下就是修改部分
+    // result_div 这个组件就是自定义chips组件
+    // 需要确保自定义组件已经被浏览器初始化成功, 因为要调用组件内部的自定义方法
+    const my_chips = document.querySelector(`#${result_div}`);
+    window.customElements.whenDefined("custom-chips").then(function(){
+      // 希望chips按此数组的顺序生成..
+      const sort_array = ["type","category","name","title","tmdbid","year","season_episode","part","restype","effect","pix","video_codec","audio_codec","team"]
+      // 调用组件实例的自定义方法.. 一次性添加chips
+      my_chips.add_chips_all(sort_array, data);
+    });
   }
 
   // 显示手动识别转移框
@@ -2791,19 +2757,7 @@
   });
 </script>
 <!-- 动态载入自定义组件 -->
-<div id="MyWebComponents"></div>
-<script type="text/javascript">
-  let components_list = [
-    "normalCard",
-    "normalCard_placeholder",
-    "custom-img",
-    "media-slide",
-  ]
-  for (let components_name of components_list){
-    $('#MyWebComponents').append(`<div id='MyWebComponents_${components_name}'><div>`);
-    $(`#MyWebComponents_${components_name}`).load(`../static/components/${components_name}.html`)
-  }
-</script>
+<script src="../static/components/index.js"></script>
 </body>
 
 </html>
