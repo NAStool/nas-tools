@@ -44,7 +44,8 @@ class BrushTask(object):
         try:
             if self._scheduler:
                 self._scheduler.remove_all_jobs()
-                self._scheduler.shutdown()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
                 self._scheduler = None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
