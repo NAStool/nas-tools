@@ -86,13 +86,13 @@ class RssChecker(object):
                 filterrule = {}
             # 兼容旧配置
             note = task.NOTE
-            if isinstance(note, bytes):
+            if note and isinstance(note, bytes):
                 try:
                     note = json.loads(note.decode("utf-8"))
                 except Exception as e:
                     ExceptionUtils.exception_traceback(e)
                     note = {}
-            elif isinstance(note, str):
+            elif note and isinstance(note, str):
                 note = json.loads(note)
             else:
                 note = {}
