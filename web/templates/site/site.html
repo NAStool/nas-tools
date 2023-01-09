@@ -556,7 +556,7 @@
   //关闭或者删除
   function close_or_del() {
     $("#modal-site").modal("hide");
-    tid = $("#site_id").val();
+    let tid = $("#site_id").val();
     if (tid) {
       del_site(tid);
     }
