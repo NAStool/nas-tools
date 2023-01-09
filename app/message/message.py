@@ -528,3 +528,13 @@ class Message(object):
                 if client.get('interactive'):
                     ret_clients.append(client)
             return ret_clients
+
+    @staticmethod
+    def get_search_types():
+        """
+        查询可交互的渠道
+        """
+        return [info.get("search_type")
+                for info in ModuleConf.MESSAGE_DICT.get('client').values()
+                if info.get('search_type')]
+
