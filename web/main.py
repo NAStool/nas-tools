@@ -433,7 +433,8 @@ def discovery_tv():
 @App.route('/discovery_bangumi', methods=['POST', 'GET'])
 @login_required
 def discovery_bangumi():
-    return render_template("discovery/bangumi.html")
+    return render_template("discovery/discovery.html",
+                           DiscoveryType="bangumi")
 
 
 # 正在下载页面
