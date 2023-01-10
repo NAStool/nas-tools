@@ -4229,6 +4229,8 @@ class WebAction:
         """
         results = self.dbhelper.get_brushtask_torrents(brush_id=data.get("id"),
                                                        active=False)
+        if not results:
+            return {"code": 1, "msg": "未下载种子或未获取到种子明细"}
         return {"code": 0, "data": [item.as_dict() for item in results]}
 
     @staticmethod

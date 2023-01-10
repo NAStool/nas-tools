@@ -37,15 +37,21 @@
       {% for Task in Tasks %}
       <div class="card">
         <div class="card-header">
-          <div>
-            {% if Task.state == 'Y' %}
-            <span class="badge bg-green"></span>
-            {% else %}
-            <span class="badge bg-red"></span>
-            {% endif %}
-          </div>
-          <div class="ms-3"><h3 class="card-title">{{ Task.name }}</h3></div>
-          <div class="ms-2">
+          <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()"
+             title="展开/折叠" data-bs-toggle="tooltip">
+            <div>
+              {% if Task.state == 'Y' %}
+              <span class="badge bg-green"></span>
+              {% else %}
+              <span class="badge bg-red"></span>
+              {% endif %}
+            </div>
+          </a>
+          <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" style="text-decoration-line: none; color: unset"
+             title="展开/折叠" data-bs-toggle="tooltip">
+            <div class="ms-3"><h3 class="card-title">{{ Task.name }}</h3></div>
+          </a>
+          <div class="ms-2 me-auto d-none d-sm-block">
             <a href="javascript:run_userrss_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
               data-bs-toggle="tooltip">
               {{ SVG.bolt('icon-filled') }}
@@ -53,22 +59,43 @@
           </div>
           {% if Task.uses == 'D' and Task.recognization == "Y" %}
           <span class="badge bg-azure ms-auto">TMDB</span>
-          <div class="card-actions btn-actions" style="margin-left: unset">
+          <a href="#" class="link-secondary ms-2 d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
           {% else %}
-          <div class="card-actions btn-actions">
+          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
           {% endif %}
-            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action ms-1" title="展开/折叠">
+            {{ SVG.dots() }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item text-info" onclick="run_userrss_now('{{ Task.id }}')">
+              立即运行
+            </button>
+            <button class="dropdown-item" onclick="show_rss_articles_modal('{{ Task.id }}')">
+              预览
+            </button>
+            <button class="dropdown-item" onclick="edit_userrss_modal('{{ Task.id }}')">
+              编辑
+            </button>
+            <button class="dropdown-item text-danger" onclick="del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')">
+              删除
+            </button>
+          </div>
+          <div class="card-actions btn-actions ms-1 d-none d-sm-block">
+            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action"
+               title="展开/折叠" data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
             {% if Task.uses == 'D' %}
-            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action ms-1" title="预览报文">
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
+               title="预览报文" data-bs-toggle="tooltip">
               {{ SVG.eye() }}
             </a>
             {% endif %}
-            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action ms-1" title="编辑任务">
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
+               title="编辑任务" data-bs-toggle="tooltip">
               {{ SVG.edit() }}
             </a>
-            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action ms-1" title="删除任务">
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action"
+               title="删除任务" data-bs-toggle="tooltip">
               {{ SVG.x() }}
             </a>
           </div>
@@ -573,7 +600,7 @@
             input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
-            title = `<span>${article.title}</span>`;
+            title = `<span style="word-break: keep-all">${article.title}</span>`;
             recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                               {{ SVG.text_recognition() }}
                               </a>`;

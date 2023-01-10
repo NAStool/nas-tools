@@ -36,25 +36,51 @@
       {% for Id, Attr in DownloadSetting.items() %}
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ Attr.name }}</h3>
+          <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" title="展开/折叠"
+             style="text-decoration-line: none; color: unset" data-bs-toggle="tooltip">
+            <h3 class="card-title">{{ Attr.name }}</h3>
+          </a>
+          {% if DefaultDownloadSetting == Id %}
           <div class="ms-2">
-            <a href="javascript:set_default_download_setting('{{ Attr.id }}')" class="btn-action" title="设置/取消默认">
-              {% if DefaultDownloadSetting == Id %}
-                <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
-              {% else %}
-                {{ SVG.star() }}
-              {% endif %}
+            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action"
+               title="展开/折叠" data-bs-toggle="tooltip">
+              <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
             </a>
           </div>
-          <div class="card-actions btn-actions">
-            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action ms-1">
+          {% else %}
+          <div class="ms-2 d-none d-sm-block">
+            <a href="javascript:set_default_download_setting('{{ Attr.id }}')" class="btn-action"
+               title="设为默认" data-bs-toggle="tooltip">
+              {{ SVG.star() }}
+            </a>
+          </div>
+          {% endif %}
+          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ SVG.dots() }}
+                </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item text-info" onclick="set_default_download_setting('{{ Attr.id }}')">
+              设为默认
+            </button>
+            <button class="dropdown-item" onclick="show_edit_download_setting_modal('{{ Attr.id }}')">
+              编辑
+            </button>
+            <button class="dropdown-item text-danger" onclick="delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')">
+              删除
+            </button>
+          </div>
+          <div class="card-actions btn-actions d-none d-sm-block">
+            <a href="javascript:$('#detail_{{ Attr.id }}').slideToggle()" class="btn-action ms-1"
+               title="展开/折叠" data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
             {% if Attr.id > 0 %}
-            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action ms-1" title="编辑设置">
+            <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action ms-1"
+               title="编辑设置" data-bs-toggle="tooltip">
               {{ SVG.edit() }}
             </a>
-            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action ms-1" title="删除设置">
+            <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action ms-1"
+               title="删除设置" data-bs-toggle="tooltip">
               {{ SVG.x() }}
             </a>
             {% endif %}

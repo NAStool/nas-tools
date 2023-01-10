@@ -31,29 +31,60 @@
       {% for Id, Attr in TorrentRemoveTasks.items() %}
       <div class="card">
         <div class="card-header">
-          {% if Attr.enabled %}
-          <span class="badge bg-green"></span>
-          {% else %}
-          <span class="badge bg-red"></span>
-          {% endif %}
-          <div class="ms-2"><h3 class="card-title">{{ Attr.name }}</h3></div>
-          <div class="ms-2">
+          <a href="javascript:$(`#detail_{{ Attr.id }}`).slideToggle()"
+             title="展开/折叠"  data-bs-toggle="tooltip">
+            <div>
+              {% if Attr.enabled %}
+              <span class="badge bg-green"></span>
+              {% else %}
+              <span class="badge bg-red"></span>
+              {% endif %}
+            </div>
+          </a>
+          <a href="javascript:$(`#detail_{{ Attr.id }}`).slideToggle()" style="text-decoration-line: none; color: unset"
+             title="展开/折叠" data-bs-toggle="tooltip">
+            <div class="ms-3">
+                <h3 class="card-title">{{ Attr.name }}</h3>
+            </div>
+          </a>
+          <div class="ms-2 d-none d-sm-block">
             <a href="javascript:run_torrent_remove_now('{{ Attr.id }}')" class="btn-icon" title="立即运行任务"
               data-bs-toggle="tooltip">
               {{ SVG.bolt('icon-filled') }}
             </a>
           </div>
-          <div class="card-actions btn-actions">
-            <a href="javascript:show_torrent_remove_task_detail('{{ Attr.id }}')" class="btn-action ms-1">
+          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ SVG.dots() }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item text-info" onclick="run_torrent_remove_now('{{ Attr.id }}')">
+              立即运行
+            </button>
+            <button class="dropdown-item" onclick="show_remove_torrents_modal('{{ Attr.id }}')">
+              预览
+            </button>
+            <button class="dropdown-item" onclick="show_edit_torrent_remove_task_modal('{{ Attr.id }}')">
+              编辑
+            </button>
+            <button class="dropdown-item text-danger" onclick="delete_torrent_remove_task('{{ Attr.id }}', '{{ Attr.name }}')">
+              删除
+            </button>
+          </div>
+          <div class="card-actions btn-actions d-none d-sm-block">
+            <a href="javascript:$(`#detail_{{ Attr.id }}`).slideToggle()" class="btn-action"
+               title="展开/折叠" data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
-            <a href="javascript:show_remove_torrents_modal('{{ Attr.id }}')" class="btn-action ms-1">
+            <a href="javascript:show_remove_torrents_modal('{{ Attr.id }}')" class="btn-action"
+               title="预览删种" data-bs-toggle="tooltip">
               {{ SVG.eye() }}
             </a>
-            <a href="javascript:show_edit_torrent_remove_task_modal('{{ Attr.id }}')" class="btn-action ms-1" title="编辑设置">
+            <a href="javascript:show_edit_torrent_remove_task_modal('{{ Attr.id }}')" class="btn-action"
+               title="编辑设置" data-bs-toggle="tooltip">
               {{ SVG.edit() }}
             </a>
-            <a href="javascript:delete_torrent_remove_task('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action ms-1" title="删除设置">
+            <a href="javascript:delete_torrent_remove_task('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action"
+               title="删除设置" data-bs-toggle="tooltip">
               {{ SVG.x() }}
             </a>
           </div>
@@ -429,10 +460,6 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 折叠任务详情
-  function show_torrent_remove_task_detail(tid) {
-    $(`#detail_${tid}`).slideToggle();
-  }
 
   // 显示新增任务
   function show_add_torrent_remove_task_modal(){
