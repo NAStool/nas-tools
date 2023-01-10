@@ -1,0 +1,70 @@
+<div class="container-xl" id="media_slide_content">
+</div>
+<script type="text/javascript">
+
+  function init_data(){
+    let media_slide_list = [
+      {
+        title:"星期一",
+        type :"1",
+        click:"javascript:navmenu('recommend?t=bangumi&week=1')",
+      },{
+        title:"星期二",
+        type :"2",
+        click:"javascript:navmenu('recommend?t=bangumi&week=2')",
+      },{
+        title:"星期三",
+        type :"3",
+        click:"javascript:navmenu('recommend?t=bangumi&week=3')",
+      },{
+        title:"星期四",
+        type :"4",
+        click:"javascript:navmenu('recommend?t=bangumi&week=4')",
+      },{
+        title:"星期五",
+        type :"5",
+        click:"javascript:navmenu('recommend?t=bangumi&week=5')",
+      },{
+        title:"星期六",
+        type :"6",
+        click:"javascript:navmenu('recommend?t=bangumi&week=6')",
+      },{
+        title:"星期日",
+        type :"7",
+        click:"javascript:navmenu('recommend?t=bangumi&week=7')",
+      },
+    ]
+    for (let slide of media_slide_list){
+      // 获取media_slide组件
+      let media_slide = document.querySelector(`#media_slide_bangumi_${slide.type}`);
+      if (!media_slide){
+        // 创建media_slide组件
+        $("#media_slide_content").append(`
+          <media-slide id="media_slide_bangumi_${slide.type}"
+            slide-title="${slide.title}"
+            slide-icon="${slide.icon}"
+            slide-click="${slide.click}"
+          ></media-slide>
+        `);
+        media_slide = document.querySelector(`#media_slide_bangumi_${slide.type}`);
+      }
+      // 获取数据
+      if (slide.type){
+        // 需要确保自定义组件已经被浏览器初始化成功, 因为要调用组件内部的自定义方法
+        window.customElements.whenDefined("media-slide").then(function(){
+          // 判断media_slide组件是否需要获取数据
+          if (media_slide?.is_placeholder()){
+            ajax_post("get_recommend", { "type": "bangumi", "page": 1, "week": slide.type}, function (ret) {
+              if (ret.Items.length > 0){
+                // 更新组件内容
+                media_slide.update_slide_card(ret.Items, slide.type);
+              }
+            });
+          }
+        })
+      }
+    }
+  }
+
+  init_data();
+</script>

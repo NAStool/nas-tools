@@ -406,9 +406,11 @@ def resources():
 def recommend():
     RecommendType = request.args.get("t")
     CurrentPage = request.args.get("page") or 1
+    Week = request.args.get("week") or None
     return render_template("discovery/recommend.html",
                            RecommendType=RecommendType,
-                           CurrentPage=CurrentPage)
+                           CurrentPage=CurrentPage,
+                           Week=Week)
 
 
 # 电影推荐页面
@@ -425,6 +427,13 @@ def discovery_movie():
 def discovery_tv():
     return render_template("discovery/discovery.html",
                            DiscoveryType="tv")
+
+
+# Bangumi每日放送
+@App.route('/discovery_bangumi', methods=['POST', 'GET'])
+@login_required
+def discovery_bangumi():
+    return render_template("discovery/bangumi.html")
 
 
 # 正在下载页面

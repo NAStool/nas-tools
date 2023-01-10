@@ -59,6 +59,9 @@
     $("#recommend_title").text("Bangumi每日放送");
   }
 
+  // 星期
+  var Week = '{{ Week }}';
+
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
   function add_loading_card_placeholder() {
@@ -84,7 +87,7 @@
     }
     loading = true;
     add_loading_card_placeholder();
-    ajax_post("get_recommend", { "type": title_type, "page": CurrentPage }, function (ret) {
+    ajax_post("get_recommend", { "type": title_type, "page": CurrentPage, "week": Week }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
         CurrentPage++;

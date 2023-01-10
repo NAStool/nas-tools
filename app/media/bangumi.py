@@ -30,7 +30,7 @@ class Bangumi(object):
     def calendar(self):
         return self.__invoke(self._urls["calendar"], _ts=datetime.strftime(datetime.now(), '%Y%m%d'))
 
-    def get_bangumi_calendar(self, page=1):
+    def get_bangumi_calendar(self, page=1, week=None):
         """
         获取每日放送
         """
@@ -41,6 +41,9 @@ class Bangumi(object):
         ret_list = []
         pos = 0
         for info in infos:
+            weeknum = info.get("weekday", {}).get("id")
+            if week and int(weeknum) != int(week):
+                continue
             weekday = info.get("weekday", {}).get("cn")
             items = info.get("items")
             for item in items:

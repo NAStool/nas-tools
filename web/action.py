@@ -2280,7 +2280,8 @@ class WebAction:
             res_list = DouBan().get_douban_hot_show(CurrentPage)
         elif RecommendType == "bangumi":
             # Bangumi每日放送
-            res_list = Bangumi().get_bangumi_calendar(CurrentPage)
+            Week = data.get("week")
+            res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
         else:
             res_list = []
 
