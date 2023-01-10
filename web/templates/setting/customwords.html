@@ -435,7 +435,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-          <a id="import_btn" href="javascript:analyse_import_custom_words_code()" class="btn btn-primary">解析分享代码</a>
+          <a id="customword_analyse_btn" href="javascript:analyse_import_custom_words_code()" class="btn btn-primary">解析分享代码</a>
         </div>
       </div>
     </div>
@@ -462,7 +462,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-          <a id="import_btn" href="javascript:import_custom_words()" class="btn btn-primary">导入</a>
+          <a id="customword_import_btn" href="javascript:import_custom_words()" class="btn btn-primary">导入</a>
         </div>
       </div>
     </div>
@@ -597,6 +597,10 @@
             $("#import_groups_div").append(`${head}${table}`);
           }
           $("#modal-import-custom-words-table").modal('show');
+        } else {
+          show_fail_modal(`解析失败：${ret.msg}`, function () {
+            $("#modal-import-custom-words-code").modal('show');
+          });
         }
       });
     }
@@ -611,7 +615,7 @@
           $("#import_groups_div").empty();
           window_history_refresh();
         } else {
-          show_fail_modal(ret.msg, function() {
+          show_fail_modal(`导入失败！请确认分享代码有效：${ret.msg}`, function() {
             $("#modal-import-custom-words-table").modal('show');
           });
         }
