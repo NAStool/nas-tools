@@ -1,4 +1,5 @@
 import bisect
+import hashlib
 import random
 import re
 from urllib import parse
@@ -375,3 +376,12 @@ class StringUtils:
         :return: string title
         """
         return s.title() if s else s
+
+    @staticmethod
+    def md5_hash(data):
+        """
+        MD5 HASH
+        """
+        if not data:
+            return ""
+        return hashlib.md5(str(data).encode()).hexdigest()

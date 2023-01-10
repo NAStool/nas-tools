@@ -1,6 +1,5 @@
 import base64
 import datetime
-import hashlib
 import importlib
 import json
 import os.path
@@ -1060,13 +1059,10 @@ class WebAction:
         statistic = True if data.get("statistic") else False
         basic = True if data.get("basic") else False
         if basic:
-            sites = [{
-                "id": site.get("id"),
-                "name": site.get("name")
-            } for site in Sites().get_sites(rss=rss,
-                                            brush=brush,
-                                            signin=signin,
-                                            statistic=statistic)]
+            sites = Sites().get_site_dict(rss=rss,
+                                          brush=brush,
+                                          signin=signin,
+                                          statistic=statistic)
         else:
             sites = Sites().get_sites(rss=rss,
                                       brush=brush,
@@ -2463,10 +2459,6 @@ class WebAction:
                     % (rule_filter_string.get(avg_upspeeds[0]), avg_upspeeds[1]))
 
         return "<br>".join(rule_htmls)
-
-    @staticmethod
-    def str_filesize(size):
-        return StringUtils.str_filesize(size, pre=1)
 
     @staticmethod
     def __clear_tmdb_cache(data):
@@ -4090,11 +4082,7 @@ class WebAction:
         """
         获取索引器
         """
-        indexers = [{
-            "id": index.id,
-            "name": index.name
-        } for index in Indexer().get_indexers()]
-        return {"code": 0, "indexers": indexers}
+        return {"code": 0, "indexers": Indexer().get_indexer_dict()}
 
     @staticmethod
     def __get_download_dirs(data):
@@ -4213,15 +4201,6 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def md5_hash(data):
-        """
-        MD5 HASH
-        """
-        if not data:
-            return ""
-        return hashlib.md5(str(data).encode()).hexdigest()
-
-    @staticmethod
     def __get_site_favicon(data):
         """
         获取站点图标
@@ -4286,7 +4265,7 @@ class WebAction:
                 statistics.sort(key=lambda x: x[sort_by], reverse=True)
         if site_hash == "Y":
             for item in statistics:
-                item["site_hash"] = WebAction.md5_hash(item.get("site"))
+                item["site_hash"] = StringUtils.md5_hash(item.get("site"))
         return {"code": 0, "data": statistics}
 
     @staticmethod

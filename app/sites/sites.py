@@ -157,6 +157,43 @@ class Sites:
             return {}
         return ret_sites
 
+    def get_site_dict(self,
+                      rss=False,
+                      brush=False,
+                      signin=False,
+                      statistic=False):
+        """
+        获取站点字典
+        """
+        return [
+            {
+                "id": site.get("id"),
+                "name": site.get("name")
+            } for site in self.get_sites(
+                rss=rss,
+                brush=brush,
+                signin=signin,
+                statistic=statistic
+            )
+        ]
+
+    def get_site_names(self,
+                       rss=False,
+                       brush=False,
+                       signin=False,
+                       statistic=False):
+        """
+        获取站点名称
+        """
+        return [
+            site.get("name") for site in self.get_sites(
+                rss=rss,
+                brush=brush,
+                signin=signin,
+                statistic=statistic
+            )
+        ]
+
     def get_site_favicon(self, site_name=None):
         """
         获取站点图标

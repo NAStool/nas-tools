@@ -33,7 +33,7 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
-from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils
+from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils, StringUtils
 from app.utils.types import *
 from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
@@ -246,14 +246,7 @@ def search():
     SearchResults = res.get("result")
     Count = res.get("total")
     # 站点列表
-    SiteDict = {}
-    for item in Indexer().get_indexers() or []:
-        SiteDict[md5_hash(item.name)] = {
-            "id": item.id,
-            "name": item.name,
-            "public": item.public,
-            "builtin": item.builtin
-        }
+    SiteDict = Indexer().get_indexer_hash_dict()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
                            SearchWord=SearchWord or "",
@@ -1612,10 +1605,10 @@ def brush_rule_string(rules):
 # 大小格式化过滤器
 @App.template_filter('str_filesize')
 def str_filesize(size):
-    return WebAction.str_filesize(size)
+    return StringUtils.str_filesize(size, pre=1)
 
 
 # MD5 HASH过滤器
 @App.template_filter('hash')
 def md5_hash(text):
-    return WebAction.md5_hash(text)
+    return StringUtils.md5_hash(text)
