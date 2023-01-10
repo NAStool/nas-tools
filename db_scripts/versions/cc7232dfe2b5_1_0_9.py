@@ -50,11 +50,6 @@ def downgrade() -> None:
     except Exception as e:
         print(e)
     try:
-        with op.batch_alter_table("DOUBAN_MEDIAS") as batch_op:
-            batch_op.drop_column('ADD_TIME')
-    except Exception as e:
-        print(e)
-    try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
             batch_op.drop_column('FORCEUPLOAD')
             batch_op.drop_column('SENDMESSAGE')
