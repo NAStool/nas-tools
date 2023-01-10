@@ -1401,7 +1401,6 @@ class DbHelper:
         if date_ret and date_ret[0][0]:
             total_upload = 0
             total_download = 0
-            ret_sites = []
             ret_site_uploads = []
             ret_site_downloads = []
             min_date = date_ret[0][1]
@@ -1426,6 +1425,7 @@ class DbHelper:
                                   func.min(subquery.c.DOWNLOAD),
                                   func.max(subquery.c.UPLOAD),
                                   func.max(subquery.c.DOWNLOAD)).group_by(subquery.c.SITE).all()
+            ret_sites = []
             for ret_b in rets:
                 # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
                 ret_b = list(ret_b)
@@ -1869,7 +1869,7 @@ class DbHelper:
             return
         self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
             {
-                "PROCESS_COUNT": CONFIGUSERRSS.PROCESS_COUNT + count,
+                "PROCESS_COUNT": str(int(CONFIGUSERRSS.PROCESS_COUNT or 0) + count),
                 "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
                                              time.localtime(time.time()))
             }
@@ -1912,7 +1912,8 @@ class DbHelper:
                 STATE=item.get("state"),
                 SAVE_PATH=item.get("save_path"),
                 DOWNLOAD_SETTING=item.get("download_setting"),
-                RECOGNIZATION=item.get("recognization")
+                RECOGNIZATION=item.get("recognization"),
+                PROCESS_COUNT='0'
             ))
 
     def insert_userrss_mediainfos(self, tid=None, mediainfo=None):
