@@ -1855,7 +1855,7 @@ class DbHelper:
         if tid:
             return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()
         else:
-            return self._db.query(CONFIGUSERRSS).all()
+            return self._db.query(CONFIGUSERRSS).order_by(CONFIGUSERRSS.STATE.desc()).all()
 
     @DbPersist(_db)
     def delete_userrss_task(self, tid):
