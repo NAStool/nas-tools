@@ -23,6 +23,8 @@ class Subscribe:
     message = None
     media = None
     downloader = None
+    sites = None
+    douban = None
 
     def __init__(self):
         self.dbhelper = DbHelper()
@@ -31,6 +33,9 @@ class Subscribe:
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
+        self.sites = Sites()
+        self.douban = DouBan()
+        self.indexer = Indexer()
 
     def add_rss_subscribe(self, mtype, name, year,
                           season=None,
@@ -108,9 +113,9 @@ class Subscribe:
                     tmdbid = media_info.tmdb_id
                 elif doubanid:
                     # 先从豆瓣网页抓取（含TMDBID）
-                    douban_info = DouBan().get_media_detail_from_web(doubanid)
+                    douban_info = self.douban.get_media_detail_from_web(doubanid)
                     if not douban_info:
-                        douban_info = DouBan().get_douban_detail(doubanid=doubanid, mtype=mtype)
+                        douban_info = self.douban.get_douban_detail(doubanid=doubanid, mtype=mtype)
                     if not douban_info or douban_info.get("localized_message"):
                         return 1, "无法查询到豆瓣媒体信息", None
                     media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
@@ -296,7 +301,7 @@ class Subscribe:
 
         # 发送订阅完成的消息
         if media:
-            Message().send_rss_finished_message(media_info=media)
+            self.message.send_rss_finished_message(media_info=media)
 
     def get_subscribe_movies(self, rid=None, state=None):
         """
@@ -304,8 +309,6 @@ class Subscribe:
         """
         ret_dict = {}
         rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
-        rss_sites_valid = [site["name"] for site in Sites().get_sites(rss=True)]
-        search_sites_valid = [site.name for site in Indexer().get_indexers()]
         for rss_movie in rss_movies:
             desc = rss_movie.DESC
             note = rss_movie.NOTE
@@ -337,8 +340,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
-            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
-            search_sites = [site for site in search_sites if site in search_sites_valid]
+            rss_sites = [site for site in rss_sites if site in self.sites.get_site_names(rss=True)]
+            search_sites = [site for site in search_sites if site in self.indexer.get_indexer_names()]
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
                 "name": rss_movie.NAME,
@@ -367,8 +370,6 @@ class Subscribe:
     def get_subscribe_tvs(self, rid=None, state=None):
         ret_dict = {}
         rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
-        rss_sites_valid = [site["name"] for site in Sites().get_sites(rss=True)]
-        search_sites_valid = [site.name for site in Indexer().get_indexers()]
         for rss_tv in rss_tvs:
             desc = rss_tv.DESC
             note = rss_tv.NOTE
@@ -404,8 +405,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
-            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
-            search_sites = [site for site in search_sites if site in search_sites_valid]
+            rss_sites = [site for site in rss_sites if site in self.sites.get_site_names(rss=True)]
+            search_sites = [site for site in search_sites if site in self.indexer.get_indexer_names()]
             ret_dict[str(rss_tv.ID)] = {
                 "id": rss_tv.ID,
                 "name": rss_tv.NAME,

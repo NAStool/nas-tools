@@ -5,7 +5,7 @@ import log
 from app.conf import ModuleConf
 from app.helper import ProgressHelper, SubmoduleHelper
 from app.indexer.client import BuiltinIndexer
-from app.utils import ExceptionUtils
+from app.utils import ExceptionUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, IndexerType
 from config import Config
@@ -49,6 +49,37 @@ class Indexer(object):
         if not self._client:
             return []
         return self._client.get_indexers()
+
+    def get_indexer_dict(self):
+        """
+        获取索引器字典
+        """
+        return [
+            {
+                "id": index.id,
+                "name": index.name
+            } for index in self.get_indexers()
+        ]
+
+    def get_indexer_hash_dict(self):
+        """
+        获取索引器Hash字典
+        """
+        IndexerDict = {}
+        for item in self.get_indexers() or []:
+            IndexerDict[StringUtils.md5_hash(item.name)] = {
+                "id": item.id,
+                "name": item.name,
+                "public": item.public,
+                "builtin": item.builtin
+            }
+        return IndexerDict
+
+    def get_indexer_names(self):
+        """
+        获取当前索引器的索引站点名称
+        """
+        return [indexer.name for indexer in self.get_indexers()]
 
     @staticmethod
     def get_builtin_indexers(check=True, public=True, indexer_id=None):
