@@ -89,6 +89,7 @@
                            onclick="select_SelectALL($(this).prop('checked'), 'custom_words_{{ Group.id }}')">
                  </th>
                   {% endif %}
+                  <th class="w-1"></th>
                   <th>被替换词</th>
                   <th>替换词</th>
                   <th>偏移集数</th>
@@ -107,24 +108,20 @@
                     <input class="form-check-input m-0 align-middle" name="custom_words_{{ Group.id }}"
                            value="{{ Group.id }}_{{ Word.id }}" type="checkbox">
                   </td>
+                  <td><span class="badge bg-{% if Word.enabled == 1 %}green{% else %}red{% endif %}"></span></td>
                   <td>{{ Word.replaced }}</td>
                   <td>{{ Word.replace }}</td>
                   <td>
                     {% if Word.offset %}
-                    <span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">{{ Word.offset
+                    <span class="badge badge-outline text-cyan mb-1" style="vertical-align: middle;">{{ Word.offset
                       }}</span>
                     {% endif %}
                   </td>
                   <td>{{ Word.front }}</td>
                   <td>{{ Word.back }}</td>
                   <td>
-                    {% if Word.enabled == 1 %}
-                    <span class="badge badge-outline text-green me-1 mb-1" style="vertical-align: middle;">启用</span>
-                    {% else %}
-                    <span class="badge badge-outline text-red me-1 mb-1" style="vertical-align: middle;">停用</span>
-                    {% endif %}
                     {% if Word.regex == 1 %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">RegEx</span>
+                    <span class="badge bg-blue mb-1" style="vertical-align: middle;">RegEx</span>
                     {% endif %}
                   </td>
                   <td>

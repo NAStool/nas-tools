@@ -309,6 +309,8 @@ class Subscribe:
         """
         ret_dict = {}
         rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
+        rss_sites_valid = self.sites.get_site_names(rss=True)
+        search_sites_valid = self.indexer.get_indexer_names()
         for rss_movie in rss_movies:
             desc = rss_movie.DESC
             note = rss_movie.NOTE
@@ -340,8 +342,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
-            rss_sites = [site for site in rss_sites if site in self.sites.get_site_names(rss=True)]
-            search_sites = [site for site in search_sites if site in self.indexer.get_indexer_names()]
+            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
+            search_sites = [site for site in search_sites if site in search_sites_valid]
             ret_dict[str(rss_movie.ID)] = {
                 "id": rss_movie.ID,
                 "name": rss_movie.NAME,
@@ -370,6 +372,8 @@ class Subscribe:
     def get_subscribe_tvs(self, rid=None, state=None):
         ret_dict = {}
         rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
+        rss_sites_valid = self.sites.get_site_names(rss=True)
+        search_sites_valid = self.indexer.get_indexer_names()
         for rss_tv in rss_tvs:
             desc = rss_tv.DESC
             note = rss_tv.NOTE
@@ -405,8 +409,8 @@ class Subscribe:
                 note_info = self.__parse_rss_desc(note)
             else:
                 note_info = {}
-            rss_sites = [site for site in rss_sites if site in self.sites.get_site_names(rss=True)]
-            search_sites = [site for site in search_sites if site in self.indexer.get_indexer_names()]
+            rss_sites = [site for site in rss_sites if site in rss_sites_valid]
+            search_sites = [site for site in search_sites if site in search_sites_valid]
             ret_dict[str(rss_tv.ID)] = {
                 "id": rss_tv.ID,
                 "name": rss_tv.NAME,
