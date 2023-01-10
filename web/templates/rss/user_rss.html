@@ -671,13 +671,23 @@
   // rss报文测试
   function rss_article_test(id, taskid, title) {
     const info_id = `info_${id}`;
-    const flag_id = `#flag_${id}`;
+    const flag_a = $(`#flag_${id}`);
     make_cursor_busy();
     ajax_post("rss_article_test", { "taskid": taskid, "title": title }, function (ret) {
       cancel_cursor_busy();
       if (ret.code === 0) {
-        $(flag_id).empty();
+        flag_a.empty();
         media_name_test_ui(ret.data, info_id);
+        if (ret.data.match_flag) {
+          flag_a.append(`<br><span class="badge badge-outline text-green me-1 mb-1">匹配</span>`);
+        } else {
+          flag_a.append(`<br><span class="badge badge-outline text-red me-1 mb-1">不匹配</span>`);
+        }
+        if (ret.data.exist_flag) {
+          flag_a.append(`<br><span class="badge badge-outline text-green me-1 mb-1">本地已存在</span>`);
+        } else {
+          flag_a.append(`<br><span class="badge badge-outline text-orange me-1 mb-1">本地不存在</span>`);
+        }
       }
     })
   }
