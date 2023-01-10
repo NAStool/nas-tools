@@ -587,7 +587,7 @@
               tbody_content = `${tbody_content}<tr>${checkbox}${replaced}${replace}${offset}${front}${back}${regex}${note}</tr>`;
             }
             let tbody = `<tbody>${tbody_content}<tr></tr></tbody>`;
-            let table = `<table class="table table-vcenter card-table">${thead}${tbody}</table>`;
+            let table = `<div class="table-responsive"><table class="table table-vcenter card-table">${thead}${tbody}</table><div>`;
             let head;
             if (Group.link) {
               head = `<div class="card-header"><a href="${Group.link}" target="_blank"><h3 class="card-title"><strong>${Group.name}</strong></h3></a></div>`;
