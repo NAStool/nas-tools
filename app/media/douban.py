@@ -132,7 +132,7 @@ class DouBan:
                 douban_info["actors"] = celebrities.get("actors")
             return douban_info
 
-    def get_douban_wish(self, dtype, userid, page, wait=False):
+    def get_douban_wish(self, dtype, userid, start, wait=False):
         """
         获取豆瓣想看列表数据
         """
@@ -141,11 +141,11 @@ class DouBan:
             log.info("【Douban】随机休眠：%s 秒" % time)
             sleep(time)
         if dtype == "do":
-            web_infos = self.doubanweb.do(cookie=self.cookie, userid=userid, start=page)
+            web_infos = self.doubanweb.do(cookie=self.cookie, userid=userid, start=start)
         elif dtype == "collect":
-            web_infos = self.doubanweb.collect(cookie=self.cookie, userid=userid, start=page)
+            web_infos = self.doubanweb.collect(cookie=self.cookie, userid=userid, start=start)
         else:
-            web_infos = self.doubanweb.wish(cookie=self.cookie, userid=userid, start=page)
+            web_infos = self.doubanweb.wish(cookie=self.cookie, userid=userid, start=start)
         if not web_infos:
             return []
         for web_info in web_infos:

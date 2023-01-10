@@ -210,7 +210,7 @@ class DoubanSync:
                     continue_next_page = True
                     log.debug(f"【Douban】开始解析第 {page_number} 页数据...")
                     try:
-                        items = self.douban.get_douban_wish(dtype=mtype, userid=user, page=page_number, wait=True)
+                        items = self.douban.get_douban_wish(dtype=mtype, userid=user, start=start_number, wait=True)
                         if not items:
                             log.warn(f"【Douban】第 {page_number} 页未获取到数据")
                             break
