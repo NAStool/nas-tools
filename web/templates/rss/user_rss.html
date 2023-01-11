@@ -60,11 +60,13 @@
           {% if Task.uses == 'D' and Task.recognization == "Y" %}
           <span class="badge bg-azure ms-auto">TMDB</span>
           <a href="#" class="link-secondary ms-2 d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
-          {% else %}
-          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
-          {% endif %}
             {{ SVG.dots() }}
           </a>
+          {% else %}
+          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ SVG.dots() }}
+          </a>
+          {% endif %}
           <div class="dropdown-menu dropdown-menu-end">
             <button class="dropdown-item text-info" onclick="run_userrss_now('{{ Task.id }}')">
               立即运行
@@ -84,12 +86,10 @@
                title="展开/折叠" data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
-            {% if Task.uses == 'D' %}
             <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
                title="预览报文" data-bs-toggle="tooltip">
               {{ SVG.eye() }}
             </a>
-            {% endif %}
             <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
                title="编辑任务" data-bs-toggle="tooltip">
               {{ SVG.edit() }}
@@ -408,15 +408,17 @@
         </table>
       </div>
       <div class="modal-footer">
-        <a href="javascript:batch_articles_action('download')"
-          class="btn btn-primary me-auto d-none d-sm-inline-block">
-          {{ SVG.download() }}
-          批量下载
-        </a>
-        <a href="javascript:batch_articles_action('download')"
-          class="btn btn-primary btn-icon me-auto d-sm-none">
-          {{ SVG.download() }}
-        </a>
+        <span class="rss_articles_download_btn me-auto">
+          <a href="javascript:batch_articles_action('download')"
+            class="btn btn-primary d-none d-sm-inline-block ">
+            {{ SVG.download() }}
+            批量下载
+          </a>
+          <a href="javascript:batch_articles_action('download')"
+            class="btn btn-primary btn-icon d-sm-none">
+            {{ SVG.download() }}
+          </a>
+        </span>
         <a href="javascript:batch_articles_action('set_finished')"
           class="btn btn-green d-none d-sm-inline-block">
           {{ SVG.circle_check() }}
@@ -574,7 +576,7 @@
     ajax_post("list_rss_articles", { "id": id }, function (ret) {
       let content;
       $("#table-rss-articles").empty();
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         const articles = ret.data;
         let content_th = `<thead><tr>
                           <th class="w-1">
@@ -625,12 +627,16 @@
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }
-
         $("#table-rss-articles").append(content);
       } else {
         content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
-      };
+      }
+      if (ret.uses !== "D") {
+        $(".rss_articles_download_btn").hide();
+      } else {
+        $(".rss_articles_download_btn").show();
+      }
       $("#article_check_id").val(id);
       $("#modal-rss-articles").modal('show');
     });
