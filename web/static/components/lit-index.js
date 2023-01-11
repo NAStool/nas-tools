@@ -1,0 +1,1 @@
+export * from "./normal-card/placeholder.js";

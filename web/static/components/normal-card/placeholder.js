@@ -1,0 +1,16 @@
+import { LitElement, html } from "../lit-all.min.js";
+import { noShadowdom } from "../noShadowdom.js";
+
+export class NormalCardPlaceholder extends noShadowdom(LitElement) {
+    render() {
+        return html`
+        <div class="card card-sm rounded-4" style="overflow: hidden;">
+            <div class="placeholder-glow">
+            <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
+            </div>
+        </div>
+        `;
+    }
+}
+
+window.customElements.define("normal-card-placeholder", NormalCardPlaceholder);
