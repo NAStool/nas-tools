@@ -137,8 +137,11 @@ class DbHelper:
         """
         删除RSS的记录
         """
-        self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title,
-                                           RSSTORRENTS.ENCLOSURE == enclosure).delete()
+        if enclosure:
+            self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title,
+                                               RSSTORRENTS.ENCLOSURE == enclosure).delete()
+        else:
+            self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title).delete()
 
     @DbPersist(_db)
     def insert_douban_media_state(self, media, state):

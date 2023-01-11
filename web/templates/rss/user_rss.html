@@ -622,7 +622,10 @@
           } else {
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
           }
-          let download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
+          let download_btn = '';
+          if (ret.uses === "D") {
+            download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
+          }
           content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-3" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
@@ -647,9 +650,10 @@
     let articles = [];
     let articles_id = select_GetSelectedVAL("rss_articles_item");
     for (let id of articles_id) {
+      let enclosure = $(`#enclosure_${id}`).val();
       articles.push({
         "title": $(`#title_${id}`).val(),
-        "enclosure": $(`#enclosure_${id}`).val(),
+        "enclosure": enclosure === "null" ? "" : enclosure
       });
     }
     return articles;
@@ -660,12 +664,12 @@
   function batch_articles_action(flag) {
     const articles = get_article_checked();
     const id = $("#article_check_id").val();
-    if (articles.length == 0) {
+    if (articles.length === 0) {
       return;
     }
     if (flag.startsWith("set_")) {
       articles_check(id, flag, articles);
-    } else if (flag == "download") {
+    } else if (flag === "download") {
       articles_download(id, articles);
     }
   }
