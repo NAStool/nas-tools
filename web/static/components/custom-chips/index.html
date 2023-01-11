@@ -40,6 +40,9 @@
           case "offset_words":
             flag = custom_words_flag;
             break;
+          case "title":
+            data_dict[key] = (!data_dict[key]) ? "未匹配TMDB" : data_dict[key];
+            break;
         }
         console.log("正在新增chips: ", key, data_dict[key], href);
         this.render(key, data_dict[key], href, flag);
@@ -78,7 +81,7 @@
         type:"bg-blue",
         category:"bg-blue",
         name:"bg-yellow text-wrap",
-        title:"bg-green",
+        title:(chips_content !== "未匹配TMDB") ? "bg-green" : "bg-red",
         tmdbid:"bg-green",
         year:"bg-orange",
         season_episode:"bg-orange",
