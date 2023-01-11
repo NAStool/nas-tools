@@ -26,7 +26,7 @@
         // 对特定的标签指定herf属性
         switch(key){
           case "name":
-            href = `https://www.themoviedb.org/search?query=${encodeURI(data_dict.name)}`;
+            href = (data_dict.name === "无法识别") ? null : `https://www.themoviedb.org/search?query=${encodeURI(data_dict.name)}`;
             break;
           case "tmdbid":
             href = data_dict.tmdblink;
@@ -39,6 +39,9 @@
           case "replaced_words":
           case "offset_words":
             flag = custom_words_flag;
+            break;
+          case "title":
+            data_dict.title = (!data_dict.tmdbid) ? "未匹配TMDB" : data_dict.title;
             break;
         }
         console.log("正在新增chips: ", key, data_dict[key], href);
@@ -77,8 +80,8 @@
         offset_words: "badge-outline text-wrap text-cyan",
         type:"bg-blue",
         category:"bg-blue",
-        name:"bg-yellow text-wrap",
-        title:"bg-green",
+        name:(chips_content === "无法识别") ? "bg-red text-wrap" :"bg-yellow text-wrap",
+        title:(chips_content !== "未匹配TMDB") ? "bg-green" : "bg-red",
         tmdbid:"bg-green",
         year:"bg-orange",
         season_episode:"bg-orange",
