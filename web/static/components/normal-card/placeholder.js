@@ -1,7 +1,7 @@
 import { LitElement, html } from "../lit-all.min.js";
-import { noShadowdom } from "../noShadowdom.js";
+import { NoShadowdom } from "../no-shadowdom-mixin.js";
 
-export class NormalCardPlaceholder extends noShadowdom(LitElement) {
+export class NormalCardPlaceholder extends NoShadowdom(LitElement) {
     render() {
         return html`
         <div class="card card-sm rounded-4" style="overflow: hidden;">
