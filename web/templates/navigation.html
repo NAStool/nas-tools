@@ -2534,7 +2534,7 @@
   function check_new_version() {
     ajax_post("version", {}, function (ret) {
       if (ret.code === 0) {
-        if (ret.version != AppVersion) {
+        if (compareVersion(ret.version, AppVersion) > 0) {
           $("#new_version_info").html(ret.info);
           $("#new_version_tip").show();
           NewVersion = ret.version;
