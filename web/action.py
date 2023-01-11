@@ -2656,10 +2656,11 @@ class WebAction:
 
     @staticmethod
     def __list_rss_articles(data):
+        uses = RssChecker().get_rsstask_info(taskid=data.get("id")).get("uses")
         articles = RssChecker().get_rss_articles(data.get("id"))
         count = len(articles)
         if articles:
-            return {"code": 0, "data": articles, "count": count}
+            return {"code": 0, "data": articles, "count": count, "uses": uses}
         else:
             return {"code": 1, "msg": "未获取到报文"}
 
@@ -4229,6 +4230,8 @@ class WebAction:
         """
         results = self.dbhelper.get_brushtask_torrents(brush_id=data.get("id"),
                                                        active=False)
+        if not results:
+            return {"code": 1, "msg": "未下载种子或未获取到种子明细"}
         return {"code": 0, "data": [item.as_dict() for item in results]}
 
     @staticmethod
