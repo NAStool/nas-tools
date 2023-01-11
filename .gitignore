@@ -4,21 +4,6 @@ __pycache__
 *.pid
 test.py
 
-### Lit-Tailwind ###
-# Logs
-Lit-Tailwind/logs
-Lit-Tailwind/*.log
-Lit-Tailwind/npm-debug.log*
-Lit-Tailwind/yarn-debug.log*
-Lit-Tailwind/yarn-error.log*
-Lit-Tailwind/pnpm-debug.log*
-Lit-Tailwind/lerna-debug.log*
-
-Lit-Tailwind/node_modules
-Lit-Tailwind/dist
-Lit-Tailwind/dist-ssr
-Lit-Tailwind/*.local
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
