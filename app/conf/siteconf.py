@@ -174,8 +174,8 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'hdsky.me': {
-            'FREE': ["//font[@class='free'][text()='免费']"],
-            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'FREE': ["//h1[@id='top']/b/font[@class='free']"],
+            '2XFREE': ["//h1[@id='top']/b/font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': [],
         },
