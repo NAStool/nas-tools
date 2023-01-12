@@ -1739,8 +1739,8 @@
       select_SelectALL(false, "search_sites");
     }
     $("[name='rss_edit_btn']").hide();
-    $("#rss_delete_btn").hide();
     $("[name='rss_add_btn']").show();
+    $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
   }
 
@@ -1812,6 +1812,7 @@
           select_SelectPart(ret.detail.search_sites, 'search_sites')
         }
         $("[name='rss_add_btn']").hide();
+        $("[name='rss_edit_btn']").show();
         $("#rss_delete_btn").attr("href",
             `javascript:remove_rss_manual('${ret.detail.type}','${ret.detail.name}','${ret.detail.year}','${rssid}')`)
             .show();
