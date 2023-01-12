@@ -246,7 +246,7 @@ class SiteConf:
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         'chdbits.co': {
-            'FREE': ["//img[@class='pro_free']"],
+            'FREE': ["//h1[@id='top']/img[@class='pro_free']"],
             '2XFREE': [],
             'HR': ["//b[contains(text(),'H&R:')]"],
             'PEER_COUNT': [],
