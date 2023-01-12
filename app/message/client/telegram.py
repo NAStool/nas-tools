@@ -287,7 +287,7 @@ class Telegram(_IMessageClient):
                     for msg in res.json().get("result", []):
                         # 无论本地是否成功，先更新offset，即消息最多成功消费一次
                         _offset = msg["update_id"] + 1
-                        log.info("【Telegram】接收到消息: %s" % msg)
+                        log.debug("【Telegram】接收到消息: %s" % msg)
                         local_res = requests.post(_ds_url, json=msg, timeout=10)
                         log.debug("【Telegram】message: %s processed, response is: %s" % (msg, local_res.text))
             except Exception as e:

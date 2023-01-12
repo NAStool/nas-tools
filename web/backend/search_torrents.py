@@ -373,11 +373,14 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                     keyword=media_info.get_name() if not media_info.year else "%s %s" % (
                         media_info.get_name(), media_info.year),
                     mtype=mtype,
-                    num=6,
+                    num=8,
                     season=media_info.begin_season,
                     episode=media_info.begin_episode)
             else:
-                tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
+                tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(),
+                                                    year=media_info.year,
+                                                    mtype=mtype,
+                                                    num=8)
             if not tmdb_infos:
                 # 查询不到媒体信息
                 Message().send_channel_msg(channel=in_from,

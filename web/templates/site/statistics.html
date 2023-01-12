@@ -204,9 +204,9 @@
                       <td class="sort-name">
                         <div class="d-flex py-1 align-items-center">
                           {% if SiteErr.get(item.site) %}
-                            <span class="badge bg-warning me-1" title="{{ SiteErr.get(item.site) }}"></span>
+                            <span class="badge bg-warning me-2" title="{{ SiteErr.get(item.site) }}"></span>
                           {% else %}
-                            <span class="badge bg-success me-1"></span>
+                            <span class="badge bg-success me-2"></span>
                           {% endif %}
                           <span onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
                                class="avatar avatar-sm rounded me-2 siteicon-{{ item.site|hash }}" width="24"
