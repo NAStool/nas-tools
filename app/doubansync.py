@@ -79,11 +79,11 @@ class DoubanSync:
             if self._auto_search:
                 # 需要检索
                 for media in medias:
-                    if not media:
+                    if not media or not media.get_name():
                         continue
                     # 查询数据库状态，已经加入RSS的不处理
                     search_state = self.dbhelper.get_douban_search_state(media.get_name(), media.year)
-                    if not search_state or search_state[0][0] == "NEW":
+                    if not search_state or search_state[0] == "NEW":
                         if media.begin_season:
                             subtitle = "第%s季" % media.begin_season
                         else:
