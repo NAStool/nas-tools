@@ -6,17 +6,12 @@ import warnings
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from app.utils import ConfigLoadCache, ExceptionUtils
+from config import Config
 
 warnings.filterwarnings('ignore')
 
-# 添加第三方库入口
-with open(os.path.join(os.path.dirname(__file__),
-                       "third_party.txt"), "r") as f:
-    third_party = f.readlines()
-    for third_party_lib in third_party:
-        sys.path.append(os.path.join(os.path.dirname(__file__),
-                                     "third_party",
-                                     third_party_lib.strip()).replace("\\", "/"))
+# 初始化第三方库入口
+Config().init_sys_path()
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
@@ -46,7 +41,6 @@ if is_windows_exe:
     except Exception as err:
         ExceptionUtils.exception_traceback(err)
 
-from config import Config
 import log
 from web.main import App
 from app.brushtask import BrushTask

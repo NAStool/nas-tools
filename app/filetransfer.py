@@ -3,6 +3,7 @@ import os
 import random
 import re
 import shutil
+import sys
 import traceback
 from enum import Enum
 from threading import Lock
@@ -143,7 +144,8 @@ class FileTransfer:
                 if len(tv_formats) > 2:
                     self._tv_season_rmt_format = tv_formats[-2]
                     self._tv_file_rmt_format = tv_formats[-1]
-        self._default_rmt_mode = ModuleConf.RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'), RmtMode.COPY)
+        self._default_rmt_mode = ModuleConf.RMT_MODES.get(Config().get_config('pt').get('rmt_mode', 'copy'),
+                                                          RmtMode.COPY)
 
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):
@@ -1212,6 +1214,8 @@ if __name__ == "__main__":
     """
     手工转移时，使用命名行调用
     """
+    Config().init_sys_path()
+
     parser = argparse.ArgumentParser(description='文件转移工具')
     parser.add_argument('-m', '--mode', dest='mode', required=True,
                         help='转移模式：link copy softlink move rclone rclonecopy minio miniocopy')
