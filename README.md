@@ -48,7 +48,7 @@ docker pull jxxghp/nas-tools:latest
 教程见 [这里](docker/readme.md) ，如无法连接Github，注意不要开启自动更新开关(NASTOOL_AUTO_UPDATE=false)。
 
 ### 2、本地运行
-python3.10版本或以上，如发现缺少依赖包需额外安装
+python3.10版本或以上，需要预安装cython，如发现缺少依赖包需额外安装
 ```
 git clone -b master https://github.com/jxxghp/nas-tools --recurse-submodule 
 python3 -m pip install -r requirements.txt
