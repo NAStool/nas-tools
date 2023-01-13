@@ -48,7 +48,7 @@ docker pull jxxghp/nas-tools:latest
 教程见 [这里](docker/readme.md) ，如无法连接Github，注意不要开启自动更新开关(NASTOOL_AUTO_UPDATE=false)。
 
 ### 2、本地运行
-python3版本，如发现缺少依赖包需额外安装
+python3.10版本或以上，需要预安装cython，如发现缺少依赖包需额外安装
 ```
 git clone -b master https://github.com/jxxghp/nas-tools --recurse-submodule 
 python3 -m pip install -r requirements.txt
@@ -216,18 +216,15 @@ https://spk7.imnks.com/
 * Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
    docker exec -it nas-tools sh
-   python3 -m pip install -r third_party.txt
    python3 /nas-tools/app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
-   /var/packages/py3k/target/usr/local/bin/python3 -m pip install -r /var/packages/nastool/target/third_party.txt
-   export NASTOOL_CONFIG=/var/packages/nastool/target/config/config.yaml
-   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/app/filetransfer.py -m link -s /from/path -d /to/path
+   export NASTOOL_CONFIG=/var/packages/NASTool/target/config/config.yaml
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/NASTool/target/app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
-   python3 -m pip install -r third_party.txt
    export NASTOOL_CONFIG=config/config.yaml
    python3 app/filetransfer.py -m link -s /from/path -d /to/path
    ```

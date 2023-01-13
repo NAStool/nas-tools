@@ -16,7 +16,6 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
     echo "更新程序..."
     git remote set-url origin "${REPO_URL}" &> /dev/null
     echo "windows/" > .gitignore
-    echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     if [ "${NASTOOL_VERSION}" == "dev" ]; then
       branch="dev"
     else

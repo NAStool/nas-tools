@@ -3,20 +3,11 @@ import signal
 import sys
 import time
 import warnings
+
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from app.utils import ConfigLoadCache, ExceptionUtils
 
 warnings.filterwarnings('ignore')
-
-# 添加第三方库入口
-with open(os.path.join(os.path.dirname(__file__),
-                       "third_party.txt"), "r") as f:
-    third_party = f.readlines()
-    for third_party_lib in third_party:
-        sys.path.append(os.path.join(os.path.dirname(__file__),
-                                     "third_party",
-                                     third_party_lib.strip()).replace("\\", "/"))
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
@@ -37,27 +28,21 @@ if is_windows_exe:
                                   "config").replace("\\", "/")
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
-        feapder_tmpdir = os.path.join(os.path.dirname(__file__),
-                                      "feapder",
-                                      "network",
-                                      "proxy_file").replace("\\", "/")
-        if not os.path.exists(feapder_tmpdir):
-            os.makedirs(feapder_tmpdir)
     except Exception as err:
-        ExceptionUtils.exception_traceback(err)
+        print(str(err))
 
 from config import Config
 import log
 from web.main import App
-from app.brushtask import BrushTask
+from app.utils import SystemUtils, ConfigLoadCache
+from app.utils.commons import INSTANCES
 from app.db import init_db, update_db
 from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
+from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
 from app.torrentremover import TorrentRemover
-from app.utils import SystemUtils
-from app.utils.commons import INSTANCES
 from check_config import update_config, check_config
 from version import APP_VERSION
 
