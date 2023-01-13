@@ -88,8 +88,6 @@ signal.signal(signal.SIGTERM, sigal_handler)
 
 
 def init_system():
-    # 初始化第三方库入口
-    Config().init_sys_path()
     # 配置
     log.console('NAStool 当前版本号：%s' % APP_VERSION)
     # 数据库初始化

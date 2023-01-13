@@ -110,6 +110,7 @@ class Config(object):
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         if not os.environ.get('TZ'):
             os.environ['TZ'] = 'Asia/Shanghai'
+        self.init_syspath()
         self.init_config()
 
     def init_config(self):
@@ -134,7 +135,7 @@ class Config(object):
             print("【Config】加载 config.yaml 配置出错：%s" % str(err))
             return False
 
-    def init_sys_path(self):
+    def init_syspath(self):
         with open(os.path.join(self.get_root_path(),
                                "third_party.txt"), "r") as f:
             for third_party_lib in f.readlines():

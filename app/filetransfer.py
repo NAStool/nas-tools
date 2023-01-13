@@ -3,7 +3,6 @@ import os
 import random
 import re
 import shutil
-import sys
 import traceback
 from enum import Enum
 from threading import Lock
@@ -1214,7 +1213,7 @@ if __name__ == "__main__":
     """
     手工转移时，使用命名行调用
     """
-    Config().init_sys_path()
+    Config().init_syspath()
 
     parser = argparse.ArgumentParser(description='文件转移工具')
     parser.add_argument('-m', '--mode', dest='mode', required=True,
