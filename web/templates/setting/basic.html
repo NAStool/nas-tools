@@ -55,7 +55,7 @@
                   <label class="form-label">日志级别 <span class="form-help"
                                                                title="一般情况下请选择INFO，排查问题可选择DEBUG"
                                                                data-bs-toggle="tooltip">?</span></label>
-                  <select class="form-select" id="app.wallpaper">
+                  <select class="form-select" id="app.loglevel">
                     <option value="info"
                       {% if not Config.app.loglevel or Config.app.loglevel=='info' %}selected{% endif %}>
                       INFO
@@ -990,11 +990,7 @@
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
-    let params = input_GetInputVal(type);
-    $(`#${type} select`).each(function () {
-      const key = $(this).attr("id");
-      params[key] = $(this).val();
-    });
+    let params = input_select_GetVal(type);
     if (type !== "modal-scraper") {
       $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
