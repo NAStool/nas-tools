@@ -150,7 +150,7 @@
   // 保存配置
   function save_config(type, func, test) {
     currType = type;
-    const params = input_GetInputVal(`modal-${type}`);
+    const params = input_select_GetVal(`modal-${type}`);
     params['test'] = test || false;
     params['subtitle.server'] = type;
     ajax_post("update_config", params, func);

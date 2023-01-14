@@ -1049,12 +1049,16 @@ def user_rss():
     Tasks = RssChecker().get_rsstask_info()
     RssParsers = RssChecker().get_userrss_parser()
     FilterRules = Filter().get_rule_groups()
+    RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
+    PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
     DownloadSettings = Downloader().get_download_setting()
     return render_template("rss/user_rss.html",
                            Tasks=Tasks,
                            Count=len(Tasks),
                            RssParsers=RssParsers,
                            FilterRules=FilterRules,
+                           RestypeDict=RestypeDict,
+                           PixDict=PixDict,
                            DownloadSettings=DownloadSettings)
 
 

@@ -1903,13 +1903,15 @@ class DbHelper:
                     "USES": item.get("uses"),
                     "INCLUDE": item.get("include"),
                     "EXCLUDE": item.get("exclude"),
-                    "FILTER": item.get("filterrule"),
-                    "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
-                                                 time.localtime(time.time())),
+                    "FILTER": item.get("filter_rule"),
+                    "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                     "STATE": item.get("state"),
                     "SAVE_PATH": item.get("save_path"),
                     "DOWNLOAD_SETTING": item.get("download_setting"),
                     "RECOGNIZATION": item.get("recognization"),
+                    "OVER_EDITION": int(item.get("over_edition")) if str(item.get("over_edition")).isdigit() else 0,
+                    "SITES": json.dumps(item.get("sites")),
+                    "FILTER_ARGS": json.dumps(item.get("filter_args")),
                     "NOTE": ""
                 }
             )
@@ -1922,13 +1924,15 @@ class DbHelper:
                 USES=item.get("uses"),
                 INCLUDE=item.get("include"),
                 EXCLUDE=item.get("exclude"),
-                FILTER=item.get("filterrule"),
-                UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
-                                          time.localtime(time.time())),
+                FILTER=item.get("filter_rule"),
+                UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                 STATE=item.get("state"),
                 SAVE_PATH=item.get("save_path"),
                 DOWNLOAD_SETTING=item.get("download_setting"),
                 RECOGNIZATION=item.get("recognization"),
+                OVER_EDITION=item.get("over_edition"),
+                SITES=json.dumps(item.get("sites")),
+                FILTER_ARGS=json.dumps(item.get("filter_args")),
                 PROCESS_COUNT='0'
             ))
 
