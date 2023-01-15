@@ -55,7 +55,7 @@
                   <label class="form-label">日志级别 <span class="form-help"
                                                                title="一般情况下请选择INFO，排查问题可选择DEBUG"
                                                                data-bs-toggle="tooltip">?</span></label>
-                  <select class="form-select" id="app.wallpaper">
+                  <select class="form-select" id="app.loglevel">
                     <option value="info"
                       {% if not Config.app.loglevel or Config.app.loglevel=='info' %}selected{% endif %}>
                       INFO
