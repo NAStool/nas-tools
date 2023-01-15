@@ -173,14 +173,12 @@ class BrushTask(object):
             log.error("【Brush】任务 %s 下载器不存在，无法刷流！" % task_name)
             return
         # 检查是否达到保种体积
-        """        
         if not self.__is_allow_new_torrent(taskid=taskid,
                                            taskname=task_name,
                                            seedsize=seed_size,
                                            downloadercfg=downloader_cfg,
                                            dlcount=rss_rule.get("dlcount")):
             return
-        """
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
@@ -197,8 +195,6 @@ class BrushTask(object):
                 enclosure = res.get('enclosure')
                 # 种子页面
                 page_url = res.get('link')
-                # 副标题
-                description = res.get('description')
                 # 种子大小
                 size = res.get('size')
                 # 发布时间
@@ -213,7 +209,6 @@ class BrushTask(object):
                 # 检查种子是否符合选种规则
                 if not self.__check_rss_rule(rss_rule=rss_rule,
                                              title=torrent_name,
-                                             description=description,
                                              torrent_url=page_url,
                                              torrent_size=size,
                                              pubdate=pubdate,
@@ -663,7 +658,6 @@ class BrushTask(object):
     def __check_rss_rule(self,
                          rss_rule,
                          title,
-                         description,
                          torrent_url,
                          torrent_size,
                          pubdate,
@@ -673,7 +667,6 @@ class BrushTask(object):
         检查种子是否符合刷流过滤条件
         :param rss_rule: 过滤条件字典
         :param title: 种子名称
-        :param description: 种子副标题
         :param torrent_url: 种子页面地址
         :param torrent_size: 种子大小
         :param pubdate: 发布时间
