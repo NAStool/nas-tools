@@ -173,12 +173,14 @@ class BrushTask(object):
             log.error("【Brush】任务 %s 下载器不存在，无法刷流！" % task_name)
             return
         # 检查是否达到保种体积
+        """        
         if not self.__is_allow_new_torrent(taskid=taskid,
                                            taskname=task_name,
                                            seedsize=seed_size,
                                            downloadercfg=downloader_cfg,
                                            dlcount=rss_rule.get("dlcount")):
             return
+        """
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
@@ -703,12 +705,12 @@ class BrushTask(object):
 
             # 检查包含规则
             if rss_rule.get("include"):
-                if not re.search(r"%s" % rss_rule.get("include"), "%s %s" % (title, description), re.IGNORECASE):
+                if not re.search(r"%s" % rss_rule.get("include"), title):
                     return False
 
             # 检查排除规则
             if rss_rule.get("exclude"):
-                if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
+                if re.search(r"%s" % rss_rule.get("exclude"), title):
                     return False
 
             torrent_attr = self.sites.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
