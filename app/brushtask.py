@@ -195,8 +195,6 @@ class BrushTask(object):
                 enclosure = res.get('enclosure')
                 # 种子页面
                 page_url = res.get('link')
-                # 副标题
-                description = res.get('description')
                 # 种子大小
                 size = res.get('size')
                 # 发布时间
@@ -211,7 +209,6 @@ class BrushTask(object):
                 # 检查种子是否符合选种规则
                 if not self.__check_rss_rule(rss_rule=rss_rule,
                                              title=torrent_name,
-                                             description=description,
                                              torrent_url=page_url,
                                              torrent_size=size,
                                              pubdate=pubdate,
@@ -661,7 +658,6 @@ class BrushTask(object):
     def __check_rss_rule(self,
                          rss_rule,
                          title,
-                         description,
                          torrent_url,
                          torrent_size,
                          pubdate,
@@ -671,7 +667,6 @@ class BrushTask(object):
         检查种子是否符合刷流过滤条件
         :param rss_rule: 过滤条件字典
         :param title: 种子名称
-        :param description: 种子副标题
         :param torrent_url: 种子页面地址
         :param torrent_size: 种子大小
         :param pubdate: 发布时间
@@ -703,12 +698,12 @@ class BrushTask(object):
 
             # 检查包含规则
             if rss_rule.get("include"):
-                if not re.search(r"%s" % rss_rule.get("include"), "%s %s" % (title, description), re.IGNORECASE):
+                if not re.search(r"%s" % rss_rule.get("include"), title):
                     return False
 
             # 检查排除规则
             if rss_rule.get("exclude"):
-                if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
+                if re.search(r"%s" % rss_rule.get("exclude"), title):
                     return False
 
             torrent_attr = self.sites.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)

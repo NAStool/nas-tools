@@ -1885,7 +1885,7 @@ class DbHelper:
             return
         self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
             {
-                "PROCESS_COUNT": str(int(CONFIGUSERRSS.PROCESS_COUNT or 0) + count),
+                "PROCESS_COUNT": CONFIGUSERRSS.PROCESS_COUNT + count,
                 "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
                                              time.localtime(time.time()))
             }

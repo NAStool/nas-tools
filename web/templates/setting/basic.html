@@ -60,10 +60,10 @@
                       {% if not Config.app.loglevel or Config.app.loglevel=='info' %}selected{% endif %}>
                       INFO
                     </option>
-                    <option value="debug" {% if Config.app.wallpaper=='debug' %}selected{% endif %}>
+                    <option value="debug" {% if Config.app.loglevel=='debug' %}selected{% endif %}>
                       DEBUG
                     </option>
-                    <option value="error" {% if Config.app.wallpaper=='error' %}selected{% endif %}>
+                    <option value="error" {% if Config.app.loglevel=='error' %}selected{% endif %}>
                       ERROR
                     </option>
                   </select>
