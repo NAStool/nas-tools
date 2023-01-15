@@ -1719,15 +1719,22 @@
     }
     if (rss_setting) {
       rss_setting = JSON.parse(rss_setting);
-      console.log(rss_setting);
       $("#rss_restype").val(rss_setting.filter_restype);
       $("#rss_pix").val(rss_setting.filter_pix);
       $("#rss_team").val(rss_setting.filter_team);
       $("#rss_rule").val(rss_setting.filter_rule);
       $("#rss_save_path").val(rss_setting.save_path);
       $("#rss_download_setting").val(rss_setting.download_setting);
-      select_SelectPart(rss_setting.search_sites, 'search_sites');
-      select_SelectPart(rss_setting.rss_sites, 'rss_sites');
+      if (rss_setting.search_sites.length === 0) {
+        select_SelectALL(true, 'search_sites')
+      } else {
+        select_SelectPart(rss_setting.search_sites, 'search_sites');
+      }
+      if (rss_setting.rss_sites.length === 0) {
+        select_SelectALL(true, 'rss_sites')
+      } else {
+        select_SelectPart(rss_setting.rss_sites, 'rss_sites');
+      }
     } else {
       $("#rss_restype").val('');
       $("#rss_pix").val('');
@@ -1854,7 +1861,7 @@
 
   // 刷新订阅站点列表
   var RSS_SITES_LENGTH = 0;
-  function refresh_rsssites_select(obj_id, aync = true) {
+  function refresh_rsssites_select(obj_id, item_name,aync = true) {
     ajax_post("get_sites", {rss: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let rsssites_select = $(`#${obj_id}`);
@@ -1868,7 +1875,7 @@
         for (let site of ret.sites) {
           rsssites_select_content += `
           <label class="form-selectgroup-item">
-            <input type="checkbox" name="rss_sites" value="${site.name}" class="form-selectgroup-input">
+            <input type="checkbox" name="${item_name}" value="${site.name}" class="form-selectgroup-input">
             <span class="form-selectgroup-label">${site.name}</span>
           </label>`;
         }
@@ -1879,7 +1886,7 @@
 
   // 刷新搜索站点列表
   var SEARCH_SITES_LENGTH = 0;
-  function refresh_searchsites_select(obj_id, aync = true) {
+  function refresh_searchsites_select(obj_id, item_name,aync = true) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let searchsites_select = $(`#${obj_id}`);
@@ -1893,7 +1900,7 @@
         for (let indexer of ret.indexers) {
           searchsites_select_content += `
           <label class="form-selectgroup-item">
-            <input type="checkbox" name="search_sites" value="${indexer.name}" class="form-selectgroup-input">
+            <input type="checkbox" name="${item_name}" value="${indexer.name}" class="form-selectgroup-input">
             <span class="form-selectgroup-label">${indexer.name}</span>
           </label>`;
         }
@@ -1932,8 +1939,8 @@
 
   // 刷新订阅框的下载设置及目录等选项
   function refresh_rss_download_setting_dirs(){
-    refresh_rsssites_select("rss_sites_group", false);
-    refresh_searchsites_select("rss_search_sites_group", false);
+    refresh_rsssites_select("rss_sites_group", "rss_sites", false);
+    refresh_searchsites_select("rss_search_sites_group", "search_sites", false);
     refresh_filter_select("rss_rule", false);
     refresh_downloadsetting_select("rss_download_setting", false);
     refresh_savepath_select("rss_save_path", false, $("#rss_download_setting").val());
@@ -2278,18 +2285,12 @@
       "path": path,
       "logid": logid
     };
-    $("#identification_action_btn").attr("disabled", true)
-        .text("处理中...");
+    $("#identification_action_btn").attr("disabled", true).text("处理中...");
     $("#rename_udf_retmsg").hide()
     $("#rename_retmsg").hide()
-    if (manual_type == '3') {
-      cmd = "rename_udf"
-    } else {
-      cmd = "rename"
-    }
+    let cmd = (manual_type === '3') ? "rename_udf" : "rename"
     ajax_post(cmd, data, function (ret) {
-      $("#identification_action_btn").attr("disabled", false)
-          .text("转移");
+      $("#identification_action_btn").attr("disabled", false).text("转移");
       if (ret.retcode === 0) {
         $('#modal-media-identification').modal('hide');
         show_success_modal("处理成功！", function () {
@@ -2441,8 +2442,7 @@
         let log_list = ret.loglist;
         let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
         let tbody = "";
-        for (let i = 0; i < log_list.length; i++) {
-          const log =  log_list[i];
+        for (let log of log_list) {
           let text = log.text;
           const source = log.source;
           const time = log.time;
@@ -2477,18 +2477,19 @@
                     <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
                     </tr>`;
         }
-        let bool_ToScrolTop = ($("#logging_table").scrollTop() + $("#logging_table").prop("offsetHeight")) >= $("#logging_table").prop("scrollHeight");
+        let logging_table_obj = $("#logging_table");
+        let bool_ToScrolTop = (logging_table_obj.scrollTop() + logging_table_obj.prop("offsetHeight")) >= logging_table_obj.prop("scrollHeight");
         $("#logging_content").append(tbody);
         if (bool_ToScrolTop){
           setTimeout(function () {
-            $("#logging_table").scrollTop($("#logging_table").prop("scrollHeight"));
+            logging_table_obj.scrollTop(logging_table_obj.prop("scrollHeight"));
           }, 500);
         }
       }
       if ($("#modal-logging").is(":hidden") && flag) {
         stop_logging();
       }
-      if (refresh_logging_flag == true) {
+      if (refresh_logging_flag === true) {
         setTimeout("refresh_logging(true)", 2000);
       }
     }, true, false);
@@ -2496,7 +2497,7 @@
 
   //暂停实时日志
   function pause_logging() {
-    if (refresh_logging_flag == true) {
+    if (refresh_logging_flag === true) {
       stop_logging();
       $("#logging_stop_btn").text("开始")
     } else {

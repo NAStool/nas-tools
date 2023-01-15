@@ -990,11 +990,7 @@
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type) {
-    let params = input_GetInputVal(type);
-    $(`#${type} select`).each(function () {
-      const key = $(this).attr("id");
-      params[key] = $(this).val();
-    });
+    let params = input_select_GetVal(type);
     if (type !== "modal-scraper") {
       $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }

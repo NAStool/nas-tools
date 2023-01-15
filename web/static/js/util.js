@@ -202,17 +202,19 @@ function select_GetHiddenVAL(name) {
  * 获取元素下input设置
  * @param: id 元素id
  **/
-function input_GetInputVal(id) {
+function input_select_GetVal(id, prefix=null) {
     let params = {};
     $(`#${id} input`).each(function () {
-        let value;
-        const key = $(this).attr("id");
-        if ($(this).attr("type") === "checkbox") {
-            value = !!$(this).prop("checked");
-        } else {
-            value = $(this).val();
+        let key = $(this).attr("id");
+        if (key) {
+            params[(prefix) ? key.replace(prefix, "") : key] = ($(this).attr("type") === "checkbox") ? !!$(this).prop("checked") : $(this).val();
         }
-        params[key] = value;
+    });
+    $(`#${id} select`).each(function () {
+        let key = $(this).attr("id");
+        if (key) {
+            params[(prefix) ? key.replace(prefix, "") : key] = $(this).val();
+        }
     });
     return params;
 }
