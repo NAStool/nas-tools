@@ -1883,13 +1883,10 @@ class DbHelper:
     def update_userrss_task_info(self, tid, count):
         if not tid:
             return
-        self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
-            {
-                "PROCESS_COUNT": CONFIGUSERRSS.PROCESS_COUNT + count,
-                "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
-                                             time.localtime(time.time()))
-            }
-        )
+        res = self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).all()[0]
+        res.PROCESS_COUNT = int(res.PROCESS_COUNT) + count if res.PROCESS_COUNT else count
+        res.UPDATE_TIME = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        self._db.commit()
 
     @DbPersist(_db)
     def update_userrss_task(self, item):
