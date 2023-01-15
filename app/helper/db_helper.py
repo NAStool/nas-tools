@@ -1936,6 +1936,7 @@ class DbHelper:
                 PROCESS_COUNT='0'
             ))
 
+    @DbPersist(_db)
     def insert_userrss_mediainfos(self, tid=None, mediainfo=None):
         if not tid or not mediainfo:
             return
