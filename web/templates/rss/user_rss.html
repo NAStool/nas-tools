@@ -577,7 +577,6 @@
     $("#userrss_rss_team").val('');
     $("#userrss_rss_rule").val('');
     $("#userrss_rss_download_setting").val('');
-    refresh_savepath_select('userrss_rss_save_path', true, '')
     $("#userrss_rss_over_edition").val('0');
     select_SelectALL(false, 'userrss_rss_rss_sites');
     select_SelectALL(false, 'userrss_rss_search_sites')
@@ -600,6 +599,7 @@
       $("#userrss_rss_team").val(detail.filter_args.team);
       $("#userrss_rss_rule").val(detail.filter);
       $("#userrss_rss_download_setting").val(detail.download_setting);
+      refresh_savepath_select('userrss_rss_save_path', true, detail.download_setting)
       $("#userrss_rss_save_path").val(detail.save_path);
       $("#userrss_rss_over_edition").val(detail.over_edition);
       if (detail.sites.rss_sites.length === 0) {
@@ -618,7 +618,8 @@
   function show_userrss_modal() {
     $("#userrss_id").val('');
     $("#userrss_modal_title").text("新增订阅");
-    recover_userrss_setting()
+    recover_userrss_setting();
+    refresh_savepath_select('userrss_rss_save_path', true, '')
     // 公共
     $("#userrss_name").val('');
     $("#userrss_interval").val('');
@@ -633,7 +634,7 @@
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
     $("#userrss_modal_title").text("编辑订阅");
-    recover_userrss_setting()
+    recover_userrss_setting();
     ajax_post("get_userrss_task", { id: id }, function (ret) {
     if (ret.code === 0) {
       let detail = ret.detail;
