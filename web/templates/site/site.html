@@ -74,9 +74,13 @@
               <dt class="col-3">RSS地址:</dt>
               <dd class="col-9">***</dd>
               {% endif %}
-              {% if Site.rule %}
+              {% if Site.rule and Site.rule|string in RuleGroups %}
               <dt class="col-3">过滤规则:</dt>
               <dd class="col-9"><span class="badge bg-orange me-2">{{ RuleGroups[Site.rule|string] }}</span></dd>
+              {% endif %}
+              {% if Site.download_setting and Site.download_setting|string in DownloadSettings %}
+              <dt class="col-3">下载设置:</dt>
+              <dd class="col-9"><span class="badge bg-lime me-2">{{ DownloadSettings[Site.download_setting|string] }}</span></dd>
               {% endif %}
             </dl>
             <div class="row">
@@ -207,24 +211,35 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
+              <label class="form-label required">发送站点未读消息通知 <span class="form-help" title="选择是时检测到站点有未读消息会通过消息推送通知"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" id="site_unread_msg_notify">
+                <option value="Y" selected>是</option>
+                <option value="N">否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="mb-3">
               <label class="form-label">过滤规则 <span class="form-help"
                   title="选择该站点使用的过滤规则组，在设置->过滤规则中设置规则，选择了过滤规则后该站点只有符合规则的种子才会被命中下载；仅作用于RSS、内建索引自动搜索，刷流等不受此限制"
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_rule">
-                <option value="" selected>请选择</option>
+                <option value="" selected>默认</option>
                 {% for Id, Attr in RuleGroups.items() %}
                 <option value="{{ Id }}">{{ Attr }}</option>
                 {% endfor %}
               </select>
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-2">
             <div class="mb-3">
-              <label class="form-label required">发送站点未读消息通知 <span class="form-help" title="选择是时检测到站点有未读消息会通过消息推送通知"
-                  data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="site_unread_msg_notify">
-                <option value="Y" selected>是</option>
-                <option value="N">否</option>
+              <label class="form-label">下载设置</label>
+              <select class="form-select" id="site_download_setting">
+                <option value="">默认</option>
+                {% for Id, Attr in DownloadSettings.items() %}
+                <option value="{{ Id }}">{{ Attr }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -511,6 +526,7 @@
       }
     }
     let site_rule = $("#site_rule").val();
+    let site_download_setting = $("#site_download_setting").val();
     let site_parse = $("#site_parse").val();
     let site_unread_msg_notify = $("#site_unread_msg_notify").val();
     let site_uses = select_GetSelectedVAL("site_uses").join("");
@@ -534,6 +550,7 @@
       "site_include": site_uses,
       "site_note": {
         "rule": site_rule,
+        "download_setting": site_download_setting,
         "parse": site_parse,
         "ua": ua,
         "chrome": chrome,

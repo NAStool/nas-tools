@@ -1911,16 +1911,20 @@
 
   // 刷新保存路径
   function refresh_savepath_select(obj_id, aync = true, sid = "") {
-    ajax_post("get_download_dirs", {sid: sid}, function (ret) {
-      if (ret.code === 0) {
-        let savepath_select = $(`#${obj_id}`);
-        let savepath_select_content = `<option value="" selected>自动</option>`;
-        for (let path of ret.paths) {
-          savepath_select_content += `<option value="${path}">${path}</option>`;
+    let savepath_select = $(`#${obj_id}`);
+    if (!sid) {
+      savepath_select.empty().append(`<option value="" selected>自动</option>`);
+    } else {
+      ajax_post("get_download_dirs", {sid: sid}, function (ret) {
+        if (ret.code === 0) {
+          let savepath_select_content = `<option value="" selected>自动</option>`;
+          for (let path of ret.paths) {
+            savepath_select_content += `<option value="${path}">${path}</option>`;
+          }
+          savepath_select.empty().append(savepath_select_content);
         }
-        savepath_select.empty().append(savepath_select_content);
-      }
-    }, aync);
+      }, aync);
+    }
   }
 
   // 刷新下载设置
@@ -1928,7 +1932,7 @@
     ajax_post("get_download_setting", {}, function (ret) {
       if (ret.code === 0) {
         let downloadsetting_select = $(`#${obj_id}`);
-        let downloadsetting_select_content = `<option value="" selected>默认</option>`;
+        let downloadsetting_select_content = `<option value="" selected>站点设置</option>`;
         for (let downloadsetting of ret.data) {
           downloadsetting_select_content += `<option value="${downloadsetting.id}">${downloadsetting.name}</option>`;
         }
