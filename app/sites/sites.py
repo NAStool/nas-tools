@@ -102,6 +102,7 @@ class Sites:
                 "signurl": site_signurl,
                 "cookie": site_cookie,
                 "rule": site_note.get("rule"),
+                "download_setting": site_note.get("download_setting"),
                 "parse": site_note.get("parse"),
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
@@ -202,6 +203,16 @@ class Sites:
             return self._site_favicons.get(site_name)
         else:
             return self._site_favicons
+
+    def get_site_download_setting(self, site_name=None):
+        """
+        获取站点下载设置
+        """
+        if site_name:
+            for site in self._siteByIds.values():
+                if site.get("name") == site_name:
+                    return site.get("download_setting")
+        return None
 
     def __refresh_all_site_data(self, force=False, specify_sites=None):
         """
