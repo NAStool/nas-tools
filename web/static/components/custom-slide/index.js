@@ -110,12 +110,20 @@ export class CustomSlide extends CustomElement {
     `;
   }
 
+  updated(changedProperties) {
+    // slide数据刷新时触发界面状态改变
+    if (changedProperties.has("slide_card")) {
+      this._countDisabled();
+    }
+  }
+
   // 绑定事件
   firstUpdated() {
     this._scrollbar = this.querySelector("div.media-slide-hide-scrollbar");
     this._card_number = this.querySelector("div.media-slide-card-number");
-    // 窗口大小发生改变时
+    // 初次获取元素参数
     this._countMaxNumber();
+    // 窗口大小发生改变时
     this._countMaxNumber_resize = () => { this._countMaxNumber() }; // 防止无法卸载事件
     window.addEventListener("resize", this._countMaxNumber_resize);
   }
