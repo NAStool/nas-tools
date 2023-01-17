@@ -98,7 +98,7 @@ class PageDiscovery extends CustomElement {
     for (const item of this._media_type_list[this.discovery_type]) {
       ajax_post("get_recommend", { "type": item.type, "page": 1, "week": item.week},
         (ret) => {
-          this._slide_card_list = {...this._slide_card_list, [item.type]: ret.Items};
+          this._slide_card_list = {...this._slide_card_list, [item.type + (item.week ?? "")]: ret.Items};
         }
       );
     }
@@ -110,10 +110,12 @@ class PageDiscovery extends CustomElement {
         ${this._media_type_list[this.discovery_type]?.map((item) => ( html`
           <custom-slide
             slide-title=${item.title}
-            slide-click="javascript:navmenu('recommend?t=${item.type}&week=${item?.week ?? ""}')"
-            .slide_card=${this._slide_card_list[item.type]
-              ? this._slide_card_list[item.type].map((card) => ( html`
+            slide-click="javascript:navmenu('recommend?t=${item.type}&week=${item.week ?? ""}')"
+            lazy="normal-card"
+            .slide_card=${this._slide_card_list[item.type + (item.week ?? "")]
+              ? this._slide_card_list[item.type + (item.week ?? "")].map((card, index) => ( html`
                 <normal-card
+                  lazy=${index > 7 ? 1 : 0}
                   card-tmdbid=${card.id}
                   card-pagetype=${item.type}
                   card-showsub=1
