@@ -146,10 +146,10 @@ export class CustomSlide extends CustomElement {
     }
     // 懒加载
     if (this.lazy) {
-      const show_max = this._card_current + this._card_max + 1;
       if (this._card_current > this._card_current_load_index - this._card_max) {
         const card_list = this._card_number.querySelectorAll(this.lazy);
         if (card_list.length > 0) {
+          const show_max = this._card_current + this._card_max + 1;
           for (let i = this._card_current; i < show_max; i++) {
             if (i >= card_list.length) {
               break;
