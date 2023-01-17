@@ -128,7 +128,7 @@ class SiteConf:
         'audiences.me': {
             'FREE': ["//font[@class='free'][text()='免费']"],
             '2XFREE': ["//font[@class='twoupfree']"],
-            'HR': ["//img[@class='hitandrun']"],
+            'HR': ["//h1[@id='top']/img[@class='hitandrun']"],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
         },
         'pterclub.com': {
