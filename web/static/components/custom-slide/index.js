@@ -154,7 +154,6 @@ export class CustomSlide extends CustomElement {
             if (i >= card_list.length) {
               break;
             }
-            console.log(i);
             card_list[i].removeAttribute("lazy");
           }
           this._card_current_load_index = show_max;
