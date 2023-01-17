@@ -6,6 +6,7 @@ export class CustomSlide extends CustomElement {
   static properties = {
     slide_title: { attribute: "slide-title" },
     slide_click: { attribute: "slide-click" },
+    lazy: { attribute: "lazy" },
     //slide_scroll: { attribute: "slide-scroll" , reflect: true, type: Number },
     slide_card: { type: Array },
     _disabled: { state: true },
@@ -128,10 +129,12 @@ export class CustomSlide extends CustomElement {
   _countMaxNumber() {
     this._card_width = this._card_number.getBoundingClientRect().width;
     this._card_max = Math.trunc(this._scrollbar.clientWidth / this._card_width);
+    this._card_current_load_index = 0;
     this._countDisabled();
   }
 
   _countDisabled() {
+    this._card_current = this._scrollbar.scrollLeft == 0 ? 0 : Math.trunc((this._scrollbar.scrollLeft +  this._card_width / 2) /  this._card_width)
     if (this.slide_card.length * this._card_width <= this._scrollbar.clientWidth){
       this._disabled = 3;
     } else if (this._scrollbar.scrollLeft == 0) {
@@ -141,33 +144,47 @@ export class CustomSlide extends CustomElement {
     } else {
       this._disabled = 1;
     }
+    // 懒加载
+    if (this.lazy) {
+      const show_max = this._card_current + this._card_max + 1;
+      if (this._card_current > this._card_current_load_index - this._card_max) {
+        const card_list = this._card_number.querySelectorAll(this.lazy);
+        if (card_list.length > 0) {
+          for (let i = this._card_current; i < show_max; i++) {
+            if (i >= card_list.length) {
+              break;
+            }
+            console.log(i);
+            card_list[i].removeAttribute("lazy");
+          }
+          this._card_current_load_index = show_max;
+        }
+      }
+    }
   }
 
   _slideNext(next) {
+    let run_to_left_px;
     if (next) {
-      const card_index = (this._scrollbar.scrollLeft == 0 ? 0 : Math.trunc((this._scrollbar.scrollLeft +  this._card_width / 2) /  this._card_width)) + this._card_max;
-      let run_to_left_px = card_index *  this._card_width;
+      const card_index = this._card_current + this._card_max;
+      run_to_left_px = card_index *  this._card_width;
       if (run_to_left_px >= this._scrollbar.scrollWidth - this._scrollbar.clientWidth) {
         run_to_left_px = this._scrollbar.scrollWidth - this._scrollbar.clientWidth;
       }
-      $(this._scrollbar).animate({
-        scrollLeft: run_to_left_px
-      }, 350, () => {
-        this._scrollbar.scrollLeft = run_to_left_px;
-      });
     } else {
-      const card_index = (this._scrollbar.scrollLeft == 0 ? 0 : Math.trunc((this._scrollbar.scrollLeft +  this._card_width / 2) /  this._card_width)) - this._card_max;
-      let run_to_left_px = card_index *  this._card_width;
+      const card_index = this._card_current - this._card_max;
+      run_to_left_px = card_index *  this._card_width;
       if (run_to_left_px <= 0) {
         run_to_left_px = 0;
       }
-      $(this._scrollbar).animate({
-        scrollLeft: run_to_left_px
-      }, 350, () => {
-        this._scrollbar.scrollLeft = run_to_left_px;
-      });
     }
+    $(this._scrollbar).animate({
+      scrollLeft: run_to_left_px
+    }, 350, () => {
+      this._scrollbar.scrollLeft = run_to_left_px;
+    });
   }
+
 
 }
 

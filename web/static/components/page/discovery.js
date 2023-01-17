@@ -111,9 +111,11 @@ class PageDiscovery extends CustomElement {
           <custom-slide
             slide-title=${item.title}
             slide-click="javascript:navmenu('recommend?t=${item.type}&week=${item?.week ?? ""}')"
+            lazy="normal-card"
             .slide_card=${this._slide_card_list[item.type]
-              ? this._slide_card_list[item.type].map((card) => ( html`
+              ? this._slide_card_list[item.type].map((card, index) => ( html`
                 <normal-card
+                  lazy=${index > 7 ? 1 : 0}
                   card-tmdbid=${card.id}
                   card-pagetype=${item.type}
                   card-showsub=1

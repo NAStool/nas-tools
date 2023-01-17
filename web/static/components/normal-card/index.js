@@ -21,12 +21,14 @@ export class NormalCard extends observeState(CustomElement) {
     year: { attribute: "card-year" },
     site: { attribute: "card-site" },
     weekday: { attribute: "card-weekday" },
+    lazy: {},
     _placeholder: { state: true },
     _card_id: { state: true },
   };
 
   constructor() {
     super();
+    this.lazy = "0";
     this._placeholder = true;
     sessionStorage.normalCard_data_card_id = sessionStorage.normalCard_data_card_id ?? 1;
     this._card_id = sessionStorage.normalCard_data_card_id;
@@ -120,8 +122,8 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${this._placeholder}>
           <div class="ratio" style="--tblr-aspect-ratio: 150%">
             <img class="card-img" alt=""
-                 src=${this.image ?? Golbal.noImage}
-                 @error=${() => { this.image = Golbal.noImage }}
+                 src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
+                 @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage} }}
                  @load=${() => { this._placeholder = false }}/>
           </div>
           ${this._render_left_up()}
