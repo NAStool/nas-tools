@@ -561,25 +561,29 @@
 </div>
 <script type="text/javascript">
   // 恢复自定义订阅默认设置
-  function recover_userrss_setting() {
-    // 下载
-    $("#userrss_download_include").val('');
-    $("#userrss_download_exclude").val('');
-    $("#userrss_download_rule").val('');
-    $("#userrss_download_save_path").val('');
-    $("#userrss_download_download_setting").val('');
-    $("#userrss_download_recognization").val('Y');
-    // 订阅
-    $("#userrss_rss_include").val('');
-    $("#userrss_rss_exclude").val('');
-    $("#userrss_rss_restype").val('');
-    $("#userrss_rss_pix").val('');
-    $("#userrss_rss_team").val('');
-    $("#userrss_rss_rule").val('');
-    $("#userrss_rss_download_setting").val('');
-    $("#userrss_rss_over_edition").val('0');
-    select_SelectALL(false, 'userrss_rss_rss_sites');
-    select_SelectALL(false, 'userrss_rss_search_sites')
+  function recover_userrss_setting(uses) {
+    if (uses.includes("D")) {
+      // 下载
+      $("#userrss_download_include").val('');
+      $("#userrss_download_exclude").val('');
+      $("#userrss_download_rule").val('');
+      $("#userrss_download_save_path").val('');
+      $("#userrss_download_download_setting").val('');
+      $("#userrss_download_recognization").val('Y');
+    }
+    if (uses.includes("R")) {
+      // 订阅
+      $("#userrss_rss_include").val('');
+      $("#userrss_rss_exclude").val('');
+      $("#userrss_rss_restype").val('');
+      $("#userrss_rss_pix").val('');
+      $("#userrss_rss_team").val('');
+      $("#userrss_rss_rule").val('');
+      $("#userrss_rss_download_setting").val('');
+      $("#userrss_rss_over_edition").val('0');
+      select_SelectALL(false, 'userrss_rss_rss_sites');
+      select_SelectALL(false, 'userrss_rss_search_sites')
+    }
   }
 
   // 设置自定义订阅
@@ -618,7 +622,7 @@
   function show_userrss_modal() {
     $("#userrss_id").val('');
     $("#userrss_modal_title").text("新增订阅");
-    recover_userrss_setting();
+    recover_userrss_setting("DR");
     refresh_savepath_select('userrss_rss_save_path', true, '')
     // 公共
     $("#userrss_name").val('');
@@ -634,10 +638,12 @@
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
     $("#userrss_modal_title").text("编辑订阅");
-    recover_userrss_setting();
     ajax_post("get_userrss_task", { id: id }, function (ret) {
     if (ret.code === 0) {
       let detail = ret.detail;
+      const recover_uses = "DR";
+      recover_uses.replace(detail.uses, "");
+      recover_userrss_setting(recover_uses);
       // 公共
       $("#userrss_name").val(detail.name);
       $("#userrss_interval").val(detail.interval);
@@ -920,10 +926,12 @@
 
   // 应用订阅模板
   function apply_templated(id) {
-    recover_userrss_setting();
     ajax_post("get_userrss_task", { id: id }, function (ret) {
       if (ret.code === 0) {
         let detail = ret.detail;
+        const recover_uses = "DR";
+        recover_uses.replace(detail.uses, "");
+        recover_userrss_setting(recover_uses);
         $("#userrss_interval").val(detail.interval);
         $("#userrss_parser").val(detail.parser);
         $("#userrss_state").val(detail.state);
