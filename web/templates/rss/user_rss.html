@@ -599,7 +599,7 @@
       $("#userrss_rss_team").val(detail.filter_args.team);
       $("#userrss_rss_rule").val(detail.filter);
       $("#userrss_rss_download_setting").val(detail.download_setting);
-      refresh_savepath_select('userrss_rss_save_path', true, detail.download_setting)
+      refresh_savepath_select('userrss_rss_save_path', false, detail.download_setting)
       $("#userrss_rss_save_path").val(detail.save_path);
       $("#userrss_rss_over_edition").val(detail.over_edition);
       if (detail.sites.rss_sites.length === 0) {
