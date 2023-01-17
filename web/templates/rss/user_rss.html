@@ -562,7 +562,7 @@
 <script type="text/javascript">
   // 恢复自定义订阅默认设置
   function recover_userrss_setting(uses) {
-    if (uses.includes("D")) {
+    if (uses.includes("R")) {
       // 下载
       $("#userrss_download_include").val('');
       $("#userrss_download_exclude").val('');
@@ -571,7 +571,7 @@
       $("#userrss_download_download_setting").val('');
       $("#userrss_download_recognization").val('Y');
     }
-    if (uses.includes("R")) {
+    if (uses.includes("D")) {
       // 订阅
       $("#userrss_rss_include").val('');
       $("#userrss_rss_exclude").val('');
@@ -641,9 +641,7 @@
     ajax_post("get_userrss_task", { id: id }, function (ret) {
     if (ret.code === 0) {
       let detail = ret.detail;
-      const recover_uses = "DR";
-      recover_uses.replace(detail.uses, "");
-      recover_userrss_setting(recover_uses);
+      recover_userrss_setting(detail.uses);
       // 公共
       $("#userrss_name").val(detail.name);
       $("#userrss_interval").val(detail.interval);
@@ -929,9 +927,7 @@
     ajax_post("get_userrss_task", { id: id }, function (ret) {
       if (ret.code === 0) {
         let detail = ret.detail;
-        const recover_uses = "DR";
-        recover_uses.replace(detail.uses, "");
-        recover_userrss_setting(recover_uses);
+        recover_userrss_setting(detail.uses);
         $("#userrss_interval").val(detail.interval);
         $("#userrss_parser").val(detail.parser);
         $("#userrss_state").val(detail.state);
