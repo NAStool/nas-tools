@@ -36,7 +36,7 @@ import log
 from web.main import App
 from app.utils import SystemUtils, ConfigLoadCache
 from app.utils.commons import INSTANCES
-from app.db import init_db, update_db
+from app.db import init_db, init_data, update_db
 from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
 from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
@@ -94,6 +94,8 @@ def init_system():
     init_db()
     # 数据库更新
     update_db()
+    # 数据初始化
+    init_data()
     # 升级配置文件
     update_config()
     # 检查配置文件

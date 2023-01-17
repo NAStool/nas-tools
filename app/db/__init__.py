@@ -15,8 +15,16 @@ def init_db():
     log.console('开始初始化数据库...')
     MediaDb().init_db()
     MainDb().init_db()
-    MainDb().init_data()
     log.console('数据库初始化完成')
+
+
+def init_data():
+    """
+    初始化数据
+    """
+    log.console('开始初始化数据...')
+    MainDb().init_data()
+    log.console('数据初始化完成')
 
 
 def update_db():
