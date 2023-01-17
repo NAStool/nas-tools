@@ -537,11 +537,15 @@ class WebAction:
         if not files and not magnets:
             return {"code": -1, "msg": "没有种子文件或磁链"}
         for file_item in files:
+            if not file_item:
+                continue
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
             media_info = Media().get_media_info(title=file_name)
             __download(media_info, file_path)
         for magnet in magnets:
+            if not magnet:
+                continue
             file_path = None
             title = Torrent().get_magnet_title(magnet)
             if title:
@@ -904,7 +908,7 @@ class WebAction:
             os.remove(file)
             nfoname = f"{os.path.splitext(filename)[0]}.nfo"
             nfofile = os.path.join(filedir, nfoname)
-            if os.path.exists(file):
+            if os.path.exists(nfofile):
                 os.remove(nfofile)
             # 检查空目录并删除
             if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
@@ -2578,21 +2582,37 @@ class WebAction:
         """
         新增或修改自定义订阅
         """
+        uses = data.get("uses")
         params = {
             "id": data.get("id"),
             "name": data.get("name"),
             "address": data.get("address"),
             "parser": data.get("parser"),
             "interval": data.get("interval"),
-            "uses": data.get("uses"),
+            "uses": uses,
             "include": data.get("include"),
             "exclude": data.get("exclude"),
-            "filterrule": data.get("filterrule"),
+            "filter_rule": data.get("rule"),
             "state": data.get("state"),
             "save_path": data.get("save_path"),
             "download_setting": data.get("download_setting"),
-            "recognization": data.get("recognization")
         }
+        if uses == "D":
+            params.update({
+                "recognization": data.get("recognization")
+            })
+        elif uses == "R":
+            params.update({
+                "over_edition": data.get("over_edition"),
+                "sites": data.get("sites"),
+                "filter_args": {
+                    "restype": data.get("restype"),
+                    "pix": data.get("pix"),
+                    "team": data.get("team")
+                }
+            })
+        else:
+            return {"code": 1}
         if self.dbhelper.update_userrss_task(params):
             RssChecker().init_config()
             return {"code": 0}

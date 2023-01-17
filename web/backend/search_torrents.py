@@ -254,7 +254,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         elif input_str.startswith("http") or input_str.startswith("magnet:"):
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
         else:
-            input_str = re.sub(r"[搜索|下载][:：\s]*", "", input_str)
+            input_str = re.sub(r"(搜索|下载)[:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
         # 下载链接
@@ -401,11 +401,6 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 for tmdb_info in tmdb_infos:
                     meta_info = MetaInfo(title=content)
                     meta_info.set_tmdb_info(tmdb_info)
-                    if meta_info.begin_season:
-                        meta_info.title = "%s 第%s季" % (
-                            meta_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
-                    if meta_info.begin_episode:
-                        meta_info.title = "%s 第%s集" % (meta_info.title, meta_info.begin_episode)
                     # 合并站点和下载设置信息
                     meta_info.rss_sites = rss_sites
                     meta_info.search_sites = search_sites

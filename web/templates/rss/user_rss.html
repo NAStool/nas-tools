@@ -190,7 +190,7 @@
               <div class="datagrid-title">下载设置</div>
               <div class="datagrid-content">
                 {% if Task.download_setting|string in DownloadSettings %}
-                <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string].name }}</span>
+                <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string] }}</span>
                 {% else %}
                 <span class="badge me-2 bg-red">默认</span>
                 {% endif %}
@@ -217,53 +217,55 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="overflow-x: hidden">
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">名称</label>
-              <input type="text" id="userrss_name" class="form-control" placeholder="别名">
+        <div id="userrss_common_div">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">名称</label>
+                <input type="text" id="userrss_name" class="form-control" placeholder="别名">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">状态</label>
+                <select class="form-select" id="userrss_state">
+                  <option value="Y" selected>正常</option>
+                  <option value="N">停用</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_interval" class="form-control" placeholder="30">
+              </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">状态</label>
-              <select class="form-select" id="userrss_state">
-                <option value="Y" selected>正常</option>
-                <option value="N">停用</option>
-              </select>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_address" class="form-control" placeholder="RSS地址">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="userrss_interval" class="form-control" placeholder="30">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-8">
-            <div class="mb-3">
-              <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="userrss_address" class="form-control" placeholder="RSS地址">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">解析器 <span class="form-help" title="使用RSS解析器中配置的解析格式解析RSS报文"
-                  data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="userrss_parser">
-                {% for RssParser in RssParsers %}
-                <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
-                {% endfor %}
-              </select>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">解析器 <span class="form-help" title="使用RSS解析器中配置的解析格式解析RSS报文"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_parser">
+                  {% for RssParser in RssParsers %}
+                  <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
             </div>
           </div>
         </div>
         <div class="form-selectgroup-boxes row mb-3">
           <label class="form-label required">动作</label>
-          <div class="col-lg-4">
+          <div class="col-lg-6">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="use_D">
                 <input type="radio" name="userrss_uses" id="use_D" value="D" class="form-selectgroup-input" checked>
@@ -278,7 +280,7 @@
               </label>
             </div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-6">
             <div class="mb-1">
               <label class="form-selectgroup-item" for="use_R">
                 <input type="radio" name="userrss_uses" id="use_R" value="R" class="form-selectgroup-input">
@@ -293,78 +295,180 @@
               </label>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="mb-1">
-              <label class="form-selectgroup-item" for="use_S">
-                <input type="radio" name="userrss_uses" id="use_S" value="S" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">搜索</span>
-                  </span>
-                </span>
-              </label>
+        </div>
+        <div id="userrss_download_div">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_download_include" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_download_exclude" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">过滤规则 <span class="form-help" title="只有符合过滤规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_download_rule">
+                  <option value="" selected>请选择</option>
+                  {% for Id, Attr in RuleGroups.items() %}
+                  <option value="{{ Id }}">{{ Attr }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">保存路径</label>
+                <input type="text" id="userrss_download_save_path" class="form-control" placeholder="留空自动选择保存路径">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">下载设置</label>
+                <select class="form-select" id="userrss_download_download_setting">
+                  <option value="">默认</option>
+                  {% for Id, Attr in DownloadSettings.items() %}
+                  <option value="{{ Id }}">{{ Attr }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_download_recognization">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
-        <div class="row" id="filter_div">
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="userrss_include" class="form-control" placeholder="关键字/正则表达式">
+        <div id="userrss_rss_div">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_rss_include" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_rss_exclude" class="form-control" placeholder="关键字/正则表达式">
+              </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
-                  data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="userrss_exclude" class="form-control" placeholder="关键字/正则表达式">
+          <details class="mb-2">
+            <summary class="summary">
+              订阅设置 <span class="form-help" title="订阅设置将在添加电影/电视剧订阅时同步" data-bs-toggle="tooltip">?</span>
+            </summary>
+            <div class="row mt-2">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">质量</label>
+                  <select class="form-select" id="userrss_rss_restype">
+                    <option value="" selected>全部</option>
+                    {% for Restype in RestypeDict %}
+                      <option value="{{ Restype }}">{{ Restype }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">分辨率</label>
+                  <select class="form-select" id="userrss_rss_pix">
+                    <option value="" selected>全部</option>
+                    {% for Pix in PixDict %}
+                      <option value="{{ Pix }}">{{ Pix }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">制作组/字幕组</label>
+                  <input type="text" value="" id="userrss_rss_team" class="form-control" placeholder="支持正则表达式">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">过滤规则 <span class="form-help"
+                                                           title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
+                                                           data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="userrss_rss_rule">
+                    <option value="" selected>站点规则</option>
+                    {% for Id, Attr in RuleGroups.items() %}
+                    <option value="{{ Id }}">{{ Attr }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">过滤规则 <span class="form-help" title="只有符合过滤规则的才会被处理"
-                  data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="userrss_filterrule">
-                <option value="" selected>请选择</option>
-                {% for FilterRule in FilterRules %}
-                <option value="{{ FilterRule.id }}">{{ FilterRule.name }}</option>
-                {% endfor %}
-              </select>
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">下载设置</label>
+                  <select class="form-select" id="userrss_rss_download_setting"
+                          onchange="refresh_savepath_select('userrss_rss_save_path', true, $(this).val())">
+                    <option value="" selected>站点设置</option>
+                    {% for Id, Attr in DownloadSettings.items() %}
+                    <option value="{{ Id }}">{{ Attr }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">保存路径</label>
+                  <select class="form-select" id="userrss_rss_save_path" aria-label="保存目录">
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-2">
+                <div class="mb-3">
+                  <label class="form-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span>
+                  </label>
+                  <select class="form-select" id="userrss_rss_over_edition">
+                    <option value="0" selected>否</option>
+                    <option value="1">是</option>
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="row" id="downloader_setting_div">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">保存路径</label>
-              <input type="text" id="userrss_save_path" class="form-control" placeholder="留空自动选择保存路径">
+            <div class="row rss_sites_container">
+              <div class="mb-3">
+                <div class="btn-list">
+                  <label class="form-label">订阅站点</label>
+                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_rss_sites')">全选</a>
+                </div>
+                <div class="form-selectgroup" id="userrss_rss_rss_sites_group"></div>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-3">
-            <div class="mb-3">
-              <label class="form-label">下载设置</label>
-              <select class="form-select" id="userrss_download_setting">
-                <option value="">默认</option>
-                {% for Id, Attr in DownloadSettings.items() %}
-                <option value="{{ Attr.id }}">{{ Attr.name }}</option>
-                {% endfor %}
-              </select>
+            <div class="row rss_sites_container">
+              <div class="mb-3">
+                <div class="btn-list">
+                  <label class="form-label">搜索站点</label>
+                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_search_sites')">全选</a>
+                </div>
+                <div class="form-selectgroup" id="userrss_rss_search_sites_group"></div>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-3">
-            <div class="mb-3">
-              <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
-                  data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="userrss_recognization">
-                <option value="Y" selected>是</option>
-                <option value="N">否</option>
-              </select>
-            </div>
-          </div>
+          </details>
         </div>
         {% if Count > 0 %}
         <details>
@@ -456,44 +560,97 @@
   </div>
 </div>
 <script type="text/javascript">
+  // 恢复自定义订阅默认设置
+  function recover_userrss_setting(uses) {
+    if (uses.includes("R")) {
+      // 下载
+      $("#userrss_download_include").val('');
+      $("#userrss_download_exclude").val('');
+      $("#userrss_download_rule").val('');
+      $("#userrss_download_save_path").val('');
+      $("#userrss_download_download_setting").val('');
+      $("#userrss_download_recognization").val('Y');
+    }
+    if (uses.includes("D")) {
+      // 订阅
+      $("#userrss_rss_include").val('');
+      $("#userrss_rss_exclude").val('');
+      $("#userrss_rss_restype").val('');
+      $("#userrss_rss_pix").val('');
+      $("#userrss_rss_team").val('');
+      $("#userrss_rss_rule").val('');
+      $("#userrss_rss_download_setting").val('');
+      $("#userrss_rss_over_edition").val('0');
+      select_SelectALL(false, 'userrss_rss_rss_sites');
+      select_SelectALL(false, 'userrss_rss_search_sites')
+    }
+  }
+
+  // 设置自定义订阅
+  function set_userrss_setting(detail) {
+    if (detail.uses === "D") {
+      $("#userrss_download_include").val(detail.include);
+      $("#userrss_download_exclude").val(detail.exclude);
+      $("#userrss_download_rule").val(detail.filter);
+      $("#userrss_download_save_path").val(detail.save_path);
+      $("#userrss_download_download_setting").val(detail.download_setting);
+      $("#userrss_download_recognization").val(detail.recognization);
+    } else if (detail.uses === "R") {
+      $("#userrss_rss_include").val(detail.include);
+      $("#userrss_rss_exclude").val(detail.exclude);
+      $("#userrss_rss_restype").val(detail.filter_args.restype);
+      $("#userrss_rss_pix").val(detail.filter_args.pix);
+      $("#userrss_rss_team").val(detail.filter_args.team);
+      $("#userrss_rss_rule").val(detail.filter);
+      $("#userrss_rss_download_setting").val(detail.download_setting);
+      refresh_savepath_select('userrss_rss_save_path', false, detail.download_setting)
+      $("#userrss_rss_save_path").val(detail.save_path);
+      $("#userrss_rss_over_edition").val(detail.over_edition);
+      if (detail.sites.rss_sites.length === 0) {
+        select_SelectALL(true, 'userrss_rss_rss_sites')
+      } else {
+        select_SelectPart(detail.sites.rss_sites, 'userrss_rss_rss_sites');
+      }
+      if (detail.sites.search_sites.length === 0) {
+        select_SelectALL(true, 'userrss_rss_search_sites')
+      } else {
+        select_SelectPart(detail.sites.search_sites, 'userrss_rss_search_sites');
+      }
+    }
+  }
   // 显示新增任务
   function show_userrss_modal() {
     $("#userrss_id").val('');
     $("#userrss_modal_title").text("新增订阅");
+    recover_userrss_setting("DR");
+    refresh_savepath_select('userrss_rss_save_path', true, '')
+    // 公共
     $("#userrss_name").val('');
     $("#userrss_interval").val('');
     $("#userrss_address").val('');
-    $("#userrss_include").val('');
-    $("#userrss_exclude").val('');
-    $("#userrss_filterrule").val('');
     $("#userrss_parser").val('1');
     $("#userrss_state").val('N');
     show_userrss_uses('D');
-    $("#userrss_save_path").val('');
-    $("#userrss_download_setting").val('');
-    $("#userrss_recognization").val('Y');
     $("#modal-userrss").modal('show');
   }
 
   // 显示编辑任务
   function edit_userrss_modal(id) {
     $("#userrss_id").val(id);
+    $("#userrss_modal_title").text("编辑订阅");
     ajax_post("get_userrss_task", { id: id }, function (ret) {
-      if (ret.code == 0) {
-        $("#userrss_modal_title").text("编辑订阅");
-        $("#userrss_name").val(ret.detail.name);
-        $("#userrss_interval").val(ret.detail.interval);
-        $("#userrss_address").val(ret.detail.address);
-        $("#userrss_include").val(ret.detail.include);
-        $("#userrss_exclude").val(ret.detail.exclude);
-        $("#userrss_filterrule").val(ret.detail.filter);
-        $("#userrss_parser").val(ret.detail.parser);
-        $("#userrss_state").val(ret.detail.state);
-        show_userrss_uses(ret.detail.uses);
-        $("#userrss_save_path").val(ret.detail.save_path);
-        $("#userrss_download_setting").val(ret.detail.download_setting);
-        $("#userrss_recognization").val(ret.detail.recognization);
-        $("#modal-userrss").modal('show');
+    if (ret.code === 0) {
+      let detail = ret.detail;
+      recover_userrss_setting(detail.uses);
+      // 公共
+      $("#userrss_name").val(detail.name);
+      $("#userrss_interval").val(detail.interval);
+      $("#userrss_address").val(detail.address);
+      $("#userrss_parser").val(detail.parser);
+      $("#userrss_state").val(detail.state);
+      show_userrss_uses(detail.uses);
+      set_userrss_setting(detail)
+      $("#modal-userrss").modal('show');
       }
     });
   }
@@ -510,50 +667,47 @@
 
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
-    const id = $("#userrss_id").val();
-    const name = $("#userrss_name").val();
-    if (!name) {
+    const userrss_common = input_select_GetVal('userrss_common_div', 'userrss_');
+    if (!userrss_common.name) {
       $("#userrss_name").addClass("is-invalid");
       return;
     } else {
       $("#userrss_name").removeClass("is-invalid");
     }
-    const interval = $("#userrss_interval").val();
-    if (!interval || isNaN(interval)) {
+    if (!userrss_common.interval || isNaN(userrss_common.interval)) {
       $("#userrss_interval").addClass("is-invalid");
       return;
     } else {
       $("#userrss_interval").removeClass("is-invalid");
     }
-    const address = $("#userrss_address").val();
-    if (!address) {
+    if (!userrss_common.address) {
       $("#userrss_address").addClass("is-invalid");
       return;
     } else {
       $("#userrss_address").removeClass("is-invalid");
     }
-    const parser = $("#userrss_parser").val();
-    if (!parser) {
+    if (!userrss_common.parser) {
       $("#userrss_parser").addClass("is-invalid");
       return;
     } else {
       $("#userrss_parser").removeClass("is-invalid");
     }
-    const params = {
-      id: id,
-      name: name,
-      address: address,
-      parser: parser,
-      interval: interval,
-      uses: $('input:radio[name=userrss_uses]:checked').val(),
-      include: $("#userrss_include").val(),
-      exclude: $("#userrss_exclude").val(),
-      filterrule: $("#userrss_filterrule").val(),
-      state: $("#userrss_state").val(),
-      save_path: $("#userrss_save_path").val(),
-      download_setting: $("#userrss_download_setting").val(),
-      recognization: $("#userrss_recognization").val(),
-    };
+    const uses = $('input:radio[name=userrss_uses]:checked').val();
+    let userrss_detail = {};
+    if (uses === "D") {
+      userrss_detail = input_select_GetVal('userrss_download_div', 'userrss_download_');
+    } else if (uses === "R") {
+      userrss_detail = input_select_GetVal('userrss_rss_div', 'userrss_rss_');
+      let rss_sites = select_GetSelectedVAL('userrss_rss_rss_sites');
+      let search_sites = select_GetSelectedVAL('userrss_rss_search_sites');
+      userrss_detail.sites = {
+        rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
+        search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+      }
+    } else {
+      return;
+    }
+    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val()};
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
@@ -771,16 +925,14 @@
   // 应用订阅模板
   function apply_templated(id) {
     ajax_post("get_userrss_task", { id: id }, function (ret) {
-      if (ret.code == 0) {
-        $("#userrss_interval").val(ret.detail.interval);
-        $("#userrss_include").val(ret.detail.include);
-        $("#userrss_exclude").val(ret.detail.exclude);
-        $("#userrss_filterrule").val(ret.detail.filter);
-        $("#userrss_parser").val(ret.detail.parser);
-        $("#userrss_state").val(ret.detail.state);
-        show_userrss_uses(ret.detail.uses);
-        $("#userrss_save_path").val(ret.detail.save_path);
-        $("#userrss_download_setting").val(ret.detail.download_setting);
+      if (ret.code === 0) {
+        let detail = ret.detail;
+        recover_userrss_setting(detail.uses);
+        $("#userrss_interval").val(detail.interval);
+        $("#userrss_parser").val(detail.parser);
+        $("#userrss_state").val(detail.state);
+        show_userrss_uses(detail.uses);
+        set_userrss_setting(detail);
       }
     });
   }
@@ -790,22 +942,19 @@
     show_userrss_uses(this.value);
   });
 
-  // 自定义订阅动作 D:下载 R:订阅 S:搜索
+  // 自定义订阅动作 D:下载 R:订阅
   function show_userrss_uses(use) {
-    if (use == 'D') {
-      $("#downloader_setting_div").show();
-      $("#filter_div").show();
+    if (use === 'D') {
+      $("#userrss_download_div").show();
+      $("#userrss_rss_div").hide();
       $("#use_D").prop("checked", true);
     }
-    else if (use == 'R') {
-      $("#downloader_setting_div").hide();
-      $("#filter_div").hide();
+    else if (use === 'R') {
+      refresh_rsssites_select("userrss_rss_rss_sites_group", "userrss_rss_rss_sites", false);
+      refresh_searchsites_select("userrss_rss_search_sites_group", "userrss_rss_search_sites", false);
+      $("#userrss_download_div").hide();
+      $("#userrss_rss_div").show();
       $("#use_R").prop("checked", true);
-    }
-    else if (use == 'S') {
-      $("#downloader_setting_div").hide();
-      $("#filter_div").hide();
-      $("#use_S").prop("checked", true);
     }
   }
 </script>

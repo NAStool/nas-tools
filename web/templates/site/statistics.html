@@ -891,15 +891,8 @@
       let username_blur = $('#statistics_pic_username_blur').prop("checked");
       // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
       let theme = localStorage.getItem("tablerTheme");
-      let pic_bgcolor = '';
-      let card_bgcolor = '';
-      if (!theme || theme === "light") {
-       pic_bgcolor = '#ffffff';
-       card_bgcolor = '#f8fafc';
-      } else {
-       pic_bgcolor = '#1f273c';
-       card_bgcolor = '#1a2234';
-      }
+      let pic_bgcolor = (!theme || theme === "light") ? '#ffffff' : '#1f273c';
+      let card_bgcolor = (!theme || theme === "light") ? '#f8fafc' : '#1a2234';
       let sites = select_GetSelectedVAL("statistic_sites")
       // 储存生成设置
       let statistics_pic_setting = {
@@ -920,25 +913,14 @@
       ajax_post("get_site_user_statistics", params, function(ret){
         let statistics = ret.data;
         let table_content = '';
-        let site_blur_text = '';
-        let username_blur_text = '';
+        let site_blur_text = (site_blur) ? 'filter:blur(3px)' : '';
+        let username_blur_text = (username_blur) ? 'filter:blur(3px)' : '';
         let total_upload = 0;
         let total_download = 0;
         let total_seeding = 0;
         let total_seeding_size = 0;
-        if (site_blur) {
-          site_blur_text = 'filter:blur(3px)';
-        }
-        if (username_blur) {
-          username_blur_text = 'filter:blur(3px)';
-        }
         for (let statistic of statistics) {
-          let ratio = statistic.ratio;
-          if (ratio === 0 || ratio > 10000) {
-            ratio = '∞';
-          } else {
-            ratio = ratio.toFixed(2);
-          }
+          let ratio = (statistic.ratio === 0 || statistic.ratio > 10000) ? '∞' : statistic.ratio.toFixed(2);
           let tr = $("#statistics_pic_tr_template").text()
             .replaceAll('{SITE_HASH}', statistic.site_hash)
             .replaceAll('{SITE_BLUR}', site_blur_text)

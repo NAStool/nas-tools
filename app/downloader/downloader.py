@@ -193,6 +193,8 @@ class Downloader:
             return None, retmsg
 
         # 下载设置
+        if not download_setting and media_info.site:
+            download_setting = self.sites.get_site_download_setting(media_info.site)
         if download_setting:
             download_attr = self.get_download_setting(download_setting) \
                             or self.get_download_setting(self.get_default_download_setting())

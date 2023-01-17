@@ -199,7 +199,7 @@
 <script type="text/javascript">
   // 保存设置
   function save_douban_config() {
-    const params = input_GetInputVal("config_douban");
+    const params = input_select_GetVal("config_douban");
     $("#douban_save_btn").attr("disabled", true).text("保存中...");
     ajax_post("update_config", params, function (ret) {
       $("#douban_save_btn").attr("disabled", false).text("保存");
