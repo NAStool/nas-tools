@@ -30,9 +30,7 @@ export class NormalCard extends observeState(CustomElement) {
     super();
     this.lazy = "0";
     this._placeholder = true;
-    sessionStorage.normalCard_data_card_id = sessionStorage.normalCard_data_card_id ?? 1;
-    this._card_id = sessionStorage.normalCard_data_card_id;
-    sessionStorage.normalCard_data_card_id++;
+    this._card_id = Symbol("normalCard_data_card_id");
   }
 
   _render_left_up() {
