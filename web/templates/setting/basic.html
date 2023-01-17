@@ -249,16 +249,16 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">转移文件夹黑名单 <span class="form-help"
-                                                                   title="文件所在上级文件夹名称在黑名单中的，忽略转移"
+                  <label class="form-label">文件路径转移忽略词 <span class="form-help"
+                                                                   title="文件路径包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
                                                                    data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.ignored_paths or '' }}" class="form-control"
-                         id="media.ignored_paths" placeholder="使用;分隔" autocomplete="off">
+                         id="media.ignored_paths" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">文件转移忽略词 <span class="form-help"
+                  <label class="form-label">文件名转移忽略词 <span class="form-help"
                                                                  title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
                                                                  data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.ignored_files or '' }}" class="form-control"

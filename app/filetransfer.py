@@ -118,13 +118,17 @@ class FileTransfer:
                 self._min_filesize = min_filesize * 1024 * 1024
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
                 self._min_filesize = int(min_filesize) * 1024 * 1024
-            # 转移文件夹黑名单
+            # 文件路径转移忽略词
             ignored_paths = media.get('ignored_paths')
             if ignored_paths:
-                self._ignored_paths = ignored_paths.split(';')
-            # 文件转移忽略词
+                if ignored_paths.endswith(";"):
+                    ignored_paths = ignored_paths[:-1]
+                self._ignored_paths = re.compile(r'%s' % re.sub(r';', r'|', ignored_paths))
+            # 文件名转移忽略词
             ignored_files = media.get('ignored_files')
             if ignored_files:
+                if ignored_files.endswith(";"):
+                    ignored_files = ignored_files[:-1]
                 self._ignored_files = re.compile(r'%s' % re.sub(r';', r'|', ignored_files))
             # 高质量文件覆盖
             self._filesize_cover = media.get('filesize_cover')
@@ -1180,31 +1184,31 @@ class FileTransfer:
         """
         if not file_list:
             return [], ""
-        #  过滤掉文件列表中上级文件夹在黑名单中的
+        #  过滤掉文件列表中文件路径包含文件路径转移忽略词的
         if self._ignored_paths:
             try:
                 for file in file_list[:]:
-                    if file.replace('\\', '/').split('/')[-2] in self._ignored_paths:
-                        log.info("【Rmt】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
+                    if re.findall(self._ignored_paths, os.path.dirname(file)):
+                        log.info(f"【Rmt】{file} 文件路径含转移忽略词，已忽略转移")
                         file_list.remove(file)
                 if not file_list:
-                    return [], "排除转移文件夹黑名单后，没有新文件需要处理"
+                    return [], "排除文件路径转移忽略词后，没有新文件需要处理"
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
-                log.error("【Rmt】转移文件夹黑名单设置有误：%s" % str(err))
+                log.error("【Rmt】文件路径转移忽略词设置有误：%s" % str(err))
 
-        #  过滤掉文件列表中包含文件转移忽略词的
+        #  过滤掉文件列表中文件名包含文件名转移忽略词的
         if self._ignored_files:
             try:
                 for file in file_list[:]:
-                    if re.findall(self._ignored_files, file.replace('\\', '/').split('/')[-1]):
-                        log.info("【Rmt】%s 文件名包含文件转移忽略词，已忽略转移" % file)
+                    if re.findall(self._ignored_files, os.path.basename(file)):
+                        log.info(f"【Rmt】{file} 文件名包含转移忽略词，已忽略转移")
                         file_list.remove(file)
                 if not file_list:
-                    return [], "排除文件转移忽略词后，没有新文件需要处理"
+                    return [], "排除文件名转移忽略词后，没有新文件需要处理"
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
-                log.error("【Rmt】文件转移忽略词设置有误：%s" % str(err))
+                log.error("【Rmt】文件名转移忽略词设置有误：%s" % str(err))
 
         return file_list, ""
 

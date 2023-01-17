@@ -537,11 +537,15 @@ class WebAction:
         if not files and not magnets:
             return {"code": -1, "msg": "没有种子文件或磁链"}
         for file_item in files:
+            if not file_item:
+                continue
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
             media_info = Media().get_media_info(title=file_name)
             __download(media_info, file_path)
         for magnet in magnets:
+            if not magnet:
+                continue
             file_path = None
             title = Torrent().get_magnet_title(magnet)
             if title:

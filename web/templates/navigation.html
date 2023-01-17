@@ -1724,8 +1724,9 @@
       $("#rss_pix").val(rss_setting.filter_pix);
       $("#rss_team").val(rss_setting.filter_team);
       $("#rss_rule").val(rss_setting.filter_rule);
-      $("#rss_save_path").val(rss_setting.save_path);
       $("#rss_download_setting").val(rss_setting.download_setting);
+      refresh_savepath_select('rss_save_path', false, rss_setting.download_setting)
+      $("#rss_save_path").val(rss_setting.save_path);
       if (rss_setting.search_sites.length === 0) {
         select_SelectALL(true, 'search_sites')
       } else {
@@ -1807,8 +1808,9 @@
         $("#rss_pix").val(ret.detail.filter_pix);
         $("#rss_team").val(ret.detail.filter_team);
         $("#rss_rule").val(ret.detail.filter_rule);
-        $("#rss_save_path").val(ret.detail.save_path);
         $("#rss_download_setting").val(ret.detail.download_setting);
+        refresh_savepath_select('rss_save_path', false, ret.detail.download_setting)
+        $("#rss_save_path").val(ret.detail.save_path);
         if (ret.detail.rss_sites.length === 0) {
           select_SelectALL(true, 'rss_sites');
         } else {
@@ -1911,9 +1913,9 @@
   }
 
   // 刷新保存路径
-  function refresh_savepath_select(obj_id, aync = true, sid = "") {
+  function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = false) {
     let savepath_select = $(`#${obj_id}`);
-    if (!sid) {
+    if (!sid && !is_default) {
       savepath_select.empty().append(`<option value="" selected>自动</option>`);
     } else {
       ajax_post("get_download_dirs", {sid: sid}, function (ret) {
@@ -1929,11 +1931,12 @@
   }
 
   // 刷新下载设置
-  function refresh_downloadsetting_select(obj_id, aync = true) {
+  function refresh_downloadsetting_select(obj_id, aync = true, is_default = false) {
+    let default_content = (!is_default) ? "站点设置" : "默认";
     ajax_post("get_download_setting", {}, function (ret) {
       if (ret.code === 0) {
         let downloadsetting_select = $(`#${obj_id}`);
-        let downloadsetting_select_content = `<option value="" selected>站点设置</option>`;
+        let downloadsetting_select_content = `<option value="" selected>${default_content}</option>`;
         for (let downloadsetting of ret.data) {
           downloadsetting_select_content += `<option value="${downloadsetting.id}">${downloadsetting.name}</option>`;
         }
@@ -1952,9 +1955,9 @@
   }
 
   // 刷新下载框的下载设置及目录选项
-  function refresh_search_download_setting_dirs(){
-    refresh_downloadsetting_select("search_download_setting", false);
-    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val());
+  function refresh_search_download_setting_dirs(is_default){
+    refresh_downloadsetting_select("search_download_setting", false, is_default);
+    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val(), is_default);
   }
 
   // 显示下载提示框
@@ -1963,7 +1966,15 @@
     $("#search_download_name").val(name);
     $("#search_download_message").text(`新增下载 ${name}`);
     // 根据下载设置刷新下载目录选项
-    refresh_search_download_setting_dirs();
+    // 正在下载页面新增下载添加默认而非站点设置
+    if (show_type) {
+      refresh_search_download_setting_dirs(true);
+      $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), true)")
+    } else {
+      refresh_search_download_setting_dirs(false);
+      $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), false)")
+    }
+
     // 绑定下载按钮事件
     if (func) {
       $("#search_download_btn").unbind("click").click(func);
@@ -1973,10 +1984,10 @@
     // 清空
     torrent_dropzone.removeAllFiles();
     $("#torrent_magnets").val("");
-    if (show_type == 'torrent') {
+    if (show_type === 'torrent') {
       $("#torrent_files").show();
       $("#torrent_magnets").hide();
-    } else if (show_type == 'magnet') {
+    } else if (show_type === 'magnet') {
       $("#torrent_magnets").show();
       $("#torrent_files").hide();
     } else {
