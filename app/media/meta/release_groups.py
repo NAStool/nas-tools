@@ -60,6 +60,7 @@ class ReleaseGroupsMatcher(object):
         "putao": ['PuTao'],
         "soulvoice": [],
         "springsunday": ['CMCT(?:|V)'],
+        "sharkpt": ['Shark(?:|WEB|DIY|TV|MV)'],
         "tccf": [],
         "tjupt": ['TJUPT'],
         "totheglory": ['TTG', 'WiKi', 'NGB', 'DoA', '(?:ARi|ExRE)N'],
