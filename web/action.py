@@ -908,7 +908,7 @@ class WebAction:
             os.remove(file)
             nfoname = f"{os.path.splitext(filename)[0]}.nfo"
             nfofile = os.path.join(filedir, nfoname)
-            if os.path.exists(file):
+            if os.path.exists(nfofile):
                 os.remove(nfofile)
             # 检查空目录并删除
             if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
