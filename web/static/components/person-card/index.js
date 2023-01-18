@@ -26,7 +26,7 @@ export class PersonCard extends CustomElement {
       </style>
       <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm ratio cursor-pointer overflow-hidden"
            style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128); --tblr-aspect-ratio: 150%; background-image:linear-gradient(45deg,#99999b,#3f4b63 60%)">
-        <div class="text-center p-4 pt-3">
+        <div class="text-center p-4 pt-3 placeholder-glow">
           <div class="avatar-rounded overflow-hidden">
             <custom-img
               lazy=${this.lazy}
@@ -35,11 +35,11 @@ export class PersonCard extends CustomElement {
               img-style="object-fit:cover;"
             ></custom-img>
           </div>
-          <h3 class="lh-sm text-white mt-3"
+          <h3 class="lh-sm text-white mt-3 ${this.lazy == "1" ? "placeholder" : ""}"
               style="margin-bottom: 5px; -webkit-line-clamp:2; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
             <strong>${this.person_name}</strong>
           </h3>
-          <div class="lh-sm text-white mt-2"
+          <div class="lh-sm text-white mt-2 ${this.lazy == "1" ? "placeholder" : ""}"
               style="margin-bottom: 5px; -webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
             ${this.person_role}
           </div>
