@@ -24,10 +24,10 @@ export class PersonCard extends CustomElement {
           opacity:1
         }
       </style>
-      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm ratio cursor-pointer"
-           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden; --tblr-aspect-ratio: 150%; background-image:linear-gradient(45deg,#99999b,#3f4b63 60%)">
+      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm ratio cursor-pointer overflow-hidden"
+           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128); --tblr-aspect-ratio: 150%; background-image:linear-gradient(45deg,#99999b,#3f4b63 60%)">
         <div class="text-center p-4 pt-3">
-          <div class="avatar-rounded" style="overflow: hidden;">
+          <div class="avatar-rounded overflow-hidden">
             <custom-img
               lazy=${this.lazy}
               img-src=${this.person_image}
