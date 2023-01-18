@@ -111,7 +111,13 @@ export class NormalCard extends observeState(CustomElement) {
 
   render() {
     return html`
-      <div class="card card-sm card-link-pop rounded-4 border-1 shadow-sm"
+      <style>
+        .lit-person-card-scale:hover {
+          transform:scale(1.05, 1.05);
+          opacity:1
+        }
+      </style>
+      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm"
            style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden;"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
@@ -128,7 +134,7 @@ export class NormalCard extends observeState(CustomElement) {
           ${this._render_right_up()}
         </div>
         <div ?hidden=${cardState.more_id != this._card_id}
-             class="card-img-overlay ms-auto rounded-4"
+             class="card-img-overlay ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5)"
              @click=${() => { show_mediainfo_modal(this.page_type, this.title, this.year, this.tmdb_id) }}>
           <div style="cursor: pointer">
