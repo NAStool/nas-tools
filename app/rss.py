@@ -130,7 +130,7 @@ class Rss:
                         enclosure = article.get('enclosure')
                         # 种子页面
                         page_url = article.get('link')
-                        # 副标题
+                        # 描述
                         description = article.get('description')
                         # 种子大小
                         size = article.get('size')
@@ -141,7 +141,7 @@ class Rss:
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
                         # 识别种子名称，开始检索TMDB
-                        media_info = MetaInfo(title=title, subtitle=description)
+                        media_info = MetaInfo(title=title)
                         cache_info = self.media.get_cache_info(media_info)
                         if cache_info.get("id"):
                             # 使用缓存信息
@@ -151,7 +151,7 @@ class Rss:
                             media_info.year = cache_info.get("year")
                         else:
                             # 重新查询TMDB
-                            media_info = self.media.get_media_info(title=title, subtitle=description)
+                            media_info = self.media.get_media_info(title=title)
                             if not media_info:
                                 log.warn(f"【Rss】{title} 无法识别出媒体信息！")
                                 continue
