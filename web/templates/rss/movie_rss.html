@@ -126,3 +126,10 @@
 {% else %}
 {{ OOPS.nodatafound('没有订阅', '当前没有正在订阅的电影。') }}
 {% endif %}
+<script type="text/javascript">
+  {% if not RssSitesCount %}
+  show_fail_modal("请添加站点并启用订阅功能，否则订阅无法正常运行！", function () {
+    navmenu("site");
+  })
+  {% endif %}
+</script>
