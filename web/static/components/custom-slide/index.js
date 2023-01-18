@@ -100,7 +100,7 @@ export class CustomSlide extends CustomElement {
             </div>
           </div>
         </div>
-        <div class="media-slide-hide-scrollbar pt-2"
+        <div class="media-slide-hide-scrollbar p-2"
             @scroll=${ this._countDisabled }>
           <div class="row row-cards d-flex flex-row flex-nowrap media-slide-card-number">
             ${this.slide_card}
