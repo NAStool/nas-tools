@@ -117,8 +117,8 @@ export class NormalCard extends observeState(CustomElement) {
           opacity:1
         }
       </style>
-      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm"
-           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);overflow: hidden;"
+      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm overflow-hidden"
+           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);position:relative;z-index:1;"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseleave=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = undefined } } }>

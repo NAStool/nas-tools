@@ -16,7 +16,7 @@ export class NormalCardPlaceholder extends CustomElement {
 
   render() {
     return html`
-      <div class="card card-sm rounded-4" style="overflow: hidden;">
+      <div class="card card-sm rounded-4 overflow-hidden">
         ${NormalCardPlaceholder.render_placeholder()}
       </div>
     `;
