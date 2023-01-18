@@ -113,7 +113,7 @@ class RssChecker(object):
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
                 "recognization": task.RECOGNIZATION or recognization,
-                "over_edition": task.OVER_EDITION or "0",
+                "over_edition": task.OVER_EDITION or 0,
                 "sites": json.loads(task.SITES)
                 if task.SITES else {"rss_sites": [], "search_sites": []},
                 "filter_args": json.loads(task.FILTER_ARGS)
@@ -342,7 +342,7 @@ class RssChecker(object):
                     year=media.year,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
-                    search_sites=taskinfo.get("sites", {}).get("rss_sites"),
+                    search_sites=taskinfo.get("sites", {}).get("search_sites"),
                     over_edition=True if taskinfo.get("over_edition") else False,
                     filter_restype=taskinfo.get("filter_args", {}).get("restype"),
                     filter_pix=taskinfo.get("filter_args", {}).get("pix"),
