@@ -17,16 +17,16 @@ class PagePerson extends CustomElement {
   firstUpdated() {
     // 要从这里获取演员信息吗 ?
     // demo
-    const new_list = [];
-    for (let i = 0; i < 20; i++) {
-        new_list.push({
-          id: "3131-antonio-banderas",
-          image: "https://www.themoviedb.org/t/p/w138_and_h175_face/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
-          name: "Antonio Banderas", 
-          role: "Puss in Boots (voice)",
-        });
-    }
-    this.person_list = new_list;
+    // const new_list = [];
+    // for (let i = 0; i < 20; i++) {
+    //     new_list.push({
+    //       id: "3131-antonio-banderas",
+    //       image: "https://www.themoviedb.org/t/p/w138_and_h175_face/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
+    //       name: "Antonio Banderas", 
+    //       role: "Puss in Boots (voice)",
+    //     });
+    // }
+    // this.person_list = new_list;
   }
 
   render() {
@@ -57,7 +57,10 @@ class PagePerson extends CustomElement {
                   }}
                 ></person-card>
               </div>` ) )
-            : Array(20).fill(html`<person-card></person-card>`)
+            : Array(20).fill(html`
+              <div class="col-6 col-md-3 col-xl-2">
+                <person-card lazy="1"></person-card>
+              </div>`)
             }
           </div>            
         </div>
