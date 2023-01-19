@@ -598,7 +598,7 @@ def service():
 
         search_rss_interval = pt.get('search_rss_interval')
         if str(search_rss_interval).isdigit():
-            tim_rsssearch = str(int(search_rss_interval)) + " 天"
+            tim_rsssearch = str(int(search_rss_interval)) + " 小时"
             rss_search_state = 'ON'
         else:
             tim_rsssearch = ""
