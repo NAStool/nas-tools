@@ -213,7 +213,7 @@ class Qbittorrent(_IDownloadClient):
                 continue
             if size and (torrent.size >= maxsize or torrent.size <= minsize):
                 continue
-            if upload_avs and torrent_upload_avs <= upload_avs * 1024:
+            if upload_avs and torrent_upload_avs >= upload_avs * 1024:
                 continue
             if savepath_key and not re.findall(savepath_key, torrent.save_path, re.I):
                 continue
