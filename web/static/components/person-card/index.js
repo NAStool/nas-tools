@@ -24,11 +24,11 @@ export class PersonCard extends CustomElement {
           z-index:1;
           box-sizing:border-box;
           -moz-box-sizing:border-box;
-          -webkit-box-sizing: border-box;
+          -webkit-box-sizing:border-box;
           border:none;
           outline:1px solid #888888;
-          outline-offset: -1px;
-          --tblr-aspect-ratio: 150%;
+          outline-offset:-1px;
+          --tblr-aspect-ratio:150%;
           background-image:linear-gradient(45deg,#99999b,#3f4b63 60%);
         }
         .lit-person-card:hover {

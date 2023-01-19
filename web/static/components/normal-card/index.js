@@ -117,9 +117,9 @@ export class NormalCard extends observeState(CustomElement) {
           z-index:1;
           box-sizing:border-box;
           -moz-box-sizing:border-box;
-          -webkit-box-sizing: border-box;
+          -webkit-box-sizing:border-box;
           outline:2px solid #888888;
-          outline-offset: -2px;
+          outline-offset:-2px;
         }
         .lit-normal-card:hover {
           transform:scale(1.05, 1.05);
