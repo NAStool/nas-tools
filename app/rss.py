@@ -130,8 +130,6 @@ class Rss:
                         enclosure = article.get('enclosure')
                         # 种子页面
                         page_url = article.get('link')
-                        # 描述
-                        description = article.get('description')
                         # 种子大小
                         size = article.get('size')
                         # 开始处理
@@ -256,8 +254,7 @@ class Rss:
                         media_info.set_torrent_info(res_order=match_info.get("res_order"),
                                                     download_volume_factor=match_info.get("download_volume_factor"),
                                                     upload_volume_factor=match_info.get("upload_volume_factor"),
-                                                    rssid=match_info.get("id"),
-                                                    description=description)
+                                                    rssid=match_info.get("id"))
                         media_info.set_download_info(download_setting=match_info.get("download_setting"),
                                                      save_path=match_info.get("save_path"))
                         # 插入数据库
