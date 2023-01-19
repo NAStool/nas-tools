@@ -536,6 +536,20 @@ class Rss:
         """
         根据缺失情况以及匹配到的结果选择下载种子
         """
+        finished_rss_torrents = []
+
+        def __finish_rss(media):
+            """
+            完成订阅
+            """
+            if not media.rssid:
+                return
+            if media.rssid in finished_rss_torrents:
+                return
+            finished_rss_torrents.append(media.rssid)
+            self.subscribe.finish_rss_subscribe(rssid=media.rssid,
+                                                media=media)
+
         if not rss_download_torrents:
             return
 
@@ -554,19 +568,17 @@ class Rss:
                     # 检查是否匹配最高优先级规则
                     over_edition_order = self.filter.get_rule_first_order(rulegroup=item.filter_rule)
                     if item.res_order is not None \
-                            and item.res_order <= over_edition_order:
+                            and item.res_order <= over_edition_order \
+                            and not item.get_episode_list():
                         log.info("【Rss】%s 洗版已匹配到最高优先级资源，优先级：%s" % (
                             item.get_title_string(),
                             item.get("res_order")
                         ))
                         # 完成洗版订阅
-                        self.subscribe.finish_rss_subscribe(rssid=item.rssid,
-                                                            media=item)
-
+                        __finish_rss(item)
                 elif not left_medias or not left_medias.get(item.tmdb_id):
                     # 删除电视剧订阅
-                    self.subscribe.finish_rss_subscribe(rssid=item.rssid,
-                                                        media=item)
+                    __finish_rss(item)
                 else:
                     # 更新电视剧缺失剧集
                     left_media = left_medias.get(item.tmdb_id)

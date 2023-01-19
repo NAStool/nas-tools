@@ -779,7 +779,8 @@ class Subscribe:
                     # 检查是否匹配最高优先级规则
                     over_edition_order = self.filter.get_rule_first_order(rulegroup=search_result.filter_rule)
                     if search_result.res_order is not None \
-                            and search_result.res_order <= over_edition_order:
+                            and search_result.res_order <= over_edition_order \
+                            and not search_result.get_episode_list():
                         log.info("【Subscribe】%s 洗版已匹配到最高优先级资源，优先级：%s" % (
                             search_result.get_title_string(),
                             search_result.get("res_order")
