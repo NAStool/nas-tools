@@ -115,6 +115,7 @@ export class NormalCard extends observeState(CustomElement) {
         .lit-normal-card {
           position:relative;
           z-index:1;
+          --tblr-aspect-ratio:150%;
           border:none;
           box-shadow:0 0 0 1px #888888,0 .125rem .25rem rgba(0,0,0,0.2);
         }
@@ -124,18 +125,16 @@ export class NormalCard extends observeState(CustomElement) {
           box-shadow:0 0 0 1px #bbbbbb;
         }
       </style>
-      <div class="card card-sm lit-normal-card rounded-4 overflow-hidden"
+      <div class="card card-sm lit-normal-card rounded-4 overflow-hidden cursor-pointer ratio"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseleave=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = undefined } } }>
         ${this._placeholder ? NormalCardPlaceholder.render_placeholder() : nothing}
         <div ?hidden=${this._placeholder}>
-          <div class="ratio" style="--tblr-aspect-ratio: 150%">
-            <img class="card-img" alt=""
-                 src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
-                 @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage} }}
-                 @load=${() => { this._placeholder = false }}/>
-          </div>
+          <img class="card-img" alt="" style="position: absolute; inset: 0px; box-sizing: border-box; padding: 0px; border: none; margin: auto; display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"
+             src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
+             @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage} }}
+             @load=${() => { this._placeholder = false }}/>
           ${this._render_left_up()}
           ${this._render_right_up()}
         </div>

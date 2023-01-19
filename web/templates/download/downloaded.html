@@ -11,9 +11,9 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="row row-cards" id="downloaded_content">
+      <div class="row" id="downloaded_content">
         {% for item in Items %}
-          <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+          <div class="mb-3 col-6 col-sm-4 col-md-3 col-xl-2">
             <normal-card
               card-tmdbId="{{ item.TMDBID }}"
               card-pageType="{% if item.TYPE == '电影' %}MOV{% else %}TV{% endif %}"
@@ -50,7 +50,7 @@
   var page_card_num = {{ Count }};
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div class="mb-3 col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -82,7 +82,7 @@
         let item = ret.Items[i];
         let meida_type = item.TYPE == "电影" ? "MOV":"TV";
         let html = '';
-        html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2">'
+        html += '<div class="mb-3 col-6 col-sm-4 col-md-3 col-xl-2">'
           html += `<normal-card
                     card-tmdbId="${item.TMDBID}"
                     card-pageType="${meida_type}"
