@@ -95,13 +95,13 @@
                       <div class="font-weight-medium strong">
                         <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
                         {% if Result.uploadvolumefactor != 1.0 %}
-                          <span class="badge text-white bg-azure mb-1">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                          <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
                         {% endif %}
                         {% if Result.downloadvolumefactor != 1.0 %}
                           {% if Result.downloadvolumefactor == 0.0 %}
-                            <span class="badge text-white bg-lime mb-1">FREE</span>
+                            <span class="badge text-white bg-lime">FREE</span>
                           {% else %}
-                            <span class="badge text-white bg-blue mb-1">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
                           {% endif %}
                         {% endif %}
                         <a class="ms-2 mb-1" title="名称测试"
