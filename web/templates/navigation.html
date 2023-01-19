@@ -114,7 +114,35 @@
   {% endfor %}
   </style>
 </head>
-
+{% macro usermenu() %}
+  <div class="nav-item dropdown">
+    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
+        <span>
+          {{ SVG.user() }}
+        </span>
+      <div class="d-none d-xl-block ps-2">
+        <div>{{ UserName }}</div>
+      </div>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+      <a class="dropdown-item hide-theme-dark d-sm-none" href="?theme=dark" role="button">暗黑风格</a>
+      <a class="dropdown-item hide-theme-light d-sm-none" href="?theme=light" role="button">明亮风格</a>
+      <div class="dropdown-divider d-sm-none"></div>
+      {% if "系统设置" in UserPris %}
+        <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
+           aria-controls="offcanvasEnd">消息中心</a>
+        <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
+        <div class="dropdown-divider"></div>
+        {% if SystemFlag in ['Docker', 'Synology'] %}
+          <a href="javascript:restart()" class="dropdown-item">重启</a>
+          <a href="javascript:update()" class="dropdown-item">更新</a>
+        {% endif %}
+      {% endif %}
+      <a href="javascript:logout()" class="dropdown-item">注销</a>
+      <h5 class="dropdown-header">{{ AppVersion }}</h5>
+    </div>
+  </div>
+{% endmacro %}
 <body>
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
@@ -131,32 +159,7 @@
         </a>
       </h1>
       <div class="navbar-nav flex-row d-lg-none">
-        <div class="nav-item dropdown">
-          <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-              <span>
-                {{ SVG.user() }}
-              </span>
-            <div class="d-none d-xl-block ps-2">
-              <div>{{ UserName }}</div>
-            </div>
-          </a>
-          <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            <a class="dropdown-item hide-theme-dark" href="?theme=dark" role="button">暗黑风格</a>
-            <a class="dropdown-item hide-theme-light" href="?theme=light" role="button">明亮风格</a>
-            <div class="dropdown-divider"></div>
-            {% if "系统设置" in UserPris %}
-              <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
-                 aria-controls="offcanvasEnd">消息中心</a>
-              <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
-              <div class="dropdown-divider"></div>
-              {% if SystemFlag in ['Docker', 'Synology'] %}
-                <a href="javascript:restart()" class="dropdown-item">重启</a>
-                <a href="javascript:update()" class="dropdown-item">更新</a>
-              {% endif %}
-            {% endif %}
-            <a href="javascript:logout()" class="dropdown-item">注销</a>
-          </div>
-        </div>
+        {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
@@ -439,30 +442,7 @@
             </div>
           </div>
         </div>
-        <div class="nav-item dropdown">
-          <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-             aria-label="Open user menu">
-              <span class="avatar avatar-sm">
-                {{ SVG.user() }}
-              </span>
-            <div class="d-none d-xl-block ps-2">
-              <div>{{ UserName }}</div>
-            </div>
-          </a>
-          <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-            {% if "系统设置" in UserPris %}
-              <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
-                 aria-controls="offcanvasEnd">消息中心</a>
-              <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
-              <div class="dropdown-divider"></div>
-              {% if SystemFlag in ['Docker', 'Synology'] %}
-                <a href="javascript:restart()" class="dropdown-item">重启</a>
-                <a href="javascript:update()" class="dropdown-item">更新</a>
-              {% endif %}
-            {% endif %}
-            <a href="javascript:logout()" class="dropdown-item">注销</a>
-          </div>
-        </div>
+        {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse">
         <div>
@@ -481,24 +461,6 @@
     <div id="page_content">
       {{ OOPS.loading() }}
     </div>
-    <footer class="footer footer-transparent d-print-none" style="padding: 0;">
-      <div class="container-xl">
-        <div class="row text-center align-items-center flex-row-reverse">
-          <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-            <ul class="list-inline list-inline-dots mb-0">
-              <li class="list-inline-item">
-                Copyright &copy; 2022
-                <a href="." class="link-secondary">NAStool</a>.
-                All rights reserved.
-              </li>
-              <li class="list-inline-item">
-                {{ AppVersion }}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
