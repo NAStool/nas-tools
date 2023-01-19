@@ -22,23 +22,19 @@ export class PersonCard extends CustomElement {
         .lit-person-card {
           position:relative;
           z-index:1;
-          box-sizing:border-box;
-          -moz-box-sizing:border-box;
-          -webkit-box-sizing:border-box;
-          border:none;
-          outline:1px solid #888888;
-          outline-offset:-1px;
           --tblr-aspect-ratio:150%;
+          border:none;
+          box-shadow:0 0 0 1px #888888,0 .125rem .25rem rgba(0,0,0,0.2);
           background-image:linear-gradient(45deg,#99999b,#3f4b63 60%);
         }
         .lit-person-card:hover {
           transform:scale(1.05, 1.05);
-          outline:1px solid #bbbbbb;
           opacity:1;
+          box-shadow:0 0 0 1px #bbbbbb;
           background-image:linear-gradient(45deg,#bbbbbd,#5f6f85 60%);
         }
       </style>
-      <div class="card card-sm lit-person-card rounded-4 shadow-sm overflow-hidden cursor-pointer ratio">
+      <div class="card card-sm lit-person-card rounded-4 overflow-hidden cursor-pointer ratio">
         <div class="text-center p-4 pt-3 placeholder-glow">
           <div class="avatar-rounded overflow-hidden">
             <custom-img
