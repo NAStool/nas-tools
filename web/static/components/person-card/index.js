@@ -25,6 +25,7 @@ export class PersonCard extends CustomElement {
           box-sizing:border-box;
           -moz-box-sizing:border-box;
           -webkit-box-sizing: border-box;
+          border:none;
           outline:1px solid #888888;
           outline-offset: -1px;
           --tblr-aspect-ratio: 150%;
