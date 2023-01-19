@@ -314,6 +314,7 @@ class _IIndexClient(metaclass=ABCMeta):
                                         site_order=order_seq,
                                         enclosure=enclosure,
                                         res_order=res_order,
+                                        filter_rule=filter_args.get("rule"),
                                         size=size,
                                         seeders=seeders,
                                         peers=peers,

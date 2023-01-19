@@ -804,7 +804,7 @@
                 <input class="form-check-input" type="checkbox" id="over_edition"
                        onclick="change_over_edition_check(this)">
                 <span class="form-check-label">洗版 <span class="form-help"
-                                                          title="开启后RSS不检查媒体库是否已存在，命中即会下载"
+                                                          title="开启洗版后不会检查本地是否已存在，满足订阅条件即会下载；除非匹配了对应的过滤规则中最高优先级的那条规则否则不会删除订阅（未明确过滤规则时使用默认规则）；多个资源下载后如命名一致，则只会保留文件体积较大的，如需都保留则需要在文件重命名规则中增加相关要素以做区分"
                                                           data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>

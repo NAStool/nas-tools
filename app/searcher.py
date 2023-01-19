@@ -71,13 +71,13 @@ class Searcher:
         :param sites: 检索哪些站点
         :param filters: 过滤条件，为空则不过滤
         :param user_name: 用户名
-        :return: 请求的资源是否全部下载完整
+        :return: 请求的资源是否全部下载完整，如完整则返回媒体信息
                  请求的资源如果是剧集则返回下载后仍然缺失的季集信息
                  搜索到的结果数量
                  下载到的结果数量，如为None则表示未开启自动下载
         """
         if not media_info:
-            return False, {}, 0, 0
+            return None, {}, 0, 0
         # 进度计数重置
         self.progress.start('search')
         # 查找的季
@@ -145,7 +145,7 @@ class Searcher:
 
         if len(media_list) == 0:
             log.info("【Searcher】%s 未搜索到任何资源" % second_search_name)
-            return False, no_exists, 0, 0
+            return None, no_exists, 0, 0
         else:
             if in_from in self.message.get_search_types():
                 # 保存搜索记录
@@ -160,7 +160,7 @@ class Searcher:
                 self.dbhelper.insert_search_results(media_list)
                 # 微信未开自动下载时返回
                 if not self._search_auto:
-                    return False, no_exists, len(media_list), None
+                    return None, no_exists, len(media_list), None
             # 择优下载
             download_items, left_medias = self.downloader.batch_download(in_from=in_from,
                                                                          media_list=media_list,
@@ -169,12 +169,12 @@ class Searcher:
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
                 log.info("【Searcher】%s 未下载到资源" % media_info.title)
-                return False, left_medias, len(media_list), 0
+                return None, left_medias, len(media_list), 0
             else:
                 log.info("【Searcher】实际下载了 %s 个资源" % len(download_items))
                 # 还有剩下的缺失，说明没下完，返回False
                 if left_medias:
-                    return False, left_medias, len(media_list), len(download_items)
+                    return None, left_medias, len(media_list), len(download_items)
                 # 全部下完了
                 else:
-                    return True, no_exists, len(media_list), len(download_items)
+                    return download_items[0], no_exists, len(media_list), len(download_items)
