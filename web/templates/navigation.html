@@ -139,7 +139,6 @@
         {% endif %}
       {% endif %}
       <a href="javascript:logout()" class="dropdown-item">注销</a>
-      <h5 class="dropdown-header">{{ AppVersion }}</h5>
     </div>
   </div>
 {% endmacro %}
@@ -398,7 +397,7 @@
           <div class="btn-list">
             <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
               {{ SVG.brand_github() }}
-              Source code
+              {{ AppVersion }}
             </a>
           </div>
         </div>
