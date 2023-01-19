@@ -112,13 +112,22 @@ export class NormalCard extends observeState(CustomElement) {
   render() {
     return html`
       <style>
-        .lit-person-card-scale:hover {
+        .lit-normal-card {
+          position:relative;
+          z-index:1;
+          box-sizing:border-box;
+          -moz-box-sizing:border-box;
+          -webkit-box-sizing: border-box;
+          outline:2px solid #888888;
+          outline-offset: -2px;
+        }
+        .lit-normal-card:hover {
           transform:scale(1.05, 1.05);
-          opacity:1
+          outline:2px solid #bbbbbb;
+          opacity:1;
         }
       </style>
-      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm overflow-hidden"
-           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128);position:relative;z-index:1;"
+      <div class="card card-sm lit-normal-card rounded-4 shadow-sm overflow-hidden"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseleave=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = undefined } } }>
