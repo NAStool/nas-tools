@@ -8,11 +8,13 @@ export class CustomImg extends CustomElement {
     img_class: { attribute: "img-class" },
     img_style: { attribute: "img-style" },
     img_ratio: { attribute: "img-ratio" },
+    lazy: {},
     _placeholder: { state: true },
   };
 
   constructor() {
     super();
+    this.lazy = "0";
     this._placeholder = true;
   }
 
@@ -27,12 +29,12 @@ export class CustomImg extends CustomElement {
     const styles = `--tblr-aspect-ratio:${this.img_ratio}; ${this.img_style}`;
     return html`
       <div ?hidden=${!this._placeholder} class="placeholder-glow">
-        <div class="ratio placeholder" style=${styles}></div>
+        <div class="ratio placeholder cursor-pointer" style=${styles}></div>
       </div>
-      <div ?hidden=${this._placeholder} class="ratio img" style="--tblr-aspect-ratio:${this.img_ratio};">
+      <div ?hidden=${this._placeholder} class="ratio" style="--tblr-aspect-ratio:${this.img_ratio};">
         <img class=${this.img_class} style=${this.img_style} alt=""
-          src=${this.img_src ?? Golbal.noImage}
-          @error=${() => { this.img_src = Golbal.noImage }}
+          src=${this.lazy == "1" ? "" : this.img_src ?? Golbal.noImage}
+          @error=${() => { if (this.lazy != "1") { this.img_src = Golbal.noImage } }}
           @load=${() => { this._placeholder = false }}/>
       </div>
     `;

@@ -222,7 +222,7 @@ class Message(object):
         msg_text = f"{msg_text}\n促销：{can_item.get_volume_factor_string()}"
         if can_item.hit_and_run:
             msg_text = f"{msg_text}\nHit&Run：是"
-        if can_item.description and in_from != SearchType.USERRSS:
+        if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
             description = html_re.sub('', can_item.description)
             can_item.description = re.sub(r'<[^>]+>', '', description)
@@ -537,4 +537,3 @@ class Message(object):
         return [info.get("search_type")
                 for info in ModuleConf.MESSAGE_DICT.get('client').values()
                 if info.get('search_type')]
-

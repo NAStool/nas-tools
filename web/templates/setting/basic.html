@@ -396,8 +396,8 @@
               </div>
               <div class="col-xl">
                 <div class="mb-3">
-                  <label class="form-label">订阅搜索周期(天) <span class="form-help"
-                                                                   title="定时对订阅内容进行存量资源搜索，以天为单位，最小间隔为1天，该项会对站点造成搜索压力，如非必要请不要开启"
+                  <label class="form-label">订阅搜索周期(小时) <span class="form-help"
+                                                                   title="定时对电影/电视剧订阅进行站点存量资源检索下载，用于对RSS订阅进行查漏补缺。以小时为单位，最小间隔为6小时，设置小于6小时时将强制设定为6小时。该项会对站点造成压力，应尽量通过维护站点RSS实现订阅追新，如非必要请不要开启"
                                                                    data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.pt.search_rss_interval or '' }}" class="form-control"
                          id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="off">
