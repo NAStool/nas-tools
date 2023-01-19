@@ -362,7 +362,7 @@ def rss_calendar():
 def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    DownloadSettings = {id: attr["name"] for id, attr in Downloader().get_download_setting().items()}
+    DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
     return render_template("site/site.html",
                            Sites=CfgSites,
@@ -1053,7 +1053,7 @@ def user_rss():
     Tasks = RssChecker().get_rsstask_info()
     RssParsers = RssChecker().get_userrss_parser()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    DownloadSettings = {id: attr["name"] for id, attr in Downloader().get_download_setting().items()}
+    DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
     PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
     return render_template("rss/user_rss.html",
