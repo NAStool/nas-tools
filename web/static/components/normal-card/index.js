@@ -24,12 +24,14 @@ export class NormalCard extends observeState(CustomElement) {
     lazy: {},
     _placeholder: { state: true },
     _card_id: { state: true },
+    _card_image_error: { state: true },
   };
 
   constructor() {
     super();
     this.lazy = "0";
     this._placeholder = true;
+    this._card_image_error = false;
     this._card_id = Symbol("normalCard_data_card_id");
   }
 
@@ -133,12 +135,12 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${this._placeholder}>
           <img class="card-img" alt="" style="position: absolute; inset: 0px; box-sizing: border-box; padding: 0px; border: none; margin: auto; display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"
              src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
-             @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage} }}
+             @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage; this._card_image_error = true} }}
              @load=${() => { this._placeholder = false }}/>
           ${this._render_left_up()}
           ${this._render_right_up()}
         </div>
-        <div ?hidden=${cardState.more_id != this._card_id}
+        <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
              class="card-img-overlay ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5)"
              @click=${() => { show_mediainfo_modal(this.page_type, this.title, this.year, this.tmdb_id) }}>
