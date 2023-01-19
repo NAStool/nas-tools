@@ -287,7 +287,7 @@ class Transmission(_IDownloadClient):
                 continue
             if size and (torrent.total_size >= maxsize or torrent.total_size <= minsize):
                 continue
-            if upload_avs and torrent_upload_avs <= upload_avs*1024:
+            if upload_avs and torrent_upload_avs >= upload_avs*1024:
                 continue
             if savepath_key and not re.findall(savepath_key, torrent.download_dir, re.I):
                 continue
