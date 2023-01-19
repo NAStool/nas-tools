@@ -661,7 +661,10 @@
 
   // 过滤媒体展示
   function filter_medias(obj, key, modal) {
-    filter_reset()
+    // 选中当前项
+    $(obj).parent().parent().find("input[type=checkbox]").each(function (){
+      $(this).prop("checked", false);
+    });
     $(obj).prop("checked", true);
     // 开始过滤
     filter_do(key, modal);
