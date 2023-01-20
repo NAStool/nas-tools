@@ -803,7 +803,7 @@ class Subscribe:
                                               res_order=media.res_order)
         # 检查是否匹配最高优先级规则
         over_edition_order = self.filter.get_rule_first_order(rulegroup=media.filter_rule)
-        if int(media.res_order) <= int(over_edition_order):
+        if int(media.res_order) >= int(over_edition_order):
             # 完成洗版订阅
             self.finish_rss_subscribe(rssid=rssid, media=media)
             return True
