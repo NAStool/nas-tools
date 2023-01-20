@@ -1,6 +1,6 @@
 import json
 
-from app.utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 
 
 class CookieCloudHelper(object):
@@ -10,7 +10,7 @@ class CookieCloudHelper(object):
     _password = None
 
     def __init__(self, server, key, password):
-        self._server = server
+        self._server = StringUtils.get_base_url(server)
         self._key = key
         self._password = password
         self._req = RequestUtils(content_type="application/json")
