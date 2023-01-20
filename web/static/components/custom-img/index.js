@@ -26,16 +26,17 @@ export class CustomImg extends CustomElement {
   }
 
   render() {
-    const styles = `--tblr-aspect-ratio:${this.img_ratio}; ${this.img_style}`;
+    const ratio = `--tblr-aspect-ratio:${this.img_ratio};`;
     return html`
       <div ?hidden=${!this._placeholder} class="placeholder-glow">
-        <div class="ratio placeholder cursor-pointer" style=${styles}></div>
+        <div class="${this.img_ratio ? "ratio " : ""}placeholder cursor-pointer ${this.img_class}" style=${this.img_ratio ? `${ratio}${this.img_style}` : this.img_style}></div>
       </div>
-      <div ?hidden=${this._placeholder} class="ratio" style="--tblr-aspect-ratio:${this.img_ratio};">
+      <div ?hidden=${this._placeholder} class=${this.img_ratio ? "ratio" : ""} style=${this.img_ratio ? ratio : ""}>
         <img class=${this.img_class} style=${this.img_style} alt=""
           src=${this.lazy == "1" ? "" : this.img_src ?? Golbal.noImage}
           @error=${() => { if (this.lazy != "1") { this.img_src = Golbal.noImage } }}
           @load=${() => { this._placeholder = false }}/>
+        <slot name="absolute"></slot>
       </div>
     `;
   }
