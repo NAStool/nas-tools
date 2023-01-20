@@ -62,7 +62,7 @@ export class CustomSlide extends CustomElement {
         <div class="page-header d-print-none">
           <div class="d-flex justify-content-between">
             <div class="d-inline-flex">
-              <a class="nav-link" href=${this.slide_card.length == 0 ? "javascript:void(0)" : this.slide_click}>
+              <a class="nav-link ms-2" href=${this.slide_card.length == 0 ? "javascript:void(0)" : this.slide_click}>
                 <h2 class="my-1">
                   <strong>${this.slide_card.length == 0 ? "加载中.." : this.slide_title}</strong>
                 </h2>
