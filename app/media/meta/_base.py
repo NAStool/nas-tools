@@ -61,6 +61,8 @@ class MetaBase(object):
     tvdb_id = 0
     # 豆瓣 ID
     douban_id = 0
+    # 自定义搜索词
+    keyword = None
     # 媒体标题
     title = None
     # 媒体原语种
@@ -98,6 +100,10 @@ class MetaBase(object):
     enclosure = None
     # 资源优先级
     res_order = 0
+    # 使用的过滤规则
+    filter_rule = None
+    # 是否洗版
+    over_edition = None
     # 种子大小
     size = 0
     # 做种者
@@ -512,6 +518,7 @@ class MetaBase(object):
                          site_order=0,
                          enclosure=None,
                          res_order=0,
+                         filter_rule=None,
                          size=0,
                          seeders=0,
                          peers=0,
@@ -521,7 +528,8 @@ class MetaBase(object):
                          download_volume_factor=None,
                          rssid=None,
                          hit_and_run=None,
-                         imdbid=None):
+                         imdbid=None,
+                         over_edition=None):
         if site:
             self.site = site
         if site_order:
@@ -530,6 +538,8 @@ class MetaBase(object):
             self.enclosure = enclosure
         if res_order:
             self.res_order = res_order
+        if filter_rule:
+            self.filter_rule = filter_rule
         if size:
             self.size = size
         if seeders:
@@ -550,6 +560,8 @@ class MetaBase(object):
             self.hit_and_run = hit_and_run
         if imdbid is not None:
             self.imdb_id = imdbid
+        if over_edition is not None:
+            self.over_edition = over_edition
 
     # 整合下载参数
     def set_download_info(self, download_setting=None, save_path=None):

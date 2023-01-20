@@ -553,17 +553,19 @@ class DbHelper:
         )
 
     @DbPersist(_db)
-    def update_site_cookie_ua(self, tid, cookie, ua):
+    def update_site_cookie_ua(self, tid, cookie, ua=None):
         """
         更新站点Cookie和ua
         """
         if not tid:
             return
         rec = self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).first()
-        if not rec.NOTE:
-            return
-        note = json.loads(rec.NOTE)
-        note['ua'] = ua
+        if rec.NOTE:
+            note = json.loads(rec.NOTE)
+            if ua:
+                note['ua'] = ua
+        else:
+            note = {}
         self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
             {
                 "COOKIE": cookie,
@@ -657,6 +659,33 @@ class DbHelper:
             "DESC": desc
         })
 
+    @DbPersist(_db)
+    def update_rss_filter_order(self, rtype, rssid, res_order):
+        """
+        更新订阅命中的过滤规则优先级
+        """
+        if rtype == MediaType.MOVIE:
+            self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).update({
+                "FILTER_ORDER": res_order
+            })
+        else:
+            self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update({
+                "FILTER_ORDER": res_order
+            })
+
+    def get_rss_overedition_order(self, rtype, rssid):
+        """
+        查询当前订阅的过滤优先级
+        """
+        if rtype == MediaType.MOVIE:
+            res = self._db.query(RSSMOVIES.FILTER_ORDER).filter(RSSMOVIES.ID == int(rssid)).first()
+        else:
+            res = self._db.query(RSSTVS.FILTER_ORDER).filter(RSSTVS.ID == int(rssid)).first()
+        if res and res[0]:
+            return int(res[0])
+        else:
+            return 0
+
     def is_exists_rss_movie(self, title, year):
         """
         判断RSS电影是否存在
@@ -684,7 +713,8 @@ class DbHelper:
                          download_setting=-1,
                          fuzzy_match=0,
                          desc=None,
-                         note=None):
+                         note=None,
+                         keyword=None):
         """
         新增RSS电影
         """
@@ -715,7 +745,8 @@ class DbHelper:
             FUZZY_MATCH=fuzzy_match,
             STATE=state,
             DESC=desc,
-            NOTE=note
+            NOTE=note,
+            KEYWORD=keyword
         ))
         return 0
 
@@ -873,7 +904,8 @@ class DbHelper:
                       current_ep=None,
                       fuzzy_match=0,
                       desc=None,
-                      note=None):
+                      note=None,
+                      keyword=None):
         """
         新增RSS电视剧
         """
@@ -913,7 +945,8 @@ class DbHelper:
             LACK=lack,
             STATE=state,
             DESC=desc,
-            NOTE=note
+            NOTE=note,
+            KEYWORD=keyword
         ))
         return 0
 

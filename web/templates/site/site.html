@@ -19,6 +19,13 @@
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </a>
+          <a href="javascript:show_cookiecloud_modal()" class="btn btn-twitter d-none d-sm-inline-block">
+            {{ SVG.refresh_dot() }}
+            CookieCloud
+          </a>
+          <a href="javascript:show_cookiecloud_modal()" class="btn btn-twitter d-sm-none btn-icon">
+            {{ SVG.refresh_dot() }}
+          </a>
           <a href="javascript:show_sitetest_modal()" class="btn d-none d-sm-inline-block">
             {{ SVG.activity_heartbeat() }}
             站点测试
@@ -405,6 +412,52 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-cookiecloud" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cookieua_modal_title">CookieCloud数据同步</h5>
+        <input type="hidden" id="cookieua_siteid">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址 <span class="form-help"
+                                                              title="参考https://github.com/easychen/CookieCloud搭建私有CookieCloud服务器；也可使用默认的公共服务器，公共服务器不会存储任何非加密用户数据，也不会存储用户KEY、端对端加密密码，但要注意千万不要对外泄露加密信息，否则Cookie数据也会被泄露！"
+                                                              data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ CookieCloudCfg.server }}" id="cookiecloud_server" class="form-control" placeholder="http://nastool.cn:8088">
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">用户KEY <span class="form-help"
+                                                              title="在浏览器CookieCloud插件中获取，使用公共服务器时注意不要泄露该信息"
+                                                              data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ CookieCloudCfg.key }}" id="cookiecloud_key" class="form-control" placeholder="">
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">端对端加密密码 <span class="form-help"
+                                                              title="在浏览器CookieCloud插件中获取，使用公共服务器时注意不要泄露该信息"
+                                                              data-bs-toggle="tooltip">?</span></label>
+              <input type="password" value="{{ CookieCloudCfg.password }}" id="cookiecloud_password" class="form-control" placeholder="">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">
+          取消
+        </button>
+        <button onclick="sync_site_cookiecloud()" id="cookiecloud_syncbtn" class="btn btn-primary">开始同步</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal modal-blur fade" id="modal-captcha-code" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -605,6 +658,11 @@
     $("#modal-sitetest").modal("show");
   }
 
+  //显示CookieCloud同步对话框
+  function show_cookiecloud_modal() {
+    $("#modal-cookiecloud").modal("show");
+  }
+
   //测试一个站点
   function test_one_site(siteid, callBack) {
     if (!siteid) {
@@ -682,6 +740,45 @@
       refresh_sitecookie_current = "";
     }, true, false);
 
+  }
+
+  // 同步CookieCloud中的站点Cookie数据
+  function sync_site_cookiecloud(){
+    const server = $("#cookiecloud_server").val();
+    const key = $("#cookiecloud_key").val();
+    const password = $("#cookiecloud_password").val();
+    if (!server) {
+      $("#cookiecloud_server").addClass("is-invalid");
+      return;
+    }else{
+      $("#cookiecloud_server").removeClass("is-invalid");
+    }
+    if (!key) {
+      $("#cookiecloud_key").addClass("is-invalid");
+      return;
+    }else{
+      $("#cookiecloud_key").removeClass("is-invalid");
+    }
+    if (!password) {
+      $("#cookiecloud_password").addClass("is-invalid");
+      return;
+    }else{
+      $("#cookiecloud_password").removeClass("is-invalid");
+    }
+    $("#cookiecloud_syncbtn").text("正在同步...").attr("disabled", true);
+    ajax_post("cookiecloud_sync", { server: server, key: key, password: password }, function (ret) {
+      $("#cookiecloud_syncbtn").text("开始同步").attr("disabled", false);
+      $("#modal-cookiecloud").modal("hide");
+      if (ret.code === 0) {
+        show_success_modal(ret.msg, function (){
+          window_history_refresh();
+        });
+      } else {
+        show_fail_modal(ret.msg, function(){
+          $("#modal-cookiecloud").modal("show");
+        });
+      }
+    });
   }
 
   // 刷新进度标志

@@ -12,7 +12,7 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards" id="recommend_content">
+    <div class="row" id="recommend_content">
     </div>
   </div>
 </div>
@@ -66,7 +66,7 @@
   var page_card_num = 20;
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div class="mb-3 col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -104,7 +104,7 @@
       for (let i = 0; i < ret.Items.length; i++) {
         let item = ret.Items[i];
         let html = '';
-        html += '<div class="col-6 col-md-3 col-xl-2">';
+        html += '<div class="mb-3 col-6 col-md-3 col-xl-2">';
           html += `<normal-card
                     card-tmdbId="${item.id}"
                     card-pageType="${title_type}"

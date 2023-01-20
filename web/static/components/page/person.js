@@ -42,10 +42,10 @@ class PagePerson extends CustomElement {
       </div>
       <div class="page-body">
         <div class="container-xl">
-          <div class="row row-cards">
+          <div class="row">
             ${this.person_list.length != 0
             ? this.person_list.map((item, index) => ( html`
-              <div class="col-6 col-md-3 col-xl-2">
+              <div class="mb-3 col-6 col-md-3 col-xl-2">
                 <person-card
                   person-id=${item.id}
                   person-image=${item.image}
@@ -58,7 +58,7 @@ class PagePerson extends CustomElement {
                 ></person-card>
               </div>` ) )
             : Array(20).fill(html`
-              <div class="col-6 col-md-3 col-xl-2">
+              <div class="mb-3 col-6 col-md-3 col-xl-2">
                 <person-card lazy="1"></person-card>
               </div>`)
             }

@@ -19,13 +19,22 @@ export class PersonCard extends CustomElement {
   render() {
     return html`
       <style>
-        .lit-person-card-scale:hover {
+        .lit-person-card {
+          position:relative;
+          z-index:1;
+          --tblr-aspect-ratio:150%;
+          border:none;
+          box-shadow:0 0 0 1px #888888,0 .125rem .25rem rgba(0,0,0,0.2);
+          background-image:linear-gradient(45deg,#99999b,#3f4b63 60%);
+        }
+        .lit-person-card:hover {
           transform:scale(1.05, 1.05);
-          opacity:1
+          opacity:1;
+          box-shadow:0 0 0 1px #bbbbbb;
+          background-image:linear-gradient(45deg,#bbbbbd,#5f6f85 60%);
         }
       </style>
-      <div class="card card-sm lit-person-card-scale rounded-4 border-1 shadow-sm ratio cursor-pointer overflow-hidden"
-           style="--tblr-border-opacity: 1;border-color: rgb(128, 128, 128); --tblr-aspect-ratio: 150%; background-image:linear-gradient(45deg,#99999b,#3f4b63 60%)">
+      <div class="card card-sm lit-person-card rounded-4 overflow-hidden cursor-pointer ratio">
         <div class="text-center p-4 pt-3 placeholder-glow">
           <div class="avatar-rounded overflow-hidden">
             <custom-img

@@ -1028,6 +1028,7 @@ class SubscribeAdd(ClientResource):
     parser.add_argument('name', type=str, help='名称', location='form', required=True)
     parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
     parser.add_argument('year', type=str, help='发行年份', location='form')
+    parser.add_argument('keyword', type=str, help='自定义搜索词', location='form')
     parser.add_argument('season', type=int, help='季号', location='form')
     parser.add_argument('rssid', type=int, help='已有订阅ID', location='form')
     parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')

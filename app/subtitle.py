@@ -2,13 +2,12 @@ import datetime
 import os.path
 import re
 import shutil
-import time
 
 from lxml import etree
 
 import log
-from app.helper import OpenSubtitles
 from app.conf import SiteConf
+from app.helper import OpenSubtitles
 from app.utils import RequestUtils, PathUtils, SystemUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType

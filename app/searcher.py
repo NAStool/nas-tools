@@ -71,13 +71,13 @@ class Searcher:
         :param sites: 检索哪些站点
         :param filters: 过滤条件，为空则不过滤
         :param user_name: 用户名
-        :return: 请求的资源是否全部下载完整
+        :return: 请求的资源是否全部下载完整，如完整则返回媒体信息
                  请求的资源如果是剧集则返回下载后仍然缺失的季集信息
                  搜索到的结果数量
                  下载到的结果数量，如为None则表示未开启自动下载
         """
         if not media_info:
-            return False, {}, 0, 0
+            return None, {}, 0, 0
         # 进度计数重置
         self.progress.start('search')
         # 查找的季
@@ -98,35 +98,40 @@ class Searcher:
                        "seeders": True}
         if filters:
             filter_args.update(filters)
-        # 中文名
-        if media_info.cn_name:
-            search_cn_name = media_info.cn_name
+        if media_info.keyword:
+            # 直接使用搜索词搜索
+            first_search_name = media_info.keyword
+            second_search_name = None
         else:
-            search_cn_name = media_info.title
-        # 英文名
-        search_en_name = None
-        if media_info.en_name:
-            search_en_name = media_info.en_name
-        else:
-            if media_info.original_language == "en":
-                search_en_name = media_info.original_title
+            # 中文名
+            if media_info.cn_name:
+                search_cn_name = media_info.cn_name
             else:
-                # 此处使用独立对象，避免影响TMDB语言
-                en_title = Media().get_tmdb_en_title(media_info)
-                if en_title:
-                    search_en_name = en_title
-        # 两次搜索名称
-        second_search_name = None
-        if Config().get_config("laboratory").get("search_en_title"):
-            if search_en_name:
-                first_search_name = search_en_name
-                second_search_name = search_cn_name
+                search_cn_name = media_info.title
+            # 英文名
+            search_en_name = None
+            if media_info.en_name:
+                search_en_name = media_info.en_name
+            else:
+                if media_info.original_language == "en":
+                    search_en_name = media_info.original_title
+                else:
+                    # 此处使用独立对象，避免影响TMDB语言
+                    en_title = Media().get_tmdb_en_title(media_info)
+                    if en_title:
+                        search_en_name = en_title
+            # 两次搜索名称
+            second_search_name = None
+            if Config().get_config("laboratory").get("search_en_title"):
+                if search_en_name:
+                    first_search_name = search_en_name
+                    second_search_name = search_cn_name
+                else:
+                    first_search_name = search_cn_name
             else:
                 first_search_name = search_cn_name
-        else:
-            first_search_name = search_cn_name
-            if search_en_name:
-                second_search_name = search_en_name
+                if search_en_name:
+                    second_search_name = search_en_name
         # 开始搜索
         log.info("【Searcher】开始检索 %s ..." % first_search_name)
         media_list = self.search_medias(key_word=first_search_name,
@@ -145,7 +150,7 @@ class Searcher:
 
         if len(media_list) == 0:
             log.info("【Searcher】%s 未搜索到任何资源" % second_search_name)
-            return False, no_exists, 0, 0
+            return None, no_exists, 0, 0
         else:
             if in_from in self.message.get_search_types():
                 # 保存搜索记录
@@ -160,7 +165,7 @@ class Searcher:
                 self.dbhelper.insert_search_results(media_list)
                 # 微信未开自动下载时返回
                 if not self._search_auto:
-                    return False, no_exists, len(media_list), None
+                    return None, no_exists, len(media_list), None
             # 择优下载
             download_items, left_medias = self.downloader.batch_download(in_from=in_from,
                                                                          media_list=media_list,
@@ -169,12 +174,12 @@ class Searcher:
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
                 log.info("【Searcher】%s 未下载到资源" % media_info.title)
-                return False, left_medias, len(media_list), 0
+                return None, left_medias, len(media_list), 0
             else:
                 log.info("【Searcher】实际下载了 %s 个资源" % len(download_items))
                 # 还有剩下的缺失，说明没下完，返回False
                 if left_medias:
-                    return False, left_medias, len(media_list), len(download_items)
+                    return None, left_medias, len(media_list), len(download_items)
                 # 全部下完了
                 else:
-                    return True, no_exists, len(media_list), len(download_items)
+                    return download_items[0], no_exists, len(media_list), len(download_items)

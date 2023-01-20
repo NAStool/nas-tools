@@ -36,8 +36,8 @@ class Filter:
                 "default": group.IS_DEFAULT,
                 "note": group.NOTE
             }
-            if groupid and str(groupid) == str(group.ID) \
-                    or default and group.IS_DEFAULT == "Y":
+            if (groupid and str(groupid) == str(group.ID)) \
+                    or (default and group.IS_DEFAULT == "Y"):
                 return group_info
             ret_groups.append(group_info)
         if groupid or default:
@@ -82,6 +82,15 @@ class Filter:
         if ruleid:
             return ret_rules[0] if ret_rules else {}
         return ret_rules
+
+    def get_rule_first_order(self, rulegroup):
+        """
+        获取规则的最高优先级
+        """
+        if not rulegroup:
+            rulegroup = self.get_rule_groups(default=True)
+        first_order = min([rule_info.get("pri") for rule_info in self.get_rules(groupid=rulegroup)] or [0])
+        return 100 - first_order
 
     def check_rules(self, meta_info, rulegroup=None):
         """

@@ -358,7 +358,10 @@ class Message(object):
         if media_info.type == MediaType.MOVIE:
             return
         else:
-            msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已完成订阅"
+            if media_info.over_edition:
+                msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已完成洗版"
+            else:
+                msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已完成订阅"
         msg_str = f"类型：{media_info.type.value}"
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"

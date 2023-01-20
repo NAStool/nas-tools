@@ -1,3 +1,5 @@
+import json
+
 from app.helper import DictHelper
 from app.utils.commons import singleton
 
@@ -7,25 +9,46 @@ class SystemConfig:
 
     # 系统设置
     systemconfig = {
-        "DefaultDownloadSetting": None
+        "DefaultDownloadSetting": None,
+        "CookieCloud": {}
     }
 
     def __init__(self):
         self.init_config()
 
-    def init_config(self):
+    def init_config(self, key=None):
         """
         缓存系统设置
         """
-        for key, value in self.systemconfig.items():
-            self.systemconfig[key] = DictHelper().get("SystemConfig", key)
+        def __set_value(_key, _value):
+            if isinstance(_value, dict) \
+                    or isinstance(_value, list):
+                dict_value = DictHelper().get("SystemConfig", _key)
+                if dict_value:
+                    self.systemconfig[_key] = json.loads(dict_value)
+                else:
+                    self.systemconfig[_key] = {}
+            else:
+                self.systemconfig[_key] = DictHelper().get("SystemConfig", _key)
 
-    @staticmethod
-    def set_system_config(key, value):
+        if key:
+            __set_value(key, self.systemconfig.get(key))
+        else:
+            for key, value in self.systemconfig.items():
+                __set_value(key, value)
+
+    def set_system_config(self, key, value):
         """
         设置系统设置
         """
-        return DictHelper().set("SystemConfig", key, value)
+        if isinstance(value, dict) \
+                or isinstance(value, list):
+            if value:
+                value = json.dumps(value)
+            else:
+                value = None
+        DictHelper().set("SystemConfig", key, value)
+        self.init_config(key)
 
     def get_system_config(self, key=None):
         """

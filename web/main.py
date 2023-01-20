@@ -20,7 +20,7 @@ from flask_login import LoginManager, login_user, login_required, current_user
 
 import log
 from app.brushtask import BrushTask
-from app.conf import ModuleConf
+from app.conf import ModuleConf, SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper, ChromeHelper
@@ -362,13 +362,15 @@ def rss_calendar():
 def sites():
     CfgSites = Sites().get_sites()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    DownloadSettings = {id: attr["name"] for id, attr in Downloader().get_download_setting().items()}
+    DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
+    CookieCloudCfg = SystemConfig().get_system_config('CookieCloud')
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
                            DownloadSettings=DownloadSettings,
-                           ChromeOk=ChromeOk)
+                           ChromeOk=ChromeOk,
+                           CookieCloudCfg=CookieCloudCfg)
 
 
 # 站点列表页面
@@ -1053,7 +1055,7 @@ def user_rss():
     Tasks = RssChecker().get_rsstask_info()
     RssParsers = RssChecker().get_userrss_parser()
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
-    DownloadSettings = {id: attr["name"] for id, attr in Downloader().get_download_setting().items()}
+    DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
     PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
     return render_template("rss/user_rss.html",
