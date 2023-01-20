@@ -553,17 +553,19 @@ class DbHelper:
         )
 
     @DbPersist(_db)
-    def update_site_cookie_ua(self, tid, cookie, ua):
+    def update_site_cookie_ua(self, tid, cookie, ua=None):
         """
         更新站点Cookie和ua
         """
         if not tid:
             return
         rec = self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).first()
-        if not rec.NOTE:
-            return
-        note = json.loads(rec.NOTE)
-        note['ua'] = ua
+        if rec.NOTE:
+            note = json.loads(rec.NOTE)
+            if ua:
+                note['ua'] = ua
+        else:
+            note = {}
         self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
             {
                 "COOKIE": cookie,

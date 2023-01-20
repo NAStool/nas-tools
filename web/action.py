@@ -22,7 +22,7 @@ from app.downloader.client import Qbittorrent, Transmission
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
-    MetaHelper, DisplayHelper, WordsHelper
+    MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper
 from app.indexer import Indexer
 from app.media import Category, Media
 from app.media.bangumi import Bangumi
@@ -198,7 +198,8 @@ class WebAction:
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
             "get_site_user_statistics": self.get_site_user_statistics,
-            "send_custom_message": self.send_custom_message
+            "send_custom_message": self.send_custom_message,
+            "cookiecloud_sync": self.__cookiecloud_sync
         }
 
     def action(self, cmd, data=None):
@@ -4268,7 +4269,6 @@ class WebAction:
             return {"code": 1}
         try:
             SystemConfig().set_system_config(key=key, value=value)
-            SystemConfig().init_config()
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -4313,3 +4313,44 @@ class WebAction:
             "value": value,
             "name": name.value
         } for value, name in RmtModes.items()]
+
+    def __cookiecloud_sync(self, data):
+        """
+        CookieCloud数据同步
+        """
+        server = data.get("server")
+        key = data.get("key")
+        password = data.get("password")
+        # 保存设置
+        SystemConfig().set_system_config(key="CookieCloud",
+                                         value={
+                                             "server": server,
+                                             "key": key,
+                                             "password": password
+                                         })
+        # 同步数据
+        contents, retmsg = CookieCloudHelper(server=server,
+                                             key=key,
+                                             password=password).download_data()
+        if not contents:
+            return {"code": 1, "msg": retmsg}
+        success_count = 0
+        for domain, content_list in contents.items():
+            if domain.startswith('.'):
+                domain = domain[1:]
+            cookie_str = ""
+            for content in content_list:
+                cookie_str += content.get("name") + "=" + content.get("value") + ";"
+            if not cookie_str:
+                continue
+            site_info = Sites().get_sites(siteurl=domain)
+            if not site_info:
+                continue
+            self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
+                                                cookie=cookie_str)
+            success_count += 1
+        if success_count:
+            # 重载站点信息
+            Sites().init_config()
+            return {"code": 0, "msg": f"成功更新 {success_count} 个站点的Cookie数据"}
+        return {"code": 0, "msg": "同步完成，但未更新任何站点的Cookie！"}

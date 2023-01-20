@@ -52,6 +52,8 @@ DEFAULT_WECHAT_PROXY = 'https://wechat.nastool.cn'
 DEFAULT_OCR_SERVER = 'https://nastool.cn'
 # 默认TMDB代理服务地址
 DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn'
+# 默认CookieCloud服务地址
+DEFAULT_COOKIECLOUD_SERVER = 'http://nastool.cn:8088'
 # TMDB图片地址
 TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original/%s'
