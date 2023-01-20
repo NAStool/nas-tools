@@ -239,12 +239,8 @@ class Rss:
                                             media_info.get_title_string(),
                                             rss_no_exists.get(media_info.tmdb_id)
                                         ))
-                                # 本地已存在时，删除订阅
+                                # 本地已存在
                                 if exist_flag:
-                                    log.info(
-                                        "【Rss】%s %s 已存在" % (media_info.type.value, media_info.get_title_string()))
-                                    self.subscribe.finish_rss_subscribe(rssid=match_info.get("id"),
-                                                                        media=media_info)
                                     continue
                             # 洗版模式
                             else:

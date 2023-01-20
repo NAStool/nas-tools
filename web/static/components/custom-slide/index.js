@@ -35,7 +35,7 @@ export class CustomSlide extends CustomElement {
         .media-slide-card-number{
           position: relative;
           flex:0 0 auto;
-          width:45.45454545454545%;
+          width:48%;
         }
         @media (min-width: 768px) {
           .media-slide-card-number{
@@ -100,9 +100,9 @@ export class CustomSlide extends CustomElement {
             </div>
           </div>
         </div>
-        <div class="media-slide-hide-scrollbar p-2"
+        <div class="media-slide-hide-scrollbar px-2 py-3"
             @scroll=${ this._countDisabled }>
-          <div class="row row-cards d-flex flex-row flex-nowrap media-slide-card-number">
+          <div class="row d-flex flex-row flex-nowrap media-slide-card-number">
             ${this.slide_card}
           </div>
         </div>
