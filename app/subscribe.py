@@ -650,7 +650,9 @@ class Subscribe:
             if search_result:
                 # 洗版
                 if over_edition:
-                    self.update_subscribe_over_edition(rssid=rssid, media=search_result)
+                    if not self.update_subscribe_over_edition(rssid=rssid, media=search_result):
+                        # 更新为继续订阅状态
+                        self.dbhelper.update_rss_movie_state(rssid=rssid, state='R')
                 else:
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
             else:
@@ -771,7 +773,9 @@ class Subscribe:
                     and (not no_exists or not no_exists.get(media_info.tmdb_id)):
                 # 洗版
                 if over_edition:
-                    self.update_subscribe_over_edition(rssid=rssid, media=search_result)
+                    if not self.update_subscribe_over_edition(rssid=rssid, media=search_result):
+                        # 更新为继续订阅状态
+                        self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
                 else:
                     # 完成订阅
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
@@ -792,7 +796,7 @@ class Subscribe:
                 or not media.res_order \
                 or not media.filter_rule \
                 or not media.res_order:
-            return
+            return False
         # 更新订阅命中的优先级
         self.dbhelper.update_rss_filter_order(rtype=media.type,
                                               rssid=rssid,
