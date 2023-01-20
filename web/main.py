@@ -1570,6 +1570,7 @@ def backup():
             'TRANSFER_BLACKLIST',
             'SYNC_HISTORY',
             'DOWNLOAD_HISTORY',
+            'alembic_version'
         ]
         for table in table_list:
             cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
