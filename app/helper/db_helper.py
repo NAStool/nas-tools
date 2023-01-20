@@ -711,7 +711,8 @@ class DbHelper:
                          download_setting=-1,
                          fuzzy_match=0,
                          desc=None,
-                         note=None):
+                         note=None,
+                         keyword=None):
         """
         新增RSS电影
         """
@@ -742,7 +743,8 @@ class DbHelper:
             FUZZY_MATCH=fuzzy_match,
             STATE=state,
             DESC=desc,
-            NOTE=note
+            NOTE=note,
+            KEYWORD=keyword
         ))
         return 0
 
@@ -900,7 +902,8 @@ class DbHelper:
                       current_ep=None,
                       fuzzy_match=0,
                       desc=None,
-                      note=None):
+                      note=None,
+                      keyword=None):
         """
         新增RSS电视剧
         """
@@ -940,7 +943,8 @@ class DbHelper:
             LACK=lack,
             STATE=state,
             DESC=desc,
-            NOTE=note
+            NOTE=note,
+            KEYWORD=keyword
         ))
         return 0
 

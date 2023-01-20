@@ -1301,6 +1301,7 @@ class WebAction:
         _subscribe = Subscribe()
         mtype = data.get("type")
         year = data.get("year")
+        keyword = data.get("keyword")
         season = data.get("season")
         fuzzy_match = data.get("fuzzy_match")
         doubanid = data.get("doubanid")
@@ -1330,6 +1331,7 @@ class WebAction:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
                                                                      year=year,
+                                                                     keyword=keyword,
                                                                      season=sea,
                                                                      fuzzy_match=fuzzy_match,
                                                                      doubanid=doubanid,
@@ -1350,6 +1352,7 @@ class WebAction:
             code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                  name=name,
                                                                  year=year,
+                                                                 keyword=keyword,
                                                                  season=season,
                                                                  fuzzy_match=fuzzy_match,
                                                                  doubanid=doubanid,

@@ -98,35 +98,40 @@ class Searcher:
                        "seeders": True}
         if filters:
             filter_args.update(filters)
-        # 中文名
-        if media_info.cn_name:
-            search_cn_name = media_info.cn_name
+        if media_info.keyword:
+            # 直接使用搜索词搜索
+            first_search_name = media_info.keyword
+            second_search_name = None
         else:
-            search_cn_name = media_info.title
-        # 英文名
-        search_en_name = None
-        if media_info.en_name:
-            search_en_name = media_info.en_name
-        else:
-            if media_info.original_language == "en":
-                search_en_name = media_info.original_title
+            # 中文名
+            if media_info.cn_name:
+                search_cn_name = media_info.cn_name
             else:
-                # 此处使用独立对象，避免影响TMDB语言
-                en_title = Media().get_tmdb_en_title(media_info)
-                if en_title:
-                    search_en_name = en_title
-        # 两次搜索名称
-        second_search_name = None
-        if Config().get_config("laboratory").get("search_en_title"):
-            if search_en_name:
-                first_search_name = search_en_name
-                second_search_name = search_cn_name
+                search_cn_name = media_info.title
+            # 英文名
+            search_en_name = None
+            if media_info.en_name:
+                search_en_name = media_info.en_name
+            else:
+                if media_info.original_language == "en":
+                    search_en_name = media_info.original_title
+                else:
+                    # 此处使用独立对象，避免影响TMDB语言
+                    en_title = Media().get_tmdb_en_title(media_info)
+                    if en_title:
+                        search_en_name = en_title
+            # 两次搜索名称
+            second_search_name = None
+            if Config().get_config("laboratory").get("search_en_title"):
+                if search_en_name:
+                    first_search_name = search_en_name
+                    second_search_name = search_cn_name
+                else:
+                    first_search_name = search_cn_name
             else:
                 first_search_name = search_cn_name
-        else:
-            first_search_name = search_cn_name
-            if search_en_name:
-                second_search_name = search_en_name
+                if search_en_name:
+                    second_search_name = search_en_name
         # 开始搜索
         log.info("【Searcher】开始检索 %s ..." % first_search_name)
         media_list = self.search_medias(key_word=first_search_name,

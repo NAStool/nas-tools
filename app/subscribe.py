@@ -41,6 +41,7 @@ class Subscribe:
         self.filter = Filter()
 
     def add_rss_subscribe(self, mtype, name, year,
+                          keyword=None,
                           season=None,
                           fuzzy_match=False,
                           doubanid=None,
@@ -63,6 +64,7 @@ class Subscribe:
         :param mtype: 类型，电影、电视剧、动漫
         :param name: 标题
         :param year: 年份，如要是剧集需要是首播年份
+        :param keyword: 自定义搜索词
         :param season: 第几季，数字
         :param fuzzy_match: 是否模糊匹配
         :param doubanid: 豆瓣ID，有此ID时从豆瓣查询信息
@@ -189,7 +191,8 @@ class Subscribe:
                                                    current_ep=current_ep,
                                                    fuzzy_match=0,
                                                    desc=media_info.overview,
-                                                   note=self.gen_rss_note(media_info))
+                                                   note=self.gen_rss_note(media_info),
+                                                   keyword=keyword)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_movie(rssid=rssid)
@@ -206,7 +209,8 @@ class Subscribe:
                                                       download_setting=download_setting,
                                                       fuzzy_match=0,
                                                       desc=media_info.overview,
-                                                      note=self.gen_rss_note(media_info))
+                                                      note=self.gen_rss_note(media_info),
+                                                      keyword=keyword)
         else:
             # 模糊匹配
             media_info = MetaInfo(title=name, mtype=mtype)
@@ -228,7 +232,8 @@ class Subscribe:
                                                       filter_rule=filter_rule,
                                                       save_path=save_path,
                                                       download_setting=download_setting,
-                                                      fuzzy_match=1)
+                                                      fuzzy_match=1,
+                                                      keyword=keyword)
             else:
                 if rssid:
                     self.dbhelper.delete_rss_tv(rssid=rssid)
@@ -245,7 +250,8 @@ class Subscribe:
                                                    filter_rule=filter_rule,
                                                    save_path=save_path,
                                                    download_setting=download_setting,
-                                                   fuzzy_match=1)
+                                                   fuzzy_match=1,
+                                                   keyword=keyword)
 
         if code == 0:
             return code, "添加订阅成功", media_info
@@ -332,6 +338,7 @@ class Subscribe:
             download_setting = rss_movie.DOWNLOAD_SETTING
             save_path = rss_movie.SAVE_PATH
             fuzzy_match = True if rss_movie.FUZZY_MATCH == 1 else False
+            keyword = rss_movie.KEYWORD
             # 兼容旧配置
             if desc and desc.find('{') != -1:
                 desc = self.__parse_rss_desc(desc)
@@ -371,7 +378,8 @@ class Subscribe:
                 "state": rss_movie.STATE,
                 "poster": note_info.get("poster"),
                 "release_date": note_info.get("release_date"),
-                "vote": note_info.get("vote")
+                "vote": note_info.get("vote"),
+                "keyword": keyword
 
             }
         return ret_dict
@@ -397,6 +405,7 @@ class Subscribe:
             total_ep = rss_tv.TOTAL_EP
             current_ep = rss_tv.CURRENT_EP
             fuzzy_match = True if rss_tv.FUZZY_MATCH == 1 else False
+            keyword = rss_tv.KEYWORD
             # 兼容旧配置
             if desc and desc.find('{') != -1:
                 desc = self.__parse_rss_desc(desc)
@@ -443,7 +452,8 @@ class Subscribe:
                 "state": rss_tv.STATE,
                 "poster": note_info.get("poster"),
                 "release_date": note_info.get("release_date"),
-                "vote": note_info.get("vote")
+                "vote": note_info.get("vote"),
+                "keyword": keyword
             }
         return ret_dict
 
@@ -605,6 +615,7 @@ class Subscribe:
             year = rss_info.get("year") or ""
             tmdbid = rss_info.get("tmdbid")
             over_edition = rss_info.get("over_edition")
+            keyword = rss_info.get("keyword")
 
             # 开始搜索
             self.dbhelper.update_rss_movie_state(rssid=rssid, state='S')
@@ -616,6 +627,8 @@ class Subscribe:
                 continue
             media_info.set_download_info(download_setting=rss_info.get("download_setting"),
                                          save_path=rss_info.get("save_path"))
+            # 自定义搜索词
+            media_info.keyword = keyword
             # 非洗版的情况检查是否存在
             if not over_edition:
                 # 检查是否存在
@@ -680,6 +693,7 @@ class Subscribe:
             year = rss_info.get("year") or ""
             tmdbid = rss_info.get("tmdbid")
             over_edition = rss_info.get("over_edition")
+            keyword = rss_info.get("keyword")
             # 开始搜索
             self.dbhelper.update_rss_tv_state(rssid=rssid, state='S')
             # 识别
@@ -702,6 +716,8 @@ class Subscribe:
             # 自定义集数
             total_ep = rss_info.get("total")
             current_ep = rss_info.get("current_ep")
+            # 自定义搜索词
+            media_info.keyword = keyword
             # 表中记录的剩余订阅集数
             episodes = self.get_subscribe_tv_episodes(rss_info.get("id"))
             if episodes is None:

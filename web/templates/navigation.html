@@ -749,7 +749,7 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-8">
+          <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">标题</label>
               <input type="text" value="" id="rss_name" class="form-control" placeholder="标题">
@@ -759,6 +759,12 @@
             <div class="mb-3">
               <label class="form-label required">年份</label>
               <input type="text" value="" id="rss_year" class="form-control" placeholder="年份">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">自定义搜索词</label>
+              <input type="text" value="" id="rss_keyword" class="form-control" placeholder="留空使用TMDB数据">
             </div>
           </div>
         </div>
@@ -1500,6 +1506,7 @@
     const mtype = $("#rss_type").val();
     const name = $("#rss_name").val();
     const year = $("#rss_year").val();
+    const keyword = $("#rss_keyword").val();
     const season = $("#rss_season").val();
     const fuzzy_match = $("#fuzzy_match").prop("checked");
     let doubanid;
@@ -1591,6 +1598,7 @@
       "total_ep": total_ep,
       "current_ep": current_ep,
       "rssid": rssid,
+      "keyword": keyword
     }, ...rss_setting};
     $("#modal-manual-rss").modal("hide");
     ajax_post("add_rss_media", data, function (ret) {
@@ -1663,6 +1671,7 @@
     $("#rss_modal_title").text("新增订阅");
     $("#rss_name").val("").attr("readonly", false);
     $("#rss_year").val("").attr("readonly", false);
+    $("#rss_keyword").val("");
     $("#rss_tmdbid").val("");
     $("#fuzzy_match").prop("checked", false);
     $("#over_edition").prop("checked", false);
@@ -1730,6 +1739,7 @@
         $("#rss_tmdbid").val(ret.detail.tmdbid);
         $("#rss_name").val(ret.detail.name).attr("readonly", true);
         $("#rss_year").val(ret.detail.year).attr("readonly", true);
+        $("#rss_keyword").val(ret.detail.keyword);
         if (type == "MOV" || type == "电影") {
           $("#rss_tv_season_div").hide();
           $("#rss_season").val("");
