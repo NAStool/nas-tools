@@ -6,18 +6,12 @@ export class NormalCardPlaceholder extends CustomElement {
     super();
   }
 
-  static render_placeholder() {
-    return html`
-      <div class="placeholder-glow">
-        <div class="ratio placeholder cursor-pointer" style="--tblr-aspect-ratio:150%"></div>
-      </div>
-    `;
-  }
-
   render() {
     return html`
       <div class="card card-sm rounded-4 overflow-hidden" style="position:relative;z-index:1;">
-        ${NormalCardPlaceholder.render_placeholder()}
+        <div class="placeholder-glow">
+          <div class="ratio placeholder cursor-pointer" style="--tblr-aspect-ratio:150%"></div>
+        </div>
       </div>
     `;
   }
