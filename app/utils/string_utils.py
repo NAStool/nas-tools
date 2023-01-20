@@ -218,6 +218,8 @@ class StringUtils:
         """
         获取URL的域名部分，不含WWW和HTTP
         """
+        if not url:
+            return ""
         _, netloc = StringUtils.get_url_netloc(url)
         if netloc:
             return netloc.lower().replace("www.", "")
