@@ -185,9 +185,11 @@ class Rss:
                         # 非模糊匹配命中，检查本地情况，检查删除订阅
                         if not match_info.get("fuzzy_match"):
                             # 匹配到订阅，如没有TMDB信息则重新查询
-                            if not media_info.tmdb_info:
+                            if not media_info.tmdb_info and media_info.tmdb_id:
                                 media_info.set_tmdb_info(self.media.get_tmdb_info(mtype=media_info.type,
                                                                                   tmdbid=media_info.tmdb_id))
+                            if not media_info.tmdb_info:
+                                continue
                             # 非洗版时检查本地是否存在
                             if not match_info.get("over_edition"):
                                 if media_info.type == MediaType.MOVIE:
@@ -244,6 +246,12 @@ class Rss:
                                     continue
                             # 洗版模式
                             else:
+                                # 洗版时季集不完整的资源不要
+                                if media_info.type != MediaType.MOVIE \
+                                        and media_info.get_episode_list():
+                                    log.info(
+                                        f"【Rss】{media_info.get_title_string()} 正在洗版，过滤掉季集不完整的资源：{title}")
+                                    continue
                                 # TODO 检查这个优先级是不是处理过
                                 pass
                         # 模糊匹配
@@ -532,22 +540,47 @@ class Rss:
         """
         根据缺失情况以及匹配到的结果选择下载种子
         """
-        finished_rss_torrents = []
-
-        def __finish_rss(media):
-            """
-            完成订阅
-            """
-            if not media.rssid:
-                return
-            if media.rssid in finished_rss_torrents:
-                return
-            finished_rss_torrents.append(media.rssid)
-            self.subscribe.finish_rss_subscribe(rssid=media.rssid,
-                                                media=media)
 
         if not rss_download_torrents:
             return
+
+        finished_rss_torrents = []
+        updated_rss_torrents = []
+
+        def __finish_rss(download_item):
+            """
+            完成订阅
+            """
+            if not download_item:
+                return
+            if not download_item.rssid:
+                return
+            if download_item.rssid in finished_rss_torrents:
+                return
+            finished_rss_torrents.append(download_item.rssid)
+            self.subscribe.finish_rss_subscribe(rssid=download_item.rssid,
+                                                media=download_item)
+
+        def __update_tv_rss(download_item, left_media):
+            """
+            更新订阅集数
+            """
+            if not download_item or not left_media:
+                return
+            if not download_item.rssid:
+                return
+            if download_item.rssid in updated_rss_torrents:
+                return
+            updated_rss_torrents.append(download_item.rssid)
+            for left_season in left_media:
+                if download_item.is_in_season(left_season.get("season")):
+                    if left_season.get("episodes"):
+                        log.info("【Rss】更新电视剧 %s %s 订阅缺失集数为 %s" % (
+                            download_item.get_title_string(), download_item.get_season_string(),
+                            len(left_season.get("episodes"))))
+                        self.dbhelper.update_rss_tv_lack(rssid=download_item.rssid,
+                                                         lack_episodes=left_season.get("episodes"))
+                        break
 
         # 去重择优后开始添加下载
         download_items, left_medias = self.downloader.batch_download(SearchType.RSS,
@@ -566,7 +599,7 @@ class Rss:
                     if item.res_order is not None \
                             and item.res_order <= over_edition_order \
                             and not item.get_episode_list():
-                        log.info("【Rss】%s 洗版已匹配到最高优先级资源，优先级：%s" % (
+                        log.info("【Rss】%s 洗版已匹配到过滤规则中最高优先级资源，优先级：%s" % (
                             item.get_title_string(),
                             item.get("res_order")
                         ))
@@ -577,18 +610,7 @@ class Rss:
                     __finish_rss(item)
                 else:
                     # 更新电视剧缺失剧集
-                    left_media = left_medias.get(item.tmdb_id)
-                    if not left_media:
-                        continue
-                    for left_season in left_media:
-                        if item.is_in_season(left_season.get("season")):
-                            if left_season.get("episodes"):
-                                log.info("【Rss】更新电视剧 %s %s 订阅缺失集数为 %s" % (
-                                    item.get_title_string(), item.get_season_string(),
-                                    len(left_season.get("episodes"))))
-                                self.dbhelper.update_rss_tv_lack(rssid=item.rssid,
-                                                                 lack_episodes=left_season.get("episodes"))
-                                break
+                    __update_tv_rss(item, left_medias.get(item.tmdb_id))
             log.info("【Rss】实际下载了 %s 个资源" % len(download_items))
         else:
             log.info("【Rss】未下载到任何资源")

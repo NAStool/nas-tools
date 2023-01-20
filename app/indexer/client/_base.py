@@ -267,7 +267,8 @@ class _IIndexClient(metaclass=ABCMeta):
                 else:
                     # 查询缓存
                     cache_info = self.media.get_cache_info(meta_info)
-                    if match_media and str(cache_info.get("id")) == str(match_media.tmdb_id):
+                    if match_media \
+                            and str(cache_info.get("id")) == str(match_media.tmdb_id):
                         # 缓存匹配，合并媒体数据
                         media_info = self.media.merge_media_info(meta_info, match_media)
                     else:
@@ -291,12 +292,18 @@ class _IIndexClient(metaclass=ABCMeta):
                         media_info = self.media.merge_media_info(media_info, match_media)
                 # 过滤类型
                 if filter_args.get("type"):
-                    if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
-                            or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
+                    if (filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE) \
+                            or (filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV):
                         log.info(
                             f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不是 {filter_args.get('type').value}")
                         index_rule_fail += 1
                         continue
+                # 洗版时季集不完整的资源不要
+                if match_media.over_edition and \
+                        media_info.type != MediaType.MOVIE \
+                        and media_info.get_episode_list():
+                    log.info(f"【{self.index_type}】{media_info.get_title_string()} 正在洗版，过滤掉季集不完整的资源：{torrent_name}")
+                    continue
             # 检查标题是否匹配季、集、年
             if not self.filter.is_torrent_match_sey(media_info,
                                                     filter_args.get("season"),
