@@ -820,7 +820,7 @@ class Subscribe:
         pre_res_order = self.dbhelper.get_rss_overedition_order(rtype=rtype, rssid=rssid)
         if not pre_res_order:
             return True
-        return True if int(pre_res_order) > int(res_order) else False
+        return True if int(pre_res_order) < int(res_order) else False
 
     def update_subscribe_tv_lack(self, rssid, media_info, seasoninfo):
         """

@@ -682,7 +682,7 @@ class DbHelper:
         if res and res[0]:
             return int(res[0])
         else:
-            return 99999
+            return 0
 
     def is_exists_rss_movie(self, title, year):
         """

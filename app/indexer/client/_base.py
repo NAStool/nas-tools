@@ -309,10 +309,12 @@ class _IIndexClient(metaclass=ABCMeta):
                         continue
                     # 检查优先级是否更好
                     if match_media.res_order \
-                            and int(res_order) >= int(match_media.res_order):
+                            and int(res_order) <= int(match_media.res_order):
                         log.info(
                             f"【{self.index_type}】{media_info.get_title_string()}{media_info.get_season_string()} "
-                            f"正在洗版，已洗版优先级：{match_media.res_order}，当前资源优先级：{res_order}，跳过低优先级或同优先级资源：{torrent_name}"
+                            f"正在洗版，已洗版优先级：{100 - int(match_media.res_order)}，"
+                            f"当前资源优先级：{100 - int(res_order)}，"
+                            f"跳过低优先级或同优先级资源：{torrent_name}"
                         )
                         continue
             # 检查标题是否匹配季、集、年
