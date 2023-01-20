@@ -24,7 +24,12 @@ class CookieCloudHelper(object):
         req_url = "%s/get/%s" % (self._server, self._key)
         ret = self._req.post_res(url=req_url, params=json.dumps({"password": self._password}))
         if ret and ret.status_code == 200:
-            return ret.json(), ""
+            result = ret.json()
+            if not result:
+                return {}, ""
+            if result.get("cookie_data"):
+                return result.get("cookie_data"), ""
+            return result, ""
         elif ret:
             return {}, "同步CookieCloud失败，错误码：%s" % ret.status_code
         else:
