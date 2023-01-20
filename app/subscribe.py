@@ -626,10 +626,13 @@ class Subscribe:
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
                     continue
             else:
-                # TODO 检查这个优先级是不是处理过
-                pass
                 # 洗版时按缺失来下载
                 no_exists = {}
+                # 把洗版标志加入检索
+                media_info.over_edition = over_edition
+                # 将当前的优先级传入搜索
+                media_info.res_order = self.dbhelper.get_rss_overedition_order(rtype=media_info.type,
+                                                                               rssid=rssid)
             # 开始检索
             filter_dict = {
                 "restype": rss_info.get('filter_restype'),
@@ -647,18 +650,7 @@ class Subscribe:
             if search_result:
                 # 洗版
                 if over_edition:
-                    # TODO 更新订阅命中的优先级
-
-                    # 检查是否匹配最高优先级规则
-                    over_edition_order = self.filter.get_rule_first_order(rulegroup=search_result.filter_rule)
-                    if search_result.res_order is not None \
-                            and search_result.res_order <= over_edition_order:
-                        log.info("【Subscribe】%s 洗版已匹配到过滤规则中最高优先级资源，优先级：%s" % (
-                            search_result.get_title_string(),
-                            search_result.get("res_order")
-                        ))
-                        # 完成洗版订阅
-                        self.finish_rss_subscribe(rssid=rssid, media=search_result)
+                    self.update_subscribe_over_edition(rssid=rssid, media=search_result)
                 else:
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
             else:
@@ -703,11 +695,13 @@ class Subscribe:
                 season = int(str(rss_info.get("season")).replace("S", ""))
             # 订阅季
             media_info.begin_season = season
+            # 订阅ID
+            media_info.rssid = rssid
             # 自定义集数
             total_ep = rss_info.get("total")
             current_ep = rss_info.get("current_ep")
             # 表中记录的剩余订阅集数
-            episodes = self.dbhelper.get_rss_tv_episodes(rss_info.get("id"))
+            episodes = self.get_subscribe_tv_episodes(rss_info.get("id"))
             if episodes is None:
                 episodes = []
                 if current_ep:
@@ -753,10 +747,11 @@ class Subscribe:
                         rss_no_exists.get(media_info.tmdb_id)
                     ))
             else:
-                # TODO 检查这个优先级是不是处理过
-                pass
                 # 把洗版标志加入检索
                 media_info.over_edition = over_edition
+                # 将当前的优先级传入检索
+                media_info.res_order = self.dbhelper.get_rss_overedition_order(rtype=MediaType.TV,
+                                                                               rssid=rssid)
 
             # 开始检索
             filter_dict = {
@@ -776,31 +771,70 @@ class Subscribe:
                     and (not no_exists or not no_exists.get(media_info.tmdb_id)):
                 # 洗版
                 if over_edition:
-                    # TODO 更新订阅命中的优先级
-
-                    # 检查是否匹配最高优先级规则
-                    over_edition_order = self.filter.get_rule_first_order(rulegroup=search_result.filter_rule)
-                    if search_result.res_order is not None \
-                            and search_result.res_order <= over_edition_order \
-                            and not search_result.get_episode_list():
-                        log.info("【Subscribe】%s 洗版已匹配到过滤规则中最高优先级资源，优先级：%s" % (
-                            search_result.get_title_string(),
-                            search_result.get("res_order")
-                        ))
-                        # 完成洗版订阅
-                        self.finish_rss_subscribe(rssid=rssid, media=search_result)
+                    self.update_subscribe_over_edition(rssid=rssid, media=search_result)
                 else:
                     # 完成订阅
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
             elif no_exists:
                 # 更新状态
-                self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
-                no_exist_items = no_exists.get(media_info.tmdb_id)
-                for no_exist_item in no_exist_items:
-                    if str(no_exist_item.get("season")) == media_info.get_season_seq():
-                        if no_exist_item.get("episodes"):
-                            log.info("【Subscribe】更新电视剧 %s %s 缺失集数为 %s" % (
-                                media_info.get_title_string(), media_info.get_season_string(),
-                                len(no_exist_item.get("episodes"))))
-                            self.dbhelper.update_rss_tv_lack(rssid=rssid, lack_episodes=no_exist_item.get("episodes"))
-                        break
+                self.update_subscribe_tv_lack(rssid=rssid,
+                                              media_info=media_info,
+                                              seasoninfo=no_exists.get(media_info.tmdb_id))
+
+    def update_subscribe_over_edition(self, rssid, media):
+        """
+        更新洗版订阅
+        :param rssid: 订阅ID
+        :param media: 含订阅信息的媒体信息
+        :return 完成订阅返回True，否则返回False
+        """
+        if not rssid \
+                or not media.res_order \
+                or not media.filter_rule \
+                or not media.res_order:
+            return
+        # 更新订阅命中的优先级
+        self.dbhelper.update_rss_filter_order(rtype=media.type,
+                                              rssid=rssid,
+                                              res_order=media.res_order)
+        # 检查是否匹配最高优先级规则
+        over_edition_order = self.filter.get_rule_first_order(rulegroup=media.filter_rule)
+        if int(media.res_order) <= int(over_edition_order):
+            # 完成洗版订阅
+            self.finish_rss_subscribe(rssid=rssid, media=media)
+            return True
+        return False
+
+    def check_subscribe_over_edition(self, rtype, rssid, res_order):
+        """
+        检查洗版订阅的优先级
+        :param rtype: 订阅类型
+        :param rssid: 订阅ID
+        :param res_order: 优先级
+        :return 资源更优先返回True，否则返回False
+        """
+        pre_res_order = self.dbhelper.get_rss_overedition_order(rtype=rtype, rssid=rssid)
+        if not pre_res_order:
+            return True
+        return True if int(pre_res_order) > int(res_order) else False
+
+    def update_subscribe_tv_lack(self, rssid, media_info, seasoninfo):
+        """
+        更新电视剧订阅缺失集数
+        """
+        self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
+        for info in seasoninfo:
+            if str(info.get("season")) == media_info.get_season_seq():
+                if info.get("episodes"):
+                    log.info("【Subscribe】更新电视剧 %s %s 缺失集数为 %s" % (
+                        media_info.get_title_string(),
+                        media_info.get_season_string(),
+                        len(info.get("episodes"))))
+                    self.dbhelper.update_rss_tv_lack(rssid=rssid, lack_episodes=info.get("episodes"))
+                break
+
+    def get_subscribe_tv_episodes(self, rssid):
+        """
+        查询数据库中订阅的电视剧缺失集数
+        """
+        return self.dbhelper.get_rss_tv_episodes(rssid)

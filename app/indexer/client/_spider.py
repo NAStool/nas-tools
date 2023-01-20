@@ -516,6 +516,6 @@ class TorrentSpider(feapder.AirSpider):
 
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.warn("【Spider】错误：%s - %s" % (str(err), traceback.format_exc()))
+            log.warn("【Spider】错误：%s" % str(err))
         finally:
             self.is_complete = True

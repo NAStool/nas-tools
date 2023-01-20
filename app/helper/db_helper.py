@@ -657,6 +657,33 @@ class DbHelper:
             "DESC": desc
         })
 
+    @DbPersist(_db)
+    def update_rss_filter_order(self, rtype, rssid, res_order):
+        """
+        更新订阅命中的过滤规则优先级
+        """
+        if rtype == MediaType.MOVIE:
+            self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).update({
+                "FILTER_ORDER": res_order
+            })
+        else:
+            self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update({
+                "FILTER_ORDER": res_order
+            })
+
+    def get_rss_overedition_order(self, rtype, rssid):
+        """
+        查询当前订阅的过滤优先级
+        """
+        if rtype == MediaType.MOVIE:
+            res = self._db.query(RSSMOVIES.FILTER_ORDER).filter(RSSMOVIES.ID == int(rssid)).first()
+        else:
+            res = self._db.query(RSSTVS.FILTER_ORDER).filter(RSSTVS.ID == int(rssid)).first()
+        if res and res[0]:
+            return int(res[0])
+        else:
+            return 99999
+
     def is_exists_rss_movie(self, title, year):
         """
         判断RSS电影是否存在
