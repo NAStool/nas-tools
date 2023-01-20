@@ -1,7 +1,7 @@
 """1.0.10
 
 Revision ID: 94d22b44802d
-Revises: 371ef2cd23ee
+Revises: cc7232dfe2b5
 Create Date: 2023-01-20 08:10:18.350985
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '94d22b44802d'
-down_revision = '371ef2cd23ee'
+down_revision = 'cc7232dfe2b5'
 branch_labels = None
 depends_on = None
 
