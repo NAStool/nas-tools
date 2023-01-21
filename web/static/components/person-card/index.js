@@ -36,7 +36,7 @@ export class PersonCard extends CustomElement {
       </style>
       <div class="card card-sm lit-person-card rounded-4 overflow-hidden cursor-pointer ratio">
         <div class="text-center p-4 pt-3 placeholder-glow">
-          <div class="avatar-rounded overflow-hidden">
+          <div class="avatar-rounded overflow-hidden" style="box-shadow:0 0 0 1px #575563">
             <custom-img
               lazy=${this.lazy}
               img-src=${this.person_image}
