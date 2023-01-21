@@ -960,7 +960,8 @@ def douban():
 @login_required
 def downloader():
     return render_template("setting/downloader.html",
-                           Config=Config().get_config())
+                           Config=Config().get_config(),
+                           DownloaderConf=ModuleConf.DOWNLOADER_CONF)
 
 
 # 下载设置页面
