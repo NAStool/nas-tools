@@ -311,6 +311,10 @@ security:
   telegram_webhook_allow_ip:
     ipv4: 127.0.0.1
     ipv6: ::/0
+  # 【Synology Chat webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
+  synology_webhook_allow_ip:
+    ipv4: 127.0.0.1
+    ipv6: ::/0
   # 【API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证以及非客户端类的API调用
   api_key:
 

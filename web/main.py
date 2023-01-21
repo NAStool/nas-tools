@@ -1323,6 +1323,41 @@ def telegram():
     return 'Ok'
 
 
+# Synology Chat消息响应
+@App.route('/synology', methods=['POST', 'GET'])
+def synology():
+    """
+    token: bot token
+    user_id
+    username
+    post_id
+    timestamp
+    text
+    """
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client(SearchType.SYNOLOGY)
+    if not interactive_client:
+        return 'NAStool未启用Synology Chat交互'
+    msg_json = request.get_json()
+    log.info(msg_json)
+    if not SecurityHelper().check_synology_ip(request.remote_addr):
+        log.error("收到来自 %s 的非法Synology Chat消息：%s" % (request.remote_addr, msg_json))
+        return '不允许的IP地址请求'
+    if msg_json:
+        text = msg_json.get("text")
+        user_id = msg_json.get("user_id")
+        log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
+        # 获取用户名
+        user_name = msg_json.get("username")
+        if text:
+            WebAction().handle_message_job(msg=text,
+                                           client=interactive_client,
+                                           in_from=SearchType.SYNOLOGY,
+                                           user_id=user_id,
+                                           user_name=user_name)
+    return 'Ok'
+
+
 # Slack消息响应
 @App.route('/slack', methods=['POST'])
 def slack():

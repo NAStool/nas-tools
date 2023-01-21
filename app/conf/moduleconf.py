@@ -343,6 +343,29 @@ class ModuleConf(object):
                     }
                 }
             },
+            "synologychat": {
+                "name": "Synology Chat",
+                "img_url": "../static/img/synologychat.png",
+                "search_type": SearchType.SYNOLOGY,
+                "config": {
+                    "webhook_url": {
+                        "id": "synologychat_webhook_url",
+                        "required": True,
+                        "title": "机器人传入URL",
+                        "tooltip": "在Synology Chat中创建机器人，获取机器人传入URL",
+                        "type": "text",
+                        "placeholder": "https://xxx/webapi/entry.cgi?api=xxx"
+                    },
+                    "token": {
+                        "id": "synologychat_token",
+                        "required": True,
+                        "title": "令牌",
+                        "tooltip": "在Synology Chat中创建机器人，获取机器人令牌",
+                        "type": "text",
+                        "placeholder": ""
+                    }
+                }
+            },
         },
         "switch": {
             "download_start": {

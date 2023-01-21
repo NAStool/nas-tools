@@ -37,9 +37,9 @@ class Message(object):
         # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                if active_client.get("search_type") in self.get_search_types():
                     client = active_client.get("client")
-                    if client:
+                    if client and hasattr(client, "stop_service"):
                         client.stop_service()
         # 活跃的客户端
         self._active_clients = []
