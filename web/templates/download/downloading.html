@@ -170,7 +170,7 @@
 
   //显示新增下载界面
   function show_torrent_download_modal(type) {
-    show_download_modal('', '', function(){
+    show_download_modal('', '', '', function(){
       let magnet = $("#torrent_magnets").val();
       if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0] && !magnet) {
         return;

@@ -4046,7 +4046,11 @@ class WebAction:
         """
         获取下载目录
         """
-        dirs = Downloader().get_download_dirs(setting=data.get("sid"))
+        sid = data.get("sid")
+        site = data.get("site")
+        if not sid and site:
+            sid = Sites().get_site_download_setting(site_name=site)
+        dirs = Downloader().get_download_dirs(setting=sid)
         return {"code": 0, "paths": dirs}
 
     @staticmethod
