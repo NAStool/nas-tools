@@ -4106,7 +4106,7 @@ class WebAction:
         获取下载目录
         """
         sid = data.get("sid")
-        site = data.get("sid")
+        site = data.get("site")
         if not sid and site:
             sid = Sites().get_site_download_setting(site_name=site)
         dirs = Downloader().get_download_dirs(setting=sid)
