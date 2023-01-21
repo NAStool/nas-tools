@@ -1338,17 +1338,16 @@ def synology():
     interactive_client = Message().get_interactive_client(SearchType.SYNOLOGY)
     if not interactive_client:
         return 'NAStool未启用Synology Chat交互'
-    msg_json = request.get_json()
-    log.info(msg_json)
+    msg_data = request.form
     if not SecurityHelper().check_synology_ip(request.remote_addr):
-        log.error("收到来自 %s 的非法Synology Chat消息：%s" % (request.remote_addr, msg_json))
+        log.error("收到来自 %s 的非法Synology Chat消息：%s" % (request.remote_addr, msg_data))
         return '不允许的IP地址请求'
-    if msg_json:
-        text = msg_json.get("text")
-        user_id = msg_json.get("user_id")
+    if msg_data:
+        text = msg_data.get("text")
+        user_id = msg_data.get("user_id")
         log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
-        user_name = msg_json.get("username")
+        user_name = msg_data.get("username")
         if text:
             WebAction().handle_message_job(msg=text,
                                            client=interactive_client,
