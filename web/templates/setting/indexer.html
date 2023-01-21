@@ -102,10 +102,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_indexer_config('jackett')" id="jackett_test_btn" class="btn me-auto">
+        <button onclick="test_indexer_config('jackett')" id="jackett_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_indexer_config('jackett')" id="jackett_save_btn" class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_indexer_config('jackett')" id="jackett_save_btn" class="btn btn-primary">
+          确定
+        </button>
       </div>
     </div>
   </div>
@@ -141,10 +143,10 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_indexer_config('prowlarr')" id="prowlarr_test_btn" class="btn me-auto">
+        <button onclick="test_indexer_config('prowlarr')" id="prowlarr_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_indexer_config('prowlarr')" id="prowlarr_save_btn" class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_indexer_config('prowlarr')" id="prowlarr_save_btn" class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -216,7 +218,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</a>
+        <button onclick="save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -254,7 +256,7 @@
 
   //保存配置和测试配置
   function test_indexer_config(type) {
-    $(`#${type}_test_btn`).text("测试中...");
+    $(`#${type}_test_btn`).text("测试中...").attr("disabled", true);
     save_config(type, function (ret) {
       let command;
       if (currType === "jackett") {
@@ -264,9 +266,9 @@
       }
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {
-          $(`#${currType}_test_btn`).text("测试成功");
+          $(`#${currType}_test_btn`).text("测试成功").attr("disabled", false);
         } else {
-          $(`#${currType}_test_btn`).text("测试失败！");
+          $(`#${currType}_test_btn`).text("测试失败！").attr("disabled", false);
         }
       });
     }, true);

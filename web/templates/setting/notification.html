@@ -237,12 +237,14 @@
         </details>
       </div>
       <div class="modal-footer">
-        <a href="javascript:add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
+        <button onclick="add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
            class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
+           class="btn btn-primary">
+          确定
+        </button>
       </div>
     </div>
   </div>
@@ -278,9 +280,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="send_custom_message_btn" href="javascript:send_custom_message()" class="btn btn-primary">
+        <button id="send_custom_message_btn" onclick="send_custom_message()" class="btn btn-primary">
           发送
-        </a>
+        </button>
       </div>
     </div>
   </div>
