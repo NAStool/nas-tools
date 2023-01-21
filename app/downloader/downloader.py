@@ -381,6 +381,14 @@ class Downloader:
             ExceptionUtils.exception_traceback(err)
             return self._default_client_type, []
 
+    def get_downloading_progress(self):
+        """
+        查询正在下载中的进度信息
+        """
+        if not self.default_client:
+            return []
+        return self.default_client.get_downloading_progress()
+
     def get_torrents(self, torrent_ids):
         """
         根据ID或状态查询下载器中的种子信息
