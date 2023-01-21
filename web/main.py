@@ -1359,7 +1359,7 @@ def synology():
             log.error("收到来自 %s 的非法Synology Chat消息：token校验不通过！" % request.remote_addr)
             return 'token校验不通过'
         text = msg_data.get("text")
-        user_id = msg_data.get("user_id")
+        user_id = int(msg_data.get("user_id"))
         log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
         user_name = msg_data.get("username")
