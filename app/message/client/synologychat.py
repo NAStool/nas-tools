@@ -37,6 +37,9 @@ class SynologyChat(_IMessageClient):
     def match(cls, ctype):
         return True if ctype == cls.schema else False
 
+    def check_token(self, token):
+        return True if token == self._token else False
+
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送Telegram消息

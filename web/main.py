@@ -1226,7 +1226,6 @@ def wechat():
             if content:
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
-                                               client=interactive_client,
                                                in_from=SearchType.WX,
                                                user_id=user_id,
                                                user_name=user_id)
@@ -1315,8 +1314,20 @@ def telegram():
         # 获取用户名
         user_name = message.get("from", {}).get("username")
         if text:
+            # 检查权限
+            if text.startswith("/"):
+                if str(user_id) not in interactive_client.get("client").get_admin():
+                    Message().send_channel_msg(channel=SearchType.TG,
+                                               title="只有管理员才有权限执行此命令",
+                                               user_id=user_id)
+                    return '只有管理员才有权限执行此命令'
+            else:
+                if not str(user_id) in interactive_client.get("client").get_users():
+                    message.send_channel_msg(channel=SearchType.TG,
+                                             title="你不在用户白名单中，无法使用此机器人",
+                                             user_id=user_id)
+                    return '你不在用户白名单中，无法使用此机器人'
             WebAction().handle_message_job(msg=text,
-                                           client=interactive_client,
                                            in_from=SearchType.TG,
                                            user_id=user_id,
                                            user_name=user_name)
@@ -1343,6 +1354,10 @@ def synology():
         log.error("收到来自 %s 的非法Synology Chat消息：%s" % (request.remote_addr, msg_data))
         return '不允许的IP地址请求'
     if msg_data:
+        token = msg_data.get("token")
+        if not interactive_client.get("client").check_token(token):
+            log.error("收到来自 %s 的非法Synology Chat消息：token校验不通过！" % request.remote_addr)
+            return 'token校验不通过'
         text = msg_data.get("text")
         user_id = msg_data.get("user_id")
         log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
@@ -1350,7 +1365,6 @@ def synology():
         user_name = msg_data.get("username")
         if text:
             WebAction().handle_message_job(msg=text,
-                                           client=interactive_client,
                                            in_from=SearchType.SYNOLOGY,
                                            user_id=user_id,
                                            user_name=user_name)
@@ -1483,7 +1497,6 @@ def slack():
         else:
             return "Error"
         WebAction().handle_message_job(msg=text,
-                                       client=interactive_client,
                                        in_from=SearchType.SLACK,
                                        user_id=channel,
                                        user_name=username)
