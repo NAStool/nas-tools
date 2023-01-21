@@ -121,11 +121,11 @@ class PageMediainfo extends CustomElement {
               </custom-img>
               <div class="d-flex justify-content-center">
                 <div class="d-flex flex-column justify-content-end ms-2">
-                  <h1 class="display-6">
+                  <h1 class="align-self-center align-self-md-start display-6">
                     <strong>${this.media_info.title}</strong>
                     <strong class="h1">(${this.media_info.year})</strong>
                   </h1>
-                  <div class="">
+                  <div class="align-self-center align-self-md-start">
                     <span class="badge badge-outline text-warning me-1">${this.media_info.certification}</span>
                     <span class="badge badge-outline text-primary me-1">${this.media_info.runtime}</span>
                     <span class="">${this.media_info.genres}</span>
@@ -140,17 +140,17 @@ class PageMediainfo extends CustomElement {
         </div>
         <div class="row">
           <div class="col-lg-8">
-            <h2 class="ms-4 me-2">
+            <h2 class="text-muted ms-4 me-2">
               <small>${this.media_info.overview}</small>
             </h2>
             <div class="row mx-2 mt-4">
               ${this.media_info.crew
               ? this.media_info.crew.map((item, index) => ( html`
-                <div class="col-4">
+                <div class="col-12 col-md-6 col-lg-4">
                   <h2 class="">
                     <strong>${Object.keys(item)[0]}</strong>
                   </h2>
-                  <p class="mb-4">
+                  <p class="text-muted mb-4">
                     <strong>${Object.values(item)[0]}</strong>
                   </p>
                 </div>
@@ -165,8 +165,8 @@ class PageMediainfo extends CustomElement {
                 ? this.media_info.fact.map((item) => ( html`
                   <div class="card-body p-2">
                     <div class="d-flex justify-content-between">
-                      <div class="me-3">
-                        ${Object.keys(item)[0]}
+                      <div style="min-width:25%;">
+                        <strong>${Object.keys(item)[0]}</strong>
                       </div>
                       <div class="text-break text-muted">
                         ${Object.values(item)[0]}
