@@ -166,11 +166,11 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('qbittorrent')" id="qbittorrent_test_btn" class="btn me-auto">
+        <button onclick="test_downloader_config('qbittorrent')" id="qbittorrent_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_downloader_config('qbittorrent')" id="qbittorrent_save_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_downloader_config('qbittorrent')" id="qbittorrent_save_btn"
+           class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -222,11 +222,11 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('transmission')" id="transmission_test_btn" class="btn me-auto">
+        <button onclick="test_downloader_config('transmission')" id="transmission_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_downloader_config('transmission')" id="transmission_save_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_downloader_config('transmission')" id="transmission_save_btn"
+           class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -252,11 +252,11 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('client115')" id="client115_test_btn" class="btn me-auto">
+        <button onclick="test_downloader_config('client115')" id="client115_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_downloader_config('client115')" id="client115_save_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_downloader_config('client115')" id="client115_save_btn"
+           class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -295,10 +295,10 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('aria2')" id="aria2_test_btn" class="btn me-auto">
+        <button onclick="test_downloader_config('aria2')" id="aria2_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn" class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_downloader_config('aria2')" id="aria2_save_btn" class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -429,7 +429,7 @@
 
   //保存配置和测试配置
   function test_downloader_config(type) {
-    $("#" + type + "_test_btn").text("测试中...");
+    $("#" + type + "_test_btn").text("测试中...").attr("disabled", true);
     save_config(type, function (ret) {
       let command;
       if (currType === "qbittorrent") {
@@ -444,9 +444,9 @@
 
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {
-          $("#" + currType + "_test_btn").text("测试成功");
+          $("#" + currType + "_test_btn").text("测试成功").attr("disabled", false);
         } else {
-          $("#" + currType + "_test_btn").text("测试失败！");
+          $("#" + currType + "_test_btn").text("测试失败！").attr("disabled", false);
         }
       });
     }, true);

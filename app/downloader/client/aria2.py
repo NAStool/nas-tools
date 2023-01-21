@@ -1,7 +1,7 @@
 import os
 import re
 
-from app.utils import RequestUtils, ExceptionUtils
+from app.utils import RequestUtils, ExceptionUtils, StringUtils
 from app.utils.types import DownloaderType
 from config import Config
 from app.downloader.client._base import _IDownloadClient
@@ -9,6 +9,7 @@ from app.downloader.client._pyaria2 import PyAria2
 
 
 class Aria2(_IDownloadClient):
+
     schema = "aria2"
     client_type = DownloaderType.Aria2.value
     _client_config = {}
@@ -133,3 +134,28 @@ class Aria2(_IDownloadClient):
 
     def change_torrent(self, **kwargs):
         pass
+
+    def get_downloading_progress(self):
+        """
+        获取正在下载的种子进度
+        """
+        Torrents = self.get_downloading_torrents()
+        DispTorrents = []
+        for torrent in Torrents:
+            # 进度
+            try:
+                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
+            except ZeroDivisionError:
+                progress = 0.0
+            state = "Downloading"
+            _dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
+            _upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
+            speed = "%s%sB/s %s%sB/s" % (chr(8595), _dlspeed, chr(8593), _upspeed)
+            DispTorrents.append({
+                'id': torrent.get('gid'),
+                'name': torrent.get('bittorrent', {}).get('info', {}).get("name"),
+                'speed': speed,
+                'state': state,
+                'progress': progress
+            })
+        return DispTorrents

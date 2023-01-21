@@ -6,7 +6,7 @@ from datetime import datetime
 import transmission_rpc
 
 import log
-from app.utils import ExceptionUtils
+from app.utils import ExceptionUtils, StringUtils
 from app.utils.types import DownloaderType
 from config import Config
 from app.downloader.client._base import _IDownloadClient
@@ -471,3 +471,29 @@ class Transmission(_IDownloadClient):
         else:
             ids = [int(x) for x in ids if str(x).isdigit()]
         self.trc.change_torrent(ids, downloadLimit=int(limit))
+
+    def get_downloading_progress(self):
+        """
+        获取正在下载的种子进度
+        """
+        Torrents = self.get_downloading_torrents()
+        DispTorrents = []
+        for torrent in Torrents:
+            if torrent.status in ['stopped']:
+                state = "Stoped"
+                speed = "已暂停"
+            else:
+                state = "Downloading"
+                _dlspeed = StringUtils.str_filesize(torrent.rateDownload)
+                _upspeed = StringUtils.str_filesize(torrent.rateUpload)
+                speed = "%s%sB/s %s%sB/s" % (chr(8595), _dlspeed, chr(8593), _upspeed)
+            # 进度
+            progress = round(torrent.progress)
+            DispTorrents.append({
+                'id': torrent.id,
+                'name': torrent.name,
+                'speed': speed,
+                'state': state,
+                'progress': progress
+            })
+        return DispTorrents
