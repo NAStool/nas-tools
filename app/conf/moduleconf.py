@@ -58,7 +58,7 @@ class ModuleConf(object):
     }
 
     # 消息通知类型
-    MESSAGE_DICT = {
+    MESSAGE_CONF = {
         "client": {
             "telegram": {
                 "name": "Telegram",
@@ -627,6 +627,104 @@ class ModuleConf(object):
                     "required": True,
                     "title": "令牌",
                     "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+    }
+
+    # 媒体服务器
+    MEDIASERVER_CONF = {
+        "emby": {
+            "name": "Emby",
+            "img_url": "../static/img/emby.png",
+            "background": "bg-green",
+            "test_command": "app.mediaserver.client.emby|Emby",
+            "config": {
+                "host": {
+                    "id": "emby.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
+                },
+                "api_key": {
+                    "id": "emby.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+        "jellyfin": {
+            "name": "Jellyfin",
+            "img_url": "../static/img/jellyfin.jpg",
+            "background": "bg-purple",
+            "test_command": "app.mediaserver.client.jellyfin|Jellyfin",
+            "config": {
+                "host": {
+                    "id": "jellyfin.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
+                },
+                "api_key": {
+                    "id": "jellyfin.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "在Jellyfin设置->高级->API密钥处生成",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+        "plex": {
+            "name": "Plex",
+            "img_url": "../static/img/plex.png",
+            "background": "bg-yellow",
+            "test_command": "app.mediaserver.client.plex|Plex",
+            "config": {
+                "host": {
+                    "id": "plex.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:32400"
+                },
+                "api_key": {
+                    "id": "plex.token",
+                    "required": False,
+                    "title": "X-Plex-Token",
+                    "tooltip": "Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快",
+                    "type": "text",
+                    "placeholder": "X-Plex-Token与其它认证信息二选一"
+                },
+                "servername": {
+                    "id": "plex.servername",
+                    "required": False,
+                    "title": "服务器名称",
+                    "tooltip": "配置Plex设置->左侧下拉框中看到的服务器名称；如填写了Token则无需填写服务器名称、用户名及密码",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "username": {
+                    "id": "plex.username",
+                    "required": False,
+                    "title": "用户名",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "password": {
+                    "id": "plex.password",
+                    "required": False,
+                    "title": "密码",
+                    "type": "password",
                     "placeholder": ""
                 }
             }

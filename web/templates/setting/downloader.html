@@ -67,7 +67,7 @@
         {% if loop.index%2 == 1 %}
         <div class="row">
         {% endif %}
-        <div class="{% if FieldAttr.type == "switch" %}col-12{% else %}col-lg-6{% endif %}">
+        <div class="{% if FieldAttr.type == "switch" %}col-12{% else %}col-lg{% endif %}">
           <div class="mb-3">
             {% if FieldAttr.type == "switch" %}
             <label class="form-check form-switch">

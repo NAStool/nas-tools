@@ -63,7 +63,7 @@ class Message(object):
             if not client_config.ENABLED or not config:
                 continue
             client = {
-                "search_type": ModuleConf.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "search_type": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('search_type'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
@@ -538,5 +538,5 @@ class Message(object):
         查询可交互的渠道
         """
         return [info.get("search_type")
-                for info in ModuleConf.MESSAGE_DICT.get('client').values()
+                for info in ModuleConf.MESSAGE_CONF.get('client').values()
                 if info.get('search_type')]

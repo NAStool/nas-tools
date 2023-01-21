@@ -1003,7 +1003,9 @@ def library():
 @App.route('/mediaserver', methods=['POST', 'GET'])
 @login_required
 def mediaserver():
-    return render_template("setting/mediaserver.html", Config=Config().get_config())
+    return render_template("setting/mediaserver.html",
+                           Config=Config().get_config(),
+                           MediaServerConf=ModuleConf.MEDIASERVER_CONF)
 
 
 # 通知消息页面
@@ -1011,8 +1013,8 @@ def mediaserver():
 @login_required
 def notification():
     MessageClients = Message().get_message_client_info()
-    Channels = ModuleConf.MESSAGE_DICT.get("client")
-    Switchs = ModuleConf.MESSAGE_DICT.get("switch")
+    Channels = ModuleConf.MESSAGE_CONF.get("client")
+    Switchs = ModuleConf.MESSAGE_CONF.get("switch")
     return render_template("setting/notification.html",
                            Channels=Channels,
                            Switchs=Switchs,
