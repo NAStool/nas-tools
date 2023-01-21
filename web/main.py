@@ -989,7 +989,8 @@ def indexer():
                            Config=Config().get_config(),
                            PrivateCount=private_count,
                            PublicCount=public_count,
-                           Indexers=indexers)
+                           Indexers=indexers,
+                           IndexerConf=ModuleConf.INDEXER_CONF)
 
 
 # 媒体库页面
