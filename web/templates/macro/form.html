@@ -8,7 +8,7 @@
       <div class="mb-3">
         {% if FieldAttr.type == "switch" %}
         <label class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if Config[Type][FieldId] %}checked{% endif %}>
+          <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if Config[Type] and Config[Type][FieldId] %}checked{% endif %}>
           <span class="form-check-label">{{ FieldAttr.title }}
             {% if FieldAttr.tooltip %}
             <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
@@ -24,11 +24,11 @@
           {% if FieldAttr.type == "select" %}
           <select class="form-select" id="{{ FieldAttr.id }}">
             {% for OptionValue, OptionTitle in FieldAttr.options.items() %}
-            <option value="{{ OptionValue }}" {% if Config[Type][FieldId] == OptionValue %}selected{% endif %}>{{ OptionTitle }}</option>
+            <option value="{{ OptionValue }}" {% if Config[Type] and Config[Type][FieldId] == OptionValue %}selected{% endif %}>{{ OptionTitle }}</option>
             {% endfor %}
           </select>
           {% else %}
-          <input type="{{ FieldAttr.type }}" id="{{ FieldAttr.id }}" class="form-control" value="{{ Config[Type][FieldId] or '' }}" placeholder="{{ FieldAttr.placeholder }}">
+          <input type="{{ FieldAttr.type }}" id="{{ FieldAttr.id }}" class="form-control" value="{% if Config[Type] %}{{ Config[Type][FieldId] or '' }}{% endif %}" placeholder="{{ FieldAttr.placeholder }}">
           {% endif %}
         {% endif %}
       </div>

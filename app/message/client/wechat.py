@@ -121,7 +121,7 @@ class WeChat(_IMessageClient):
         :return: 发送状态，错误信息
         """
         if not self.__get_access_token():
-            return False, "参数未配置或配置不正确"
+            return False, "获取微信access_token失败，请检查参数配置"
         message_url = self._send_msg_url % self.__get_access_token()
         if text:
             text = text.replace("\n\n", "\n")

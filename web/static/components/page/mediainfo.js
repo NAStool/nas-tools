@@ -27,7 +27,11 @@ class PageMediainfo extends CustomElement {
 
     // 媒体信息
     this.media_info = {
-      background: "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/r9PkFnRUIthgBp2JZZzD380MWZy.jpg",
+      background: [
+        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/r9PkFnRUIthgBp2JZZzD380MWZy.jpg",
+        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/eSdpZZQubPSZ47qppFfUPbKsWlw.jpg",
+        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/9XEIpZkQZb3aE2HkjRn6dfOMWea.jpg",
+      ],
       image: "https://www.themoviedb.org/t/p/w300_and_h450_bestv2/rnn30OlNPiC3IOoWHKoKARGsBRK.jpg",
       vote: "8.6",
       year: "2022",
@@ -94,7 +98,8 @@ class PageMediainfo extends CustomElement {
             linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0.5) 50%, rgba(var(--tblr-body-bg-rgb),1) 100%),
             linear-gradient(0, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
             linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-            linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%)
+            linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%);
+          box-shadow:0 0 0 2px rgb(var(--tblr-body-bg-rgb));
         }
         .lit-media-info-image {
           width:233px;
@@ -110,9 +115,15 @@ class PageMediainfo extends CustomElement {
       </style>
       <div class="container-xl">
         <!-- 渲染媒体信息 -->
-        <div class="card rounded-0" style="border:none;height:490px">
-          <img src=${this.media_info.background} class="card-img rounded-0" alt=""
-            style="display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"/>
+        <div class="card rounded-0" style="border:none;height:490px;">
+          <custom-img style="border:none;height:490px;"
+            div-style="display:inline;"
+            img-placeholder="0"
+            img-error="0"
+            .img_src_list=${this.media_info.background}
+            img-class="card-img rounded-0"
+            img-style="display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;">
+          </custom-img>
           <div class="card-img-overlay rounded-0 lit-media-info-background">
             <div class="d-md-flex flex-md-row mb-4">
               <custom-img class="d-flex justify-content-center"
