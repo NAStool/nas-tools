@@ -120,7 +120,6 @@ class PageMediainfo extends CustomElement {
             div-style="display:inline;"
             img-placeholder="0"
             img-error="0"
-            img-carousel="1"
             .img_src_list=${this.media_info.background}
             img-class="card-img rounded-0"
             img-style="display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;">
