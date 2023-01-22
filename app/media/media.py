@@ -936,6 +936,94 @@ class Media:
         :param tmdbid: TMDB ID
         :return: TMDB信息
         """
+        """
+        {
+          "adult": false,
+          "backdrop_path": "/r9PkFnRUIthgBp2JZZzD380MWZy.jpg",
+          "belongs_to_collection": {
+            "id": 94602,
+            "name": "穿靴子的猫（系列）",
+            "poster_path": "/anHwj9IupRoRZZ98WTBvHpTiE6A.jpg",
+            "backdrop_path": "/feU1DWV5zMWxXUHJyAIk3dHRQ9c.jpg"
+          },
+          "budget": 90000000,
+          "genres": [
+            {
+              "id": 16,
+              "name": "动画"
+            },
+            {
+              "id": 28,
+              "name": "动作"
+            },
+            {
+              "id": 12,
+              "name": "冒险"
+            },
+            {
+              "id": 35,
+              "name": "喜剧"
+            },
+            {
+              "id": 10751,
+              "name": "家庭"
+            },
+            {
+              "id": 14,
+              "name": "奇幻"
+            }
+          ],
+          "homepage": "",
+          "id": 315162,
+          "imdb_id": "tt3915174",
+          "original_language": "en",
+          "original_title": "Puss in Boots: The Last Wish",
+          "overview": "时隔11年，臭屁自大又爱卖萌的猫大侠回来了！如今的猫大侠（安东尼奥·班德拉斯 配音），依旧幽默潇洒又不拘小节、数次“花式送命”后，九条命如今只剩一条，于是不得不请求自己的老搭档兼“宿敌”——迷人的软爪妞（萨尔玛·海耶克 配音）来施以援手来恢复自己的九条生命。",
+          "popularity": 8842.129,
+          "poster_path": "/rnn30OlNPiC3IOoWHKoKARGsBRK.jpg",
+          "production_companies": [
+            {
+              "id": 33,
+              "logo_path": "/8lvHyhjr8oUKOOy2dKXoALWKdp0.png",
+              "name": "Universal Pictures",
+              "origin_country": "US"
+            },
+            {
+              "id": 521,
+              "logo_path": "/kP7t6RwGz2AvvTkvnI1uteEwHet.png",
+              "name": "DreamWorks Animation",
+              "origin_country": "US"
+            }
+          ],
+          "production_countries": [
+            {
+              "iso_3166_1": "US",
+              "name": "United States of America"
+            }
+          ],
+          "release_date": "2022-12-07",
+          "revenue": 260725470,
+          "runtime": 102,
+          "spoken_languages": [
+            {
+              "english_name": "English",
+              "iso_639_1": "en",
+              "name": "English"
+            },
+            {
+              "english_name": "Spanish",
+              "iso_639_1": "es",
+              "name": "Español"
+            }
+          ],
+          "status": "Released",
+          "tagline": "",
+          "title": "穿靴子的猫2",
+          "video": false,
+          "vote_average": 8.614,
+          "vote_count": 2291
+        }
+        """
         if not self.movie:
             return {}
         try:
@@ -951,6 +1039,165 @@ class Media:
         获取电视剧的详情
         :param tmdbid: TMDB ID
         :return: TMDB信息
+        """
+        """
+        {
+          "adult": false,
+          "backdrop_path": "/uDgy6hyPd82kOHh6I95FLtLnj6p.jpg",
+          "created_by": [
+            {
+              "id": 35796,
+              "credit_id": "5e84f06a3344c600153f6a57",
+              "name": "Craig Mazin",
+              "gender": 2,
+              "profile_path": "/uEhna6qcMuyU5TP7irpTUZ2ZsZc.jpg"
+            },
+            {
+              "id": 1295692,
+              "credit_id": "5e84f03598f1f10016a985c0",
+              "name": "Neil Druckmann",
+              "gender": 2,
+              "profile_path": "/bVUsM4aYiHbeSYE1xAw2H5Z1ANU.jpg"
+            }
+          ],
+          "episode_run_time": [],
+          "first_air_date": "2023-01-15",
+          "genres": [
+            {
+              "id": 18,
+              "name": "剧情"
+            },
+            {
+              "id": 10765,
+              "name": "Sci-Fi & Fantasy"
+            },
+            {
+              "id": 10759,
+              "name": "动作冒险"
+            }
+          ],
+          "homepage": "https://www.hbo.com/the-last-of-us",
+          "id": 100088,
+          "in_production": true,
+          "languages": [
+            "en"
+          ],
+          "last_air_date": "2023-01-15",
+          "last_episode_to_air": {
+            "air_date": "2023-01-15",
+            "episode_number": 1,
+            "id": 2181581,
+            "name": "当你迷失在黑暗中",
+            "overview": "在一场全球性的流行病摧毁了文明之后，一个顽强的幸存者负责照顾一个 14 岁的小女孩，她可能是人类最后的希望。",
+            "production_code": "",
+            "runtime": 81,
+            "season_number": 1,
+            "show_id": 100088,
+            "still_path": "/aRquEWm8wWF1dfa9uZ1TXLvVrKD.jpg",
+            "vote_average": 8,
+            "vote_count": 33
+          },
+          "name": "最后生还者",
+          "next_episode_to_air": {
+            "air_date": "2023-01-22",
+            "episode_number": 2,
+            "id": 4071039,
+            "name": "虫草变异菌",
+            "overview": "",
+            "production_code": "",
+            "runtime": 55,
+            "season_number": 1,
+            "show_id": 100088,
+            "still_path": "/jkUtYTmeap6EvkHI4n0j5IRFrIr.jpg",
+            "vote_average": 10,
+            "vote_count": 1
+          },
+          "networks": [
+            {
+              "id": 49,
+              "name": "HBO",
+              "logo_path": "/tuomPhY2UtuPTqqFnKMVHvSb724.png",
+              "origin_country": "US"
+            }
+          ],
+          "number_of_episodes": 9,
+          "number_of_seasons": 1,
+          "origin_country": [
+            "US"
+          ],
+          "original_language": "en",
+          "original_name": "The Last of Us",
+          "overview": "不明真菌疫情肆虐之后的美国，被真菌感染的人都变成了可怕的怪物，乔尔（Joel）为了换回武器答应将小女孩儿艾莉（Ellie）送到指定地点，由此开始了两人穿越美国的漫漫旅程。",
+          "popularity": 5585.639,
+          "poster_path": "/nOY3VBFO0VnlN9nlRombnMTztyh.jpg",
+          "production_companies": [
+            {
+              "id": 3268,
+              "logo_path": "/tuomPhY2UtuPTqqFnKMVHvSb724.png",
+              "name": "HBO",
+              "origin_country": "US"
+            },
+            {
+              "id": 11073,
+              "logo_path": "/aCbASRcI1MI7DXjPbSW9Fcv9uGR.png",
+              "name": "Sony Pictures Television Studios",
+              "origin_country": "US"
+            },
+            {
+              "id": 23217,
+              "logo_path": "/kXBZdQigEf6QiTLzo6TFLAa7jKD.png",
+              "name": "Naughty Dog",
+              "origin_country": "US"
+            },
+            {
+              "id": 115241,
+              "logo_path": null,
+              "name": "The Mighty Mint",
+              "origin_country": "US"
+            },
+            {
+              "id": 119645,
+              "logo_path": null,
+              "name": "Word Games",
+              "origin_country": "US"
+            },
+            {
+              "id": 125281,
+              "logo_path": "/3hV8pyxzAJgEjiSYVv1WZ0ZYayp.png",
+              "name": "PlayStation Productions",
+              "origin_country": "US"
+            }
+          ],
+          "production_countries": [
+            {
+              "iso_3166_1": "US",
+              "name": "United States of America"
+            }
+          ],
+          "seasons": [
+            {
+              "air_date": "2023-01-15",
+              "episode_count": 9,
+              "id": 144593,
+              "name": "第 1 季",
+              "overview": "",
+              "poster_path": "/aUQKIpZZ31KWbpdHMCmaV76u78T.jpg",
+              "season_number": 1
+            }
+          ],
+          "spoken_languages": [
+            {
+              "english_name": "English",
+              "iso_639_1": "en",
+              "name": "English"
+            }
+          ],
+          "status": "Returning Series",
+          "tagline": "",
+          "type": "Scripted",
+          "vote_average": 8.924,
+          "vote_count": 601
+        }
         """
         if not self.tv:
             return {}
@@ -1026,6 +1273,30 @@ class Media:
                 return int(season.get("episode_count"))
         return 0
 
+    @staticmethod
+    def get_tmdb_directors_actors(tmdbinfo):
+        """
+        查询导演和演员
+        :param tmdbinfo: TMDB元数据
+        :return: 导演列表，演员列表
+        """
+        if not tmdbinfo:
+            return [], []
+        _credits = tmdbinfo.get("credits")
+        directors = []
+        actors = []
+        for cast in _credits.get("cast") or []:
+            if not cast:
+                continue
+            if cast.get("known_for_department") == "Acting":
+                actors.append(cast)
+        for crew in _credits.get("crew") or []:
+            if not crew:
+                continue
+            if crew.get("job") == "Director":
+                directors.append(crew)
+        return directors, actors
+
     def get_tmdb_en_title(self, media_info):
         """
         获取TMDB的英文名称
@@ -1059,10 +1330,37 @@ class Media:
         发现电影
         """
         if not self.movie:
-            return {}
+            return []
         try:
             movies = self.movie.discover(page)
+            if movies:
+                return movies.get("results")
+        except Exception as e:
+            print(str(e))
+        return []
+
+    def get_movie_similar(self, tmdbid, page=1):
+        """
+        查询类似电影
+        """
+        if not self.movie:
+            return []
+        try:
+            movies = self.movie.similar(movie_id=tmdbid, page=page) or []
             return movies
+        except Exception as e:
+            print(str(e))
+            return {}
+
+    def get_tv_similar(self, tmdbid, page=1):
+        """
+        查询类似电视剧
+        """
+        if not self.tv:
+            return []
+        try:
+            tvs = self.tv.similar(tv_id=tmdbid, page=page) or []
+            return tvs
         except Exception as e:
             print(str(e))
             return {}
@@ -1260,7 +1558,7 @@ class Media:
         """
         movies = self.get_movie_discover()
         if movies:
-            backdrops = [movie.get("backdrop_path") for movie in movies.get("results")]
+            backdrops = [movie.get("backdrop_path") for movie in movies]
             return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
         return ""
 

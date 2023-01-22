@@ -89,7 +89,7 @@ class Filter:
         """
         if not rulegroup:
             rulegroup = self.get_rule_groups(default=True)
-        first_order = min([rule_info.get("pri") for rule_info in self.get_rules(groupid=rulegroup)] or [0])
+        first_order = min([int(rule_info.get("pri")) for rule_info in self.get_rules(groupid=rulegroup)] or [0])
         return 100 - first_order
 
     def check_rules(self, meta_info, rulegroup=None):
