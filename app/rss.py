@@ -595,7 +595,8 @@ class Rss:
             if download_item.get_episode_list():
                 return
             updated_rss_torrents.append(download_item.rssid)
-            self.subscribe.update_subscribe_over_edition(rssid=download_item.rssid,
+            self.subscribe.update_subscribe_over_edition(rtype=download_item.type,
+                                                         rssid=download_item.rssid,
                                                          media=download_item)
 
         # 去重择优后开始添加下载
