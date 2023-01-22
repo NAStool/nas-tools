@@ -663,9 +663,9 @@ class Subscribe:
             if search_result:
                 # 洗版
                 if over_edition:
-                    if not self.update_subscribe_over_edition(rssid=rssid, media=search_result):
-                        # 更新为继续订阅状态
-                        self.dbhelper.update_rss_movie_state(rssid=rssid, state='R')
+                    self.update_subscribe_over_edition(rtype=search_result.type,
+                                                       rssid=rssid,
+                                                       media=search_result)
                 else:
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
             else:
@@ -789,9 +789,9 @@ class Subscribe:
                     and (not no_exists or not no_exists.get(media_info.tmdb_id)):
                 # 洗版
                 if over_edition:
-                    if not self.update_subscribe_over_edition(rssid=rssid, media=search_result):
-                        # 更新为继续订阅状态
-                        self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
+                    self.update_subscribe_over_edition(rtype=media_info.type,
+                                                       rssid=rssid,
+                                                       media=search_result)
                 else:
                     # 完成订阅
                     self.finish_rss_subscribe(rssid=rssid, media=media_info)
@@ -801,9 +801,22 @@ class Subscribe:
                                               media_info=media_info,
                                               seasoninfo=no_exists.get(media_info.tmdb_id))
 
-    def update_subscribe_over_edition(self, rssid, media):
+    def update_rss_state(self, rtype, rssid, state):
+        """
+        根据类型更新订阅状态
+        :param rtype: 订阅类型
+        :param rssid: 订阅ID
+        :param state: 状态 R/D/S
+        """
+        if rtype == MediaType.MOVIE:
+            self.dbhelper.update_rss_movie_state(rssid=rssid, state=state)
+        else:
+            self.dbhelper.update_rss_tv_state(rssid=rssid, state=state)
+
+    def update_subscribe_over_edition(self, rtype, rssid, media):
         """
         更新洗版订阅
+        :param rtype: 订阅类型
         :param rssid: 订阅ID
         :param media: 含订阅信息的媒体信息
         :return 完成订阅返回True，否则返回False
@@ -823,6 +836,8 @@ class Subscribe:
             # 完成洗版订阅
             self.finish_rss_subscribe(rssid=rssid, media=media)
             return True
+        else:
+            self.update_rss_state(rtype=rtype, rssid=rssid, state='R')
         return False
 
     def check_subscribe_over_edition(self, rtype, rssid, res_order):

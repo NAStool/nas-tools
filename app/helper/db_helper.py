@@ -778,9 +778,8 @@ class DbHelper:
                     "STATE": state
                 })
         else:
-            self._db.query(RSSMOVIES).filter(
-                RSSMOVIES.NAME == title,
-                RSSMOVIES.YEAR == str(year)).update(
+            self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+                                             RSSMOVIES.YEAR == str(year)).update(
                 {
                     "STATE": state
                 })
