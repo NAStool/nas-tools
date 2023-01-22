@@ -30,6 +30,7 @@ class SearchType(Enum):
     TG = "Telegram"
     API = "第三方API请求"
     SLACK = "Slack"
+    SYNOLOGY = "Synology Chat"
 
 
 class RmtMode(Enum):

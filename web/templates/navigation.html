@@ -1884,12 +1884,12 @@
   }
 
   // 刷新保存路径
-  function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = false) {
+  function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = false, site="") {
     let savepath_select = $(`#${obj_id}`);
-    if (!sid && !is_default) {
+    if (!sid && !is_default && !site) {
       savepath_select.empty().append(`<option value="" selected>自动</option>`);
     } else {
-      ajax_post("get_download_dirs", {sid: sid}, function (ret) {
+      ajax_post("get_download_dirs", {sid: sid, site: site}, function (ret) {
         if (ret.code === 0) {
           let savepath_select_content = `<option value="" selected>自动</option>`;
           for (let path of ret.paths) {
@@ -1926,13 +1926,13 @@
   }
 
   // 刷新下载框的下载设置及目录选项
-  function refresh_search_download_setting_dirs(is_default){
+  function refresh_search_download_setting_dirs(is_default, site=""){
     refresh_downloadsetting_select("search_download_setting", false, is_default);
-    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val(), is_default);
+    refresh_savepath_select("search_download_dir", true, $("#search_download_setting").val(), is_default, site);
   }
 
   // 显示下载提示框
-  function show_download_modal(id, name, func=undefined, show_type=undefined) {
+  function show_download_modal(id, name, site=undefined, func=undefined, show_type=undefined) {
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
     $("#search_download_message").text(`新增下载 ${name}`);
@@ -1941,6 +1941,9 @@
     if (show_type) {
       refresh_search_download_setting_dirs(true);
       $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), true)")
+    } else if (site) {
+      refresh_search_download_setting_dirs(false, site);
+      $("#search_download_setting").attr("onchange", `refresh_savepath_select('search_download_dir', true, $(this).val(), false, "${site}")`)
     } else {
       refresh_search_download_setting_dirs(false);
       $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), false)")

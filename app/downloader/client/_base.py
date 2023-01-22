@@ -136,3 +136,10 @@ class _IDownloadClient(metaclass=ABCMeta):
         修改种子状态
         """
         pass
+
+    @abstractmethod
+    def get_downloading_progress(self):
+        """
+        获取下载进度
+        """
+        pass

@@ -556,7 +556,7 @@ class RssChecker(object):
         # 检查是否已存在
         no_exists = {}
         exist_flag = False
-        if not media_info.tmdb_info:
+        if not media_info.tmdb_id:
             log.info("【RssChecker】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
         else:
             if media_info.type == MediaType.MOVIE:

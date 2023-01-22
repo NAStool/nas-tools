@@ -181,22 +181,22 @@
 
   //跳转页
   function go_page(page) {
-    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + page + "&keyword=" + $("#search_word").val())
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page}&keyword=${$("#search_word").val()}`)
   }
 
   // 上一页
   function go_pre_page(page) {
-    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + (page - 1) + "&keyword=" + $("#search_word").val())
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page - 1}&keyword=${$("#search_word").val()}`)
   }
 
   // 下一页
   function go_next_page(page) {
-    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + (page + 1) + "&keyword=" + $("#search_word").val())
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page + 1}&keyword=${$("#search_word").val()}`)
   }
 
   //下载按钮
   function download_site_resource(id, name) {
-    show_download_modal(id, name, function(){
+    show_download_modal(id, name, "{{ Title }}", function(){
       $("#modal-search-download").modal('hide');
       download_resource(id, false);
     })
@@ -208,14 +208,14 @@
 
   function download_resource(id, batch) {
     const site = "{{ Title }}";
-    const enclosure = $("#enclosure_" + id).val();
-    const title = $("#title_" + id).val();
-    const description = $("#description_" + id).val();
-    const page_url = $("#page_url_" + id).val();
-    const size = $("#size_" + id).val();
-    const seeders = $("#seeders_" + id).val();
-    const uploadvolumefactor = $("#uploadvolumefactor_" + id).val();
-    const downloadvolumefactor = $("#downloadvolumefactor_" + id).val();
+    const enclosure = $(`#enclosure_${id}`).val();
+    const title = $(`#title_${id}`).val();
+    const description = $(`#description_${id}`).val();
+    const page_url = $(`#page_url_${id}`).val();
+    const size = $(`#size_${id}`).val();
+    const seeders = $(`#seeders_${id}`).val();
+    const uploadvolumefactor = $(`#uploadvolumefactor_${id}`).val();
+    const downloadvolumefactor = $(`#downloadvolumefactor_${id}`).val();
     if (!batch || current_download === 0) {
     }
     const params = {

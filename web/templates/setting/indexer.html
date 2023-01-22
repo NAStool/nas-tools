@@ -1,3 +1,4 @@
+{% import 'macro/form.html' as FORM %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -29,126 +30,50 @@
           </div>
         </a>
       </div>
+      {% for Type, Indexer in IndexerConf.items() %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-jackett">
-          <div class="card-cover card-cover-blurred text-center bg-black">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+          <div class="card-cover card-cover-blurred text-center {{ Indexer.background }}">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/jackett.png)">
+                  style="background-image: url('{{ Indexer.img_url }}')">
             </span>
           </div>
           <div class="card-body text-center">
-            <div class="card-title mb-1">Jackett</div>
-            <div class="text-muted">{% if Config.pt.search_indexer == "jackett" %}<span class="badge bg-green"
+            <div class="card-title mb-1">{{ Indexer.name }}</div>
+            <div class="text-muted">{% if Config.pt.search_indexer == Type %}<span class="badge bg-green"
                                                                                         title="已开启"></span>
               正在使用{% endif %}</div>
           </div>
         </a>
       </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-prowlarr">
-          <div class="card-cover card-cover-blurred text-center bg-orange">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/prowlarr.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Prowlarr</div>
-            <div class="text-muted">{% if Config.pt.search_indexer == "prowlarr" %}<span class="badge bg-green"
-                                                                                         title="已开启"></span>
-              正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-jackett" tabindex="-1" role="dialog" aria-hidden="true"
+{% for Type, Indexer in IndexerConf.items() %}
+<div class="modal modal-blur fade" id="modal-{{ Type }}" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Jackett</h5>
+        <h5 class="modal-title">{{ Indexer.name }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">Jackett地址 <span class="form-help"
-                                                                   title="Jackett访问地址和端口，如为https需加https://前缀"
-                                                                   data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.jackett %}{{ Config.jackett.host or '' }}{% endif %}"
-                     id="jackett.host" class="form-control" placeholder="http://127.0.0.1:9117">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help"
-                                                               title="Jackett管理界面右上角复制API Key"
-                                                               data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.jackett %}{{ Config.jackett.api_key or '' }}{% endif %}"
-                     id="jackett.api_key" class="form-control">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">密码 <span class="form-help"
-                                                            title="Jackett管理界面中配置的Admin password，如未配置可为空"
-                                                            data-bs-toggle="tooltip">?</span></label>
-              <input type="password" value="{% if Config.jackett %}{{ Config.jackett.password or '' }}{% endif %}"
-                     id="jackett.password" class="form-control">
-            </div>
-          </div>
-        </div>
+      {{ FORM.gen_form_config_elements(Type, Config, Indexer.config) }}
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_indexer_config('jackett')" id="jackett_test_btn" class="btn me-auto">
+        <button onclick="test_indexer_config('{{ Type }}')" id="{{ Type }}_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_indexer_config('jackett')" id="jackett_save_btn" class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_indexer_config('{{ Type }}')" id="{{ Type }}_save_btn" class="btn btn-primary">
+          确定
+        </button>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-prowlarr" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Prowlarr</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">Prowlarr地址 <span class="form-help"
-                                                                    title="Prowlarr访问地址和端口，如为https需加https://前缀"
-                                                                    data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}"
-                     id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help"
-                                                               title="在Prowlarr->Settings->General->Security-> API Key中获取"
-                                                               data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.api_key or '' }}{% endif %}"
-                     id="prowlarr.api_key" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_indexer_config('prowlarr')" id="prowlarr_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_indexer_config('prowlarr')" id="prowlarr_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
+{% endfor %}
 <div class="modal modal-blur fade" id="modal-builtin" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -216,7 +141,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</a>
+        <button onclick="save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
@@ -254,19 +179,19 @@
 
   //保存配置和测试配置
   function test_indexer_config(type) {
-    $(`#${type}_test_btn`).text("测试中...");
+    $(`#${type}_test_btn`).text("测试中...").attr("disabled", true);
     save_config(type, function (ret) {
       let command;
-      if (currType === "jackett") {
-        command = "app.indexer.client.jackett|Jackett";
-      } else if (currType === "prowlarr") {
-        command = "app.indexer.client.prowlarr|Prowlarr";
+      {% for Type, Indexer in IndexerConf.items() %}
+      if (currType === "{{ Type }}") {
+        command = "{{ Indexer.test_command }}";
       }
+      {% endfor %}
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {
-          $(`#${currType}_test_btn`).text("测试成功");
+          $(`#${currType}_test_btn`).text("测试成功").attr("disabled", false);
         } else {
-          $(`#${currType}_test_btn`).text("测试失败！");
+          $(`#${currType}_test_btn`).text("测试失败！").attr("disabled", false);
         }
       });
     }, true);

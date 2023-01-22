@@ -1,4 +1,5 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/form.html' as FORM %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -184,39 +185,7 @@
         </div>
         {% for ClientId, ClientAttr in Channels.items() %}
         <div id="div_client_config_{{ ClientId }}">
-          {% for FieldId, FieldAttr in ClientAttr.config.items() %}
-            {% if loop.index%2 == 1 %}
-            <div class="row">
-            {% endif %}
-              <div class="{% if FieldAttr.type == "switch" %}col-12{% else %}col-lg-6{% endif %}">
-                <div class="mb-3">
-                  {% if FieldAttr.type == "switch" %}
-                  <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if FieldAttr.default %}checked{% endif %}>
-                    <span class="form-check-label">{{ FieldAttr.title }}
-                      <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
-                    </span>
-                  </label>
-                  {% else %}
-                    <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
-                      <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
-                    </label>
-                    {% if FieldAttr.type == "select" %}
-                      <select class="form-select" id="{{ FieldAttr.id }}">
-                        {% for OptionValue, OptionTitle in FieldAttr.options.items() %}
-                        <option value="{{ OptionValue }}" {% if FieldAttr.default == OptionValue %}selected{% endif %}>{{ OptionTitle }}</option>
-                        {% endfor %}
-                      </select>
-                    {% else %}
-                    <input type="text" id="{{ FieldAttr.id }}" class="form-control" value="{{ FieldAttr.default or '' }}" placeholder="{{ FieldAttr.placeholder }}">
-                    {% endif %}
-                  {% endif %}
-                </div>
-              </div>
-            {% if loop.last or loop.index%2 == 0 %}
-            </div>
-            {% endif %}
-          {% endfor %}
+          {{ FORM.gen_form_empty_elements(ClientAttr.config) }}
         </div>
         {% endfor %}
         <details>
@@ -237,12 +206,14 @@
         </details>
       </div>
       <div class="modal-footer">
-        <a href="javascript:add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
+        <button onclick="add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
            class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
+           class="btn btn-primary">
+          确定
+        </button>
       </div>
     </div>
   </div>
@@ -278,9 +249,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="send_custom_message_btn" href="javascript:send_custom_message()" class="btn btn-primary">
+        <button id="send_custom_message_btn" onclick="send_custom_message()" class="btn btn-primary">
           发送
-        </a>
+        </button>
       </div>
     </div>
   </div>

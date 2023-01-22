@@ -9,7 +9,7 @@ from pkg_resources import parse_version as v
 import log
 import qbittorrentapi
 from app.downloader.client._base import _IDownloadClient
-from app.utils import ExceptionUtils
+from app.utils import ExceptionUtils, StringUtils
 from app.utils.types import DownloaderType
 from config import Config
 
@@ -482,3 +482,34 @@ class Qbittorrent(_IDownloadClient):
         修改种子状态
         """
         pass
+
+    def get_downloading_progress(self):
+        """
+                获取正在下载的种子进度
+                """
+        Torrents = self.get_downloading_torrents()
+        DispTorrents = []
+        for torrent in Torrents:
+            # 进度
+            progress = round(torrent.get('progress') * 100, 1)
+            if torrent.get('state') in ['pausedDL']:
+                state = "Stoped"
+                speed = "已暂停"
+            else:
+                state = "Downloading"
+                _dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
+                _upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
+                if progress >= 100:
+                    speed = "%s%sB/s %s%sB/s" % (chr(8595), _dlspeed, chr(8593), _upspeed)
+                else:
+                    eta = StringUtils.str_timelong(torrent.get('eta'))
+                    speed = "%s%sB/s %s%sB/s %s" % (chr(8595), _dlspeed, chr(8593), _upspeed, eta)
+            # 主键
+            DispTorrents.append({
+                'id': torrent.get('hash'),
+                'name': torrent.get('name'),
+                'speed': speed,
+                'state': state,
+                'progress': progress
+            })
+        return DispTorrents

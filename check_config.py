@@ -219,6 +219,14 @@ def update_config():
         }
         overwrite_cofig = True
 
+    # Synology Chat安全配置初始化
+    if not _config.get("security", {}).get("synology_webhook_allow_ip"):
+        _config['security']['synology_webhook_allow_ip'] = {
+            'ipv4': '127.0.0.1',
+            'ipv6': '::/0'
+        }
+        overwrite_cofig = True
+
     # API密钥初始化
     if not _config.get("security", {}).get("api_key"):
         _config['security']['api_key'] = _config.get("security",

@@ -58,7 +58,7 @@ class ModuleConf(object):
     }
 
     # 消息通知类型
-    MESSAGE_DICT = {
+    MESSAGE_CONF = {
         "client": {
             "telegram": {
                 "name": "Telegram",
@@ -343,6 +343,29 @@ class ModuleConf(object):
                     }
                 }
             },
+            "synologychat": {
+                "name": "Synology Chat",
+                "img_url": "../static/img/synologychat.png",
+                "search_type": SearchType.SYNOLOGY,
+                "config": {
+                    "webhook_url": {
+                        "id": "synologychat_webhook_url",
+                        "required": True,
+                        "title": "机器人传入URL",
+                        "tooltip": "在Synology Chat中创建机器人，获取机器人传入URL",
+                        "type": "text",
+                        "placeholder": "https://xxx/webapi/entry.cgi?api=xxx"
+                    },
+                    "token": {
+                        "id": "synologychat_token",
+                        "required": True,
+                        "title": "令牌",
+                        "tooltip": "在Synology Chat中创建机器人，获取机器人令牌",
+                        "type": "text",
+                        "placeholder": ""
+                    }
+                }
+            },
         },
         "switch": {
             "download_start": {
@@ -471,6 +494,302 @@ class ModuleConf(object):
         "qyapi.weixin.qq.com",
         "www.opensubtitles.org"
     ]
+
+    # 下载器
+    DOWNLOADER_CONF = {
+        "qbittorrent": {
+            "name": "Qbittorrent",
+            "img_url": "../static/img/qbittorrent.png",
+            "background": "bg-blue",
+            "test_command": "app.downloader.client.qbittorrent|Qbittorrent",
+            "config": {
+                "qbhost": {
+                    "id": "qbittorrent.qbhost",
+                    "required": True,
+                    "title": "IP地址",
+                    "tooltip": "配置IP地址，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "127.0.0.1"
+                },
+                "qbport": {
+                    "id": "qbittorrent.qbport",
+                    "required": True,
+                    "title": "端口",
+                    "type": "text",
+                    "placeholder": "8080"
+                },
+                "qbusername": {
+                    "id": "qbittorrent.qbusername",
+                    "required": True,
+                    "title": "用户名",
+                    "type": "text",
+                    "placeholder": "admin"
+                },
+                "qbpassword": {
+                    "id": "qbittorrent.qbpassword",
+                    "required": False,
+                    "title": "密码",
+                    "type": "password",
+                    "placeholder": "adminadmin"
+                },
+                "force_upload": {
+                    "id": "qbittorrent.force_upload",
+                    "required": False,
+                    "title": "自动强制作种",
+                    "tooltip": "开启后下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能",
+                    "type": "switch"
+                },
+                "auto_management": {
+                    "id": "qbittorrent.auto_management",
+                    "required": False,
+                    "title": "自动管理模式",
+                    "tooltip": "开启后下载目录将由Qbittorrent自动管理，不再使用NASTool传递的下载目录，需要同时在下载目录设置中配置好分类标签",
+                    "type": "switch"
+                }
+            }
+        },
+        "transmission": {
+            "name": "Transmission",
+            "img_url": "../static/img/transmission.png",
+            "background": "bg-danger",
+            "test_command": "app.downloader.client.transmission|Transmission",
+            "config": {
+                "trhost": {
+                    "id": "transmission.trhost",
+                    "required": True,
+                    "title": "IP地址",
+                    "tooltip": "配置IP地址，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "127.0.0.1"
+                },
+                "trport": {
+                    "id": "transmission.trport",
+                    "required": True,
+                    "title": "端口",
+                    "type": "text",
+                    "placeholder": "9091"
+                },
+                "trusername": {
+                    "id": "transmission.trusername",
+                    "required": True,
+                    "title": "用户名",
+                    "type": "text",
+                    "placeholder": "admin"
+                },
+                "trpassword": {
+                    "id": "transmission.trpassword",
+                    "required": False,
+                    "title": "密码",
+                    "type": "password",
+                    "placeholder": ""
+                }
+            }
+        },
+        "client115": {
+            "name": "115网盘",
+            "img_url": "../static/img/115.jpg",
+            "background": "bg-azure",
+            "test_command": "app.downloader.client.client115|Client115",
+            "config": {
+                "trhost": {
+                    "id": "client115.cookie",
+                    "required": True,
+                    "title": "Cookie",
+                    "tooltip": "115网盘Cookie，通过115网盘网页端抓取Cookie",
+                    "type": "text",
+                    "placeholder": "USERSESSIONID=xxx;115_lang=zh;UID=xxx;CID=xxx;SEID=xxx"
+                }
+            }
+        },
+        "aria2": {
+            "name": "Aria2",
+            "img_url": "../static/img/aria2.png",
+            "background": "bg-green",
+            "test_command": "app.downloader.client.aria2|Aria2",
+            "config": {
+                "host": {
+                    "id": "aria2.host",
+                    "required": True,
+                    "title": "IP地址",
+                    "tooltip": "配置IP地址，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "127.0.0.1"
+                },
+                "port": {
+                    "id": "aria2.port",
+                    "required": True,
+                    "title": "端口",
+                    "type": "text",
+                    "placeholder": "6800"
+                },
+                "secret": {
+                    "id": "aria2.secret",
+                    "required": True,
+                    "title": "令牌",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+    }
+
+    # 媒体服务器
+    MEDIASERVER_CONF = {
+        "emby": {
+            "name": "Emby",
+            "img_url": "../static/img/emby.png",
+            "background": "bg-green",
+            "test_command": "app.mediaserver.client.emby|Emby",
+            "config": {
+                "host": {
+                    "id": "emby.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
+                },
+                "api_key": {
+                    "id": "emby.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+        "jellyfin": {
+            "name": "Jellyfin",
+            "img_url": "../static/img/jellyfin.jpg",
+            "background": "bg-purple",
+            "test_command": "app.mediaserver.client.jellyfin|Jellyfin",
+            "config": {
+                "host": {
+                    "id": "jellyfin.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
+                },
+                "api_key": {
+                    "id": "jellyfin.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "在Jellyfin设置->高级->API密钥处生成",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        },
+        "plex": {
+            "name": "Plex",
+            "img_url": "../static/img/plex.png",
+            "background": "bg-yellow",
+            "test_command": "app.mediaserver.client.plex|Plex",
+            "config": {
+                "host": {
+                    "id": "plex.host",
+                    "required": True,
+                    "title": "服务器地址",
+                    "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:32400"
+                },
+                "api_key": {
+                    "id": "plex.token",
+                    "required": False,
+                    "title": "X-Plex-Token",
+                    "tooltip": "Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快",
+                    "type": "text",
+                    "placeholder": "X-Plex-Token与其它认证信息二选一"
+                },
+                "servername": {
+                    "id": "plex.servername",
+                    "required": False,
+                    "title": "服务器名称",
+                    "tooltip": "配置Plex设置->左侧下拉框中看到的服务器名称；如填写了Token则无需填写服务器名称、用户名及密码",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "username": {
+                    "id": "plex.username",
+                    "required": False,
+                    "title": "用户名",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "password": {
+                    "id": "plex.password",
+                    "required": False,
+                    "title": "密码",
+                    "type": "password",
+                    "placeholder": ""
+                }
+            }
+        },
+    }
+
+    # 索引器
+    INDEXER_CONF = {
+        "jackett": {
+            "name": "Jackett",
+            "img_url": "./static/img/jackett.png",
+            "background": "bg-black",
+            "test_command": "app.indexer.client.jackett|Jackett",
+            "config": {
+                "host": {
+                    "id": "jackett.host",
+                    "required": True,
+                    "title": "Jackett地址",
+                    "tooltip": "Jackett访问地址和端口，如为https需加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:9117"
+                },
+                "api_key": {
+                    "id": "jackett.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "Jackett管理界面右上角复制API Key",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "password": {
+                    "id": "jackett.password",
+                    "required": False,
+                    "title": "密码",
+                    "tooltip": "Jackett管理界面中配置的Admin password，如未配置可为空",
+                    "type": "password",
+                    "placeholder": ""
+                }
+            }
+        },
+        "prowlarr": {
+            "name": "Prowlarr",
+            "img_url": "../static/img/prowlarr.png",
+            "background": "bg-orange",
+            "test_command": "app.indexer.client.prowlarr|Prowlarr",
+            "config": {
+                "host": {
+                    "id": "prowlarr.host",
+                    "required": True,
+                    "title": "Prowlarr地址",
+                    "tooltip": "Prowlarr访问地址和端口，如为https需加https://前缀",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:9696"
+                },
+                "api_key": {
+                    "id": "prowlarr.api_key",
+                    "required": True,
+                    "title": "Api Key",
+                    "tooltip": "在Prowlarr->Settings->General->Security-> API Key中获取",
+                    "type": "text",
+                    "placeholder": ""
+                }
+            }
+        }
+    }
 
     @staticmethod
     def get_enum_name(enum, value):

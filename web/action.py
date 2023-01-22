@@ -255,7 +255,7 @@ class WebAction:
             os.system("pm2 restart NAStool")
 
     @staticmethod
-    def handle_message_job(msg, client, in_from=SearchType.OT, user_id=None, user_name=None):
+    def handle_message_job(msg, in_from=SearchType.OT, user_id=None, user_name=None):
         """
         处理消息事件
         """
@@ -273,20 +273,10 @@ class WebAction:
         message = Message()
 
         if command:
-            if in_from == SearchType.TG:
-                if str(user_id) not in client.get("client").get_admin():
-                    message.send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
-                    return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
             message.send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"), user_id=user_id)
         else:
-            # 检查用户权限
-            if in_from == SearchType.TG:
-                if not str(user_id) in client.get("client").get_users():
-                    message.send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人",
-                                             user_id=user_id)
-                    return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id, user_name))
 
@@ -3574,69 +3564,11 @@ class WebAction:
         """
         查询正在下载的任务
         """
-        Client, Torrents = Downloader().get_downloading_torrents()
-        DispTorrents = []
-        for torrent in Torrents:
-            if Client == DownloaderType.QB:
-                name = torrent.get('name')
-                # 进度
-                progress = round(torrent.get('progress') * 100, 1)
-                if torrent.get('state') in ['pausedDL']:
-                    state = "Stoped"
-                    speed = "已暂停"
-                else:
-                    state = "Downloading"
-                    dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
-                    upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
-                    if progress >= 100:
-                        speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                    else:
-                        eta = StringUtils.str_timelong(torrent.get('eta'))
-                        speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
-                # 主键
-                key = torrent.get('hash')
-            elif Client == DownloaderType.Client115:
-                name = torrent.get('name')
-                # 进度
-                progress = round(torrent.get('percentDone'), 1)
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
-                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 主键
-                key = torrent.get('info_hash')
-            elif Client == DownloaderType.Aria2:
-                name = torrent.get('bittorrent', {}).get('info', {}).get("name")
-                # 进度
-                try:
-                    progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
-                except ZeroDivisionError:
-                    progress = 0.0
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
-                upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 主键
-                key = torrent.get('gid')
-            else:
-                name = torrent.name
-                if torrent.status in ['stopped']:
-                    state = "Stoped"
-                    speed = "已暂停"
-                else:
-                    state = "Downloading"
-                    dlspeed = StringUtils.str_filesize(torrent.rateDownload)
-                    upspeed = StringUtils.str_filesize(torrent.rateUpload)
-                    speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
-                # 进度
-                progress = round(torrent.progress)
-                # 主键
-                key = torrent.id
-
-            if not name:
-                continue
+        torrents = Downloader().get_downloading_progress()
+        MediaHander = Media()
+        for torrent in torrents:
             # 识别
-            media_info = Media().get_media_info(title=name)
+            media_info = MediaHander.get_media_info(title=torrent.get("name"))
             if not media_info:
                 continue
             if not media_info.tmdb_info:
@@ -3648,12 +3580,11 @@ class WebAction:
             else:
                 title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
             poster_path = media_info.get_poster_image()
-            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
-                            'progress': progress}
-            if torrent_info not in DispTorrents:
-                DispTorrents.append(torrent_info)
-
-        return {"code": 0, "result": DispTorrents}
+            torrent.update({
+                "title": title,
+                "image": poster_path or ""
+            })
+        return {"code": 0, "result": torrents}
 
     def get_transfer_history(self, data):
         """
@@ -4115,7 +4046,11 @@ class WebAction:
         """
         获取下载目录
         """
-        dirs = Downloader().get_download_dirs(setting=data.get("sid"))
+        sid = data.get("sid")
+        site = data.get("site")
+        if not sid and site:
+            sid = Sites().get_site_download_setting(site_name=site)
+        dirs = Downloader().get_download_dirs(setting=sid)
         return {"code": 0, "paths": dirs}
 
     @staticmethod

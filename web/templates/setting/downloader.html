@@ -1,4 +1,5 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/form.html' as FORM %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -33,276 +34,51 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
+    {% for Type, Downloader in DownloaderConf.items() %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-qbittorrent">
-          <div class="card-cover card-cover-blurred text-center bg-blue">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+          <div class="card-cover card-cover-blurred text-center {{ Downloader.background }}">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/qbittorrent.png)">
+                  style="background-image: url('{{ Downloader.img_url }}')">
             </span>
           </div>
           <div class="card-body text-center">
-            <div class="card-title mb-1">Qbittorrent</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "qbittorrent" %}<span class="badge bg-green"
+            <div class="card-title mb-1">{{ Downloader.name }}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == Type %}<span class="badge bg-green"
                                                                                        title="已开启"></span>
               默认使用{% endif %}</div>
           </div>
         </a>
       </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-transmission">
-          <div class="card-cover card-cover-blurred text-center bg-danger">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/transmission.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Transmission</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "transmission" %}<span class="badge bg-green"
-                                                                                        title="已开启"></span>
-              默认使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-client115">
-          <div class="card-cover card-cover-blurred text-center" style="background-color: #129EFF">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/115.jpg)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">115网盘</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "client115" %}<span class="badge bg-green"
-                                                                                     title="已开启"></span>
-              默认使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-aria2">
-          <div class="card-cover card-cover-blurred text-center bg-green">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url(../static/img/aria2.png)">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">Aria2</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "aria2" %}<span class="badge bg-green"
-                                                                                 title="已开启"></span>
-              默认使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
+    {% endfor %}
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-qbittorrent" tabindex="-1" role="dialog" aria-hidden="true"
+{% for Type, Downloader in DownloaderConf.items() %}
+<div class="modal modal-blur fade" id="modal-{{ Type }}" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Qbittorrent</h5>
+        <h5 class="modal-title">{{ Downloader.name }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">IP地址 <span class="form-help"
-                                                              title="配置IP地址，如为https则需要增加https://前缀"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbhost or '' }}{% endif %}"
-                     id="qbittorrent.qbhost" class="form-control" placeholder="127.0.0.1">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">端口</label>
-              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbport or '' }}{% endif %}"
-                     id="qbittorrent.qbport" class="form-control" placeholder="8080">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">用户名</label>
-              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbusername or '' }}{% endif %}"
-                     id="qbittorrent.qbusername" class="form-control" placeholder="admin">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">密码</label>
-              <input type="password"
-                     value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}"
-                     id="qbittorrent.qbpassword" class="form-control" placeholder="adminadmin">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if
-                  Config.qbittorrent.force_upload %}checked{% endif %}>
-                <span class="form-check-label">自动强制作种 <span class="form-help"
-                                                                  title="开启后下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能"
-                                                                  data-bs-toggle="tooltip">?</span></span>
-              </label>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="qbittorrent.auto_management" {% if
-                  Config.qbittorrent.auto_management %}checked{% endif %}>
-                <span class="form-check-label">自动管理模式 <span class="form-help"
-                                                                  title="开启后下载目录将由Qbittorrent自动管理，不再使用NASTool传递的下载目录，需要同时在下载目录设置中配置好分类标签"
-                                                                  data-bs-toggle="tooltip">?</span></span>
-              </label>
-            </div>
-          </div>
-        </div>
+      {{ FORM.gen_form_config_elements(Type, Config, Downloader.config) }}
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('qbittorrent')" id="qbittorrent_test_btn" class="btn me-auto">
+        <button onclick="test_downloader_config('{{ Type }}')" id="{{ Type }}_test_btn" class="btn me-auto">
           测试
-        </a>
-        <a href="javascript:save_downloader_config('qbittorrent')" id="qbittorrent_save_btn"
-           class="btn btn-primary">确定</a>
+        </button>
+        <button onclick="save_downloader_config('{{ Type }}')" id="{{ Type }}_save_btn"
+           class="btn btn-primary">
+          确定
+        </button>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-transmission" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Transmission</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">IP地址 <span class="form-help"
-                                                              title="配置IP地址，如为https则需要增加https://前缀"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trhost or '' }}{% endif %}"
-                     id="transmission.trhost" class="form-control" placeholder="127.0.0.1">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">端口</label>
-              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trport or '' }}{% endif %}"
-                     id="transmission.trport" class="form-control" placeholder="9091">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">用户名</label>
-              <input type="text"
-                     value="{% if Config.transmission %}{{ Config.transmission.trusername or '' }}{% endif %}"
-                     id="transmission.trusername" class="form-control" placeholder="admin">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">密码</label>
-              <input type="password"
-                     value="{% if Config.transmission %}{{ Config.transmission.trpassword or '' }}{% endif %}"
-                     id="transmission.trpassword" class="form-control" placeholder="">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_downloader_config('transmission')" id="transmission_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_downloader_config('transmission')" id="transmission_save_btn"
-           class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-client115" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">115网盘</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col">
-            <div class="mb-3">
-              <label class="form-label required">Cookie <span class="form-help" title="115网盘Cookie"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}"
-                     id="client115.cookie" class="form-control" placeholder="通过115网盘网页端抓取Cookie">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_downloader_config('client115')" id="client115_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_downloader_config('client115')" id="client115_save_btn"
-           class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-aria2" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Aria2</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">IP地址</label>
-              <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.host or '' }}{% endif %}" id="aria2.host"
-                     class="form-control" placeholder="127.0.0.1">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">端口</label>
-              <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.port or '' }}{% endif %}" id="aria2.port"
-                     class="form-control" placeholder="6800">
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">令牌</label>
-              <input type="password" value="{% if Config.aria2 %}{{ Config.aria2.secret or '' }}{% endif %}"
-                     id="aria2.secret" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:test_downloader_config('aria2')" id="aria2_test_btn" class="btn me-auto">
-          测试
-        </a>
-        <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
+{% endfor %}
 <div class="modal modal-blur fade" id="modal-downloaddir" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -429,24 +205,19 @@
 
   //保存配置和测试配置
   function test_downloader_config(type) {
-    $("#" + type + "_test_btn").text("测试中...");
+    $("#" + type + "_test_btn").text("测试中...").attr("disabled", true);
     save_config(type, function (ret) {
       let command;
-      if (currType === "qbittorrent") {
-        command = "app.downloader.client.qbittorrent|Qbittorrent";
-      } else if (currType === "transmission") {
-        command = "app.downloader.client.transmission|Transmission";
-      } else if (currType === "client115") {
-        command = "app.downloader.client.client115|Client115";
-      } else if (currType === "aria2") {
-        command = "app.downloader.client.aria2|Aria2";
+      {% for Type, Downloader in DownloaderConf.items() %}
+      if (currType === "{{ Type }}") {
+        command = "{{ Downloader.test_command }}";
       }
-
+      {% endfor %}
       ajax_post("test_connection", {"command": command}, function (ret) {
         if (ret.code === 0) {
-          $("#" + currType + "_test_btn").text("测试成功");
+          $("#" + currType + "_test_btn").text("测试成功").attr("disabled", false);
         } else {
-          $("#" + currType + "_test_btn").text("测试失败！");
+          $("#" + currType + "_test_btn").text("测试失败！").attr("disabled", false);
         }
       });
     }, true);

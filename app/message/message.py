@@ -37,9 +37,9 @@ class Message(object):
         # 停止旧服务
         if self._active_clients:
             for active_client in self._active_clients:
-                if active_client.get("search_type") in [SearchType.TG, SearchType.SLACK]:
+                if active_client.get("search_type") in self.get_search_types():
                     client = active_client.get("client")
-                    if client:
+                    if client and hasattr(client, "stop_service"):
                         client.stop_service()
         # 活跃的客户端
         self._active_clients = []
@@ -63,7 +63,7 @@ class Message(object):
             if not client_config.ENABLED or not config:
                 continue
             client = {
-                "search_type": ModuleConf.MESSAGE_DICT.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "search_type": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('search_type'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
@@ -538,5 +538,5 @@ class Message(object):
         查询可交互的渠道
         """
         return [info.get("search_type")
-                for info in ModuleConf.MESSAGE_DICT.get('client').values()
+                for info in ModuleConf.MESSAGE_CONF.get('client').values()
                 if info.get('search_type')]

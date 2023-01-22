@@ -514,6 +514,23 @@
                 </div>
               </div>
               <div class="col-12 col-lg">
+                <div class="mb-1">
+                  <label class="form-label">Synology Chat源地址 <span class="form-help"
+                                                                 title="仅接收配置的地址范围内发送的Synology Chat消息，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制，为了安全建议按实际情况设置"
+                                                                 data-bs-toggle="tooltip">?</span></label>
+                  <input type="text"
+                         value="{% if Config.security.synology_webhook_allow_ip %}{{ Config.security.synology_webhook_allow_ip.ipv4 or '' }}{% endif %}"
+                         class="form-control" id="security.synology_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR"
+                         autocomplete="off">
+                </div>
+                <div class="mb-3">
+                  <input type="text"
+                         value="{% if Config.security.synology_webhook_allow_ip %}{{ Config.security.synology_webhook_allow_ip.ipv6 or '' }}{% endif %}"
+                         class="form-control" id="security.synology_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR"
+                         autocomplete="off">
+                </div>
+              </div>
+              <div class="col-12 col-lg">
                 <div class="mb-3">
                   <label class="form-label">API密钥 <span class="form-help"
                                                           title="使用Jellyseerr、Overseerr等调用本程序订阅接口时，需要在Authorization中填入该密钥"

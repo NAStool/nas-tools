@@ -960,7 +960,8 @@ def douban():
 @login_required
 def downloader():
     return render_template("setting/downloader.html",
-                           Config=Config().get_config())
+                           Config=Config().get_config(),
+                           DownloaderConf=ModuleConf.DOWNLOADER_CONF)
 
 
 # 下载设置页面
@@ -988,7 +989,8 @@ def indexer():
                            Config=Config().get_config(),
                            PrivateCount=private_count,
                            PublicCount=public_count,
-                           Indexers=indexers)
+                           Indexers=indexers,
+                           IndexerConf=ModuleConf.INDEXER_CONF)
 
 
 # 媒体库页面
@@ -1002,7 +1004,9 @@ def library():
 @App.route('/mediaserver', methods=['POST', 'GET'])
 @login_required
 def mediaserver():
-    return render_template("setting/mediaserver.html", Config=Config().get_config())
+    return render_template("setting/mediaserver.html",
+                           Config=Config().get_config(),
+                           MediaServerConf=ModuleConf.MEDIASERVER_CONF)
 
 
 # 通知消息页面
@@ -1010,8 +1014,8 @@ def mediaserver():
 @login_required
 def notification():
     MessageClients = Message().get_message_client_info()
-    Channels = ModuleConf.MESSAGE_DICT.get("client")
-    Switchs = ModuleConf.MESSAGE_DICT.get("switch")
+    Channels = ModuleConf.MESSAGE_CONF.get("client")
+    Switchs = ModuleConf.MESSAGE_CONF.get("switch")
     return render_template("setting/notification.html",
                            Channels=Channels,
                            Switchs=Switchs,
@@ -1226,7 +1230,6 @@ def wechat():
             if content:
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
-                                               client=interactive_client,
                                                in_from=SearchType.WX,
                                                user_id=user_id,
                                                user_name=user_id)
@@ -1315,9 +1318,58 @@ def telegram():
         # 获取用户名
         user_name = message.get("from", {}).get("username")
         if text:
+            # 检查权限
+            if text.startswith("/"):
+                if str(user_id) not in interactive_client.get("client").get_admin():
+                    Message().send_channel_msg(channel=SearchType.TG,
+                                               title="只有管理员才有权限执行此命令",
+                                               user_id=user_id)
+                    return '只有管理员才有权限执行此命令'
+            else:
+                if not str(user_id) in interactive_client.get("client").get_users():
+                    message.send_channel_msg(channel=SearchType.TG,
+                                             title="你不在用户白名单中，无法使用此机器人",
+                                             user_id=user_id)
+                    return '你不在用户白名单中，无法使用此机器人'
             WebAction().handle_message_job(msg=text,
-                                           client=interactive_client,
                                            in_from=SearchType.TG,
+                                           user_id=user_id,
+                                           user_name=user_name)
+    return 'Ok'
+
+
+# Synology Chat消息响应
+@App.route('/synology', methods=['POST', 'GET'])
+def synology():
+    """
+    token: bot token
+    user_id
+    username
+    post_id
+    timestamp
+    text
+    """
+    # 当前在用的交互渠道
+    interactive_client = Message().get_interactive_client(SearchType.SYNOLOGY)
+    if not interactive_client:
+        return 'NAStool未启用Synology Chat交互'
+    msg_data = request.form
+    if not SecurityHelper().check_synology_ip(request.remote_addr):
+        log.error("收到来自 %s 的非法Synology Chat消息：%s" % (request.remote_addr, msg_data))
+        return '不允许的IP地址请求'
+    if msg_data:
+        token = msg_data.get("token")
+        if not interactive_client.get("client").check_token(token):
+            log.error("收到来自 %s 的非法Synology Chat消息：token校验不通过！" % request.remote_addr)
+            return 'token校验不通过'
+        text = msg_data.get("text")
+        user_id = int(msg_data.get("user_id"))
+        log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
+        # 获取用户名
+        user_name = msg_data.get("username")
+        if text:
+            WebAction().handle_message_job(msg=text,
+                                           in_from=SearchType.SYNOLOGY,
                                            user_id=user_id,
                                            user_name=user_name)
     return 'Ok'
@@ -1449,7 +1501,6 @@ def slack():
         else:
             return "Error"
         WebAction().handle_message_job(msg=text,
-                                       client=interactive_client,
                                        in_from=SearchType.SLACK,
                                        user_id=channel,
                                        user_name=username)
