@@ -54,7 +54,7 @@ class Scraper:
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         if scraper_nfo.get("credits"):
             # 导演
-            directors, actors = self.__get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
+            directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo)
             if chinese:
                 directors, actors = self.__gen_people_chinese_info(directors, actors, doubaninfo)
             for director in directors:
@@ -514,28 +514,3 @@ class Scraper:
                 if latin_match_res or (people_douban.get("name") == people_aka_name):
                     return people_douban
         return None
-
-    @staticmethod
-    def __get_tmdbinfo_directors_actors(tmdbinfo):
-        """
-        查询导演和演员
-        :param tmdbinfo: TMDB元数据
-        :return: 导演列表，演员列表
-        """
-        if not tmdbinfo:
-            return [], []
-        directors = []
-        actors = []
-        casts = tmdbinfo.get("cast") or []
-        for cast in casts:
-            if not cast:
-                continue
-            if cast.get("known_for_department") == "Acting":
-                actors.append(cast)
-        crews = tmdbinfo.get("crew") or []
-        for crew in crews:
-            if not crew:
-                continue
-            if crew.get("job") == "Director":
-                directors.append(crew)
-        return directors, actors
