@@ -115,7 +115,6 @@ class PageMediainfo extends CustomElement {
       </style>
       <div class="container-xl">
         <!-- 渲染媒体信息 -->
-        <!-- img-src=${this.media_info.background ? this.media_info.background[0] : ""} -->
         <div class="card rounded-0" style="border:none;height:490px;">
           <custom-img style="border:none;height:490px;"
             div-style="display:inline;"

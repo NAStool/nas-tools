@@ -43,7 +43,7 @@ export class CustomImg extends CustomElement {
 
   _update_img() {
     if (this.img_src_list) {
-      if (this.img_src_list.length > 0) {
+      if (this.img_src_list.length > 1) {
         this._query_img.classList.remove("lit-custom-img-carousel-show");
         setTimeout(() => {
           this.img_src = this.img_src_list[this._timeout_update_img];
@@ -52,6 +52,8 @@ export class CustomImg extends CustomElement {
             this._timeout_update_img = 0;
           }
         }, 1000);
+      } else if (this.img_src_list.length == 1) {
+        this.img_src = this.img_src_list[0];
       }
     }
   }
@@ -78,15 +80,14 @@ export class CustomImg extends CustomElement {
           @load=${() => {
             this._placeholder = false;
             // 图像渐入
-            if (this._query_img && this.img_src_list.length > 0) {
+            if (this.img_src_list.length > 0) {
               this._query_img.classList.add("lit-custom-img-carousel");
               setTimeout(() => {
                 this._query_img.classList.add("lit-custom-img-carousel-show");
-                // 3秒太短 仅限效果展示, 发布时适当改为5秒以上
                 setTimeout(() => {
                   this._update_img();
-                }, 3000);
-              }, 500);
+                }, 7000);
+              }, 100);
             }
           }}/>
       </div>
