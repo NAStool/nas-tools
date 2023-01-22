@@ -10,12 +10,16 @@
         <label class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if Config[Type][FieldId] %}checked{% endif %}>
           <span class="form-check-label">{{ FieldAttr.title }}
+            {% if FieldAttr.tooltip %}
             <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+            {% endif %}
           </span>
         </label>
         {% else %}
         <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
+          {% if FieldAttr.tooltip %}
           <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+          {% endif %}
         </label>
           {% if FieldAttr.type == "select" %}
           <select class="form-select" id="{{ FieldAttr.id }}">
@@ -47,12 +51,16 @@
           <label class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if FieldAttr.default %}checked{% endif %}>
             <span class="form-check-label">{{ FieldAttr.title }}
+              {% if FieldAttr.tooltip %}
               <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+              {% endif %}
             </span>
           </label>
           {% else %}
             <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
+              {% if FieldAttr.tooltip %}
               <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+              {% endif %}
             </label>
             {% if FieldAttr.type == "select" %}
               <select class="form-select" id="{{ FieldAttr.id }}">
