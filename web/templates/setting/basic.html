@@ -227,7 +227,7 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">默认文件转移方式 <span class="form-help"
-                                                                            title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
+                                                                            title="默认使用的文件转移方式，下载器监控转移等场景使用，根据不同的程序版本可选项会有所不同。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；Rclone针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL，可自行通过Docker添加环境变量传递参数优化传输，参考：https://rclone.org/docs/#environment-variables；Minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
                                                                             data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.rmt_mode">
                   {% for mode in RmtModeDict %}
