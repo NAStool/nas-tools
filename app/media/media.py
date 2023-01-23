@@ -1495,12 +1495,11 @@ class Media:
         if media_info.tmdb_id:
             if not media_info.begin_episode:
                 return None
-            tv_info = self.get_tmdb_tv_season_detail(tmdbid=media_info.tmdb_id,
+            episodes = self.get_tmdb_season_episodes(tmdbid=media_info.tmdb_id,
                                                      season=int(media_info.get_season_seq()))
-            if tv_info:
-                for episode in tv_info.get("episodes") or []:
-                    if episode.get("episode_number") == media_info.begin_episode:
-                        return episode.get("name")
+            for episode in episodes:
+                if episode.get("episode_number") == media_info.begin_episode:
+                    return episode.get("name")
         return None
 
     def get_movie_discover(self, page=1):
