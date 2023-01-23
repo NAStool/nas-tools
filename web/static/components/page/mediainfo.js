@@ -111,7 +111,7 @@ class PageMediainfo extends CustomElement {
                   <h1 class="align-self-center align-self-md-start display-6">
                     <strong>${this.media_info.title ?? this._render_placeholder("200px")}</strong>
                     <strong class="h1" ?hidden=${!this.media_info.year}>(${this.media_info.year})</strong>
-                    ${this.media_info.year ?? this._render_placeholder("100px")}
+                    ${this.media_info.year ? nothing : this._render_placeholder("100px")}
                   </h1>
                   <div class="align-self-center align-self-md-start">
                     <span class="badge badge-outline text-warning me-1" ?hidden=${!this.media_info.certification}>${this.media_info.certification}</span>
