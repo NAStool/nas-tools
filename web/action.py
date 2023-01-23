@@ -1519,7 +1519,7 @@ class WebAction:
                     seasons = [{
                         "text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
                         "num": season.get("season_number")} for season in
-                        Media().get_tmdb_seasons_list(tv_info=media.tmdb_info)]
+                        Media().get_tmdb_tv_seasons(tv_info=media.tmdb_info)]
                 else:
                     release_date = media.tmdb_info.get('release_date')
 
@@ -1701,7 +1701,10 @@ class WebAction:
                         "rssid": rssid
                         }
         else:
-            tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
+            if tid:
+                tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
+            else:
+                return {"code": 1, "retmsg": "没有TMDBID信息"}
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
@@ -1756,7 +1759,10 @@ class WebAction:
                         "rssid": rssid
                         }
         else:
-            tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
+            if tid:
+                tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
+            else:
+                return {"code": 1, "retmsg": "没有TMDBID信息"}
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             episode_events = []
@@ -2551,7 +2557,7 @@ class WebAction:
         seasons = [
             {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
              "num": season.get("season_number")}
-            for season in Media().get_tmdb_seasons_list(tmdbid=tmdbid)]
+            for season in Media().get_tmdb_tv_seasons_byid(tmdbid=tmdbid)]
         return {"code": 0, "seasons": seasons}
 
     @staticmethod

@@ -68,7 +68,8 @@
   function init_rss_movies_event() {
     for (let i = 0; i < RssMovieItems.length; i++) {
       ajax_post("movie_calendar_data",
-          {"id": RssMovieItems[i].id,
+          {
+            "id": RssMovieItems[i].id,
             "rssid": RssMovieItems[i].rssid
           }, function (ret) {
         if (ret.code == 0) {

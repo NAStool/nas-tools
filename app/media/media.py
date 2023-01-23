@@ -327,7 +327,7 @@ class Media:
             if not tv_info:
                 return False
             try:
-                seasons = self.get_tmdb_seasons_list(tv_info=tv_info)
+                seasons = self.get_tmdb_tv_seasons(tv_info=tv_info)
                 for season in seasons:
                     if season.get("air_date") and season.get("season_number"):
                         if season.get("air_date")[0:4] == str(season_year) \
@@ -1209,12 +1209,69 @@ class Media:
             print(str(e))
             return None
 
-    def get_tmdb_tv_season_detail(self, tmdbid, season):
+    def get_tmdb_tv_season_detail(self, tmdbid, season: int):
         """
         获取电视剧季的详情
         :param tmdbid: TMDB ID
         :param season: 季，数字
         :return: TMDB信息
+        """
+        """
+        {
+          "_id": "5e614cd3357c00001631a6ef",
+          "air_date": "2023-01-15",
+          "episodes": [
+            {
+              "air_date": "2023-01-15",
+              "episode_number": 1,
+              "id": 2181581,
+              "name": "当你迷失在黑暗中",
+              "overview": "在一场全球性的流行病摧毁了文明之后，一个顽强的幸存者负责照顾一个 14 岁的小女孩，她可能是人类最后的希望。",
+              "production_code": "",
+              "runtime": 81,
+              "season_number": 1,
+              "show_id": 100088,
+              "still_path": "/aRquEWm8wWF1dfa9uZ1TXLvVrKD.jpg",
+              "vote_average": 8,
+              "vote_count": 33,
+              "crew": [
+                {
+                  "job": "Writer",
+                  "department": "Writing",
+                  "credit_id": "619c370063536a00619a08ee",
+                  "adult": false,
+                  "gender": 2,
+                  "id": 35796,
+                  "known_for_department": "Writing",
+                  "name": "Craig Mazin",
+                  "original_name": "Craig Mazin",
+                  "popularity": 15.211,
+                  "profile_path": "/uEhna6qcMuyU5TP7irpTUZ2ZsZc.jpg"
+                },
+              ],
+              "guest_stars": [
+                {
+                  "character": "Marlene",
+                  "credit_id": "63c4ca5e5f2b8d00aed539fc",
+                  "order": 500,
+                  "adult": false,
+                  "gender": 1,
+                  "id": 1253388,
+                  "known_for_department": "Acting",
+                  "name": "Merle Dandridge",
+                  "original_name": "Merle Dandridge",
+                  "popularity": 21.679,
+                  "profile_path": "/lKwHdTtDf6NGw5dUrSXxbfkZLEk.jpg"
+                }
+              ]
+            },
+          ],
+          "name": "第 1 季",
+          "overview": "",
+          "id": 144593,
+          "poster_path": "/aUQKIpZZ31KWbpdHMCmaV76u78T.jpg",
+          "season_number": 1
+        }
         """
         if not self.tv:
             return {}
@@ -1226,51 +1283,100 @@ class Media:
             print(str(e))
             return {}
 
-    def get_tmdb_seasons_list(self, tv_info=None, tmdbid=None):
+    def get_tmdb_tv_seasons_byid(self, tmdbid):
         """
-        从TMDB的季集信息中获得季的组
+        根据TMDB查询TMDB电视剧的所有季
+        """
+        if not tmdbid:
+            return []
+        return self.get_tmdb_tv_seasons(
+            tv_info=self.__get_tmdb_tv_detail(
+                tmdbid=tmdbid
+            )
+        )
+
+    @staticmethod
+    def get_tmdb_tv_seasons(tv_info):
+        """
+        查询TMDB电视剧的所有季
         :param tv_info: TMDB 的季信息
-        :param tmdbid: TMDB ID 没有tv_info且有tmdbid时，重新从TMDB查询季的信息
         :return: 带有season_number、episode_count 的每季总集数的字典列表
         """
-        if not tv_info and not tmdbid:
-            return []
-        if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
+        """
+        "seasons": [
+            {
+              "air_date": "2006-01-08",
+              "episode_count": 11,
+              "id": 3722,
+              "name": "特别篇",
+              "overview": "",
+              "poster_path": "/snQYndfsEr3Sto2jOmkmsQuUXAQ.jpg",
+              "season_number": 0
+            },
+            {
+              "air_date": "2005-03-27",
+              "episode_count": 9,
+              "id": 3718,
+              "name": "第 1 季",
+              "overview": "",
+              "poster_path": "/foM4ImvUXPrD2NvtkHyixq5vhPx.jpg",
+              "season_number": 1
+            }
+        ]
+        """
         if not tv_info:
             return []
-        seasons = tv_info.get("seasons")
-        if not seasons:
-            return []
-        total_seasons = []
-        for season in seasons:
-            if season.get("episode_count"):
-                total_seasons.append(
-                    {"season_number": season.get("season_number"),
-                     "episode_count": season.get("episode_count"),
-                     "air_date": season.get("air_date")})
-        return total_seasons
+        return tv_info.get("seasons") or []
 
-    def get_tmdb_season_episodes_num(self, sea: int, tv_info=None, tmdbid=None):
+    def get_tmdb_season_episodes(self, tmdbid, season: int):
+        """
+        :param: tmdbid: TMDB ID
+        :param: season: 季号
+        """
+        """
+        从TMDB的季集信息中获得某季的集信息
+        """
+        """
+        "episodes": [
+            {
+              "air_date": "2023-01-15",
+              "episode_number": 1,
+              "id": 2181581,
+              "name": "当你迷失在黑暗中",
+              "overview": "在一场全球性的流行病摧毁了文明之后，一个顽强的幸存者负责照顾一个 14 岁的小女孩，她可能是人类最后的希望。",
+              "production_code": "",
+              "runtime": 81,
+              "season_number": 1,
+              "show_id": 100088,
+              "still_path": "/aRquEWm8wWF1dfa9uZ1TXLvVrKD.jpg",
+              "vote_average": 8,
+              "vote_count": 33
+            },
+          ]
+        """
+        if not tmdbid:
+            return []
+        season_info = self.get_tmdb_tv_season_detail(tmdbid=tmdbid, season=season)
+        if not season_info:
+            return []
+        return season_info.get("episodes") or []
+
+    @staticmethod
+    def get_tmdb_season_episodes_num(tv_info, season: int):
         """
         从TMDB的季信息中获得具体季有多少集
-        :param sea: 季号，数字
+        :param season: 季号，数字
         :param tv_info: 已获取的TMDB季的信息
-        :param tmdbid: TMDB ID，没有tv_info且有tmdbid时，重新从TMDB查询季的信息
         :return: 该季的总集数
         """
-        if not tv_info and not tmdbid:
-            return 0
-        if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
         if not tv_info:
             return 0
         seasons = tv_info.get("seasons")
         if not seasons:
             return 0
-        for season in seasons:
-            if season.get("season_number") == sea:
-                return int(season.get("episode_count"))
+        for sea in seasons:
+            if sea.get("season_number") == int(season):
+                return int(sea.get("episode_count"))
         return 0
 
     @staticmethod
@@ -1581,37 +1687,24 @@ class Media:
             genre_ids.append(genre.get('id'))
         return genre_ids
 
-    def __get_tmdb_chinese_title(self, tmdbinfo=None, mtype: MediaType = None, tmdbid=None):
+    @staticmethod
+    def __get_tmdb_chinese_title(tmdbinfo):
         """
         从别名中获取中文标题
         """
-        if not tmdbinfo and not tmdbid:
+        if not tmdbinfo:
             return None
-        if tmdbinfo:
-            if tmdbinfo.get("media_type") == MediaType.MOVIE:
-                alternative_titles = tmdbinfo.get("alternative_titles", {}).get("titles", [])
-            else:
-                alternative_titles = tmdbinfo.get("alternative_titles", {}).get("results", [])
+        if tmdbinfo.get("media_type") == MediaType.MOVIE:
+            alternative_titles = tmdbinfo.get("alternative_titles", {}).get("titles", [])
         else:
-            try:
-                if mtype == MediaType.MOVIE:
-                    titles_info = self.movie.alternative_titles(tmdbid) or {}
-                    alternative_titles = titles_info.get("titles", [])
-                else:
-                    titles_info = self.tv.alternative_titles(tmdbid) or {}
-                    alternative_titles = titles_info.get("results", [])
-            except Exception as err:
-                print(str(err))
-                return None
+            alternative_titles = tmdbinfo.get("alternative_titles", {}).get("results", [])
         for alternative_title in alternative_titles:
             iso_3166_1 = alternative_title.get("iso_3166_1")
             if iso_3166_1 == "CN":
                 title = alternative_title.get("title")
                 if title and StringUtils.is_chinese(title) and zhconv.convert(title, "zh-hans") == title:
                     return title
-        if tmdbinfo:
-            return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
-        return None
+        return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
 
     def get_tmdbperson_chinese_name(self, person_id):
         """

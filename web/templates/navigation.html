@@ -1625,7 +1625,7 @@
 
   //初始化下拉框
   let rss_season_content = `<option value="">请选择</option>`;
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 0; i <= 50; i++) {
     rss_season_content += `<option value="${i}">第${i}季</option>`;
   }
   $("#rss_season").empty().append(rss_season_content);
