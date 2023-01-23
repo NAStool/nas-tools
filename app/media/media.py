@@ -1361,6 +1361,65 @@ class Media:
             return []
         return season_info.get("episodes") or []
 
+    def get_tmdb_backdrops(self, mtype, tmdbid):
+        """
+        获取TMDB的背景图
+        """
+        """
+        {
+          "backdrops": [
+            {
+              "aspect_ratio": 1.778,
+              "height": 2160,
+              "iso_639_1": "en",
+              "file_path": "/qUroDlCDUMwRWbkyjZGB9THkMgZ.jpg",
+              "vote_average": 5.312,
+              "vote_count": 1,
+              "width": 3840
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 2160,
+              "iso_639_1": "en",
+              "file_path": "/iyxvxEQIfQjzJJTfszZxmH5UV35.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 3840
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 720,
+              "iso_639_1": "en",
+              "file_path": "/8SRY6IcMKO1E5p83w7bjvcqklp9.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 1280
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 1080,
+              "iso_639_1": "en",
+              "file_path": "/erkJ7OxJWFdLBOcn2MvIdhTLHTu.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 1920
+            }
+          ]
+        }
+        """
+        if not mtype or not tmdbid:
+            return []
+        if mtype == MediaType.MOVIE:
+            if not self.movie:
+                return []
+            result = self.movie.images(tmdbid) or {}
+        else:
+            if not self.tv:
+                return []
+            result = self.tv.images(tmdbid) or {}
+        backdrops = result.get("backdrops") or []
+        return [TMDB_IMAGE_ORIGINAL_URL % backdrop.get("file_path") for backdrop in backdrops]
+
     @staticmethod
     def get_tmdb_season_episodes_num(tv_info, season: int):
         """
