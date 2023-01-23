@@ -60,7 +60,6 @@ class PageMediainfo extends CustomElement {
         .lit-media-info-background {
           background-image:
             linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0.5) 50%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-            linear-gradient(0, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
             linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
             linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%);
           box-shadow:0 0 0 2px rgb(var(--tblr-body-bg-rgb));
@@ -72,8 +71,8 @@ class PageMediainfo extends CustomElement {
 
         @media (max-width: 767.98px) {
           .lit-media-info-image {
-            width:166px;
-            height:250px;
+            width:120px;
+            height:180px;
           }
         }
       </style>
@@ -140,10 +139,10 @@ class PageMediainfo extends CustomElement {
                 ? this.media_info.fact.map((item) => ( html`
                   <div class="card-body p-2">
                     <div class="d-flex justify-content-between">
-                      <div style="min-width:25%;">
+                      <div class="align-self-center" style="min-width:25%;">
                         <strong>${Object.keys(item)[0]}</strong>
                       </div>
-                      <div class="text-break text-muted">
+                      <div class="text-break text-muted" style="text-align:end;">
                         ${Object.values(item)[0]}
                       </div>
                     </div>
