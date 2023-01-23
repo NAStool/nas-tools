@@ -408,13 +408,19 @@ def resources():
 @App.route('/recommend', methods=['POST', 'GET'])
 @login_required
 def recommend():
-    RecommendType = request.args.get("t")
+    Type = request.args.get("type")
+    SubType = request.args.get("subtype")
+    Title = request.args.get("title")
     CurrentPage = request.args.get("page") or 1
     Week = request.args.get("week") or None
+    TmdbId = request.args.get("tmdbid") or None
     return render_template("discovery/recommend.html",
-                           RecommendType=RecommendType,
+                           Type=Type,
+                           SubType=SubType,
+                           Title=Title,
                            CurrentPage=CurrentPage,
-                           Week=Week)
+                           Week=Week,
+                           TmdbId=TmdbId)
 
 
 # 电影推荐页面
@@ -422,7 +428,7 @@ def recommend():
 @login_required
 def discovery_movie():
     return render_template("discovery/discovery.html",
-                           DiscoveryType="movie")
+                           DiscoveryType="MOV")
 
 
 # 电视剧推荐页面
@@ -430,7 +436,7 @@ def discovery_movie():
 @login_required
 def discovery_tv():
     return render_template("discovery/discovery.html",
-                           DiscoveryType="tv")
+                           DiscoveryType="TV")
 
 
 # Bangumi每日放送
@@ -438,7 +444,7 @@ def discovery_tv():
 @login_required
 def discovery_bangumi():
     return render_template("discovery/discovery.html",
-                           DiscoveryType="bangumi")
+                           DiscoveryType="BANGUMI")
 
 
 # 媒体详情页面

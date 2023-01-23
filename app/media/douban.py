@@ -359,6 +359,8 @@ class DouBan:
                 poster_path = info.get('cover', {}).get("url")
                 if not poster_path:
                     poster_path = info.get('cover_url')
+                if poster_path:
+                    poster_path = poster_path.replace("s_ratio_poster", "m_ratio_poster")
                 # 标题
                 title = info.get('title')
                 if not title or not poster_path:
@@ -368,8 +370,15 @@ class DouBan:
                 if not year and overview:
                     if overview.split("/")[0].strip().isdigit():
                         year = overview.split("/")[0].strip()
-                ret_list.append({'id': rid, 'title': title, 'release_date': year, 'vote_average': vote_average,
-                                 'poster_path': poster_path, 'overview': overview})
+                ret_list.append({
+                    'id': "DB:%s" % rid,
+                    'orgid': rid,
+                    'title': title,
+                    'year': year[:4] if year else "",
+                    'vote': vote_average,
+                    'image': poster_path,
+                    'overview': overview
+                })
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return ret_list
@@ -395,14 +404,24 @@ class DouBan:
                 year = info.get('year')
                 # 海报
                 poster_path = info.get('pic', {}).get("normal")
+                if poster_path:
+                    poster_path = poster_path.replace("s_ratio_poster", "m_ratio_poster")
                 # 标题
                 title = info.get('title')
                 if not title or not poster_path:
                     continue
                 # 简介
                 overview = info.get("comment") or ""
-                ret_list.append({'id': rid, 'name': title, 'first_air_date': year, 'vote_average': vote_average,
-                                 'poster_path': poster_path, 'overview': overview})
+                ret_list.append({
+                    'id': "DB:%s" % rid,
+                    'orgid': rid,
+                    'title': title,
+                    'type': 'TV',
+                    'year': year[:4] if year else "",
+                    'vote': vote_average,
+                    'image': poster_path,
+                    'overview': overview
+                })
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return ret_list

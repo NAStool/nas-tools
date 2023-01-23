@@ -50,8 +50,11 @@ class MainDb:
                 with open(sql_file, "r", encoding="utf-8") as f:
                     sql_list = f.read().split(';\n')
                     for sql in sql_list:
-                        self.excute(sql)
-                        self.commit()
+                        try:
+                            self.excute(sql)
+                            self.commit()
+                        except Exception as err:
+                            print(str(err))
                 init_files.append(os.path.basename(sql_file))
         if config_flag:
             config['app']['init_files'] = init_files

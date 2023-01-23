@@ -36,7 +36,7 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_left_up() {
-    if (this.weekday ||this.res_type) {
+    if (this.weekday || this.res_type) {
       let color;
       let text;
       if (this.weekday) {
@@ -201,7 +201,7 @@ export class NormalCard extends observeState(CustomElement) {
           did = "";
           tid = self.tmdb_id;
         }
-        if (!tid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(self.page_type)) {
+        if (!tid || self.page_type == "MOV") {
           add_rss_media(self.title, self.year, self.page_type, tid, did, "", "", add_red_heart);
         } else {
           ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {

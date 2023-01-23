@@ -49,8 +49,6 @@ class PageMediainfo extends CustomElement {
               }
             }, false
           );
-        } else {
-          window_history_refresh();
         }
       }, false
     );
@@ -156,7 +154,6 @@ class PageMediainfo extends CustomElement {
             </div>
           </div>
         </div>
-        
 
         <!-- 渲染演员阵容 -->
         ${this.person_list.length
@@ -173,8 +170,7 @@ class PageMediainfo extends CustomElement {
                 person-name=${item.name}
                 person-role=${item.role}
                 @click=${() => {
-                  // 点击演员卡片后是否需要做点什么 ?
-                  console.log(item);
+                  window.open($(item.profile), '_blank');
                 }}
               ></person-card>`))
             }
@@ -186,7 +182,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="类似"
-            slide-click="javascript:navmenu('recommend?xxxxxx=xxxxxx')"
+            slide-click="javascript:navmenu('recommend?type=${this.media_type}&subtype=sim&tmdbid=${this.tmdbid}&title=${this.media_info.title}-类似')"
             lazy="normal-card"
             .slide_card=${this.similar_media.map((item) => ( html`
               <normal-card
@@ -210,7 +206,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="推荐"
-            slide-click="javascript:navmenu('recommend?xxxxxx=xxxxxx')"
+            slide-click="javascript:navmenu('recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}&title=${this.media_info.title}-推荐')"
             lazy="normal-card"
             .slide_card=${this.recommend_media.map((item) => ( html`
               <normal-card
