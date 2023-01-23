@@ -104,6 +104,7 @@ class PageMediainfo extends CustomElement {
             <div class="d-md-flex flex-md-row mb-4">
               <custom-img class="d-flex justify-content-center"
                 img-class="rounded-4 object-cover lit-media-info-image"
+                img-error=${Object.keys(this.media_info).length === 0 ? "0" : "1"}
                 img-src=${this.media_info.image}>
               </custom-img>
               <div class="d-flex justify-content-center">
