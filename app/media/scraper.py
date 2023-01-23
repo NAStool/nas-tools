@@ -54,7 +54,7 @@ class Scraper:
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         if scraper_nfo.get("credits"):
             # 导演
-            directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo)
+            directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo=tmdbinfo)
             if chinese:
                 directors, actors = self.__gen_people_chinese_info(directors, actors, doubaninfo)
             for director in directors:

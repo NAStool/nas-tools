@@ -1280,6 +1280,39 @@ class Media:
         :param tmdbinfo: TMDB元数据
         :return: 导演列表，演员列表
         """
+        """
+        "cast": [
+          {
+            "adult": false,
+            "gender": 2,
+            "id": 3131,
+            "known_for_department": "Acting",
+            "name": "Antonio Banderas",
+            "original_name": "Antonio Banderas",
+            "popularity": 60.896,
+            "profile_path": "/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
+            "cast_id": 2,
+            "character": "Puss in Boots (voice)",
+            "credit_id": "6052480e197de4006bb47b9a",
+            "order": 0
+          }
+        ],
+        "crew": [
+          {
+            "adult": false,
+            "gender": 2,
+            "id": 5524,
+            "known_for_department": "Production",
+            "name": "Andrew Adamson",
+            "original_name": "Andrew Adamson",
+            "popularity": 9.322,
+            "profile_path": "/qqIAVKAe5LHRbPyZUlptsqlo4Kb.jpg",
+            "credit_id": "63b86b2224b33300a0585bf1",
+            "department": "Production",
+            "job": "Executive Producer"
+          }
+        ]
+        """
         if not tmdbinfo:
             return [], []
         _credits = tmdbinfo.get("credits")
@@ -1296,6 +1329,45 @@ class Media:
             if crew.get("job") == "Director":
                 directors.append(crew)
         return directors, actors
+
+    @staticmethod
+    def get_tmdb_genres_names(tmdbinfo):
+        """
+        从TMDB数据中获取风格名称
+        """
+        """
+        "genres": [
+            {
+              "id": 16,
+              "name": "动画"
+            },
+            {
+              "id": 28,
+              "name": "动作"
+            },
+            {
+              "id": 12,
+              "name": "冒险"
+            },
+            {
+              "id": 35,
+              "name": "喜剧"
+            },
+            {
+              "id": 10751,
+              "name": "家庭"
+            },
+            {
+              "id": 14,
+              "name": "奇幻"
+            }
+          ]
+        """
+        if not tmdbinfo:
+            return ""
+        genres = tmdbinfo.get("genres") or []
+        genres_list = [genre.get("name") for genre in genres]
+        return ", ".join(genres_list) if genres_list else ""
 
     def get_tmdb_en_title(self, media_info):
         """
@@ -1350,7 +1422,20 @@ class Media:
             return movies
         except Exception as e:
             print(str(e))
-            return {}
+            return []
+
+    def get_movie_recommendations(self, tmdbid, page=1):
+        """
+        查询电影关联推荐
+        """
+        if not self.movie:
+            return []
+        try:
+            movies = self.movie.recommendations(movie_id=tmdbid, page=page) or []
+            return movies
+        except Exception as e:
+            print(str(e))
+            return []
 
     def get_tv_similar(self, tmdbid, page=1):
         """
@@ -1363,7 +1448,20 @@ class Media:
             return tvs
         except Exception as e:
             print(str(e))
-            return {}
+            return []
+
+    def get_tv_recommendations(self, tmdbid, page=1):
+        """
+        查询电视剧关联推荐
+        """
+        if not self.tv:
+            return []
+        try:
+            tvs = self.tv.recommendations(tv_id=tmdbid, page=page) or []
+            return tvs
+        except Exception as e:
+            print(str(e))
+            return []
 
     @staticmethod
     def __search_engine(feature_name):
