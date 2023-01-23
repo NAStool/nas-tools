@@ -2297,14 +2297,14 @@ class WebAction:
                 "tmdbid": TmdbId,
                 "page": CurrentPage,
                 "type": "MOV" if Type == "MOV" else "TV"
-            })
+            }).get("data")
         elif SubType == "more":
             TmdbId = data.get("tmdbid")
             res_list = self.__media_recommendations({
                 "tmdbid": TmdbId,
                 "page": CurrentPage,
                 "type": "MOV" if Type == "MOV" else "TV"
-            })
+            }).get("data")
         else:
             res_list = []
         # 修正数据
@@ -4370,27 +4370,7 @@ class WebAction:
             return {"code": 1, "msg": "未指定TMDBID"}
         result = []
         if mtype == MediaType.MOVIE:
-            recommendations = Media().get_movie_recommendations(tmdbid=tmdbid, page=page)
-            for recommendation in recommendations:
-                result.append({
-                    "id": recommendation.get("id"),
-                    "type": "MOV",
-                    "image": TMDB_IMAGE_W500_URL % recommendation.get("poster_path"),
-                    "vote": recommendation.get("vote_average"),
-                    "year": recommendation.get("release_date")[:4] if recommendation.get("release_date") else "",
-                    "title": recommendation.get("title"),
-                    "overview": recommendation.get("overview")
-                })
+            result = Media().get_movie_recommendations(tmdbid=tmdbid, page=page)
         else:
-            recommendations = Media().get_tv_recommendations(tmdbid=tmdbid, page=page)
-            for recommendation in recommendations:
-                result.append({
-                    "id": recommendation.get("id"),
-                    "type": "TV",
-                    "image": TMDB_IMAGE_W500_URL % recommendation.get("poster_path"),
-                    "vote": recommendation.get("vote_average"),
-                    "year": recommendation.get("first_air_date")[:4] if recommendation.get("first_air_date") else "",
-                    "title": recommendation.get("name"),
-                    "overview": recommendation.get("overview")
-                })
+            result = Media().get_tv_recommendations(tmdbid=tmdbid, page=page)
         return {"code": 0, "data": result}
