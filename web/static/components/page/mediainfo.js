@@ -3,6 +3,10 @@ import { CustomElement } from "../utility/utility.js";
 
 class PageMediainfo extends CustomElement {
   static properties = {
+    // 类型
+    media_type: { attribute: "media-type" },
+    // TMDBID/DB:豆瓣ID
+    tmdbid: { attribute: "media-tmdbid" },
     // 媒体信息
     media_info: { type: Object },
     // 演员阵容
@@ -22,72 +26,34 @@ class PageMediainfo extends CustomElement {
   }
 
   firstUpdated() {
-    // 要从这里获取媒体信息吗 ?
-    // demo
 
-    // 媒体信息
-    this.media_info = {
-      background: [
-        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/r9PkFnRUIthgBp2JZZzD380MWZy.jpg",
-        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/eSdpZZQubPSZ47qppFfUPbKsWlw.jpg",
-        "https://www.themoviedb.org/t/p/w1920_and_h800_multi_faces/9XEIpZkQZb3aE2HkjRn6dfOMWea.jpg",
-      ],
-      image: "https://www.themoviedb.org/t/p/w300_and_h450_bestv2/rnn30OlNPiC3IOoWHKoKARGsBRK.jpg",
-      vote: "8.6",
-      year: "2022",
-      title: "穿靴子的猫2",
-      overview: "时隔11年，臭屁自大又爱卖萌的猫大侠回来了！如今的猫大侠（安东尼奥·班德拉斯 配音），依旧幽默潇洒又不拘小节、数次“花式送命”后，九条命如今只剩一条，于是不得不请求自己的老搭档兼“宿敌”——迷人的软爪妞（萨尔玛·海耶克 配音）来施以援手来恢复自己的九条生命。",
-      certification: "PG",
-      genres: "动画, 动作, 冒险, 喜剧, 家庭, 奇幻",
-      runtime: "1h 42m",
-      fact: [
-        {"评分": "8.6"},
-        {"原始标题": "Puss in Boots: The Last Wish"},
-        {"状态": "已发布"},
-        {"上映日期": "2022-12-23 (CN)"},
-        {"收入": "US$254,905,780.00"},
-        {"成本": "US$90,000,000.00"},
-        {"原始语言": "英语"},
-        {"出品国家": "美国"},
-        {"制作公司": "Universal Pictures, DreamWorks Animation"},
-      ],
-      crew: [
-        {"Tommy Swerdlow": "Screenplay, Story"},
-        {"Joel Crawford": "Director"},
-        {"Paul Fisher": "Screenplay"},
-        {"Tom Wheeler": "Story"},
-      ],
-    // ......... 参数
-  };
-
-    // 演员阵容
-    let new_list = [];
-    for (let i = 0; i < 20; i++) {
-      new_list.push({
-        id: "3131-antonio-banderas",
-        image: "https://www.themoviedb.org/t/p/w138_and_h175_face/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
-        name: "Antonio Banderas", 
-        role: "Puss in Boots (voice)",
-      });
-    }
-    this.person_list = new_list;
-
-    // 类似和推荐
-    new_list = [];
-    for (let i = 0; i < 20; i++) {
-      new_list.push({
-        id: "315162",
-        type: "mov",
-        image: "https://www.themoviedb.org/t/p/w300_and_h450_bestv2/rnn30OlNPiC3IOoWHKoKARGsBRK.jpg",
-        fav: "0",
-        vote: "8.6",
-        year: "2022",
-        title: "穿靴子的猫2",
-        overview: "时隔11年，臭屁自大又爱卖萌的猫大侠回来了！如今的猫大侠（安东尼奥·班德拉斯 配音），依旧幽默潇洒又不拘小节、数次“花式送命”后，九条命如今只剩一条，于是不得不请求自己的老搭档兼“宿敌”——迷人的软爪妞（萨尔玛·海耶克 配音）来施以援手来恢复自己的九条生命。",
-      });
-    }
-    this.similar_media = new_list;
-    this.recommend_media = new_list;
+    // 媒体信息、演员阵容
+    ajax_post("media_detail", { "type": this.media_type, "tmdbid": this.tmdbid},
+      (ret) => {
+        if (ret.code === 0) {
+          this.media_info = ret.data;
+          this.person_list = ret.data.actors;
+          // 类似
+          ajax_post("media_similar", { "type": this.media_type, "tmdbid": ret.data.tmdbid, "page": 1},
+            (ret) => {
+              if (ret.code === 0) {
+                this.similar_media = ret.data;
+              }
+            }
+          );
+          // 推荐
+          ajax_post("media_recommendations", { "type": this.media_type, "tmdbid": ret.data.tmdbid, "page": 1},
+            (ret) => {
+              if (ret.code === 0) {
+                this.recommend_media = ret.data;
+              }
+            }, false
+          );
+        } else {
+          window_history_refresh();
+        }
+      }, false
+    );
   }
 
   render() {
@@ -197,7 +163,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="演员阵容"
-            slide-click="javascript:navmenu('person?xxxxxx=xxxxxx')"
+            slide-click="javascript:void(0)"
             lazy="person-card"
             .slide_card=${this.person_list.map((item) => ( html`
               <person-card
@@ -240,13 +206,13 @@ class PageMediainfo extends CustomElement {
         : nothing }
 
         <!-- 渲染推荐影片 -->
-        ${this.similar_media.length
+        ${this.recommend_media.length
         ? html`
           <custom-slide
             slide-title="推荐"
             slide-click="javascript:navmenu('recommend?xxxxxx=xxxxxx')"
             lazy="normal-card"
-            .slide_card=${this.similar_media.map((item) => ( html`
+            .slide_card=${this.recommend_media.map((item) => ( html`
               <normal-card
                 lazy=1
                 card-tmdbid=${item.id}

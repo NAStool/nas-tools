@@ -1274,8 +1274,23 @@
 
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
+
+  //搜索
+  function media_search(tmdbid, title, type) {
+    const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
+    show_refresh_process("正在搜索 " + title + " ...");
+    ajax_post("search", param, function (ret) {
+      hide_refresh_process();
+      if (ret.code === 0) {
+        navmenu('search?s=' + title)
+      } else {
+        show_fail_modal(ret.msg);
+      }
+    }, true, false);
+  }
+
   //显示媒体详情
-  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid, auto_search) {
+  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
     let doubanid;
     if (tmdbid.startsWith("DB:")) {
       doubanid = tmdbid.replace("DB:", "");
@@ -1302,10 +1317,6 @@
       "rssid": rssid
     }, function (ret) {
       if (ret.code === 0) {
-        if (auto_search) {
-          search_mediainfo_media(ret.tmdbid, ret.doubanid, ret.title, ret.type_str);
-          return
-        }
         //显示信息
         $("#system_media_name").text(ret.title);
         $("#system_release_date").text(ret.release_date)

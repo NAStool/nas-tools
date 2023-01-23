@@ -441,6 +441,17 @@ def discovery_bangumi():
                            DiscoveryType="bangumi")
 
 
+# 媒体详情页面
+@App.route('/discovery_detail', methods=['POST', 'GET'])
+@login_required
+def discovery_detail():
+    TmdbId = request.args.get("id")
+    Type = request.args.get("type")
+    return render_template("discovery/mediainfo.html",
+                           TmdbId=TmdbId,
+                           Type=Type)
+
+
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
 @login_required

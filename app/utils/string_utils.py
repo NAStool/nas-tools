@@ -390,3 +390,16 @@ class StringUtils:
         if not data:
             return ""
         return hashlib.md5(str(data).encode()).hexdigest()
+
+    @staticmethod
+    def str_timehours(minutes):
+        """
+        将分钟转换成小时和分钟
+        :param minutes:
+        :return:
+        """
+        if not minutes:
+            return ""
+        hours = minutes // 60
+        minutes = minutes % 60
+        return "%s时%s分" % (hours, minutes)

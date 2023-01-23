@@ -7,7 +7,7 @@
           <div class="col-12 col-xl-6">
             {% if OperType == 'search' %}
               <a class="card card-link card-link-pop rounded-3"
-                 href='javascript:medialist_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
+                 href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
                  style="padding:0 0; overflow:hidden">
             {% else %}
               <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
@@ -48,7 +48,7 @@
                   <span class="me-2 text-muted">{{ SVG.rss() }}</span>
                   订阅
                 </a>
-                <a href='javascript:medialist_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
+                <a href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
                    class="card-btn">
                   <span class="me-2 text-muted">{{ SVG.search() }}</span>
                   搜索
@@ -88,19 +88,6 @@
   </div>
 {% endif %}
 <script type="text/javascript">
-  //搜索
-  function medialist_search(tmdbid, title, type) {
-    const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
-    show_refresh_process("正在搜索 " + title + " ...");
-    ajax_post("search", param, function (ret) {
-      hide_refresh_process();
-      if (ret.code === 0) {
-        navmenu('search?s=' + title)
-      } else {
-        show_fail_modal(ret.msg);
-      }
-    }, true, false);
-  }
 
   //点击订阅按钮
   function add_medialist_rss_media(name, year, type, tmdbid) {
