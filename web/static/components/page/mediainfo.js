@@ -71,8 +71,8 @@ class PageMediainfo extends CustomElement {
 
         @media (max-width: 767.98px) {
           .lit-media-info-image {
-            width:120px;
-            height:180px;
+            width:150px;
+            height:225px;
           }
         }
       </style>
