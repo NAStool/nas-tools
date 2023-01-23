@@ -334,6 +334,8 @@ class MetaVideo(MetaBase):
                             break
                     if se_t:
                         se = int(se_t)
+                    else:
+                        break
                 else:
                     se = int(se)
                 if self.begin_season is None:
@@ -379,6 +381,8 @@ class MetaVideo(MetaBase):
                             break
                     if se_t:
                         se = int(se_t)
+                    else:
+                        break
                 else:
                     se = int(se)
                 if self.begin_episode is None:

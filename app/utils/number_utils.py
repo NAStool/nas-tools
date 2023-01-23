@@ -9,4 +9,4 @@ class NumberUtils:
             return b
         if not b:
             return a
-        return max(a, b)
+        return max(int(a), int(b))

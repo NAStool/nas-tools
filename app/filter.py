@@ -150,6 +150,7 @@ class Filter:
             # 大小
             sizes = filter_info.get('size')
             if sizes and rule_match and meta_info.size:
+                meta_info.size = StringUtils.num_filesize(meta_info.size)
                 if sizes.find(',') != -1:
                     sizes = sizes.split(',')
                     if sizes[0].isdigit():
