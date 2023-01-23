@@ -223,6 +223,8 @@ class SiteCookie(object):
         """
         if not siteurl or not imageurl:
             return ""
+        if imageurl.startswith("/"):
+            imageurl = imageurl[1:]
         return "%s/%s" % (StringUtils.get_base_url(siteurl), imageurl)
 
     def update_sites_cookie_ua(self,

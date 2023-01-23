@@ -41,6 +41,7 @@ class SiteConf:
             '//button[@type="submit"]',
             '//button[@lay-filter="login"]',
             '//button[@lay-filter="formLogin"]',
+            '//input[@type="button"][@value="登录"]'
         ],
         "error": [
             "//table[@class='main']//td[@class='text']/text()"
