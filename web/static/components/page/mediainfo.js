@@ -51,9 +51,8 @@ class PageMediainfo extends CustomElement {
             }
           );
         } else {
-          show_fail_modal("未查询到TMDB媒体信息！", () => {
-            window.history.go(-1);
-          });
+          show_fail_modal("未查询到TMDB媒体信息！");
+          window.history.go(-1);
         }
       }
     );
