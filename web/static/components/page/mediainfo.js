@@ -221,7 +221,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="推荐"
-            slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}title=推荐&subtitle=${this.media_info.title}")'
+            slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}&title=推荐&subtitle=${this.media_info.title}")'
             lazy="normal-card"
             .slide_card=${this.recommend_media.map((item) => ( html`
               <normal-card
