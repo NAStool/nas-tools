@@ -20,7 +20,7 @@ class GazelleSiteUserInfo(_ISiteUserInfo):
 
         printable_text = html.xpath("string(.)") if html else ""
 
-        return "Powered by Gazelle" in printable_text
+        return "Powered by Gazelle" in printable_text or "DIC Music" in printable_text
 
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -38,9 +38,18 @@ class GazelleSiteUserInfo(_ISiteUserInfo):
         tmps = html.xpath('//*[@id="header-uploaded-value"]/@data-value')
         if tmps:
             self.upload = StringUtils.num_filesize(tmps[0])
+        else:
+            tmps = html.xpath('//li[@id="stats_seeding"]/span/text()')
+            if tmps:
+                self.upload = StringUtils.num_filesize(tmps[0])
+
         tmps = html.xpath('//*[@id="header-downloaded-value"]/@data-value')
         if tmps:
             self.download = StringUtils.num_filesize(tmps[0])
+        else:
+            tmps = html.xpath('//li[@id="stats_leeching"]/span/text()')
+            if tmps:
+                self.download = StringUtils.num_filesize(tmps[0])
 
         self.ratio = 0.0 if self.download <= 0.0 else round(self.upload / self.download, 3)
 
@@ -75,11 +84,20 @@ class GazelleSiteUserInfo(_ISiteUserInfo):
         user_levels_text = html.xpath('//*[@id="class-value"]/@data-value')
         if user_levels_text:
             self.user_level = user_levels_text[0].strip()
+        else:
+            user_levels_text = html.xpath('//li[contains(text(), "用户等级")]/text()')
+            if user_levels_text:
+                self.user_level = user_levels_text[0].split(':')[1].strip()
 
         # 加入日期
         join_at_text = html.xpath('//*[@id="join-date-value"]/@data-value')
         if join_at_text:
             self.join_at = StringUtils.unify_datetime_str(join_at_text[0].strip())
+        else:
+            join_at_text = html.xpath(
+                '//div[contains(@class, "box_userinfo_stats")]//li[contains(text(), "加入时间")]/span/text()')
+            if join_at_text:
+                self.join_at = StringUtils.unify_datetime_str(join_at_text[0].strip())
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """

@@ -65,6 +65,7 @@ class _ISiteUserInfo(metaclass=ABCMeta):
         self._base_url = None
         self._site_cookie = None
         self._index_html = None
+        self._addition_headers = None
 
         # 站点页面
         self._brief_page = "index.php"
@@ -215,7 +216,7 @@ class _ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         req_headers = None
-        if self._ua or headers:
+        if self._ua or headers or self._addition_headers:
             req_headers = {}
             if headers:
                 req_headers.update(headers)
@@ -227,6 +228,9 @@ class _ISiteUserInfo(metaclass=ABCMeta):
                 })
             else:
                 req_headers.update(self._ua)
+
+            if self._addition_headers:
+                req_headers.update(self._addition_headers)
 
         if params:
             res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60,
