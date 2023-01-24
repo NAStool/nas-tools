@@ -28,7 +28,7 @@
   var SubType = '{{ SubType }}';
 
   // 子标题
-  var SubTitle = '{{ SubTitle }}';
+  var SubTitle = '{{ SubTitle or "" }}';
   if (SubTitle) {
     $("#recommend_subtitle").text("{{ SubTitle }}").show();
   } else {
