@@ -1212,6 +1212,45 @@ class FileTransfer:
 
         return file_list, ""
 
+    def get_media_exists_flag(self, mtype, title, year, tmdbid):
+        """
+        获取媒体存在标记：是否存在、是否订阅
+        :param: mtype 媒体类型
+        :param: title 媒体标题
+        :param: year 媒体年份
+        :param: tmdbid 媒体tmdbid
+        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
+        """
+        if mtype in ["MOV", "电影", MediaType.MOVIE]:
+            rssid = self.dbhelper.get_rss_movie_id(title=title,
+                                                   tmdbid=tmdbid)
+            if rssid:
+                # 已订阅
+                fav = 1
+            elif MediaServer().check_item_exists(title=title,
+                                                 year=year,
+                                                 tmdbid=tmdbid):
+                # 已下载
+                fav = 2
+            else:
+                # 未订阅、未下载
+                fav = 0
+        else:
+            rssid = self.dbhelper.get_rss_tv_id(title=title,
+                                                tmdbid=tmdbid)
+            if rssid:
+                # 已订阅
+                fav = 1
+            elif MediaServer().check_item_exists(title=title,
+                                                 tmdbid=tmdbid):
+                # 已下载
+                fav = 2
+            else:
+                # 未订阅、未下载
+                fav = 0
+
+        return fav, rssid
+
 
 if __name__ == "__main__":
     """

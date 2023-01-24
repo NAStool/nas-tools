@@ -36,18 +36,18 @@ class PageMediainfo extends CustomElement {
           this.person_list = ret.data.actors;
           this.tmdbid = ret.data.tmdbid;
           // 类似
-          ajax_post("media_similar", { "type": this.media_type, "tmdbid": ret.data.tmdbid, "page": 1},
+          ajax_post("get_recommend", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
               if (ret.code === 0) {
-                this.similar_media = ret.data;
+                this.similar_media = ret.Items;
               }
             }
           );
           // 推荐
-          ajax_post("media_recommendations", { "type": this.media_type, "tmdbid": ret.data.tmdbid, "page": 1},
+          ajax_post("get_recommend", { "type": this.media_type, "subtype": "more", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
               if (ret.code === 0) {
-                this.recommend_media = ret.data;
+                this.recommend_media = ret.Items;
               }
             }
           );

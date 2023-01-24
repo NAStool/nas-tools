@@ -1508,7 +1508,7 @@ class MediaSimilar(ClientResource):
     @media.doc(parser=parser)
     def post(self):
         """
-        查询TMDB相似媒体
+        根据TMDBID查询类似媒体
         """
         return WebAction().api_action(cmd='media_similar', data=self.parser.parse_args())
 
@@ -1523,9 +1523,24 @@ class MediaRecommendations(ClientResource):
     @media.doc(parser=parser)
     def post(self):
         """
-        查询TMDB同类推荐媒体
+        根据TMDBID查询推荐媒体
         """
         return WebAction().api_action(cmd='media_recommendations', data=self.parser.parse_args())
+
+
+@media.route('/person')
+class MediaPersonList(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('personid', type=str, help='演员ID', location='form')
+    parser.add_argument('page', type=int, help='页码', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        查询TMDB演员参演作品
+        """
+        return WebAction().api_action(cmd='person_medias', data=self.parser.parse_args())
 
 
 @media.route('/subtitle/download')

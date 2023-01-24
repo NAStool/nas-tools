@@ -2255,7 +2255,6 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
 
-        Items = []
         if SubType == "hm":
             # TMDB热门电影
             res_list = Media().get_tmdb_hot_movies(CurrentPage)
@@ -2317,36 +2316,13 @@ class WebAction:
         else:
             res_list = []
         # 修正数据
+        filetransfer = FileTransfer()
         for res in res_list:
-            if Type == "MOV":
-                rssid = self.dbhelper.get_rss_movie_id(title=res.get("title"),
-                                                       tmdbid=res.get("rid"))
-                if rssid:
-                    # 已订阅
-                    fav = 1
-                elif MediaServer().check_item_exists(title=res.get("title"),
-                                                     year=res.get("year"),
-                                                     tmdbid=res.get("rid")):
-                    # 已下载
-                    fav = 2
-                else:
-                    # 未订阅、未下载
-                    fav = 0
-            else:
-                rssid = self.dbhelper.get_rss_tv_id(title=res.get("title"),
-                                                    tmdbid=res.get("rid"))
-                if rssid:
-                    # 已订阅
-                    fav = 1
-                elif MediaServer().check_item_exists(title=res.get("title"),
-                                                     tmdbid=res.get("rid")):
-                    # 已下载
-                    fav = 2
-                else:
-                    # 未订阅、未下载
-                    fav = 0
-            res.update(
-                {
+            fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
+                                                            title=res.get("title"),
+                                                            year=res.get("year"),
+                                                            tmdbid=res.get("rid"))
+            res.update({
                     'fav': fav,
                     'rssid': rssid
                 })
@@ -4381,14 +4357,18 @@ class WebAction:
         mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
         if not tmdbid:
             return {"code": 1, "msg": "未指定TMDBID"}
-        return {"code": 0, "data": Media().get_tmdb_cats(tmdbid=tmdbid, mtype=mtype)}
+        return {"code": 0, "data": Media().get_tmdb_cats(tmdbid=tmdbid,
+                                                         mtype=mtype)}
 
     def __person_medias(self, data):
         """
         查询演员参演作品
         """
         personid = data.get("personid")
+        page = data.get("page") or 1
         mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
         if not personid:
             return {"code": 1, "msg": "未指定演员ID"}
-        return {"code": 0, "data": Media().get_person_medias(personid=personid, mtype=mtype)}
+        return {"code": 0, "data": Media().get_person_medias(personid=personid,
+                                                             mtype=mtype,
+                                                             page=page)}

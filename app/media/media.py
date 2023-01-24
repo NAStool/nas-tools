@@ -896,7 +896,7 @@ class Media:
             'title': tv.get("name"),
             'type': 'TV',
             'year': tv.get("first_air_date")[0:4] if tv.get("first_air_date") else "",
-            'vote': tv.get("vote_average"),
+            'vote': round(float(tv.get("vote_average")), 1) if tv.get("vote_average") else 0,
             'image': TMDB_IMAGE_W500_URL % tv.get("poster_path"),
             'overview': tv.get("overview")
         } for tv in tvs or []]
@@ -912,7 +912,7 @@ class Media:
             'title': movie.get("title"),
             'type': 'MOV',
             'year': movie.get("release_date")[0:4] if movie.get("release_date") else "",
-            'vote': movie.get("vote_average"),
+            'vote': round(float(movie.get("vote_average")), 1) if movie.get("vote_average") else 0,
             'image': TMDB_IMAGE_W500_URL % movie.get("poster_path"),
             'overview': movie.get("overview")
         } for movie in movies or []]
@@ -1774,13 +1774,15 @@ class Media:
         """
         if not self.person:
             return []
+        result = []
         try:
             if mtype == MediaType.MOVIE:
                 movies = self.person.movie_credits(person_id=personid) or []
-                return self.__dict_movieinfos(movies)
+                result = self.__dict_movieinfos(movies)
             elif mtype == MediaType.TV:
                 tvs = self.person.tv_credits(person_id=personid) or []
-                return self.__dict_tvinfos(tvs)
+                result = self.__dict_tvinfos(tvs)
+            return result[(page - 1) * 20: page * 20]
         except Exception as e:
             print(str(e))
         return []
