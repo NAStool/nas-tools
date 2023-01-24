@@ -185,7 +185,7 @@ class PageMediainfo extends CustomElement {
                 person-name=${item.name}
                 person-role=${item.role}
                 @click=${() => {
-                  
+                  navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title="+item.name+"-参演作品")
                 }}
               ></person-card>`))
             }

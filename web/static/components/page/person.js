@@ -48,8 +48,7 @@ class PagePerson extends CustomElement {
                   person-name=${item.name}
                   person-role=${item.role}
                   @click=${() => {
-                    // 点击演员卡片后是否需要做点什么 ?
-                    console.log(item, index);
+                    navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title="+item.name+"-参演作品")
                   }}
                 ></person-card>
               </div>` ) )

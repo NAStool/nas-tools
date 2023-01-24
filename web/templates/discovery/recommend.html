@@ -35,6 +35,9 @@
   // TMDBID
   var TmdbId = '{{ TmdbId }}';
 
+  // 演员ID
+  var PersonId = '{{ PersonId }}';
+
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
   function add_loading_card_placeholder() {
@@ -60,7 +63,14 @@
     }
     loading = true;
     add_loading_card_placeholder();
-    ajax_post("get_recommend", { "type": Type, "subtype": SubType, "page": CurrentPage, "week": Week, "tmdbid": TmdbId }, function (ret) {
+    ajax_post("get_recommend", {
+      "type": Type,
+      "subtype": SubType,
+      "page": CurrentPage,
+      "week": Week,
+      "tmdbid": TmdbId,
+      "personid": PersonId
+    }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
         CurrentPage++;

@@ -414,13 +414,15 @@ def recommend():
     CurrentPage = request.args.get("page") or 1
     Week = request.args.get("week") or None
     TmdbId = request.args.get("tmdbid") or None
+    PersonId = request.args.get("personid") or None
     return render_template("discovery/recommend.html",
                            Type=Type,
                            SubType=SubType,
                            Title=Title,
                            CurrentPage=CurrentPage,
                            Week=Week,
-                           TmdbId=TmdbId)
+                           TmdbId=TmdbId,
+                           PersonId=PersonId)
 
 
 # 电影推荐页面

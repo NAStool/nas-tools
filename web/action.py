@@ -204,7 +204,8 @@ class WebAction:
             "media_detail": self.media_detail,
             "media_similar": self.__media_similar,
             "media_recommendations": self.__media_recommendations,
-            "media_person": self.__media_person
+            "media_person": self.__media_person,
+            "person_medias": self.__person_medias
         }
 
     def action(self, cmd, data=None):
@@ -2306,6 +2307,13 @@ class WebAction:
                 "page": CurrentPage,
                 "type": "MOV" if Type == "MOV" else "TV"
             }).get("data")
+        elif SubType == "person":
+            PersonId = data.get("personid")
+            res_list = self.__person_medias({
+                "personid": PersonId,
+                "type": "MOV" if Type == "MOV" else "TV",
+                "page": CurrentPage
+            }).get("data")
         else:
             res_list = []
         # 修正数据
@@ -4359,7 +4367,6 @@ class WebAction:
         mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
         if not tmdbid:
             return {"code": 1, "msg": "未指定TMDBID"}
-        result = []
         if mtype == MediaType.MOVIE:
             result = Media().get_movie_recommendations(tmdbid=tmdbid, page=page)
         else:
@@ -4375,3 +4382,13 @@ class WebAction:
         if not tmdbid:
             return {"code": 1, "msg": "未指定TMDBID"}
         return {"code": 0, "data": Media().get_tmdb_cats(tmdbid=tmdbid, mtype=mtype)}
+
+    def __person_medias(self, data):
+        """
+        查询演员参演作品
+        """
+        personid = data.get("personid")
+        mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
+        if not personid:
+            return {"code": 1, "msg": "未指定演员ID"}
+        return {"code": 0, "data": Media().get_person_medias(personid=personid, mtype=mtype)}

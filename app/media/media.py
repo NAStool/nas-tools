@@ -1569,14 +1569,18 @@ class Media:
         :param: mtype: 媒体类型
         :param: tmdbid: TMDBID
         """
-        if mtype == MediaType.MOVIE:
-            if not self.movie:
-                return []
-            return self.__dict_media_casts(self.movie.credits(tmdbid).get("cast"))
-        else:
-            if not self.tv:
-                return []
-            return self.__dict_media_casts(self.tv.credits(tmdbid).get("cast"))
+        try:
+            if mtype == MediaType.MOVIE:
+                if not self.movie:
+                    return []
+                return self.__dict_media_casts(self.movie.credits(tmdbid).get("cast"))
+            else:
+                if not self.tv:
+                    return []
+                return self.__dict_media_casts(self.tv.credits(tmdbid).get("cast"))
+        except Exception as err:
+            print(str(err))
+        return []
 
     @staticmethod
     def get_tmdb_genres_names(tmdbinfo):
@@ -1763,6 +1767,23 @@ class Media:
         except Exception as e:
             print(str(e))
             return []
+
+    def get_person_medias(self, personid, mtype, page=1):
+        """
+        查询人物相关影视作品
+        """
+        if not self.person:
+            return []
+        try:
+            if mtype == MediaType.MOVIE:
+                movies = self.person.movie_credits(person_id=personid) or []
+                return self.__dict_movieinfos(movies)
+            elif mtype == MediaType.TV:
+                tvs = self.person.tv_credits(person_id=personid) or []
+                return self.__dict_tvinfos(tvs)
+        except Exception as e:
+            print(str(e))
+        return []
 
     @staticmethod
     def __search_engine(feature_name):
