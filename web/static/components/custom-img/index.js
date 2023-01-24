@@ -5,6 +5,7 @@ export class CustomImg extends CustomElement {
 
   static properties = {
     img_src: { attribute: "img-src" },
+    img_noimage: { attribute: "img-noimage" },
     img_class: { attribute: "img-class" },
     img_style: { attribute: "img-style" },
     img_ratio: { attribute: "img-ratio" },
@@ -19,6 +20,7 @@ export class CustomImg extends CustomElement {
 
   constructor() {
     super();
+    this.img_noimage = Golbal.noImage;
     this.lazy = "0";
     this.img_placeholder = "1";
     this.img_error = "1";
@@ -75,8 +77,8 @@ export class CustomImg extends CustomElement {
         <img ?hidden=${this._placeholder} alt=""
           class=${this.img_class}
           style=${this.img_style}
-          src=${this.lazy == "1" ? "" : this.img_src ? this.img_src : this.img_error == "1" ? Golbal.noImage : ""}
-          @error=${() => { if (this.lazy != "1" && this.img_error == "1") { this.img_src = Golbal.noImage } }}
+          src=${this.lazy == "1" ? "" : this.img_src ? this.img_src : this.img_error == "1" ? this.img_noimage : ""}
+          @error=${() => { if (this.lazy != "1" && this.img_error == "1") { this.img_src = this.img_noimage } }}
           @load=${() => {
             this._placeholder = false;
             // 图像渐入
