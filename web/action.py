@@ -40,7 +40,7 @@ from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
-    SystemUtils, ExceptionUtils, Torrent
+    SystemUtils, ExceptionUtils, Torrent, WebUtils
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
@@ -949,17 +949,10 @@ class WebAction:
         """
         检查新版本
         """
-        try:
-            response = RequestUtils(proxies=Config().get_proxies()).get_res(
-                "https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
-            if response:
-                ver_json = response.json()
-                version = ver_json["tag_name"]
-                info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
-                return {"code": 0, "version": version, "info": info}
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-        return {"code": -1, "version": "", "info": ""}
+        version, url, flag = WebUtils.get_latest_version()
+        if flag:
+            return {"code": 0, "version": version, "url": url}
+        return {"code": -1, "version": "", "url": ""}
 
     def __update_site(self, data):
         """

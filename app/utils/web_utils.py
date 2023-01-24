@@ -1,6 +1,7 @@
 from app.utils.http_utils import RequestUtils
 from app.utils.system_utils import SystemUtils
 from app.utils.exception_utils import ExceptionUtils
+from config import Config
 from version import APP_VERSION
 
 
@@ -32,3 +33,23 @@ class WebUtils:
         """
         commit_id = SystemUtils.execute('git rev-parse --short HEAD')
         return "%s %s" % (APP_VERSION, commit_id)
+
+    @staticmethod
+    def get_latest_version():
+        """
+        获取最新版本号
+        """
+        try:
+            version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
+                "https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
+            commit_res = RequestUtils(proxies=Config().get_proxies()).get_res(
+                "https://api.github.com/repos/jxxghp/nas-tools/commits/master")
+            if version_res and commit_res:
+                ver_json = version_res.json()
+                commit_json = commit_res.json()
+                version = f"{ver_json['tag_name']} {commit_json['sha'][:7]}"
+                url = ver_json["html_url"]
+                return version, url, True
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return None, None, False
