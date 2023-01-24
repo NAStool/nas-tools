@@ -1,5 +1,5 @@
 import { html } from "../utility/lit-core.min.js";
-import { CustomElement } from "../utility/utility.js";
+import { CustomElement, Golbal } from "../utility/utility.js";
 
 export class PersonCard extends CustomElement {
 
@@ -40,6 +40,7 @@ export class PersonCard extends CustomElement {
             <custom-img
               lazy=${this.lazy}
               img-src=${this.person_image}
+              img-noimage=${Golbal.noImage_person}
               img-ratio="100%"
               img-style="object-fit:cover;"
             ></custom-img>
