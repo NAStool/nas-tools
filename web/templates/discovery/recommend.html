@@ -20,47 +20,23 @@
   // 当前页码
   var CurrentPage = {{ CurrentPage }};
 
+  // 类型 MOV/TV/BANGUMI
+  var Type = '{{ Type }}';
+
+  // 子类型
+  var SubType = '{{ SubType }}';
+
   // 标题
-  var title_type = '{{ RecommendType }}';
-  if (title_type == "hm") {
-    $("#recommend_title").text("TMDB热门电影");
-  }
-  if (title_type == "ht") {
-    $("#recommend_title").text("TMDB热门电视剧");
-  }
-  if (title_type == "nm") {
-    $("#recommend_title").text("TMDB最新电影");
-  }
-  if (title_type == "nt") {
-    $("#recommend_title").text("TMDB最新电视剧");
-  }
-  if (title_type == "dbom") {
-    $("#recommend_title").text("正在热映");
-  }
-  if (title_type == "dbhm") {
-    $("#recommend_title").text("豆瓣热门电影");
-  }
-  if (title_type == "dbtop") {
-    $("#recommend_title").text("豆瓣电影TOP250");
-  }
-  if (title_type == "dbht") {
-    $("#recommend_title").text("豆瓣热门电视剧");
-  }
-  if (title_type == "dbdh") {
-    $("#recommend_title").text("豆瓣热门动漫");
-  }
-  if (title_type == "dbnm") {
-    $("#recommend_title").text("即将上映");
-  }
-  if (title_type == "dbzy") {
-    $("#recommend_title").text("豆瓣热门综艺");
-  }
-  if (title_type == "bangumi") {
-    $("#recommend_title").text("Bangumi每日放送");
-  }
+  $("#recommend_title").text("{{ Title }}");
 
   // 星期
   var Week = '{{ Week }}';
+
+  // TMDBID
+  var TmdbId = '{{ TmdbId }}';
+
+  // 演员ID
+  var PersonId = '{{ PersonId }}';
 
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
@@ -87,7 +63,14 @@
     }
     loading = true;
     add_loading_card_placeholder();
-    ajax_post("get_recommend", { "type": title_type, "page": CurrentPage, "week": Week }, function (ret) {
+    ajax_post("get_recommend", {
+      "type": Type,
+      "subtype": SubType,
+      "page": CurrentPage,
+      "week": Week,
+      "tmdbid": TmdbId,
+      "personid": PersonId
+    }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
         CurrentPage++;
@@ -107,7 +90,7 @@
         html += '<div class="mb-3 col-6 col-md-3 col-xl-2">';
           html += `<normal-card
                     card-tmdbId="${item.id}"
-                    card-pageType="${title_type}"
+                    card-pageType="${Type}"
                     card-showSub="1"
                     card-image="${item.image}"
                     card-weekday="${item.weekday}"

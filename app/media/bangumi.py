@@ -65,11 +65,12 @@ class Bangumi(object):
                     summary = item.get("summary")
                     if not title or not image:
                         continue
-                    ret_list.append({'id': bid,
-                                     'name': title,
-                                     'first_air_date': air_date,
-                                     'vote_average': score,
-                                     'poster_path': image,
+                    ret_list.append({'id': "BG:%s" % bid,
+                                     'orgid': bid,
+                                     'title': title,
+                                     'year': air_date[:4] if air_date else "",
+                                     'vote': score,
+                                     'image': image,
                                      'overview': summary,
                                      'url': detail,
                                      'weekday': weekday})

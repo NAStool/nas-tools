@@ -27,7 +27,7 @@ export class Golbal {
 
   // 转换传值的空字符情况
   static repNull(value) {
-    if (!value || value == "None" || value == "null") {
+    if (!value || value == "None" || value == "null" || value == "undefined") {
       return "";
     } else {
       return value;

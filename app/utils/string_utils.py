@@ -23,6 +23,8 @@ class StringUtils:
             return 0
         if not isinstance(text, str):
             text = str(text)
+        if text.isdigit():
+            return int(text)
         text = text.replace(",", "").replace(" ", "").upper()
         size = re.sub(r"[KMGTPI]*B?", "", text, flags=re.IGNORECASE)
         try:
@@ -175,7 +177,7 @@ class StringUtils:
                 s = [x[0] for x in d]
                 index = bisect.bisect_left(s, size) - 1
                 if index == -1:
-                    return str(size)
+                    return str(size) + "B"
                 else:
                     b, u = d[index]
                 return str(round(size / (b + 1), pre)) + u
@@ -184,7 +186,8 @@ class StringUtils:
                 return ""
         if re.findall(r"[KMGTP]", size, re.I):
             return size
-        return ""
+        else:
+            return size + "B"
 
     @staticmethod
     def url_equal(url1, url2):
@@ -387,3 +390,25 @@ class StringUtils:
         if not data:
             return ""
         return hashlib.md5(str(data).encode()).hexdigest()
+
+    @staticmethod
+    def str_timehours(minutes):
+        """
+        将分钟转换成小时和分钟
+        :param minutes:
+        :return:
+        """
+        if not minutes:
+            return ""
+        hours = minutes // 60
+        minutes = minutes % 60
+        return "%s小时%s分" % (hours, minutes)
+
+    @staticmethod
+    def str_amount(amount, curr="$"):
+        """
+        格式化显示金额
+        """
+        if not amount:
+            return "0"
+        return curr + format(amount, ",")

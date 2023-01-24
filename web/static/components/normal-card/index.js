@@ -36,7 +36,7 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_left_up() {
-    if (this.weekday ||this.res_type) {
+    if (this.weekday || this.res_type) {
       let color;
       let text;
       if (this.weekday) {
@@ -82,7 +82,7 @@ export class NormalCard extends observeState(CustomElement) {
       return html`
         <div class="d-flex justify-content-between">
           <a class="text-muted" title="搜索资源" @click=${(e) => { e.stopPropagation() }}
-             href='javascript:show_mediainfo_modal("${this.page_type}", "${this.title}", "${this.year}", "${this.tmdb_id}", "", "", true)'>
+             href='javascript:media_search("${this.tmdb_id}", "${this.title}", "${this.page_type}")'>
             <span class="icon-pulse text-white">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                   viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -141,7 +141,7 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
              class="card-img-overlay rounded-4 ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5); box-shadow:0 0 0 1px #dddddd;"
-             @click=${() => { show_mediainfo_modal(this.page_type, this.title, this.year, this.tmdb_id) }}>
+             @click=${() => { navmenu(`discovery_detail?type=${this.page_type}&id=${this.tmdb_id}`) }}>
           <div style="cursor: pointer">
             ${this.year ? html`<div class="text-white"><strong>${this.site ? this.site : this.year}</strong></div>` : nothing }
             ${this.title
@@ -201,7 +201,7 @@ export class NormalCard extends observeState(CustomElement) {
           did = "";
           tid = self.tmdb_id;
         }
-        if (!tid || ["hm", "nm", "dbom", "dbnm", "dbhm", "dbtop"].includes(self.page_type)) {
+        if (!tid || self.page_type == "MOV") {
           add_rss_media(self.title, self.year, self.page_type, tid, did, "", "", add_red_heart);
         } else {
           ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {

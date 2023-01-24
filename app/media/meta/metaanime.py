@@ -88,7 +88,7 @@ class MetaAnime(MetaBase):
                     end_season = None
                 if begin_season:
                     self.begin_season = int(begin_season)
-                    if end_season and end_season != self.begin_season:
+                    if end_season and int(end_season) != self.begin_season:
                         self.end_season = int(end_season)
                         self.total_seasons = (self.end_season - self.begin_season) + 1
                     else:
@@ -112,7 +112,7 @@ class MetaAnime(MetaBase):
                 if begin_episode:
                     try:
                         self.begin_episode = int(begin_episode)
-                        if end_episode and end_episode != self.begin_episode:
+                        if end_episode and int(end_episode) != self.begin_episode:
                             self.end_episode = int(end_episode)
                             self.total_episodes = (self.end_episode - self.begin_episode) + 1
                         else:

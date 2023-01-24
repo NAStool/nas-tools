@@ -1484,6 +1484,65 @@ class MediaInfo(ClientResource):
         return WebAction().api_action(cmd='media_info', data=self.parser.parse_args())
 
 
+@media.route('/detail')
+class MediaDetail(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('tmdbid', type=str, help='TMDBID/DB:豆瓣ID', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        查询TMDB媒体详情
+        """
+        return WebAction().api_action(cmd='media_detail', data=self.parser.parse_args())
+
+
+@media.route('/similar')
+class MediaSimilar(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
+    parser.add_argument('page', type=int, help='页码', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        根据TMDBID查询类似媒体
+        """
+        return WebAction().api_action(cmd='media_similar', data=self.parser.parse_args())
+
+
+@media.route('/recommendations')
+class MediaRecommendations(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
+    parser.add_argument('page', type=int, help='页码', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        根据TMDBID查询推荐媒体
+        """
+        return WebAction().api_action(cmd='media_recommendations', data=self.parser.parse_args())
+
+
+@media.route('/person')
+class MediaPersonList(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str, help='类型（MOV/TV）', location='form', required=True)
+    parser.add_argument('personid', type=str, help='演员ID', location='form')
+    parser.add_argument('page', type=int, help='页码', location='form')
+
+    @media.doc(parser=parser)
+    def post(self):
+        """
+        查询TMDB演员参演作品
+        """
+        return WebAction().api_action(cmd='person_medias', data=self.parser.parse_args())
+
+
 @media.route('/subtitle/download')
 class MediaSubtitleDownload(ClientResource):
     parser = reqparse.RequestParser()

@@ -54,7 +54,7 @@ class Scraper:
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         if scraper_nfo.get("credits"):
             # 导演
-            directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo)
+            directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo=tmdbinfo)
             if chinese:
                 directors, actors = self.__gen_people_chinese_info(directors, actors, doubaninfo)
             for director in directors:
@@ -65,11 +65,11 @@ class Scraper:
                 xactor = DomUtils.add_node(doc, root, "actor")
                 DomUtils.add_node(doc, xactor, "name", actor.get("name") or "")
                 DomUtils.add_node(doc, xactor, "type", "Actor")
-                DomUtils.add_node(doc, xactor, "role", actor.get("character") or "")
+                DomUtils.add_node(doc, xactor, "role", actor.get("role") or "")
                 DomUtils.add_node(doc, xactor, "order", actor.get("order") if actor.get("order") is not None else "")
                 DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
-                DomUtils.add_node(doc, xactor, "thumb", f"https://image.tmdb.org/t/p/h632{actor.get('profile_path')}")
-                DomUtils.add_node(doc, xactor, "profile", f"https://www.themoviedb.org/person/{actor.get('id')}")
+                DomUtils.add_node(doc, xactor, "thumb", actor.get('image'))
+                DomUtils.add_node(doc, xactor, "profile", actor.get('profile'))
         if scraper_nfo.get("basic"):
             # 风格
             genres = tmdbinfo.get("genres") or []

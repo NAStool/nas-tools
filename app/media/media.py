@@ -15,7 +15,8 @@ from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbExcep
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY, \
+    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL
 
 
 class Media:
@@ -46,7 +47,7 @@ class Media:
                     self.tmdb.domain = app.get("tmdb_domain")
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
-                self.tmdb.language = 'zh-CN'
+                self.tmdb.language = 'zh'
                 self.tmdb.proxies = Config().get_proxies()
                 self.tmdb.debug = True
                 self.search = Search()
@@ -327,7 +328,7 @@ class Media:
             if not tv_info:
                 return False
             try:
-                seasons = self.get_tmdb_seasons_list(tv_info=tv_info)
+                seasons = self.get_tmdb_tv_seasons(tv_info=tv_info)
                 for season in seasons:
                     if season.get("air_date") and season.get("season_number"):
                         if season.get("air_date")[0:4] == str(season_year) \
@@ -615,7 +616,8 @@ class Media:
                        mtype=None,
                        strict=None,
                        cache=True,
-                       chinese=True):
+                       chinese=True,
+                       append_to_response=None):
         """
         只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别
         :param title: 种子名称
@@ -624,6 +626,7 @@ class Media:
         :param strict: 是否严格模式，为true时，不会再去掉年份再查一次
         :param cache: 是否使用缓存，默认TRUE
         :param chinese: 原标题为英文时是否从别名中检索中文名称
+        :param append_to_response: 额外查询的信息
         :return: 带有TMDB信息的MetaInfo对象
         """
         if not self.tmdb:
@@ -691,7 +694,8 @@ class Media:
             if file_media_info and not file_media_info.get("genres"):
                 file_media_info = self.get_tmdb_info(mtype=file_media_info.get("media_type"),
                                                      tmdbid=file_media_info.get("id"),
-                                                     chinese=chinese)
+                                                     chinese=chinese,
+                                                     append_to_response=append_to_response)
             # 保存到缓存
             if file_media_info is not None:
                 self.__insert_media_cache(media_key=media_key,
@@ -702,7 +706,8 @@ class Media:
             if cache_info.get("id"):
                 file_media_info = self.get_tmdb_info(mtype=cache_info.get("type"),
                                                      tmdbid=cache_info.get("id"),
-                                                     chinese=chinese)
+                                                     chinese=chinese,
+                                                     append_to_response=append_to_response)
             else:
                 file_media_info = None
         # 赋值TMDB信息并返回
@@ -880,6 +885,38 @@ class Media:
         # 循环结束
         return return_media_infos
 
+    @staticmethod
+    def __dict_tvinfos(tvs):
+        """
+        TMDB电视剧信息转为字典
+        """
+        return [{
+            'id': tv.get("id"),
+            'orgid': tv.get("id"),
+            'title': tv.get("name"),
+            'type': 'TV',
+            'year': tv.get("first_air_date")[0:4] if tv.get("first_air_date") else "",
+            'vote': round(float(tv.get("vote_average")), 1) if tv.get("vote_average") else 0,
+            'image': TMDB_IMAGE_W500_URL % tv.get("poster_path"),
+            'overview': tv.get("overview")
+        } for tv in tvs or []]
+
+    @staticmethod
+    def __dict_movieinfos(movies):
+        """
+        TMDB电影信息转为字典
+        """
+        return [{
+            'id': movie.get("id"),
+            'orgid': movie.get("id"),
+            'title': movie.get("title"),
+            'type': 'MOV',
+            'year': movie.get("release_date")[0:4] if movie.get("release_date") else "",
+            'vote': round(float(movie.get("vote_average")), 1) if movie.get("vote_average") else 0,
+            'image': TMDB_IMAGE_W500_URL % movie.get("poster_path"),
+            'overview': movie.get("overview")
+        } for movie in movies or []]
+
     def get_tmdb_hot_movies(self, page):
         """
         获取热门电影
@@ -888,7 +925,7 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.movie.popular(page)
+        return self.__dict_movieinfos(self.movie.popular(page))
 
     def get_tmdb_hot_tvs(self, page):
         """
@@ -898,7 +935,7 @@ class Media:
         """
         if not self.tv:
             return []
-        return self.tv.popular(page)
+        return self.__dict_tvinfos(self.tv.popular(page))
 
     def get_tmdb_new_movies(self, page):
         """
@@ -908,7 +945,7 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.movie.now_playing(page)
+        return self.__dict_movieinfos(self.movie.now_playing(page))
 
     def get_tmdb_new_tvs(self, page):
         """
@@ -918,7 +955,7 @@ class Media:
         """
         if not self.tv:
             return []
-        return self.tv.on_the_air(page)
+        return self.__dict_tvinfos(self.tv.on_the_air(page))
 
     def get_tmdb_upcoming_movies(self, page):
         """
@@ -928,7 +965,7 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.movie.upcoming(page)
+        return self.__dict_movieinfos(self.movie.upcoming(page))
 
     def __get_tmdb_movie_detail(self, tmdbid, append_to_response=None):
         """
@@ -1209,12 +1246,69 @@ class Media:
             print(str(e))
             return None
 
-    def get_tmdb_tv_season_detail(self, tmdbid, season):
+    def get_tmdb_tv_season_detail(self, tmdbid, season: int):
         """
         获取电视剧季的详情
         :param tmdbid: TMDB ID
         :param season: 季，数字
         :return: TMDB信息
+        """
+        """
+        {
+          "_id": "5e614cd3357c00001631a6ef",
+          "air_date": "2023-01-15",
+          "episodes": [
+            {
+              "air_date": "2023-01-15",
+              "episode_number": 1,
+              "id": 2181581,
+              "name": "当你迷失在黑暗中",
+              "overview": "在一场全球性的流行病摧毁了文明之后，一个顽强的幸存者负责照顾一个 14 岁的小女孩，她可能是人类最后的希望。",
+              "production_code": "",
+              "runtime": 81,
+              "season_number": 1,
+              "show_id": 100088,
+              "still_path": "/aRquEWm8wWF1dfa9uZ1TXLvVrKD.jpg",
+              "vote_average": 8,
+              "vote_count": 33,
+              "crew": [
+                {
+                  "job": "Writer",
+                  "department": "Writing",
+                  "credit_id": "619c370063536a00619a08ee",
+                  "adult": false,
+                  "gender": 2,
+                  "id": 35796,
+                  "known_for_department": "Writing",
+                  "name": "Craig Mazin",
+                  "original_name": "Craig Mazin",
+                  "popularity": 15.211,
+                  "profile_path": "/uEhna6qcMuyU5TP7irpTUZ2ZsZc.jpg"
+                },
+              ],
+              "guest_stars": [
+                {
+                  "character": "Marlene",
+                  "credit_id": "63c4ca5e5f2b8d00aed539fc",
+                  "order": 500,
+                  "adult": false,
+                  "gender": 1,
+                  "id": 1253388,
+                  "known_for_department": "Acting",
+                  "name": "Merle Dandridge",
+                  "original_name": "Merle Dandridge",
+                  "popularity": 21.679,
+                  "profile_path": "/lKwHdTtDf6NGw5dUrSXxbfkZLEk.jpg"
+                }
+              ]
+            },
+          ],
+          "name": "第 1 季",
+          "overview": "",
+          "id": 144593,
+          "poster_path": "/aUQKIpZZ31KWbpdHMCmaV76u78T.jpg",
+          "season_number": 1
+        }
         """
         if not self.tv:
             return {}
@@ -1226,76 +1320,360 @@ class Media:
             print(str(e))
             return {}
 
-    def get_tmdb_seasons_list(self, tv_info=None, tmdbid=None):
+    def get_tmdb_tv_seasons_byid(self, tmdbid):
         """
-        从TMDB的季集信息中获得季的组
+        根据TMDB查询TMDB电视剧的所有季
+        """
+        if not tmdbid:
+            return []
+        return self.get_tmdb_tv_seasons(
+            tv_info=self.__get_tmdb_tv_detail(
+                tmdbid=tmdbid
+            )
+        )
+
+    @staticmethod
+    def get_tmdb_tv_seasons(tv_info):
+        """
+        查询TMDB电视剧的所有季
         :param tv_info: TMDB 的季信息
-        :param tmdbid: TMDB ID 没有tv_info且有tmdbid时，重新从TMDB查询季的信息
         :return: 带有season_number、episode_count 的每季总集数的字典列表
         """
-        if not tv_info and not tmdbid:
-            return []
-        if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
+        """
+        "seasons": [
+            {
+              "air_date": "2006-01-08",
+              "episode_count": 11,
+              "id": 3722,
+              "name": "特别篇",
+              "overview": "",
+              "poster_path": "/snQYndfsEr3Sto2jOmkmsQuUXAQ.jpg",
+              "season_number": 0
+            },
+            {
+              "air_date": "2005-03-27",
+              "episode_count": 9,
+              "id": 3718,
+              "name": "第 1 季",
+              "overview": "",
+              "poster_path": "/foM4ImvUXPrD2NvtkHyixq5vhPx.jpg",
+              "season_number": 1
+            }
+        ]
+        """
         if not tv_info:
             return []
-        seasons = tv_info.get("seasons")
-        if not seasons:
-            return []
-        total_seasons = []
-        for season in seasons:
-            if season.get("episode_count"):
-                total_seasons.append(
-                    {"season_number": season.get("season_number"),
-                     "episode_count": season.get("episode_count"),
-                     "air_date": season.get("air_date")})
-        return total_seasons
+        return tv_info.get("seasons") or []
 
-    def get_tmdb_season_episodes_num(self, sea: int, tv_info=None, tmdbid=None):
+    def get_tmdb_season_episodes(self, tmdbid, season: int):
+        """
+        :param: tmdbid: TMDB ID
+        :param: season: 季号
+        """
+        """
+        从TMDB的季集信息中获得某季的集信息
+        """
+        """
+        "episodes": [
+            {
+              "air_date": "2023-01-15",
+              "episode_number": 1,
+              "id": 2181581,
+              "name": "当你迷失在黑暗中",
+              "overview": "在一场全球性的流行病摧毁了文明之后，一个顽强的幸存者负责照顾一个 14 岁的小女孩，她可能是人类最后的希望。",
+              "production_code": "",
+              "runtime": 81,
+              "season_number": 1,
+              "show_id": 100088,
+              "still_path": "/aRquEWm8wWF1dfa9uZ1TXLvVrKD.jpg",
+              "vote_average": 8,
+              "vote_count": 33
+            },
+          ]
+        """
+        if not tmdbid:
+            return []
+        season_info = self.get_tmdb_tv_season_detail(tmdbid=tmdbid, season=season)
+        if not season_info:
+            return []
+        return season_info.get("episodes") or []
+
+    @staticmethod
+    def get_tmdb_backdrops(tmdbinfo):
+        """
+        获取TMDB的背景图
+        """
+        """
+        {
+          "backdrops": [
+            {
+              "aspect_ratio": 1.778,
+              "height": 2160,
+              "iso_639_1": "en",
+              "file_path": "/qUroDlCDUMwRWbkyjZGB9THkMgZ.jpg",
+              "vote_average": 5.312,
+              "vote_count": 1,
+              "width": 3840
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 2160,
+              "iso_639_1": "en",
+              "file_path": "/iyxvxEQIfQjzJJTfszZxmH5UV35.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 3840
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 720,
+              "iso_639_1": "en",
+              "file_path": "/8SRY6IcMKO1E5p83w7bjvcqklp9.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 1280
+            },
+            {
+              "aspect_ratio": 1.778,
+              "height": 1080,
+              "iso_639_1": "en",
+              "file_path": "/erkJ7OxJWFdLBOcn2MvIdhTLHTu.jpg",
+              "vote_average": 0,
+              "vote_count": 0,
+              "width": 1920
+            }
+          ]
+        }
+        """
+        if not tmdbinfo:
+            return []
+        backdrops = tmdbinfo.get("images", {}).get("backdrops") or []
+        result = [TMDB_IMAGE_ORIGINAL_URL % backdrop.get("file_path") for backdrop in backdrops]
+        result.append(TMDB_IMAGE_ORIGINAL_URL % tmdbinfo.get("backdrop_path"))
+        return result
+
+    @staticmethod
+    def get_tmdb_season_episodes_num(tv_info, season: int):
         """
         从TMDB的季信息中获得具体季有多少集
-        :param sea: 季号，数字
+        :param season: 季号，数字
         :param tv_info: 已获取的TMDB季的信息
-        :param tmdbid: TMDB ID，没有tv_info且有tmdbid时，重新从TMDB查询季的信息
         :return: 该季的总集数
         """
-        if not tv_info and not tmdbid:
-            return 0
-        if not tv_info and tmdbid:
-            tv_info = self.__get_tmdb_tv_detail(tmdbid, append_to_response="")
         if not tv_info:
             return 0
         seasons = tv_info.get("seasons")
         if not seasons:
             return 0
-        for season in seasons:
-            if season.get("season_number") == sea:
-                return int(season.get("episode_count"))
+        for sea in seasons:
+            if sea.get("season_number") == int(season):
+                return int(sea.get("episode_count"))
         return 0
 
     @staticmethod
-    def get_tmdb_directors_actors(tmdbinfo):
+    def __dict_media_crews(crews):
+        """
+        字典化媒体工作人员
+        """
+        return [{
+            "id": crew.get("id"),
+            "gender": crew.get("gender"),
+            "known_for_department": crew.get("known_for_department"),
+            "name": crew.get("name"),
+            "original_name": crew.get("original_name"),
+            "popularity": crew.get("popularity"),
+            "image": TMDB_IMAGE_FACE_URL % crew.get("profile_path"),
+            "credit_id": crew.get("credit_id"),
+            "department": crew.get("department"),
+            "job": crew.get("job"),
+            "profile": TMDB_PEOPLE_PROFILE_URL % crew.get('id')
+        } for crew in crews or []]
+
+    @staticmethod
+    def __dict_media_casts(casts):
+        """
+        字典化媒体演职人员
+        """
+        return [{
+            "id": cast.get("id"),
+            "gender": cast.get("gender"),
+            "known_for_department": cast.get("known_for_department"),
+            "name": cast.get("name"),
+            "original_name": cast.get("original_name"),
+            "popularity": cast.get("popularity"),
+            "image": TMDB_IMAGE_FACE_URL % cast.get("profile_path"),
+            "cast_id": cast.get("cast_id"),
+            "role": cast.get("character"),
+            "credit_id": cast.get("credit_id"),
+            "order": cast.get("order"),
+            "profile": TMDB_PEOPLE_PROFILE_URL % cast.get('id')
+        } for cast in casts or []]
+
+    def get_tmdb_directors_actors(self, tmdbinfo):
         """
         查询导演和演员
         :param tmdbinfo: TMDB元数据
         :return: 导演列表，演员列表
         """
+        """
+        "cast": [
+          {
+            "adult": false,
+            "gender": 2,
+            "id": 3131,
+            "known_for_department": "Acting",
+            "name": "Antonio Banderas",
+            "original_name": "Antonio Banderas",
+            "popularity": 60.896,
+            "profile_path": "/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
+            "cast_id": 2,
+            "character": "Puss in Boots (voice)",
+            "credit_id": "6052480e197de4006bb47b9a",
+            "order": 0
+          }
+        ],
+        "crew": [
+          {
+            "adult": false,
+            "gender": 2,
+            "id": 5524,
+            "known_for_department": "Production",
+            "name": "Andrew Adamson",
+            "original_name": "Andrew Adamson",
+            "popularity": 9.322,
+            "profile_path": "/qqIAVKAe5LHRbPyZUlptsqlo4Kb.jpg",
+            "credit_id": "63b86b2224b33300a0585bf1",
+            "department": "Production",
+            "job": "Executive Producer"
+          }
+        ]
+        """
         if not tmdbinfo:
             return [], []
         _credits = tmdbinfo.get("credits")
+        if not _credits:
+            return [], []
         directors = []
         actors = []
-        for cast in _credits.get("cast") or []:
-            if not cast:
-                continue
+        for cast in self.__dict_media_casts(_credits.get("cast")):
             if cast.get("known_for_department") == "Acting":
                 actors.append(cast)
-        for crew in _credits.get("crew") or []:
-            if not crew:
-                continue
+        for crew in self.__dict_media_crews(_credits.get("crew")):
             if crew.get("job") == "Director":
                 directors.append(crew)
         return directors, actors
+
+    def get_tmdb_cats(self, mtype, tmdbid):
+        """
+        获取TMDB的演员列表
+        :param: mtype: 媒体类型
+        :param: tmdbid: TMDBID
+        """
+        try:
+            if mtype == MediaType.MOVIE:
+                if not self.movie:
+                    return []
+                return self.__dict_media_casts(self.movie.credits(tmdbid).get("cast"))
+            else:
+                if not self.tv:
+                    return []
+                return self.__dict_media_casts(self.tv.credits(tmdbid).get("cast"))
+        except Exception as err:
+            print(str(err))
+        return []
+
+    @staticmethod
+    def get_tmdb_genres_names(tmdbinfo):
+        """
+        从TMDB数据中获取风格名称
+        """
+        """
+        "genres": [
+            {
+              "id": 16,
+              "name": "动画"
+            },
+            {
+              "id": 28,
+              "name": "动作"
+            },
+            {
+              "id": 12,
+              "name": "冒险"
+            },
+            {
+              "id": 35,
+              "name": "喜剧"
+            },
+            {
+              "id": 10751,
+              "name": "家庭"
+            },
+            {
+              "id": 14,
+              "name": "奇幻"
+            }
+          ]
+        """
+        if not tmdbinfo:
+            return ""
+        genres = tmdbinfo.get("genres") or []
+        genres_list = [genre.get("name") for genre in genres]
+        return ", ".join(genres_list) if genres_list else ""
+
+    @staticmethod
+    def get_get_production_country_names(tmdbinfo):
+        """
+        从TMDB数据中获取制片国家名称
+        """
+        """
+        "production_countries": [
+            {
+              "iso_3166_1": "US",
+              "name": "美国"
+            }
+          ]
+        """
+        if not tmdbinfo:
+            return ""
+        countries = tmdbinfo.get("production_countries") or []
+        countries_list = [country.get("name") for country in countries]
+        return ", ".join(countries_list) if countries_list else ""
+
+    @staticmethod
+    def get_tmdb_production_company_names(tmdbinfo):
+        """
+        从TMDB数据中获取制片公司名称
+        """
+        """
+        "production_companies": [
+            {
+              "id": 2,
+              "logo_path": "/wdrCwmRnLFJhEoH8GSfymY85KHT.png",
+              "name": "DreamWorks Animation",
+              "origin_country": "US"
+            }
+          ]
+        """
+        if not tmdbinfo:
+            return ""
+        companies = tmdbinfo.get("production_companies") or []
+        companies_list = [company.get("name") for company in companies]
+        return ", ".join(companies_list) if companies_list else ""
+
+    @staticmethod
+    def get_tmdb_crews(tmdbinfo, nums=None):
+        """
+        从TMDB数据中获取制片人员
+        """
+        if not tmdbinfo:
+            return ""
+        crews = tmdbinfo.get("credits", {}).get("crew") or []
+        result = [{crew.get("name"): crew.get("job")} for crew in crews]
+        if nums:
+            return result[:nums]
+        else:
+            return result
 
     def get_tmdb_en_title(self, media_info):
         """
@@ -1317,12 +1695,11 @@ class Media:
         if media_info.tmdb_id:
             if not media_info.begin_episode:
                 return None
-            tv_info = self.get_tmdb_tv_season_detail(tmdbid=media_info.tmdb_id,
+            episodes = self.get_tmdb_season_episodes(tmdbid=media_info.tmdb_id,
                                                      season=int(media_info.get_season_seq()))
-            if tv_info:
-                for episode in tv_info.get("episodes") or []:
-                    if episode.get("episode_number") == media_info.begin_episode:
-                        return episode.get("name")
+            for episode in episodes:
+                if episode.get("episode_number") == media_info.begin_episode:
+                    return episode.get("name")
         return None
 
     def get_movie_discover(self, page=1):
@@ -1347,10 +1724,23 @@ class Media:
             return []
         try:
             movies = self.movie.similar(movie_id=tmdbid, page=page) or []
-            return movies
+            return self.__dict_movieinfos(movies)
         except Exception as e:
             print(str(e))
-            return {}
+            return []
+
+    def get_movie_recommendations(self, tmdbid, page=1):
+        """
+        查询电影关联推荐
+        """
+        if not self.movie:
+            return []
+        try:
+            movies = self.movie.recommendations(movie_id=tmdbid, page=page) or []
+            return self.__dict_movieinfos(movies)
+        except Exception as e:
+            print(str(e))
+            return []
 
     def get_tv_similar(self, tmdbid, page=1):
         """
@@ -1360,10 +1750,42 @@ class Media:
             return []
         try:
             tvs = self.tv.similar(tv_id=tmdbid, page=page) or []
-            return tvs
+            return self.__dict_tvinfos(tvs)
         except Exception as e:
             print(str(e))
-            return {}
+            return []
+
+    def get_tv_recommendations(self, tmdbid, page=1):
+        """
+        查询电视剧关联推荐
+        """
+        if not self.tv:
+            return []
+        try:
+            tvs = self.tv.recommendations(tv_id=tmdbid, page=page) or []
+            return self.__dict_tvinfos(tvs)
+        except Exception as e:
+            print(str(e))
+            return []
+
+    def get_person_medias(self, personid, mtype, page=1):
+        """
+        查询人物相关影视作品
+        """
+        if not self.person:
+            return []
+        result = []
+        try:
+            if mtype == MediaType.MOVIE:
+                movies = self.person.movie_credits(person_id=personid) or []
+                result = self.__dict_movieinfos(movies)
+            elif mtype == MediaType.TV:
+                tvs = self.person.tv_credits(person_id=personid) or []
+                result = self.__dict_tvinfos(tvs)
+            return result[(page - 1) * 20: page * 20]
+        except Exception as e:
+            print(str(e))
+        return []
 
     @staticmethod
     def __search_engine(feature_name):
@@ -1483,37 +1905,24 @@ class Media:
             genre_ids.append(genre.get('id'))
         return genre_ids
 
-    def __get_tmdb_chinese_title(self, tmdbinfo=None, mtype: MediaType = None, tmdbid=None):
+    @staticmethod
+    def __get_tmdb_chinese_title(tmdbinfo):
         """
         从别名中获取中文标题
         """
-        if not tmdbinfo and not tmdbid:
+        if not tmdbinfo:
             return None
-        if tmdbinfo:
-            if tmdbinfo.get("media_type") == MediaType.MOVIE:
-                alternative_titles = tmdbinfo.get("alternative_titles", {}).get("titles", [])
-            else:
-                alternative_titles = tmdbinfo.get("alternative_titles", {}).get("results", [])
+        if tmdbinfo.get("media_type") == MediaType.MOVIE:
+            alternative_titles = tmdbinfo.get("alternative_titles", {}).get("titles", [])
         else:
-            try:
-                if mtype == MediaType.MOVIE:
-                    titles_info = self.movie.alternative_titles(tmdbid) or {}
-                    alternative_titles = titles_info.get("titles", [])
-                else:
-                    titles_info = self.tv.alternative_titles(tmdbid) or {}
-                    alternative_titles = titles_info.get("results", [])
-            except Exception as err:
-                print(str(err))
-                return None
+            alternative_titles = tmdbinfo.get("alternative_titles", {}).get("results", [])
         for alternative_title in alternative_titles:
             iso_3166_1 = alternative_title.get("iso_3166_1")
             if iso_3166_1 == "CN":
                 title = alternative_title.get("title")
                 if title and StringUtils.is_chinese(title) and zhconv.convert(title, "zh-hans") == title:
                     return title
-        if tmdbinfo:
-            return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
-        return None
+        return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
 
     def get_tmdbperson_chinese_name(self, person_id):
         """
@@ -1644,3 +2053,34 @@ class Media:
             return "https://www.themoviedb.org/movie/%s" % tmdbid
         else:
             return "https://www.themoviedb.org/tv/%s" % tmdbid
+
+    def get_tmdb_factinfo(self, media_info):
+        """
+        获取TMDB发布信息
+        """
+        result = []
+        if media_info.vote_average:
+            result.append({"评分": media_info.vote_average})
+        if media_info.original_title:
+            result.append({"原始标题": media_info.original_title})
+        status = media_info.tmdb_info.get("status")
+        if status:
+            result.append({"状态": status})
+        if media_info.release_date:
+            result.append({"上映日期": media_info.release_date})
+        revenue = media_info.tmdb_info.get("revenue")
+        if revenue:
+            result.append({"收入": StringUtils.str_amount(revenue)})
+        budget = media_info.tmdb_info.get("budget")
+        if media_info.vote_average:
+            result.append({"成本": StringUtils.str_amount(budget)})
+        if budget:
+            result.append({"原始语言": media_info.original_language})
+        production_country = self.get_get_production_country_names(tmdbinfo=media_info.tmdb_info)
+        if production_country:
+            result.append({"出品国家": production_country}),
+        production_company = self.get_tmdb_production_company_names(tmdbinfo=media_info.tmdb_info)
+        if production_company:
+            result.append({"制作公司": production_company})
+
+        return result

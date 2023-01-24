@@ -285,3 +285,11 @@ class Movie(TMDb):
         :return:
         """
         return AsObj(**self._call(self._urls["discover"], "page=" + str(page)))
+
+    def credits(self, movie_id):
+        """
+        Get the Credits for a movie.
+        :param movie_id:
+        :return:
+        """
+        return AsObj(**self._call(self._urls["credits"] % movie_id, ""))

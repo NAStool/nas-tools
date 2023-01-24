@@ -68,7 +68,13 @@ class Person(TMDb):
         :param person_id:
         :return:
         """
-        return AsObj(**self._call(self._urls["movie_credits"] % person_id, ""))
+        return self._get_obj(
+            self._call(
+                self._urls["movie_credits"] % person_id,
+                ""
+            ),
+            "cast"
+        )
 
     def tv_credits(self, person_id):
         """
@@ -76,7 +82,13 @@ class Person(TMDb):
         :param person_id:
         :return:
         """
-        return AsObj(**self._call(self._urls["tv_credits"] % person_id, ""))
+        return self._get_obj(
+            self._call(
+                self._urls["tv_credits"] % person_id,
+                ""
+            ),
+            "cast"
+        )
 
     def combined_credits(self, person_id):
         """

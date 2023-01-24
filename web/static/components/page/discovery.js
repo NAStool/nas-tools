@@ -12,82 +12,82 @@ class PageDiscovery extends CustomElement {
     super();
     this._slide_card_list = {};
     this._media_type_list = {
-      "tv": [
+      "TV": [
         {
           title:"TMDB最新电视剧",
-          type :"nt",
+          subtype :"nt",
         },
         {
           title:"TMDB热门电视剧",
-          type :"ht",
+          subtype :"ht",
         },
         {
           title:"豆瓣热门电视剧",
-          type :"dbht",
+          subtype :"dbht",
         },
         {
           title:"豆瓣热门动漫",
-          type :"dbdh",
+          subtype :"dbdh",
         },
         {
           title:"豆瓣热门综艺",
-          type :"dbzy",
-        },
+          subtype :"dbzy",
+        }
       ],
-      "movie":[
+      "MOV":[
         {
           title:"正在热映",
-          type :"dbom",
+          subtype :"dbom",
         },
         {
           title:"即将上映",
-          type :"dbnm",
+          subtype :"dbnm",
         },
         {
           title:"TMDB最新电影",
-          type :"nm",
+          subtype :"nm",
         },
         {
           title:"TMDB热门电影",
-          type :"hm",
+          subtype :"hm",
         },
         {
           title:"豆瓣热门电影",
-          type :"dbhm",
+          subtype :"dbhm",
         },
         {
           title:"豆瓣电影TOP250",
-          type :"dbtop",
-        },
+          subtype :"dbtop",
+        }
       ],
-      "bangumi": [
+      "BANGUMI": [
         {
           title:"星期一",
-          type :"bangumi",
+          subtype :"Mon",
           week :"1",
         },{
           title:"星期二",
-          type :"bangumi",
+          subtype :"Tues",
           week :"2",
         },{
           title:"星期三",
-          type :"bangumi",
+          subtype :"Wed",
           week :"3",
         },{
           title:"星期四",
-          type :"bangumi",
+          subtype :"Thur",
           week :"4",
         },{
           title:"星期五",
-          type :"bangumi",
+          subtype :"Fri",
           week :"5",
         },{
           title:"星期六",
-          type :"bangumi",
+          subtype :"Sat",
           week :"6",
         },{
           title:"星期日",
-          type :"bangumi",
+          subtype :"Sun",
           week :"7",
         },
       ]
@@ -96,9 +96,9 @@ class PageDiscovery extends CustomElement {
 
   firstUpdated() {
     for (const item of this._media_type_list[this.discovery_type]) {
-      ajax_post("get_recommend", { "type": item.type, "page": 1, "week": item.week},
+      ajax_post("get_recommend", { "type": this.discovery_type, "subtype": item.subtype, "page": 1, "week": item.week},
         (ret) => {
-          this._slide_card_list = {...this._slide_card_list, [item.type + (item.week ?? "")]: ret.Items};
+          this._slide_card_list = {...this._slide_card_list, [item.subtype]: ret.Items};
         }
       );
     }
@@ -110,14 +110,14 @@ class PageDiscovery extends CustomElement {
         ${this._media_type_list[this.discovery_type]?.map((item) => ( html`
           <custom-slide
             slide-title=${item.title}
-            slide-click="javascript:navmenu('recommend?t=${item.type}&week=${item.week ?? ""}')"
+            slide-click="javascript:navmenu('recommend?type=${this.discovery_type}&subtype=${item.subtype}&week=${item.week ?? ""}&title=${item.title}')"
             lazy="normal-card"
-            .slide_card=${this._slide_card_list[item.type + (item.week ?? "")]
-              ? this._slide_card_list[item.type + (item.week ?? "")].map((card) => ( html`
+            .slide_card=${this._slide_card_list[item.subtype]
+              ? this._slide_card_list[item.subtype].map((card) => ( html`
                 <normal-card
                   lazy=1
                   card-tmdbid=${card.id}
-                  card-pagetype=${item.type}
+                  card-pagetype=${this.discovery_type}
                   card-showsub=1
                   card-image=${card.image}
                   card-fav=${card.fav}

@@ -81,19 +81,19 @@
                             <div class="w-100">
                               {% if Rule.free_text %}
                                 <span class="badge bg-info me-1 mb-1 text-wrap text-start"
-                                      title="促销">{{ Rule.free_text }}</span>
+                                      title="促销" style='word-break: break-all'>{{ Rule.free_text }}</span>
                               {% endif %}
                               {% for include in Rule.include %}
                                 <span class="badge badge-outline text-info me-1 mb-1 text-wrap text-start"
-                                      title="包含规则">包含: {{ include }}</span>
+                                      title="包含规则" style='word-break: break-all'>包含: {{ include }}</span>
                               {% endfor %}
                               {% for exclude in Rule.exclude %}
                                 <span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start"
-                                      title="排除规则">排除: {{ exclude }}</span>
+                                      title="排除规则" style='word-break: break-all'>排除: {{ exclude }}</span>
                               {% endfor %}
                               {% if Rule.size %}
                                 <span class="badge badge-outline text-orange me-1 mb-1 text-wrap text-start"
-                                      title="大小限制">大小: {{ Rule.size }}</span>
+                                      title="大小限制" style='word-break: break-all'>大小: {{ Rule.size }}</span>
                               {% endif %}
                             </div>
                           </div>
