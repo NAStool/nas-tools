@@ -31,7 +31,7 @@ class WebUtils:
         """
         获取当前版本号
         """
-        commit_id = SystemUtils.execute('git rev-parse --short HEAD')
+        commit_id = SystemUtils.execute('git rev-parse HEAD')
         if commit_id and len(commit_id) > 7:
             commit_id = commit_id[:7]
         return "%s %s" % (APP_VERSION, commit_id)
