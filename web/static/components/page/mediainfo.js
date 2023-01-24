@@ -175,7 +175,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="演员阵容"
-            slide-click="javascript:void(0)"
+            slide-click='javascript:navmenu("discovery_person?tmdbid=${this.tmdbid}&type=${this.media_type}&title=${this.media_info.title}-演员")'
             lazy="person-card"
             .slide_card=${this.person_list.map((item) => ( html`
               <person-card
@@ -185,7 +185,7 @@ class PageMediainfo extends CustomElement {
                 person-name=${item.name}
                 person-role=${item.role}
                 @click=${() => {
-                  window.open($(item.profile), '_blank');
+                  
                 }}
               ></person-card>`))
             }

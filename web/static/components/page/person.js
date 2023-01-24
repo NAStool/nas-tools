@@ -4,29 +4,25 @@ import { CustomElement } from "../utility/utility.js";
 class PagePerson extends CustomElement {
   static properties = {
     page_title: { attribute: "page-title" },
+    media_type: { attribute: "media-type" },
+    tmdbid: { attribute: "media-tmdbid" },
     person_list: { type: Array },
   };
 
   constructor() {
     super();
-    this.page_title = "加载中.."
     this.person_list = [];
   }
 
   // 仅执行一次  界面首次刷新后
   firstUpdated() {
-    // 要从这里获取演员信息吗 ?
-    // demo
-    // const new_list = [];
-    // for (let i = 0; i < 20; i++) {
-    //     new_list.push({
-    //       id: "3131-antonio-banderas",
-    //       image: "https://www.themoviedb.org/t/p/w138_and_h175_face/iWIUEwgn2KW50MssR7tdPeFoRGW.jpg",
-    //       name: "Antonio Banderas", 
-    //       role: "Puss in Boots (voice)",
-    //     });
-    // }
-    // this.person_list = new_list;
+    ajax_post("media_person", { "tmdbid": this.tmdbid, "type": this.media_type},
+      (ret) => {
+        if (ret.code === 0) {
+          this.person_list = ret.data;
+        }
+      }
+    );
   }
 
   render() {

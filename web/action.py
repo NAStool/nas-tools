@@ -203,7 +203,8 @@ class WebAction:
             "cookiecloud_sync": self.__cookiecloud_sync,
             "media_detail": self.media_detail,
             "media_similar": self.__media_similar,
-            "media_recommendations": self.__media_recommendations
+            "media_recommendations": self.__media_recommendations,
+            "media_person": self.__media_person
         }
 
     def action(self, cmd, data=None):
@@ -4364,3 +4365,13 @@ class WebAction:
         else:
             result = Media().get_tv_recommendations(tmdbid=tmdbid, page=page)
         return {"code": 0, "data": result}
+
+    def __media_person(self, data):
+        """
+        查询TMDB媒体所有演员
+        """
+        tmdbid = data.get("tmdbid")
+        mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
+        if not tmdbid:
+            return {"code": 1, "msg": "未指定TMDBID"}
+        return {"code": 0, "data": Media().get_tmdb_cats(tmdbid=tmdbid, mtype=mtype)}

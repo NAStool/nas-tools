@@ -458,6 +458,19 @@ def discovery_detail():
                            Type=Type)
 
 
+# 演职人员页面
+@App.route('/discovery_person', methods=['POST', 'GET'])
+@login_required
+def discovery_person():
+    TmdbId = request.args.get("tmdbid")
+    Title = request.args.get("title")
+    Type = request.args.get("type")
+    return render_template("discovery/person.html",
+                           TmdbId=TmdbId,
+                           Title=Title,
+                           Type=Type)
+
+
 # 正在下载页面
 @App.route('/downloading', methods=['POST', 'GET'])
 @login_required

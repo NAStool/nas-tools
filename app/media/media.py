@@ -1563,6 +1563,21 @@ class Media:
                 directors.append(crew)
         return directors, actors
 
+    def get_tmdb_cats(self, mtype, tmdbid):
+        """
+        获取TMDB的演员列表
+        :param: mtype: 媒体类型
+        :param: tmdbid: TMDBID
+        """
+        if mtype == MediaType.MOVIE:
+            if not self.movie:
+                return []
+            return self.__dict_media_casts(self.movie.credits(tmdbid).get("cast"))
+        else:
+            if not self.tv:
+                return []
+            return self.__dict_media_casts(self.tv.credits(tmdbid).get("cast"))
+
     @staticmethod
     def get_tmdb_genres_names(tmdbinfo):
         """
