@@ -4327,19 +4327,8 @@ class WebAction:
                 "genres": MediaHander.get_tmdb_genres_names(tmdbinfo=media_info.tmdb_info),
                 "overview": media_info.overview,
                 "runtime": StringUtils.str_timehours(media_info.runtime),
-                "certification": "PG",
-                "fact": [
-                    {"评分": media_info.vote_average},
-                    {"原始标题": media_info.original_title},
-                    {"状态": media_info.tmdb_info.get("status")},
-                    {"上映日期": media_info.release_date},
-                    {"收入": media_info.tmdb_info.get("revenue")},
-                    {"成本": media_info.tmdb_info.get("budget")},
-                    {"原始语言": media_info.original_language},
-                    {"出品国家": MediaHander.get_get_production_country_names(tmdbinfo=media_info.tmdb_info)},
-                    {"制作公司": MediaHander.get_tmdb_production_company_names(tmdbinfo=media_info.tmdb_info)}
-                ],
-                "crews": MediaHander.get_tmdb_crews(tmdbinfo=media_info.tmdb_info),
+                "fact": MediaHander.get_tmdb_factinfo(media_info),
+                "crews": MediaHander.get_tmdb_crews(tmdbinfo=media_info.tmdb_info, nums=6),
                 "actors": MediaHander.get_tmdb_directors_actors(tmdbinfo=media_info.tmdb_info)[1]
             }
         }

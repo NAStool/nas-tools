@@ -34,6 +34,7 @@ class PageMediainfo extends CustomElement {
         if (ret.code === 0) {
           this.media_info = ret.data;
           this.person_list = ret.data.actors;
+          this.tmdbid = ret.data.tmdbid;
           // 类似
           ajax_post("media_similar", { "type": this.media_type, "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
@@ -114,7 +115,7 @@ class PageMediainfo extends CustomElement {
                     ${this.media_info.year ? nothing : this._render_placeholder("100px")}
                   </h1>
                   <div class="align-self-center align-self-md-start">
-                    <span class="badge badge-outline text-warning me-1" ?hidden=${!this.media_info.certification}>${this.media_info.certification}</span>
+                    <span class="badge badge-outline text-warning me-1" ?hidden=${!this.media_info.tmdbid}>${this.media_info.tmdbid}</span>
                     <span class="badge badge-outline text-primary me-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span class="">${this.media_info.genres ?? this._render_placeholder("250px")}</span>
                   </div>
@@ -132,8 +133,8 @@ class PageMediainfo extends CustomElement {
               <small>${this.media_info.overview ?? this._render_placeholder("200px", "250px", "col-12")}</small>
             </h2>
             <div class="row mx-2 mt-4">
-              ${this.media_info.crew
-              ? this.media_info.crew.map((item, index) => ( html`
+              ${this.media_info.crews
+              ? this.media_info.crews.map((item, index) => ( html`
                 <div class="col-12 col-md-6 col-lg-4">
                   <h2 class="">
                     <strong>${Object.keys(item)[0]}</strong>

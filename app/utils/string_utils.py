@@ -402,4 +402,13 @@ class StringUtils:
             return ""
         hours = minutes // 60
         minutes = minutes % 60
-        return "%s时%s分" % (hours, minutes)
+        return "%s小时%s分" % (hours, minutes)
+
+    @staticmethod
+    def str_amount(amount, curr="$"):
+        """
+        格式化显示金额
+        """
+        if not amount:
+            return "0"
+        return curr + format(amount, ",")

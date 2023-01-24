@@ -899,7 +899,7 @@ class Media:
             'vote': tv.get("vote_average"),
             'image': TMDB_IMAGE_W500_URL % tv.get("poster_path"),
             'overview': tv.get("overview")
-        } for tv in tvs]
+        } for tv in tvs or []]
 
     @staticmethod
     def __dict_movieinfos(movies):
@@ -915,7 +915,7 @@ class Media:
             'vote': movie.get("vote_average"),
             'image': TMDB_IMAGE_W500_URL % movie.get("poster_path"),
             'overview': movie.get("overview")
-        } for movie in movies]
+        } for movie in movies or []]
 
     def get_tmdb_hot_movies(self, page):
         """
@@ -925,8 +925,7 @@ class Media:
         """
         if not self.movie:
             return []
-        movies = self.movie.popular(page) or []
-        return self.__dict_movieinfos(movies)
+        return self.__dict_movieinfos(self.movie.popular(page))
 
     def get_tmdb_hot_tvs(self, page):
         """
@@ -936,8 +935,7 @@ class Media:
         """
         if not self.tv:
             return []
-        tvs = self.tv.popular(page) or []
-        return self.__dict_tvinfos(tvs)
+        return self.__dict_tvinfos(self.tv.popular(page))
 
     def get_tmdb_new_movies(self, page):
         """
@@ -947,8 +945,7 @@ class Media:
         """
         if not self.movie:
             return []
-        movies = self.movie.now_playing(page) or []
-        return self.__dict_movieinfos(movies)
+        return self.__dict_movieinfos(self.movie.now_playing(page))
 
     def get_tmdb_new_tvs(self, page):
         """
@@ -958,8 +955,7 @@ class Media:
         """
         if not self.tv:
             return []
-        tvs = self.tv.on_the_air(page) or []
-        return self.__dict_tvinfos(tvs)
+        return self.__dict_tvinfos(self.tv.on_the_air(page))
 
     def get_tmdb_upcoming_movies(self, page):
         """
@@ -969,8 +965,7 @@ class Media:
         """
         if not self.movie:
             return []
-        movies = self.movie.upcoming(page) or []
-        return self.__dict_movieinfos(movies)
+        return self.__dict_movieinfos(self.movie.upcoming(page))
 
     def __get_tmdb_movie_detail(self, tmdbid, append_to_response=None):
         """
@@ -1476,7 +1471,45 @@ class Media:
         return 0
 
     @staticmethod
-    def get_tmdb_directors_actors(tmdbinfo):
+    def __dict_media_crews(crews):
+        """
+        字典化媒体工作人员
+        """
+        return [{
+            "id": crew.get("id"),
+            "gender": crew.get("gender"),
+            "known_for_department": crew.get("known_for_department"),
+            "name": crew.get("name"),
+            "original_name": crew.get("original_name"),
+            "popularity": crew.get("popularity"),
+            "image": TMDB_IMAGE_FACE_URL % crew.get("profile_path"),
+            "credit_id": crew.get("credit_id"),
+            "department": crew.get("department"),
+            "job": crew.get("job"),
+            "profile": TMDB_PEOPLE_PROFILE_URL % crew.get('id')
+        } for crew in crews or []]
+
+    @staticmethod
+    def __dict_media_casts(casts):
+        """
+        字典化媒体演职人员
+        """
+        return [{
+            "id": cast.get("id"),
+            "gender": cast.get("gender"),
+            "known_for_department": cast.get("known_for_department"),
+            "name": cast.get("name"),
+            "original_name": cast.get("original_name"),
+            "popularity": cast.get("popularity"),
+            "image": TMDB_IMAGE_FACE_URL % cast.get("profile_path"),
+            "cast_id": cast.get("cast_id"),
+            "role": cast.get("character"),
+            "credit_id": cast.get("credit_id"),
+            "order": cast.get("order"),
+            "profile": TMDB_PEOPLE_PROFILE_URL % cast.get('id')
+        } for cast in casts or []]
+
+    def get_tmdb_directors_actors(self, tmdbinfo):
         """
         查询导演和演员
         :param tmdbinfo: TMDB元数据
@@ -1518,43 +1551,16 @@ class Media:
         if not tmdbinfo:
             return [], []
         _credits = tmdbinfo.get("credits")
+        if not _credits:
+            return [], []
         directors = []
         actors = []
-        for cast in _credits.get("cast") or []:
-            if not cast:
-                continue
+        for cast in self.__dict_media_casts(_credits.get("cast")):
             if cast.get("known_for_department") == "Acting":
-                actors.append({
-                    "id": cast.get("id"),
-                    "gender": cast.get("gender"),
-                    "known_for_department": cast.get("known_for_department"),
-                    "name": cast.get("name"),
-                    "original_name": cast.get("original_name"),
-                    "popularity": cast.get("popularity"),
-                    "image": TMDB_IMAGE_FACE_URL % cast.get("profile_path"),
-                    "cast_id": cast.get("cast_id"),
-                    "role": cast.get("character"),
-                    "credit_id": cast.get("credit_id"),
-                    "order": cast.get("order"),
-                    "profile": f"https://www.themoviedb.org/person/{cast.get('id')}"
-                })
-        for crew in _credits.get("crew") or []:
-            if not crew:
-                continue
+                actors.append(cast)
+        for crew in self.__dict_media_crews(_credits.get("crew")):
             if crew.get("job") == "Director":
-                directors.append({
-                    "id": crew.get("id"),
-                    "gender": crew.get("gender"),
-                    "known_for_department": crew.get("known_for_department"),
-                    "name": crew.get("name"),
-                    "original_name": crew.get("original_name"),
-                    "popularity": crew.get("popularity"),
-                    "image": TMDB_IMAGE_FACE_URL % crew.get("profile_path"),
-                    "credit_id": crew.get("credit_id"),
-                    "department": crew.get("department"),
-                    "job": crew.get("job"),
-                    "profile": TMDB_PEOPLE_PROFILE_URL % crew.get('id')
-                })
+                directors.append(crew)
         return directors, actors
 
     @staticmethod
@@ -1637,14 +1643,18 @@ class Media:
         return ", ".join(companies_list) if companies_list else ""
 
     @staticmethod
-    def get_tmdb_crews(tmdbinfo):
+    def get_tmdb_crews(tmdbinfo, nums=None):
         """
         从TMDB数据中获取制片人员
         """
         if not tmdbinfo:
             return ""
         crews = tmdbinfo.get("credits", {}).get("crew") or []
-        return [{crew.get("name"): crew.get("job")} for crew in crews]
+        result = [{crew.get("name"): crew.get("job")} for crew in crews]
+        if nums:
+            return result[:nums]
+        else:
+            return result
 
     def get_tmdb_en_title(self, media_info):
         """
@@ -2005,3 +2015,34 @@ class Media:
             return "https://www.themoviedb.org/movie/%s" % tmdbid
         else:
             return "https://www.themoviedb.org/tv/%s" % tmdbid
+
+    def get_tmdb_factinfo(self, media_info):
+        """
+        获取TMDB发布信息
+        """
+        result = []
+        if media_info.vote_average:
+            result.append({"评分": media_info.vote_average})
+        if media_info.original_title:
+            result.append({"原始标题": media_info.original_title})
+        status = media_info.tmdb_info.get("status")
+        if status:
+            result.append({"状态": status})
+        if media_info.release_date:
+            result.append({"上映日期": media_info.release_date})
+        revenue = media_info.tmdb_info.get("revenue")
+        if revenue:
+            result.append({"收入": StringUtils.str_amount(revenue)})
+        budget = media_info.tmdb_info.get("budget")
+        if media_info.vote_average:
+            result.append({"成本": StringUtils.str_amount(budget)})
+        if budget:
+            result.append({"原始语言": media_info.original_language})
+        production_country = self.get_get_production_country_names(tmdbinfo=media_info.tmdb_info)
+        if production_country:
+            result.append({"出品国家": production_country}),
+        production_company = self.get_tmdb_production_company_names(tmdbinfo=media_info.tmdb_info)
+        if production_company:
+            result.append({"制作公司": production_company})
+
+        return result
