@@ -175,7 +175,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="演员阵容"
-            slide-click='javascript:navmenu("discovery_person?tmdbid=${this.tmdbid}&type=${this.media_type}&title=${this.media_info.title}-演员")'
+            slide-click='javascript:navmenu("discovery_person?tmdbid=${this.tmdbid}&type=${this.media_type}&title=演员&subtitle=${this.media_info.title}")'
             lazy="person-card"
             .slide_card=${this.person_list.map((item) => ( html`
               <person-card
@@ -185,7 +185,7 @@ class PageMediainfo extends CustomElement {
                 person-name=${item.name}
                 person-role=${item.role}
                 @click=${() => {
-                  navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title="+item.name+"-参演作品")
+                  navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title=参演作品&subtitle="+item.name)
                 }}
               ></person-card>`))
             }
@@ -197,7 +197,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="类似"
-            slide-click="javascript:navmenu('recommend?type=${this.media_type}&subtype=sim&tmdbid=${this.tmdbid}&title=${this.media_info.title}-类似')"
+            slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=sim&tmdbid=${this.tmdbid}&title=类似&subtitle=${this.media_info.title}")'
             lazy="normal-card"
             .slide_card=${this.similar_media.map((item) => ( html`
               <normal-card
@@ -221,7 +221,7 @@ class PageMediainfo extends CustomElement {
         ? html`
           <custom-slide
             slide-title="推荐"
-            slide-click="javascript:navmenu('recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}&title=${this.media_info.title}-推荐')"
+            slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}title=推荐&subtitle=${this.media_info.title}")'
             lazy="normal-card"
             .slide_card=${this.recommend_media.map((item) => ( html`
               <normal-card

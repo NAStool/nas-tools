@@ -4,6 +4,7 @@ import { CustomElement } from "../utility/utility.js";
 class PagePerson extends CustomElement {
   static properties = {
     page_title: { attribute: "page-title" },
+    page_subtitle: { attribute: "page-subtitle"},
     media_type: { attribute: "media-type" },
     tmdbid: { attribute: "media-tmdbid" },
     person_list: { type: Array },
@@ -32,6 +33,7 @@ class PagePerson extends CustomElement {
           <div class="row align-items-center">
             <div class="col">
               <h2 class="page-title">${this.page_title}</h2>
+              <div class="text-muted mt-1 d-none d-md-block">${this.page_subtitle}</div>
             </div>
           </div>
         </div>
@@ -48,7 +50,7 @@ class PagePerson extends CustomElement {
                   person-name=${item.name}
                   person-role=${item.role}
                   @click=${() => {
-                    navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title="+item.name+"-参演作品")
+                    navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title=参演作品&subtitle="+item.name)
                   }}
                 ></person-card>
               </div>` ) )

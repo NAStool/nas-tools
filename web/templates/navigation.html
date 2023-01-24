@@ -2541,17 +2541,25 @@
   }
 
   // 检查新版本
-  const AppVersion = "{{ AppVersion }}".split(" ")[0];
   let NewVersion = '';
   $("#new_version_tip").hide();
 
   function check_new_version() {
     ajax_post("version", {}, function (ret) {
       if (ret.code === 0) {
-        if (compareVersion(ret.version, AppVersion) > 0) {
-          $("#new_version_info").html(ret.info);
-          $("#new_version_tip").show();
+        let url = null;
+        switch (compareVersion(ret.version, "{{ AppVersion }}")) {
+          case 1:
+            url = ret.url;
+            break;
+          case 2:
+            url = "https://github.com/jxxghp/nas-tools/commits/master"
+            break;
+        }
+        if (url) {
           NewVersion = ret.version;
+          $("#new_version_info").html(`<a href="${url}" target="_blank">${ret.version}</a>`);
+          $("#new_version_tip").show();
         }
       }
     });
