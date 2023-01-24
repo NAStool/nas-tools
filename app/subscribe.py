@@ -93,6 +93,7 @@ class Subscribe:
         filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
         total_ep = int(total_ep) if str(total_ep).isdigit() else None
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
+        download_setting = int(download_setting) if str(download_setting).replace("-", "").isdigit() else ""
         fuzzy_match = True if fuzzy_match else False
         # 检索媒体信息
         if not fuzzy_match:
