@@ -66,6 +66,10 @@
         border: 1px dashed var(--tblr-border-color) !important;
       }
 
+      .navbar {
+        min-height: 3rem !important;
+      }
+
       .navbar-vertical {
         padding-top: env(safe-area-inset-top) !important;
         position: fixed !important;
@@ -89,7 +93,7 @@
       }
 
       .page-wrapper {
-        margin-top: calc(env(safe-area-inset-top) + 56px) !important;
+        margin-top: calc(env(safe-area-inset-top) + 51px) !important;
         height: 100% !important;
         overflow: scroll !important;
       }
@@ -146,7 +150,7 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
-  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top" style="backdrop-filter: blur(5px);">
+  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
               data-bs-target="#navbar-menu">
@@ -154,7 +158,7 @@
       </button>
       <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
         <a href="javascript:ScrollToTop()">
-          <img src="../static/img/logo-blue.png" height="48" alt="NAStool" class="navbar-brand-image">
+          <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
         </a>
       </h1>
       <div class="navbar-nav flex-row d-lg-none">

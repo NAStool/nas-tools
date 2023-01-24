@@ -4329,7 +4329,8 @@ class WebAction:
                 "runtime": StringUtils.str_timehours(media_info.runtime),
                 "fact": MediaHander.get_tmdb_factinfo(media_info),
                 "crews": MediaHander.get_tmdb_crews(tmdbinfo=media_info.tmdb_info, nums=6),
-                "actors": MediaHander.get_tmdb_directors_actors(tmdbinfo=media_info.tmdb_info)[1]
+                "actors": MediaHander.get_tmdb_directors_actors(tmdbinfo=media_info.tmdb_info)[1],
+                "link": media_info.get_detail_url()
             }
         }
 

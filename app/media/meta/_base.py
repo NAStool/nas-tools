@@ -503,7 +503,7 @@ class MetaBase(object):
             self.title = info.get('name')
             self.original_title = info.get('original_name')
             self.original_language = info.get('original_language')
-            self.runtime = info.get("runtime")
+            self.runtime = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
             self.release_date = info.get('first_air_date')
             if self.release_date:
                 self.year = self.release_date[0:4]

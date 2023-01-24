@@ -108,14 +108,14 @@ class PageMediainfo extends CustomElement {
                 img-src=${this.media_info.image}>
               </custom-img>
               <div class="d-flex justify-content-center">
-                <div class="d-flex flex-column justify-content-end ms-2">
+                <div class="d-flex flex-column justify-content-end ms-2 mt-2">
                   <h1 class="align-self-center align-self-md-start display-6">
                     <strong>${this.media_info.title ?? this._render_placeholder("200px")}</strong>
                     <strong class="h1" ?hidden=${!this.media_info.year}>(${this.media_info.year})</strong>
                     ${this.media_info.year ? nothing : this._render_placeholder("100px")}
                   </h1>
                   <div class="align-self-center align-self-md-start">
-                    <span class="badge badge-outline text-warning me-1" ?hidden=${!this.media_info.tmdbid}>${this.media_info.tmdbid}</span>
+                    <a href="${this.media_info.link}" target="_blank"><span class="badge badge-outline text-warning me-1" ?hidden=${!this.media_info.tmdbid}>${this.media_info.tmdbid}</span></a>
                     <span class="badge badge-outline text-primary me-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span class="">${this.media_info.genres ?? this._render_placeholder("250px")}</span>
                   </div>
