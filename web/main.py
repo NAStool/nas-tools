@@ -411,6 +411,7 @@ def recommend():
     Type = request.args.get("type")
     SubType = request.args.get("subtype")
     Title = request.args.get("title")
+    SubTitle = request.args.get("subtitle")
     CurrentPage = request.args.get("page") or 1
     Week = request.args.get("week") or None
     TmdbId = request.args.get("tmdbid") or None
@@ -422,7 +423,8 @@ def recommend():
                            CurrentPage=CurrentPage,
                            Week=Week,
                            TmdbId=TmdbId,
-                           PersonId=PersonId)
+                           PersonId=PersonId,
+                           SubTitle=SubTitle)
 
 
 # 电影推荐页面
@@ -466,10 +468,12 @@ def discovery_detail():
 def discovery_person():
     TmdbId = request.args.get("tmdbid")
     Title = request.args.get("title")
+    SubTitle = request.args.get("subtitle")
     Type = request.args.get("type")
     return render_template("discovery/person.html",
                            TmdbId=TmdbId,
                            Title=Title,
+                           SubTitle=SubTitle,
                            Type=Type)
 
 
