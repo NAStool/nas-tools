@@ -176,7 +176,9 @@
   tableDataList = new List('site-resources-table', {
     sortClass: 'table-sort',
     listClass: 'table-tbody',
-    valueNames: ['sort-pubdate', 'sort-size', 'sort-seeders', 'sort-peers', 'sort-grabs']
+    valueNames: ['sort-seeders', 'sort-peers', 'sort-grabs',
+                {attr: 'data-size', name: 'sort-size'},
+                {attr: 'data-pubdate', name: 'sort-pubdate'}]
   });
 
   //跳转页
