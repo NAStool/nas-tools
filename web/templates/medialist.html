@@ -5,13 +5,8 @@
       <div class="row row-cards">
         {% for Media in Medias %}
           <div class="col-12 col-xl-6">
-            {% if OperType == 'search' %}
-              <a class="card card-link card-link-pop rounded-3"
-                 href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
-                 style="padding:0 0; overflow:hidden">
-            {% else %}
-              <div class="card card-link-pop rounded-3" style="padding:0 0; overflow:hidden">
-            {% endif %}
+            <div class="card rounded-3"
+               style="padding:0 0; overflow:hidden">
             {% if Media.vote_average %}
               <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
             {% endif %}
@@ -20,46 +15,44 @@
                 <span class="badge badge-pill {% if Media.type== '电影' %}bg-green{% else %}bg-blue{% endif %}"
                     style="position:absolute;top:10px;left:10px;">{{ Media.type}}</span>
                 <custom-img img-src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
-                            img-class="w-100 h-100 object-cover shadow"
+                            img-class="w-100 h-100 object-cover shadow-sm"
                             img-ratio="150%"
                 ></custom-img>
               </div>
               <div class="col">
-                <div class="card-body">
+                <div class="card-body p-1 pt-3">
                   <h2>
-                    {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
+                    <a href='javascript:navmenu("discovery_detail?type={{ Media.type}}&id={{ Media.tmdb_id }}")'>
+                      {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
+                    </a>
                   </h2>
                   <div>
-                    <span class="badge badge-outline {% if Media.fav == 2 %}text-green{% else %}text-orange{% endif %} mb-1">
-                      {% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}
-                        {{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
-                    </span>
+                     <a href="{{ Media.link }}" target="_blank" >
+                      <span class="badge badge-outline {% if Media.fav == 2 %}text-green{% else %}text-orange{% endif %} mb-1">
+                        {% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}
+                          {{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                      </span>
+                    </a>
                   </div>
-                  <div class="text-muted mb-3 pb-3">
+                  <div class="text-muted mb-3">
                     {{ Media.overview|truncate(50, True) }}
                   </div>
                 </div>
               </div>
             </div>
-            {% if OperType != 'search' %}
-              <div class="d-flex">
-                <a href='javascript:add_medialist_rss_media("{{ Media.title }}","{{ Media.year }}","{{ Media.type}}","{{ Media.tmdb_id }}")'
-                   class="card-btn">
-                  <span class="me-2 text-muted">{{ SVG.rss() }}</span>
-                  订阅
-                </a>
-                <a href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
-                   class="card-btn">
-                  <span class="me-2 text-muted">{{ SVG.search() }}</span>
-                  搜索
-                </a>
-              </div>
-            {% endif %}
-            {% if OperType != 'search' %}
-              </div>
-            {% else %}
+            <div class="d-flex">
+              <a href='javascript:add_medialist_rss_media("{{ Media.title }}","{{ Media.year }}","{{ Media.type}}","{{ Media.tmdb_id }}")'
+                 class="card-btn">
+                <span class="me-2 text-muted">{{ SVG.rss() }}</span>
+                订阅
               </a>
-            {% endif %}
+              <a href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
+                 class="card-btn">
+                <span class="me-2 text-muted">{{ SVG.search() }}</span>
+                搜索
+              </a>
+            </div>
+            </div>
           </div>
         {% endfor %}
       </div>
