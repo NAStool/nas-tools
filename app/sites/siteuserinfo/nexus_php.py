@@ -174,6 +174,9 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         next_page_text = html.xpath('//a[contains(.//text(), "下一页") or contains(.//text(), "下一頁")]/@href')
         if next_page_text:
             next_page = next_page_text[-1].strip()
+            # fix up page url
+            if self.userid not in next_page:
+                next_page = f'{next_page}&userid={self.userid}&type=seeding'
 
         return next_page
 

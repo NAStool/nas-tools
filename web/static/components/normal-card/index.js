@@ -141,7 +141,7 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
              class="card-img-overlay rounded-4 ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5); box-shadow:0 0 0 1px #dddddd;"
-             @click=${() => { navmenu(`discovery_detail?type=${this.page_type}&id=${this.tmdb_id}`) }}>
+             @click=${() => { navmenu(`discovery_detail?type=${this.page_type}&id=${this.tmdb_id}&fav=${this.fav}`) }}>
           <div style="cursor: pointer">
             ${this.year ? html`<div class="text-white"><strong>${this.site ? this.site : this.year}</strong></div>` : nothing }
             ${this.title
@@ -174,50 +174,16 @@ export class NormalCard extends observeState(CustomElement) {
 
   _loveClick(e) {
     e.stopPropagation();
-    const self = this;
-    if (self.fav == "1"){
-      show_ask_modal("是否确定将 " + self.title + " 从订阅中移除？", function () {
-        hide_ask_modal();
-        remove_rss_media(self.title, self.year, self.page_type, "", "", self.tmdb_id, function () {
-          self.fav = "0";
-        });
+    Golbal.lit_love_click(this.title, this.year, this.page_type, this.tmdb_id, this.fav,
+      () => {
+        this.fav = "0";
+      },
+      () => {
+        this.fav = "1";
+        window_history();
       });
-    } else {
-      show_ask_modal("是否确定订阅： " + self.title + "？", function () {
-        hide_ask_modal();
-        function add_red_heart(){
-          self.fav = "1";
-          window_history();
-        }
-        let tid;
-        let did;
-        if (self.tmdb_id && self.tmdb_id.startsWith("DB:")) {
-          did = self.tmdb_id.replace("DB:", "");
-          tid = "";
-        } else if (isNaN(self.tmdb_id)) {
-          did = "";
-          tid = "";
-        } else {
-          did = "";
-          tid = self.tmdb_id;
-        }
-        if (!tid || self.page_type == "MOV") {
-          add_rss_media(self.title, self.year, self.page_type, tid, did, "", "", add_red_heart);
-        } else {
-          ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {
-            if (ret.seasons.length === 1) {
-              add_rss_media(self.title, self.year, "TV", tid, did, "", "", add_red_heart);
-            } else if (ret.seasons.length > 1) {
-              show_rss_seasons_modal(self.title, self.year, "TV", tid, did, ret.seasons, add_red_heart);
-            } else {
-              show_fail_modal(self.title + " 添加RSS订阅失败：未查询到季信息！");
-            }
-          });
-        }
-      });
-    }
   }
-
+  
 }
 
 window.customElements.define("normal-card", NormalCard);

@@ -5,7 +5,7 @@
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title" id="recommend_title"></h2>
-        <div class="text-muted mt-1 d-none d-md-block" id="recommend_subtitle"></div>
+        <div class="text-muted mt-1" id="recommend_subtitle"></div>
       </div>
     </div>
   </div>
@@ -28,7 +28,7 @@
   var SubType = '{{ SubType }}';
 
   // 子标题
-  var SubTitle = '{{ SubTitle }}';
+  var SubTitle = '{{ SubTitle or "" }}';
   if (SubTitle) {
     $("#recommend_subtitle").text("{{ SubTitle }}").show();
   } else {

@@ -1,5 +1,5 @@
 import { html, nothing } from "../utility/lit-core.min.js";
-import { CustomElement } from "../utility/utility.js";
+import { CustomElement, Golbal } from "../utility/utility.js";
 
 class PageMediainfo extends CustomElement {
   static properties = {
@@ -7,10 +7,10 @@ class PageMediainfo extends CustomElement {
     media_type: { attribute: "media-type" },
     // TMDBID/DB:豆瓣ID
     tmdbid: { attribute: "media-tmdbid" },
+    // 是否订阅/下载
+    fav: { attribute: "media-fav" , reflect: true},
     // 媒体信息
     media_info: { type: Object },
-    // 演员阵容
-    person_list: { type: Array },
     // 类似影片
     similar_media: { type: Array },
     // 推荐影片
@@ -20,9 +20,9 @@ class PageMediainfo extends CustomElement {
   constructor() {
     super();
     this.media_info = {};
-    this.person_list = [];
     this.similar_media = [];
     this.recommend_media = [];
+    this.fav = undefined;
   }
 
   firstUpdated() {
@@ -30,11 +30,9 @@ class PageMediainfo extends CustomElement {
     // 媒体信息、演员阵容
     ajax_post("media_detail", { "type": this.media_type, "tmdbid": this.tmdbid},
       (ret) => {
-        console.log(ret);
         if (ret.code === 0) {
           this.media_info = ret.data;
-          this.person_list = ret.data.actors;
-          this.tmdbid = ret.data.tmdbid;
+          this.tmdbid = ret.data.tmdbid + "";
           // 类似
           ajax_post("get_recommend", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
@@ -119,6 +117,38 @@ class PageMediainfo extends CustomElement {
                     <span class="badge badge-outline text-primary me-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span class="">${this.media_info.genres ?? this._render_placeholder("250px")}</span>
                   </div>
+                  <div class="align-self-center align-self-md-start me-1 mt-2">
+                    ${this.fav && Object.keys(this.media_info).length !== 0
+                    ? html`
+                      ${this.fav == "2"
+                      ? html`<strong class="badge badge-pill bg-green text-white">已下载</strong>`
+                      : html`
+                        <a class="btn btn-teal me-1"
+                          href='javascript:media_search("${this.tmdbid}", "${this.media_info.title}", "${this.media_type}")'>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                          搜索资源
+                        </a>
+                        ${this.fav == "0"
+                        ? html`
+                          <span class="btn btn-primary"
+                            @click=${this._loveClick}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                            添加订阅
+                          </span>`
+                        : html`
+                          <span class="btn btn-pinterest"
+                            @click=${this._loveClick}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                            删除订阅
+                          </span>`
+                        }`
+                      }`
+                    : html`
+                      <span class="me-1">${this._render_placeholder("100px", "30px")}</span>
+                      <span class="me-1">${this._render_placeholder("100px", "30px")}</span>
+                      `
+                    }
+                  </div>
                 </div>
               </div>
             </div>
@@ -171,13 +201,13 @@ class PageMediainfo extends CustomElement {
         </div>
 
         <!-- 渲染演员阵容 -->
-        ${this.person_list.length
+        ${this.media_info.actors && this.media_info.actors.length
         ? html`
           <custom-slide
             slide-title="演员阵容"
             slide-click='javascript:navmenu("discovery_person?tmdbid=${this.tmdbid}&type=${this.media_type}&title=演员&subtitle=${this.media_info.title}")'
             lazy="person-card"
-            .slide_card=${this.person_list.map((item) => ( html`
+            .slide_card=${this.media_info.actors.map((item) => ( html`
               <person-card
                 lazy=1
                 person-id=${item.id}
@@ -243,6 +273,19 @@ class PageMediainfo extends CustomElement {
       </div>
     `;
   }
+
+  _loveClick(e) {
+    e.stopPropagation();
+    Golbal.lit_love_click(this.media_info.title, this.media_info.year, this.media_type, this.tmdbid, this.fav,
+      () => {
+        this.fav = "0";
+      },
+      () => {
+        this.fav = "1";
+        window_history();
+      });
+  }
+
 
 }
 

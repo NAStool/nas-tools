@@ -33,7 +33,7 @@ class PagePerson extends CustomElement {
           <div class="row align-items-center">
             <div class="col">
               <h2 class="page-title">${this.page_title}</h2>
-              <div class="text-muted mt-1 d-none d-md-block">${this.page_subtitle}</div>
+              <div class="text-muted mt-1">${this.page_subtitle}</div>
             </div>
           </div>
         </div>

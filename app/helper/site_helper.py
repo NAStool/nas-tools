@@ -24,4 +24,8 @@ class SiteHelper:
         if logout_or_usercp:
             return True
 
+        user_info_div = html.xpath('//div[@class="user-info-side"]')
+        if user_info_div:
+            return True
+
         return False
