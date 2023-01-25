@@ -4261,7 +4261,7 @@ class WebAction:
         tmdbid = data.get("tmdbid")
         mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
         if not tmdbid:
-            return {"code": 1, "msg": "未指定TMDBID"}
+            return {"code": 1, "msg": "未指定媒体ID"}
         MediaHander = Media()
         DoubanHander = DouBan()
         FileHandler = FileTransfer()
@@ -4269,50 +4269,58 @@ class WebAction:
         if str(tmdbid).startswith("DB:"):
             # 豆瓣
             doubanid = str(tmdbid)[3:]
-            douban_info = DoubanHander.get_douban_detail(doubanid=doubanid, mtype=mtype)
-            if not douban_info:
+            info = DoubanHander.get_douban_detail(doubanid=doubanid, mtype=mtype)
+            if not info:
                 return {
                     "code": 1,
                     "msg": "无法查询到豆瓣信息"
                 }
-            media_info = MediaHander.get_media_info(title="%s %s" % (douban_info.get("title"),
-                                                                     douban_info.get("year")),
-                                                    mtype=mtype,
-                                                    append_to_response="all")
+            title = info.get("title")
+            original_title = info.get("original_title")
+            year = info.get("year")
+            media_info = None
+            if original_title:
+                media_info = MediaHander.get_media_info(title=f"{original_title} {year}",
+                                                        mtype=mtype,
+                                                        append_to_response="all")
             if not media_info or not media_info.tmdb_info:
-                return {
-                    "code": 1,
-                    "msg": "无法查询到TMDB信息",
-                    "doubaninfo": douban_info
-                }
+                media_info = MediaHander.get_media_info(title=f"{title} {year}",
+                                                        mtype=mtype,
+                                                        append_to_response="all")
         elif str(tmdbid).startswith("BG:"):
             # BANGUMI
             bangumiid = str(tmdbid)[3:]
-            bangumi_info = BangumiHandler.detail(bid=bangumiid)
-            if not bangumi_info:
+            info = BangumiHandler.detail(bid=bangumiid)
+            if not info:
                 return {
                     "code": 1,
-                    "msg": "无法查询Bangumi信息",
-                    "bangumi_info": bangumi_info
+                    "msg": "无法查询Bangumi信息"
                 }
-            title = bangumi_info.get("name")
-            title_cn = bangumi_info.get("name_cn")
-            year = bangumi_info.get("date")[:4] if bangumi_info.get("date") else ""
+            title = info.get("name")
+            title_cn = info.get("name_cn")
+            year = info.get("date")[:4] if info.get("date") else ""
             media_info = MediaHander.get_media_info(title=f"{title} {year}", mtype=MediaType.TV)
             if not media_info or not media_info.tmdb_info:
                 media_info = MediaHander.get_media_info(title=f"{title_cn} {year}", mtype=MediaType.TV)
         else:
             # TMDB
-            tmdbinfo = MediaHander.get_tmdb_info(tmdbid=tmdbid,
-                                                 mtype=mtype,
-                                                 append_to_response="all")
-            if not tmdbinfo:
+            info = MediaHander.get_tmdb_info(tmdbid=tmdbid,
+                                             mtype=mtype,
+                                             append_to_response="all")
+            if not info:
                 return {
                     "code": 1,
                     "msg": "无法查询到TMDB信息"
                 }
-            media_info = MetaInfo(title=tmdbinfo.get("title") if mtype == MediaType.MOVIE else tmdbinfo.get("name"))
-            media_info.set_tmdb_info(tmdbinfo)
+            media_info = MetaInfo(title=info.get("title") if mtype == MediaType.MOVIE else info.get("name"))
+            media_info.set_tmdb_info(info)
+        # 检查TMDB信息
+        if not media_info or not media_info.tmdb_info:
+            return {
+                "code": 1,
+                "msg": "无法查询到TMDB信息",
+                "info": info
+            }
         # 查询存在及订阅状态
         fav, rssid = FileHandler.get_media_exists_flag(mtype=mtype,
                                                        title=media_info.title,
