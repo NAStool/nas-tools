@@ -522,7 +522,7 @@ class Message(object):
         """
         if client_type:
             for client in self._active_clients:
-                if client.get("search_type") == client_type:
+                if client.get("search_type") == client_type and int(client.get("interactive")) == 1:
                     return client
             return None
         else:
