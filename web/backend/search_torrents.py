@@ -37,6 +37,9 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if not key_word:
         log.info("【Web】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
+    # 类型
+    if media_type:
+        mtype = media_type
     # 开始进度
     search_process = ProgressHelper()
     search_process.start('search')

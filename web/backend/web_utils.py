@@ -109,6 +109,11 @@ class WebUtils:
             info = Media().get_tmdb_info(tmdbid=mediaid,
                                          mtype=mtype,
                                          append_to_response="all")
+            if not info:
+                return {
+                    "code": 1,
+                    "msg": "无法查询TMDB信息"
+                }
             media_info = MetaInfo(title=info.get("title") if mtype == MediaType.MOVIE else info.get("name"))
             media_info.set_tmdb_info(info)
 
