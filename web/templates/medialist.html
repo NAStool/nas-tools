@@ -83,27 +83,20 @@
 <script type="text/javascript">
 
   //点击订阅按钮
-  function add_medialist_rss_media(name, year, type, tmdbid) {
-    let doubanid;
+  function add_medialist_rss_media(name, year, type, mediaid) {
     if (type === "电影") {
       type = "MOV";
     } else {
       type = "TV";
     }
-    if (tmdbid && tmdbid.startsWith("DB:")) {
-      doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
+    if (type === "MOV") {
+      add_rss_media(name, year, type, mediaid);
     } else {
-      doubanid = "";
-    }
-    if (!tmdbid || type === "MOV") {
-      add_rss_media(name, year, type, tmdbid, doubanid);
-    } else {
-      ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function (ret) {
+      ajax_post("get_tvseason_list", {tmdbid: mediaid}, function (ret) {
         if (ret.seasons.length === 1) {
-          add_rss_media(name, year, type, tmdbid, doubanid);
+          add_rss_media(name, year, type, mediaid);
         } else if (ret.seasons.length > 1) {
-          show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons);
+          show_rss_seasons_modal(name, year, type, mediaid, ret.seasons);
         } else {
           show_fail_modal(`${name} 添加RSS订阅失败：未查询到季信息！`);
         }

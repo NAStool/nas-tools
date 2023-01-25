@@ -41,23 +41,10 @@ export class Golbal {
   }
 
   static convert_mediaid(tmdbid) {
-    let doubanid;
     if (typeof(tmdbid) === "number") {
       tmdbid = tmdbid + "";
     }
-    if (tmdbid && tmdbid.startsWith("DB:")) {
-      doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    } else if (isNaN(tmdbid)) {
-      doubanid = "";
-      tmdbid = "";
-    } else {
-      doubanid = "";
-    }
-    return {
-      doubanid: doubanid,
-      tmdbid: tmdbid,
-    }
+    return tmdbid
   }
 
   static lit_love_click(title, year, page_type, tmdb_id, fav, remove_func, add_func) {
@@ -70,14 +57,14 @@ export class Golbal {
       show_ask_modal("是否确定订阅： " + title + "？", function () {
         hide_ask_modal();
         const mediaid = Golbal.convert_mediaid(tmdb_id);
-        if (!mediaid.tmdbid || page_type == "MOV") {
-          add_rss_media(title, year, page_type, mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
+        if (page_type == "MOV") {
+          add_rss_media(title, year, page_type, mediaid, "", "", add_func);
         } else {
-          ajax_post("get_tvseason_list", mediaid, function (ret) {
+          ajax_post("get_tvseason_list", {tmdbid: mediaid}, function (ret) {
             if (ret.seasons.length === 1) {
-              add_rss_media(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
+              add_rss_media(title, year, "TV", mediaid, "", "", add_func);
             } else if (ret.seasons.length > 1) {
-              show_rss_seasons_modal(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, ret.seasons, add_func);
+              show_rss_seasons_modal(title, year, "TV", mediaid, ret.seasons, add_func);
             } else {
               show_fail_modal(title + " 添加RSS订阅失败：未查询到季信息！");
             }
