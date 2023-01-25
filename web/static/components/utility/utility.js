@@ -42,7 +42,9 @@ export class Golbal {
 
   static convert_mediaid(tmdbid) {
     let doubanid;
-    tmdbid = tmdbid + "";
+    if (typeof(tmdbid) === "number") {
+      tmdbid = tmdbid + "";
+    }
     if (tmdbid && tmdbid.startsWith("DB:")) {
       doubanid = tmdbid.replace("DB:", "");
       tmdbid = "";
