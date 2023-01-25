@@ -488,7 +488,7 @@ class MetaBase(object):
             self.tvdb_id = info.get("external_ids", {}).get("tvdb_id", 0)
             self.imdb_id = info.get("external_ids", {}).get("imdb_id", "")
         self.tmdb_info = info
-        self.vote_average = round(info.get('vote_average'), 1)
+        self.vote_average = round(float(info.get('vote_average')), 1) if info.get('vote_average') else 0
         self.overview = info.get('overview')
         if self.type == MediaType.MOVIE:
             self.title = info.get('title')
@@ -690,13 +690,15 @@ class MetaBase(object):
         转化为字典
         """
         return {
+            "id": self.tmdb_id,
+            'orgid': self.tmdb_id,
             "title": self.title,
             "year": self.year,
             "type": self.type.value if self.type else "",
+            'vote': self.vote_average,
+            'image': self.poster_path,
             "imdb_id": self.imdb_id,
             "tmdb_id": self.tmdb_id,
             "overview": str(self.overview).strip() if self.overview else '',
-            "poster_path": self.poster_path,
-            "backdrop_path": self.backdrop_path,
             "link": self.get_detail_url()
         }

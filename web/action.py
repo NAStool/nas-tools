@@ -3436,41 +3436,14 @@ class WebAction:
         """
         根据关键字搜索相似词条
         """
-        medias = []
         SearchWord = data.get("keyword")
         if not SearchWord:
             return []
         SearchSourceType = data.get("searchtype")
-        if SearchSourceType == "tmdb":
-            use_douban_titles = False
-        else:
-            use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
-        _mediaserver = MediaServer()
-        if use_douban_titles:
-            _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
-            medias = DouBan().search_douban_medias(keyword=key_word,
-                                                   season=season_num,
-                                                   episode=episode_num)
-            for media in medias:
-                if _mediaserver.check_item_exists(title=media.title, year=media.year, tmdbid=media.tmdb_id):
-                    media.fav = "2"
-        else:
-            meta_info = MetaInfo(title=SearchWord)
-            tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
-            for tmdbinfo in tmdbinfos:
-                tmp_info = MetaInfo(title=SearchWord)
-                tmp_info.set_tmdb_info(tmdbinfo)
-                if meta_info.type == MediaType.TV and tmp_info.type != MediaType.TV:
-                    continue
-                if _mediaserver.check_item_exists(title=tmp_info.title, year=tmp_info.year, tmdbid=tmp_info.tmdb_id):
-                    tmp_info.fav = "2"
-                if tmp_info.begin_season:
-                    tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
-                if tmp_info.begin_episode:
-                    tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
-                medias.append(tmp_info)
+        medias = WebUtils.search_media_infos(keyword=SearchWord,
+                                             source=SearchSourceType)
 
-        return {"code": 0, "result": [media.to_dict() for media in medias]}
+        return {"code": 0, "result": medias}
 
     @staticmethod
     def get_movie_rss_list(data=None):
