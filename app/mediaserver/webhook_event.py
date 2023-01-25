@@ -55,7 +55,7 @@ class WebhookEvent:
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
                 eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
-                if len(message.get('Item', {}).get('Overview')) > 100:
+                if message.get('Item', {}).get('Overview') and len(message.get('Item', {}).get('Overview')) > 100:
                     eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Item', {}).get('Overview')
