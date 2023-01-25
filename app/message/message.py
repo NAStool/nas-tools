@@ -146,7 +146,7 @@ class Message(object):
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 发送消息
         for client in self._active_clients:
-            if client.get("search_type") == channel:
+            if client.get("search_type") == channel and client.get('interactive'):
                 state = self.__sendmsg(client=client,
                                        title=title,
                                        text=text,
@@ -182,7 +182,7 @@ class Message(object):
         :return: 发送状态、错误信息
         """
         for client in self._active_clients:
-            if client.get("search_type") == channel:
+            if client.get("search_type") == channel and client.get('interactive'):
                 state = self.__send_list_msg(client=client,
                                              title=title,
                                              medias=medias,
