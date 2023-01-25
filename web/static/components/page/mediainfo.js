@@ -32,8 +32,8 @@ class PageMediainfo extends CustomElement {
       (ret) => {
         if (ret.code === 0) {
           this.media_info = ret.data;
-          this.tmdbid = ret.data.tmdbid + "";
-          this.fav = ret.data.fav + "";
+          this.tmdbid = ret.data.tmdbid;
+          this.fav = ret.data.fav;
           // 类似
           ajax_post("get_recommend", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {

@@ -54,4 +54,4 @@ class WebUtils:
                 return version, url, True
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            return None, None, False
+        return None, None, False
