@@ -123,7 +123,7 @@ class DoubanSync:
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
                                                                                 season=media.begin_season,
-                                                                                doubanid=media.douban_id)
+                                                                                mediaid=f"DB:{media.douban_id}")
                                 if code != 0:
                                     log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                                     # 订阅已存在
@@ -145,7 +145,7 @@ class DoubanSync:
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
                                                                                 season=media.begin_season,
-                                                                                doubanid=media.douban_id,
+                                                                                mediaid=f"DB:{media.douban_id}",
                                                                                 state="R")
                                 if code != 0:
                                     log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))

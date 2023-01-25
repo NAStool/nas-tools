@@ -1226,28 +1226,28 @@ class FileTransfer:
                                                    tmdbid=tmdbid)
             if rssid:
                 # 已订阅
-                fav = 1
+                fav = "1"
             elif MediaServer().check_item_exists(title=title,
                                                  year=year,
                                                  tmdbid=tmdbid):
                 # 已下载
-                fav = 2
+                fav = "2"
             else:
                 # 未订阅、未下载
-                fav = 0
+                fav = "0"
         else:
             rssid = self.dbhelper.get_rss_tv_id(title=title,
                                                 tmdbid=tmdbid)
             if rssid:
                 # 已订阅
-                fav = 1
+                fav = "1"
             elif MediaServer().check_item_exists(title=title,
                                                  tmdbid=tmdbid):
                 # 已下载
-                fav = 2
+                fav = "2"
             else:
                 # 未订阅、未下载
-                fav = 0
+                fav = "0"
 
         return fav, rssid
 

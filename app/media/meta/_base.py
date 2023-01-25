@@ -87,7 +87,7 @@ class MetaBase(object):
     # TMDB 的其它信息
     tmdb_info = {}
     # 本地状态 1-已订阅 2-已存在
-    fav = 0
+    fav = "0"
     # 站点列表
     rss_sites = []
     search_sites = []

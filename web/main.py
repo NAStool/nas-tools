@@ -33,7 +33,7 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
-from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils, StringUtils
+from app.utils import DomUtils, SystemUtils, ExceptionUtils, StringUtils
 from app.utils.types import *
 from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
@@ -41,6 +41,7 @@ from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
+from web.backend.web_utils import WebUtils
 from web.security import require_auth
 
 # 配置文件锁
@@ -1605,7 +1606,7 @@ def subscribe():
         code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
                                                              name=meta_info.get_name(),
                                                              year=meta_info.year,
-                                                             tmdbid=tmdbId)
+                                                             mediaid=tmdbId)
         meta_info.user_name = req_json.get("request", {}).get("requestedBy_username")
         Message().send_rss_success_message(in_from=SearchType.API,
                                            media_info=meta_info)
@@ -1619,7 +1620,7 @@ def subscribe():
             code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
                                                                  name=meta_info.get_name(),
                                                                  year=meta_info.year,
-                                                                 tmdbid=tmdbId,
+                                                                 mediaid=tmdbId,
                                                                  season=season)
             Message().send_rss_success_message(in_from=SearchType.API,
                                                media_info=meta_info)
