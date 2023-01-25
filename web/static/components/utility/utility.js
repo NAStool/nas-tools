@@ -37,7 +37,25 @@ export class Golbal {
 
   // 是否触摸屏设备
   static is_touch_device() {
-    return 'ontouchstart' in window;
+    return "ontouchstart" in window;
+  }
+
+  static convert_mediaid(tmdbid) {
+    let doubanid;
+    tmdbid = tmdbid + "";
+    if (tmdbid && tmdbid.startsWith("DB:")) {
+      doubanid = tmdbid.replace("DB:", "");
+      tmdbid = "";
+    } else if (isNaN(tmdbid)) {
+      doubanid = "";
+      tmdbid = "";
+    } else {
+      doubanid = "";
+    }
+    return {
+      doubanid: doubanid,
+      tmdbid: tmdbid,
+    }
   }
 
   static lit_love_click(title, year, page_type, tmdb_id, fav, remove_func, add_func) {
@@ -49,26 +67,15 @@ export class Golbal {
     } else {
       show_ask_modal("是否确定订阅： " + title + "？", function () {
         hide_ask_modal();
-        let tid;
-        let did;
-        if (tmdb_id && tmdb_id.startsWith("DB:")) {
-          did = tmdb_id.replace("DB:", "");
-          tid = "";
-        } else if (isNaN(tmdb_id)) {
-          did = "";
-          tid = "";
+        const mediaid = Golbal.convert_mediaid(tmdb_id);
+        if (!mediaid.tmdbid || page_type == "MOV") {
+          add_rss_media(title, year, page_type, mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
         } else {
-          did = "";
-          tid = tmdb_id;
-        }
-        if (!tid || page_type == "MOV") {
-          add_rss_media(title, year, page_type, tid, did, "", "", add_func);
-        } else {
-          ajax_post("get_tvseason_list", { tmdbid: tid }, function (ret) {
+          ajax_post("get_tvseason_list", mediaid, function (ret) {
             if (ret.seasons.length === 1) {
-              add_rss_media(title, year, "TV", tid, did, "", "", add_func);
+              add_rss_media(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
             } else if (ret.seasons.length > 1) {
-              show_rss_seasons_modal(title, year, "TV", tid, did, ret.seasons, add_func);
+              show_rss_seasons_modal(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, ret.seasons, add_func);
             } else {
               show_fail_modal(title + " 添加RSS订阅失败：未查询到季信息！");
             }
