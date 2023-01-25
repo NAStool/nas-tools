@@ -7,8 +7,13 @@ from app.utils import RequestUtils
 
 
 class Bangumi(object):
+    """
+    https://bangumi.github.io/api/
+    """
+
     _urls = {
-        "calendar": "calendar"
+        "calendar": "calendar",
+        "detail": "v0/subjects/%s",
     }
     _base_url = "https://api.bgm.tv/"
     _req = RequestUtils(session=requests.Session())
@@ -28,7 +33,16 @@ class Bangumi(object):
         return resp.json() if resp else None
 
     def calendar(self):
+        """
+        获取每日放送
+        """
         return self.__invoke(self._urls["calendar"], _ts=datetime.strftime(datetime.now(), '%Y%m%d'))
+
+    def detail(self, bid):
+        """
+        获取番剧详情
+        """
+        return self.__invoke(self._urls["detail"] % bid, _ts=datetime.strftime(datetime.now(), '%Y%m%d'))
 
     def get_bangumi_calendar(self, page=1, week=None):
         """

@@ -2281,10 +2281,6 @@ class WebAction:
         elif SubType == "dbzy":
             # 豆瓣最新电视剧
             res_list = DouBan().get_douban_hot_show(CurrentPage)
-        elif Type == "BANGUMI":
-            # Bangumi每日放送
-            Week = data.get("week")
-            res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
         elif SubType == "sim":
             TmdbId = data.get("tmdbid")
             res_list = self.__media_similar({
@@ -2306,6 +2302,10 @@ class WebAction:
                 "type": "MOV" if Type == "MOV" else "TV",
                 "page": CurrentPage
             }).get("data")
+        elif Type == "BANGUMI":
+            # Bangumi每日放送
+            Week = data.get("week")
+            res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
         else:
             res_list = []
         # 修正数据
@@ -4265,7 +4265,9 @@ class WebAction:
         MediaHander = Media()
         DoubanHander = DouBan()
         FileHandler = FileTransfer()
+        BangumiHandler = Bangumi()
         if str(tmdbid).startswith("DB:"):
+            # 豆瓣
             doubanid = str(tmdbid)[3:]
             douban_info = DoubanHander.get_douban_detail(doubanid=doubanid, mtype=mtype)
             if not douban_info:
@@ -4283,7 +4285,24 @@ class WebAction:
                     "msg": "无法查询到TMDB信息",
                     "doubaninfo": douban_info
                 }
+        elif str(tmdbid).startswith("BG:"):
+            # BANGUMI
+            bangumiid = str(tmdbid)[3:]
+            bangumi_info = BangumiHandler.detail(bid=bangumiid)
+            if not bangumi_info:
+                return {
+                    "code": 1,
+                    "msg": "无法查询Bangumi信息",
+                    "bangumi_info": bangumi_info
+                }
+            title = bangumi_info.get("name")
+            title_cn = bangumi_info.get("name_cn")
+            year = bangumi_info.get("date")[:4] if bangumi_info.get("date") else ""
+            media_info = MediaHander.get_media_info(title=f"{title} {year}", mtype=MediaType.TV)
+            if not media_info or not media_info.tmdb_info:
+                media_info = MediaHander.get_media_info(title=f"{title_cn} {year}", mtype=MediaType.TV)
         else:
+            # TMDB
             tmdbinfo = MediaHander.get_tmdb_info(tmdbid=tmdbid,
                                                  mtype=mtype,
                                                  append_to_response="all")
