@@ -2316,9 +2316,9 @@ class WebAction:
                                                             year=res.get("year"),
                                                             tmdbid=res.get("rid"))
             res.update({
-                    'fav': fav,
-                    'rssid': rssid
-                })
+                'fav': fav,
+                'rssid': rssid
+            })
         return {"code": 0, "Items": res_list}
 
     def get_downloaded(self, data):
@@ -4264,6 +4264,7 @@ class WebAction:
             return {"code": 1, "msg": "未指定TMDBID"}
         MediaHander = Media()
         DoubanHander = DouBan()
+        FileHandler = FileTransfer()
         if str(tmdbid).startswith("DB:"):
             doubanid = str(tmdbid)[3:]
             douban_info = DoubanHander.get_douban_detail(doubanid=doubanid, mtype=mtype)
@@ -4293,6 +4294,11 @@ class WebAction:
                 }
             media_info = MetaInfo(title=tmdbinfo.get("title") if mtype == MediaType.MOVIE else tmdbinfo.get("name"))
             media_info.set_tmdb_info(tmdbinfo)
+        # 查询存在及订阅状态
+        fav, rssid = FileHandler.get_media_exists_flag(mtype=mtype,
+                                                       title=media_info.title,
+                                                       year=media_info.year,
+                                                       tmdbid=media_info.tmdb_id)
         return {
             "code": 0,
             "data": {
@@ -4307,8 +4313,10 @@ class WebAction:
                 "runtime": StringUtils.str_timehours(media_info.runtime),
                 "fact": MediaHander.get_tmdb_factinfo(media_info),
                 "crews": MediaHander.get_tmdb_crews(tmdbinfo=media_info.tmdb_info, nums=6),
-                "actors": MediaHander.get_tmdb_directors_actors(tmdbinfo=media_info.tmdb_info)[1],
-                "link": media_info.get_detail_url()
+                "actors": MediaHander.get_tmdb_cats(mtype=mtype, tmdbid=media_info.tmdb_id),
+                "link": media_info.get_detail_url(),
+                "fav": fav,
+                "rssid": rssid
             }
         }
 
