@@ -3443,7 +3443,7 @@ class WebAction:
         medias = WebUtils.search_media_infos(keyword=SearchWord,
                                              source=SearchSourceType)
 
-        return {"code": 0, "result": [media.as_dict() for media in medias]}
+        return {"code": 0, "result": [media.to_dict() for media in medias]}
 
     @staticmethod
     def get_movie_rss_list(data=None):
