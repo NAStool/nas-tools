@@ -160,4 +160,4 @@ class WebUtils:
                 if tmp_info.begin_episode:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                 medias.append(tmp_info)
-        return [media.to_dict() for media in medias]
+        return medias
