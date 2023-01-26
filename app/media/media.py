@@ -521,7 +521,7 @@ class Media:
                     tmdb_info['name'] = cn_title
         return tmdb_info
 
-    def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, num=6):
+    def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, page=1):
         """
         查询名称中有关键字的所有的TMDB信息并返回
         """
@@ -544,7 +544,7 @@ class Media:
                 results = self.__search_movie_tmdbinfos(title, year)
             else:
                 results = self.__search_tv_tmdbinfos(title, year)
-        return results[:num]
+        return results[(page - 1) * 20:page * 20]
 
     def __search_multi_tmdbinfos(self, title):
         """
