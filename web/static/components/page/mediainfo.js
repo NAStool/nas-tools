@@ -8,7 +8,7 @@ class PageMediainfo extends CustomElement {
     // TMDBID/DB:豆瓣ID
     tmdbid: { attribute: "media-tmdbid" },
     // 是否订阅/下载
-    fav: { attribute: "media-fav" , reflect: true},
+    fav: {},
     // 媒体信息
     media_info: { type: Object },
     // 类似影片
@@ -26,16 +26,15 @@ class PageMediainfo extends CustomElement {
   }
 
   firstUpdated() {
-
     // 媒体信息、演员阵容
-    ajax_post("media_detail", { "type": this.media_type, "tmdbid": this.tmdbid},
+    Golbal.get_cache_or_ajax("media_detail", "info", { "type": this.media_type, "tmdbid": this.tmdbid},
       (ret) => {
         if (ret.code === 0) {
           this.media_info = ret.data;
           this.tmdbid = ret.data.tmdbid;
           this.fav = ret.data.fav;
           // 类似
-          ajax_post("get_recommend", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
+          Golbal.get_cache_or_ajax("get_recommend", "sim", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
               if (ret.code === 0) {
                 this.similar_media = ret.Items;
@@ -43,7 +42,7 @@ class PageMediainfo extends CustomElement {
             }
           );
           // 推荐
-          ajax_post("get_recommend", { "type": this.media_type, "subtype": "more", "tmdbid": ret.data.tmdbid, "page": 1},
+          Golbal.get_cache_or_ajax("get_recommend", "more", { "type": this.media_type, "subtype": "more", "tmdbid": ret.data.tmdbid, "page": 1},
             (ret) => {
               if (ret.code === 0) {
                 this.recommend_media = ret.Items;
@@ -230,8 +229,13 @@ class PageMediainfo extends CustomElement {
             slide-title="类似"
             slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=sim&tmdbid=${this.tmdbid}&title=类似&subtitle=${this.media_info.title}")'
             lazy="normal-card"
-            .slide_card=${this.similar_media.map((item) => ( html`
+            .slide_card=${this.similar_media.map((item, index) => ( html`
               <normal-card
+                @fav_change=${(e) => {
+                  Golbal.update_fav_data("get_recommend", "sim", (extra) => (
+                    extra.Items[index].fav = e.detail.fav, extra
+                  ));
+                }}
                 lazy=1
                 card-tmdbid=${item.id}
                 card-pagetype=${item.type}
@@ -254,8 +258,13 @@ class PageMediainfo extends CustomElement {
             slide-title="推荐"
             slide-click='javascript:navmenu("recommend?type=${this.media_type}&subtype=more&tmdbid=${this.tmdbid}&title=推荐&subtitle=${this.media_info.title}")'
             lazy="normal-card"
-            .slide_card=${this.recommend_media.map((item) => ( html`
+            .slide_card=${this.recommend_media.map((item, index) => ( html`
               <normal-card
+                @fav_change=${(e) => {
+                  Golbal.update_fav_data("get_recommend", "more", (extra) => (
+                    extra.Items[index].fav = e.detail.fav, extra
+                  ));
+                }}
                 lazy=1
                 card-tmdbid=${item.id}
                 card-pagetype=${item.type}
@@ -275,15 +284,22 @@ class PageMediainfo extends CustomElement {
     `;
   }
 
+  _update_fav_data() {
+    Golbal.update_fav_data("media_detail", "info", (extra) => (
+      extra.data.fav = this.fav, extra
+    ));
+  }
+
   _loveClick(e) {
     e.stopPropagation();
     Golbal.lit_love_click(this.media_info.title, this.media_info.year, this.media_type, this.tmdbid, this.fav,
       () => {
         this.fav = "0";
+        this._update_fav_data();
       },
       () => {
         this.fav = "1";
-        window_history();
+        this._update_fav_data();
       });
   }
 

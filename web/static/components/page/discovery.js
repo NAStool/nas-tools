@@ -1,5 +1,5 @@
 import { html } from "../utility/lit-core.min.js";
-import { CustomElement } from "../utility/utility.js";
+import { CustomElement, Golbal } from "../utility/utility.js";
 
 class PageDiscovery extends CustomElement {
   static properties = {
@@ -96,7 +96,7 @@ class PageDiscovery extends CustomElement {
 
   firstUpdated() {
     for (const item of this._media_type_list[this.discovery_type]) {
-      ajax_post("get_recommend", { "type": this.discovery_type, "subtype": item.subtype, "page": 1, "week": item.week},
+      Golbal.get_cache_or_ajax("get_recommend", item.subtype, { "type": this.discovery_type, "subtype": item.subtype, "page": 1, "week": item.week},
         (ret) => {
           this._slide_card_list = {...this._slide_card_list, [item.subtype]: ret.Items};
         }
@@ -113,8 +113,13 @@ class PageDiscovery extends CustomElement {
             slide-click="javascript:navmenu('recommend?type=${this.discovery_type}&subtype=${item.subtype}&week=${item.week ?? ""}&title=${item.title}')"
             lazy="normal-card"
             .slide_card=${this._slide_card_list[item.subtype]
-              ? this._slide_card_list[item.subtype].map((card) => ( html`
+              ? this._slide_card_list[item.subtype].map((card, index) => ( html`
                 <normal-card
+                  @fav_change=${(e) => {
+                    Golbal.update_fav_data("get_recommend", item.subtype, (extra) => (
+                      extra.Items[index].fav = e.detail.fav, extra
+                    ));
+                  }}
                   lazy=1
                   card-tmdbid=${card.id}
                   card-pagetype=${this.discovery_type}
