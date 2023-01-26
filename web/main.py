@@ -458,11 +458,9 @@ def discovery_bangumi():
 def discovery_detail():
     TmdbId = request.args.get("id")
     Type = request.args.get("type")
-    Fav = request.args.get("fav")
     return render_template("discovery/mediainfo.html",
                            TmdbId=TmdbId,
-                           Type=Type,
-                           Fav=Fav)
+                           Type=Type)
 
 
 # 演职人员页面
