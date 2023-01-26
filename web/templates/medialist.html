@@ -7,14 +7,14 @@
           <div class="col-12 col-xl-6">
             <div class="card rounded-3"
                style="padding:0 0; overflow:hidden">
-            {% if Media.vote_average %}
-              <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
+            {% if Media.vote %}
+              <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote }}</div>
             {% endif %}
             <div class="row" style="max-height:240px; overflow:hidden">
               <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0 0">
                 <span class="badge badge-pill {% if Media.type== '电影' %}bg-green{% else %}bg-blue{% endif %}"
                     style="position:absolute;top:10px;left:10px;">{{ Media.type}}</span>
-                <custom-img img-src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}"
+                <custom-img img-src="{% if Media.image %}{{ Media.image }}{% else %}../static/img/no-image.png{% endif %}"
                             img-class="w-100 h-100 object-cover shadow-sm"
                             img-ratio="150%"
                 ></custom-img>
@@ -22,15 +22,15 @@
               <div class="col">
                 <div class="card-body p-1 pt-3">
                   <h2>
-                    <a href='javascript:navmenu("discovery_detail?type={{ Media.type}}&id={{ Media.tmdb_id }}&fav={{ Media.fav }}")'>
+                    <a href='javascript:navmenu("discovery_detail?type={{ Media.type}}&id={{ Media.id }}&fav={{ Media.fav }}")'>
                       {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                     </a>
                   </h2>
                   <div>
                      <a href="{{ Media.link }}" target="_blank" >
                       <span class="badge badge-outline {% if Media.fav == 2 %}text-green{% else %}text-orange{% endif %} mb-1">
-                        {% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}
-                          {{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}
+                        {% if Media.id is string and Media.id.startswith('DB') %}
+                          {{ Media.id[3:] }}{% else %}{{ Media.id }}{% endif %}
                       </span>
                     </a>
                   </div>
@@ -41,12 +41,12 @@
               </div>
             </div>
             <div class="d-flex">
-              <a href='javascript:add_medialist_rss_media("{{ Media.title }}","{{ Media.year }}","{{ Media.type}}","{{ Media.tmdb_id }}")'
+              <a href='javascript:add_medialist_rss_media("{{ Media.title }}","{{ Media.year }}","{{ Media.type}}","{{ Media.id }}")'
                  class="card-btn">
                 <span class="me-2 text-muted">{{ SVG.rss() }}</span>
                 订阅
               </a>
-              <a href='javascript:media_search("{{ Media.tmdb_id }}", "{{ Media.title }}", "{{ Media.type}}")'
+              <a href='javascript:media_search("{{ Media.id }}", "{{ Media.title }}", "{{ Media.type}}")'
                  class="card-btn">
                 <span class="me-2 text-muted">{{ SVG.search() }}</span>
                 搜索
