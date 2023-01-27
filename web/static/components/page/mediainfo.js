@@ -126,11 +126,14 @@ class PageMediainfo extends CustomElement {
                   <div class="align-self-center align-self-md-start me-1 mt-2">
                     ${Object.keys(this.media_info).length !== 0
                     ? html`
-                      <a class="btn btn-primary btn-pill me-1"
-                        href='javascript:media_search("${this.tmdbid}", "${this.media_info.title}", "${this.media_type}")'>
+                      <span class="btn btn-primary btn-pill me-1"
+                        @click=${(e) => {
+                          e.stopPropagation();
+                          media_search(this.tmdbid + "", this.media_info.title, this.media_type);
+                        }}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
                         搜索资源
-                      </a>
+                      </span>
                       ${this.fav == "1"
                       ? html`
                         <span class="btn btn-pill btn-pinterest"
