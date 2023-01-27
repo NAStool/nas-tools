@@ -112,9 +112,7 @@ class MediaDb:
         if items:
             if tmdbid:
                 for item in items:
-                    if item.TMDBID and item.TMDBID == str(tmdbid):
-                        return True
-                    if not item.TMDBID:
+                    if not item.TMDBID or item.TMDBID == str(tmdbid):
                         return True
                 return False
             else:
