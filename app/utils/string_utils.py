@@ -169,6 +169,8 @@ class StringUtils:
         """
         将字节计算为文件大小描述（带单位的格式化后返回）
         """
+        if not size:
+            return size
         size = re.sub(r"\s|B|iB", "", str(size), re.I)
         if size.replace(".", "").isdigit():
             try:

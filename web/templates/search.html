@@ -41,7 +41,7 @@
                       <!-- 图片 -->
                       {% if Item.poster %}
                       <custom-img img-src="{{ Item.poster }}"
-                                  img-class="rounded object-cover shadow-sm"
+                                  img-class="rounded-4 object-cover shadow-sm"
                                   img-ratio="150%"
                       ></custom-img>
                       {% endif %}
@@ -100,13 +100,13 @@
                       <!-- 标题 -->
                       <div class="row">
                         <div class="col">
-                          <h3 class="mb-0">
+                          <h2 class="mb-0">
                             {% if Item.tmdbid and Item.tmdbid != '0' %}
                             <strong>{{ Title }}</strong>
                             {% else %}
                             <strong class="ms-3">{{ Title }}</strong>
                             {% endif %}
-                          </h3>
+                          </h2>
                         </div>
                       </div>
                       <!-- 媒体属性 -->

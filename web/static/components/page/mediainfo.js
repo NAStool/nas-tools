@@ -110,7 +110,6 @@ class PageMediainfo extends CustomElement {
                   <h1 class="align-self-center align-self-md-start display-6">
                     <strong>${this.media_info.title ?? this._render_placeholder("200px")}</strong>
                     <strong class="h1" ?hidden=${!this.media_info.year}>(${this.media_info.year})</strong>
-                    ${this.media_info.year ? nothing : this._render_placeholder("100px")}
                   </h1>
                   <div class="align-self-center align-self-md-start">
                     <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
@@ -123,14 +122,14 @@ class PageMediainfo extends CustomElement {
                       ${this.fav == "2"
                       ? html`<strong class="badge badge-pill bg-green text-white">已下载</strong>`
                       : html`
-                        <a class="btn btn-indigo btn-pill me-1"
+                        <a class="btn btn-primary btn-pill me-1"
                           href='javascript:media_search("${this.tmdbid}", "${this.media_info.title}", "${this.media_type}")'>
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
                           搜索资源
                         </a>
                         ${this.fav == "0"
                         ? html`
-                          <span class="btn btn-pill btn-pink"
+                          <span class="btn btn-pill btn-purple"
                             @click=${this._loveClick}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
                             添加订阅

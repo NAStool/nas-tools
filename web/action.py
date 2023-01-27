@@ -24,9 +24,7 @@ from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper
 from app.indexer import Indexer
-from app.media import Category, Media
-from app.media.bangumi import Bangumi
-from app.media.douban import DouBan
+from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
