@@ -798,7 +798,7 @@ class DbHelper:
 
     def get_rss_tv_id(self, title, season=None, tmdbid=None):
         """
-        获取订阅电影ID
+        获取订阅电视剧ID
         """
         if not title:
             return ""
