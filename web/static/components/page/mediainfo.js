@@ -57,12 +57,12 @@ class PageMediainfo extends CustomElement {
     );
   }
 
-  _render_placeholder(width, height, col) {
-    return html`
+  _render_placeholder(width, height, col, num) {
+    return Array(num ?? 1).fill(html`
       <div class="placeholder ${col}"
         style="min-width:${width};min-height:${height};">
       </div>
-    `;
+    `);
   }
 
   render() {
@@ -162,7 +162,7 @@ class PageMediainfo extends CustomElement {
         <div class="row">
           <div class="col-lg-8">
             <h2 class="text-muted ms-4 me-2">
-              <small>${this.media_info.overview ?? this._render_placeholder("200px", "250px", "col-12")}</small>
+              <small>${this.media_info.overview ?? this._render_placeholder("200px", "", "col-12", 7)}</small>
             </h2>
             <div class="row mx-2 mt-4">
               ${this.media_info.crews
@@ -198,7 +198,7 @@ class PageMediainfo extends CustomElement {
                     `) ) }
                 </div>
               </div>`
-            : this._render_placeholder("200px", "300px", "col-12") }
+            : this._render_placeholder("200px", "200px", "col-12") }
           </div>
         </div>
 
