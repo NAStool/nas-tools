@@ -166,11 +166,15 @@
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
-          <div class="input-icon">
-              <span class="input-icon-addon">
-                {{ SVG.search() }}
-              </span>
-            <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅..." autocomplete="false">
+          <div class="input-group input-group-flat">
+            <input type="text" id="home_search_menu_input" value=""
+                class="form-control theme-dark"
+                placeholder="搜索电影、电视剧" autocomplete="off">
+            <span class="input-group-text theme-dark">
+              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
+                {{ SVG.adjustments() }}
+              </a>
+            </span>
           </div>
         </div>
         <ul class="navbar-nav pt-lg-3">
@@ -181,7 +185,7 @@
                   {{ SVG.home() }}
                 </span>
                 <span class="nav-link-title">
-                  开始
+                  我的媒体库
                 </span>
               </a>
             </li>
@@ -205,7 +209,7 @@
                   电视剧
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_bangumi')">
-                  Bangumi
+                  BANGUMI
                 </a>
               </div>
             </li>
@@ -448,15 +452,20 @@
         {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse">
+        {% if "资源搜索" in UserPris %}
         <div>
-          <div class="input-icon">
-              <span class="input-icon-addon">
-                {{ SVG.search() }}
-              </span>
-            <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…"
-                   aria-label="资源搜索/订阅">
+          <div class="input-group input-group-flat">
+            <input type="text" id="home_search_bar" value=""
+                class="form-control" placeholder="搜索电影、电视剧"
+                oninput="tirgger_search_media_items()" autocomplete="off">
+            <span class="input-group-text">
+              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
+                {{ SVG.adjustments() }}
+              </a>
+            </span>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -1153,6 +1162,115 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">高级搜索</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">类型</label>
+              <select class="form-select" id="search_type">
+                <option value="" selected>全部</option>
+                <option value="电影">电影</option>
+                <option value="电视剧">电视剧</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="text" value="" id="search_name" class="form-control"
+                     placeholder="电影/电视剧名称">
+            </div>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="mb-3">
+              <label class="form-label">年份</label>
+              <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
+            </div>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="mb-3">
+              <label class="form-label">季</label>
+              <select class="form-select" id="search_season">
+                <option value="" selected>全部</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">站点</label>
+              <select class="form-select" id="search_site">
+                <option value="" selected>全部</option>
+                {% for site in SiteDict.values() %}
+                  <option value="{{ site.name }}">{{ site.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">质量</label>
+              <select class="form-select" id="search_restype">
+                <option value="" selected>全部</option>
+                {% for Restype in RestypeDict %}
+                  <option value="{{ Restype }}">{{ Restype }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">分辨率</label>
+              <select class="form-select" id="search_pix">
+                <option value="" selected>全部</option>
+                {% for Pix in PixDict %}
+                  <option value="{{ Pix }}">{{ Pix }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">促销</label>
+              <select class="form-select" id="sp_state">
+                <option value="* *" selected>全部</option>
+                <option value="1.0 1.0">普通</option>
+                <option value="1.0 0.0">免费</option>
+                <option value="2.0 1.0">2X</option>
+                <option value="2.0 0.0">2X免费</option>
+                <option value="1.0 0.5">50%</option>
+                <option value="2.0 0.5">2X 50%</option>
+                <option value="1.0 0.7">70%</option>
+                <option value="1.0 0.3">30%</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-8">
+            <div class="mb-3">
+              <label class="form-label">自定义</label>
+              <input type="text" value="" id="search_key" class="form-control"
+                     placeholder="自定义过滤规则">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="search_media_advanced()" id="search_advanced_btn"
+                class="btn btn-primary">开始搜索
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -1279,6 +1397,30 @@
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
 
+  //搜索词条
+  function search_media_items(keyword) {
+    // 刷新搜索页面
+    navmenu("recommend?type=SEARCH&title=搜索结果&keyword=" + keyword);
+  }
+
+  //搜索框响应
+  let SearchKeyWordTimer = undefined;
+  function tirgger_search_media_items() {
+    let keyword = $("#home_search_bar").val();
+    if (!keyword) {
+      return;
+    }
+    if (keyword.length < 2) {
+      return;
+    }
+    if (SearchKeyWordTimer) {
+      clearTimeout(SearchKeyWordTimer);
+    }
+    SearchKeyWordTimer = setTimeout(function () {
+      search_media_items($("#home_search_bar").val());
+    }, 800);
+  }
+
   //搜索
   function media_search(tmdbid, title, type) {
     const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
@@ -1294,17 +1436,7 @@
   }
 
   //显示媒体详情弹窗
-  function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
-    let doubanid;
-    if (tmdbid.startsWith("DB:")) {
-      doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    } else if (isNaN(tmdbid)) {
-      doubanid = "";
-      tmdbid = "";
-    } else {
-      doubanid = "";
-    }
+  function show_mediainfo_modal(rtype, name, year, mediaid, page, rssid) {
     if (!page) {
       page = "";
     }
@@ -1312,11 +1444,10 @@
       rssid = "";
     }
     ajax_post("media_info", {
-      "id": tmdbid,
+      "id": mediaid,
       "title": name,
       "year": year,
       "type": rtype,
-      "doubanid": doubanid,
       "page": page,
       "rssid": rssid
     }, function (ret) {
@@ -1357,7 +1488,7 @@
               .show();
           //搜索按钮
           $("#system_media_search_btn").text("搜索")
-              .attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")')
+              .attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.title + '", "' + ret.type_str + '")')
               .show();
           //刷新和编辑按钮
           if (ret.page.startsWith("movie_rss") || ret.page.startsWith("tv_rss")) {
@@ -1389,20 +1520,20 @@
           if (ret.seasons.length === 0) {
             $("#system_media_rss_btn").removeAttr("data-bs-toggle")
                 .removeClass("dropdown-toggle")
-                .attr("href", 'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '","")')
+                .attr("href", 'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.page + '","")')
           } else {
             $("#system_media_rss_btn").prop("data-bs-toggle", "dropdown")
                 .addClass("dropdown-toggle")
                 .attr("href", 'javascript:$("#system_media_rss_btn").dropdown("toggle")')
             //订阅季的下拉框
             for (let i = 0; i < ret.seasons.length; i++) {
-              $("#system_media_rss_dropdown").append('<a class="dropdown-item" href=\'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '","' + ret.seasons[i].num + '")\'>' + ret.seasons[i].text + '</a>');
+              $("#system_media_rss_dropdown").append('<a class="dropdown-item" href=\'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.page + '","' + ret.seasons[i].num + '")\'>' + ret.seasons[i].text + '</a>');
             }
           }
           $("#system_media_rss_btn").show();
           //搜索按钮
           $("#system_media_search_btn").text("搜索")
-              .attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")')
+              .attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.title + '", "' + ret.type_str + '")')
               .show();
         }
         $("#system_media_name_link").attr("href", ret.link_url);
@@ -1424,14 +1555,13 @@
   }
 
   //新增订阅
-  function add_rss_media(name, year, type, tmdbid, doubanid, page, season, func) {
+  function add_rss_media(name, year, type, mediaid, page, season, func) {
     hide_mediainfo_modal();
     let data = {
       "name": name,
       "type": type,
       "year": year,
-      "doubanid": doubanid,
-      "tmdbid": tmdbid,
+      "mediaid": mediaid,
       "page": page,
       "season": season
     };
@@ -1479,7 +1609,7 @@
   }
 
   //显示订阅季选择框
-  function show_rss_seasons_modal(name, year, type, tmdbid, doubanid, seasons, func) {
+  function show_rss_seasons_modal(name, year, type, mediaid, seasons, func) {
     let system_rss_seasons_content = "";
     for (let season of seasons) {
       system_rss_seasons_content += `<label class="form-selectgroup-item">
@@ -1492,18 +1622,15 @@
       $("#system-rss-seasons").modal('hide');
       let rss_seasons = select_GetSelectedVAL("system_rss_season");
       if (rss_seasons.length > 0) {
-        add_rss_media(name, year, type, tmdbid, doubanid, '', rss_seasons, func);
+        add_rss_media(name, year, type, mediaid, '', rss_seasons, func);
       }
     });
     $("#system-rss-seasons").modal('show');
   }
 
   //搜索
-  function search_mediainfo_media(tmdbid, doubanid, title, typestr) {
+  function search_mediainfo_media(tmdbid, title, typestr) {
     hide_mediainfo_modal();
-    if (!tmdbid && doubanid) {
-      tmdbid = "DB:" + doubanid;
-    }
     const param = {"tmdbid": tmdbid, "search_word": title, "media_type": typestr};
     show_refresh_process("正在搜索 " + title + " ...");
     ajax_post("search", param, function (ret) {
@@ -1524,8 +1651,7 @@
     const keyword = $("#rss_keyword").val();
     const season = $("#rss_season").val();
     const fuzzy_match = $("#fuzzy_match").prop("checked");
-    let doubanid;
-    let tmdbid = $("#rss_tmdbid").val();
+    const mediaid = $("#rss_tmdbid").val();
     const over_edition = $("#over_edition").prop("checked");
     const filter_restype = $("#rss_restype").val();
     const filter_pix = $("#rss_pix").val();
@@ -1566,12 +1692,6 @@
     } else {
       $("#rss_current_ep").removeClass("is-invalid");
     }
-    if (tmdbid && tmdbid.startsWith("DB:")) {
-      doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    } else {
-      doubanid = "";
-    }
     //订阅站点
     let rss_sites = select_GetSelectedVAL("rss_sites");
     if (rss_sites.length === RSS_SITES_LENGTH) {
@@ -1607,8 +1727,7 @@
       "year": year,
       "season": season,
       "fuzzy_match": fuzzy_match,
-      "doubanid": doubanid,
-      "tmdbid": tmdbid,
+      "mediaid": mediaid,
       "over_edition": over_edition,
       "total_ep": total_ep,
       "current_ep": current_ep,
@@ -2002,6 +2121,64 @@
     });
   }
 
+  // 显示高级搜索框
+  function show_search_advanced_modal() {
+    $("#modal-search-advanced").modal("show");
+  }
+
+  // 开始高级搜索
+  function search_media_advanced() {
+    let keyword;
+    $("#search_icon").attr("disabled", "true");
+    // 读取数据
+    const search_name = $("#search_name").val();
+    if (!search_name) {
+      $("#search_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#search_name").removeClass("is-invalid");
+    }
+    const search_type = $("#search_type").val();
+    const search_season = $("#search_season").val();
+    const search_year = $("#search_year").val();
+    const search_site = $("#search_site").val();
+    const search_restype = $("#search_restype").val();
+    const search_pix = $("#search_pix").val();
+    const sp_state = $("#sp_state").val();
+    const search_key = $("#search_key").val();
+    // 拼装请求
+    if (search_type) {
+      keyword = search_type + " " + search_name;
+    } else {
+      keyword = search_name;
+    }
+    if (search_year) {
+      keyword = keyword + " " + search_year;
+    }
+    if (search_season) {
+      keyword = keyword + " " + search_season;
+    }
+    const filters = {
+      "site": search_site,
+      "restype": search_restype,
+      "pix": search_pix,
+      "sp_state": sp_state,
+      "key": search_key
+    };
+    const param = {"search_word": keyword, "filters": filters, "unident": true};
+    $("#modal-search-advanced").modal("hide");
+    show_refresh_process(`正在搜索 ${keyword} ...`);
+    ajax_post("search", param, function (ret) {
+      hide_refresh_process();
+      if (ret.code === 0) {
+        navmenu(`search?s=${keyword}`);
+      } else {
+        show_fail_modal(ret.msg,function () {
+          $("#modal-search-advanced").modal("show");
+        });
+      }
+    }, true, false);
+  }
 </script>
 
 <!-- 页面组件 -->
@@ -2149,10 +2326,16 @@
     }
     // 初始化季列表
     let rename_season_content = `<option value="" selected>请选择</option>`;
+    let search_season_content = `<option value="" selected>全部</option>`;
     for (let i = 0; i <= 50; i++) {
       rename_season_content += `<option value="${i}">第${i}季</option>`;
+      if (i > 0) {
+        search_season_content += `<option value="${i}">第${i}季</option>`;
+      }
     }
     $("#rename_season").empty().append(rename_season_content);
+    $("#search_season").empty().append(search_season_content);
+
     // 初始化媒体类型
     if (media_type === "电视剧") {
       $("#rename_type_tv").prop("checked", true);
@@ -2372,17 +2555,22 @@
     }
   }
 
-  function window_history(newflag=false){
+  function window_history(newflag=false, extra=undefined){
     const state = {
       title: document.title,
       html: $("#page_content").html(),         // 页面内容
       scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
       CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
       page: CURRENT_PAGE_URI,                  // 当前页面地址
+      extra: extra,                            // 额外的保存数据
     };
     if (newflag) {
       window.history.pushState(state, "");
     } else {
+      // 当未传递extra时的页面缓存刷新, 应当重新保留extra数据
+      if (!extra && window.history.state?.extra) {
+        state.extra = window.history.state.extra;
+      }
       window.history.replaceState(state, "");
     }
   }
@@ -2651,21 +2839,17 @@
         }
     });
 
-    // 搜索输入框
-    $('.home_search_word').bind('keypress', function (event) {
-      if (event.keyCode == "13") {
-        if (!$(this).val()) {
-          return;
-        }
-        navmenu('medialist?s=' + $(this).val() + '&f=1');
-        $(this).val('');
-      }
-    });
-
     // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
     $('body').on('click', 'span[data-bs-toggle="tooltip"]', function (e) {
       e.preventDefault();
       e.stopPropagation();
+    });
+
+    // 菜单搜索框回车事件
+    $("#home_search_menu_input").keydown(function(e) {
+      if (e.keyCode == 13) {
+        search_media_items($(this).val());
+      }
     });
 
     /**

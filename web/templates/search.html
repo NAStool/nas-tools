@@ -4,44 +4,13 @@
   <!-- Page title -->
   <div class="page-header d-print-none">
     <div class="row align-items-center">
-      <div class="col d-none d-md-block">
+      <div class="col">
         <h2 class="page-title text-nowrap">
           资源搜索
         </h2>
         {% if Results|length > 0 %}
-        <div class="text-muted mt-1 d-none d-md-block">共搜索到 {{ Count }} 条记录</div>
+        <div class="text-muted mt-1">共搜索到 {{ Count }} 条记录</div>
         {% endif %}
-      </div>
-      <div class="col ms-auto d-print-none">
-        <div class="d-flex btn-list">
-          <div class="input-group">
-            <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
-            <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
-                    onclick="search_media_list()">搜索
-            </button>
-            <button id="search_icon" onclick="search_media_list()"
-                    class="btn btn-primary d-sm-none btn-icon">
-              {{ SVG.search() }}
-            </button>
-            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button"
-                    class="btn btn-primary dropdown-toggle dropdown-toggle-split"
-                    style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
-            <div class="dropdown-menu dropdown-menu-end">
-              <a class="dropdown-item" href="javascript:search_media(true)">
-                快速搜索
-              </a>
-              <a class="dropdown-item" href="javascript:show_search_advanced_modal()">
-                高级搜索
-              </a>
-            </div>
-            {% if SearchWord %}
-            <a href='javascript:navmenu("medialist?s={{ SearchWord }}&f=1&t=search")' class="btn btn-icon ms-1" title="返回"
-              style="border-top-left-radius:4px;border-bottom-left-radius:4px;">
-              {{ SVG.arrow_back_up() }}
-            </a>
-            {% endif %}
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -72,7 +41,7 @@
                       <!-- 图片 -->
                       {% if Item.poster %}
                       <custom-img img-src="{{ Item.poster }}"
-                                  img-class="rounded object-cover shadow-sm"
+                                  img-class="rounded-4 object-cover shadow-sm"
                                   img-ratio="150%"
                       ></custom-img>
                       {% endif %}
@@ -131,13 +100,13 @@
                       <!-- 标题 -->
                       <div class="row">
                         <div class="col">
-                          <h3 class="mb-0">
+                          <h2 class="mb-0">
                             {% if Item.tmdbid and Item.tmdbid != '0' %}
                             <strong>{{ Title }}</strong>
                             {% else %}
                             <strong class="ms-3">{{ Title }}</strong>
                             {% endif %}
-                          </h3>
+                          </h2>
                         </div>
                       </div>
                       <!-- 媒体属性 -->
@@ -309,115 +278,6 @@
 {% else %}
 {{ OOPS.empty('没有搜索结果', '输入想看的电影、电视剧名称，点击搜索试试看吧。') }}
 {% endif %}
-<div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">高级搜索</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">类型</label>
-              <select class="form-select" id="search_type">
-                <option value="" selected>全部</option>
-                <option value="电影">电影</option>
-                <option value="电视剧">电视剧</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label required">名称</label>
-              <input type="text" value="" id="search_name" class="form-control"
-                     placeholder="电影/电视剧名称">
-            </div>
-          </div>
-          <div class="col-12 col-lg-2">
-            <div class="mb-3">
-              <label class="form-label">年份</label>
-              <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
-            </div>
-          </div>
-          <div class="col-12 col-lg-2">
-            <div class="mb-3">
-              <label class="form-label">季</label>
-              <select class="form-select" id="search_season">
-                <option value="" selected>全部</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">站点</label>
-              <select class="form-select" id="search_site">
-                <option value="" selected>全部</option>
-                {% for site in SiteDict.values() %}
-                  <option value="{{ site.name }}">{{ site.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">质量</label>
-              <select class="form-select" id="search_restype">
-                <option value="" selected>全部</option>
-                {% for Restype in RestypeDict %}
-                  <option value="{{ Restype }}">{{ Restype }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">分辨率</label>
-              <select class="form-select" id="search_pix">
-                <option value="" selected>全部</option>
-                {% for Pix in PixDict %}
-                  <option value="{{ Pix }}">{{ Pix }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">促销</label>
-              <select class="form-select" id="sp_state">
-                <option value="* *" selected>全部</option>
-                <option value="1.0 1.0">普通</option>
-                <option value="1.0 0.0">免费</option>
-                <option value="2.0 1.0">2X</option>
-                <option value="2.0 0.0">2X免费</option>
-                <option value="1.0 0.5">50%</option>
-                <option value="2.0 0.5">2X 50%</option>
-                <option value="1.0 0.7">70%</option>
-                <option value="1.0 0.3">30%</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-12 col-lg-8">
-            <div class="mb-3">
-              <label class="form-label">自定义</label>
-              <input type="text" value="" id="search_key" class="form-control"
-                     placeholder="自定义过滤规则">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button onclick="search_media_advanced()" id="search_advanced_btn"
-                class="btn btn-primary">开始搜索
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- 搜索结果过滤弹窗 -->
 {% for Title, Item in Results.items() %}
 <div class="modal modal-blur fade" id="search-filter-modal-{{ Item.key }}" tabindex="-1" role="dialog" aria-hidden="true"
@@ -489,68 +349,6 @@
 {% endfor %}
 
 <script type="text/javascript">
-  // 关键字
-  var search_word = "{{ SearchWord }}";
-  var need_search = "{{ NeedSearch }}";
-  var result_count = {{ Count }};
-  if (search_word !== "") {
-    $("#search_word").val(decodeURI(search_word));
-    if (need_search) {
-      search_media(true);
-    } else if (!result_count) {
-      $("#search_tip_title").text(`${search_word} 未找到任何资源`)
-      $("#search_tip_text").text("")
-    }
-  }
-
-  // 搜索按钮
-  function search_media(unident) {
-    if (!unident) {
-      unident = "";
-    } else {
-      unident = "1";
-    }
-    const keyword = $("#search_word").val();
-    if (keyword === "") {
-      return;
-    }
-    $("#search_btn").text("搜索中...").attr("disabled", "true");
-    $("#quick_search_btn").attr("disabled", "true");
-    $("#search_icon").attr("disabled", "true");
-    $("#search_tip_title").text(`正在搜索 ${keyword}，请稍后...`);
-    $("#search_tip_text").text(`正在搜索 ${keyword} ...`);
-    const param = {"search_word": keyword, "unident": unident};
-    show_refresh_process(`正在搜索 ${keyword} ...`);
-    ajax_post("search", param, function (ret) {
-      hide_refresh_process();
-      if (ret.code === 0) {
-        navmenu(`search?s=${keyword}`);
-      } else {
-        $("#search_btn").text("搜索").removeAttr("disabled");
-        $("#quick_search_btn").removeAttr("disabled");
-        $("#search_icon").removeAttr("disabled");
-        $("#search_tip_title").text("搜索失败");
-        $("#search_tip_text").text("请确认名称是否正确，网络连接是否正常");
-        show_fail_modal(ret.msg);
-      }
-    }, true, false);
-  }
-
-  //搜索联想
-  function search_media_list() {
-    const keyword = $("#search_word").val();
-    if (keyword === "") {
-      return;
-    }
-    navmenu(`medialist?s=${keyword}&f=1&t=search`);
-  }
-
-  // 搜索输入框
-  $('#search_word').bind('keypress', function (event) {
-    if (event.keyCode === 13) {
-      search_media_list();
-    }
-  });
 
   // 计算各分组的种子数量
   function sub_group_total(group, key, se) {
@@ -694,71 +492,6 @@
   // 显示过滤器弹窗
   function show_search_filter_modal(key) {
     $(`#search-filter-modal-${key}`).modal("show");
-  }
-
-  // 显示高级搜索框
-  function show_search_advanced_modal() {
-    $("#modal-search-advanced").modal("show");
-  }
-
-  // 开始高级搜索
-  function search_media_advanced() {
-    let keyword;
-    $("#search_icon").attr("disabled", "true");
-    // 读取数据
-    const search_name = $("#search_name").val();
-    if (!search_name) {
-      $("#search_name").addClass("is-invalid");
-      return;
-    } else {
-      $("#search_name").removeClass("is-invalid");
-    }
-    const search_type = $("#search_type").val();
-    const search_season = $("#search_season").val();
-    const search_year = $("#search_year").val();
-    const search_site = $("#search_site").val();
-    const search_restype = $("#search_restype").val();
-    const search_pix = $("#search_pix").val();
-    const sp_state = $("#sp_state").val();
-    const search_key = $("#search_key").val();
-    // 拼装请求
-    if (search_type) {
-      keyword = search_type + " " + search_name;
-    } else {
-      keyword = search_name;
-    }
-    if (search_year) {
-      keyword = keyword + " " + search_year;
-    }
-    if (search_season) {
-      keyword = keyword + " " + search_season;
-    }
-    const filters = {
-      "site": search_site,
-      "restype": search_restype,
-      "pix": search_pix,
-      "sp_state": sp_state,
-      "key": search_key
-    };
-    const param = {"search_word": keyword, "filters": filters, "unident": true};
-    $("#modal-search-advanced").modal("hide");
-    show_refresh_process(`正在搜索 ${keyword} ...`);
-    ajax_post("search", param, function (ret) {
-      hide_refresh_process();
-      if (ret.code === 0) {
-        navmenu(`search?s=${keyword}`);
-      } else {
-        show_fail_modal(ret.msg,function () {
-          $("#modal-search-advanced").modal("show");
-        });
-      }
-    }, true, false);
-  }
-
-  //初始化下拉框
-  $("#search_season").empty().append('<option value="">全部</option>');
-  for (let i = 1; i <= 50; i++) {
-    $("#search_season").append(`<option value="第${i}季">第${i}季</option>`);
   }
 
 </script>

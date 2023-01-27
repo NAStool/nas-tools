@@ -159,7 +159,7 @@ class DouBan:
             sleep(time)
         return self.doubanweb.user(cookie=self.cookie, userid=userid)
 
-    def search_douban_medias(self, keyword, mtype: MediaType = None, num=20, season=None, episode=None):
+    def search_douban_medias(self, keyword, mtype: MediaType = None, season=None, episode=None, page=1):
         """
         根据关键字搜索豆瓣，返回可能的标题和年份信息
         """
@@ -201,7 +201,7 @@ class DouBan:
             if meta_info not in ret_medias:
                 ret_medias.append(meta_info)
 
-        return ret_medias[:num]
+        return ret_medias[(page - 1) * 20:page * 20]
 
     def get_media_detail_from_web(self, doubanid):
         """
@@ -374,6 +374,7 @@ class DouBan:
                     'id': "DB:%s" % rid,
                     'orgid': rid,
                     'title': title,
+                    'type': 'MOV',
                     'year': year[:4] if year else "",
                     'vote': vote_average,
                     'image': poster_path,

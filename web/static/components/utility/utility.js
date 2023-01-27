@@ -41,25 +41,13 @@ export class Golbal {
   }
 
   static convert_mediaid(tmdbid) {
-    let doubanid;
     if (typeof(tmdbid) === "number") {
       tmdbid = tmdbid + "";
     }
-    if (tmdbid && tmdbid.startsWith("DB:")) {
-      doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    } else if (isNaN(tmdbid)) {
-      doubanid = "";
-      tmdbid = "";
-    } else {
-      doubanid = "";
-    }
-    return {
-      doubanid: doubanid,
-      tmdbid: tmdbid,
-    }
+    return tmdbid
   }
 
+  // 订阅按钮被点击时
   static lit_love_click(title, year, page_type, tmdb_id, fav, remove_func, add_func) {
     if (fav == "1"){
       show_ask_modal("是否确定将 " + title + " 从订阅中移除？", function () {
@@ -70,14 +58,14 @@ export class Golbal {
       show_ask_modal("是否确定订阅： " + title + "？", function () {
         hide_ask_modal();
         const mediaid = Golbal.convert_mediaid(tmdb_id);
-        if (!mediaid.tmdbid || page_type == "MOV") {
-          add_rss_media(title, year, page_type, mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
+        if (page_type == "MOV") {
+          add_rss_media(title, year, page_type, mediaid, "", "", add_func);
         } else {
-          ajax_post("get_tvseason_list", mediaid, function (ret) {
+          ajax_post("get_tvseason_list", {tmdbid: mediaid}, function (ret) {
             if (ret.seasons.length === 1) {
-              add_rss_media(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, "", "", add_func);
+              add_rss_media(title, year, "TV", mediaid, "", "", add_func);
             } else if (ret.seasons.length > 1) {
-              show_rss_seasons_modal(title, year, "TV", mediaid.tmdbid, mediaid.doubanid, ret.seasons, add_func);
+              show_rss_seasons_modal(title, year, "TV", mediaid, ret.seasons, add_func);
             } else {
               show_fail_modal(title + " 添加RSS订阅失败：未查询到季信息！");
             }
@@ -86,5 +74,50 @@ export class Golbal {
       });
     }
   }
+
+  // 保存额外的页面数据
+  static save_page_data(name, value) {
+    const extra = window.history.state?.extra ?? {};
+    extra[name] = value;
+    window_history(false, extra);
+  }
+
+  // 获取额外的页面数据
+  static get_page_data(name) {
+    return window.history.state?.extra ? window.history.state.extra[name] : undefined;
+  }
+  
+  // 判断直接获取缓存或ajax_post
+  static get_cache_or_ajax(api, name, data, func) {
+    const ret = Golbal.get_page_data(api + name);
+    //console.log("读取:", api + name, ret);
+    if (ret) {
+      func(ret);
+    } else {
+      const page = window.history.state?.page;
+      ajax_post(api, data, (ret) => {
+        // 页面已经变化, 丢弃该请求
+        if (page !== window.history.state?.page) {
+          //console.log("丢弃:", api + name, ret);
+          return
+        }
+        Golbal.save_page_data(api + name, ret);
+        //console.log("缓存:", api + name, ret);
+        func(ret)
+      });
+    }
+  }
+
+  // 共用的fav数据更改时刷新缓存
+  static update_fav_data(api, name, func=undefined) {
+    const key = api + name;
+    let extra = Golbal.get_page_data(key);
+    if (extra && func) {
+      extra = func(extra);
+      Golbal.save_page_data(key, extra);
+      //console.log("更新fav", extra);
+    }
+  }
+
 
 }

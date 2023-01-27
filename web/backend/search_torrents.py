@@ -1,14 +1,11 @@
 import os.path
 import re
 
-import cn2an
-
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
 from app.indexer import Indexer
-from app.media import Media
-from app.media.douban import DouBan
+from app.media import Media, DouBan
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.searcher import Searcher
@@ -17,6 +14,7 @@ from app.subscribe import Subscribe
 from app.utils import StringUtils, Torrent
 from app.utils.types import SearchType, IndexerType
 from config import Config
+from web.backend.web_utils import WebUtils
 
 SEARCH_MEDIA_CACHE = {}
 SEARCH_MEDIA_TYPE = {}
@@ -36,54 +34,32 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if not key_word:
         log.info("【Web】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
+    # 类型
+    if media_type:
+        mtype = media_type
     # 开始进度
     search_process = ProgressHelper()
     search_process.start('search')
     # 识别媒体
     media_info = None
     if ident_flag:
+
         # 有TMDBID或豆瓣ID
         if tmdbid:
-            # 豆瓣ID
-            if str(tmdbid).startswith("DB:"):
-                # 以豆瓣ID查询
-                doubanid = tmdbid[3:]
-                # 先从网页抓取（含TMDBID）
-                doubaninfo = DouBan().get_media_detail_from_web(doubanid)
-                if not doubaninfo or not doubaninfo.get("imdbid"):
-                    # 从API抓取
-                    doubaninfo = DouBan().get_douban_detail(doubanid=doubanid, mtype=media_type)
-                    if not doubaninfo:
-                        return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
-                if doubaninfo.get("imdbid"):
-                    # 按IMDBID查询TMDB
-                    tmdbid = Media().get_tmdbid_by_imdbid(doubaninfo.get("imdbid"))
-                    if tmdbid:
-                        # 以TMDBID查询
-                        media_info = MetaInfo(mtype=media_type or mtype, title=content)
-                        media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
-                        media_info.imdb_id = doubaninfo.get("imdbid")
-                        if doubaninfo.get("season") and str(doubaninfo.get("season")).isdigit():
-                            media_info.begin_season = int(doubaninfo.get("season"))
-                if not media_info or not media_info.tmdb_info:
-                    # 按豆瓣名称查
-                    title = doubaninfo.get("title")
-                    media_info = Media().get_media_info(mtype=media_type,
-                                                        title="%s %s" % (title, doubaninfo.get("year")),
-                                                        strict=True)
-                    # 整合集
-                    if media_info and episode_num:
-                        media_info.begin_episode = int(episode_num)
-            # TMDBID
-            else:
-                # 以TMDBID查询
-                media_info = MetaInfo(mtype=media_type or mtype, title=content)
-                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
+            media_info = WebUtils.get_mediainfo_from_id(mtype=mtype, mediaid=tmdbid)
         else:
             # 按输入名称查
             media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
 
+        # 整合集
+        if media_info:
+            if season_num:
+                media_info.begin_season = int(season_num)
+            if episode_num:
+                media_info.begin_episode = int(episode_num)
+
         if media_info and media_info.tmdb_info:
+            # 查询到TMDB信息
             log.info(f"【Web】从TMDB中匹配到{media_info.type.value}：{media_info.get_title_string()}")
             # 查找的季
             if media_info.begin_season is None:
@@ -134,16 +110,20 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             media_info = None
             first_search_name = key_word
             second_search_name = None
-            filter_args = {"season": season_num,
-                           "episode": episode_num,
-                           "year": year}
+            filter_args = {
+                "season": season_num,
+                "episode": episode_num,
+                "year": year
+            }
     # 快速搜索
     else:
         first_search_name = key_word
         second_search_name = None
-        filter_args = {"season": season_num,
-                       "episode": episode_num,
-                       "year": year}
+        filter_args = {
+            "season": season_num,
+            "episode": episode_num,
+            "year": year
+        }
     # 整合高级查询条件
     if filters:
         filter_args.update(filters)
@@ -323,11 +303,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
 
         # 搜索或订阅
         else:
-            # 去掉查询中的电影或电视剧关键字
-            mtype, _, _, _, _, org_content = StringUtils.get_keyword_from_string(input_str)
-
             # 获取字符串中可能的RSS站点列表
-            rss_sites, content = StringUtils.get_idlist_from_string(org_content,
+            rss_sites, content = StringUtils.get_idlist_from_string(input_str,
                                                                     [{
                                                                         "id": site.get("name"),
                                                                         "name": site.get("name")
@@ -339,7 +316,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
 
             # 获取字符串中可能的搜索站点列表
             if indexer_type == IndexerType.BUILTIN:
-                search_sites, _ = StringUtils.get_idlist_from_string(org_content, [{
+                content = input_str
+                search_sites, _ = StringUtils.get_idlist_from_string(input_str, [{
                     "id": indexer.name,
                     "name": indexer.name
                 } for indexer in indexers])
@@ -359,53 +337,31 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
 
             # 识别媒体信息，列出匹配到的所有媒体
             log.info("【Web】正在识别 %s 的媒体信息..." % content)
-            media_info = MetaInfo(title=content, mtype=mtype)
-            if not media_info.get_name():
+            if not content:
                 Message().send_channel_msg(channel=in_from,
                                            title="无法识别搜索内容！",
                                            user_id=user_id)
                 return
 
             # 搜索名称
-            use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
-            if use_douban_titles:
-                tmdb_infos = DouBan().search_douban_medias(
-                    keyword=media_info.get_name() if not media_info.year else "%s %s" % (
-                        media_info.get_name(), media_info.year),
-                    mtype=mtype,
-                    num=8,
-                    season=media_info.begin_season,
-                    episode=media_info.begin_episode)
-            else:
-                tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(),
-                                                    year=media_info.year,
-                                                    mtype=mtype,
-                                                    num=8)
-            if not tmdb_infos:
+            medias = WebUtils.search_media_infos(
+                keyword=content
+            )
+            if not medias:
                 # 查询不到媒体信息
                 Message().send_channel_msg(channel=in_from,
                                            title="%s 查询不到媒体信息！" % content,
                                            user_id=user_id)
                 return
 
-            # 保存识别信息到临时结果中
+            # 保存识别信息到临时结果中，由于消息长度限制只取前8条
             SEARCH_MEDIA_CACHE[user_id] = []
-            if use_douban_titles:
-                for meta_info in tmdb_infos:
-                    # 合并站点和下载设置信息
-                    meta_info.rss_sites = rss_sites
-                    meta_info.search_sites = search_sites
-                    media_info.set_download_info(download_setting=download_setting)
-                    SEARCH_MEDIA_CACHE[user_id].append(meta_info)
-            else:
-                for tmdb_info in tmdb_infos:
-                    meta_info = MetaInfo(title=content)
-                    meta_info.set_tmdb_info(tmdb_info)
-                    # 合并站点和下载设置信息
-                    meta_info.rss_sites = rss_sites
-                    meta_info.search_sites = search_sites
-                    media_info.set_download_info(download_setting=download_setting)
-                    SEARCH_MEDIA_CACHE[user_id].append(meta_info)
+            for meta_info in medias[:8]:
+                # 合并站点和下载设置信息
+                meta_info.rss_sites = rss_sites
+                meta_info.search_sites = search_sites
+                meta_info.set_download_info(download_setting=download_setting)
+                SEARCH_MEDIA_CACHE[user_id].append(meta_info)
 
             if 1 == len(SEARCH_MEDIA_CACHE[user_id]):
                 # 只有一条数据，直接开始搜索
@@ -513,7 +469,7 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                               name=media_info.title,
                                                               year=media_info.year,
                                                               season=media_info.begin_season,
-                                                              doubanid=media_info.douban_id,
+                                                              mediaid=f"DB:{media_info.douban_id}",
                                                               state=state,
                                                               rss_sites=media_info.rss_sites,
                                                               search_sites=media_info.search_sites)
@@ -522,7 +478,7 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                               name=media_info.title,
                                                               year=media_info.year,
                                                               season=media_info.begin_season,
-                                                              tmdbid=media_info.tmdb_id,
+                                                              mediaid=media_info.tmdb_id,
                                                               state=state,
                                                               rss_sites=media_info.rss_sites,
                                                               search_sites=media_info.search_sites)

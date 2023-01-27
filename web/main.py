@@ -33,7 +33,7 @@ from app.sites import Sites
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
-from app.utils import DomUtils, SystemUtils, WebUtils, ExceptionUtils, StringUtils
+from app.utils import DomUtils, SystemUtils, ExceptionUtils, StringUtils
 from app.utils.types import *
 from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
@@ -41,6 +41,7 @@ from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
+from web.backend.web_utils import WebUtils
 from web.security import require_auth
 
 # 配置文件锁
@@ -124,6 +125,7 @@ def login():
         RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
+        SiteDict = Indexer().get_indexer_hash_dict()
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -135,7 +137,8 @@ def login():
                                PixDict=PixDict,
                                SyncMod=SyncMod,
                                SiteFavicons=SiteFavicons,
-                               RmtModeDict=RmtModeDict)
+                               RmtModeDict=RmtModeDict,
+                               SiteDict=SiteDict)
 
     def redirect_to_login(errmsg=''):
         """
@@ -238,42 +241,16 @@ def search():
         pris = User().get_user(username).get("pris")
     else:
         pris = ""
-    # 查询结果
-    SearchWord = request.args.get("s")
-    NeedSearch = request.args.get("f")
     # 结果
     res = WebAction().get_search_result()
     SearchResults = res.get("result")
     Count = res.get("total")
-    # 站点列表
-    SiteDict = Indexer().get_indexer_hash_dict()
     return render_template("search.html",
                            UserPris=str(pris).split(","),
-                           SearchWord=SearchWord or "",
-                           NeedSearch=NeedSearch or "",
                            Count=Count,
                            Results=SearchResults,
-                           RestypeDict=ModuleConf.TORRENT_SEARCH_PARAMS.get("restype"),
-                           PixDict=ModuleConf.TORRENT_SEARCH_PARAMS.get("pix"),
-                           SiteDict=SiteDict,
+                           SiteDict=Indexer().get_indexer_hash_dict(),
                            UPCHAR=chr(8593))
-
-
-# 媒体列表页面
-@App.route('/medialist', methods=['POST', 'GET'])
-@login_required
-def medialist():
-    # 查询结果
-    SearchWord = request.args.get("s")
-    NeedSearch = request.args.get("f")
-    OperType = request.args.get("t")
-    medias = WebAction().search_media_infos({"keyword": SearchWord}).get("result")
-    return render_template("medialist.html",
-                           SearchWord=SearchWord or "",
-                           NeedSearch=NeedSearch or "",
-                           OperType=OperType,
-                           Count=len(medias),
-                           Medias=medias)
 
 
 # 电影订阅页面
@@ -408,14 +385,15 @@ def resources():
 @App.route('/recommend', methods=['POST', 'GET'])
 @login_required
 def recommend():
-    Type = request.args.get("type")
-    SubType = request.args.get("subtype")
-    Title = request.args.get("title")
-    SubTitle = request.args.get("subtitle")
+    Type = request.args.get("type") or ""
+    SubType = request.args.get("subtype") or ""
+    Title = request.args.get("title") or ""
+    SubTitle = request.args.get("subtitle") or ""
     CurrentPage = request.args.get("page") or 1
-    Week = request.args.get("week") or None
-    TmdbId = request.args.get("tmdbid") or None
-    PersonId = request.args.get("personid") or None
+    Week = request.args.get("week") or ""
+    TmdbId = request.args.get("tmdbid") or ""
+    PersonId = request.args.get("personid") or ""
+    Keyword = request.args.get("keyword") or ""
     return render_template("discovery/recommend.html",
                            Type=Type,
                            SubType=SubType,
@@ -424,7 +402,8 @@ def recommend():
                            Week=Week,
                            TmdbId=TmdbId,
                            PersonId=PersonId,
-                           SubTitle=SubTitle)
+                           SubTitle=SubTitle,
+                           Keyword=Keyword)
 
 
 # 电影推荐页面
@@ -457,11 +436,9 @@ def discovery_bangumi():
 def discovery_detail():
     TmdbId = request.args.get("id")
     Type = request.args.get("type")
-    Fav = request.args.get("fav")
     return render_template("discovery/mediainfo.html",
                            TmdbId=TmdbId,
-                           Type=Type,
-                           Fav=Fav)
+                           Type=Type)
 
 
 # 演职人员页面
@@ -1605,7 +1582,7 @@ def subscribe():
         code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
                                                              name=meta_info.get_name(),
                                                              year=meta_info.year,
-                                                             tmdbid=tmdbId)
+                                                             mediaid=tmdbId)
         meta_info.user_name = req_json.get("request", {}).get("requestedBy_username")
         Message().send_rss_success_message(in_from=SearchType.API,
                                            media_info=meta_info)
@@ -1619,7 +1596,7 @@ def subscribe():
             code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
                                                                  name=meta_info.get_name(),
                                                                  year=meta_info.year,
-                                                                 tmdbid=tmdbId,
+                                                                 mediaid=tmdbId,
                                                                  season=season)
             Message().send_rss_success_message(in_from=SearchType.API,
                                                media_info=meta_info)

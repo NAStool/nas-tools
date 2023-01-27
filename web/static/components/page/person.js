@@ -1,5 +1,5 @@
 import { html } from "../utility/lit-core.min.js";
-import { CustomElement } from "../utility/utility.js";
+import { CustomElement, Golbal } from "../utility/utility.js";
 
 class PagePerson extends CustomElement {
   static properties = {
@@ -17,7 +17,7 @@ class PagePerson extends CustomElement {
 
   // 仅执行一次  界面首次刷新后
   firstUpdated() {
-    ajax_post("media_person", { "tmdbid": this.tmdbid, "type": this.media_type},
+    Golbal.get_cache_or_ajax("media_person", this.media_type, { "tmdbid": this.tmdbid, "type": this.media_type},
       (ret) => {
         if (ret.code === 0) {
           this.person_list = ret.data;

@@ -6,9 +6,8 @@ from time import sleep
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper
-from app.media import Media
+from app.media import Media, DouBan
 from app.media.meta import MetaInfo
-from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe
@@ -123,7 +122,7 @@ class DoubanSync:
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
                                                                                 season=media.begin_season,
-                                                                                doubanid=media.douban_id)
+                                                                                mediaid=f"DB:{media.douban_id}")
                                 if code != 0:
                                     log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                                     # 订阅已存在
@@ -145,7 +144,7 @@ class DoubanSync:
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
                                                                                 season=media.begin_season,
-                                                                                doubanid=media.douban_id,
+                                                                                mediaid=f"DB:{media.douban_id}",
                                                                                 state="R")
                                 if code != 0:
                                     log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
