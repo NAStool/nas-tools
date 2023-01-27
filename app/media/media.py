@@ -893,6 +893,7 @@ class Media:
         return [{
             'id': tv.get("id"),
             'orgid': tv.get("id"),
+            'tmdbid': tv.get("id"),
             'title': tv.get("name"),
             'type': 'TV',
             'year': tv.get("first_air_date")[0:4] if tv.get("first_air_date") else "",
@@ -909,6 +910,7 @@ class Media:
         return [{
             'id': movie.get("id"),
             'orgid': movie.get("id"),
+            'tmdbid': movie.get("id"),
             'title': movie.get("title"),
             'type': 'MOV',
             'year': movie.get("release_date")[0:4] if movie.get("release_date") else "",

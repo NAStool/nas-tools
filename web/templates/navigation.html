@@ -165,18 +165,6 @@
         {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
-        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
-          <div class="input-group input-group-flat">
-            <input type="text" id="home_search_menu_input" value=""
-                class="form-control theme-dark"
-                placeholder="搜索电影、电视剧" autocomplete="off">
-            <span class="input-group-text theme-dark">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
-                {{ SVG.adjustments() }}
-              </a>
-            </span>
-          </div>
-        </div>
         <ul class="navbar-nav pt-lg-3">
           {% if "我的媒体库" in UserPris %}
             <li class="nav-item">
@@ -1399,6 +1387,9 @@
 
   //搜索词条
   function search_media_items(keyword) {
+    if (!keyword) {
+      return;
+    }
     // 刷新搜索页面
     navmenu("recommend?type=SEARCH&title=搜索结果&keyword=" + keyword);
   }
@@ -2843,13 +2834,6 @@
     $('body').on('click', 'span[data-bs-toggle="tooltip"]', function (e) {
       e.preventDefault();
       e.stopPropagation();
-    });
-
-    // 菜单搜索框回车事件
-    $("#home_search_menu_input").keydown(function(e) {
-      if (e.keyCode == 13) {
-        search_media_items($(this).val());
-      }
     });
 
     /**

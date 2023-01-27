@@ -2289,7 +2289,7 @@ class WebAction:
             fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
                                                             title=res.get("title"),
                                                             year=res.get("year"),
-                                                            tmdbid=res.get("tmdbid"))
+                                                            tmdbid=res.get("id"))
             res.update({
                 'fav': fav,
                 'rssid': rssid
