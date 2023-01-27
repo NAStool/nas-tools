@@ -2,8 +2,9 @@ import time
 
 from app.message import Message
 from app.mediaserver import MediaServer
-from app.media import  Media
+from app.media import Media
 from web.backend.web_utils import WebUtils
+
 
 class WebhookEvent:
     message = None
@@ -103,7 +104,12 @@ class WebhookEvent:
         event_info = self.__parse_emby_msg(message)
         if event_info.get("event") == "system.webhooktest":
             return
-        elif event_info.get("event") in ["playback.start", "playback.stop", "playback.pause", "playback.unpause", "user.authenticated", "user.authenticationfailed"]:
+        elif event_info.get("event") in ["playback.start",
+                                         "playback.stop",
+                                         "playback.pause",
+                                         "playback.unpause",
+                                         "user.authenticated",
+                                         "user.authenticationfailed"]:
             self.send_webhook_message(event_info, 'emby')
 
     def send_webhook_message(self, event_info, channel):
@@ -162,12 +168,14 @@ class WebhookEvent:
                 tmdb_id = iteminfo.get('ProviderIds', {}).get('Tmdb')
                 try:
                     # 从tmdb获取剧集某季某集图片
-                    image_url = self.media.get_episode_images(tmdb_id, event_info.get('season_id'), event_info.get('episode_id'))
+                    image_url = self.media.get_episode_images(tmdb_id, event_info.get('season_id'),
+                                                              event_info.get('episode_id'))
                 except IOError:
                     pass
 
             if not image_url:
-                image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'), "Backdrop") or _webhook_images.get(channel)
+                image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'),
+                                                             "Backdrop") or _webhook_images.get(channel)
         else:
             image_url = _webhook_images.get(channel)
         # 发送消息
