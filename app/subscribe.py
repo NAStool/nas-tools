@@ -531,8 +531,7 @@ class Subscribe:
                                                      desc=media_info.overview,
                                                      note=self.gen_rss_note(media_info))
                     # 更新缺失季集
-                    self.dbhelper.update_rss_tv_episodes(rssid=rssid,
-                                                         lack_episodes=range(total - lack + 1, total + 1))
+                    self.dbhelper.update_rss_tv_episodes(rid=rssid, episodes=range(total - lack + 1, total + 1))
                     # 清除TMDB缓存
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
         log.info("【Subscribe】订阅TMDB信息刷新完成")
