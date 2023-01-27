@@ -2054,6 +2054,16 @@ class Media:
         else:
             return "https://www.themoviedb.org/tv/%s" % tmdbid
 
+    def get_episode_images(self, tv_id, season_id, episode_id):
+        """
+        获取剧集中某一集封面
+        """
+        res = self.tv.episode_images(tv_id, season_id, episode_id)
+        if len(res.get("stills", [])) > 0:
+            return TMDB_IMAGE_W500_URL % res.get("stills", {})[0].get("file_path")
+        else:
+            return ""
+
     def get_tmdb_factinfo(self, media_info):
         """
         获取TMDB发布信息

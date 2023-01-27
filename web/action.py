@@ -272,7 +272,8 @@ class WebAction:
             "/pts": {"func": Sites().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
-            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"}
+            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/udt": {"func": WebAction().__update_system, "desp": "系统更新"}
         }
         command = commands.get(msg)
         message = Message()
