@@ -1222,33 +1222,18 @@ class FileTransfer:
         :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
         """
         if mtype in ["MOV", "电影", MediaType.MOVIE]:
-            rssid = self.dbhelper.get_rss_movie_id(title=title,
-                                                   tmdbid=tmdbid)
-            if rssid:
-                # 已订阅
-                fav = "1"
-            elif MediaServer().check_item_exists(title=title,
-                                                 year=year,
-                                                 tmdbid=tmdbid):
-                # 已下载
-                fav = "2"
-            else:
-                # 未订阅、未下载
-                fav = "0"
+            rssid = self.dbhelper.get_rss_movie_id(title=title, tmdbid=tmdbid)
         else:
-            rssid = self.dbhelper.get_rss_tv_id(title=title,
-                                                tmdbid=tmdbid)
-            if rssid:
-                # 已订阅
-                fav = "1"
-            elif MediaServer().check_item_exists(title=title,
-                                                 tmdbid=tmdbid):
-                # 已下载
-                fav = "2"
-            else:
-                # 未订阅、未下载
-                fav = "0"
-
+            rssid = self.dbhelper.get_rss_tv_id(title=title, tmdbid=tmdbid)
+        if rssid:
+            # 已订阅
+            fav = "1"
+        elif MediaServer().check_item_exists(title=title, year=year, tmdbid=tmdbid):
+            # 已下载
+            fav = "2"
+        else:
+            # 未订阅、未下载
+            fav = "0"
         return fav, rssid
 
 

@@ -223,3 +223,13 @@ class MediaServer:
             return {}
         else:
             return {"movie_count": status.MOVIE_COUNT, "tv_count": status.TV_COUNT, "time": status.UPDATE_TIME}
+
+    def get_iteminfo(self, itemid):
+        """
+          根据ItemId从媒体服务器查询项目详情
+          :param itemid: 在Emby中的ID
+          :return: 图片对应在TMDB中的URL
+          """
+        if not self.server:
+            return None
+        return self.server.get_iteminfo(itemid)

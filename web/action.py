@@ -272,7 +272,8 @@ class WebAction:
             "/pts": {"func": Sites().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
-            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"}
+            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/udt": {"func": WebAction().__update_system, "desp": "系统更新"}
         }
         command = commands.get(msg)
         message = Message()
@@ -2288,7 +2289,7 @@ class WebAction:
             fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
                                                             title=res.get("title"),
                                                             year=res.get("year"),
-                                                            tmdbid=res.get("rid"))
+                                                            tmdbid=res.get("id"))
             res.update({
                 'fav': fav,
                 'rssid': rssid
