@@ -173,7 +173,7 @@
                   {{ SVG.home() }}
                 </span>
                 <span class="nav-link-title">
-                  开始
+                  我的媒体库
                 </span>
               </a>
             </li>
@@ -197,7 +197,7 @@
                   电视剧
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('discovery_bangumi')">
-                  Bangumi
+                  BANGUMI
                 </a>
               </div>
             </li>
@@ -440,6 +440,7 @@
         {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse">
+        {% if "资源搜索" in UserPris %}
         <div>
           <div class="input-icon">
             <span class="input-icon-addon">
@@ -448,6 +449,7 @@
             <input type="text" id="home_search_bar" value="" class="form-control form-control-rounded" placeholder="搜索/订阅电影、电视剧" oninput="tirgger_search_media_items()">
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
   </header>
