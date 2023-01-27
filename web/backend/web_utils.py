@@ -1,13 +1,8 @@
 import cn2an
 
-from app.media import Media
-from app.media.bangumi import Bangumi
-from app.media.douban import DouBan
+from app.media import Media, Bangumi, DouBan
 from app.media.meta import MetaInfo
-from app.utils import StringUtils
-from app.utils.exception_utils import ExceptionUtils
-from app.utils.http_utils import RequestUtils
-from app.utils.system_utils import SystemUtils
+from app.utils import StringUtils, ExceptionUtils, SystemUtils, RequestUtils
 from app.utils.types import MediaType
 from config import Config
 from version import APP_VERSION
@@ -133,21 +128,22 @@ class WebUtils:
         """
         if not keyword:
             return []
+        mtype, key_word, season_num, episode_num, _, content = StringUtils.get_keyword_from_string(keyword)
         if source == "tmdb":
             use_douban_titles = False
         else:
             use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            mtype, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(keyword)
             medias = DouBan().search_douban_medias(keyword=key_word,
                                                    mtype=mtype,
                                                    season=season_num,
-                                                   episode=episode_num)
+                                                   episode=episode_num,
+                                                   page=page)
         else:
-            meta_info = MetaInfo(title=keyword)
+            meta_info = MetaInfo(title=content)
             tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(),
                                                year=meta_info.year,
-                                               mtype=meta_info.type,
+                                               mtype=mtype,
                                                page=page)
             medias = []
             for tmdbinfo in tmdbinfos:

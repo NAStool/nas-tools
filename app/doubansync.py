@@ -6,9 +6,8 @@ from time import sleep
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper
-from app.media import Media
+from app.media import Media, DouBan
 from app.media.meta import MetaInfo
-from app.media.douban import DouBan
 from app.message import Message
 from app.searcher import Searcher
 from app.subscribe import Subscribe

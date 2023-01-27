@@ -24,9 +24,7 @@ from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper
 from app.indexer import Indexer
-from app.media import Category, Media
-from app.media.bangumi import Bangumi
-from app.media.douban import DouBan
+from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
@@ -2277,6 +2275,11 @@ class WebAction:
             # Bangumi每日放送
             Week = data.get("week")
             res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
+        elif Type == "SEARCH":
+            # 搜索词条
+            Keyword = data.get("keyword")
+            medias = WebUtils.search_media_infos(keyword=Keyword, page=CurrentPage)
+            res_list = [media.to_dict() for media in medias]
         else:
             res_list = []
         # 修正数据
