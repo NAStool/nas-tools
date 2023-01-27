@@ -639,7 +639,12 @@ class Sites:
             site_info = self.get_public_sites(url=page_url)
             if not site_info.get("referer"):
                 referer = None
-            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=page_url)
+            req = RequestUtils(
+                headers=ua,
+                cookies=cookie,
+                referer=referer,
+                proxies=Config().get_proxies() if site_info.get("proxy") else None
+            ).get_res(url=page_url)
             if req and req.status_code == 200:
                 if req.text:
                     page_source = req.text
