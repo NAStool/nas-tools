@@ -2060,7 +2060,7 @@ class Media:
         """
         res = self.tv.episode_images(tv_id, season_id, episode_id)
         if len(res.get("stills", [])) > 0:
-            return TMDB_IMAGE_W500_URL % res.get("stills", {})[0].get("file_path")
+            return TMDB_IMAGE_W500_URL % res.get("stills", [{}])[0].get("file_path")
         else:
             return ""
 
