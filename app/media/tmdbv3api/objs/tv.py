@@ -30,6 +30,7 @@ class TV(TMDb):
         "credits": "/tv/%s/credits",
         "discover": "/discover/tv",
         "images": "/tv/%s/images",
+        "episode_images": "/tv/%s/season/%s/episode/%s/images",
     }
 
     def details(
@@ -239,3 +240,9 @@ class TV(TMDb):
         :return:
         """
         return AsObj(**self._call(self._urls['images'] % tv_id, "include_image_language=" + include_image_language))
+
+    def episode_images(self, tv_id, season_id, episode_id, include_image_language=""):
+        """
+        获取剧集中某一集封面
+        """
+        return AsObj(**self._call(self._urls['episode_images'] % (tv_id, season_id, episode_id), "include_image_language=" + include_image_language))
