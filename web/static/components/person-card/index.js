@@ -30,8 +30,8 @@ export class PersonCard extends CustomElement {
         .lit-person-card:hover {
           transform:scale(1.05, 1.05);
           opacity:1;
-          box-shadow:0 0 0 1px #bbbbbb;
-          background-image:linear-gradient(45deg,#bbbbbd,#8597aa 60%) inset;
+          box-shadow:0 0 0 1px #bbbbbb inset;
+          background-image:linear-gradient(45deg,#bbbbbd,#8597aa 60%);
         }
       </style>
       <div class="card card-sm lit-person-card rounded-4 overflow-hidden cursor-pointer ratio">
