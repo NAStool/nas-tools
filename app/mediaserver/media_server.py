@@ -212,7 +212,10 @@ class MediaServer:
         """
         检查媒体库是否已存在某项目，非实时同步数据，仅用于展示
         """
-        return self.mediadb.exists(server_type=self._server_type.value, title=title, year=year, tmdbid=tmdbid)
+        return self.mediadb.exists(server_type=self._server_type.value,
+                                   title=title,
+                                   year=year,
+                                   tmdbid=tmdbid if str(tmdbid).isdigit() else None)
 
     def get_mediasync_status(self):
         """
