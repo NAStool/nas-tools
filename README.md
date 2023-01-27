@@ -171,7 +171,7 @@ https://spk7.imnks.com/
 
    **一级菜单及一级菜单下的前几个子菜单顺序需要一模一样**，在符合截图的示例项后可以自己增加别的二级菜单项。
 
-   ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
+   ![image](https://user-images.githubusercontent.com/54088512/215088822-b8353fa9-9569-4c96-a47e-e5ab387b1943.png)
 
 
 2) **Telegram Bot机器人**
@@ -188,12 +188,13 @@ https://spk7.imnks.com/
 
   **命令与功能对应关系**
 
-   |  命令   | 功能  |
-   |  ----  | ----  |
+   |  命令   | 功能 |
+   | ----  | ----  |
    | /rss  | RSS订阅 |
    | /ptt  | 下载文件转移 |
    | /ptr  | 删种 |
    | /pts | 站点签到 |
+   | /udt | 系统更新 |
    | /rst  | 目录同步 |
    | /db   | 豆瓣想看 |
 
