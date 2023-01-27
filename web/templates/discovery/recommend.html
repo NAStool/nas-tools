@@ -27,16 +27,17 @@
   // 子类型
   var SubType = '{{ SubType }}';
 
+  // 标题
+  var Title = '{{ Title }}';
+  $("#recommend_title").text(Title);
+
   // 子标题
   var SubTitle = '{{ SubTitle or "" }}';
   if (SubTitle) {
-    $("#recommend_subtitle").text("{{ SubTitle }}").show();
+    $("#recommend_subtitle").text(SubTitle).show();
   } else {
     $("#recommend_subtitle").hide();
   }
-
-  // 标题
-  $("#recommend_title").text("{{ Title }}");
 
   // 星期
   var Week = '{{ Week }}';
@@ -46,6 +47,9 @@
 
   // 演员ID
   var PersonId = '{{ PersonId }}';
+
+  // 关键字
+  var Keyword = '{{ Keyword }}';
 
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
@@ -78,7 +82,8 @@
       "page": CurrentPage,
       "week": Week,
       "tmdbid": TmdbId,
-      "personid": PersonId
+      "personid": PersonId,
+      "keyword": Keyword
     }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码

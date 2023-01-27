@@ -2277,6 +2277,11 @@ class WebAction:
             # Bangumi每日放送
             Week = data.get("week")
             res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
+        elif Type == "SEARCH":
+            # 搜索词条
+            Keyword = data.get("keyword")
+            medias = WebUtils.search_media_infos(keyword=Keyword, page=CurrentPage)
+            res_list = [media.to_dict() for media in medias]
         else:
             res_list = []
         # 修正数据

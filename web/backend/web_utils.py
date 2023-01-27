@@ -142,7 +142,8 @@ class WebUtils:
             medias = DouBan().search_douban_medias(keyword=key_word,
                                                    mtype=mtype,
                                                    season=season_num,
-                                                   episode=episode_num)
+                                                   episode=episode_num,
+                                                   page=page)
         else:
             meta_info = MetaInfo(title=keyword)
             tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(),

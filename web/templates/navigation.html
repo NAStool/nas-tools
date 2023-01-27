@@ -165,14 +165,6 @@
         {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
-        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
-          <div class="input-icon">
-              <span class="input-icon-addon">
-                {{ SVG.search() }}
-              </span>
-            <input type="text" value="" class="form-control theme-dark home_search_word" placeholder="搜索/订阅..." autocomplete="false">
-          </div>
-        </div>
         <ul class="navbar-nav pt-lg-3">
           {% if "我的媒体库" in UserPris %}
             <li class="nav-item">
@@ -450,11 +442,10 @@
       <div class="collapse navbar-collapse">
         <div>
           <div class="input-icon">
-              <span class="input-icon-addon">
-                {{ SVG.search() }}
-              </span>
-            <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…"
-                   aria-label="资源搜索/订阅">
+            <span class="input-icon-addon">
+              {{ SVG.search() }}
+            </span>
+            <input type="text" id="home_search_bar" value="" class="form-control form-control-rounded" placeholder="搜索/订阅电影、电视剧" oninput="tirgger_search_media_items()">
           </div>
         </div>
       </div>
@@ -1153,6 +1144,115 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">高级搜索</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">类型</label>
+              <select class="form-select" id="search_type">
+                <option value="" selected>全部</option>
+                <option value="电影">电影</option>
+                <option value="电视剧">电视剧</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="text" value="" id="search_name" class="form-control"
+                     placeholder="电影/电视剧名称">
+            </div>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="mb-3">
+              <label class="form-label">年份</label>
+              <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
+            </div>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="mb-3">
+              <label class="form-label">季</label>
+              <select class="form-select" id="search_season">
+                <option value="" selected>全部</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">站点</label>
+              <select class="form-select" id="search_site">
+                <option value="" selected>全部</option>
+                {% for site in SiteDict.values() %}
+                  <option value="{{ site.name }}">{{ site.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">质量</label>
+              <select class="form-select" id="search_restype">
+                <option value="" selected>全部</option>
+                {% for Restype in RestypeDict %}
+                  <option value="{{ Restype }}">{{ Restype }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">分辨率</label>
+              <select class="form-select" id="search_pix">
+                <option value="" selected>全部</option>
+                {% for Pix in PixDict %}
+                  <option value="{{ Pix }}">{{ Pix }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">促销</label>
+              <select class="form-select" id="sp_state">
+                <option value="* *" selected>全部</option>
+                <option value="1.0 1.0">普通</option>
+                <option value="1.0 0.0">免费</option>
+                <option value="2.0 1.0">2X</option>
+                <option value="2.0 0.0">2X免费</option>
+                <option value="1.0 0.5">50%</option>
+                <option value="2.0 0.5">2X 50%</option>
+                <option value="1.0 0.7">70%</option>
+                <option value="1.0 0.3">30%</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-lg-8">
+            <div class="mb-3">
+              <label class="form-label">自定义</label>
+              <input type="text" value="" id="search_key" class="form-control"
+                     placeholder="自定义过滤规则">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="search_media_advanced()" id="search_advanced_btn"
+                class="btn btn-primary">开始搜索
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="../static/js/libs/list.min.js"></script>
 <script src="../static/js/jquery-3.3.1.min.js"></script>
 <script src="../static/js/tabler.min.js"></script>
@@ -1278,6 +1378,32 @@
 
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
+
+  //搜索词条
+  function search_media_items(keyword) {
+
+    // 刷新搜索页面
+    debugger;
+    navmenu("recommend?type=SEARCH&title=搜索结果&keyword=" + keyword);
+  }
+
+  //搜索框响应
+  let SearchKeyWordTimer = undefined;
+  function tirgger_search_media_items() {
+    let keyword = $("#home_search_bar").val();
+    if (!keyword) {
+      return;
+    }
+    if (keyword.length < 2) {
+      return;
+    }
+    if (SearchKeyWordTimer) {
+      clearTimeout(SearchKeyWordTimer);
+    }
+    SearchKeyWordTimer = setTimeout(function () {
+      search_media_items($("#home_search_bar").val());
+    }, 500);
+  }
 
   //搜索
   function media_search(tmdbid, title, type) {
@@ -1979,6 +2105,64 @@
     });
   }
 
+  // 显示高级搜索框
+  function show_search_advanced_modal() {
+    $("#modal-search-advanced").modal("show");
+  }
+
+  // 开始高级搜索
+  function search_media_advanced() {
+    let keyword;
+    $("#search_icon").attr("disabled", "true");
+    // 读取数据
+    const search_name = $("#search_name").val();
+    if (!search_name) {
+      $("#search_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#search_name").removeClass("is-invalid");
+    }
+    const search_type = $("#search_type").val();
+    const search_season = $("#search_season").val();
+    const search_year = $("#search_year").val();
+    const search_site = $("#search_site").val();
+    const search_restype = $("#search_restype").val();
+    const search_pix = $("#search_pix").val();
+    const sp_state = $("#sp_state").val();
+    const search_key = $("#search_key").val();
+    // 拼装请求
+    if (search_type) {
+      keyword = search_type + " " + search_name;
+    } else {
+      keyword = search_name;
+    }
+    if (search_year) {
+      keyword = keyword + " " + search_year;
+    }
+    if (search_season) {
+      keyword = keyword + " " + search_season;
+    }
+    const filters = {
+      "site": search_site,
+      "restype": search_restype,
+      "pix": search_pix,
+      "sp_state": sp_state,
+      "key": search_key
+    };
+    const param = {"search_word": keyword, "filters": filters, "unident": true};
+    $("#modal-search-advanced").modal("hide");
+    show_refresh_process(`正在搜索 ${keyword} ...`);
+    ajax_post("search", param, function (ret) {
+      hide_refresh_process();
+      if (ret.code === 0) {
+        navmenu(`search?s=${keyword}`);
+      } else {
+        show_fail_modal(ret.msg,function () {
+          $("#modal-search-advanced").modal("show");
+        });
+      }
+    }, true, false);
+  }
 </script>
 
 <!-- 页面组件 -->
@@ -2126,10 +2310,16 @@
     }
     // 初始化季列表
     let rename_season_content = `<option value="" selected>请选择</option>`;
+    let search_season_content = `<option value="" selected>全部</option>`;
     for (let i = 0; i <= 50; i++) {
       rename_season_content += `<option value="${i}">第${i}季</option>`;
+      if (i > 0) {
+        search_season_content += `<option value="${i}">第${i}季</option>`;
+      }
     }
     $("#rename_season").empty().append(rename_season_content);
+    $("#search_season").empty().append(search_season_content);
+
     // 初始化媒体类型
     if (media_type === "电视剧") {
       $("#rename_type_tv").prop("checked", true);
@@ -2631,17 +2821,6 @@
             $("#page_wrapper").scrollTop(e.state.scroll);
           })
         }
-    });
-
-    // 搜索输入框
-    $('.home_search_word').bind('keypress', function (event) {
-      if (event.keyCode == "13") {
-        if (!$(this).val()) {
-          return;
-        }
-        navmenu('medialist?s=' + $(this).val() + '&f=1');
-        $(this).val('');
-      }
     });
 
     // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
