@@ -607,21 +607,30 @@ class DbHelper:
             else:
                 return self._db.query(RSSMOVIES).filter(RSSMOVIES.STATE == state).all()
 
-    def get_rss_movie_id(self, title, tmdbid=None):
+    def get_rss_movie_id(self, title, year=None, tmdbid=None):
         """
         获取订阅电影ID
         """
         if not title:
             return ""
-        ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.NAME == title).first()
-        if ret:
-            return ret[0]
+        if tmdbid:
+            ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == str(tmdbid)).first()
+            if ret:
+                return ret[0]
+        if year:
+            items = self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title).all()
         else:
+            items = self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+                                                     RSSMOVIES.YEAR == str(year)).all()
+        if items:
             if tmdbid:
-                ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == tmdbid).first()
-                if ret:
-                    return ret[0]
-        return ""
+                for item in items:
+                    if not item.TMDBID or item.TMDBID == str(tmdbid):
+                        return item.ID
+            else:
+                return items[0].ID
+        else:
+            return ""
 
     def get_rss_movie_sites(self, rssid):
         """
@@ -796,33 +805,41 @@ class DbHelper:
             else:
                 return self._db.query(RSSTVS).filter(RSSTVS.STATE == state).all()
 
-    def get_rss_tv_id(self, title, season=None, tmdbid=None):
+    def get_rss_tv_id(self, title, year=None, season=None, tmdbid=None):
         """
         获取订阅电视剧ID
         """
         if not title:
             return ""
-        if season:
-            ret = self._db.query(RSSTVS.ID).filter(RSSTVS.NAME == title,
-                                                   RSSTVS.SEASON == season).first()
+        if tmdbid:
+            if season:
+                ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
+                                                       RSSTVS.SEASON == season).first()
+            else:
+                ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
             if ret:
                 return ret[0]
-            else:
-                if tmdbid:
-                    ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
-                                                           RSSTVS.SEASON == season).first()
-                    if ret:
-                        return ret[0]
+        if season and year:
+            items = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                  RSSTVS.SEASON == str(season),
+                                                  RSSTVS.YEAR == str(year)).all()
+        elif season and not year:
+            items = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                  RSSTVS.SEASON == str(season)).all()
+        elif not season and year:
+            items = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                  RSSTVS.YEAR == str(year)).all()
         else:
-            ret = self._db.query(RSSTVS.ID).filter(RSSTVS.NAME == title).first()
-            if ret:
-                return ret[0]
+            items = []
+        if items:
+            if tmdbid:
+                for item in items:
+                    if not item.TMDBID or item.TMDBID == str(tmdbid):
+                        return item.ID
             else:
-                if tmdbid:
-                    ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
-                    if ret:
-                        return ret[0]
-        return ""
+                return items[0].ID
+        else:
+            return ""
 
     def get_rss_tv_sites(self, rssid):
         """
