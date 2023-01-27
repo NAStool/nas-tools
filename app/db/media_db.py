@@ -109,13 +109,18 @@ class MediaDb:
         else:
             items = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
                                                               MEDIASYNCITEMS.TITLE == title).all()
-        flag = False
-        if items and tmdbid:
-            for item in items:
-                if item.TMDBID and item.TMDBID == str(tmdbid):
-                    flag = True
-                    break
-        return flag
+        if items:
+            if tmdbid:
+                for item in items:
+                    if item.TMDBID and item.TMDBID == str(tmdbid):
+                        return True
+                    if not item.TMDBID:
+                        return True
+                return False
+            else:
+                return True
+        else:
+            return False
 
     def get_statistics(self, server_type):
         if not server_type:
