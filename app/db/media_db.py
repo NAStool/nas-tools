@@ -98,20 +98,24 @@ class MediaDb:
     def exists(self, server_type, title, year, tmdbid):
         if not server_type or not title:
             return False
-        if title and year:
-            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                              MEDIASYNCITEMS.TITLE == title,
-                                                              MEDIASYNCITEMS.YEAR == str(year)).count()
-        else:
-            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                              MEDIASYNCITEMS.TITLE == title).count()
-        if count > 0:
-            return True
-        elif tmdbid:
+        if tmdbid:
             count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.TMDBID == str(tmdbid)).count()
-            if count > 0:
+            if count:
                 return True
-        return False
+        if year:
+            items = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title,
+                                                              MEDIASYNCITEMS.YEAR == str(year)).all()
+        else:
+            items = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title).all()
+        flag = False
+        if items and tmdbid:
+            for item in items:
+                if item.TMDBID and item.TMDBID == str(tmdbid):
+                    flag = True
+                    break
+        return flag
 
     def get_statistics(self, server_type):
         if not server_type:
