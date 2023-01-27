@@ -3,8 +3,7 @@ import time
 from app.message import Message
 from app.mediaserver import MediaServer
 from app.media import  Media
-from app.utils import WebUtils
-
+from web.backend.web_utils import WebUtils
 
 class WebhookEvent:
     message = None
