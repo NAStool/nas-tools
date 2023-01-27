@@ -121,7 +121,7 @@ class PageMediainfo extends CustomElement {
                     <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
                     <span class="ms-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span ?hidden=${!this.media_info.genres}>| ${this.media_info.genres}</span>
-                    ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("250px") : nothing }
+                    ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("205px") : nothing }
                   </div>
                   <div class="align-self-center align-self-md-start me-1 mt-2">
                     ${Object.keys(this.media_info).length !== 0
