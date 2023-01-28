@@ -157,7 +157,7 @@
     </span>
   </div>
 {% endmacro %}
-<body class="layout-fluid">
+<body>
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
@@ -173,7 +173,7 @@
         </a>
       </h1>
       {% if "资源搜索" in UserPris %}
-      <div class="flex-grow-1 d-lg-none ms-2">
+      <div class="flex-grow-1 d-lg-none">
         {{ searchbar('theme-dark') }}
       </div>
       {% endif %}
