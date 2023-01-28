@@ -149,7 +149,7 @@
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat me-3">
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
-        oninput="tirgger_search_media_items(this)" autocomplete="off">
+        autocomplete="off">
     <span class="input-group-text form-control-rounded {{ theme }}">
       <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
         {{ SVG.adjustments() }}
@@ -1396,25 +1396,7 @@
       return;
     }
     // 刷新搜索页面
-    navmenu("recommend?type=SEARCH&title=搜索结果&keyword=" + keyword);
-  }
-
-  //搜索框响应
-  let SearchKeyWordTimer = undefined;
-  function tirgger_search_media_items(obj) {
-    let keyword = $(obj).val();
-    if (!keyword) {
-      return;
-    }
-    if (keyword.length < 2) {
-      return;
-    }
-    if (SearchKeyWordTimer) {
-      clearTimeout(SearchKeyWordTimer);
-    }
-    SearchKeyWordTimer = setTimeout(function () {
-      search_media_items(keyword);
-    }, 1000);
+    navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + keyword + "&keyword=" + keyword);
   }
 
   //搜索
