@@ -2825,8 +2825,20 @@
   // 种子上传控件
   let torrent_dropzone;
 
+  //切换导航栏颜色..
+  function change_navbar_color() {
+    const width = $(window).width();
+    if (width < 992){
+      $("aside").removeClass("navbar-dark").addClass("navbar-light");
+    } else {
+      $("aside").removeClass("navbar-light").addClass("navbar-dark");
+    }
+  }
+
   //事件
   $(document).ready(function () {
+    change_navbar_color();
+    window.addEventListener("resize", change_navbar_color);
     window.addEventListener('popstate', function(e) {
         if (e.state) {
           // 开始还原页面
