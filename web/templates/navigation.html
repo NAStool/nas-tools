@@ -413,9 +413,9 @@
         <div>
           <div class="input-group input-group-flat">
             <input type="text" id="home_search_bar" value=""
-                class="form-control" placeholder="搜索电影、电视剧"
+                class="form-control form-control-rounded" placeholder="搜索电影、电视剧"
                 oninput="tirgger_search_media_items()" autocomplete="off">
-            <span class="input-group-text">
+            <span class="input-group-text form-control-rounded">
               <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
                 {{ SVG.adjustments() }}
               </a>
@@ -2829,9 +2829,13 @@
   function change_navbar_color() {
     const width = $(window).width();
     if (width < 992){
-      $("aside").removeClass("navbar-dark").addClass("navbar-light");
+      $("header").removeClass("navbar-light").addClass("navbar-dark");
+      $("header input").addClass("theme-dark");
+      $("header .input-group-text").addClass("theme-dark");
     } else {
-      $("aside").removeClass("navbar-light").addClass("navbar-dark");
+      $("header").removeClass("navbar-dark").addClass("navbar-light");
+      $("header input").removeClass("theme-dark");
+      $("header .input-group-text").removeClass("theme-dark");
     }
   }
 
