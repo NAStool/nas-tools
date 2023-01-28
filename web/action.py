@@ -73,7 +73,7 @@ class WebAction:
             "del_site": self.__del_site,
             "get_site_favicon": self.__get_site_favicon,
             "restart": self.__restart,
-            "update_system": self.__update_system,
+            "update_system": self.update_system,
             "reset_db_version": self.__reset_db_version,
             "logout": self.__logout,
             "update_config": self.__update_config,
@@ -273,7 +273,7 @@ class WebAction:
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
-            "/udt": {"func": WebAction().__update_system, "desp": "系统更新"}
+            "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
         command = commands.get(msg)
         message = Message()
@@ -1084,7 +1084,7 @@ class WebAction:
         self.restart_server()
         return {"code": 0}
 
-    def __update_system(self, data):
+    def update_system(self, data):
         """
         更新
         """
