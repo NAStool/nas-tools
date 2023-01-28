@@ -41,13 +41,14 @@ class Torrent:
         if not os.path.exists(self._torrent_temp_path):
             os.makedirs(self._torrent_temp_path)
 
-    def get_torrent_info(self, url, cookie=None, ua=None, referer=None):
+    def get_torrent_info(self, url, cookie=None, ua=None, referer=None, proxy=False):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
         :param cookie: 站点Cookie
         :param ua: 站点UserAgent
         :param referer: 关联地址，有的网站需要这个否则无法下载
+        :param proxy: 是否使用内置代理
         :return: 种子保存路径、种子内容、种子文件列表主目录、种子文件列表、错误信息
         """
         if not url:
@@ -59,7 +60,8 @@ class Torrent:
             file_path, content, errmsg = self.save_torrent_file(url=url,
                                                                 cookie=cookie,
                                                                 ua=ua,
-                                                                referer=referer)
+                                                                referer=referer,
+                                                                proxy=proxy)
             if not file_path:
                 return None, content, "", [], errmsg
             # 解析种子文件
@@ -70,17 +72,27 @@ class Torrent:
         except Exception as err:
             return None, None, "", [], "下载种子文件出现异常：%s" % str(err)
 
-    def save_torrent_file(self, url, cookie=None, ua=None, referer=None):
+    def save_torrent_file(self, url, cookie=None, ua=None, referer=None, proxy=False):
         """
         把种子下载到本地
         :return: 种子保存路径，错误信息
         """
-        req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
+        req = RequestUtils(
+            headers=ua,
+            cookies=cookie,
+            referer=referer,
+            proxies=Config().get_proxies() if proxy else None
+        ).get_res(url=url, allow_redirects=False)
         while req and req.status_code in [301, 302]:
             url = req.headers['Location']
             if url and url.startswith("magnet:"):
                 return None, url, f"获取到磁力链接：{url}"
-            req = RequestUtils(headers=ua, cookies=cookie, referer=referer).get_res(url=url, allow_redirects=False)
+            req = RequestUtils(
+                headers=ua,
+                cookies=cookie,
+                referer=referer,
+                proxies=Config().get_proxies() if proxy else None
+            ).get_res(url=url, allow_redirects=False)
         if req and req.status_code == 200:
             if not req.content:
                 return None, None, "未下载到种子数据"

@@ -104,16 +104,16 @@
                 {% if Site.statistic_enable and (Site.signurl or Site.rssurl) %}
                 <span class="badge bg-purple-lt mb-1 me-1">数据统计</span>
                 {% endif %}
-                {% if Site.parse == 'Y' %}
+                {% if Site.parse %}
                 <span class="badge bg-pink-lt mb-1 me-1">解析</span>
                 {% endif %}
-                {% if Site.unread_msg_notify == 'Y' %}
+                {% if Site.unread_msg_notify %}
                 <span class="badge bg-orange-lt mb-1 me-1">消息</span>
                 {% endif %}
-                {% if Site.chrome == 'Y' %}
+                {% if Site.chrome %}
                 <span class="badge bg-yellow-lt mb-1 me-1">仿真</span>
                 {% endif %}
-                {% if Site.proxy == 'Y' %}
+                {% if Site.proxy %}
                 <span class="badge bg-lime-lt mb-1 me-1">代理</span>
                 {% endif %}
               </div>
@@ -516,12 +516,32 @@
         $("#site_rssurl").val(ret.site.rssurl);
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
-        $("#site_parse").val(ret.site.parse);
         $("#site_ua").val(ret.site.ua);
-        $("#site_chrome").val(ret.site.chrome);
-        $("#site_proxy").val(ret.site.proxy);
-        $("#site_subtitle").val(ret.site.subtitle);
-        $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
+        if (ret.site.parse) {
+          $("#site_parse").val("Y");
+        } else {
+          $("#site_parse").val("N");
+        }
+        if (ret.site.chrome) {
+          $("#site_chrome").val("Y");
+        } else {
+          $("#site_chrome").val("N");
+        }
+        if (ret.site.proxy) {
+          $("#site_proxy").val("Y");
+        } else {
+          $("#site_proxy").val("N");
+        }
+        if (ret.site.subtitle) {
+          $("#site_subtitle").val("Y");
+        } else {
+          $("#site_subtitle").val("N");
+        }
+        if (ret.site.unread_msg_notify) {
+          $("#site_unread_msg_notify").val("Y");
+        } else {
+          $("#site_unread_msg_notify").val("N");
+        }
         select_SelectPart(ret.site.uses, "site_uses")
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");

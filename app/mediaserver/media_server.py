@@ -215,7 +215,7 @@ class MediaServer:
         return self.mediadb.exists(server_type=self._server_type.value,
                                    title=title,
                                    year=year,
-                                   tmdbid=tmdbid if str(tmdbid).isdigit() else None)
+                                   tmdbid=tmdbid)
 
     def get_mediasync_status(self):
         """

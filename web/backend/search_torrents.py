@@ -49,7 +49,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             media_info = WebUtils.get_mediainfo_from_id(mtype=mtype, mediaid=tmdbid)
         else:
             # 按输入名称查
-            media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
+            media_info = Media().get_media_info(mtype=media_type or mtype,
+                                                title=content)
 
         # 整合集
         if media_info:
@@ -246,7 +247,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 filepath, content, retmsg = Torrent().save_torrent_file(
                     url=input_str,
                     cookie=site_info.get("cookie"),
-                    ua=site_info.get("ua")
+                    ua=site_info.get("ua"),
+                    proxy=site_info.get("proxy")
                 )
                 # 下载种子出错
                 if not content and retmsg:

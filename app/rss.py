@@ -110,7 +110,9 @@ class Rss:
                 site_cookie = site_info.get("cookie")
                 site_ua = site_info.get("ua")
                 # 是否解析种子详情
-                site_parse = False if site_info.get("parse") == "N" else True
+                site_parse = site_info.get("parse")
+                # 是否使用代理
+                site_proxy = site_info.get("proxy")
                 # 使用的规则
                 site_fliter_rule = site_info.get("rule")
                 # 开始下载RSS
@@ -174,7 +176,8 @@ class Rss:
                             site_filter_rule=site_fliter_rule,
                             site_cookie=site_cookie,
                             site_parse=site_parse,
-                            site_ua=site_ua)
+                            site_ua=site_ua,
+                            site_proxy=site_proxy)
                         for msg in match_msg:
                             log.info(f"【Rss】{msg}")
 
@@ -381,7 +384,8 @@ class Rss:
                           site_filter_rule,
                           site_cookie,
                           site_parse,
-                          site_ua):
+                          site_ua,
+                          site_proxy):
         """
         判断种子是否命中订阅
         :param media_info: 已识别的种子媒体信息
@@ -391,6 +395,7 @@ class Rss:
         :param site_cookie: 站点的Cookie
         :param site_parse: 是否解析种子详情
         :param site_ua: 站点请求UA
+        :param site_proxy: 是否使用代理
         :return: 匹配到的订阅ID、是否洗版、总集数、匹配规则的资源顺序、上传因子、下载因子，匹配的季（电视剧）
         """
         # 默认值
@@ -497,7 +502,8 @@ class Rss:
                 # 检测Free
                 torrent_attr = self.sites.check_torrent_attr(torrent_url=media_info.page_url,
                                                              cookie=site_cookie,
-                                                             ua=site_ua)
+                                                             ua=site_ua,
+                                                             proxy=site_proxy)
                 if torrent_attr.get('2xfree'):
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0
