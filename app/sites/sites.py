@@ -103,17 +103,17 @@ class Sites:
                 "cookie": site_cookie,
                 "rule": site_note.get("rule"),
                 "download_setting": site_note.get("download_setting"),
-                "parse": site_note.get("parse"),
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
                 "uses": uses,
                 "ua": site_note.get("ua"),
-                "unread_msg_notify": site_note.get("message") or 'N',
-                "chrome": site_note.get("chrome") or 'N',
-                "proxy": site_note.get("proxy") or 'N',
-                "subtitle": site_note.get("subtitle") or 'N'
+                "parse": True if site_note.get("parse") == "Y" else False,
+                "unread_msg_notify": True if site_note.get("message") == "Y" else False,
+                "chrome": True if site_note.get("chrome") == "Y" else False,
+                "proxy": True if site_note.get("proxy") == "Y" else False,
+                "subtitle": True if site_note.get("subtitle") == "Y" else False
             }
             # 以ID存储
             self._siteByIds[site.ID] = site_info
@@ -274,8 +274,8 @@ class Sites:
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
-        chrome = True if site_info.get("chrome") == "Y" else False
-        proxy = True if site_info.get("proxy") == "Y" else False
+        chrome = site_info.get("chrome")
+        proxy = site_info.get("proxy")
         try:
             site_user_info = SiteUserInfoFactory().build(url=site_url,
                                                          site_name=site_name,
@@ -324,7 +324,7 @@ class Sites:
             return
         if self._sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
             return
-        if unread_msg_notify != 'Y':
+        if not unread_msg_notify:
             return
 
         # 解析出内容，则发送内容
@@ -353,9 +353,8 @@ class Sites:
         site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
         if not site_url:
             return False, "未配置站点地址", 0
-        emulate = site_info.get("chrome")
         chrome = ChromeHelper()
-        if emulate == "Y" and chrome.get_status():
+        if site_info.get("chrome") and chrome.get_status():
             # 计时
             start_time = datetime.now()
             if not chrome.visit(url=site_url, ua=ua, cookie=site_cookie):
@@ -376,10 +375,9 @@ class Sites:
         else:
             # 计时
             start_time = datetime.now()
-            proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
             res = RequestUtils(cookies=site_cookie,
                                headers=ua,
-                               proxies=proxies
+                               proxies=Config().get_proxies() if site_info.get("proxy") else None
                                ).get_res(url=site_url)
             seconds = int((datetime.now() - start_time).microseconds / 1000)
             if res and res.status_code == 200:
@@ -416,12 +414,11 @@ class Sites:
             site_url = site_info.get("signurl")
             site_cookie = site_info.get("cookie")
             ua = site_info.get("ua")
-            emulate = site_info.get("chrome")
             if not site_url or not site_cookie:
                 log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                 return ""
             chrome = ChromeHelper()
-            if emulate == "Y" and chrome.get_status():
+            if site_info.get("chrome") and chrome.get_status():
                 # 首页
                 log.info("【Sites】开始站点仿真签到：%s" % site)
                 home_url = StringUtils.get_base_url(site_url)
@@ -470,7 +467,6 @@ class Sites:
                     return f"【{site}】签到失败！"
             # 模拟登录
             else:
-                proxies = Config().get_proxies() if site_info.get("proxy") == "Y" else None
                 if site_url.find("attendance.php") != -1:
                     checkin_text = "签到"
                 else:
@@ -479,7 +475,7 @@ class Sites:
                 # 访问链接
                 res = RequestUtils(cookies=site_cookie,
                                    headers=ua,
-                                   proxies=proxies
+                                   proxies=Config().get_proxies() if site_info.get("proxy") else None
                                    ).get_res(url=site_url)
                 if res and res.status_code == 200:
                     if not SiteHelper.is_logged_in(res.text):
@@ -660,7 +656,7 @@ class Sites:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def __get_site_page_html(url, cookie, ua, render=False):
+    def __get_site_page_html(url, cookie, ua, render=False, proxy=False):
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
@@ -669,7 +665,11 @@ class Sites:
                 time.sleep(10)
                 return chrome.get_html()
         else:
-            res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
+            res = RequestUtils(
+                cookies=cookie,
+                headers=ua,
+                proxies=Config().get_proxies() if proxy else None
+            ).get_res(url=url)
             if res and res.status_code == 200:
                 res.encoding = res.apparent_encoding
                 return res.text
@@ -685,12 +685,13 @@ class Sites:
                 return v
         return {}
 
-    def check_torrent_attr(self, torrent_url, cookie, ua=None):
+    def check_torrent_attr(self, torrent_url, cookie, ua=None, proxy=False):
         """
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
         :param ua: 站点的ua
+        :param proxy: 是否使用代理
         :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
         """
         ret_attr = {
@@ -707,7 +708,8 @@ class Sites:
         html_text = self.__get_site_page_html(url=torrent_url,
                                               cookie=cookie,
                                               ua=ua,
-                                              render=xpath_strs.get('RENDER'))
+                                              render=xpath_strs.get('RENDER'),
+                                              proxy=proxy)
         if not html_text:
             return ret_attr
         try:

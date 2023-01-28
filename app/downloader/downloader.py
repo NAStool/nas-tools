@@ -184,7 +184,8 @@ class Downloader:
                         url=url,
                         cookie=site_info.get("cookie"),
                         ua=site_info.get("ua"),
-                        referer=page_url if site_info.get("referer") else None
+                        referer=page_url if site_info.get("referer") else None,
+                        proxy=site_info.get("proxy")
                     )
         # 解析完成
         if retmsg:
@@ -293,7 +294,7 @@ class Downloader:
                         and download_dir \
                         and dl_files \
                         and site_info \
-                        and site_info.get("subtitle") == "Y":
+                        and site_info.get("subtitle"):
                     # 下载访问目录
                     visit_dir = self.get_download_visit_dir(download_dir)
                     if visit_dir:
@@ -1022,7 +1023,8 @@ class Downloader:
             url=url,
             cookie=site_info.get("cookie"),
             ua=site_info.get("ua"),
-            referer=page_url if site_info.get("referer") else None
+            referer=page_url if site_info.get("referer") else None,
+            proxy=site_info.get("proxy")
         )
         if not files:
             log.error("【Downloader】读取种子文件集数出错：%s" % retmsg)
