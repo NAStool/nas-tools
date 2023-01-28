@@ -57,12 +57,12 @@ class PageMediainfo extends CustomElement {
     );
   }
 
-  _render_placeholder(width, height, col) {
-    return html`
+  _render_placeholder(width, height, col, num) {
+    return Array(num ?? 1).fill(html`
       <div class="placeholder ${col}"
         style="min-width:${width};min-height:${height};">
       </div>
-    `;
+    `);
   }
 
   render() {
@@ -89,14 +89,14 @@ class PageMediainfo extends CustomElement {
       </style>
       <div class="container-xl placeholder-glow">
         <!-- 渲染媒体信息 -->
-        <div class="card rounded-0" style="border:none;height:490px;">
+        <div class="card rounded-0 lit-media-info-background" style="border:none;height:490px;">
           <custom-img style="border:none;height:490px;"
             div-style="display:inline;"
             img-placeholder="0"
             img-error="0"
             .img_src_list=${this.media_info.background}
             img-class="card-img rounded-0"
-            img-style="display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;">
+            img-style="padding-bottom: 1px; display: block; width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;">
           </custom-img>
           <div class="card-img-overlay rounded-0 lit-media-info-background">
             <div class="d-md-flex flex-md-row mb-4">
@@ -126,11 +126,14 @@ class PageMediainfo extends CustomElement {
                   <div class="align-self-center align-self-md-start me-1 mt-2">
                     ${Object.keys(this.media_info).length !== 0
                     ? html`
-                      <a class="btn btn-primary btn-pill me-1"
-                        href='javascript:media_search("${this.tmdbid}", "${this.media_info.title}", "${this.media_type}")'>
+                      <span class="btn btn-primary btn-pill me-1"
+                        @click=${(e) => {
+                          e.stopPropagation();
+                          media_search(this.tmdbid + "", this.media_info.title, this.media_type);
+                        }}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
                         搜索资源
-                      </a>
+                      </span>
                       ${this.fav == "1"
                       ? html`
                         <span class="btn btn-pill btn-pinterest"
@@ -162,7 +165,7 @@ class PageMediainfo extends CustomElement {
         <div class="row">
           <div class="col-lg-8">
             <h2 class="text-muted ms-4 me-2">
-              <small>${this.media_info.overview ?? this._render_placeholder("200px", "250px", "col-12")}</small>
+              <small>${this.media_info.overview ?? this._render_placeholder("200px", "", "col-12", 7)}</small>
             </h2>
             <div class="row mx-2 mt-4">
               ${this.media_info.crews
@@ -198,7 +201,7 @@ class PageMediainfo extends CustomElement {
                     `) ) }
                 </div>
               </div>`
-            : this._render_placeholder("200px", "300px", "col-12") }
+            : this._render_placeholder("200px", "200px", "col-12") }
           </div>
         </div>
 
