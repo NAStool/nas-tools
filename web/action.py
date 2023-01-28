@@ -1273,6 +1273,8 @@ class WebAction:
         rssid = data.get("rssid")
         page = data.get("page")
         tmdbid = data.get("tmdbid")
+        if not str(tmdbid).isdigit():
+            tmdbid = None
         if name:
             name = MetaInfo(title=name).get_name()
         if mtype:
@@ -2289,7 +2291,7 @@ class WebAction:
             fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
                                                             title=res.get("title"),
                                                             year=res.get("year"),
-                                                            tmdbid=res.get("id"))
+                                                            mediaid=res.get("id"))
             res.update({
                 'fav': fav,
                 'rssid': rssid
@@ -2486,10 +2488,32 @@ class WebAction:
         获取剧集季列表
         """
         tmdbid = data.get("tmdbid")
-        seasons = [
-            {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
-             "num": season.get("season_number")}
-            for season in Media().get_tmdb_tv_seasons_byid(tmdbid=tmdbid)]
+        title = data.get("title")
+        if title:
+            title_season = MetaInfo(title=title).begin_season
+        else:
+            title_season = None
+        if not str(tmdbid).isdigit():
+            media_info = WebUtils.get_mediainfo_from_id(mtype=MediaType.TV,
+                                                        mediaid=tmdbid)
+            season_infos = Media().get_tmdb_tv_seasons(media_info.tmdb_info)
+        else:
+            season_infos = Media().get_tmdb_tv_seasons_byid(tmdbid=tmdbid)
+        if title_season:
+            seasons = [
+                {
+                    "text": "第%s季" % title_season,
+                    "num": title_season
+                }
+            ]
+        else:
+            seasons = [
+                {
+                    "text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
+                    "num": season.get("season_number")
+                }
+                for season in season_infos
+            ]
         return {"code": 0, "seasons": seasons}
 
     @staticmethod
@@ -4221,7 +4245,7 @@ class WebAction:
         fav, rssid = FileTransfer().get_media_exists_flag(mtype=mtype,
                                                           title=media_info.title,
                                                           year=media_info.year,
-                                                          tmdbid=media_info.tmdb_id)
+                                                          mediaid=media_info.tmdb_id)
         MediaHander = Media()
         return {
             "code": 0,
