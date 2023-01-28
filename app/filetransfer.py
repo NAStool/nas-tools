@@ -1221,10 +1221,12 @@ class FileTransfer:
         :param: tmdbid 媒体tmdbid
         :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
         """
+        if not str(tmdbid).isdigit():
+            tmdbid = None
         if mtype in ["MOV", "电影", MediaType.MOVIE]:
-            rssid = self.dbhelper.get_rss_movie_id(title=title, tmdbid=tmdbid)
+            rssid = self.dbhelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid)
         else:
-            rssid = self.dbhelper.get_rss_tv_id(title=title, tmdbid=tmdbid)
+            rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid)
         if rssid:
             # 已订阅
             fav = "1"

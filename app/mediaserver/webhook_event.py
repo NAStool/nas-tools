@@ -106,8 +106,6 @@ class WebhookEvent:
             return
         elif event_info.get("event") in ["playback.start",
                                          "playback.stop",
-                                         "playback.pause",
-                                         "playback.unpause",
                                          "user.authenticated",
                                          "user.authenticationfailed"]:
             self.send_webhook_message(event_info, 'emby')
