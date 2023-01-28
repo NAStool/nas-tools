@@ -1212,20 +1212,25 @@ class FileTransfer:
 
         return file_list, ""
 
-    def get_media_exists_flag(self, mtype, title, year, tmdbid):
+    def get_media_exists_flag(self, mtype, title, year, mediaid):
         """
         获取媒体存在标记：是否存在、是否订阅
         :param: mtype 媒体类型
         :param: title 媒体标题
         :param: year 媒体年份
-        :param: tmdbid 媒体tmdbid
+        :param: mediaid TMDBID/DB:豆瓣ID/BG:Bangumi的ID
         :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
         """
-        if not str(tmdbid).isdigit():
+        if str(mediaid).isdigit():
+            tmdbid = mediaid
+        else:
             tmdbid = None
         if mtype in ["MOV", "电影", MediaType.MOVIE]:
             rssid = self.dbhelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid)
         else:
+            if not tmdbid:
+                _, title, _, _, _, _ = StringUtils.get_keyword_from_string(title)
+                year = None
             rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid)
         if rssid:
             # 已订阅

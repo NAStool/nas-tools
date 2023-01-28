@@ -61,9 +61,9 @@ export class Golbal {
         if (page_type == "MOV") {
           add_rss_media(title, year, page_type, mediaid, "", "", add_func);
         } else {
-          ajax_post("get_tvseason_list", {tmdbid: mediaid}, function (ret) {
+          ajax_post("get_tvseason_list", {tmdbid: mediaid, title: title}, function (ret) {
             if (ret.seasons.length === 1) {
-              add_rss_media(title, year, "TV", mediaid, "", "", add_func);
+              add_rss_media(title, year, "TV", mediaid, "", ret.seasons[0].num, add_func);
             } else if (ret.seasons.length > 1) {
               show_rss_seasons_modal(title, year, "TV", mediaid, ret.seasons, add_func);
             } else {

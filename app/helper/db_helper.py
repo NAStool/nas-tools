@@ -830,7 +830,7 @@ class DbHelper:
             items = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
                                                   RSSTVS.YEAR == str(year)).all()
         else:
-            items = []
+            items = self._db.query(RSSTVS).filter(RSSTVS.NAME == title).all()
         if items:
             if tmdbid:
                 for item in items:
