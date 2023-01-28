@@ -1229,9 +1229,13 @@ class FileTransfer:
             rssid = self.dbhelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid)
         else:
             if not tmdbid:
-                _, title, _, _, _, _ = StringUtils.get_keyword_from_string(title)
+                meta_info = MetaInfo(title=title)
+                title = meta_info.get_name()
+                season = meta_info.get_season_string()
                 year = None
-            rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid)
+            else:
+                season = None
+            rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, season=season, tmdbid=tmdbid)
         if rssid:
             # 已订阅
             fav = "1"

@@ -4,27 +4,13 @@
   <!-- Page title -->
   <div class="page-header d-print-none">
     <div class="row align-items-center">
-      <div class="col d-none d-lg-block">
+      <div class="col">
         <h2 class="page-title text-nowrap">
           资源搜索
         </h2>
         {% if Results|length > 0 %}
         <div class="text-muted mt-1">共搜索到 {{ Count }} 条记录</div>
         {% endif %}
-      </div>
-      <div class="col ms-auto d-print-none d-lg-none">
-        <div class="d-flex btn-list">
-          <div class="input-group input-group-flat">
-            <input type="text" id="search_keyword_input" value=""
-                class="form-control"
-                placeholder="搜索电影、电视剧" autocomplete="off">
-            <span class="input-group-text">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
-                {{ SVG.adjustments() }}
-              </a>
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -507,12 +493,5 @@
   function show_search_filter_modal(key) {
     $(`#search-filter-modal-${key}`).modal("show");
   }
-
-  // 搜索框回车事件
-  $("#search_keyword_input").keydown(function(e) {
-    if (e.keyCode == 13) {
-      search_media_items($(this).val());
-    }
-  });
 
 </script>

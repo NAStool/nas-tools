@@ -146,7 +146,18 @@
     </div>
   </div>
 {% endmacro %}
-<body>
+{% macro searchbar(theme)%}
+  <div class="input-group input-group-flat me-3">
+    <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
+        autocomplete="off">
+    <span class="input-group-text form-control-rounded {{ theme }}">
+      <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
+        {{ SVG.adjustments() }}
+      </a>
+    </span>
+  </div>
+{% endmacro %}
+<body class="layout-fluid">
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
@@ -157,10 +168,15 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
-        <a href="javascript:ScrollToTop()">
+        <a href="javascript:ScrollToTop()" class="d-none d-lg-block">
           <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
         </a>
       </h1>
+      {% if "资源搜索" in UserPris %}
+      <div class="flex-grow-1 d-lg-none ms-2">
+        {{ searchbar('theme-dark') }}
+      </div>
+      {% endif %}
       <div class="navbar-nav flex-row d-lg-none">
         {{ usermenu() }}
       </div>
@@ -441,21 +457,12 @@
       </div>
       <div class="collapse navbar-collapse">
         {% if "资源搜索" in UserPris %}
-        <div class="input-group input-group-flat w-66">
-          <input type="text" id="home_search_bar" value=""
-              class="form-control" placeholder="搜索电影、电视剧"
-              oninput="tirgger_search_media_items()" autocomplete="off">
-          <span class="input-group-text">
-            <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
-              {{ SVG.adjustments() }}
-            </a>
-          </span>
-        </div>
+          {{ searchbar() }}
         {% endif %}
       </div>
     </div>
   </header>
-  <div class="page-wrapper" id="page_wrapper">
+  <div class="page-wrapper px-2" id="page_wrapper">
     <div id="page_content">
       {{ OOPS.loading() }}
     </div>
@@ -1389,25 +1396,7 @@
       return;
     }
     // 刷新搜索页面
-    navmenu("recommend?type=SEARCH&title=搜索结果&keyword=" + keyword);
-  }
-
-  //搜索框响应
-  let SearchKeyWordTimer = undefined;
-  function tirgger_search_media_items() {
-    let keyword = $("#home_search_bar").val();
-    if (!keyword) {
-      return;
-    }
-    if (keyword.length < 2) {
-      return;
-    }
-    if (SearchKeyWordTimer) {
-      clearTimeout(SearchKeyWordTimer);
-    }
-    SearchKeyWordTimer = setTimeout(function () {
-      search_media_items($("#home_search_bar").val());
-    }, 800);
+    navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + keyword + "&keyword=" + keyword);
   }
 
   //搜索
@@ -2833,6 +2822,14 @@
       e.preventDefault();
       e.stopPropagation();
     });
+
+    // 搜索框回车事件
+    $('.home_search_bar').on('keypress', function (e) {
+       if(e.which === 13){
+         search_media_items($(this).val());
+         $(this).val('');
+       }
+   });
 
     /**
      * 计算菜单列表高度

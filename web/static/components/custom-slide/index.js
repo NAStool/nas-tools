@@ -58,7 +58,7 @@ export class CustomSlide extends CustomElement {
           }
         }
       </style>
-      <div class="container-fluid overflow-hidden">
+      <div class="container-fluid overflow-hidden px-0">
         <div class="page-header d-print-none">
           <div class="d-flex justify-content-between">
             <div class="d-inline-flex">
