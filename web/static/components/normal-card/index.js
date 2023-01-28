@@ -36,6 +36,9 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_left_up() {
+    if (this.tmdb_id.startsWith("DB") || this.tmdb_id.startsWith("BG")) {
+      return nothing;
+    }
     if (this.weekday || this.res_type) {
       let color;
       let text;
@@ -78,6 +81,9 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_bottom() {
+    if (this.tmdb_id.startsWith("DB") || this.tmdb_id.startsWith("BG")) {
+      return nothing;
+    }
     if (this.show_sub == "1") {
       return html`
         <div class="d-flex justify-content-between">

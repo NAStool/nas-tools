@@ -2286,14 +2286,16 @@ class WebAction:
         # 修正数据
         filetransfer = FileTransfer()
         for res in res_list:
-            fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
-                                                            title=res.get("title"),
-                                                            year=res.get("year"),
-                                                            tmdbid=res.get("id"))
-            res.update({
-                'fav': fav,
-                'rssid': rssid
-            })
+            tmdbid = res.get("id")
+            if not str(tmdbid).startswith("DB") and not str(tmdbid).startswith("BG"):
+                fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
+                                                                title=res.get("title"),
+                                                                year=res.get("year"),
+                                                                tmdbid=tmdbid)
+                res.update({
+                    'fav': fav,
+                    'rssid': rssid
+                })
         return {"code": 0, "Items": res_list}
 
     def get_downloaded(self, data):
