@@ -48,10 +48,6 @@ class Searcher:
             return []
         if not self.indexer:
             return []
-        # 检索IMDBID
-        if match_media and not match_media.imdb_id:
-            match_media.set_tmdb_info(self.media.get_tmdb_info(mtype=match_media.type,
-                                                               tmdbid=match_media.tmdb_id))
         return self.indexer.search_by_keyword(key_word=key_word,
                                               filter_args=filter_args,
                                               match_media=match_media,
