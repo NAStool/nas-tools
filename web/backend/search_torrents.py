@@ -246,7 +246,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 filepath, content, retmsg = Torrent().save_torrent_file(
                     url=input_str,
                     cookie=site_info.get("cookie"),
-                    ua=site_info.get("ua")
+                    ua=site_info.get("ua"),
+                    proxy=site_info.get("proxy")
                 )
                 # 下载种子出错
                 if not content and retmsg:

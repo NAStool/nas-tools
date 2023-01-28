@@ -65,7 +65,7 @@ class BuiltinIndexer(_IIndexClient):
                 parser = public_site.get("parser")
             else:
                 is_public = False
-                proxy = True if site.get("proxy") == "Y" else False
+                proxy = site.get("proxy")
                 language = None
                 render = None
                 parser = None
