@@ -129,9 +129,9 @@
       </div>
     </a>
     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-      <a class="dropdown-item hide-theme-dark d-lg-none" href="?theme=dark" role="button">暗黑风格</a>
-      <a class="dropdown-item hide-theme-light d-lg-none" href="?theme=light" role="button">明亮风格</a>
-      <div class="dropdown-divider d-lg-none"></div>
+      <a class="dropdown-item hide-theme-dark d-sm-none" href="?theme=dark" role="button">暗黑风格</a>
+      <a class="dropdown-item hide-theme-light d-sm-none" href="?theme=light" role="button">明亮风格</a>
+      <div class="dropdown-divider d-sm-none"></div>
       {% if "系统设置" in UserPris %}
         <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
            aria-controls="offcanvasEnd">消息中心</a>
@@ -146,6 +146,17 @@
     </div>
   </div>
 {% endmacro %}
+{% macro searchbar(theme)%}
+  <div class="input-group input-group-flat me-3">
+    <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
+        oninput="tirgger_search_media_items(this)" autocomplete="off">
+    <span class="input-group-text form-control-rounded {{ theme }}">
+      <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
+        {{ SVG.adjustments() }}
+      </a>
+    </span>
+  </div>
+{% endmacro %}
 <body>
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
@@ -156,16 +167,21 @@
               data-bs-target="#navbar-menu">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <h1 class="navbar-brand d-none d-lg-flex" style="filter:brightness(0) invert(1)">
+      <h1 class="navbar-brand d-none d-lg-block" style="filter:brightness(0) invert(1)">
         <a href="javascript:ScrollToTop()">
           <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
         </a>
       </h1>
+      {% if "资源搜索" in UserPris %}
+      <div class="d-lg-none">
+        {{ searchbar('theme-dark') }}
+      </div>
+      {% endif %}
       <div class="navbar-nav flex-row d-lg-none">
         {{ usermenu() }}
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
-        <ul class="navbar-nav pt-3">
+        <ul class="navbar-nav pt-lg-3">
           {% if "我的媒体库" in UserPris %}
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('index')">
@@ -386,46 +402,10 @@
       </div>
     </div>
   </aside>
-  <header class="navbar navbar-expand-md navbar-light sticky-top">
+  <header class="navbar navbar-expand-md navbar-light d-none d-lg-flex d-print-none sticky-top">
     <div class="container-xl">
-      <button class="ms-2 me-3 switch-icon nav-link d-lg-none" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
-          data-bs-target="#navbar-menu">
-        <span id="nav_switch_icon" class="switch-icon switch-icon-flip" data-bs-toggle="switch-icon">
-          <span class="switch-icon-a">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-align-justified" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 6l16 0"></path>
-              <path d="M4 12l16 0"></path>
-              <path d="M4 18l12 0"></path>
-            </svg>
-          </span>
-          <span class="switch-icon-b">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M18 6l-12 12"></path>
-              <path d="M6 6l12 12"></path>
-            </svg>
-          </span>
-        </span>
-      </button>
-      <div class="col me-2">
-        {% if "资源搜索" in UserPris %}
-        <div>
-          <div class="input-group input-group-flat">
-            <input type="text" id="home_search_bar" value=""
-                class="form-control form-control-rounded" placeholder="搜索电影、电视剧"
-                oninput="tirgger_search_media_items()" autocomplete="off">
-            <span class="input-group-text form-control-rounded">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
-                {{ SVG.adjustments() }}
-              </a>
-            </span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-      <div class="navbar-nav flex-row">
-        <div class="nav-item d-none d-lg-flex me-3">
+      <div class="navbar-nav flex-row order-md-last">
+        <div class="nav-item d-none d-md-flex me-3">
           <div class="btn-list">
             <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
               {{ SVG.brand_github() }}
@@ -433,7 +413,7 @@
             </a>
           </div>
         </div>
-        <div class="d-none d-lg-flex">
+        <div class="d-none d-md-flex">
           <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-placement="bottom">
             {{ SVG.moon() }}
           </a>
@@ -474,6 +454,11 @@
           </div>
         </div>
         {{ usermenu() }}
+      </div>
+      <div class="collapse navbar-collapse">
+        {% if "资源搜索" in UserPris %}
+          {{ searchbar() }}
+        {% endif %}
       </div>
     </div>
   </header>
@@ -1416,8 +1401,8 @@
 
   //搜索框响应
   let SearchKeyWordTimer = undefined;
-  function tirgger_search_media_items() {
-    let keyword = $("#home_search_bar").val();
+  function tirgger_search_media_items(obj) {
+    let keyword = $(obj).val();
     if (!keyword) {
       return;
     }
@@ -1428,8 +1413,8 @@
       clearTimeout(SearchKeyWordTimer);
     }
     SearchKeyWordTimer = setTimeout(function () {
-      search_media_items($("#home_search_bar").val());
-    }, 800);
+      search_media_items(keyword);
+    }, 1000);
   }
 
   //搜索
@@ -2604,7 +2589,6 @@
       } 
     });
     $("#navbar-menu").collapse('hide');
-    $("#nav_switch_icon").removeClass("active");
     $(".page-wrapper").unbind('scroll');
     page = page.replaceAll(" ", "%20");
     NProgress.start();
@@ -2825,24 +2809,8 @@
   // 种子上传控件
   let torrent_dropzone;
 
-  //切换导航栏颜色..
-  function change_navbar_color() {
-    const width = $(window).width();
-    if (width < 992){
-      $("header").removeClass("navbar-light").addClass("navbar-dark");
-      $("header input").addClass("theme-dark");
-      $("header .input-group-text").addClass("theme-dark");
-    } else {
-      $("header").removeClass("navbar-dark").addClass("navbar-light");
-      $("header input").removeClass("theme-dark");
-      $("header .input-group-text").removeClass("theme-dark");
-    }
-  }
-
   //事件
   $(document).ready(function () {
-    change_navbar_color();
-    window.addEventListener("resize", change_navbar_color);
     window.addEventListener('popstate', function(e) {
         if (e.state) {
           // 开始还原页面
@@ -2859,7 +2827,6 @@
             }
           });
           $("#navbar-menu").collapse('hide');
-          $("#nav_switch_icon").removeClass("active");
           $(".page-wrapper").unbind('scroll');
           document.title = e.state.title;
           $('#page_content').html(e.state.html).ready(function() {
@@ -2873,6 +2840,14 @@
       e.preventDefault();
       e.stopPropagation();
     });
+
+    // 搜索框回车事件
+    $('.home_search_bar').on('keypress', function (e) {
+       if(e.which === 13){
+         search_media_items($(this).val());
+         $(this).val('');
+       }
+   });
 
     /**
      * 计算菜单列表高度

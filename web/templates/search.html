@@ -494,11 +494,4 @@
     $(`#search-filter-modal-${key}`).modal("show");
   }
 
-  // 搜索框回车事件
-  $("#search_keyword_input").keydown(function(e) {
-    if (e.keyCode == 13) {
-      search_media_items($(this).val());
-    }
-  });
-
 </script>
