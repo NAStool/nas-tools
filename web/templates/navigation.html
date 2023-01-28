@@ -441,17 +441,15 @@
       </div>
       <div class="collapse navbar-collapse">
         {% if "资源搜索" in UserPris %}
-        <div>
-          <div class="input-group input-group-flat">
-            <input type="text" id="home_search_bar" value=""
-                class="form-control" placeholder="搜索电影、电视剧"
-                oninput="tirgger_search_media_items()" autocomplete="off">
-            <span class="input-group-text">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
-                {{ SVG.adjustments() }}
-              </a>
-            </span>
-          </div>
+        <div class="input-group input-group-flat w-66">
+          <input type="text" id="home_search_bar" value=""
+              class="form-control" placeholder="搜索电影、电视剧"
+              oninput="tirgger_search_media_items()" autocomplete="off">
+          <span class="input-group-text">
+            <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
+              {{ SVG.adjustments() }}
+            </a>
+          </span>
         </div>
         {% endif %}
       </div>
