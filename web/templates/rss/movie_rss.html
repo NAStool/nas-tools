@@ -32,7 +32,7 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));">
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(15rem,1fr));">
         {% for Id, Attr in Items.items() %}
           <a class="card card-link-pop rounded-3 p-0"
              href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("MOV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "movie_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "MOV"){% endif %}'>
