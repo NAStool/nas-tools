@@ -35,31 +35,11 @@ export class CustomSlide extends CustomElement {
         .media-slide-card-number{
           position: relative;
           flex:0 0 auto;
-          width:48%;
-        }
-        @media (min-width: 768px) {
-          .media-slide-card-number{
-            width:30.3030303030303%;
-          }
-        }
-        @media (min-width: 900px) {
-          .media-slide-card-number{
-            width:23.25581395348837%;
-          }
-        }
-        @media (min-width: 1150px) {
-          .media-slide-card-number{
-            width:18.86792452830189%;
-          }
-        }
-        @media (min-width: 1400px) {
-          .media-slide-card-number{
-            width:15.87301587301587%;
-          }
+          max-width: 11rem;
         }
       </style>
       <div class="container-fluid overflow-hidden px-0">
-        <div class="page-header d-print-none">
+        <div class="page-header d-print-none mt-2">
           <div class="d-flex justify-content-between">
             <div class="d-inline-flex">
               <a class="nav-link ms-2" href=${this.slide_card.length == 0 ? "javascript:void(0)" : this.slide_click}>
@@ -100,9 +80,9 @@ export class CustomSlide extends CustomElement {
             </div>
           </div>
         </div>
-        <div class="media-slide-hide-scrollbar px-2 py-3"
+        <div class="media-slide-hide-scrollbar px-2 py-2"
             @scroll=${ this._countDisabled }>
-          <div class="row d-flex flex-row flex-nowrap media-slide-card-number">
+          <div class="row row-cards d-flex flex-row flex-nowrap media-slide-card-number justify-content-start">
             ${this.slide_card}
           </div>
         </div>

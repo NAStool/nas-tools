@@ -12,8 +12,8 @@
 </div>
 <!-- 业务页面代码 -->
 <div class="page-body">
-  <div class="container-xl">
-    <div class="row" id="recommend_content">
+  <div class="container-fluid">
+    <div class="row row-cards d-flex flex-row flex-wrap align-items-stretch justify-content-start flex-grow-1" id="recommend_content">
     </div>
   </div>
 </div>
@@ -55,7 +55,7 @@
   var page_card_num = 20;
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="mb-3 col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div class="mb-3" id="loading_card_placeholder_' + i + '" style="max-width: 11rem"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -100,9 +100,7 @@
       // 插入HTML
       for (let i = 0; i < ret.Items.length; i++) {
         let item = ret.Items[i];
-        let html = '';
-        html += '<div class="mb-3 col-6 col-md-3 col-xl-2">';
-          html += `<normal-card
+        let html = `<normal-card
                     card-tmdbId="${item.id}"
                     card-pageType="${item.type}"
                     card-showSub="1"
@@ -113,8 +111,8 @@
                     card-year="${item.year}"
                     card-title="${item.title}"
                     card-overview="${item.overview}"
+                    style="max-width: 11rem"
                    ></normal-card>`;
-        html += '</div>';
         $("#recommend_content").append(html);
       }
       window_history();
