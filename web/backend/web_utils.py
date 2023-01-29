@@ -135,6 +135,8 @@ class WebUtils:
         mtype, key_word, season_num, episode_num, _, content = StringUtils.get_keyword_from_string(keyword)
         if source == "tmdb":
             use_douban_titles = False
+        elif source == "douban":
+            use_douban_titles = True
         else:
             use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:

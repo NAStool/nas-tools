@@ -22,6 +22,7 @@ export class NormalCard extends observeState(CustomElement) {
     site: { attribute: "card-site" },
     weekday: { attribute: "card-weekday" },
     lazy: {},
+    type: { attribute: "card-type" },
     _placeholder: { state: true },
     _card_id: { state: true },
     _card_image_error: { state: true },
@@ -36,14 +37,17 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_left_up() {
-    if (this.weekday || this.res_type) {
+    if (this.weekday || this.res_type || this.type === "SEARCH") {
       let color;
       let text;
       if (this.weekday) {
         color = this.fav == "2" ? "bg-green" : "bg-orange";
         text = this.weekday;
+      } else if (this.page_type && this.type === "SEARCH") {
+        color = this.fav == "2" ? "bg-green" : (this.page_type === "电影") ? "bg-orange" : "bg-blue";
+        text = this.page_type;
       } else {
-        color = this.res_type == "电影" ? "bg-green" : "bg-blue";
+        color = this.res_type === "电影" ? "bg-green" : "bg-blue";
         text = this.res_type;
       }
       return html`
