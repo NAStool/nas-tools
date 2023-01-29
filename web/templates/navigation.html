@@ -124,7 +124,7 @@
 </head>
 {% macro usermenu() %}
   <div class="nav-item dropdown">
-    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
+    <a href="#" class="nav-link d-flex lh-1 text-reset ms-1 p-0" data-bs-toggle="dropdown">
         <span>
           {{ SVG.user() }}
         </span>
@@ -167,8 +167,7 @@
   <script type="module" src="../static/components/lit-index.js"></script>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
-              data-bs-target="#navbar-menu">
+      <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
@@ -418,13 +417,13 @@
           </div>
         </div>
         <div class="d-none d-md-flex">
-          <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-placement="bottom">
+          <a href="?theme=dark" class="nav-link px-0 hide-theme-dark me-2" title="暗黑风格" data-bs-placement="bottom">
             {{ SVG.moon() }}
           </a>
-          <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-placement="bottom">
+          <a href="?theme=light" class="nav-link px-0 hide-theme-light me-2" title="明亮风格" data-bs-placement="bottom">
             {{ SVG.sun() }}
           </a>
-          <div class="nav-item dropdown d-none d-md-flex me-3">
+          <div class="nav-item dropdown d-none d-md-flex">
             <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="新版本提示"
                id="new_version_tip" style="display:none">
               {{ SVG.bell() }}
