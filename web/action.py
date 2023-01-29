@@ -1084,7 +1084,7 @@ class WebAction:
         self.restart_server()
         return {"code": 0}
 
-    def update_system(self, data):
+    def update_system(self, data=None):
         """
         更新
         """
