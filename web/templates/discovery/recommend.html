@@ -101,17 +101,17 @@
       for (let i = 0; i < ret.Items.length; i++) {
         let item = ret.Items[i];
         let html = `<normal-card
-                    card-tmdbId="${item.id}"
-                    card-pageType="${item.type}"
-                    card-showSub="1"
-                    card-image="${item.image}"
-                    card-weekday="${item.weekday}"
-                    card-fav="${item.fav}"
-                    card-vote="${item.vote}"
-                    card-year="${item.year}"
-                    card-title="${item.title}"
-                    card-overview="${item.overview}"
-                    style="max-width: 11rem"
+                      card-tmdbId="${item.id}"
+                      card-pageType="${item.type}"
+                      card-showSub="1"
+                      card-image="${item.image}"
+                      card-weekday="${item.weekday}"
+                      card-fav="${item.fav}"
+                      card-vote="${item.vote}"
+                      card-year="${item.year}"
+                      card-title="${item.title}"
+                      card-overview="${item.overview}"
+                      style="max-width: 11rem"
                    ></normal-card>`;
         $("#recommend_content").append(html);
       }

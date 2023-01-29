@@ -10,24 +10,23 @@
 </div>
 {% if Count > 0 %}
   <div class="page-body">
-    <div class="container-xl">
-      <div class="row" id="downloaded_content">
+    <div class="container-fluid">
+      <div class="row row-cards d-flex flex-row flex-wrap align-items-stretch justify-content-start flex-grow-1" id="downloaded_content">
         {% for item in Items %}
-          <div class="mb-3 col-6 col-sm-4 col-md-3 col-xl-2">
-            <normal-card
-              card-tmdbId="{{ item.TMDBID }}"
-              card-pageType="{% if item.TYPE == '电影' %}MOV{% else %}TV{% endif %}"
-              card-resType="{{ item.TYPE }}"
-              card-showSub="0"
-              card-image="{{ item.POSTER }}"
-              card-vote="{{ item.VOTE }}"
-              card-year="{{ item.YEAR }}"
-              card-site="{{ item.SITE }}"
-              card-title="{{ item.TITLE }}"
-              card-overview="{{ item.TORRENT }}"
-              card-date="{{ item.DATE }}"
-            ></normal-card>
-          </div>
+          <normal-card
+            card-tmdbId="{{ item.TMDBID }}"
+            card-pageType="{% if item.TYPE == '电影' %}MOV{% else %}TV{% endif %}"
+            card-resType="{{ item.TYPE }}"
+            card-showSub="0"
+            card-image="{{ item.POSTER }}"
+            card-vote="{{ item.VOTE }}"
+            card-year="{{ item.YEAR }}"
+            card-site="{{ item.SITE }}"
+            card-title="{{ item.TITLE }}"
+            card-overview="{{ item.TORRENT }}"
+            card-date="{{ item.DATE }}"
+            style="max-width: 11rem"
+          ></normal-card>
         {% endfor %}
       </div>
     </div>
@@ -50,7 +49,7 @@
   var page_card_num = {{ Count }};
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="mb-3 col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div class="mb-3" id="loading_card_placeholder_' + i + '" style="max-width: 11rem"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -81,22 +80,20 @@
       for (let i = 0; i < ret.Items.length; i++) {
         let item = ret.Items[i];
         let meida_type = item.TYPE == "电影" ? "MOV":"TV";
-        let html = '';
-        html += '<div class="mb-3 col-6 col-sm-4 col-md-3 col-xl-2">'
-          html += `<normal-card
-                    card-tmdbId="${item.TMDBID}"
-                    card-pageType="${meida_type}"
-                    card-resType="${item.TYPE}"
-                    card-showSub="0"
-                    card-image="${item.POSTER}"
-                    card-vote="${item.VOTE}"
-                    card-year="${item.YEAR}"
-                    card-site="${item.SITE}"
-                    card-title="${item.TITLE}"
-                    card-overview="${item.TORRENT}"
-                    card-date="${item.DATE}"
+        let html = `<normal-card
+                      card-tmdbId="${item.TMDBID}"
+                      card-pageType="${meida_type}"
+                      card-resType="${item.TYPE}"
+                      card-showSub="0"
+                      card-image="${item.POSTER}"
+                      card-vote="${item.VOTE}"
+                      card-year="${item.YEAR}"
+                      card-site="${item.SITE}"
+                      card-title="${item.TITLE}"
+                      card-overview="${item.TORRENT}"
+                      card-date="${item.DATE}"
+                      style="max-width: 11rem"
                    ></normal-card>`;
-        html += '</div></div>';
         $("#downloaded_content").append(html);
       }
       window_history();
