@@ -14,40 +14,34 @@
 {% if Count > 0 %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-deck row-cards">
-      <div class="col-12">
-        <div class="row row-cards">
-          {% for Scheduler in SchedulerTasks %}
-          <div class="col-12 col-md-6 col-xl-3">
-            <div class="card card-sm card-link-pop">
-              <div class="card-body">
-                <div class="row align-items-center">
-                  <div class="col-auto">
-                    <span class="bg-{{ Scheduler.color }} text-white avatar">
-                      {{ Scheduler.svg|safe }}
-                    </span>
-                  </div>
-                  <div class="col">
-                    <div class="font-weight-medium">
-                      <a href="javascript:show_service_modal('{{ Scheduler.id }}','{{ Scheduler.name }}')"
-                        id="service_btn">{{ Scheduler.name }}</a>
-                    </div>
-                    <div class="text-muted">
-                      {{ Scheduler.time }}
-                    </div>
-                  </div>
-                  {% if Scheduler.state == "ON" %}
-                  <div class="col-auto align-self-center">
-                    <div class="badge bg-primary"></div>
-                  </div>
-                  {% endif %}
-                </div>
+    <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));">
+      {% for Scheduler in SchedulerTasks %}
+      <div class="card card-sm card-link-pop">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-{{ Scheduler.color }} text-white avatar">
+                {{ Scheduler.svg|safe }}
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">
+                <a href="javascript:show_service_modal('{{ Scheduler.id }}','{{ Scheduler.name }}')"
+                  id="service_btn">{{ Scheduler.name }}</a>
+              </div>
+              <div class="text-muted">
+                {{ Scheduler.time }}
               </div>
             </div>
+            {% if Scheduler.state == "ON" %}
+            <div class="col-auto align-self-center">
+              <div class="badge bg-primary"></div>
+            </div>
+            {% endif %}
           </div>
-          {% endfor %}
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
 </div>

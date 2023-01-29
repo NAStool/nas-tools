@@ -15,30 +15,24 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="row row-deck row-cards">
-        <div class="col-12">
-          <div class="row row-cards">
-            {% for Site in Sites %}
-              <div class="col-md-6 col-xl-3">
-                <a class="card card-link"
-                   href='javascript:void(0)'
-                   onclick='open_site_resources(this, "resources?site={{ Site.id }}&title={{ Site.name }}")'>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-auto">
-                        <span class="avatar rounded siteicon-{{ Site.name|hash }}"></span>
-                      </div>
-                      <div class="col">
-                        <div class="font-weight-medium">{{ Site.name }}</div>
-                        <div class="text-muted">{{ Site.domain }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));">
+        {% for Site in Sites %}
+        <a class="card card-link-pop"
+           href='javascript:void(0)'
+           onclick='open_site_resources(this, "resources?site={{ Site.id }}&title={{ Site.name }}")'>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-auto">
+                <span class="avatar rounded siteicon-{{ Site.name|hash }}"></span>
               </div>
-            {% endfor %}
+              <div class="col">
+                <div class="font-weight-medium">{{ Site.name }}</div>
+                <div class="text-muted">{{ Site.domain }}</div>
+              </div>
+            </div>
           </div>
-        </div>
+        </a>
+        {% endfor %}
       </div>
     </div>
   </div>
