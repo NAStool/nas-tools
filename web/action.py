@@ -2281,7 +2281,7 @@ class WebAction:
         elif Type == "SEARCH":
             # 搜索词条
             Keyword = data.get("keyword")
-            medias = WebUtils.search_media_infos(keyword=Keyword, page=CurrentPage)
+            medias = WebUtils.search_media_infos(keyword=Keyword, source=data.get("searchtype"), page=CurrentPage)
             res_list = [media.to_dict() for media in medias]
         else:
             res_list = []
