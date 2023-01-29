@@ -121,7 +121,7 @@ export class NormalCard extends observeState(CustomElement) {
           border:none;
         }
         .lit-normal-card:hover {
-          transform:scale(1.05, 1.05);
+          transform:scale(1.02, 1.02);
           opacity:1;
         }
       </style>

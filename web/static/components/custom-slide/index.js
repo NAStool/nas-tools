@@ -39,7 +39,7 @@ export class CustomSlide extends CustomElement {
         }
       </style>
       <div class="container-fluid overflow-hidden px-0">
-        <div class="page-header d-print-none mt-2">
+        <div class="page-header d-print-none">
           <div class="d-flex justify-content-between">
             <div class="d-inline-flex">
               <a class="nav-link ms-2" href=${this.slide_card.length == 0 ? "javascript:void(0)" : this.slide_click}>
