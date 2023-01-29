@@ -695,6 +695,7 @@ class MetaBase(object):
             "title": self.title,
             "year": self.year,
             "type": self.type.value if self.type else "",
+            "media_type": self.type.value if self.type else "",
             'vote': self.vote_average,
             'image': self.poster_path,
             "imdb_id": self.imdb_id,

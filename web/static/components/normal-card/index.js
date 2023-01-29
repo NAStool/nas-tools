@@ -22,7 +22,6 @@ export class NormalCard extends observeState(CustomElement) {
     site: { attribute: "card-site" },
     weekday: { attribute: "card-weekday" },
     lazy: {},
-    type: { attribute: "card-type" },
     _placeholder: { state: true },
     _card_id: { state: true },
     _card_image_error: { state: true },
@@ -37,26 +36,29 @@ export class NormalCard extends observeState(CustomElement) {
   }
 
   _render_left_up() {
-    if (this.weekday || this.res_type || this.type === "SEARCH") {
+    if (this.weekday || this.res_type) {
       let color;
       let text;
       if (this.weekday) {
-        color = this.fav == "2" ? "bg-green" : "bg-orange";
+        color = "bg-orange";
         text = this.weekday;
-      } else if (this.page_type && this.type === "SEARCH") {
-        color = this.fav == "2" ? "bg-green" : (this.page_type === "电影") ? "bg-cyan" : "bg-blue";
-        text = this.page_type;
-      } else {
-        color = this.res_type === "电影" ? "bg-cyan" : "bg-blue";
+      } else if (this.res_type) {
+        color = this.res_type === "电影" ? "bg-lime" : "bg-blue";
         text = this.res_type;
       }
       return html`
         <span class="badge badge-pill ${color}" style="position: absolute; top: 10px; left: 10px">
           ${text}
         </span>`;
-    } else if (this.fav == "2") {
+    } else {
+      return nothing;
+    }
+  }
+
+  _render_right_up() {
+     if (this.fav == "2") {
       return html`
-        <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+        <div class="badge badge-pill bg-green" style="position:absolute;top:10px;right:10px;padding:0;">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24"
                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                stroke-linejoin="round">
@@ -64,13 +66,7 @@ export class NormalCard extends observeState(CustomElement) {
             <path d="M5 12l5 5l10 -10"></path>
           </svg>
         </div>`;
-    } else {
-      return nothing;
-    }
-  }
-
-  _render_right_up() {
-    if (this.vote && this.vote != "0.0" && this.vote != "0") {
+    } else if (this.vote && this.vote != "0.0" && this.vote != "0") {
       return html`
       <div class="badge badge-pill bg-purple"
            style="position: absolute; top: 10px; right: 10px">
