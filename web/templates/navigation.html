@@ -152,6 +152,14 @@
 {% endmacro %}
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
+    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
+            name="search_source_tmdb" type="button" style="padding-right: unset;">
+      <span class="text-blue">{{ SVG.square_letter_t() }}</span>
+    </button>
+    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
+            name="search_source_douban" type="button" style="display: none; padding-right: unset;">
+      <span class="text-green">{{ SVG.circle_letter_d() }}</span>
+    </button>
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
         autocomplete="off">
     <span class="input-group-text form-control-rounded {{ theme }}">
@@ -165,6 +173,7 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
+  <input type="hidden" id="search_source" value="tmdb">
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
@@ -2160,6 +2169,29 @@
         });
       }
     }, true, false);
+  }
+
+  // 切换搜索源
+  function change_search_source() {
+    let input_obj = $('#search_source');
+    let search_source = input_obj.val()
+    if (search_source === "tmdb") {
+      input_obj.val("douban");
+      $('[name=search_source_tmdb]').each(function() {
+        $(this).hide();
+      });
+      $('[name=search_source_douban]').each(function() {
+        $(this).show();
+      });
+    } else if (search_source === "douban") {
+      input_obj.val("tmdb");
+      $('[name=search_source_douban]').each(function() {
+        $(this).hide();
+      });
+      $('[name=search_source_tmdb]').each(function() {
+        $(this).show();
+      });
+    }
   }
 </script>
 

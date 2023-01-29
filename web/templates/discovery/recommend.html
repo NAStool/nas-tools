@@ -83,7 +83,8 @@
       "week": Week,
       "tmdbid": TmdbId,
       "personid": PersonId,
-      "keyword": Keyword
+      "keyword": Keyword,
+      "searchtype": $('#search_source').val()
     }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
@@ -111,7 +112,8 @@
                       card-year="${item.year}"
                       card-title="${item.title}"
                       card-overview="${item.overview}"
-                   ></normal-card>`;
+                      card-type="${Type}"
+                    ></normal-card>`;
         $("#recommend_content").append(html);
       }
       window_history();
