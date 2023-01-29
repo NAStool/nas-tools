@@ -13,7 +13,7 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-fluid">
-    <div class="row row-cards d-flex flex-row flex-wrap align-items-stretch justify-content-start flex-grow-1" id="recommend_content">
+    <div class="d-grid gap-3" id="recommend_content" style="grid-template-columns: repeat(auto-fill,minmax(9.375rem,1fr));">
     </div>
   </div>
 </div>
@@ -55,7 +55,7 @@
   var page_card_num = 20;
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="mb-3" id="loading_card_placeholder_' + i + '" style="max-width: 11rem"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div id="loading_card_placeholder_' + i + '" style="max-width: 11rem"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -111,7 +111,6 @@
                       card-year="${item.year}"
                       card-title="${item.title}"
                       card-overview="${item.overview}"
-                      style="max-width: 11rem"
                    ></normal-card>`;
         $("#recommend_content").append(html);
       }
