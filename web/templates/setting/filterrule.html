@@ -40,70 +40,68 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="row row-cards">
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(25rem,1fr));">
         {% for RuleGroup in RuleGroups %}
-          <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
-                <div class="card-actions btn-actions">
-                  <a href="javascript:share_filtergroup('{{ RuleGroup.id }}')" class="btn-action" title="分享规则组">
-                    {{ SVG.share() }}
-                  </a>
-                  <a href="javascript:set_default_filtergroup('{{ RuleGroup.id }}')" class="btn-action"
-                     title="设置/取消默认">
-                    {% if RuleGroup.default == 'Y' %}
-                      <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
-                    {% else %}
-                      {{ SVG.star() }}
-                    {% endif %}
-                  </a>
-                  <a href="javascript:show_add_filterrule_modal('{{ RuleGroup.id }}', '{{ RuleGroup.name }}')"
-                     class="btn-action" title="增加规则">
-                    {{ SVG.plus() }}
-                  </a>
-                  <a href="javascript:del_filtergroup_modal('{{ RuleGroup.id }}', '{{ RuleGroup.name }}')"
-                     class="btn-action" title="删除规则组">
-                    {{ SVG.x() }}
-                  </a>
-                </div>
-              </div>
-              <div class="card-body p-2">
-                <div class="row row-cards">
-                  {% if RuleGroup.rules %}
-                    {% for Rule in RuleGroup.rules %}
-                      <div class="col-12">
-                        <a class="card card-link card-link-pop card-borderless"
-                           href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')"
-                           title="编辑规则">
-                          <div class="card-body p-2">
-                            <h3 class="card-title">{{ Rule.name }}</h3>
-                            <div class="w-100">
-                              {% if Rule.free_text %}
-                                <span class="badge bg-info me-1 mb-1 text-wrap text-start"
-                                      title="促销" style='word-break: break-all'>{{ Rule.free_text }}</span>
-                              {% endif %}
-                              {% for include in Rule.include %}
-                                <span class="badge badge-outline text-info me-1 mb-1 text-wrap text-start"
-                                      title="包含规则" style='word-break: break-all'>包含: {{ include }}</span>
-                              {% endfor %}
-                              {% for exclude in Rule.exclude %}
-                                <span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start"
-                                      title="排除规则" style='word-break: break-all'>排除: {{ exclude }}</span>
-                              {% endfor %}
-                              {% if Rule.size %}
-                                <span class="badge badge-outline text-orange me-1 mb-1 text-wrap text-start"
-                                      title="大小限制" style='word-break: break-all'>大小: {{ Rule.size }}</span>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </a>
-                      </div>
-                    {% endfor %}
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
+              <div class="card-actions btn-actions">
+                <a href="javascript:share_filtergroup('{{ RuleGroup.id }}')" class="btn-action" title="分享规则组">
+                  {{ SVG.share() }}
+                </a>
+                <a href="javascript:set_default_filtergroup('{{ RuleGroup.id }}')" class="btn-action"
+                   title="设置/取消默认">
+                  {% if RuleGroup.default == 'Y' %}
+                    <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
                   {% else %}
-                    <div class="text-muted mt-2">未设置规则</div>
+                    {{ SVG.star() }}
                   {% endif %}
-                </div>
+                </a>
+                <a href="javascript:show_add_filterrule_modal('{{ RuleGroup.id }}', '{{ RuleGroup.name }}')"
+                   class="btn-action" title="增加规则">
+                  {{ SVG.plus() }}
+                </a>
+                <a href="javascript:del_filtergroup_modal('{{ RuleGroup.id }}', '{{ RuleGroup.name }}')"
+                   class="btn-action" title="删除规则组">
+                  {{ SVG.x() }}
+                </a>
+              </div>
+            </div>
+            <div class="card-body p-2">
+              <div class="row row-cards">
+                {% if RuleGroup.rules %}
+                  {% for Rule in RuleGroup.rules %}
+                    <div class="col-12">
+                      <a class="card card-link card-link-pop card-borderless"
+                         href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')"
+                         title="编辑规则">
+                        <div class="card-body p-2">
+                          <h3 class="card-title">{{ Rule.name }}</h3>
+                          <div class="w-100">
+                            {% if Rule.free_text %}
+                              <span class="badge bg-info me-1 mb-1 text-wrap text-start"
+                                    title="促销" style='word-break: break-all'>{{ Rule.free_text }}</span>
+                            {% endif %}
+                            {% for include in Rule.include %}
+                              <span class="badge badge-outline text-info me-1 mb-1 text-wrap text-start"
+                                    title="包含规则" style='word-break: break-all'>包含: {{ include }}</span>
+                            {% endfor %}
+                            {% for exclude in Rule.exclude %}
+                              <span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start"
+                                    title="排除规则" style='word-break: break-all'>排除: {{ exclude }}</span>
+                            {% endfor %}
+                            {% if Rule.size %}
+                              <span class="badge badge-outline text-orange me-1 mb-1 text-wrap text-start"
+                                    title="大小限制" style='word-break: break-all'>大小: {{ Rule.size }}</span>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="text-muted mt-2">未设置规则</div>
+                {% endif %}
               </div>
             </div>
           </div>
