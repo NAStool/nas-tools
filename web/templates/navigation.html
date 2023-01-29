@@ -153,7 +153,7 @@
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
     <input type="text" class="home_search_bar form-control form-control-rounded ps-3 {{ theme }}" placeholder="搜索电影、电视剧"
-        autocomplete="off">
+        autocomplete="new-password">
     <span class="input-group-text form-control-rounded {{ theme }}">
       <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
         {{ SVG.adjustments() }}
@@ -165,6 +165,7 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
+  <span hidden><input type="text"><input type="password"></span>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
