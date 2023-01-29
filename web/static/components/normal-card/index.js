@@ -44,10 +44,10 @@ export class NormalCard extends observeState(CustomElement) {
         color = this.fav == "2" ? "bg-green" : "bg-orange";
         text = this.weekday;
       } else if (this.page_type && this.type === "SEARCH") {
-        color = this.fav == "2" ? "bg-green" : (this.page_type === "电影") ? "bg-orange" : "bg-blue";
+        color = this.fav == "2" ? "bg-green" : (this.page_type === "电影") ? "bg-cyan" : "bg-blue";
         text = this.page_type;
       } else {
-        color = this.res_type === "电影" ? "bg-green" : "bg-blue";
+        color = this.res_type === "电影" ? "bg-cyan" : "bg-blue";
         text = this.res_type;
       }
       return html`
