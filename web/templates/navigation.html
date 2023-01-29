@@ -70,6 +70,10 @@
         min-height: 3rem !important;
       }
 
+      .navbar .input-group-flat:focus-within {
+        box-shadow: none;
+      }
+
       .navbar-vertical {
         padding-top: env(safe-area-inset-top) !important;
         position: fixed !important;
@@ -147,7 +151,7 @@
   </div>
 {% endmacro %}
 {% macro searchbar(theme)%}
-  <div class="input-group input-group-flat me-3">
+  <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
         autocomplete="off">
     <span class="input-group-text form-control-rounded {{ theme }}">
