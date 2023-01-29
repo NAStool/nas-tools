@@ -14,23 +14,21 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
+    <div class="row row-cards d-flex flex-row flex-wrap align-items-stretch justify-content-start flex-grow-1">
     {% for Type, MediaServer in MediaServerConf.items() %}
-      <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
-          <div class="card-cover card-cover-blurred text-center {{ MediaServer.background }}">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
-                  style="background-image: url({{ MediaServer.img_url }})">
-            </span>
-          </div>
-          <div class="card-body text-center">
-            <div class="card-title mb-1">{{ MediaServer.name }}</div>
-            <div class="text-muted">{% if Config.media.media_server == Type %}<span class="badge bg-green"
-                                                                                      title="已开启"></span>
-              正在使用{% endif %}</div>
-          </div>
-        </a>
-      </div>
+      <a class="card card-link card-link-pop p-0 m-2" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}" style="max-width: 20rem">
+        <div class="card-cover card-cover-blurred text-center {{ MediaServer.background }}">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url({{ MediaServer.img_url }})">
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{{ MediaServer.name }}</div>
+          <div class="text-muted">{% if Config.media.media_server == Type %}<span class="badge bg-green"
+                                                                                    title="已开启"></span>
+            正在使用{% endif %}</div>
+        </div>
+      </a>
     {% endfor %}
     </div>
   </div>

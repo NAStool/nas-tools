@@ -42,7 +42,7 @@
     <div class="container-xl">
       <div class="row row-cards">
         {% for RuleGroup in RuleGroups %}
-          <div class="col-12 col-md-6 col-xl-4">
+          <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
@@ -68,7 +68,7 @@
                   </a>
                 </div>
               </div>
-              <div class="card-body">
+              <div class="card-body p-2">
                 <div class="row row-cards">
                   {% if RuleGroup.rules %}
                     {% for Rule in RuleGroup.rules %}
@@ -76,7 +76,7 @@
                         <a class="card card-link card-link-pop card-borderless"
                            href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')"
                            title="编辑规则">
-                          <div class="card-body">
+                          <div class="card-body p-2">
                             <h3 class="card-title">{{ Rule.name }}</h3>
                             <div class="w-100">
                               {% if Rule.free_text %}
