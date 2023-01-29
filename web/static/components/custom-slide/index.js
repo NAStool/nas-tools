@@ -17,7 +17,7 @@ export class CustomSlide extends CustomElement {
     this._disabled = 0;
     this.slide_title = "加载中..";
     this.slide_click = "javascript:void(0)";
-    this.slide_card = Array(20).fill(html`<normal-card-placeholder></normal-card-placeholder>`);
+    this.slide_card = Array(20).fill(html`<normal-card-placeholder class="px-2"></normal-card-placeholder>`);
   }
 
   render() {

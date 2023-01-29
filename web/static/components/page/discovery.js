@@ -132,7 +132,7 @@ class PageDiscovery extends CustomElement {
                   card-overview=${card.overview}
                   class="px-2"
                 ></normal-card>`))
-              : Array(7).fill(html`<normal-card-placeholder></normal-card-placeholder>`)
+              : Array(20).fill(html`<normal-card-placeholder></normal-card-placeholder>`)
             }
           ></custom-slide>`
         ))}
