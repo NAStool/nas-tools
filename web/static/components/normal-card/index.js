@@ -40,19 +40,25 @@ export class NormalCard extends observeState(CustomElement) {
       let color;
       let text;
       if (this.weekday) {
-        color = this.fav == "2" ? "bg-green" : "bg-orange";
+        color = "bg-orange";
         text = this.weekday;
-      } else {
-        color = this.res_type == "电影" ? "bg-green" : "bg-blue";
+      } else if (this.res_type) {
+        color = this.res_type === "电影" ? "bg-lime" : "bg-blue";
         text = this.res_type;
       }
       return html`
         <span class="badge badge-pill ${color}" style="position: absolute; top: 10px; left: 10px">
           ${text}
         </span>`;
-    } else if (this.fav == "2") {
+    } else {
+      return nothing;
+    }
+  }
+
+  _render_right_up() {
+     if (this.fav == "2") {
       return html`
-        <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+        <div class="badge badge-pill bg-green" style="position:absolute;top:10px;right:10px;padding:0;">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24"
                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                stroke-linejoin="round">
@@ -60,13 +66,7 @@ export class NormalCard extends observeState(CustomElement) {
             <path d="M5 12l5 5l10 -10"></path>
           </svg>
         </div>`;
-    } else {
-      return nothing;
-    }
-  }
-
-  _render_right_up() {
-    if (this.vote && this.vote != "0.0" && this.vote != "0") {
+    } else if (this.vote && this.vote != "0.0" && this.vote != "0") {
       return html`
       <div class="badge badge-pill bg-purple"
            style="position: absolute; top: 10px; right: 10px">
@@ -113,18 +113,6 @@ export class NormalCard extends observeState(CustomElement) {
 
   render() {
     return html`
-      <style>
-        .lit-normal-card {
-          position:relative;
-          z-index:1;
-          --tblr-aspect-ratio:150%;
-          border:none;
-        }
-        .lit-normal-card:hover {
-          transform:scale(1.05, 1.05);
-          opacity:1;
-        }
-      </style>
       <div class="card card-sm lit-normal-card rounded-4 cursor-pointer ratio shadow-sm"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
@@ -154,7 +142,7 @@ export class NormalCard extends observeState(CustomElement) {
             ${this.overview
             ? html`
               <p class="lh-sm text-white"
-                 style="margin-bottom: 5px; -webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+                 style="margin-bottom: 5px; -webkit-line-clamp:6; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
                 ${this.overview}
               </p>`
             : nothing }

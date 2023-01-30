@@ -13,7 +13,7 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row" id="recommend_content">
+    <div class="d-grid gap-3" id="recommend_content" style="grid-template-columns: repeat(auto-fill,minmax(9.375rem,1fr));">
     </div>
   </div>
 </div>
@@ -51,11 +51,14 @@
   // 关键字
   var Keyword = '{{ Keyword }}';
 
+  // 来源
+  var Source = '{{ Source }}';
+
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
   function add_loading_card_placeholder() {
     for (let i = 0; i < page_card_num; i++) {
-      let html = '<div class="mb-3 col-6 col-md-3 col-xl-2" id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
+      let html = '<div id="loading_card_placeholder_' + i + '"><normal-card-placeholder></normal-card-placeholder></div>';
       $("#recommend_content").append(html);
     }
   }
@@ -83,7 +86,8 @@
       "week": Week,
       "tmdbid": TmdbId,
       "personid": PersonId,
-      "keyword": Keyword
+      "keyword": Keyword,
+      "source": Source
     }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
@@ -100,21 +104,19 @@
       // 插入HTML
       for (let i = 0; i < ret.Items.length; i++) {
         let item = ret.Items[i];
-        let html = '';
-        html += '<div class="mb-3 col-6 col-md-3 col-xl-2">';
-          html += `<normal-card
-                    card-tmdbId="${item.id}"
-                    card-pageType="${item.type}"
-                    card-showSub="1"
-                    card-image="${item.image}"
-                    card-weekday="${item.weekday}"
-                    card-fav="${item.fav}"
-                    card-vote="${item.vote}"
-                    card-year="${item.year}"
-                    card-title="${item.title}"
-                    card-overview="${item.overview}"
-                   ></normal-card>`;
-        html += '</div>';
+        let html = `<normal-card
+                      card-tmdbId="${item.id}"
+                      card-pageType="${item.type}"
+                      card-showSub="1"
+                      card-image="${item.image}"
+                      card-weekday="${item.weekday}"
+                      card-fav="${item.fav}"
+                      card-vote="${item.vote}"
+                      card-year="${item.year}"
+                      card-title="${item.title}"
+                      card-overview="${item.overview}"
+                      card-restype="${item.media_type}"
+                    ></normal-card>`;
         $("#recommend_content").append(html);
       }
       window_history();

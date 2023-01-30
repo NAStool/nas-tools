@@ -1232,7 +1232,8 @@ class FileTransfer:
                 meta_info = MetaInfo(title=title)
                 title = meta_info.get_name()
                 season = meta_info.get_season_string()
-                year = None
+                if season:
+                    year = None
             else:
                 season = None
             rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, season=season, tmdbid=tmdbid)

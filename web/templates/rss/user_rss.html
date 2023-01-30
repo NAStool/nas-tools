@@ -780,7 +780,7 @@
           if (ret.uses === "D") {
             download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
           }
-          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-3" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-1" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }

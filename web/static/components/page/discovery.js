@@ -130,8 +130,9 @@ class PageDiscovery extends CustomElement {
                   card-year=${card.year}
                   card-title=${card.title}
                   card-overview=${card.overview}
+                  class="px-2"
                 ></normal-card>`))
-              : Array(7).fill(html`<normal-card-placeholder></normal-card-placeholder>`)
+              : Array(20).fill(html`<normal-card-placeholder></normal-card-placeholder>`)
             }
           ></custom-slide>`
         ))}
