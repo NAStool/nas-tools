@@ -81,7 +81,7 @@
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
     <span class="input-group-text form-control-rounded {{ theme }} ms-2" id="search_source_span_{% if theme %}theme{% endif %}"></span>
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
-        autocomplete="new-password">
+        autocomplete="new-password" name="search_bar">
     <span class="input-group-text form-control-rounded {{ theme }}">
       <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
         {{ SVG.adjustments() }}
@@ -97,7 +97,7 @@
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <div class="container" style="display: flex; flex-wrap: unset; align-items: center; justify-content: center; padding: unset">
-        <button onclick="change_navbar_flexwrap()" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
           <span class="navbar-toggler-icon me-2"></span>
         </button>
         <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
@@ -2463,6 +2463,10 @@
     localStorage.setItem("SearchSource", search_source);
     $("[id^=search_source_span_]").each(function(){
       $(this).empty().append(html);
+    });
+    let text = (search_source === "tmdb") ? "（豆瓣）" : (search_source === "douban") ? "（TMDB）" : "";
+    $("[name='search_bar']").each(function(){
+      $(this).attr("placeholder", `搜索电影、电视剧${text}`);
     });
   }
 
