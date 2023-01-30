@@ -97,8 +97,7 @@
         page_card_num = ret.Items.length;
       } else {
         if (CurrentPage == 1) {
-          $("#recommend_content").removeAttr("style");
-          $("#recommend_content").html($("#no_recommend_html").text());
+          $("#recommend_content").removeClass("grid-media-card").html($("#no_recommend_html").text());
         }
       }
       del_loading_card_placeholder();
