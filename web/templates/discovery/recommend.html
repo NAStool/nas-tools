@@ -120,12 +120,18 @@
         $("#recommend_content").append(html);
       }
       window_history();
-      // 如果没有滚动条 继续加载
-      const page_wrapper = document.querySelector(".page-wrapper");
-      if (ret.Items.length > 0 && page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
-        loading_data();
+      if (ret.Items.length > 0) {
+        loading_data_max();
       }
     });
+  }
+
+  // 如果没有滚动条 继续加载
+  function loading_data_max() {
+    const page_wrapper = document.querySelector(".page-wrapper");
+    if (page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
+      loading_data();
+    }
   }
 
   $(document).ready(function () {
@@ -139,6 +145,7 @@
   // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
   if (sessionStorage.CurrentPage) {
     CurrentPage = sessionStorage.CurrentPage;
+    loading_data_max();
   } else {
     // 否则初始化数据
     loading_data();
