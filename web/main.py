@@ -126,7 +126,7 @@ def login():
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
         SiteDict = Indexer().get_indexer_hash_dict()
-        SearchSource = "tmdb" if Config().get_config("laboratory").get("use_douban_titles") else "douban"
+        SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
