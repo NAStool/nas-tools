@@ -1,4 +1,4 @@
-import { html } from "../utility/lit-core.min.js";
+import { html, nothing } from "../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../utility/utility.js";
 
 class PageDiscovery extends CustomElement {
