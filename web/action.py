@@ -2284,6 +2284,10 @@ class WebAction:
             Source = data.get("source")
             medias = WebUtils.search_media_infos(keyword=Keyword, source=Source, page=CurrentPage)
             res_list = [media.to_dict() for media in medias]
+        elif Type == "DOWNLOADED":
+            res_list = self.get_downloaded({
+                "page": CurrentPage
+            }).get("Items")
         else:
             res_list = []
         # 修正数据
@@ -2303,7 +2307,20 @@ class WebAction:
         page = data.get("page")
         Items = self.dbhelper.get_download_history(page=page)
         if Items:
-            return {"code": 0, "Items": [item.as_dict() for item in Items]}
+            return {"code": 0, "Items": [{
+                'id': item.TMDBID,
+                'orgid': item.TMDBID,
+                'tmdbid': item.TMDBID,
+                'title': item.TITLE,
+                'type': 'MOV' if item.TYPE == "电影" else "TV",
+                'media_type': item.TYPE,
+                'year': item.YEAR,
+                'vote': item.VOTE,
+                'image': item.POSTER,
+                'overview': item.TORRENT,
+                "date": item.DATE,
+                "site": item.SITE
+            } for item in Items]}
         else:
             return {"code": 0, "Items": []}
 
