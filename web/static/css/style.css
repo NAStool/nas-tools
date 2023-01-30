@@ -128,3 +128,15 @@ body, .page {
     box-shadow:0 0 0 1px #bbbbbb inset;
     background-image:linear-gradient(45deg,#bbbbbd,#8597aa 60%);
 }
+
+.grid-normal-card {
+    grid-template-columns: repeat(auto-fill,minmax(15rem,1fr));
+}
+
+.grid-media-card {
+    grid-template-columns: repeat(auto-fill,minmax(9.375rem,1fr));
+}
+
+.grid-info-card {
+    grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));
+}

@@ -40,7 +40,7 @@ class PagePerson extends CustomElement {
       </div>
       <div class="page-body">
         <div class="container-xl">
-          <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fill,minmax(9.375rem,1fr));">
+          <div class="d-grid gap-3 grid-media-card">
             ${this.person_list.length != 0
             ? this.person_list.map((item, index) => ( html`
               <person-card
