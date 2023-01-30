@@ -95,22 +95,24 @@
   <script type="module" src="../static/components/lit-index.js"></script>
   <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
-    <div class="container-xl" style="flex-wrap: unset">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
-        <span class="navbar-toggler-icon me-2"></span>
-      </button>
-      <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
-        <a href="javascript:ScrollToTop()" class="d-none d-lg-block">
-          <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
-        </a>
-      </h1>
-      {% if "资源搜索" in UserPris %}
-      <div class="flex-grow-1 d-lg-none">
-        {{ searchbar('theme-dark') }}
-      </div>
-      {% endif %}
-      <div class="navbar-nav flex-row d-lg-none">
-        {{ usermenu() }}
+    <div class="container-xl">
+      <div class="container" style="display: flex; flex-wrap: unset; align-items: center; justify-content: center; padding: unset">
+        <button onclick="change_navbar_flexwrap()" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
+          <span class="navbar-toggler-icon me-2"></span>
+        </button>
+        <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
+          <a href="javascript:ScrollToTop()" class="d-none d-lg-block">
+            <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
+          </a>
+        </h1>
+        {% if "资源搜索" in UserPris %}
+        <div class="flex-grow-1 d-lg-none">
+          {{ searchbar('theme-dark') }}
+        </div>
+        {% endif %}
+        <div class="navbar-nav flex-row d-lg-none">
+          {{ usermenu() }}
+        </div>
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
         <ul class="navbar-nav pt-lg-3">
@@ -2458,10 +2460,20 @@
     let input_obj = $('#search_source');
     input_obj.val(search_source);
     let html = $(`#search_source_template_${search_source}`).text();
-    console.log();
+    localStorage.setItem("SearchSource", search_source);
     $("[id^=search_source_span_]").each(function(){
       $(this).empty().append(html);
     });
+  }
+
+  // 顶栏换行
+  function change_navbar_flexwrap() {
+    let navbar = $("#navbar_top");
+    if (navbar.hasClass("flex-nowrap")) {
+      navbar.removeClass("flex-nowrap");
+    } else {
+      navbar.addClass("flex-nowrap");
+    }
   }
 
 </script>
@@ -2811,7 +2823,7 @@
     updateMenuListHeight()
 
     // 初始化搜索源
-    change_search_source("{{ SearchSource }}");
+    change_search_source(localStorage.getItem("SearchSource") ?? "{{ SearchSource }}");
 
     // 初始化DropZone
     torrent_dropzone = new Dropzone("#torrent_files");
