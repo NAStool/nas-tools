@@ -2465,7 +2465,7 @@
       $(this).empty().append(html);
     });
     let text = (search_source === "tmdb") ? "（豆瓣）" : (search_source === "douban") ? "（TMDB）" : "";
-    $("[name=search_bar]").each(function(){
+    $("[name='search_bar']").each(function(){
       $(this).attr("placeholder", `搜索电影、电视剧${text}`);
     });
   }
