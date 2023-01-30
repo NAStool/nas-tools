@@ -1,7 +1,7 @@
 import { html } from "../../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../../utility/utility.js";
 
-class PagePerson extends CustomElement {
+export class PagePerson extends CustomElement {
   static properties = {
     page_title: { attribute: "page-title" },
     page_subtitle: { attribute: "page-subtitle"},
