@@ -129,10 +129,12 @@
   // 如果没有滚动条 继续加载
   function loading_data_max() {
     const page_wrapper = document.querySelector(".page-wrapper");
-    const normal_card = document.querySelectorAll("normal-card");
-    // normal_card && normal_card.length >= 20 明显的还有数据的特征 减少额外的网络请求
-    if (normal_card && normal_card.length >= 20 && page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
-      loading_data();
+    if (page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
+      // normal_card && normal_card.length >= 20 明显的还有数据的特征 减少额外的网络请求
+      const normal_card = document.querySelectorAll("normal-card");
+      if (normal_card && normal_card.length >= 20) {
+        loading_data();
+      }
     }
   }
 
