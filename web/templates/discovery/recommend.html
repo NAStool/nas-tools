@@ -120,6 +120,11 @@
         $("#recommend_content").append(html);
       }
       window_history();
+      // 如果没有滚动条 继续加载
+      const page_wrapper = document.querySelector(".page-wrapper");
+      if (ret.Items.length > 0 && page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
+        loading_data();
+      }
     });
   }
 
