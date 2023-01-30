@@ -11,7 +11,7 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-fluid">
-      <div class="d-grid gap-3" id="downloaded_content" style="grid-template-columns: repeat(auto-fill,minmax(9.375rem,1fr));">
+      <div class="d-grid gap-3 grid-media-card" id="downloaded_content">
         {% for item in Items %}
           <normal-card
             card-tmdbId="{{ item.TMDBID }}"
