@@ -81,7 +81,7 @@
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
     <span class="input-group-text form-control-rounded {{ theme }} ms-2" id="search_source_span_{% if theme %}theme{% endif %}"></span>
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
-        autocomplete="new-password" name="search_bar">
+        autocomplete="new-password">
     <span class="input-group-text form-control-rounded {{ theme }}">
       <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
         {{ SVG.adjustments() }}
@@ -2463,10 +2463,6 @@
     localStorage.setItem("SearchSource", search_source);
     $("[id^=search_source_span_]").each(function(){
       $(this).empty().append(html);
-    });
-    let text = (search_source === "tmdb") ? "（豆瓣）" : (search_source === "douban") ? "（TMDB）" : "";
-    $("[name='search_bar']").each(function(){
-      $(this).attr("placeholder", `搜索电影、电视剧${text}`);
     });
   }
 
