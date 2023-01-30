@@ -126,6 +126,7 @@ def login():
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
         SiteDict = Indexer().get_indexer_hash_dict()
+        SearchSource = "tmdb" if Config().get_config("laboratory").get("use_douban_titles") else "douban"
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -138,7 +139,8 @@ def login():
                                SyncMod=SyncMod,
                                SiteFavicons=SiteFavicons,
                                RmtModeDict=RmtModeDict,
-                               SiteDict=SiteDict)
+                               SiteDict=SiteDict,
+                               SearchSource=SearchSource)
 
     def redirect_to_login(errmsg=''):
         """
@@ -394,6 +396,7 @@ def recommend():
     TmdbId = request.args.get("tmdbid") or ""
     PersonId = request.args.get("personid") or ""
     Keyword = request.args.get("keyword") or ""
+    Source = request.args.get("source") or ""
     return render_template("discovery/recommend.html",
                            Type=Type,
                            SubType=SubType,
@@ -403,7 +406,8 @@ def recommend():
                            TmdbId=TmdbId,
                            PersonId=PersonId,
                            SubTitle=SubTitle,
-                           Keyword=Keyword)
+                           Keyword=Keyword,
+                           Source=Source)
 
 
 # 电影推荐页面

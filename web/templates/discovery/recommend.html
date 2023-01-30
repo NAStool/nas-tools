@@ -51,6 +51,9 @@
   // 关键字
   var Keyword = '{{ Keyword }}';
 
+  // 来源
+  var Source = '{{ Source }}';
+
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
   function add_loading_card_placeholder() {
@@ -83,7 +86,8 @@
       "week": Week,
       "tmdbid": TmdbId,
       "personid": PersonId,
-      "keyword": Keyword
+      "keyword": Keyword,
+      "source": Source
     }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码

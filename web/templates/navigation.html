@@ -152,7 +152,16 @@
 {% endmacro %}
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
-    <input type="text" class="home_search_bar form-control form-control-rounded ps-3 {{ theme }}" placeholder="搜索电影、电视剧"
+    <span class="form-control form-control-rounded {{ theme }}" style="flex: none;padding-right: unset;padding-left: 1rem"></span>
+    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
+             name="search_source_tmdb" type="button" style="padding: unset;">
+      <span class="text-blue">{{ SVG.square_letter_t() }}</span>
+    </button>
+    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
+             name="search_source_douban" type="button" style="display: none; padding: unset;">
+      <span class="text-green">{{ SVG.circle_letter_d() }}</span>
+    </button>
+    <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
         autocomplete="new-password">
     <span class="input-group-text form-control-rounded {{ theme }}">
       <a href="javascript:show_search_advanced_modal()" class="link-secondary ms-2" data-bs-toggle="tooltip" aria-label="高级搜索" data-bs-original-title="高级搜索">
@@ -165,7 +174,7 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
-  <span hidden><input type="text"><input type="password"></span>
+  <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source" value="{{ SearchSource }}"></span>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
@@ -1400,7 +1409,7 @@
       return;
     }
     // 刷新搜索页面
-    navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + keyword + "&keyword=" + keyword);
+    navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + keyword + "&keyword=" + keyword + "&source=" + $("#search_source").val());
   }
 
   //搜索
@@ -2525,6 +2534,29 @@
     });
   }
 
+  // 切换搜索源
+  function change_search_source() {
+   let input_obj = $('#search_source');
+   let search_source = input_obj.val()
+   if (search_source === "tmdb") {
+     input_obj.val("douban");
+     $('[name=search_source_tmdb]').each(function() {
+       $(this).hide();
+     });
+     $('[name=search_source_douban]').each(function() {
+       $(this).show();
+     });
+   } else if (search_source === "douban") {
+     input_obj.val("tmdb");
+     $('[name=search_source_douban]').each(function() {
+       $(this).hide();
+     });
+     $('[name=search_source_tmdb]').each(function() {
+       $(this).show();
+     });
+   }
+  }
+
 </script>
 
 <!-- 首页功能 -->
@@ -2859,6 +2891,9 @@
     }
     // 更新菜单高度
     updateMenuListHeight()
+
+    // 初始化搜索源
+    change_search_source()
 
     // 初始化DropZone
     torrent_dropzone = new Dropzone("#torrent_files");
