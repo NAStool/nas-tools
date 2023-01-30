@@ -113,18 +113,6 @@ export class NormalCard extends observeState(CustomElement) {
 
   render() {
     return html`
-      <style>
-        .lit-normal-card {
-          position:relative;
-          z-index:1;
-          --tblr-aspect-ratio:150%;
-          border:none;
-        }
-        .lit-normal-card:hover {
-          transform:scale(1.05, 1.05);
-          opacity:1;
-        }
-      </style>
       <div class="card card-sm lit-normal-card rounded-4 cursor-pointer ratio shadow-sm"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }

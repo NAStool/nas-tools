@@ -67,26 +67,6 @@ class PageMediainfo extends CustomElement {
 
   render() {
     return html`
-      <style>
-        .lit-media-info-background {
-          background-image:
-            linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0.5) 50%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-            linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-            linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%);
-          box-shadow:0 0 0 2px rgb(var(--tblr-body-bg-rgb));
-        }
-        .lit-media-info-image {
-          width:233px;
-          height:350px;
-        }
-
-        @media (max-width: 767.98px) {
-          .lit-media-info-image {
-            width:150px;
-            height:225px;
-          }
-        }
-      </style>
       <div class="container-xl placeholder-glow">
         <!-- 渲染媒体信息 -->
         <div class="card rounded-0 lit-media-info-background" style="border:none;height:490px;">

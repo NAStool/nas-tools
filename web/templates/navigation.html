@@ -37,80 +37,7 @@
   <link href="../static/css/nprogress.css" rel="stylesheet"/>
   <link href="../static/css/jsoneditor.min.css" rel="stylesheet"/>
   <!-- 附加样式 -->
-  <style>
-
-      body,
-      .page {
-        height: 100%;
-        overflow: hidden;
-      }
-
-      .tooltip-inner {
-        text-align: left;
-      }
-
-      .fileTree {
-        width: 240px;
-        max-height: 200px;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        position: absolute;
-        display: none;
-      }
-
-      .jsoneditor-mode-code {
-        border: 1px solid var(--tblr-border-color) !important;
-      }
-
-      .dropzone {
-        border: 1px dashed var(--tblr-border-color) !important;
-      }
-
-      .navbar {
-        min-height: 3rem !important;
-      }
-
-      .navbar .input-group-flat:focus-within {
-        box-shadow: none;
-      }
-
-      .navbar-vertical {
-        padding-top: env(safe-area-inset-top) !important;
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: 0 !important;
-      }
-
-      .navbar-expand-md {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: 0 !important;
-      }
-
-      @media (max-width: 992px) {
-        .navbar ul.navbar-nav {
-          overflow-y: auto;
-          max-height: 80vh;
-        }
-      }
-
-      .page-wrapper {
-        margin-top: calc(env(safe-area-inset-top) + 51px) !important;
-        height: 100% !important;
-        overflow: scroll !important;
-      }
-
-      .offcanvas {
-        padding-top: env(safe-area-inset-top) !important;
-      }
-
-      .modal-dialog {
-        padding-top: env(safe-area-inset-top) !important;
-      }
-
-  </style>
+  <link href="../static/css/style.css" rel="stylesheet"/>
   <!-- 站点图标 -->
   <style>
   {% for site_name, site_icon in SiteFavicons.items() %}
@@ -433,7 +360,7 @@
           <a href="?theme=light" class="nav-link px-0 hide-theme-light me-2" title="明亮风格" data-bs-placement="bottom">
             {{ SVG.sun() }}
           </a>
-          <div class="nav-item dropdown d-none d-md-flex">
+          <div class="nav-item dropdown d-none d-md-flex me-2">
             <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="新版本提示"
                id="new_version_tip" style="display:none">
               {{ SVG.bell() }}
@@ -1606,7 +1533,7 @@
       system_rss_seasons_content += `<label class="form-selectgroup-item">
                                       <input type="checkbox" name="system_rss_season" value="${season.num}" class="form-selectgroup-input">
                                       <span class="form-selectgroup-label">${season.text}</span>
-                                    </label>`;
+                                     </label>`;
     }
     $("#system_rss_seasons_group").empty().append(system_rss_seasons_content)
     $("#system_rss_seasons_btn").unbind('click').click(function () {

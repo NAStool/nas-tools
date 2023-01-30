@@ -3,22 +3,9 @@
     <div id='calendar'></div>
   </div>
 </div>
-<style type="text/css">
-    .fc-toolbar-title {
-        font-size: 1.5em !important;
-    }
 
-    .fc-list-event .media_calendar_item_info {
-        display: block !important;
-    }
-
-    .fc .fc-list-event:hover td {
-        background-color: rgba(200, 200, 200, 0.1) !important;
-        background-color: var(--fc-list-event-hover-bg-color, rgba(200, 200, 200, 0.1));
-    }
-</style>
 <script type="text/javascript">
-  var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     themeSystem: 'bootstrap',
     bootstrapFontAwesome: false,
     stickyHeaderDates: false,
@@ -40,22 +27,24 @@
     events: [],
     eventDisplay: 'list-item',
     eventClick: function (info) {
-      var eventData = info.event.extendedProps;
+      const eventData = info.event.extendedProps;
+      let type;
       if (eventData.type == "电影") {
-        var type = "MOV";
+        type = "MOV";
       } else {
-        var type = "TV";
+        type = "TV";
       }
       show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar", eventData.rssid);
     },
     eventContent: function (info) {
-      var eventData = info.event.extendedProps;
+      const eventData = info.event.extendedProps;
+      let border_color;
       if (eventData.type == '电影') {
-        var border_color = 'bg-green';
+        border_color = 'bg-green';
       } else {
-        var border_color = 'bg-primary';
+        border_color = 'bg-primary';
       }
-      var innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem; overflow: hidden;"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+      const innerText = '<a class="card card-link" href="javascript:void(0)"><div class="card-status-start ' + border_color + '"></div><div class="card-body" style="padding: 0.5rem 1rem; overflow: hidden;"><div class="row"><div class="col-auto rounded" style="width:40px; height:50px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col media_calendar_item_info d-none d-xl-block"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
       return {html: innerText};
     }
   });
@@ -63,7 +52,7 @@
 </script>
 <script type="text/javascript">
   //查询订阅电影的上映日期
-  var RssMovieItems = {{ RssMovieItems| safe }};
+  RssMovieItems = {{ RssMovieItems| safe }};
 
   function init_rss_movies_event() {
     for (let i = 0; i < RssMovieItems.length; i++) {
@@ -72,7 +61,7 @@
             "id": RssMovieItems[i].id,
             "rssid": RssMovieItems[i].rssid
           }, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           calendar.addEvent({
             id: ret.id,
             title: ret.title,
@@ -89,7 +78,7 @@
     }
   };
   //查询订阅电视剧各集的上映日期
-  var RssTvItems = {{ RssTvItems| safe }};
+  RssTvItems = {{ RssTvItems| safe }};
 
   function init_rss_tvs_event() {
     for (let i = 0; i < RssTvItems.length; i++) {
@@ -99,7 +88,7 @@
         "name": RssTvItems[i].name,
         "rssid": RssTvItems[i].rssid
       }, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code === 0) {
           for (let i = 0; i < ret.events.length; i++) {
             calendar.addEvent({
               id: ret.events[i].id,
