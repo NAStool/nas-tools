@@ -475,10 +475,11 @@ def downloading():
 @App.route('/downloaded', methods=['POST', 'GET'])
 @login_required
 def downloaded():
-    Items = WebAction().get_downloaded({"page": 1}).get("Items")
-    return render_template("download/downloaded.html",
-                           Count=len(Items),
-                           Items=Items)
+    CurrentPage = request.args.get("page") or 1
+    return render_template("discovery/recommend.html",
+                           Type='DOWNLOADED',
+                           Title='近期下载',
+                           CurrentPage=CurrentPage)
 
 
 @App.route('/torrent_remove', methods=['POST', 'GET'])
