@@ -1,7 +1,7 @@
 // 导入所有组件
 const body_div = document.createElement("div");
 [
-"custom-chips/index.html",
+"custom/chips/index.html",
 ]
 .forEach((name) => {
     const my_wc = document.createElement("div");

@@ -1,8 +1,8 @@
 import { NormalCardPlaceholder } from "./placeholder.js"; export { NormalCardPlaceholder };
 
-import { html, nothing } from "../utility/lit-core.min.js";
-import { CustomElement, Golbal } from "../utility/utility.js";
-import { observeState } from "../utility/lit-state.js";
+import { html, nothing } from "../../utility/lit-core.min.js";
+import { CustomElement, Golbal } from "../../utility/utility.js";
+import { observeState } from "../../utility/lit-state.js";
 import { cardState } from "./state.js";
 
 export class NormalCard extends observeState(CustomElement) {
