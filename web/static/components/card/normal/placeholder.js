@@ -1,5 +1,5 @@
-import { html } from "../utility/lit-core.min.js";
-import { CustomElement } from "../utility/utility.js";
+import { html } from "../../utility/lit-core.min.js";
+import { CustomElement } from "../../utility/utility.js";
 
 export class NormalCardPlaceholder extends CustomElement {
   constructor() {
