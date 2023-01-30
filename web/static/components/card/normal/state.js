@@ -1,4 +1,4 @@
-import { LitState } from "../utility/lit-state.js"
+import { LitState } from "../../utility/lit-state.js"
 
 class CardState extends LitState {
     static get stateVars() {

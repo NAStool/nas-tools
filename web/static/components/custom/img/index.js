@@ -1,5 +1,5 @@
-import { html, nothing } from "../utility/lit-core.min.js";
-import { CustomElement, Golbal } from "../utility/utility.js";
+import { html, nothing } from "../../utility/lit-core.min.js";
+import { CustomElement, Golbal } from "../../utility/utility.js";
 
 export class CustomImg extends CustomElement {
 

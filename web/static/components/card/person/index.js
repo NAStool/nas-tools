@@ -1,5 +1,5 @@
-import { html } from "../utility/lit-core.min.js";
-import { CustomElement, Golbal } from "../utility/utility.js";
+import { html } from "../../utility/lit-core.min.js";
+import { CustomElement, Golbal } from "../../utility/utility.js";
 
 export class PersonCard extends CustomElement {
 

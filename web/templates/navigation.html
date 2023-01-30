@@ -79,15 +79,7 @@
 {% endmacro %}
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
-    <span class="form-control form-control-rounded {{ theme }}" style="flex: none;padding-right: unset;padding-left: 1rem"></span>
-    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
-             name="search_source_tmdb" type="button" style="padding: unset;">
-      <span class="text-blue">{{ SVG.square_letter_t() }}</span>
-    </button>
-    <button onclick="change_search_source()" class="input-group-text form-control-rounded {{ theme }}"
-             name="search_source_douban" type="button" style="display: none; padding: unset;">
-      <span class="text-green">{{ SVG.circle_letter_d() }}</span>
-    </button>
+    <span class="input-group-text form-control-rounded {{ theme }} ms-2" id="search_source_span_{% if theme %}theme{% endif %}"></span>
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
         autocomplete="new-password">
     <span class="input-group-text form-control-rounded {{ theme }}">
@@ -101,24 +93,26 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
-  <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source" value="{{ SearchSource }}"></span>
+  <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
-        <span class="navbar-toggler-icon me-2"></span>
-      </button>
-      <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
-        <a href="javascript:ScrollToTop()" class="d-none d-lg-block">
-          <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
-        </a>
-      </h1>
-      {% if "资源搜索" in UserPris %}
-      <div class="flex-grow-1 d-lg-none">
-        {{ searchbar('theme-dark') }}
-      </div>
-      {% endif %}
-      <div class="navbar-nav flex-row d-lg-none">
-        {{ usermenu() }}
+      <div class="container" style="display: flex; flex-wrap: unset; align-items: center; justify-content: center; padding: unset">
+        <button onclick="change_navbar_flexwrap()" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
+          <span class="navbar-toggler-icon me-2"></span>
+        </button>
+        <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
+          <a href="javascript:ScrollToTop()" class="d-none d-lg-block">
+            <img src="../static/img/logo-blue.png" alt="NAStool" class="navbar-brand-image">
+          </a>
+        </h1>
+        {% if "资源搜索" in UserPris %}
+        <div class="flex-grow-1 d-lg-none">
+          {{ searchbar('theme-dark') }}
+        </div>
+        {% endif %}
+        <div class="navbar-nav flex-row d-lg-none">
+          {{ usermenu() }}
+        </div>
       </div>
       <div class="collapse navbar-collapse" id="navbar-menu">
         <ul class="navbar-nav pt-lg-3">
@@ -2462,30 +2456,29 @@
   }
 
   // 切换搜索源
-  function change_search_source() {
-   let input_obj = $('#search_source');
-   let search_source = input_obj.val()
-   if (search_source === "tmdb") {
-     input_obj.val("douban");
-     $('[name=search_source_tmdb]').each(function() {
-       $(this).hide();
-     });
-     $('[name=search_source_douban]').each(function() {
-       $(this).show();
-     });
-   } else if (search_source === "douban") {
-     input_obj.val("tmdb");
-     $('[name=search_source_douban]').each(function() {
-       $(this).hide();
-     });
-     $('[name=search_source_tmdb]').each(function() {
-       $(this).show();
-     });
-   }
+  function change_search_source(search_source) {
+    let input_obj = $('#search_source');
+    input_obj.val(search_source);
+    let html = $(`#search_source_template_${search_source}`).text();
+    localStorage.setItem("SearchSource", search_source);
+    $("[id^=search_source_span_]").each(function(){
+      $(this).empty().append(html);
+    });
   }
 
 </script>
 
+<script type="text/html" id="search_source_template_tmdb">
+  <a href="javascript:change_search_source('douban')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
+    <span class="text-blue">{{ SVG.square_letter_t() }}</span>
+  </a>
+</script>
+
+<script type="text/html" id="search_source_template_douban">
+  <a href="javascript:change_search_source('tmdb')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
+    <span class="text-green">{{ SVG.circle_letter_d() }}</span>
+  </a>
+</script>
 <!-- 首页功能 -->
 <script type="text/javascript">
   //当前页面地址
@@ -2820,7 +2813,7 @@
     updateMenuListHeight()
 
     // 初始化搜索源
-    change_search_source()
+    change_search_source(localStorage.getItem("SearchSource") ?? "{{ SearchSource }}");
 
     // 初始化DropZone
     torrent_dropzone = new Dropzone("#torrent_files");
