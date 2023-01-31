@@ -92,12 +92,22 @@
 <body class="layout-fluid">
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
+  <script type="text/html" id="search_source_template_tmdb">
+    <a href="javascript:change_search_source('douban')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
+      <span class="text-blue">{{ SVG.square_letter_t() }}</span>
+    </a>
+  </script>
+  <script type="text/html" id="search_source_template_douban">
+    <a href="javascript:change_search_source('tmdb')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
+      <span class="text-green">{{ SVG.circle_letter_d() }}</span>
+    </a>
+  </script>
   <script type="module" src="../static/components/lit-index.js"></script>
   <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
   <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
     <div class="container-xl">
       <div class="container" style="display: flex; flex-wrap: unset; align-items: center; justify-content: center; padding: unset">
-        <button onclick="change_navbar_flexwrap()" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
           <span class="navbar-toggler-icon me-2"></span>
         </button>
         <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
@@ -1137,7 +1147,7 @@
               <label class="form-label">站点</label>
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
-                {% for site in SiteDict.values() %}
+                {% for site in Indexers %}
                   <option value="{{ site.name }}">{{ site.name }}</option>
                 {% endfor %}
               </select>
@@ -2237,17 +2247,6 @@
       $("#unknown_id").val(unknown_id);
       $("#transferlog_id").val(transferlog_id);
     }
-    // 初始化季列表
-    let rename_season_content = `<option value="" selected>请选择</option>`;
-    let search_season_content = `<option value="" selected>全部</option>`;
-    for (let i = 0; i <= 50; i++) {
-      rename_season_content += `<option value="${i}">第${i}季</option>`;
-      if (i > 0) {
-        search_season_content += `<option value="${i}">第${i}季</option>`;
-      }
-    }
-    $("#rename_season").empty().append(rename_season_content);
-    $("#search_season").empty().append(search_season_content);
 
     // 初始化媒体类型
     if (media_type === "电视剧") {
@@ -2455,7 +2454,7 @@
     });
   }
 
-  // 切换搜索源
+  //切换搜索源
   function change_search_source(search_source) {
     let input_obj = $('#search_source');
     input_obj.val(search_source);
@@ -2466,19 +2465,22 @@
     });
   }
 
+  //初始化季列表
+  function init_season_list() {
+    let rename_season_content = `<option value="" selected>请选择</option>`;
+    let search_season_content = `<option value="" selected>全部</option>`;
+    for (let i = 0; i <= 50; i++) {
+      rename_season_content += `<option value="${i}">第${i}季</option>`;
+      if (i > 0) {
+        search_season_content += `<option value="${i}">第${i}季</option>`;
+      }
+    }
+    $("#rename_season").empty().append(rename_season_content);
+    $("#search_season").empty().append(search_season_content);
+  }
+
 </script>
 
-<script type="text/html" id="search_source_template_tmdb">
-  <a href="javascript:change_search_source('douban')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
-    <span class="text-blue">{{ SVG.square_letter_t() }}</span>
-  </a>
-</script>
-
-<script type="text/html" id="search_source_template_douban">
-  <a href="javascript:change_search_source('tmdb')" class="link-secondary ms-2" id="search_source_tmdb{% if not theme %}theme{% endif %}">
-    <span class="text-green">{{ SVG.circle_letter_d() }}</span>
-  </a>
-</script>
 <!-- 首页功能 -->
 <script type="text/javascript">
   //当前页面地址
@@ -2740,6 +2742,7 @@
       scrollTop: 0
     }, 500);
   }
+
 </script>
 
 <!-- 事件  -->
@@ -2814,6 +2817,9 @@
 
     // 初始化搜索源
     change_search_source(localStorage.getItem("SearchSource") ?? "{{ SearchSource }}");
+
+    // 初始化季列表
+    init_season_list();
 
     // 初始化DropZone
     torrent_dropzone = new Dropzone("#torrent_files");

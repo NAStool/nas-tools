@@ -1,7 +1,6 @@
 import copy
 import datetime
 import re
-import traceback
 from urllib.parse import quote
 
 from jinja2 import Template
@@ -97,17 +96,17 @@ class TorrentSpider(feapder.AirSpider):
         if self.keyword:
             if torrentspath.find("{keyword}") != -1:
                 searchurl = self.domain + \
-                                 torrentspath.replace("{keyword}",
-                                                      quote(self.keyword))
+                            torrentspath.replace("{keyword}",
+                                                 quote(self.keyword))
             else:
                 searchurl = self.domain + \
-                                 torrentspath + \
-                                 '?stypes=s&' + \
-                                 urlencode({
-                                     "search": self.keyword,
-                                     "search_field": self.keyword,
-                                     "keyword": self.keyword
-                                 })
+                            torrentspath + \
+                            '?stypes=s&' + \
+                            urlencode({
+                                "search": self.keyword,
+                                "search_field": self.keyword,
+                                "keyword": self.keyword
+                            })
         # 列表浏览
         else:
             torrentspath = torrentspath.replace("{keyword}", "")
@@ -119,12 +118,12 @@ class TorrentSpider(feapder.AirSpider):
             if self.page is not None:
                 if torrentspath.find("{page}") != -1:
                     searchurl = self.domain + \
-                                     torrentspath.replace("{page}",
-                                                          str(int(self.page) + pagestart))
+                                torrentspath.replace("{page}",
+                                                     str(int(self.page) + pagestart))
                 else:
                     searchurl = self.domain + \
-                                     torrentspath + \
-                                     "?page=%s" % (int(self.page) + pagestart)
+                                torrentspath + \
+                                "?page=%s" % (int(self.page) + pagestart)
             else:
                 searchurl = self.domain + torrentspath
 
@@ -405,28 +404,48 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdownloadvolumefactor(self, torrent):
         # downloadvolumefactor
-        for downloadvolumefactorselector in list(self.fields.get('downloadvolumefactor',
-                                                                 {}).get('case',
-                                                                         {}).keys()):
-            downloadvolumefactor = torrent(downloadvolumefactorselector)
-            if len(downloadvolumefactor) > 0:
-                self.torrents_info['downloadvolumefactor'] = self.fields.get('downloadvolumefactor',
-                                                                             {}).get('case',
-                                                                                     {}).get(
-                    downloadvolumefactorselector)
-                break
+        selector = self.fields.get('downloadvolumefactor', {})
+        if not selector:
+            return
+        if 'case' in selector:
+            for downloadvolumefactorselector in list(selector.get('case',
+                                                                  {}).keys()):
+                downloadvolumefactor = torrent(downloadvolumefactorselector)
+                if len(downloadvolumefactor) > 0:
+                    self.torrents_info['downloadvolumefactor'] = selector.get('case',
+                                                                              {}).get(
+                        downloadvolumefactorselector)
+                    break
+        elif "selector" in selector:
+            downloadvolume = torrent(selector.get('selector', ''))
+            if downloadvolume:
+                items = [item.text() for item in downloadvolume.items() if item]
+                if items:
+                    downloadvolumefactor = re.search(r'(\d+\.?\d*)', items[0])
+                    if downloadvolumefactor:
+                        self.torrents_info['downloadvolumefactor'] = int(downloadvolumefactor.group(1))
 
     def Getuploadvolumefactor(self, torrent):
         # uploadvolumefactor
-        for uploadvolumefactorselector in list(self.fields.get('uploadvolumefactor',
-                                                               {}).get('case',
-                                                                       {}).keys()):
-            uploadvolumefactor = torrent(uploadvolumefactorselector)
-            if len(uploadvolumefactor) > 0:
-                self.torrents_info['uploadvolumefactor'] = self.fields.get('uploadvolumefactor',
-                                                                           {}).get('case',
-                                                                                   {}).get(uploadvolumefactorselector)
-                break
+        selector = self.fields.get('uploadvolumefactor', {})
+        if not selector:
+            return
+        if 'case' in selector:
+            for uploadvolumefactorselector in list(selector.get('case',
+                                                                {}).keys()):
+                uploadvolumefactor = torrent(uploadvolumefactorselector)
+                if len(uploadvolumefactor) > 0:
+                    self.torrents_info['uploadvolumefactor'] = selector.get('case',
+                                                                            {}).get(uploadvolumefactorselector)
+                    break
+        elif "selector" in selector:
+            uploadvolume = torrent(selector.get('selector', ''))
+            if uploadvolume:
+                items = [item.text() for item in uploadvolume.items() if item]
+                if items:
+                    uploadvolumefactor = re.search(r'(\d+\.?\d*)', items[0])
+                    if uploadvolumefactor:
+                        self.torrents_info['uploadvolumefactor'] = int(uploadvolumefactor.group(1))
 
     def Getinfo(self, torrent):
         """

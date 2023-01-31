@@ -22,19 +22,23 @@ class SiteConf:
     # 站点登录界面元素XPATH
     SITE_LOGIN_XPATH = {
         "username": [
-            '//input[@name="username"]'
+            '//input[@name="username"]',
+            '//input[@id="form_item_username"]'
         ],
         "password": [
-            '//input[@name="password"]'
+            '//input[@name="password"]',
+            '//input[@id="form_item_password"]'
         ],
         "captcha": [
             '//input[@name="imagestring"]',
-            '//input[@name="captcha"]'
+            '//input[@name="captcha"]',
+            '//input[@id="form_item_captcha"]'
         ],
         "captcha_img": [
             '//img[@alt="CAPTCHA"]/@src',
             '//img[@alt="SECURITY CODE"]/@src',
-            '//img[@id="LAY-user-get-vercode"]/@src'
+            '//img[@id="LAY-user-get-vercode"]/@src',
+            '//img[contains(@src,"/api/getCaptcha")]/@src'
         ],
         "submit": [
             '//input[@type="submit"]',
@@ -463,6 +467,13 @@ class SiteConf:
             '2XFREE': ["//h1[@id='top']/b/font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "zhuque.in": {
+            'RENDER': True,
+            'FREE': ["//span[@class='text-download'][contains(text(),'0x')]"],
+            '2XFREE': [""],
+            'HR': [],
+            'PEER_COUNT': ["//div[@class='ant-form-item-control-input-content']/span[contains(text(),'正在做种: )]"],
         }
     }
     # 公共BT站点
@@ -531,5 +542,8 @@ class SiteConf:
             "proxy": False,
             "referer": True,
             "parser": "RenderSpider"
+        },
+        'www.comicat.org': {
+            "proxy": False
         }
     }

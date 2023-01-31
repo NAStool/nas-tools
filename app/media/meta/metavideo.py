@@ -497,7 +497,7 @@ class MetaVideo(MetaBase):
             self._continue_flag = False
             self._stop_name_flag = True
             self._last_token_type = "videoencode"
-            self._last_token = token.upper()
+            self._last_token = token.upper() if token.upper() == "H" else token.lower()
         elif token in ["264", "265"] \
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['H', 'X']:
