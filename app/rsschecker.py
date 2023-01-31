@@ -292,8 +292,18 @@ class RssChecker(object):
                         res_num = res_num + 1
                 elif taskinfo.get("uses") == "R":
                     media_info = MetaInfo(title=meta_name, mtype=mediatype)
+                    # 检查种子是否匹配过滤条件
+                    filter_args = {
+                        "include": taskinfo.get("include"),
+                        "exclude": taskinfo.get("exclude")
+                    }
+                    match_flag, _, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
+                                                                                filter_args=filter_args)
+                    # 未匹配
+                    if not match_flag:
+                        log.info(f"【RssChecker】{match_msg}")
+                        continue
                     # 添加订阅列表
-                    # 订阅类型的 保持现状直接插入数据库
                     self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
                         rss_subscribe_torrents.append(media_info)
@@ -540,7 +550,7 @@ class RssChecker(object):
         filter_args = {
             "include": taskinfo.get("include"),
             "exclude": taskinfo.get("exclude"),
-            "rule": taskinfo.get("filter")
+            "rule": taskinfo.get("filter") if taskinfo.get("uses") == "D" else None
         }
         match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                             filter_args=filter_args)
