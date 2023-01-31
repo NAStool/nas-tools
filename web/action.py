@@ -1290,7 +1290,6 @@ class WebAction:
         """
         name = data.get("name")
         _subscribe = Subscribe()
-        mtype = data.get("type")
         year = data.get("year")
         keyword = data.get("keyword")
         season = data.get("season")
@@ -1309,7 +1308,8 @@ class WebAction:
         current_ep = data.get("current_ep")
         rssid = data.get("rssid")
         page = data.get("page")
-        mtype = MediaType.MOVIE if mtype in self._MovieTypes else MediaType.TV
+        mtype = MediaType.MOVIE if data.get("type") in self._MovieTypes else MediaType.TV
+        media_info = None
         if isinstance(season, list):
             code = 0
             msg = ""
@@ -1353,11 +1353,11 @@ class WebAction:
                                                                  total_ep=total_ep,
                                                                  current_ep=current_ep,
                                                                  rssid=rssid)
-        if not rssid:
+        if not rssid and media_info:
             if mtype == MediaType.MOVIE:
-                rssid = self.dbhelper.get_rss_movie_id(title=name, tmdbid=mediaid)
+                rssid = self.dbhelper.get_rss_movie_id(title=name, tmdbid=media_info.tmdb_id)
             else:
-                rssid = self.dbhelper.get_rss_tv_id(title=name, tmdbid=mediaid)
+                rssid = self.dbhelper.get_rss_tv_id(title=name, tmdbid=media_info.tmdb_id)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
     def __re_identification(self, data):
