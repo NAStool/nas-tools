@@ -51,7 +51,7 @@ class TNodeSpider(object):
             log.warn(f"【INDEXER】{self._name} 未获取到token，无法搜索")
             return []
         params = {
-            "page": page,
+            "page": int(page),
             "size": self._size,
             "type": "title",
             "keyword": keyword or "",
@@ -63,20 +63,18 @@ class TNodeSpider(object):
             "videoCoding": [],
             "audioCoding": [],
             "resolution": [],
-            "group": [],
-            "more": False
+            "group": []
         }
         res = RequestUtils(
             headers={
                 'X-CSRF-TOKEN': self._token,
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Content-Type": "application/json; charset=utf-8",
                 "User-Agent": f"{self._ua}"
             },
             cookies=self._cookie,
             proxies=self._proxy,
-            timeout=30,
-            content_type="application/json; charset=utf-8"
-        ).post_res(url=self._searchurl, params=params)
+            timeout=30
+        ).post_res(url=self._searchurl, json=params)
         torrents = []
         if res and res.status_code == 200:
             results = res.json().get('data', {}).get("torrents") or []
