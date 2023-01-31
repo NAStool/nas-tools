@@ -1,4 +1,5 @@
 import bisect
+import datetime
 import hashlib
 import random
 import re
@@ -329,6 +330,20 @@ class StringUtils:
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return datetime_str
+
+    @staticmethod
+    def timestamp_to_date(timestamp, date_format='%Y-%m-%d %H:%M:%S'):
+        """
+        时间戳转日期
+        :param timestamp:
+        :param date_format:
+        :return:
+        """
+        try:
+            return datetime.datetime.fromtimestamp(timestamp).strftime(date_format)
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return timestamp
 
     @staticmethod
     def to_bool(text, default_val: bool = False) -> bool:

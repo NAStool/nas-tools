@@ -79,7 +79,8 @@
 {% endmacro %}
 {% macro searchbar(theme)%}
   <div class="input-group input-group-flat {% if not theme %}me-3{% endif %}">
-    <span class="input-group-text form-control-rounded {{ theme }} ms-2" id="search_source_span_{% if theme %}theme{% endif %}"></span>
+    <a class="input-group-text form-control-rounded {{ theme }} ms-2" id="search_source_span_{% if theme %}theme{% endif %}"
+       title="切换搜索源（豆瓣/TMDB）" data-bs-toggle="tooltip"></a>
     <input type="text" class="home_search_bar form-control form-control-rounded {{ theme }}" placeholder="搜索电影、电视剧"
         autocomplete="new-password">
     <span class="input-group-text form-control-rounded {{ theme }}">

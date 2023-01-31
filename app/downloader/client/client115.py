@@ -42,7 +42,7 @@ class Client115(_IDownloadClient):
             return False
         return True
 
-    def get_torrents(self, ids=None, status=None, tag=None):
+    def get_torrents(self, ids=None, status=None, **kwargs):
         tlist = []
         if not self.downclient:
             return tlist
@@ -103,7 +103,7 @@ class Client115(_IDownloadClient):
     def stop_torrents(self, ids):
         pass
 
-    def set_torrents_status(self, ids, tags=None):
+    def set_torrents_status(self, ids, **kwargs):
         return self.delete_torrents(ids=ids, delete_file=False)
 
     def get_download_dirs(self):

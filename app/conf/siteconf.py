@@ -499,8 +499,7 @@ class SiteConf:
             "language": "en"
         },
         'nyaa.si': {
-            "proxy": True,
-            "language": "en"
+            "proxy": True
         },
         '1337x.to': {
             "proxy": True,

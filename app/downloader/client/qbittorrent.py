@@ -483,11 +483,11 @@ class Qbittorrent(_IDownloadClient):
         """
         pass
 
-    def get_downloading_progress(self):
+    def get_downloading_progress(self, tag=None):
         """
-                获取正在下载的种子进度
-                """
-        Torrents = self.get_downloading_torrents()
+        获取正在下载的种子进度
+        """
+        Torrents = self.get_downloading_torrents(tag=tag)
         DispTorrents = []
         for torrent in Torrents:
             # 进度

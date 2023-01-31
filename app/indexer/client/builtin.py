@@ -8,6 +8,7 @@ from app.indexer.client._base import _IIndexClient
 from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
 from app.indexer.client._spider import TorrentSpider
+from app.indexer.client._tnode import TNodeSpider
 from app.sites import Sites
 from app.utils import StringUtils
 from app.utils.types import SearchType, IndexerType
@@ -151,6 +152,8 @@ class BuiltinIndexer(_IIndexClient):
             if indexer.parser == "Rarbg":
                 imdb_id = match_media.imdb_id if match_media else None
                 result_array = Rarbg().search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
+            elif indexer.parser == "TNodeSpider":
+                result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
             elif indexer.parser == "RenderSpider":
                 result_array = RenderSpider().search(keyword=search_word, indexer=indexer)
             else:
@@ -183,6 +186,8 @@ class BuiltinIndexer(_IIndexClient):
             return RenderSpider().search(keyword=keyword,
                                          indexer=indexer,
                                          page=page)
+        elif indexer.parser == "TNodeSpider":
+            return TNodeSpider(indexer=indexer).search(keyword=keyword, page=page)
         return self.__spider_search(indexer=indexer,
                                     page=page,
                                     keyword=keyword)
