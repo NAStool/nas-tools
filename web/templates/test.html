@@ -27,6 +27,8 @@
     <link href="../static/css/dropzone.css" rel="stylesheet"/>
     <link href="../static/css/nprogress.css" rel="stylesheet"/>
     <link href="../static/css/jsoneditor.min.css" rel="stylesheet"/>
+    <!-- 附加样式 -->
+    <link href="../static/css/style.css" rel="stylesheet"/>
 </head>
 <body>
     <div class="page">
@@ -48,10 +50,13 @@
         <script src="../static/js/jsoneditor.min.js"></script>
         <script src="../static/js/util.js"></script>
         <layout-navbar></layout-navbar>
+        <layout-searchbar
+            layout-username="测试名称"
+            layout-systemflag="Docker"
+            layout-userpris='["无内容"]'
+            ></layout-searchbar>
         <div class="page-wrapper px-lg-2" id="page_wrapper">
-            <div id="page_content">
-                <layout-navbar-button></layout-navbar-button>
-            </div>
+            
         </div>
     </div>
 </body>
