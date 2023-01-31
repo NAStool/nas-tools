@@ -698,7 +698,7 @@ class ModuleConf(object):
                     "type": "text",
                     "placeholder": "http://127.0.0.1:32400"
                 },
-                "api_key": {
+                "token": {
                     "id": "plex.token",
                     "required": False,
                     "title": "X-Plex-Token",
