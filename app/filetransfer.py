@@ -435,7 +435,8 @@ class FileTransfer:
                        season=None,
                        episode: (EpisodeFormat, bool) = None,
                        min_filesize=None,
-                       udf_flag=False):
+                       udf_flag=False,
+                       root_path=False):
         """
         识别并转移一个文件、多个文件或者目录
         :param in_from: 来源，即调用该功能的渠道
@@ -450,6 +451,7 @@ class FileTransfer:
         :param episode: (EpisodeFormat，是否批处理匹配)
         :param min_filesize: 过滤小文件大小的上限值
         :param udf_flag: 自定义转移标志，为True时代表是自定义转移，此时很多处理不一样
+        :param root_path: 是否根目录下的文件
         :return: 处理状态，错误信息
         """
         episode = (None, False) if not episode else episode
@@ -812,6 +814,7 @@ class FileTransfer:
             if rmt_mode == RmtMode.MOVE \
                     and os.path.exists(in_path) \
                     and os.path.isdir(in_path) \
+                    and not root_path \
                     and not PathUtils.get_dir_files(in_path=in_path, exts=RMT_MEDIAEXT) \
                     and not PathUtils.get_dir_files(in_path=in_path, exts=['.!qb', '.part']):
                 log.info("【Rmt】目录下已无媒体文件及正在下载的文件，移动模式下删除目录：%s" % in_path)
