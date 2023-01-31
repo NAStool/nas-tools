@@ -122,7 +122,7 @@ export class PageDiscovery extends CustomElement {
                   }}
                   lazy=1
                   card-tmdbid=${card.id}
-                  card-pagetype=${this.discovery_type}
+                  card-mediatype=${this.discovery_type}
                   card-showsub=1
                   card-image=${card.image}
                   card-fav=${card.fav}

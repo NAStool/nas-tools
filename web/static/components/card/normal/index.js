@@ -10,7 +10,7 @@ export class NormalCard extends observeState(CustomElement) {
   static properties = {
     tmdb_id: { attribute: "card-tmdbid" },
     res_type: { attribute: "card-restype" },
-    page_type: { attribute: "card-pagetype" },
+    media_type: { attribute: "card-mediatype" },
     show_sub: { attribute: "card-showsub"},
     title: { attribute: "card-title" },
     fav: { attribute: "card-fav" , reflect: true},
@@ -82,7 +82,7 @@ export class NormalCard extends observeState(CustomElement) {
       return html`
         <div class="d-flex justify-content-between">
           <a class="text-muted" title="搜索资源" @click=${(e) => { e.stopPropagation() }}
-             href='javascript:media_search("${this.tmdb_id}", "${this.title}", "${this.page_type}")'>
+             href='javascript:media_search("${this.tmdb_id}", "${this.title}", "${this.media_type}")'>
             <span class="icon-pulse text-white">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                   viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -129,7 +129,7 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
              class="card-img-overlay rounded-4 ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5); box-shadow:0 0 0 1px #dddddd;"
-             @click=${() => { navmenu(`discovery_detail?type=${this.page_type}&id=${this.tmdb_id}`) }}>
+             @click=${() => { navmenu(`discovery_detail?type=${this.media_type}&id=${this.tmdb_id}`) }}>
           <div style="cursor: pointer">
             ${this.year ? html`<div class="text-white"><strong>${this.site ? this.site : this.year}</strong></div>` : nothing }
             ${this.title
@@ -173,7 +173,7 @@ export class NormalCard extends observeState(CustomElement) {
 
   _loveClick(e) {
     e.stopPropagation();
-    Golbal.lit_love_click(this.title, this.year, this.page_type, this.tmdb_id, this.fav,
+    Golbal.lit_love_click(this.title, this.year, this.media_type, this.tmdb_id, this.fav,
       () => {
         this.fav = "0";
         this._fav_change();
