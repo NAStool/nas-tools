@@ -420,7 +420,7 @@ class TorrentSpider(feapder.AirSpider):
         elif "selector" in selector:
             downloadvolume = torrent(selector.get('selector', ''))
             if downloadvolume:
-                downloadvolumefactor = re.search(r'(\d+\.?\d*)', downloadvolume[0].text())
+                downloadvolumefactor = re.search(r'(\d+\.?\d*)', downloadvolume.text())
                 if downloadvolumefactor:
                     self.torrents_info['downloadvolumefactor'] = int(downloadvolumefactor.group(1))
 
@@ -440,7 +440,7 @@ class TorrentSpider(feapder.AirSpider):
         elif "selector" in selector:
             uploadvolume = torrent(selector.get('selector', ''))
             if uploadvolume:
-                uploadvolumefactor = re.search(r'(\d+\.?\d*)', uploadvolume[0].text())
+                uploadvolumefactor = re.search(r'(\d+\.?\d*)', uploadvolume.text())
                 if uploadvolumefactor:
                     self.torrents_info['uploadvolumefactor'] = int(uploadvolumefactor.group(1))
 
