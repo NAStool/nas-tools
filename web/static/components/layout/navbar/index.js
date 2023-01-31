@@ -1,7 +1,7 @@
 import { LayoutNavbarButton } from "./button.js"; export { LayoutNavbarButton };
 
 import { html, nothing } from "../../utility/lit-core.min.js";
-import { CustomElement, Golbal } from "../../utility/utility.js";
+import { CustomElement } from "../../utility/utility.js";
 
 
 const navbar_list = [
@@ -290,6 +290,18 @@ export class LayoutNavbar extends CustomElement {
           background-color: #1a2234;
         }
 
+        .lit-navbar-memu {
+          width: calc(var(--tblr-offcanvas-width) - 80px);
+        }
+
+        .lit-navar-close {
+          position:fixed;
+          top:0;
+          left:calc(var(--tblr-offcanvas-width) - 80px);
+          z-index:1030;
+          width: 80px;
+        }
+
         .lit-navbar-hide-scrollbar {
           overflow-y: scroll!important;
           overscroll-behavior-y: contain!important;
@@ -315,7 +327,7 @@ export class LayoutNavbar extends CustomElement {
         <div class="container-fluid">
           <div class="offcanvas offcanvas-start lit-navbar-canvas d-flex lit-navbar-hide-scrollbar" tabindex="-1" id="litLayoutNavbar">
             <div class="d-flex flex-row flex-grow-1">
-              <div class="d-flex flex-grow-1 flex-column lit-navbar-background">
+              <div class="d-flex flex-column lit-navbar-background lit-navbar-memu">
                 <h1 class="mt-3" style="text-align:center;filter:brightness(0) invert(1)">
                   <a href="javascript:ScrollToTop()">
                     <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
@@ -330,7 +342,7 @@ export class LayoutNavbar extends CustomElement {
                         ? html`
                           <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
                             role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <span class="nav-link-icon">
                               ${item.icon ?? nothing}
                             </span>
                             <span class="nav-link-title">
@@ -349,7 +361,7 @@ export class LayoutNavbar extends CustomElement {
                         : html`
                           <a class="nav-link" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
                             @click=${ () => { navmenu(item.page) }}>
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <span class="nav-link-icon">
                               ${item.icon ?? nothing}
                             </span>
                             <span class="nav-link-title">
@@ -382,7 +394,7 @@ export class LayoutNavbar extends CustomElement {
                   </a>
                 </div>
               </div>
-              <div class="d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close">
+              <div class="lit-navar-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close">
                 <button type="button" class="btn btn-lg btn-ghost-light" data-bs-dismiss="offcanvas" aria-label="Close">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
