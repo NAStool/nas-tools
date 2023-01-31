@@ -54,7 +54,9 @@ class TNodeSpider(object):
             "page": page,
             "size": self._size,
             "type": "title",
-            "keyword": keyword,
+            "keyword": keyword or "",
+            "sorter": "id",
+            "order": "desc",
             "tags": [],
             "category": [],
             "medium": [],
@@ -72,7 +74,8 @@ class TNodeSpider(object):
             },
             cookies=self._cookie,
             proxies=self._proxy,
-            timeout=30
+            timeout=30,
+            content_type="application/json; charset=utf-8"
         ).post_res(url=self._searchurl, params=params)
         torrents = []
         if res and res.status_code == 200:
@@ -94,7 +97,7 @@ class TNodeSpider(object):
                     'imdbid': result.get('imdb')
                 }
                 torrents.append(torrent)
-        elif res:
+        elif res is not None:
             log.warn(f"【INDEXER】{self._name} 搜索失败，错误码：{res.status_code}")
             return []
         else:

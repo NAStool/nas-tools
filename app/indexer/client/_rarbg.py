@@ -57,7 +57,7 @@ class Rarbg:
                            'page_url': result.get('info_page'),
                            'imdbid': result.get('episode_info').get('imdb') if result.get('episode_info') else ''}
                 torrents.append(torrent)
-        elif res:
+        elif res is not None:
             log.warn(f"【INDEXER】{indexer.name} 搜索失败，错误码：{res.status_code}")
             return []
         else:
