@@ -617,7 +617,7 @@ class DbHelper:
             ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == str(tmdbid)).first()
             if ret:
                 return ret[0]
-        if year:
+        if not year:
             items = self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title).all()
         else:
             items = self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
