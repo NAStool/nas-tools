@@ -357,7 +357,7 @@ class Downloader:
         if not downloader or not config:
             return []
         _client = self.__get_client(downloader)
-        if config.get("onlynastool"):
+        if self._pt_monitor_only:
             config["filter_tags"] = config["tags"] + [PT_TAG]
         else:
             config["filter_tags"] = config["tags"]
@@ -388,7 +388,11 @@ class Downloader:
         """
         if not self.default_client:
             return []
-        return self.default_client.get_downloading_progress()
+        if self._pt_monitor_only:
+            tag = [PT_TAG]
+        else:
+            tag = None
+        return self.default_client.get_downloading_progress(tag=tag)
 
     def get_torrents(self, torrent_ids):
         """
