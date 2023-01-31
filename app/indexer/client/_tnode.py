@@ -51,7 +51,7 @@ class TNodeSpider(object):
             log.warn(f"【INDEXER】{self._name} 未获取到token，无法搜索")
             return []
         params = {
-            "page": int(page),
+            "page": int(page) + 1,
             "size": self._size,
             "type": "title",
             "keyword": keyword or "",
