@@ -22,19 +22,23 @@ class SiteConf:
     # 站点登录界面元素XPATH
     SITE_LOGIN_XPATH = {
         "username": [
-            '//input[@name="username"]'
+            '//input[@name="username"]',
+            '//input[@id="form_item_username"]'
         ],
         "password": [
-            '//input[@name="password"]'
+            '//input[@name="password"]',
+            '//input[@id="form_item_password"]'
         ],
         "captcha": [
             '//input[@name="imagestring"]',
-            '//input[@name="captcha"]'
+            '//input[@name="captcha"]',
+            '//input[@id="form_item_captcha"]'
         ],
         "captcha_img": [
             '//img[@alt="CAPTCHA"]/@src',
             '//img[@alt="SECURITY CODE"]/@src',
-            '//img[@id="LAY-user-get-vercode"]/@src'
+            '//img[@id="LAY-user-get-vercode"]/@src',
+            '//img[contains(@src,"/api/getCaptcha")]/@src'
         ],
         "submit": [
             '//input[@type="submit"]',
@@ -531,5 +535,8 @@ class SiteConf:
             "proxy": False,
             "referer": True,
             "parser": "RenderSpider"
+        },
+        'www.comicat.org': {
+            "proxy": False
         }
     }

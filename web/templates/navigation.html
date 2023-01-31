@@ -1147,7 +1147,7 @@
               <label class="form-label">站点</label>
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
-                {% for site in SiteDict.values() %}
+                {% for site in Indexers %}
                   <option value="{{ site.name }}">{{ site.name }}</option>
                 {% endfor %}
               </select>

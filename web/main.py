@@ -125,7 +125,7 @@ def login():
         RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
         PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
         SiteFavicons = Sites().get_site_favicon()
-        SiteDict = Indexer().get_indexer_hash_dict()
+        Indexers = Indexer().get_builtin_indexers(check=False)
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
         return render_template('navigation.html',
                                GoPage=GoPage,
@@ -139,7 +139,7 @@ def login():
                                SyncMod=SyncMod,
                                SiteFavicons=SiteFavicons,
                                RmtModeDict=RmtModeDict,
-                               SiteDict=SiteDict,
+                               Indexers=Indexers,
                                SearchSource=SearchSource)
 
     def redirect_to_login(errmsg=''):

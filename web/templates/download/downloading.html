@@ -177,8 +177,8 @@
       const params = {
         "files": torrent_dropzone.files,
         "magnets": magnet.split("\n"),
-        "dir": $("#search_download_dir").val(),
-        "setting": $("#search_download_setting").val()
+        "dl_dir": $("#search_download_dir").val(),
+        "dl_setting": $("#search_download_setting").val()
       }
       ajax_post("download_torrent", params, function (ret) {
         $("#search_download_btn").attr("disabled", false).text("下载");
