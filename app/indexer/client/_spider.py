@@ -1,7 +1,6 @@
 import copy
 import datetime
 import re
-import traceback
 from urllib.parse import quote
 
 from jinja2 import Template
@@ -420,9 +419,11 @@ class TorrentSpider(feapder.AirSpider):
         elif "selector" in selector:
             downloadvolume = torrent(selector.get('selector', ''))
             if downloadvolume:
-                downloadvolumefactor = re.search(r'(\d+\.?\d*)', downloadvolume.text())
-                if downloadvolumefactor:
-                    self.torrents_info['downloadvolumefactor'] = int(downloadvolumefactor.group(1))
+                items = [item.text() for item in downloadvolume.items() if item]
+                if items:
+                    downloadvolumefactor = re.search(r'(\d+\.?\d*)', items[0])
+                    if downloadvolumefactor:
+                        self.torrents_info['downloadvolumefactor'] = int(downloadvolumefactor.group(1))
 
     def Getuploadvolumefactor(self, torrent):
         # uploadvolumefactor
@@ -440,9 +441,11 @@ class TorrentSpider(feapder.AirSpider):
         elif "selector" in selector:
             uploadvolume = torrent(selector.get('selector', ''))
             if uploadvolume:
-                uploadvolumefactor = re.search(r'(\d+\.?\d*)', uploadvolume.text())
-                if uploadvolumefactor:
-                    self.torrents_info['uploadvolumefactor'] = int(uploadvolumefactor.group(1))
+                items = [item.text() for item in uploadvolume.items() if item]
+                if items:
+                    uploadvolumefactor = re.search(r'(\d+\.?\d*)', items[0])
+                    if uploadvolumefactor:
+                        self.torrents_info['uploadvolumefactor'] = int(uploadvolumefactor.group(1))
 
     def Getinfo(self, torrent):
         """
