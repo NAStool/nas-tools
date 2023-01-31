@@ -1,4 +1,5 @@
 import json
+from urllib.parse import quote
 from threading import Lock
 
 from app.message.client._base import _IMessageClient
@@ -70,9 +71,9 @@ class SynologyChat(_IMessageClient):
                 caption = title
             if url and image:
                 caption = f"{caption}\n\n<{url}|查看详情>"
-            payload_data = {'text': caption}
+            payload_data = {'text': quote(caption)}
             if image:
-                payload_data['file_url'] = image
+                payload_data['file_url'] = quote(image)
             if user_id:
                 payload_data['user_ids'] = [int(user_id)]
             else:
@@ -121,8 +122,8 @@ class SynologyChat(_IMessageClient):
             else:
                 user_ids = self.__get_bot_users()
             payload_data = {
-                "text": caption,
-                "file_url": image,
+                "text": quote(caption),
+                "file_url": quote(image),
                 "user_ids": user_ids
             }
             return self.__send_request(payload_data)
