@@ -3,7 +3,10 @@ import { LayoutNavbarButton } from "./button.js"; export { LayoutNavbarButton };
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement } from "../../utility/utility.js";
 
-
+// name: 服务原名
+// page: 导航路径
+// icon: 项目图标
+// also: 显示别名 (可选)
 const navbar_list = [
   {
     name: "我的媒体库",
