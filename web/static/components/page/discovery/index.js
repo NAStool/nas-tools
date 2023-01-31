@@ -1,7 +1,7 @@
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../../utility/utility.js";
 
-class PageDiscovery extends CustomElement {
+export class PageDiscovery extends CustomElement {
   static properties = {
     discovery_type: { attribute: "discovery-type" },
     _slide_card_list: { state: true },

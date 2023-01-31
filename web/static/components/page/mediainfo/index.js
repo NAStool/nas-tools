@@ -1,7 +1,7 @@
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../../utility/utility.js";
 
-class PageMediainfo extends CustomElement {
+export class PageMediainfo extends CustomElement {
   static properties = {
     // 类型
     media_type: { attribute: "media-type" },
