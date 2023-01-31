@@ -467,6 +467,13 @@ class SiteConf:
             '2XFREE': ["//h1[@id='top']/b/font[@class='twoupfree']"],
             'HR': [],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        "zhuque.in": {
+            'RENDER': True,
+            'FREE': ["//span[@class='text-download'][contains(text(),'0x')]"],
+            '2XFREE': [""],
+            'HR': [],
+            'PEER_COUNT': ["//div[@class='ant-form-item-control-input-content']/span[contains(text(),'正在做种: )]"],
         }
     }
     # 公共BT站点
