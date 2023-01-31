@@ -68,13 +68,13 @@ class SynologyChat(_IMessageClient):
                 caption = "*%s*\n%s" % (title, text.replace("\n\n", "\n"))
             else:
                 caption = title
-            if url:
+            if url and image:
                 caption = f"{caption}\n\n<{url}|查看详情>"
             payload_data = {'text': caption}
             if image:
                 payload_data['file_url'] = image
             if user_id:
-                payload_data['user_ids'] = [user_id]
+                payload_data['user_ids'] = [int(user_id)]
             else:
                 userids = self.__get_bot_users()
                 if not userids:
@@ -117,7 +117,7 @@ class SynologyChat(_IMessageClient):
                 index += 1
 
             if user_id:
-                user_ids = [user_id]
+                user_ids = [int(user_id)]
             else:
                 user_ids = self.__get_bot_users()
             payload_data = {

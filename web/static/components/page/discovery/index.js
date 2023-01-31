@@ -1,7 +1,7 @@
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../../utility/utility.js";
 
-class PageDiscovery extends CustomElement {
+export class PageDiscovery extends CustomElement {
   static properties = {
     discovery_type: { attribute: "discovery-type" },
     _slide_card_list: { state: true },
@@ -122,7 +122,7 @@ class PageDiscovery extends CustomElement {
                   }}
                   lazy=1
                   card-tmdbid=${card.id}
-                  card-pagetype=${this.discovery_type}
+                  card-mediatype=${this.discovery_type}
                   card-showsub=1
                   card-image=${card.image}
                   card-fav=${card.fav}

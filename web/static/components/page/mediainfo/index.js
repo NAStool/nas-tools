@@ -1,7 +1,7 @@
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement, Golbal } from "../../utility/utility.js";
 
-class PageMediainfo extends CustomElement {
+export class PageMediainfo extends CustomElement {
   static properties = {
     // 类型
     media_type: { attribute: "media-type" },
@@ -223,7 +223,7 @@ class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-pagetype=${item.type}
+                card-mediatype=${item.media_type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}
@@ -252,7 +252,7 @@ class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-pagetype=${item.type}
+                card-mediatype=${item.media_type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}
