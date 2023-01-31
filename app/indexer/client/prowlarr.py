@@ -17,6 +17,7 @@ class Prowlarr(_IIndexClient):
             self._client_config = config
         else:
             self._client_config = Config().get_config('prowlarr')
+        self.init_config()
 
     def init_config(self):
         if self._client_config:

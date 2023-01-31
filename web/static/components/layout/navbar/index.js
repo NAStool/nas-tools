@@ -3,7 +3,10 @@ import { LayoutNavbarButton } from "./button.js"; export { LayoutNavbarButton };
 import { html, nothing } from "../../utility/lit-core.min.js";
 import { CustomElement } from "../../utility/utility.js";
 
-
+// name: 服务原名
+// page: 导航路径
+// icon: 项目图标
+// also: 显示别名 (可选)
 const navbar_list = [
   {
     name: "我的媒体库",
@@ -265,13 +268,15 @@ const navbar_list = [
 
 export class LayoutNavbar extends CustomElement {
   static properties = {
+    layout_userpris: { attribute: "layout-userpris", type: Array },
     _is_update: { state: true },
   };
 
   constructor() {
     super();
+    this.layout_userpris = navbar_list.map((item) => (item.name));
     this._is_update = false;
-    this.classList.add("navbar", "navbar-vertical", "navbar-expand-lg", "lit-navbar");
+    this.classList.add("navbar","navbar-vertical","navbar-expand-lg","navbar-dark","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
 
   firstUpdated() {
@@ -281,24 +286,23 @@ export class LayoutNavbar extends CustomElement {
   render() {
     return html`
       <style>
+        .lit-navbar-fixed {
+          position:fixed;
+          top:0;
+          left:0;
+          z-index:1031
+        }
+
         .lit-navbar-canvas {
-          background-color: rgba(0,0,0,0);
-          border-right: none!important;
-        }
-
-        .lit-navbar-background {
-          background-color: #1a2234;
-        }
-
-        .lit-navbar-memu {
-          width: calc(var(--tblr-offcanvas-width) - 80px);
+          width:calc(var(--tblr-offcanvas-width) - 80px)!important;
+          border-right: var(--tblr-offcanvas-border-width) solid #243049!important;
         }
 
         .lit-navar-close {
           position:fixed;
           top:0;
           left:calc(var(--tblr-offcanvas-width) - 80px);
-          z-index:1030;
+          z-index:var(--tblr-offcanvas-zindex);
           width: 80px;
         }
 
@@ -313,30 +317,44 @@ export class LayoutNavbar extends CustomElement {
           display: none;
         }
 
+        .lit-navbar-nav {
+          max-height:none!important;
+        }
+
         /* 屏蔽lg以下顶栏 */
         @media (max-width: 992px) {
           .lit-navbar {
-            max-height: 0px!important;
-            min-height: 0px!important;
+            max-height:0px!important;
+            min-height:0px!important;
             padding:0px!important;
             margin:0px!important;
           }
         }
+        
       </style>
-      <nav class="navbar navbar-vertical navbar-expand-lg navbar-dark fixed-top lit-navbar lit-navbar-hide-scrollbar">
-        <div class="container-fluid">
-          <div class="offcanvas offcanvas-start lit-navbar-canvas d-flex lit-navbar-hide-scrollbar" tabindex="-1" id="litLayoutNavbar">
-            <div class="d-flex flex-row flex-grow-1">
-              <div class="d-flex flex-column lit-navbar-background lit-navbar-memu">
-                <h1 class="mt-3" style="text-align:center;filter:brightness(0) invert(1)">
-                  <a href="javascript:ScrollToTop()">
-                    <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
-                  </a>
-                </h1>
-                <div class="navbar-collapse pb-3" id="navbar-menu">
-                  <ul class="navbar-nav pt-3">
-                    ${navbar_list.map((item) => (
-                    html`
+      <div class="container-fluid">
+        <div class="offcanvas offcanvas-start d-flex bg-dark lit-navbar-canvas" tabindex="-1" id="litLayoutNavbar">
+          <div class="lit-navar-close d-lg-none">
+            <button type="button" class="btn btn-lg btn-ghost-light" data-bs-dismiss="offcanvas" aria-label="Close">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M18 6l-12 12"></path>
+                <path d="M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="d-flex flex-row flex-grow-1 lit-navbar-hide-scrollbar">
+            <div class="d-flex flex-column flex-grow-1">
+              <h1 class="mt-3" style="text-align:center;filter:brightness(0) invert(1)">
+                <a href="javascript:ScrollToTop()">
+                  <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
+                </a>
+              </h1>
+              <div class="navbar-collapse py-2" id="navbar-menu">
+                <ul class="navbar-nav lit-navbar-nav">
+                  ${navbar_list.map((item) => ( html`
+                    ${this.layout_userpris.includes(item.name)
+                    ? html`
                       <li class="nav-item">
                         ${item.list?.length > 0
                         ? html`
@@ -346,7 +364,7 @@ export class LayoutNavbar extends CustomElement {
                               ${item.icon ?? nothing}
                             </span>
                             <span class="nav-link-title">
-                              ${item.name}
+                              ${item.also ?? item.name}
                             </span>
                           </a>
                           <div class="dropdown-menu">
@@ -354,7 +372,7 @@ export class LayoutNavbar extends CustomElement {
                             html`
                               <a class="dropdown-item" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
                                 @click=${ () => { navmenu(drop.page) }}>
-                                ${drop.name}
+                                ${drop.also ?? drop.name}
                               </a>`
                             ))}
                           </div>`
@@ -365,48 +383,39 @@ export class LayoutNavbar extends CustomElement {
                               ${item.icon ?? nothing}
                             </span>
                             <span class="nav-link-title">
-                              ${item.name}
+                              ${item.also ?? item.name}
                             </span>
                           </a>`
                         }
                       </li>`
-                    ))}
-                  </ul>
-                </div>
-                <div class="align-items-end align-self-center nav-item btn-list pb-3">
-                  <a href="https://github.com/jxxghp/nas-tools" class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "btn-dark text-muted"}" target="_blank" rel="noreferrer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24"
-                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
-                    </svg>
-                    V2.8.2 e704d14
-                    ${this._is_update
-                    ? html`
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines-filled ms-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z" fill="currentColor"></path>
-                        <path d="M9 21h6"></path>
-                        <path d="M9 18h6"></path>
-                      </svg>`
                     : nothing }
-                  </a>
-                </div>
+                  `))}
+                </ul>
               </div>
-              <div class="lit-navar-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close">
-                <button type="button" class="btn btn-lg btn-ghost-light" data-bs-dismiss="offcanvas" aria-label="Close">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <div class="align-items-end align-self-center nav-item btn-list pb-3">
+                <a href="https://github.com/jxxghp/nas-tools" class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "btn-dark text-muted"}" target="_blank" rel="noreferrer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24"
+                      viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M18 6l-12 12"></path>
-                    <path d="M6 6l12 12"></path>
+                    <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
                   </svg>
-                </button>
+                  V2.8.2 e704d14
+                  ${this._is_update
+                  ? html`
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines-filled ms-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z" fill="currentColor"></path>
+                      <path d="M9 21h6"></path>
+                      <path d="M9 18h6"></path>
+                    </svg>`
+                  : nothing }
+                </a>
               </div>
             </div>
           </div>
         </div>
-      </nav>
+      </div>
     `;
   }
 

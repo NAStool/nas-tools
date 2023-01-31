@@ -744,7 +744,7 @@ class ModuleConf(object):
                     "id": "jackett.host",
                     "required": True,
                     "title": "Jackett地址",
-                    "tooltip": "Jackett访问地址和端口，如为https需加https://前缀",
+                    "tooltip": "Jackett访问地址和端口，如为https需加https://前缀。注意需要先在Jackett中添加indexer，才能正常测试通过和使用",
                     "type": "text",
                     "placeholder": "http://127.0.0.1:9117"
                 },
@@ -776,7 +776,7 @@ class ModuleConf(object):
                     "id": "prowlarr.host",
                     "required": True,
                     "title": "Prowlarr地址",
-                    "tooltip": "Prowlarr访问地址和端口，如为https需加https://前缀",
+                    "tooltip": "Prowlarr访问地址和端口，如为https需加https://前缀。注意需要先在Prowlarr中添加搜刮器，同时勾选所有搜刮器后搜索一次，才能正常测试通过和使用",
                     "type": "text",
                     "placeholder": "http://127.0.0.1:9696"
                 },
