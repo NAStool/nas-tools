@@ -72,10 +72,7 @@ class WebUtils:
             doubanid = mediaid[3:]
             info = DouBan().get_douban_detail(doubanid=doubanid, mtype=mtype)
             if not info:
-                return {
-                    "code": 1,
-                    "msg": "无法查询到豆瓣信息"
-                }
+                return None
             title = info.get("title")
             original_title = info.get("original_title")
             year = info.get("year")
@@ -92,10 +89,7 @@ class WebUtils:
             bangumiid = str(mediaid)[3:]
             info = Bangumi().detail(bid=bangumiid)
             if not info:
-                return {
-                    "code": 1,
-                    "msg": "无法查询Bangumi信息"
-                }
+                return None
             title = info.get("name")
             title_cn = info.get("name_cn")
             year = info.get("date")[:4] if info.get("date") else ""
@@ -112,10 +106,7 @@ class WebUtils:
                                          mtype=mtype,
                                          append_to_response="all")
             if not info:
-                return {
-                    "code": 1,
-                    "msg": "无法查询TMDB信息"
-                }
+                return None
             media_info = MetaInfo(title=info.get("title") if mtype == MediaType.MOVIE else info.get("name"))
             media_info.set_tmdb_info(info)
 
