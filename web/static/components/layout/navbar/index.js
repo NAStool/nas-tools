@@ -265,11 +265,13 @@ const navbar_list = [
 
 export class LayoutNavbar extends CustomElement {
   static properties = {
+    layout_userpris: { attribute: "layout-userpris", type: Array },
     _is_update: { state: true },
   };
 
   constructor() {
     super();
+    this.layout_userpris = navbar_list.map((item) => (item.name));
     this._is_update = false;
     this.classList.add("navbar", "navbar-vertical", "navbar-expand-lg", "lit-navbar");
   }
@@ -335,42 +337,44 @@ export class LayoutNavbar extends CustomElement {
                 </h1>
                 <div class="navbar-collapse pb-3" id="navbar-menu">
                   <ul class="navbar-nav pt-3">
-                    ${navbar_list.map((item) => (
-                    html`
-                      <li class="nav-item">
-                        ${item.list?.length > 0
-                        ? html`
-                          <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
-                            role="button" aria-expanded="false">
-                            <span class="nav-link-icon">
-                              ${item.icon ?? nothing}
-                            </span>
-                            <span class="nav-link-title">
-                              ${item.name}
-                            </span>
-                          </a>
-                          <div class="dropdown-menu">
-                            ${item.list.map((drop) => (
-                            html`
-                              <a class="dropdown-item" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
-                                @click=${ () => { navmenu(drop.page) }}>
-                                ${drop.name}
-                              </a>`
-                            ))}
-                          </div>`
-                        : html`
-                          <a class="nav-link" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
-                            @click=${ () => { navmenu(item.page) }}>
-                            <span class="nav-link-icon">
-                              ${item.icon ?? nothing}
-                            </span>
-                            <span class="nav-link-title">
-                              ${item.name}
-                            </span>
-                          </a>`
-                        }
-                      </li>`
-                    ))}
+                    ${navbar_list.map((item) => ( html`
+                      ${this.layout_userpris.includes(item.name)
+                      ? html`
+                        <li class="nav-item">
+                          ${item.list?.length > 0
+                          ? html`
+                            <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                              role="button" aria-expanded="false">
+                              <span class="nav-link-icon">
+                                ${item.icon ?? nothing}
+                              </span>
+                              <span class="nav-link-title">
+                                ${item.also ?? item.name}
+                              </span>
+                            </a>
+                            <div class="dropdown-menu">
+                              ${item.list.map((drop) => (
+                              html`
+                                <a class="dropdown-item" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+                                  @click=${ () => { navmenu(drop.page) }}>
+                                  ${drop.also ?? drop.name}
+                                </a>`
+                              ))}
+                            </div>`
+                          : html`
+                            <a class="nav-link" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+                              @click=${ () => { navmenu(item.page) }}>
+                              <span class="nav-link-icon">
+                                ${item.icon ?? nothing}
+                              </span>
+                              <span class="nav-link-title">
+                                ${item.also ?? item.name}
+                              </span>
+                            </a>`
+                          }
+                        </li>`
+                      : nothing }
+                    `))}
                   </ul>
                 </div>
                 <div class="align-items-end align-self-center nav-item btn-list pb-3">
