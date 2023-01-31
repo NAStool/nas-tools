@@ -174,7 +174,7 @@ class Sync(object):
                 for m_path in self.sync_dir_config.keys():
                     if PathUtils.is_path_in_path(m_path, event_path):
                         monitor_dir = m_path
-                    if m_path == from_dir:
+                    if os.path.normpath(m_path) == os.path.normpath(from_dir):
                         is_root_path = True
 
                 # 查找目的目录
@@ -266,12 +266,18 @@ class Sync(object):
                     target_path = target_info.get('target')
                     unknown_path = target_info.get('unknown')
                     sync_mode = target_info.get('syncmod')
+                    # 判断是否根目录
+                    is_root_path = False
+                    for m_path in self.sync_dir_config.keys():
+                        if os.path.normpath(m_path) == os.path.normpath(src_path):
+                            is_root_path = True
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=src_path,
                                                                     files=files,
                                                                     target_dir=target_path,
                                                                     unknown_dir=unknown_path,
-                                                                    rmt_mode=sync_mode)
+                                                                    rmt_mode=sync_mode,
+                                                                    root_path=is_root_path)
                     if not ret:
                         log.warn("【Sync】%s转移失败：%s" % (path, ret_msg))
                 self._need_sync_paths.pop(path)
