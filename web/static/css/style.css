@@ -36,6 +36,10 @@ body, .page {
     padding-top: env(safe-area-inset-top) !important;
 }
 
+.lit-navar-close {
+    margin-top: env(safe-area-inset-top) !important;
+}
+
 @media (max-width: 992px) {
     .navbar ul.navbar-nav {
       overflow-y: auto;
