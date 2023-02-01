@@ -32,19 +32,8 @@ body, .page {
     box-shadow: none;
 }
 
-.navbar-vertical {
+.nav-search-bar {
     padding-top: env(safe-area-inset-top) !important;
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-}
-
-.navbar-expand-md {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
 }
 
 @media (max-width: 992px) {

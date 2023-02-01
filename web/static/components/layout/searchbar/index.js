@@ -53,7 +53,7 @@ export class LayoutSearchbar extends CustomElement {
 
   render() {
     return html`
-      <div class="container-fluid">
+      <div class="container-fluid nav-search-bar">
         <div class="d-flex flex-row flex-grow-1 align-items-center">
           <!-- 导航展开按钮 -->
           <layout-navbar-button></layout-navbar-button>
