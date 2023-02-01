@@ -764,7 +764,7 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">类型</label>
-              <select class="form-select" id="search_type">
+              <select class="form-select" id="advanced_search_type">
                 <option value="" selected>全部</option>
                 <option value="电影">电影</option>
                 <option value="电视剧">电视剧</option>
@@ -774,20 +774,20 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label required">名称</label>
-              <input type="text" value="" id="search_name" class="form-control"
+              <input type="text" value="" id="advanced_search_name" class="form-control"
                      placeholder="电影/电视剧名称">
             </div>
           </div>
           <div class="col-12 col-lg-2">
             <div class="mb-3">
               <label class="form-label">年份</label>
-              <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
+              <input type="text" value="" id="advanced_search_year" class="form-control" placeholder="20xx">
             </div>
           </div>
           <div class="col-12 col-lg-2">
             <div class="mb-3">
               <label class="form-label">季</label>
-              <select class="form-select" id="search_season">
+              <select class="form-select" id="advanced_search_season">
                 <option value="" selected>全部</option>
               </select>
             </div>
@@ -797,7 +797,7 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">站点</label>
-              <select class="form-select" id="search_site">
+              <select class="form-select" id="advanced_search_site">
                 <option value="" selected>全部</option>
                 {% for site in Indexers %}
                   <option value="{{ site.name }}">{{ site.name }}</option>
@@ -808,7 +808,7 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">质量</label>
-              <select class="form-select" id="search_restype">
+              <select class="form-select" id="advanced_search_restype">
                 <option value="" selected>全部</option>
                 {% for Restype in RestypeDict %}
                   <option value="{{ Restype }}">{{ Restype }}</option>
@@ -819,7 +819,7 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">分辨率</label>
-              <select class="form-select" id="search_pix">
+              <select class="form-select" id="advanced_search_pix">
                 <option value="" selected>全部</option>
                 {% for Pix in PixDict %}
                   <option value="{{ Pix }}">{{ Pix }}</option>
@@ -830,7 +830,7 @@
           <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">促销</label>
-              <select class="form-select" id="sp_state">
+              <select class="form-select" id="advanced_sp_state">
                 <option value="* *" selected>全部</option>
                 <option value="1.0 1.0">普通</option>
                 <option value="1.0 0.0">免费</option>
@@ -845,9 +845,8 @@
           </div>
           <div class="col-12 col-lg-8">
             <div class="mb-3">
-              <label class="form-label">自定义</label>
-              <input type="text" value="" id="search_key" class="form-control"
-                     placeholder="自定义过滤规则">
+              <label class="form-label">过滤规则</label>
+              <select id="advanced_search_rule" class="form-control"></select>
             </div>
           </div>
         </div>
@@ -1591,6 +1590,19 @@
     }, aync);
   }
 
+
+  function refresh_site_options(obj_id) {
+    ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
+      if (ret.code === 0) {
+        let site_options = '';
+        for (let indexer of ret.indexers) {
+          site_options += `<option value="${indexer.name}">${indexer.name}</option>`;
+        }
+        $(`#${obj_id}`).empty().append(site_options);
+      }
+    });
+  }
+
   // 刷新保存路径
   function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = false, site="") {
     let savepath_select = $(`#${obj_id}`);
@@ -1697,29 +1709,30 @@
 
   // 显示高级搜索框
   function show_search_advanced_modal() {
+    refresh_site_options("advanced_search_site");
+    refresh_filter_select("advanced_search_rule");
     $("#modal-search-advanced").modal("show");
   }
 
   // 开始高级搜索
   function search_media_advanced() {
     let keyword;
-    $("#search_icon").attr("disabled", "true");
     // 读取数据
-    const search_name = $("#search_name").val();
+    const search_name = $("#advanced_search_name").val();
     if (!search_name) {
-      $("#search_name").addClass("is-invalid");
+      $("#advanced_search_name").addClass("is-invalid");
       return;
     } else {
-      $("#search_name").removeClass("is-invalid");
+      $("#advanced_search_name").removeClass("is-invalid");
     }
-    const search_type = $("#search_type").val();
-    const search_season = $("#search_season").val();
-    const search_year = $("#search_year").val();
-    const search_site = $("#search_site").val();
-    const search_restype = $("#search_restype").val();
-    const search_pix = $("#search_pix").val();
-    const sp_state = $("#sp_state").val();
-    const search_key = $("#search_key").val();
+    const search_type = $("#advanced_search_type").val();
+    const search_season = $("#advanced_search_season").val();
+    const search_year = $("#advanced_search_year").val();
+    const search_site = $("#advanced_search_site").val();
+    const search_restype = $("#advanced_search_restype").val();
+    const search_pix = $("#advanced_search_pix").val();
+    const sp_state = $("#advanced_sp_state").val();
+    const search_rule = $("#advanced_search_rule").val();
     // 拼装请求
     if (search_type) {
       keyword = search_type + " " + search_name;
@@ -1737,7 +1750,7 @@
       "restype": search_restype,
       "pix": search_pix,
       "sp_state": sp_state,
-      "key": search_key
+      "rule": search_rule
     };
     const param = {"search_word": keyword, "filters": filters, "unident": true};
     $("#modal-search-advanced").modal("hide");
@@ -2122,7 +2135,7 @@
       }
     }
     $("#rename_season").empty().append(rename_season_content);
-    $("#search_season").empty().append(search_season_content);
+    $("#advanced_search_season").empty().append(search_season_content);
   }
 
 </script>
