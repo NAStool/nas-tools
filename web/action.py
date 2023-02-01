@@ -49,6 +49,7 @@ class WebAction:
     dbhelper = None
     _actions = {}
     _MovieTypes = ['MOV', '电影']
+    _TvTypes = ['TV', '电视剧']
 
     def __init__(self):
         self.dbhelper = DbHelper()
@@ -700,10 +701,10 @@ class WebAction:
         episode_details = data.get("episode_details")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
-        if mtype == "TV":
-            media_type = MediaType.TV
-        elif mtype == "MOV":
+        if mtype in self._MovieTypes:
             media_type = MediaType.MOVIE
+        elif mtype in self._TvTypes:
+            media_type = MediaType.TV
         else:
             media_type = MediaType.ANIME
         # 如果改次手动修复时一个单文件，自动修复改目录下同名文件，需要配合episode_format生效
@@ -712,53 +713,34 @@ class WebAction:
             path = os.path.dirname(path)
             need_fix_all = True
         # 开始转移
-        if tmdbid:
-            tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
-            if not tmdb_info:
-                return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
-            succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                               in_path=path,
-                                                               rmt_mode=syncmod,
-                                                               target_dir=dest_dir,
-                                                               tmdb_info=tmdb_info,
-                                                               media_type=media_type,
-                                                               season=season,
-                                                               episode=(EpisodeFormat(episode_format,
-                                                                                      episode_details,
-                                                                                      episode_offset),
-                                                                        need_fix_all),
-                                                               min_filesize=min_filesize)
-        else:
-            succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                               in_path=path,
-                                                               rmt_mode=syncmod,
-                                                               target_dir=dest_dir,
-                                                               media_type=media_type,
-                                                               episode=(EpisodeFormat(episode_format,
-                                                                                      episode_details,
-                                                                                      episode_offset),
-                                                                        need_fix_all),
-                                                               min_filesize=min_filesize)
+        succ_flag, ret_msg = self.__manual_transfer(inpath=path,
+                                                    syncmod=syncmod,
+                                                    outpath=dest_dir,
+                                                    media_type=media_type,
+                                                    episode_format=episode_format,
+                                                    episode_details=episode_details,
+                                                    episode_offset=episode_offset,
+                                                    need_fix_all=need_fix_all,
+                                                    min_filesize=min_filesize,
+                                                    tmdbid=tmdbid,
+                                                    season=season)
         if succ_flag:
             if not need_fix_all and not logid:
+                # 更新记录状态
                 self.dbhelper.update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
 
-    @staticmethod
-    def __rename_udf(data):
+    def __rename_udf(self, data):
         """
         自定义识别
         """
-        inpath = os.path.normpath(data.get("inpath"))
-        if data.get("outpath"):
-            outpath = os.path.normpath(data.get("outpath"))
-        else:
-            outpath = None
-        syncmod = ModuleConf.RMT_MODES.get(data.get("syncmod"))
+        inpath = data.get("inpath")
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
+        outpath = data.get("outpath")
+        syncmod = ModuleConf.RMT_MODES.get(data.get("syncmod"))
         tmdbid = data.get("tmdb")
         mtype = data.get("type")
         season = data.get("season")
@@ -766,17 +748,54 @@ class WebAction:
         episode_details = data.get("episode_details")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
-        if mtype == "TV" or mtype == MediaType.TV.value:
-            media_type = MediaType.TV
-        elif mtype == "MOV" or mtype == MediaType.MOVIE.value:
+        if mtype in self._MovieTypes:
             media_type = MediaType.MOVIE
+        elif mtype in self._TvTypes:
+            media_type = MediaType.TV
         else:
             media_type = MediaType.ANIME
+        # 开始转移
+        succ_flag, ret_msg = self.__manual_transfer(inpath=inpath,
+                                                    syncmod=syncmod,
+                                                    outpath=outpath,
+                                                    media_type=media_type,
+                                                    episode_format=episode_format,
+                                                    episode_details=episode_details,
+                                                    episode_offset=episode_offset,
+                                                    min_filesize=min_filesize,
+                                                    tmdbid=tmdbid,
+                                                    season=season)
+        if succ_flag:
+            return {"retcode": 0, "retmsg": "转移成功"}
+        else:
+            return {"retcode": 2, "retmsg": ret_msg}
+
+    @staticmethod
+    def __manual_transfer(inpath,
+                          syncmod,
+                          outpath=None,
+                          media_type=None,
+                          episode_format=None,
+                          episode_details=None,
+                          episode_offset=None,
+                          min_filesize=None,
+                          tmdbid=None,
+                          season=None,
+                          need_fix_all=False
+                          ):
+        """
+        开始手工转移文件
+        """
+        inpath = os.path.normpath(inpath)
+        if outpath:
+            outpath = os.path.normpath(outpath)
+        if not os.path.exists(inpath):
+            return False, "输入路径不存在"
         if tmdbid:
             # 有输入TMDBID
             tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
             if not tmdb_info:
-                return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
+                return False, "识别失败，无法查询到TMDB信息"
             # 按识别的信息转移
             succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                                in_path=inpath,
@@ -789,7 +808,7 @@ class WebAction:
                                                                    EpisodeFormat(episode_format,
                                                                                  episode_details,
                                                                                  episode_offset),
-                                                                   False),
+                                                                   need_fix_all),
                                                                min_filesize=min_filesize,
                                                                udf_flag=True)
         else:
@@ -803,13 +822,10 @@ class WebAction:
                                                                    EpisodeFormat(episode_format,
                                                                                  episode_details,
                                                                                  episode_offset),
-                                                                   False),
+                                                                   need_fix_all),
                                                                min_filesize=min_filesize,
                                                                udf_flag=True)
-        if succ_flag:
-            return {"retcode": 0, "retmsg": "转移成功"}
-        else:
-            return {"retcode": 2, "retmsg": ret_msg}
+        return succ_flag, ret_msg
 
     def __delete_history(self, data):
         """

@@ -873,7 +873,6 @@
               <input type="hidden" id="rename_manual_type">
               <input type="hidden" id="unknown_id">
               <input type="hidden" id="transferlog_id" class="form-control">
-              <div class="invalid-feedback" id="rename_retmsg"></div>
             </div>
           </div>
           <div class="col-lg-3">
@@ -892,7 +891,6 @@
           <input type="text" id="rename_inpath" class="form-control filetree-folders-only"
                  placeholder="需要转移的目录或文件"
                  autocomplete="off">
-          <div class="invalid-feedback" id="rename_udf_retmsg"></div>
         </div>
         <div class="row" id="rename_outpath_div">
           <div class="col-lg-9">
@@ -1244,11 +1242,11 @@
   // 刷新进度
   let refresh_process_flag = false;
   let refresh_fail_count = 0;
-  function refresh_process() {
+  function refresh_process(type) {
     if (!refresh_process_flag) {
       return;
     }
-    ajax_post("refresh_process", {type: "search"}, function (ret) {
+    ajax_post("refresh_process", {type: type}, function (ret) {
       if (ret.code === 0 && ret.value <= 100) {
         $("#modal_process_bar").attr("style", "width: " + ret.value + "%").attr("aria-valuenow", ret.value);
         $("#modal_process_text").text(ret.text);
@@ -1256,13 +1254,13 @@
         refresh_fail_count = refresh_fail_count + 1;
       }
       if (refresh_fail_count < 5) {
-        setTimeout("refresh_process()", 200);
+        setTimeout("refresh_process('"+type+"')", 200);
       }
     }, true, false);
   }
 
   // 显示全局进度框
-  function show_refresh_process(title) {
+  function show_refresh_process(title, type) {
     if (title) {
       $("#modal_process_title").text(title);
     } else {
@@ -1274,7 +1272,7 @@
     //刷新进度
     refresh_process_flag = true;
     refresh_fail_count = 0;
-    refresh_process();
+    refresh_process(type);
   }
 
   // 关闭全局进度框
@@ -1346,7 +1344,7 @@
   //搜索
   function media_search(tmdbid, title, type) {
     const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
-    show_refresh_process("正在搜索 " + title + " ...");
+    show_refresh_process("正在搜索 " + title + " ...", "search");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
@@ -1554,7 +1552,7 @@
   function search_mediainfo_media(tmdbid, title, typestr) {
     hide_mediainfo_modal();
     const param = {"tmdbid": tmdbid, "search_word": title, "media_type": typestr};
-    show_refresh_process("正在搜索 " + title + " ...");
+    show_refresh_process("正在搜索 " + title + " ...", "search");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
@@ -2089,7 +2087,7 @@
     };
     const param = {"search_word": keyword, "filters": filters, "unident": true};
     $("#modal-search-advanced").modal("hide");
-    show_refresh_process(`正在搜索 ${keyword} ...`);
+    show_refresh_process(`正在搜索 ${keyword} ...`, "search");
     ajax_post("search", param, function (ret) {
       hide_refresh_process();
       if (ret.code === 0) {
@@ -2385,26 +2383,20 @@
       "path": path,
       "logid": logid
     };
-    $("#identification_action_btn").attr("disabled", true).text("处理中...");
-    $("#rename_udf_retmsg").hide()
-    $("#rename_retmsg").hide()
+    $('#modal-media-identification').modal('hide');
+    show_refresh_process("正在转移 " + inpath + " ...", "filetransfer");
     let cmd = (manual_type === '3') ? "rename_udf" : "rename"
     ajax_post(cmd, data, function (ret) {
-      $("#identification_action_btn").attr("disabled", false).text("转移");
+      hide_refresh_process();
       if (ret.retcode === 0) {
-        $('#modal-media-identification').modal('hide');
-        show_success_modal("处理成功！", function () {
+        show_success_modal(inpath + "处理成功！", function () {
           navmenu(source);
         });
       } else {
         //处理失败
-        if (manual_type == '3') {
-          $("#rename_udf_retmsg").show()
-              .text(ret.retmsg)
-        } else {
-          $("#rename_retmsg").show()
-              .text(ret.retmsg)
-        }
+        show_fail_modal(ret.retmsg, function(){
+          $('#modal-media-identification').modal('show');
+        });
       }
     });
   }
