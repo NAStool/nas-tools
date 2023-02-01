@@ -333,7 +333,7 @@ export class LayoutNavbar extends CustomElement {
         
       </style>
       <div class="container-fluid">
-        <div class="offcanvas offcanvas-start d-flex bg-dark lit-navbar-canvas py-2" tabindex="-1" id="litLayoutNavbar">
+        <div class="offcanvas offcanvas-start d-flex bg-dark lit-navbar-canvas" tabindex="-1" id="litLayoutNavbar">
           <div class="lit-navar-close d-lg-none">
             <button type="button" class="btn btn-lg btn-ghost-light" data-bs-dismiss="offcanvas" aria-label="Close">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
