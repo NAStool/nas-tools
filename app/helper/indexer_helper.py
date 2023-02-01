@@ -78,43 +78,42 @@ class IndexerConf(object):
                  chrome=True):
         if not datas:
             return
-        self.datas = datas
-        self.id = self.datas.get('id')
-        self.name = self.datas.get('name') if not name else name
-        self.domain = self.datas.get('domain')
-        self.userinfo = self.datas.get('userinfo', {})
-        self.search = self.datas.get('search', {})
-        self.browse = self.datas.get('browse', {})
-        self.torrents = self.datas.get('torrents', {})
-        self.category_mappings = self.datas.get('category_mappings', [])
+        # ID
+        self.id = datas.get('id')
+        # 名称
+        self.name = datas.get('name') if not name else name
+        # 是否内置站点
+        self.builtin = builtin
+        # 域名
+        self.domain = datas.get('domain')
+        # 搜索
+        self.search = datas.get('search', {})
+        # 批量搜索，如果为空对象则表示不支持批量搜索
+        self.batch = self.search.get("batch", {}) if builtin else {}
+        # 浏览
+        self.browse = datas.get('browse', {})
+        # 种子过滤
+        self.torrents = datas.get('torrents', {})
+        # 分类
+        self.category = datas.get('category', {})
+        # Cookie
         self.cookie = cookie
-        self.rule = rule
-        self.public = public
-        self.proxy = proxy
-        if parser is not None:
-            self.parser = parser
-        else:
-            self.parser = self.datas.get('parser')
+        # User-Agent
         self.ua = ua
+        # 过滤规则
+        self.rule = rule
+        # 是否公开站点
+        self.public = public
+        # 是否使用代理
+        self.proxy = proxy
+        # 解析器
+        self.parser = parser if parser is not None else datas.get('parser')
+        # 是否启用渲染
         if not chrome:
             self.render = False
         else:
-            if render is not None:
-                self.render = render
-            else:
-                self.render = True if self.datas.get("render") else False
-        self.builtin = builtin
+            self.render = render if render is not None else datas.get("render")
+        # 仅支持的特定语种
         self.language = language
+        # 索引器优先级
         self.pri = pri if pri else 0
-
-    def get_userinfo(self):
-        return self.userinfo
-
-    def get_search(self):
-        return self.search
-
-    def get_torrents(self):
-        return self.torrents
-
-    def get_category_mapping(self):
-        return self.category_mappings

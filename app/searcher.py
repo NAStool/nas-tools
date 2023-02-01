@@ -32,7 +32,7 @@ class Searcher:
         self._search_auto = Config().get_config("pt").get('search_auto', True)
 
     def search_medias(self,
-                      key_word,
+                      key_word: [str, list],
                       filter_args: dict,
                       match_media=None,
                       in_from: SearchType = None):

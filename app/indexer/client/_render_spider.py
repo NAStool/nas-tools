@@ -28,11 +28,17 @@ class RenderSpider(object):
         self.torrents_info_array = []
         self.result_num = Config().get_config('pt').get('site_search_result_num') or 100
 
-    def search(self, keyword, indexer, page=None):
+    def search(self, keyword, indexer, page=None, mtype=None):
+        """
+        开始搜索
+        """
+
         if not indexer:
             return []
         if not keyword:
             keyword = ""
+        if isinstance(keyword, list):
+            keyword = " ".join(keyword)
         chrome = ChromeHelper()
         if not chrome.get_status():
             return []
@@ -96,7 +102,7 @@ class RenderSpider(object):
             if not cloudflare:
                 return []
         # 等待页面加载完成
-        time.sleep(10)
+        time.sleep(5)
         # 获取HTML文本
         html_text = chrome.get_html()
         if not html_text:
@@ -108,7 +114,8 @@ class RenderSpider(object):
         self.torrentspider.setparam(keyword=keyword,
                                     indexer=indexer,
                                     referer=referer,
-                                    page=page)
+                                    page=page,
+                                    mtype=mtype)
         # 种子筛选器
         torrents_selector = indexer.torrents.get('list', {}).get('selector', '')
         if not torrents_selector:

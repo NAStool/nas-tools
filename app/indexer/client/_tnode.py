@@ -58,7 +58,7 @@ class TNodeSpider(object):
             "sorter": "id",
             "order": "desc",
             "tags": [],
-            "category": [],
+            "category": [501, 502, 503, 504],
             "medium": [],
             "videoCoding": [],
             "audioCoding": [],

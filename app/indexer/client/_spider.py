@@ -10,6 +10,7 @@ import feapder
 import log
 from app.utils import StringUtils, SystemUtils
 from app.utils.exception_utils import ExceptionUtils
+from app.utils.types import MediaType
 from config import Config
 from feapder.utils.tools import urlencode
 
@@ -37,36 +38,71 @@ class TorrentSpider(feapder.AirSpider):
             custom_argument=["--ignore-certificate-errors"],
         )
     )
+    # 是否检索完成标志
     is_complete = False
+    # 索引器ID
     indexerid = None
+    # 索引器名称
     indexername = None
-    cookie = None
-    ua = None
-    proxies = None
-    render = False
-    keyword = None
-    indexer = None
-    search = None
-    browse = None
+    # 站点域名
     domain = None
-    torrents = None
-    article_list = None
-    fields = None
+    # 站点Cookie
+    cookie = None
+    # 站点UA
+    ua = None
+    # 代理
+    proxies = None
+    # 是否渲染
+    render = False
+    # Referer
     referer = None
+    # 检索关键字
+    keyword = None
+    # 媒体类型
+    mtype = None
+    # 检索路径、方式配置
+    search = {}
+    # 批量检索配置
+    batch = {}
+    # 浏览配置
+    browse = {}
+    # 站点分类配置
+    category = {}
+    # 站点种子列表配置
+    list = {}
+    # 站点种子字段配置
+    fields = {}
+    # 页码
     page = 0
+    # 检索条数
     result_num = 100
     torrents_info = {}
     torrents_info_array = []
 
-    def setparam(self, indexer, keyword=None, page=None, referer=None):
+    def setparam(self, indexer,
+                 keyword: [str, list] = None,
+                 page=None,
+                 referer=None,
+                 mtype: MediaType = None):
+        """
+        设置查询参数
+        :param indexer: 索引器
+        :param keyword: 检索关键字，如果数组则为批量检索
+        :param page: 页码
+        :param referer: Referer
+        :param mtype: 媒体类型
+        """
         if not indexer:
             return
         self.keyword = keyword
+        self.mtype = mtype
         self.indexerid = indexer.id
         self.indexername = indexer.name
         self.search = indexer.search
+        self.batch = indexer.batch
         self.browse = indexer.browse
-        self.torrents = indexer.torrents
+        self.category = indexer.category
+        self.list = indexer.torrents.get('list', {})
         self.fields = indexer.torrents.get('fields')
         self.render = indexer.render
         self.domain = indexer.domain
@@ -87,46 +123,117 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info_array = []
 
     def start_requests(self):
+        """
+        开始请求
+        """
+
         if not self.search or not self.domain:
             self.is_complete = True
             return
-        # 种子路径，只支持GET方式
-        torrentspath = self.search.get('paths', [{}])[0].get('path', '')
+
+        # 种子搜索相对路径
+        paths = self.search.get('paths', [])
+        torrentspath = ""
+        if len(paths) == 1:
+            torrentspath = paths[0].get('path', '')
+        else:
+            for path in paths:
+                if path.get("type") == "all" and not self.mtype:
+                    torrentspath = path.get('path')
+                    break
+                elif path.get("type") == "movie" and self.mtype == MediaType.MOVIE:
+                    torrentspath = path.get('path')
+                    break
+                elif path.get("type") == "tv" and self.mtype == MediaType.TV:
+                    torrentspath = path.get('path')
+                    break
+                elif path.get("type") == "anime" and self.mtype == MediaType.ANIME:
+                    torrentspath = path.get('path')
+                    break
+
         # 关键字搜索
         if self.keyword:
-            if torrentspath.find("{keyword}") != -1:
-                searchurl = self.domain + \
-                            torrentspath.replace("{keyword}",
-                                                 quote(self.keyword))
+
+            if isinstance(self.keyword, list):
+                # 批量查询
+                if self.batch:
+                    delimiter = self.batch.get('delimiter') or ' '
+                    space_replace = self.batch.get('space_replace') or ' '
+                    search_word = delimiter.join([str(k).replace(' ', space_replace) for k in self.keyword])
+                else:
+                    search_word = " ".join(self.keyword)
+                # 查询模式：或
+                search_mode = "1"
             else:
-                searchurl = self.domain + \
-                            torrentspath + \
-                            '?stypes=s&' + \
-                            urlencode({
-                                "search": self.keyword,
-                                "search_field": self.keyword,
-                                "keyword": self.keyword
+                # 单个查询
+                search_word = self.keyword
+                # 查询模式与
+                search_mode = "0"
+
+            # 检索URL
+            if self.search.get("params"):
+                # 变量字典
+                inputs_dict = {
+                    "keyword": search_word
+                }
+                # 查询参数
+                params = {
+                    "search_mode": search_mode,
+                    "page": self.page or 0
+                }
+                # 额外参数
+                for key, value in self.search.get("params").items():
+                    params.update({
+                        "%s" % key: str(value).format(**inputs_dict)
+                    })
+                # 分类条件
+                if self.category:
+                    if self.mtype == MediaType.MOVIE:
+                        cats = self.category.get("movie") or []
+                    elif self.mtype:
+                        cats = self.category.get("tv") or []
+                    else:
+                        cats = self.category.get("movie") or [] + self.category.get("tv") or []
+                    for cat in cats:
+                        if self.category.get("field"):
+                            value = params.get(self.category.get("field"), "")
+                            params.update({
+                                "%s" % self.category.get("field"): value + self.category.get("delimiter", ' ') + cat.get("id")
                             })
+                        else:
+                            params.update({
+                                "%s" % cat.get("id"): 1
+                            })
+                searchurl = self.domain + torrentspath + "?" + urlencode(params)
+            else:
+                # 变量字典
+                inputs_dict = {
+                    "keyword": quote(search_word),
+                    "page": self.page or 0
+                }
+                # 无额外参数
+                searchurl = self.domain + str(torrentspath).format(**inputs_dict)
+
         # 列表浏览
         else:
-            torrentspath = torrentspath.replace("{keyword}", "")
-            pagestart = 0
+            # 变量字典
+            inputs_dict = {
+                "page": self.page or 0,
+                "keyword": ""
+            }
             # 有单独浏览路径
             if self.browse:
                 torrentspath = self.browse.get("path")
-                pagestart = self.browse.get("start") or 0
-            if self.page is not None:
-                if torrentspath.find("{page}") != -1:
-                    searchurl = self.domain + \
-                                torrentspath.replace("{page}",
-                                                     str(int(self.page) + pagestart))
-                else:
-                    searchurl = self.domain + \
-                                torrentspath + \
-                                "?page=%s" % (int(self.page) + pagestart)
-            else:
-                searchurl = self.domain + torrentspath
+                if self.browse.get("start"):
+                    inputs_dict.update({
+                        "page": self.browse.get("start")
+                    })
+            elif self.page:
+                torrentspath = torrentspath + f"?page={self.page}"
+            # 检索Url
+            searchurl = self.domain + str(torrentspath).format(**inputs_dict)
 
+        log.info(f"【Spider】开始请求：{searchurl}")
         yield feapder.Request(url=searchurl,
                               use_session=True,
                               render=self.render)
@@ -505,12 +612,15 @@ class TorrentSpider(feapder.AirSpider):
         解析整个页面
         """
         try:
-            # 获取网站文本
-            self.article_list = response.extract()
-            # 获取站点种子xml
-            html_doc = PyQuery(self.article_list)
+            # 获取站点文本
+            html_text = response.extract()
+            if not html_text:
+                self.is_complete = True
+                return
+            # 解析站点文本对象
+            html_doc = PyQuery(html_text)
             # 种子筛选器
-            torrents_selector = self.torrents.get('list', {}).get('selector', '')
+            torrents_selector = self.list.get('selector', '')
             str_list = list(torrents_selector)
             # 兼容选择器中has()函数 部分情况下无双引号会报错
             has_index = torrents_selector.find('has')
