@@ -583,7 +583,7 @@ class FileTransfer:
                 # 文件名
                 file_name = os.path.basename(file_item)
                 # 更新进度
-                self.progress.update(ptype="filetransfer", value=round(total_count/len(Medias)), text="正在处理：%s" % file_name)
+                self.progress.update(ptype="filetransfer", value=round(total_count/len(Medias) * 100), text="正在处理：%s" % file_name)
 
                 # 数据库记录的路径
                 if bluray_disk_dir:
