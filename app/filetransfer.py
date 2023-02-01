@@ -466,6 +466,7 @@ class FileTransfer:
                 self.progress.update(ptype="filetransfer",
                                      value=100,
                                      text=f"{in_path} 转移失败：{message}！")
+            self.progress.end('filetransfer')
             return status, message
 
         # 开始进度
@@ -555,6 +556,9 @@ class FileTransfer:
             log.error("【Rmt】检索媒体信息出错！")
             return __finish_transfer(False, "检索媒体信息出错")
 
+        # 更新进度
+        self.progress.update(ptype="filetransfer", text=f"共 {len(Medias)} 个文件需要处理...")
+
         # 统计总的文件数、失败文件数、需要提醒的失败数
         failed_count = 0
         alert_count = 0
@@ -579,7 +583,7 @@ class FileTransfer:
                 # 文件名
                 file_name = os.path.basename(file_item)
                 # 更新进度
-                self.progress.update(value=round(total_count/len(Medias)), text="正在处理：%s" % file_name)
+                self.progress.update(ptype="filetransfer", value=round(total_count/len(Medias)), text="正在处理：%s" % file_name)
 
                 # 数据库记录的路径
                 if bluray_disk_dir:
@@ -591,7 +595,7 @@ class FileTransfer:
                     log.warn("【Rmt】%s 无法识别媒体信息！" % file_name)
                     success_flag = False
                     error_message = "无法识别媒体信息"
-                    self.progress.update(text=error_message)
+                    self.progress.update(ptype="filetransfer", text=error_message)
                     if udf_flag:
                         return __finish_transfer(success_flag, error_message)
                     # 记录未识别
@@ -666,7 +670,7 @@ class FileTransfer:
                                 if ret != 0:
                                     success_flag = False
                                     error_message = "文件转移失败，错误码 %s" % ret
-                                    self.progress.update(text=error_message)
+                                    self.progress.update(ptype="filetransfer", text=error_message)
                                     if udf_flag:
                                         return __finish_transfer(success_flag, error_message)
                                     failed_count += 1
@@ -689,7 +693,7 @@ class FileTransfer:
                         log.error("【Rmt】拼装目录路径错误，无法从文件名中识别出季集信息：%s" % file_item)
                         success_flag = False
                         error_message = "识别失败，无法从文件名中识别出季集信息"
-                        self.progress.update(text=error_message)
+                        self.progress.update(ptype="filetransfer", text=error_message)
                         if udf_flag:
                             return __finish_transfer(success_flag, error_message)
                         # 记录未识别
@@ -711,7 +715,7 @@ class FileTransfer:
                     if ret != 0:
                         success_flag = False
                         error_message = "蓝光目录转移失败，错误码：%s" % ret
-                        self.progress.update(text=error_message)
+                        self.progress.update(ptype="filetransfer", text=error_message)
                         if udf_flag:
                             return __finish_transfer(success_flag, error_message)
                         failed_count += 1
@@ -726,7 +730,7 @@ class FileTransfer:
                             log.error("【Rmt】拼装文件路径错误，无法从文件名中识别出集数：%s" % file_item)
                             success_flag = False
                             error_message = "识别失败，无法从文件名中识别出集数"
-                            self.progress.update(text=error_message)
+                            self.progress.update(ptype="filetransfer", text=error_message)
                             if udf_flag:
                                 return __finish_transfer(success_flag, error_message)
                             # 记录未识别
@@ -746,7 +750,7 @@ class FileTransfer:
                         if ret != 0:
                             success_flag = False
                             error_message = "文件转移失败，错误码 %s" % ret
-                            self.progress.update(text=error_message)
+                            self.progress.update(ptype="filetransfer", text=error_message)
                             if udf_flag:
                                 return __finish_transfer(success_flag, error_message)
                             failed_count += 1
