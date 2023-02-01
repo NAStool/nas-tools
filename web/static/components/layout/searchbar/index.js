@@ -60,7 +60,7 @@ export class LayoutSearchbar extends CustomElement {
           <!-- 搜索栏 -->
           <div class="input-group input-group-flat mx-2">
             <span class="input-group-text form-control-rounded">
-              <a href="#" class="link-secondary" data-bs-toggle="tooltip" title="切换搜索源（豆瓣/TMDB）" aria-label="切换搜索源（豆瓣/TMDB）" data-bs-original-title="切换搜索源（豆瓣/TMDB）"
+              <a href="#" class="link-secondary"
                 @click=${ () => {
                   this._search_source = this._search_source === "tmdb" ? "douban" : "tmdb";
                   localStorage.setItem("SearchSource", this._search_source);
@@ -75,7 +75,7 @@ export class LayoutSearchbar extends CustomElement {
                 }
               }}>
             <span class="input-group-text form-control-rounded">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary" data-bs-toggle="tooltip" title="高级搜索" aria-label="高级搜索" data-bs-original-title="高级搜索">
+              <a href="javascript:show_search_advanced_modal()" class="link-secondary">
                 <!-- http://tabler-icons.io/i/adjustments -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
