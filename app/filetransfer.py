@@ -580,10 +580,13 @@ class FileTransfer:
                     if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
                         log.warn("【Rmt】%s 可能是预告片，跳过..." % file_item)
                         continue
+
                 # 文件名
                 file_name = os.path.basename(file_item)
                 # 更新进度
-                self.progress.update(ptype="filetransfer", value=round(total_count/len(Medias) * 100), text="正在处理：%s" % file_name)
+                self.progress.update(ptype="filetransfer",
+                                     value=round(total_count/len(Medias) * 100) - (0.5/len(Medias) * 100),
+                                     text="正在处理：%s ..." % file_name)
 
                 # 数据库记录的路径
                 if bluray_disk_dir:
@@ -818,6 +821,10 @@ class FileTransfer:
                                                    scraper_pic=self._scraper_pic,
                                                    dir_path=ret_dir_path,
                                                    file_name=os.path.basename(ret_file_path))
+                # 更新进度
+                self.progress.update(ptype="filetransfer",
+                                     value=round(total_count / len(Medias) * 100),
+                                     text="%s 转移完成" % file_name)
                 # 移动模式随机休眠（兼容一些网盘挂载目录）
                 if rmt_mode == RmtMode.MOVE:
                     sleep(round(random.uniform(0, 1), 1))
