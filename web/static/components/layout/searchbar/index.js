@@ -47,33 +47,61 @@ export class LayoutSearchbar extends CustomElement {
 
   firstUpdated() {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
+    // 当前状态：是否模糊
     let blur = false;
+    let blur_filter = "backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);";
+    let bg_black = "29,39,59";
+    let bg_white = "200,200,200";
+    // 当前状态：是否黑色
+    let dark = localStorage.getItem("tablerTheme") === "dark";
     const page_wrapper = document.querySelector(".page-wrapper");
+
     const _change_blur = () => {
-      if (!this._chang_color) {
-        if (!blur && page_wrapper.scrollTop >= 5) {
-          blur = true;
-          this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);`);
-        } else if (blur && page_wrapper.scrollTop < 5) {
-          blur = false
+      // 滚动发生时改变模糊状态
+      if (!blur && page_wrapper.scrollTop >= 5) {
+        // 模糊状态
+        blur = true;
+        // 背景色要根据是否黑色决定
+        const bg_color = dark ? `rgba(${bg_black},0.8)` : `rgba(${bg_white},0.8)`
+        this.setAttribute("style",`background-color: ${bg_color} !important; ${blur_filter}`);
+      } else if (blur && page_wrapper.scrollTop < 5) {
+        // 非模糊状态
+        blur = false
+        if (!dark) {
           this.removeAttribute("style");
-        };
+        } else {
+          this.setAttribute("style",`background-color: rgba(${bg_black},1)!important; ${blur_filter}`);
+        }
       }
     };
     page_wrapper.addEventListener("scroll", _change_blur);
+
     // 修改顶栏颜色
     const _changeColor = () => {
+      // 调整窗口大小时改变背景颜色
       const window_width = document.documentElement.clientWidth || document.body.clientWidth;
+      // 当前非模糊状态时不透明，否则透明
       const opacity = blur ? 0.8 : 1;
-      const is_dark = localStorage.getItem("tablerTheme") === "dark";
-      if (window_width < 992 && !is_dark && !this._chang_color) {
-        this._chang_color = true;
+      if (window_width < 992 && !dark) {
+        // lg以下
         this.classList.add("theme-dark");
-        this.setAttribute("style",`background-color: rgba(29,39,59,0.8)!important; backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);`);
-      } else if (window_width >= 992 && this._chang_color) {
-        this._chang_color = false;
+        // 强制为dark
+        dark = true;
+        this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
+      } else if (window_width >= 992 && dark) {
+        // lg及以上
         this.classList.remove("theme-dark");
-        this.removeAttribute("style");
+        // 是否dark由主题决定
+        dark = localStorage.getItem("tablerTheme") === "dark";
+        if (!dark) {
+          if (!blur) {
+            this.removeAttribute("style");
+          } else {
+            this.setAttribute("style",`background-color: rgba(${bg_white},0.8)!important; ${blur_filter}`);
+          }
+        } else {
+          this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
+        }
       }
     }
     _changeColor();
