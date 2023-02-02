@@ -54,11 +54,14 @@
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
   <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
-  <layout-navbar></layout-navbar>
+  <layout-navbar id="navbar-memu"
+    layout-gopage="{{ GoPage }}"
+    layout-userpris='{{ UserPris|tojson|safe }}'>
+  </layout-navbar>
   <layout-searchbar
       layout-username="{{ UserName }}"
       layout-systemflag="{{ SystemFlag }}"
-      layout-userpris='["系统设置"]'>
+      layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-searchbar>
   <div class="page-wrapper px-lg-2" id="page_wrapper">
     <div id="page_content">
@@ -2180,15 +2183,7 @@
     // 主动点击时清除页码, 刷新页面也需要清除
     sessionStorage.removeItem("CurrentPage");
 
-    $("#navbar-menu li").find("a").removeClass("active").each(function () {
-      if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + page + "')")) {
-        $(this).addClass("active");
-        if ($(this).hasClass('dropdown-item')) {
-          $(this).parent().addClass("show");
-        }
-      } 
-    });
-    $("#navbar-menu").collapse('hide');
+    document.querySelector("#navbar-memu").update_active(page);
     $(".page-wrapper").unbind('scroll');
     page = page.replaceAll(" ", "%20");
     NProgress.start();
@@ -2419,15 +2414,7 @@
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
           CURRENT_PAGE_URI = e.state.page;
-          $("#navbar-menu li").find("a").removeClass("active").each(function () {
-            if ($(this).attr("onclick") && $(this).attr("onclick").includes("navmenu('" + CURRENT_PAGE_URI + "')")) {
-              $(this).addClass("active");
-              if ($(this).hasClass('dropdown-item')) {
-                $(this).parent().addClass("show");
-              }
-            }
-          });
-          $("#navbar-menu").collapse('hide');
+          document.querySelector("#navbar-memu").update_active();
           $(".page-wrapper").unbind('scroll');
           document.title = e.state.title;
           $('#page_content').html(e.state.html).ready(function() {
@@ -2496,17 +2483,6 @@
       }
     });
 
-    // 加载页面
-    const go_page = "{{ GoPage }}";
-    if (go_page) {
-      navmenu(go_page);
-    } else if (window.history.state?.page) {
-      //console.log("刷新页面");
-      window_history_refresh();
-    } else {
-      // 打开第一个页面
-      $("#navbar-menu").find("a[onclick]").first().trigger('click');
-    }
 
     {% if "系统设置" in UserPris %}
       // 检查版本升级
