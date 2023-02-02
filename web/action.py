@@ -2235,65 +2235,70 @@ class WebAction:
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
+        res_list = []
 
-        if SubType == "hm":
-            # TMDB热门电影
-            res_list = Media().get_tmdb_hot_movies(CurrentPage)
-        elif SubType == "ht":
-            # TMDB热门电视剧
-            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
-        elif SubType == "nm":
-            # TMDB最新电影
-            res_list = Media().get_tmdb_new_movies(CurrentPage)
-        elif SubType == "nt":
-            # TMDB最新电视剧
-            res_list = Media().get_tmdb_new_tvs(CurrentPage)
-        elif SubType == "dbom":
-            # 豆瓣正在上映
-            res_list = DouBan().get_douban_online_movie(CurrentPage)
-        elif SubType == "dbhm":
-            # 豆瓣热门电影
-            res_list = DouBan().get_douban_hot_movie(CurrentPage)
-        elif SubType == "dbht":
-            # 豆瓣热门电视剧
-            res_list = DouBan().get_douban_hot_tv(CurrentPage)
-        elif SubType == "dbdh":
-            # 豆瓣热门动画
-            res_list = DouBan().get_douban_hot_anime(CurrentPage)
-        elif SubType == "dbnm":
-            # 豆瓣最新电影
-            res_list = DouBan().get_douban_new_movie(CurrentPage)
-        elif SubType == "dbtop":
-            # 豆瓣TOP250电影
-            res_list = DouBan().get_douban_top250_movie(CurrentPage)
-        elif SubType == "dbzy":
-            # 豆瓣最新电视剧
-            res_list = DouBan().get_douban_hot_show(CurrentPage)
-        elif SubType == "sim":
-            TmdbId = data.get("tmdbid")
-            res_list = self.__media_similar({
-                "tmdbid": TmdbId,
-                "page": CurrentPage,
-                "type": "MOV" if Type == "MOV" else "TV"
-            }).get("data")
-        elif SubType == "more":
-            TmdbId = data.get("tmdbid")
-            res_list = self.__media_recommendations({
-                "tmdbid": TmdbId,
-                "page": CurrentPage,
-                "type": "MOV" if Type == "MOV" else "TV"
-            }).get("data")
-        elif SubType == "person":
-            PersonId = data.get("personid")
-            res_list = self.__person_medias({
-                "personid": PersonId,
-                "type": "MOV" if Type == "MOV" else "TV",
-                "page": CurrentPage
-            }).get("data")
-        elif Type == "BANGUMI":
-            # Bangumi每日放送
-            Week = data.get("week")
-            res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
+        if Type in ['MOV', 'TV']:
+            if SubType == "hm":
+                # TMDB热门电影
+                res_list = Media().get_tmdb_hot_movies(CurrentPage)
+            elif SubType == "ht":
+                # TMDB热门电视剧
+                res_list = Media().get_tmdb_hot_tvs(CurrentPage)
+            elif SubType == "nm":
+                # TMDB最新电影
+                res_list = Media().get_tmdb_new_movies(CurrentPage)
+            elif SubType == "nt":
+                # TMDB最新电视剧
+                res_list = Media().get_tmdb_new_tvs(CurrentPage)
+            elif SubType == "dbom":
+                # 豆瓣正在上映
+                res_list = DouBan().get_douban_online_movie(CurrentPage)
+            elif SubType == "dbhm":
+                # 豆瓣热门电影
+                res_list = DouBan().get_douban_hot_movie(CurrentPage)
+            elif SubType == "dbht":
+                # 豆瓣热门电视剧
+                res_list = DouBan().get_douban_hot_tv(CurrentPage)
+            elif SubType == "dbdh":
+                # 豆瓣热门动画
+                res_list = DouBan().get_douban_hot_anime(CurrentPage)
+            elif SubType == "dbnm":
+                # 豆瓣最新电影
+                res_list = DouBan().get_douban_new_movie(CurrentPage)
+            elif SubType == "dbtop":
+                # 豆瓣TOP250电影
+                res_list = DouBan().get_douban_top250_movie(CurrentPage)
+            elif SubType == "dbzy":
+                # 豆瓣最新电视剧
+                res_list = DouBan().get_douban_hot_show(CurrentPage)
+            elif SubType == "sim":
+                # 相似推荐
+                TmdbId = data.get("tmdbid")
+                res_list = self.__media_similar({
+                    "tmdbid": TmdbId,
+                    "page": CurrentPage,
+                    "type": Type
+                }).get("data")
+            elif SubType == "more":
+                # 更多推荐
+                TmdbId = data.get("tmdbid")
+                res_list = self.__media_recommendations({
+                    "tmdbid": TmdbId,
+                    "page": CurrentPage,
+                    "type": Type
+                }).get("data")
+            elif SubType == "person":
+                # 人物作品
+                PersonId = data.get("personid")
+                res_list = self.__person_medias({
+                    "personid": PersonId,
+                    "type": Type,
+                    "page": CurrentPage
+                }).get("data")
+            elif SubType == "bangumi":
+                # Bangumi每日放送
+                Week = data.get("week")
+                res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
         elif Type == "SEARCH":
             # 搜索词条
             Keyword = data.get("keyword")
@@ -2301,12 +2306,21 @@ class WebAction:
             medias = WebUtils.search_media_infos(keyword=Keyword, source=Source, page=CurrentPage)
             res_list = [media.to_dict() for media in medias]
         elif Type == "DOWNLOADED":
+            # 近期下载
             res_list = self.get_downloaded({
                 "page": CurrentPage
             }).get("Items")
-        else:
-            res_list = []
-        # 修正数据
+        elif Type == "TRENDING":
+            # TMDB流行趋势
+            res_list = Media().get_tmdb_trending(page=CurrentPage)
+        elif Type == "DISCOVER":
+            # TMDB发现
+            pass
+        elif Type == "DOUBANTAG":
+            # 豆瓣发现
+            pass
+
+        # 补充存在与订阅状态
         filetransfer = FileTransfer()
         for res in res_list:
             fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,

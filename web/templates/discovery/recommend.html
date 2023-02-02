@@ -21,7 +21,7 @@
   // 当前页码
   var CurrentPage = {{ CurrentPage }};
 
-  // 类型 MOV/TV/BANGUMI
+  // 类型 MOV/TV/BANGUMI/SEARCH/DOWNLOADED/TRENDING/DISCOVER/DOUBANTAG
   var Type = '{{ Type }}';
 
   // 子类型
@@ -106,7 +106,7 @@
         let item = ret.Items[i];
         let html = `<normal-card
                       card-tmdbId="${item.id}"
-                      card-mediatype="${item.media_type}"
+                      card-mediatype="${item.type}"
                       card-showSub="1"
                       card-image="${item.image}"
                       card-weekday="${item.weekday}"

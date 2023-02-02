@@ -1081,14 +1081,14 @@
             //详情按钮
             $("#system_media_url_btn").text("详情")
                 .attr("target", "_blank")
-                .attr("href", 'javascript:navmenu("discovery_detail?type='+ret.type+'&id='+ret.tmdbid+'")')
+                .attr("href", 'javascript:navmenu("media_detail?type='+ret.type+'&id='+ret.tmdbid+'")')
                 .show();
           }
         } else {
           //详情按钮
           $("#system_media_url_btn").text("详情")
               .attr("target", "_blank")
-              .attr("href", 'javascript:navmenu("discovery_detail?type='+ret.type+'&id='+ret.tmdbid+'")')
+              .attr("href", 'javascript:navmenu("media_detail?type='+ret.type+'&id='+ret.tmdbid+'")')
               .show();
           //订阅按钮
           $("#system_media_rss_btn").text("订阅");

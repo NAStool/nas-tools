@@ -23,7 +23,7 @@ class User(UserMixin):
             "id": 0,
             "name": Config().get_config('app').get('login_user'),
             "password": Config().get_config('app').get('login_password')[6:],
-            "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
+            "pris": "我的媒体库,资源搜索,探索,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
         }]
 
     def verify_password(self, password):
