@@ -53,7 +53,7 @@ export class LayoutSearchbar extends CustomElement {
       if (!this._chang_color) {
         if (!blur && page_wrapper.scrollTop >= 5) {
           blur = true;
-          this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(5px);`);
+          this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);`);
         } else if (blur && page_wrapper.scrollTop < 5) {
           blur = false
           this.removeAttribute("style");
@@ -69,7 +69,7 @@ export class LayoutSearchbar extends CustomElement {
       if (window_width < 992 && !is_dark && !this._chang_color) {
         this._chang_color = true;
         this.classList.add("theme-dark");
-        this.setAttribute("style",`background-color: rgba(29,39,59,0.8)!important; backdrop-filter: blur(5px);`);
+        this.setAttribute("style",`background-color: rgba(29,39,59,0.8)!important; backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);`);
       } else if (window_width >= 992 && this._chang_color) {
         this._chang_color = false;
         this.classList.remove("theme-dark");
