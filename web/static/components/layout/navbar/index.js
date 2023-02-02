@@ -369,6 +369,24 @@ export class LayoutNavbar extends CustomElement {
   render() {
     return html`
       <style>
+        
+        .navbar {
+          min-height: 3rem !important;
+        }
+        
+        .navbar .input-group-flat:focus-within {
+          box-shadow: none;
+        }
+        
+        .nav-search-bar {
+          padding-top: env(safe-area-inset-top) !important;
+          padding-left: env(safe-area-inset-left) !important;
+        }
+        
+        .lit-navar-close {
+            margin-top: env(safe-area-inset-top) !important;
+        }
+
         .lit-navbar-fixed {
           position:fixed;
           top:0;
