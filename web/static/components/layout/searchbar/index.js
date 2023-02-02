@@ -138,7 +138,7 @@ export class LayoutSearchbar extends CustomElement {
             </span>
           </div>
           <!-- 头像 -->
-          <div class="nav-item dropdown me-3">
+          <div class="nav-item dropdown me-2">
               <a href="#" class="nav-link d-flex lh-1 text-reset ms-1 p-0" data-bs-toggle="dropdown">
                 <!-- http://tabler-icons.io/i/user -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user"
