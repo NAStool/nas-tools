@@ -95,7 +95,11 @@ export class LayoutSearchbar extends CustomElement {
         // 强制为dark
         dark = true;
         this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
+        // 当前强制dark主题, so 必须强行显示切换明亮模式
+        this._chang_color = true;
       } else if (window_width >= 992 && dark) {
+        // 恢复默认设置
+        this._chang_color = false;
         // lg及以上
         screen_lg = true;
         this.classList.remove("theme-dark");
