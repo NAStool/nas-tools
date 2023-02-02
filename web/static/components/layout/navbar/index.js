@@ -295,7 +295,7 @@ export class LayoutNavbar extends CustomElement {
     this.layout_userpris = navbar_list.map((item) => (item.name));
     this._active_name = "";
     this._is_update = false;
-    this.classList.add("navbar","navbar-vertical","navbar-expand-lg","navbar-dark","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
+    this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
 
   firstUpdated() {
