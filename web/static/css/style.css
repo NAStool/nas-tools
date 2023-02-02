@@ -54,7 +54,11 @@ body, .page {
 }
 
 .page-wrapper-top {
-    padding-top: 51px;
+    padding-top: 51px !important;
+}
+
+.page-wrapper-top-off {
+    margin-top: -51px !important;
 }
 
 .offcanvas {
