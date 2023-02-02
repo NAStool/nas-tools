@@ -2319,7 +2319,8 @@ class WebAction:
             res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage)
         elif Type == "DOUBANTAG":
             # 豆瓣发现
-            pass
+            mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
+            res_list = DouBan().get_douban_disover(mtype=mtype, page=CurrentPage)
 
         # 补充存在与订阅状态
         filetransfer = FileTransfer()
