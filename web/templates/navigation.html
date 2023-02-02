@@ -33,17 +33,20 @@
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
   <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
-  <layout-navbar id="navbar-menu"
+  <layout-navbar id="navbar-menu" hidden
     layout-gopage="{{ GoPage }}"
     layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-navbar>
-  <layout-searchbar
+  <layout-searchbar hidden
       layout-username="{{ UserName }}"
       layout-systemflag="{{ SystemFlag }}"
       layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-searchbar>
   <div class="page-wrapper page-wrapper-top px-lg-2" id="page_wrapper">
-    <div id="page_content">
+    <div id="logo_animation">
+      {{ OOPS.loading_logo_animation() }}
+    </div>
+    <div id="page_content" hidden>
       {{ OOPS.loading() }}
     </div>
   </div>
