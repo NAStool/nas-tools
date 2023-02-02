@@ -41,21 +41,17 @@ export class LayoutSearchbar extends CustomElement {
     this.layout_userpris = ["系统设置"];
     this.layout_search_source = "tmdb";
     this._search_source = "tmdb";
-    this._chang_color = false;
     this.classList.add("navbar", "fixed-top", "lit-searchbar");
   }
 
   firstUpdated() {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
-    // 当前屏幕类型
-    let screen_lg = document.documentElement.clientWidth || document.body.clientWidth >= 992;
     // 当前状态：是否模糊
     let blur = false;
     let blur_filter = "backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);";
     let bg_black = "29,39,59";
     let bg_white = "200,200,200";
-    // 当前状态：是否黑色
-    let dark = localStorage.getItem("tablerTheme") === "dark";
+
     const page_wrapper = document.querySelector(".page-wrapper");
 
     const _change_blur = () => {
@@ -63,66 +59,24 @@ export class LayoutSearchbar extends CustomElement {
       if (!blur && page_wrapper.scrollTop >= 5) {
         // 模糊状态
         blur = true;
+        // 当前状态：是否黑色
+        let dark = localStorage.getItem("tablerTheme") === "dark";
         // 背景色要根据是否黑色决定
         const bg_color = dark ? `rgba(${bg_black},0.8)` : `rgba(${bg_white},0.8)`
         this.setAttribute("style",`background-color: ${bg_color} !important; ${blur_filter}`);
       } else if (blur && page_wrapper.scrollTop < 5) {
         // 非模糊状态
         blur = false
-        if (!dark) {
-          this.removeAttribute("style");
-        } else {
-          if (screen_lg) {
-            this.removeAttribute("style");
-          } else {
-            this.setAttribute("style",`background-color: rgba(${bg_black},1)!important; ${blur_filter}`);
-          }
-        }
+        this.removeAttribute("style");
       }
     };
+    
     page_wrapper.addEventListener("scroll", _change_blur);
 
-    // 修改顶栏颜色
-    const _changeColor = () => {
-      // 调整窗口大小时改变背景颜色
-      const window_width = document.documentElement.clientWidth || document.body.clientWidth;
-      // 当前非模糊状态时不透明，否则透明
-      const opacity = blur ? 0.8 : 1;
-      if (window_width < 992 && !dark) {
-        // lg以下
-        screen_lg = false;
-        this.classList.add("theme-dark");
-        // 强制为dark
-        dark = true;
-        this._chang_color = true;
-        this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
-      } else if (window_width >= 992 && dark) {
-        // lg及以上
-        screen_lg = true;
-        this.classList.remove("theme-dark");
-        this._chang_color = false;
-        // 是否dark由主题决定
-        dark = localStorage.getItem("tablerTheme") === "dark";
-        if (!blur) {
-          this.removeAttribute("style");
-        } else {
-          if (dark) {
-            this.setAttribute("style",`background-color: rgba(${bg_black},0.8)!important; ${blur_filter}`);
-          } else {
-            this.setAttribute("style",`background-color: rgba(${bg_white},0.8)!important; ${blur_filter}`);
-          }
-        }
-      }
-    }
-    // _changeColor();
-    // 窗口大小发生改变时
-    this._changeColor_resize = () => { _changeColor() }; // 防止无法卸载事件
-    // window.addEventListener("resize", this._changeColor_resize);
   }
 
   // 卸载事件
   disconnectedCallback() {
-    window.removeEventListener("resize", this._changeColor_resize);
     super.disconnectedCallback();
   }
 
@@ -193,7 +147,7 @@ export class LayoutSearchbar extends CustomElement {
                 </svg>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a class="dropdown-item ${!this._chang_color ? "hide-theme-dark" : ""}" href="?theme=dark" role="button">暗黑风格</a>
+                <a class="dropdown-item hide-theme-dark" href="?theme=dark" role="button">暗黑风格</a>
                 <a class="dropdown-item hide-theme-light" href="?theme=light" role="button">明亮风格</a>
                 <div class="dropdown-divider"></div>
                 ${this.layout_userpris.includes("系统设置")
