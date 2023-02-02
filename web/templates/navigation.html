@@ -32,9 +32,10 @@
 <div class="page">
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
-  <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
+  <span hidden><input type="text"><input type="password"></span><!-- 解决密码填充问题 -->
   <layout-navbar id="navbar-menu" hidden
     layout-gopage="{{ GoPage }}"
+    layout-appversion="{{ AppVersion }}"
     layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-navbar>
   <layout-searchbar hidden
@@ -967,15 +968,6 @@
 
 <!-- 媒体弹窗 -->
 <script type="text/javascript">
-
-  //搜索词条
-  function search_media_items(keyword) {
-    if (!keyword) {
-      return;
-    }
-    // 刷新搜索页面
-    navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + keyword + "&keyword=" + keyword + "&source=" + $("#search_source").val());
-  }
 
   //搜索
   function media_search(tmdbid, title, type) {
@@ -2096,17 +2088,6 @@
     });
   }
 
-  //切换搜索源
-  function change_search_source(search_source) {
-    let input_obj = $('#search_source');
-    input_obj.val(search_source);
-    let html = $(`#search_source_template_${search_source}`).text();
-    localStorage.setItem("SearchSource", search_source);
-    $("[id^=search_source_span_]").each(function(){
-      $(this).empty().append(html);
-    });
-  }
-
   //初始化季列表
   function init_season_list() {
     let rename_season_content = `<option value="" selected>请选择</option>`;
@@ -2269,31 +2250,6 @@
     }, true, false);
   }
 
-  // 检查新版本
-  let NewVersion = '';
-  $("#new_version_tip").hide();
-
-  function check_new_version() {
-    ajax_post("version", {}, function (ret) {
-      if (ret.code === 0) {
-        let url = null;
-        switch (compareVersion(ret.version, "{{ AppVersion }}")) {
-          case 1:
-            url = ret.url;
-            break;
-          case 2:
-            url = "https://github.com/jxxghp/nas-tools/commits/master"
-            break;
-        }
-        if (url) {
-          NewVersion = ret.version;
-          $("#new_version_info").html(`<a href="${url}" target="_blank">${ret.version}</a>`);
-          $("#new_version_tip").show();
-        }
-      }
-    });
-  }
-
   //检查系统是否在线
   function check_system_online() {
     ajax_post("refresh_process", {type: "restart"}, function (ret) {
@@ -2409,14 +2365,6 @@
       e.stopPropagation();
     });
 
-    // 搜索框回车事件
-    $('.home_search_bar').on('keypress', function (e) {
-       if(e.which === 13){
-         search_media_items($(this).val());
-         $(this).val('');
-       }
-   });
-
     /**
      * 计算菜单列表高度
      * @return {number}
@@ -2441,9 +2389,6 @@
     // 更新菜单高度
     updateMenuListHeight()
 
-    // 初始化搜索源
-    change_search_source(localStorage.getItem("SearchSource") ?? "{{ SearchSource }}");
-
     // 初始化季列表
     init_season_list();
 
@@ -2465,8 +2410,6 @@
 
 
     {% if "系统设置" in UserPris %}
-      // 检查版本升级
-      check_new_version();
       // 刷新消息
       refresh_message("");
     {% endif %}
