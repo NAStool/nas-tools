@@ -299,6 +299,8 @@ export class LayoutNavbar extends CustomElement {
         }
       }
     }
+    // 更改状态栏颜色
+    document.querySelector("meta[name=theme-color]").setAttribute("content", localStorage.getItem("tablerTheme") === "dark" ? "#1e293b" : "#f1f5f9");
     // 删除logo动画
     setTimeout(() => {
       document.querySelector("#logo_animation").remove();
