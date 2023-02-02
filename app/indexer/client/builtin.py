@@ -63,13 +63,13 @@ class BuiltinIndexer(_IIndexClient):
                 is_public = True
                 proxy = public_site.get("proxy")
                 language = public_site.get("language")
-                render = public_site.get("render")
+                render = False if not chrome_ok else public_site.get("render")
                 parser = public_site.get("parser")
             else:
                 is_public = False
                 proxy = site.get("proxy")
                 language = None
-                render = None
+                render = False if not chrome_ok else site.get("chrome")
                 parser = None
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
@@ -81,8 +81,7 @@ class BuiltinIndexer(_IIndexClient):
                                                   proxy=proxy,
                                                   render=render,
                                                   language=language,
-                                                  parser=parser,
-                                                  chrome=chrome_ok)
+                                                  parser=parser)
             if indexer:
                 if indexer_id and indexer.id == indexer_id:
                     return indexer
@@ -100,8 +99,7 @@ class BuiltinIndexer(_IIndexClient):
                                                       proxy=attr.get("proxy"),
                                                       render=attr.get("render"),
                                                       language=attr.get("language"),
-                                                      parser=attr.get("parser"),
-                                                      chrome=chrome_ok)
+                                                      parser=attr.get("parser"))
                 if indexer:
                     if indexer_id and indexer.id == indexer_id:
                         return indexer

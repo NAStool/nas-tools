@@ -36,8 +36,7 @@ class IndexerHelper:
                     ua=None,
                     render=None,
                     language=None,
-                    pri=None,
-                    chrome=True):
+                    pri=None):
         if not url:
             return None
         for indexer in self._indexers:
@@ -55,8 +54,7 @@ class IndexerHelper:
                                    render=render,
                                    builtin=True,
                                    language=language,
-                                   pri=pri,
-                                   chrome=chrome)
+                                   pri=pri)
         return None
 
 
@@ -74,8 +72,7 @@ class IndexerConf(object):
                  render=None,
                  builtin=True,
                  language=None,
-                 pri=None,
-                 chrome=True):
+                 pri=None):
         if not datas:
             return
         # ID
@@ -90,6 +87,10 @@ class IndexerConf(object):
         self.search = datas.get('search', {})
         # 批量搜索，如果为空对象则表示不支持批量搜索
         self.batch = self.search.get("batch", {}) if builtin else {}
+        # 解析器
+        self.parser = parser if parser is not None else datas.get('parser')
+        # 是否启用渲染
+        self.render = render if render is not None else datas.get("render")
         # 浏览
         self.browse = datas.get('browse', {})
         # 种子过滤
@@ -106,13 +107,6 @@ class IndexerConf(object):
         self.public = public
         # 是否使用代理
         self.proxy = proxy
-        # 解析器
-        self.parser = parser if parser is not None else datas.get('parser')
-        # 是否启用渲染
-        if not chrome:
-            self.render = False
-        else:
-            self.render = render if render is not None else datas.get("render")
         # 仅支持的特定语种
         self.language = language
         # 索引器优先级
