@@ -31,6 +31,7 @@ export class LayoutSearchbar extends CustomElement {
     layout_search_source: { attribute: "layout-search-source" },
     layout_userpris: { attribute: "layout-userpris", type: Array },
     _search_source: { state: true },
+    _chang_color: { state: true },
   };
 
   constructor() {
@@ -40,6 +41,7 @@ export class LayoutSearchbar extends CustomElement {
     this.layout_userpris = ["系统设置"];
     this.layout_search_source = "tmdb";
     this._search_source = "tmdb";
+    this._chang_color = false;
     this.classList.add("navbar", "fixed-top", "lit-searchbar");
   }
 
@@ -48,15 +50,42 @@ export class LayoutSearchbar extends CustomElement {
     let blur = false;
     const page_wrapper = document.querySelector(".page-wrapper");
     const _change_blur = () => {
-      if (!blur && page_wrapper.scrollTop >= 5) {
-        blur = true;
-        this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(5px);`);
-      } else if (blur && page_wrapper.scrollTop < 5) {
-        blur = false
-        this.removeAttribute("style");
-      };
+      if (!this._chang_color) {
+        if (!blur && page_wrapper.scrollTop >= 5) {
+          blur = true;
+          this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(5px);`);
+        } else if (blur && page_wrapper.scrollTop < 5) {
+          blur = false
+          this.removeAttribute("style");
+        };
+      }
     };
     page_wrapper.addEventListener("scroll", _change_blur);
+    // 修改顶栏颜色
+    const _changeColor = () => {
+      const window_width = document.documentElement.clientWidth || document.body.clientWidth;
+      const opacity = blur ? 0.8 : 1;
+      const is_dark = localStorage.getItem("tablerTheme") === "dark";
+      if (window_width < 992 && !is_dark && !this._chang_color) {
+        this._chang_color = true;
+        this.classList.add("theme-dark");
+        this.setAttribute("style",`background-color: rgba(29,39,59,0.8)!important; backdrop-filter: blur(5px);`);
+      } else if (window_width >= 992 && this._chang_color) {
+        this._chang_color = false;
+        this.classList.remove("theme-dark");
+        this.removeAttribute("style");
+      }
+    }
+    _changeColor();
+    // 窗口大小发生改变时
+    this._changeColor_resize = () => { _changeColor() }; // 防止无法卸载事件
+    window.addEventListener("resize", this._changeColor_resize);
+  }
+
+  // 卸载事件
+  disconnectedCallback() {
+    window.removeEventListener("resize", this._changeColor_resize);
+    super.disconnectedCallback();
   }
 
   get input() {
@@ -125,7 +154,7 @@ export class LayoutSearchbar extends CustomElement {
                 </svg>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a class="dropdown-item hide-theme-dark" href="?theme=dark" role="button">暗黑风格</a>
+                <a class="dropdown-item ${!this._chang_color ? "hide-theme-dark" : ""}" href="?theme=dark" role="button">暗黑风格</a>
                 <a class="dropdown-item hide-theme-light" href="?theme=light" role="button">明亮风格</a>
                 <div class="dropdown-divider"></div>
                 ${this.layout_userpris.includes("系统设置")

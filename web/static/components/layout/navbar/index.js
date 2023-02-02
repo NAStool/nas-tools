@@ -299,13 +299,13 @@ export class LayoutNavbar extends CustomElement {
         }
       }
     }
-    // 更改状态栏颜色
-    document.querySelector("meta[name=theme-color]").setAttribute("content", localStorage.getItem("tablerTheme") === "dark" ? "#1e293b" : "#f1f5f9");
-    // 删除logo动画
-    document.querySelector("#logo_animation").remove();
-    this.removeAttribute("hidden");
-    document.querySelector("layout-searchbar").removeAttribute("hidden");
-    document.querySelector("#page_content").removeAttribute("hidden");
+    // 删除logo动画 加点延迟切换体验好
+    setTimeout(() => {
+      document.querySelector("#logo_animation").remove();
+      this.removeAttribute("hidden");
+      document.querySelector("#page_content").removeAttribute("hidden");
+      document.querySelector("layout-searchbar").removeAttribute("hidden");
+    }, 200);
   }
 
   update_active(page) {
