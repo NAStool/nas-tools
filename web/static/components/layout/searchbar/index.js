@@ -94,11 +94,13 @@ export class LayoutSearchbar extends CustomElement {
         this.classList.add("theme-dark");
         // 强制为dark
         dark = true;
+        this._chang_color = true;
         this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
       } else if (window_width >= 992 && dark) {
         // lg及以上
         screen_lg = true;
         this.classList.remove("theme-dark");
+        this._chang_color = false;
         // 是否dark由主题决定
         dark = localStorage.getItem("tablerTheme") === "dark";
         if (!blur) {
