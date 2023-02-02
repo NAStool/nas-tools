@@ -2051,7 +2051,7 @@
       "logid": logid
     };
     $('#modal-media-identification').modal('hide');
-    show_refresh_process("转移 " + inpath, "filetransfer");
+    show_refresh_process("手动转移 " + inpath, "filetransfer");
     let cmd = (manual_type === '3') ? "rename_udf" : "rename"
     ajax_post(cmd, data, function (ret) {
       hide_refresh_process();
