@@ -94,6 +94,7 @@ export class LayoutSearchbar extends CustomElement {
         this.classList.add("theme-dark");
         // 强制为dark
         dark = true;
+        this._chang_color = true;
         this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
         // 当前强制dark主题, so 必须强行显示切换dark模式
         this._chang_color = true;
@@ -103,6 +104,7 @@ export class LayoutSearchbar extends CustomElement {
         // lg及以上
         screen_lg = true;
         this.classList.remove("theme-dark");
+        this._chang_color = false;
         // 是否dark由主题决定
         dark = localStorage.getItem("tablerTheme") === "dark";
         if (!blur) {
