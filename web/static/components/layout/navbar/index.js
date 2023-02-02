@@ -380,6 +380,10 @@ export class LayoutNavbar extends CustomElement {
           width:calc(var(--tblr-offcanvas-width) - 80px)!important;
         }
 
+        .theme-light .lit-navbar-canvas {
+          background-color: rgb(231, 235, 239);
+        }
+
         .lit-navar-close {
           position:fixed;
           top:0;
@@ -401,6 +405,10 @@ export class LayoutNavbar extends CustomElement {
 
         .lit-navbar-nav {
           max-height:none!important;
+        }
+
+        .theme-light .lit-navbar {
+          background-color: rgb(231, 235, 239);
         }
 
         /* 屏蔽lg以下顶栏 */
