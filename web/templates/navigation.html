@@ -54,7 +54,7 @@
   <script src="../static/js/demo-theme.min.js"></script>
   <script type="module" src="../static/components/lit-index.js"></script>
   <span hidden><input type="text"><input type="password"><input type="hidden" id="search_source"></span>
-  <layout-navbar id="navbar-memu"
+  <layout-navbar id="navbar-menu"
     layout-gopage="{{ GoPage }}"
     layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-navbar>
@@ -63,7 +63,7 @@
       layout-systemflag="{{ SystemFlag }}"
       layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-searchbar>
-  <div class="page-wrapper px-lg-2" id="page_wrapper">
+  <div class="page-wrapper page-wrapper-top px-lg-2" id="page_wrapper">
     <div id="page_content">
       {{ OOPS.loading() }}
     </div>
@@ -2183,7 +2183,7 @@
     // 主动点击时清除页码, 刷新页面也需要清除
     sessionStorage.removeItem("CurrentPage");
 
-    document.querySelector("#navbar-memu").update_active(page);
+    document.querySelector("#navbar-menu").update_active(page);
     $(".page-wrapper").unbind('scroll');
     page = page.replaceAll(" ", "%20");
     NProgress.start();
@@ -2414,7 +2414,7 @@
             sessionStorage.CurrentPage = e.state.CurrentPage;
           }
           CURRENT_PAGE_URI = e.state.page;
-          document.querySelector("#navbar-memu").update_active();
+          document.querySelector("#navbar-menu").update_active();
           $(".page-wrapper").unbind('scroll');
           document.title = e.state.title;
           $('#page_content').html(e.state.html).ready(function() {

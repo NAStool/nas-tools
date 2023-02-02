@@ -48,9 +48,13 @@ body, .page {
 }
 
 .page-wrapper {
-    margin-top: calc(env(safe-area-inset-top) + 51px) !important;
+    margin-top: env(safe-area-inset-top) !important;
     height: 100% !important;
     overflow: scroll !important;
+}
+
+.page-wrapper-top {
+    padding-top: 51px;
 }
 
 .offcanvas {
