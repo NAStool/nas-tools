@@ -166,7 +166,8 @@ class WebhookEvent:
                 tmdb_id = iteminfo.get('ProviderIds', {}).get('Tmdb')
                 try:
                     # 从tmdb获取剧集某季某集图片
-                    image_url = self.media.get_episode_images(tmdb_id, event_info.get('season_id'),
+                    image_url = self.media.get_episode_images(tmdb_id,
+                                                              event_info.get('season_id'),
                                                               event_info.get('episode_id'))
                 except IOError:
                     pass

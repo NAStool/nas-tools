@@ -206,3 +206,9 @@ class DoubanApi(object):
 
     def movie_top250(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["movie_top250"], start=start, count=count, _ts=ts)
+
+    def movie_tag(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["movie_tag"], start=start, count=count, _ts=ts)
+
+    def tv_tag(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["tv_tag"], start=start, count=count, _ts=ts)

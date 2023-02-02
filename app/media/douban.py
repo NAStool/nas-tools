@@ -283,58 +283,78 @@ class DouBan:
     def get_douban_online_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_showing(start=(page - 1) * self._movie_num, count=self._movie_num)
+        infos = self.doubanapi.movie_showing(start=(page - 1) * self._movie_num,
+                                             count=self._movie_num)
         if not infos:
             return []
-        return self.__refresh_movie(infos.get("subject_collection_items"))
+        return self.__dict_movie(infos.get("subject_collection_items"))
 
     def get_douban_hot_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_hot_gaia(start=(page - 1) * self._movie_num, count=self._movie_num)
+        infos = self.doubanapi.movie_hot_gaia(start=(page - 1) * self._movie_num,
+                                              count=self._movie_num)
         if not infos:
             return []
-        return self.__refresh_movie(infos.get("subject_collection_items"))
+        return self.__dict_movie(infos.get("subject_collection_items"))
 
     def get_douban_hot_anime(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.tv_animation(start=(page - 1) * self._tv_num, count=self._tv_num)
+        infos = self.doubanapi.tv_animation(start=(page - 1) * self._tv_num,
+                                            count=self._tv_num)
         if not infos:
             return []
-        return self.__refresh_tv(infos.get("subject_collection_items"))
+        return self.__dict_tv(infos.get("subject_collection_items"))
 
     def get_douban_hot_tv(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.tv_hot(start=(page - 1) * self._tv_num, count=self._tv_num)
+        infos = self.doubanapi.tv_hot(start=(page - 1) * self._tv_num,
+                                      count=self._tv_num)
         if not infos:
             return []
-        return self.__refresh_tv(infos.get("subject_collection_items"))
+        return self.__dict_tv(infos.get("subject_collection_items"))
 
     def get_douban_new_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_soon(start=(page - 1) * self._movie_num, count=self._movie_num)
+        infos = self.doubanapi.movie_soon(start=(page - 1) * self._movie_num,
+                                          count=self._movie_num)
         if not infos:
             return []
-        return self.__refresh_movie(infos.get("subject_collection_items"))
+        return self.__dict_movie(infos.get("subject_collection_items"))
 
     def get_douban_hot_show(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.show_hot(start=(page - 1) * self._tv_num, count=self._tv_num)
+        infos = self.doubanapi.show_hot(start=(page - 1) * self._tv_num,
+                                        count=self._tv_num)
         if not infos:
             return []
-        return self.__refresh_tv(infos.get("subject_collection_items"))
+        return self.__dict_tv(infos.get("subject_collection_items"))
 
     def get_douban_top250_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_top250(start=(page - 1) * self._movie_num, count=self._movie_num)
+        infos = self.doubanapi.movie_top250(start=(page - 1) * self._movie_num,
+                                            count=self._movie_num)
         if not infos:
             return []
-        return self.__refresh_movie(infos.get("subject_collection_items"))
+        return self.__dict_movie(infos.get("subject_collection_items"))
+
+    def get_douban_disover(self, mtype, page=1, params=None):
+        if not self.doubanapi:
+            return []
+        if mtype == MediaType.MOVIE:
+            infos = self.doubanapi.movie_tag(start=(page - 1) * self._movie_num,
+                                             count=self._movie_num)
+        else:
+            infos = self.doubanapi.tv_tag(start=(page - 1) * self._tv_num,
+                                          count=self._tv_num)
+        if not infos:
+            return []
+        return self.__dict_movie(infos.get("data"))
 
     @staticmethod
     def __dict_item(info, media_type):
@@ -388,7 +408,7 @@ class DouBan:
             'overview': overview
         }
 
-    def __refresh_movie(self, infos):
+    def __dict_movie(self, infos):
         if not infos:
             return []
         ret_list = []
@@ -401,7 +421,7 @@ class DouBan:
                 ExceptionUtils.exception_traceback(e)
         return ret_list
 
-    def __refresh_tv(self, infos):
+    def __dict_tv(self, infos):
         if not infos:
             return []
         ret_list = []

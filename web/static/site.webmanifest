@@ -1,6 +1,7 @@
 {
   "name": "NAStool",
   "short_name": "NAStool",
+  "display": "standalone",
   "start_url": "../",
   "icons": [
     {

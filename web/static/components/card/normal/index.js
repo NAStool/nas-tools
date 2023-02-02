@@ -129,7 +129,7 @@ export class NormalCard extends observeState(CustomElement) {
         <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
              class="card-img-overlay rounded-4 ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5); box-shadow:0 0 0 1px #dddddd;"
-             @click=${() => { navmenu(`discovery_detail?type=${this.media_type}&id=${this.tmdb_id}`) }}>
+             @click=${() => { navmenu(`media_detail?type=${this.media_type}&id=${this.tmdb_id}`) }}>
           <div style="cursor: pointer">
             ${this.year ? html`<div class="text-white"><strong>${this.site ? this.site : this.year}</strong></div>` : nothing }
             ${this.title

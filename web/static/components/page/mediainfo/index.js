@@ -223,7 +223,7 @@ export class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-mediatype=${item.media_type}
+                card-mediatype=${item.type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}
@@ -252,7 +252,7 @@ export class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-mediatype=${item.media_type}
+                card-mediatype=${item.type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}
