@@ -47,6 +47,8 @@ export class LayoutSearchbar extends CustomElement {
 
   firstUpdated() {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
+    // 当前屏幕类型
+    let screen_lg = document.documentElement.clientWidth || document.body.clientWidth >= 992;
     // 当前状态：是否模糊
     let blur = false;
     let blur_filter = "backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);";
@@ -70,7 +72,11 @@ export class LayoutSearchbar extends CustomElement {
         if (!dark) {
           this.removeAttribute("style");
         } else {
-          this.setAttribute("style",`background-color: rgba(${bg_black},1)!important; ${blur_filter}`);
+          if (screen_lg) {
+            this.removeAttribute("style");
+          } else {
+            this.setAttribute("style",`background-color: rgba(${bg_black},1)!important; ${blur_filter}`);
+          }
         }
       }
     };
@@ -84,23 +90,25 @@ export class LayoutSearchbar extends CustomElement {
       const opacity = blur ? 0.8 : 1;
       if (window_width < 992 && !dark) {
         // lg以下
+        screen_lg = false;
         this.classList.add("theme-dark");
         // 强制为dark
         dark = true;
         this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
       } else if (window_width >= 992 && dark) {
         // lg及以上
+        screen_lg = true;
         this.classList.remove("theme-dark");
         // 是否dark由主题决定
         dark = localStorage.getItem("tablerTheme") === "dark";
-        if (!dark) {
-          if (!blur) {
-            this.removeAttribute("style");
+        if (!blur) {
+          this.removeAttribute("style");
+        } else {
+          if (dark) {
+            this.setAttribute("style",`background-color: rgba(${bg_black},0.8)!important; ${blur_filter}`);
           } else {
             this.setAttribute("style",`background-color: rgba(${bg_white},0.8)!important; ${blur_filter}`);
           }
-        } else {
-          this.setAttribute("style",`background-color: rgba(${bg_black},${opacity})!important; ${blur_filter}`);
         }
       }
     }
