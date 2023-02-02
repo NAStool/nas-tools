@@ -50,7 +50,8 @@ export class LayoutSearchbar extends CustomElement {
     const _change_blur = () => {
       if (!blur && page_wrapper.scrollTop >= 5) {
         blur = true;
-        this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(5px);`);
+        this.setAttribute("style",
+            `background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);`);
       } else if (blur && page_wrapper.scrollTop < 5) {
         blur = false
         this.removeAttribute("style");
