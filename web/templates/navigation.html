@@ -23,8 +23,8 @@
   <meta name="referrer" content="never">
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="msapplication-TileColor" content="#1e293b"/>
-  <meta name="theme-color" content="#1e293b" media="(perfers-color-scheme: light)"/>
-  <meta name="theme-color" content="#f8fafc" media="(perfers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f1f6fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1e293b" media="(prefers-color-scheme: dark)">
   <meta name="HandheldFriendly" content="True"/>
   <meta name="MobileOptimized" content="320"/>
   <title>NAStool - 资源归集、整理自动化工具</title>
@@ -2175,36 +2175,6 @@
     }
   }
 
-  //导航点击
-  function navmenu(page, newflag=false) {
-    if (!newflag) {
-      // 更新当前历史记录
-      window_history();
-    }
-    // 主动点击时清除页码, 刷新页面也需要清除
-    sessionStorage.removeItem("CurrentPage");
-
-    document.querySelector("#navbar-menu").update_active(page);
-    $(".page-wrapper").unbind('scroll');
-    page = page.replaceAll(" ", "%20");
-    NProgress.start();
-    $("#page_content").load(page, {}, function (response, status, xhr) {
-      NProgress.done();
-      if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
-        window.location.reload();
-      } else {
-        fresh_tooltip();
-        init_filetree_element();
-      }
-      if (page != CURRENT_PAGE_URI) {
-        $("#page_wrapper").scrollTop(0);
-        CURRENT_PAGE_URI = page;
-      }
-      // 并记录当前历史记录
-      window_history(!newflag);
-    });
-  }
-
   //刷新LOG标志
   let refresh_logging_flag = false;
 
@@ -2396,6 +2366,36 @@
     $("#page_wrapper").animate({
       scrollTop: 0
     }, 500);
+  }
+
+  //导航点击
+  function navmenu(page, newflag=false) {
+    if (!newflag) {
+      // 更新当前历史记录
+      window_history();
+    }
+    // 主动点击时清除页码, 刷新页面也需要清除
+    sessionStorage.removeItem("CurrentPage");
+
+    document.querySelector("#navbar-menu").update_active(page);
+    $(".page-wrapper").unbind('scroll');
+    page = page.replaceAll(" ", "%20");
+    NProgress.start();
+    $("#page_content").load(page, {}, function (response, status, xhr) {
+      NProgress.done();
+      if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
+        window.location.reload();
+      } else {
+        fresh_tooltip();
+        init_filetree_element();
+      }
+      if (page != CURRENT_PAGE_URI) {
+        $("#page_wrapper").scrollTop(0);
+        CURRENT_PAGE_URI = page;
+      }
+      // 并记录当前历史记录
+      window_history(!newflag);
+    });
   }
 
 </script>
