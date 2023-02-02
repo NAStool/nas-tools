@@ -397,7 +397,7 @@ export class LayoutNavbar extends CustomElement {
           </div>
           <div class="d-flex flex-row flex-grow-1 lit-navbar-hide-scrollbar">
             <div class="d-flex flex-column flex-grow-1">
-              <h1 class="mt-3" style="text-align:center;filter:brightness(0) invert(1)">
+              <h1 class="mt-3" style="text-align:center;">
                 <a href="javascript:ScrollToTop()">
                   <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
                 </a>
@@ -446,7 +446,7 @@ export class LayoutNavbar extends CustomElement {
                 </ul>
               </div>
               <div class="align-items-end align-self-center nav-item btn-list pb-3">
-                <a href="https://github.com/jxxghp/nas-tools" class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "btn-dark text-muted"}" target="_blank" rel="noreferrer">
+                <a href="https://github.com/jxxghp/nas-tools" class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "text-muted"}" target="_blank" rel="noreferrer">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24"
                       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                       stroke-linejoin="round">
