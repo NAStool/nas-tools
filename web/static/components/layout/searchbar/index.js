@@ -31,7 +31,6 @@ export class LayoutSearchbar extends CustomElement {
     layout_search_source: { attribute: "layout-search-source" },
     layout_userpris: { attribute: "layout-userpris", type: Array },
     _search_source: { state: true },
-    _chang_color: { state: true },
   };
 
   constructor() {
@@ -48,30 +47,19 @@ export class LayoutSearchbar extends CustomElement {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
     // 当前状态：是否模糊
     let blur = false;
-    let blur_filter = "backdrop-filter: blur(10px);-webkit-backdrop-filter:blur(10px);";
-    let bg_black = "29,39,59";
-    let bg_white = "200,200,200";
-
     const page_wrapper = document.querySelector(".page-wrapper");
-
-    const _change_blur = () => {
+    page_wrapper.addEventListener("scroll", () => {
       // 滚动发生时改变模糊状态
       if (!blur && page_wrapper.scrollTop >= 5) {
         // 模糊状态
         blur = true;
-        // 当前状态：是否黑色
-        let dark = localStorage.getItem("tablerTheme") === "dark";
-        // 背景色要根据是否黑色决定
-        const bg_color = dark ? `rgba(${bg_black},0.8)` : `rgba(${bg_white},0.8)`
-        this.setAttribute("style",`background-color: ${bg_color} !important; ${blur_filter}`);
+        this.classList.add("lit-searchbar-blur");
       } else if (blur && page_wrapper.scrollTop < 5) {
         // 非模糊状态
-        blur = false
-        this.removeAttribute("style");
+       blur = false
+       this.classList.remove("lit-searchbar-blur");
       }
-    };
-    
-    page_wrapper.addEventListener("scroll", _change_blur);
+    });
 
   }
 
@@ -87,11 +75,26 @@ export class LayoutSearchbar extends CustomElement {
   render() {
     return html`
       <style>
+
         .lit-searchbar {
           background-color: rgba(0,0,0,0)!important;
           border-right: none!important;
           box-shadow: none!important;
         }
+
+        .lit-searchbar-blur {
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter:blur(10px);
+        }
+
+        .theme-dark .lit-searchbar-blur {
+          background-color: rgba(29,39,59,0.8)!important;
+        }
+
+        .theme-light .lit-searchbar-blur {
+          background-color: rgba(231,235,239,0.8)!important;
+        }
+
       </style>
       <div class="container-fluid nav-search-bar">
         <div class="d-flex flex-row flex-grow-1 align-items-center py-1">
