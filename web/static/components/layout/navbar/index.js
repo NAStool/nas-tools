@@ -268,19 +268,41 @@ const navbar_list = [
 
 export class LayoutNavbar extends CustomElement {
   static properties = {
+    layout_gopage: { attribute: "layout-gopage" },
     layout_userpris: { attribute: "layout-userpris", type: Array },
+    _active_name: { state: true},
     _is_update: { state: true },
   };
 
   constructor() {
     super();
+    this.layout_gopage = "";
     this.layout_userpris = navbar_list.map((item) => (item.name));
+    this._active_name = "";
     this._is_update = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","navbar-dark","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
 
   firstUpdated() {
-    
+    // 加载页面
+    if (this.layout_gopage) {
+      navmenu(this.layout_gopage);
+    } else if (window.history.state?.page) {
+      //console.log("刷新页面");
+      window_history_refresh();
+    } else {
+      // 打开第一个页面
+      for (const item of navbar_list) {
+        if (item.name === this.layout_userpris[0]) {
+          navmenu(item.page ?? item.list[0].page);
+          break;
+        }
+      }
+    }
+  }
+
+  update_active(page) {
+    this._active_name = page ?? window.history.state?.page;
   }
 
   render() {
@@ -350,7 +372,7 @@ export class LayoutNavbar extends CustomElement {
                   <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
                 </a>
               </h1>
-              <div class="navbar-collapse py-2" id="navbar-menu">
+              <div class="navbar-collapse py-2">
                 <ul class="navbar-nav lit-navbar-nav">
                   ${navbar_list.map((item) => ( html`
                     ${this.layout_userpris.includes(item.name)
@@ -370,14 +392,14 @@ export class LayoutNavbar extends CustomElement {
                           <div class="dropdown-menu">
                             ${item.list.map((drop) => (
                             html`
-                              <a class="dropdown-item" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+                              <a class="dropdown-item ${this._active_name === drop.page ? "active" : ""}" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
                                 @click=${ () => { navmenu(drop.page) }}>
                                 ${drop.also ?? drop.name}
                               </a>`
                             ))}
                           </div>`
                         : html`
-                          <a class="nav-link" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+                          <a class="nav-link ${this._active_name === item.page ? "active" : ""}" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
                             @click=${ () => { navmenu(item.page) }}>
                             <span class="nav-link-icon">
                               ${item.icon ?? nothing}
