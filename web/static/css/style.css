@@ -38,6 +38,7 @@ html {
 
 .nav-search-bar {
     padding-top: env(safe-area-inset-top) !important;
+    padding-left: env(safe-area-inset-left) !important;
 }
 
 .lit-navar-close {
@@ -53,6 +54,7 @@ html {
 
 .page-wrapper {
     padding-top: calc(env(safe-area-inset-top) + 51px) !important;
+    padding-left: env(safe-area-inset-left) !important;
     height: 100% !important;
     overflow: scroll !important;
 }
