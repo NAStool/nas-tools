@@ -268,19 +268,35 @@ const navbar_list = [
 
 export class LayoutNavbar extends CustomElement {
   static properties = {
+    layout_gopage: { attribute: "layout-gopage" },
     layout_userpris: { attribute: "layout-userpris", type: Array },
     _is_update: { state: true },
   };
 
   constructor() {
     super();
+    this.layout_gopage = "";
     this.layout_userpris = navbar_list.map((item) => (item.name));
     this._is_update = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","navbar-dark","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
 
   firstUpdated() {
-    
+    // 加载页面
+    if (this.layout_gopage) {
+      navmenu(this.layout_gopage);
+    } else if (window.history.state?.page) {
+      //console.log("刷新页面");
+      window_history_refresh();
+    } else {
+      // 打开第一个页面
+      for (const item of navbar_list) {
+        if (item.name === this.layout_userpris[0]) {
+          navmenu(item.page ?? item.list[0].page);
+          break;
+        }
+      }
+    }
   }
 
   render() {
