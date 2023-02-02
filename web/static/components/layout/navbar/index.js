@@ -299,6 +299,9 @@ export class LayoutNavbar extends CustomElement {
         }
       }
     }
+    // 删除logo动画
+    document.querySelector("#logo_animation").remove();
+    document.querySelector("#page_content").removeAttribute("hidden");
   }
 
   update_active(page) {

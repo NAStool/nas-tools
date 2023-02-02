@@ -64,7 +64,10 @@
       layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-searchbar>
   <div class="page-wrapper page-wrapper-top px-lg-2" id="page_wrapper">
-    <div id="page_content">
+    <div id="logo_animation">
+      {{ OOPS.loading_logo_animation() }}
+    </div>
+    <div id="page_content" hidden>
       {{ OOPS.loading() }}
     </div>
   </div>

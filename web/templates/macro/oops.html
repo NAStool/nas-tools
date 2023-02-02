@@ -61,3 +61,92 @@
 </div>
 {% endmacro %}
 
+
+{% macro loading_logo_animation() %}
+<style>
+  #logo-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    fill: transparent;
+    animation: logo-animation-fill 1s ease forwards 1.3s;
+  }
+  #logo-animation path:nth-child(1) {
+    stroke-dasharray: 496;
+    stroke-dashoffset: 496;
+    animation: logo-animation-line 0.8s ease forwards;
+  }
+  #logo-animation path:nth-child(2) {
+    stroke-dasharray: 415;
+    stroke-dashoffset: 415;
+    animation: logo-animation-line 0.8s ease forwards 0.1s;
+  }
+  #logo-animation path:nth-child(3) {
+    stroke-dasharray: 354;
+    stroke-dashoffset: 354;
+    animation: logo-animation-line 0.8s ease forwards 0.2s;
+  }
+  #logo-animation path:nth-child(4) {
+    stroke-dasharray: 133;
+    stroke-dashoffset: 133;
+    animation: logo-animation-line 0.8s ease forwards 0.3s;
+  }
+  #logo-animation path:nth-child(5) {
+    stroke-dasharray: 264;
+    stroke-dashoffset: 264;
+    animation: logo-animation-line 0.8s ease forwards 0.4s;
+  }
+  #logo-animation path:nth-child(6) {
+    stroke-dasharray: 322;
+    stroke-dashoffset: 322;
+    animation: logo-animation-line 0.8s ease forwards 0.5s;
+  }
+  #logo-animation path:nth-child(7) {
+    stroke-dasharray: 322;
+    stroke-dashoffset: 322;
+    animation: logo-animation-line 0.8s ease forwards 0.6s;
+  }
+  #logo-animation path:nth-child(8) {
+    stroke-dasharray: 198;
+    stroke-dashoffset: 198;
+    animation: logo-animation-line 0.8s ease forwards 0.7s;
+  }
+  #logo-animation path:nth-child(9) {
+    stroke-dasharray: 299;
+    stroke-dashoffset: 299;
+    animation: logo-animation-line 0.8s ease forwards 0.8s;
+  }
+  @keyframes logo-animation-line {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes logo-animation-fill {
+    to {
+      fill: white;
+    }
+  }
+</style>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 543 158" id="logo-animation">
+  <path stroke="#fff" stroke-width="4" transform="translate(0,0)"
+    d="M17.81 52.97L17.34 52.97L17.34 115.31Q17.34 120 12.19 120L12.19 120Q7.03 120 7.03 115.31L7.03 115.31L7.03 40.31Q7.03 33.75 11.72 33.75L11.72 33.75Q15.47 33.28 19.22 39.38L19.22 39.38L62.34 101.25L62.81 101.25L62.81 39.38Q62.81 33.75 67.97 33.75L67.97 33.75Q73.13 33.75 73.13 39.38L73.13 39.38L73.13 114.38Q73.13 120 68.44 120L68.44 120Q64.22 120.47 60.94 115.31L60.94 115.31L17.81 52.97Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(80.15625,0)"
+    d="M56.72 101.25L16.88 101.25L11.25 116.72Q10.31 120 6.09 120L6.09 120Q1.88 120 1.41 116.25L1.41 116.25Q1.41 113.91 2.81 111.09L2.81 111.09L29.06 40.31Q31.41 33.75 36.56 33.75L36.56 33.75Q42.19 33.75 44.06 40.31L44.06 40.31L70.78 111.09Q72.19 113.91 72.19 116.25L72.19 116.25Q72.19 120 67.03 120L67.03 120Q63.28 120 61.88 116.72L61.88 116.72L56.72 101.25ZM20.16 92.34L53.44 92.34L37.03 45.94L36.56 45.94L20.16 92.34Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(153.75,0)"
+    d="M28.59 33.75L28.59 33.75Q47.34 35.16 49.69 43.59L49.69 43.59Q49.69 47.81 45 48.28L45 48.28Q43.13 48.28 40.31 46.41L40.31 46.41Q34.69 43.13 28.13 43.13L28.13 43.13Q15.47 44.06 14.53 55.31L14.53 55.31Q14.53 63.75 31.41 69.38L31.41 69.38Q55.31 77.81 55.31 93.75L55.31 93.75Q53.44 119.06 26.25 120L26.25 120Q4.69 119.06 2.34 110.63L2.34 110.63Q2.34 105 7.03 105L7.03 105Q8.44 105 11.72 106.88L11.72 106.88Q19.69 111.56 26.25 111.56L26.25 111.56Q42.66 110.63 44.06 94.22L44.06 94.22Q44.06 84.84 26.25 78.75L26.25 78.75Q3.28 70.78 3.28 55.78L3.28 55.78Q6.09 35.16 28.59 33.75Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(211.40625,0)"
+    d="M61.41 94.69L61.41 94.69L10.78 94.69Q6.09 94.22 5.63 89.53L5.63 89.53Q5.63 84.84 10.78 84.84L10.78 84.84L61.41 84.84Q66.56 84.84 66.56 89.53L66.56 89.53Q66.09 94.22 61.41 94.69Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(283.59375,0)"
+    d="M21.56 115.31L21.56 115.31L21.56 44.53L5.63 44.53Q0.47 44.53 0.47 39.38L0.47 39.38Q0.47 34.69 5.63 34.69L5.63 34.69L47.81 34.69Q52.97 34.69 52.97 39.38L52.97 39.38Q52.97 44.53 47.81 44.53L47.81 44.53L31.88 44.53L31.88 115.31Q31.88 120 26.72 120L26.72 120Q21.56 120 21.56 115.31Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(337.03125,0)"
+    d="M4.22 88.13L4.22 88.13Q6.09 57.19 32.34 55.31L32.34 55.31Q58.13 57.19 60.47 88.13L60.47 88.13Q58.13 118.59 32.34 120L32.34 120Q6.09 119.06 4.22 88.13ZM14.53 88.13L14.53 88.13Q15.47 110.63 32.34 111.56L32.34 111.56Q48.75 111.09 49.69 88.13L49.69 88.13Q48.75 65.16 32.34 64.69L32.34 64.69Q15.47 65.63 14.53 88.13Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(401.71875,0)"
+    d="M4.22 88.13L4.22 88.13Q6.09 57.19 32.34 55.31L32.34 55.31Q58.13 57.19 60.47 88.13L60.47 88.13Q58.13 118.59 32.34 120L32.34 120Q6.09 119.06 4.22 88.13ZM14.53 88.13L14.53 88.13Q15.47 110.63 32.34 111.56L32.34 111.56Q48.75 111.09 49.69 88.13L49.69 88.13Q48.75 65.16 32.34 64.69L32.34 64.69Q15.47 65.63 14.53 88.13Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(466.40625,0)"
+    d="M17.34 32.81L17.34 32.81L17.34 115.31Q17.34 120 12.19 120L12.19 120Q7.03 120 7.03 115.31L7.03 115.31L7.03 32.81Q7.03 27.19 12.19 27.19L12.19 27.19Q17.34 27.19 17.34 32.81Z" />
+  <path stroke="#fff" stroke-width="4" transform="translate(490.78125,0)"
+    d="M5.63 73.59L5.63 73.59Q7.03 56.72 27.19 55.31L27.19 55.31Q46.41 57.19 48.28 66.56L48.28 66.56Q47.81 71.25 43.59 71.25L43.59 71.25Q41.72 71.25 38.91 68.91L38.91 68.91Q33.28 64.69 27.19 64.69L27.19 64.69Q16.41 65.16 15.94 72.66L15.94 72.66Q15.94 77.34 30 82.97L30 82.97Q50.16 90.47 50.16 101.25L50.16 101.25Q49.22 119.53 26.72 120L26.72 120Q6.56 119.06 2.81 108.75L2.81 108.75Q3.28 104.06 7.03 103.59L7.03 103.59Q8.91 103.59 12.66 106.41L12.66 106.41Q20.16 111.56 27.19 111.56L27.19 111.56Q38.44 111.09 39.38 103.13L39.38 103.13Q39.38 97.50 24.84 91.41L24.84 91.41Q5.63 83.44 5.63 73.59Z" />
+</svg>
+{% endmacro %}
