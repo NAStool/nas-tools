@@ -40,11 +40,23 @@ export class LayoutSearchbar extends CustomElement {
     this.layout_userpris = ["系统设置"];
     this.layout_search_source = "tmdb";
     this._search_source = "tmdb";
-    this.classList.add("navbar", "fixed-top");
+    this.classList.add("navbar", "fixed-top", "lit-searchbar");
   }
 
   firstUpdated() {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
+    let blur = false;
+    const page_wrapper = document.querySelector(".page-wrapper");
+    const _change_blur = () => {
+      if (!blur && page_wrapper.scrollTop >= 5) {
+        blur = true;
+        this.setAttribute("style",`background-color: ${localStorage.getItem("tablerTheme") === "dark" ? "rgba(29,39,59,0.8)" : "rgba(200,200,200,0.8)"}!important; backdrop-filter: blur(5px);`);
+      } else if (blur && page_wrapper.scrollTop < 5) {
+        blur = false
+        this.removeAttribute("style");
+      };
+    };
+    page_wrapper.addEventListener("scroll", _change_blur);
   }
 
   get input() {
@@ -53,6 +65,13 @@ export class LayoutSearchbar extends CustomElement {
 
   render() {
     return html`
+      <style>
+        .lit-searchbar {
+          background-color: rgba(0,0,0,0)!important;
+          border-right: none!important;
+          box-shadow: none!important;
+        }
+      </style>
       <div class="container-fluid nav-search-bar">
         <div class="d-flex flex-row flex-grow-1 align-items-center py-1">
           <!-- 导航展开按钮 -->
@@ -94,7 +113,7 @@ export class LayoutSearchbar extends CustomElement {
             </span>
           </div>
           <!-- 头像 -->
-          <div class="nav-item dropdown">
+          <div class="nav-item dropdown me-3">
               <a href="#" class="nav-link d-flex lh-1 text-reset ms-1 p-0" data-bs-toggle="dropdown">
                 <!-- http://tabler-icons.io/i/user -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user"

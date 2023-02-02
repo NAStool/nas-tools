@@ -67,10 +67,10 @@ export class PageMediainfo extends CustomElement {
 
   render() {
     return html`
-      <div class="container-xl placeholder-glow">
+      <div class="container-xl placeholder-glow page-wrapper-top-off">
         <!-- 渲染媒体信息 -->
-        <div class="card rounded-0 lit-media-info-background" style="border:none;height:490px;">
-          <custom-img style="border:none;height:490px;"
+        <div class="card rounded-0 lit-media-info-background" style="border:none;height:541px;">
+          <custom-img style="border:none;height:541px;"
             div-style="display:inline;"
             img-placeholder="0"
             img-error="0"
