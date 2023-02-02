@@ -424,7 +424,7 @@ def ranking():
 def douban_movie():
     return render_template("discovery/recommend.html",
                            Type="DOUBANTAG",
-                           SubType="movie",
+                           SubType="MOV",
                            Title="豆瓣电影")
 
 
@@ -434,7 +434,7 @@ def douban_movie():
 def douban_tv():
     return render_template("discovery/recommend.html",
                            Type="DOUBANTAG",
-                           SubType="tv",
+                           SubType="TV",
                            Title="豆瓣电视剧")
 
 
@@ -443,7 +443,7 @@ def douban_tv():
 def tmdb_movie():
     return render_template("discovery/recommend.html",
                            Type="DISCOVER",
-                           SubType="movie",
+                           SubType="MOV",
                            Title="TMDB电影")
 
 
@@ -452,7 +452,7 @@ def tmdb_movie():
 def tmdb_tv():
     return render_template("discovery/recommend.html",
                            Type="DISCOVER",
-                           SubType="tv",
+                           SubType="TV",
                            Title="TMDB电视剧")
 
 

@@ -19,20 +19,21 @@
 </div>
 <script type="text/javascript">
   // 当前页码
-  var CurrentPage = {{ CurrentPage }};
+  CurrentPage = {{ CurrentPage or 1 }};
 
-  // 类型 MOV/TV/BANGUMI/SEARCH/DOWNLOADED/TRENDING/DISCOVER/DOUBANTAG
-  var Type = '{{ Type }}';
+  // 类型
+  // MOV/TV/BANGUMI/SEARCH/DOWNLOADED/TRENDING/DISCOVER/DOUBANTAG
+  Type = '{{ Type or "" }}';
 
   // 子类型
-  var SubType = '{{ SubType }}';
+  SubType = '{{ SubType or "" }}';
 
   // 标题
-  var Title = '{{ Title }}';
+  Title = '{{ Title or "" }}';
   $("#recommend_title").text(Title);
 
   // 子标题
-  var SubTitle = '{{ SubTitle or "" }}';
+  SubTitle = '{{ SubTitle or "" }}';
   if (SubTitle) {
     $("#recommend_subtitle").text(SubTitle).show();
   } else {
@@ -40,19 +41,19 @@
   }
 
   // 星期
-  var Week = '{{ Week }}';
+  Week = '{{ Week or "" }}';
 
   // TMDBID
-  var TmdbId = '{{ TmdbId }}';
+  TmdbId = '{{ TmdbId or "" }}';
 
   // 演员ID
-  var PersonId = '{{ PersonId }}';
+  PersonId = '{{ PersonId or "" }}';
 
   // 关键字
-  var Keyword = '{{ Keyword }}';
+  Keyword = '{{ Keyword or "" }}';
 
   // 来源
-  var Source = '{{ Source }}';
+  Source = '{{ Source or "" }}';
 
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
@@ -132,7 +133,6 @@
   function loading_data_max() {
     const page_wrapper = document.querySelector(".page-wrapper");
     if (page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
-      // normal_card && normal_card.length >= 20 明显的还有数据的特征 减少额外的网络请求
       const normal_card = document.querySelectorAll("normal-card");
       if (normal_card && normal_card.length >= 20) {
         loading_data();

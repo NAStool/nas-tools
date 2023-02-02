@@ -11,8 +11,7 @@ from lxml import etree
 import log
 from app.helper import MetaHelper
 from app.media.meta.metainfo import MetaInfo
-from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException
-from app.media.tmdbv3api.objs.trending import Trending
+from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException, Discover, Trending, Episode
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
@@ -26,9 +25,11 @@ class Media:
     search = None
     movie = None
     tv = None
+    episode = None
     person = None
     find = None
     trending = None
+    discover = None
     meta = None
     _rmt_match_mode = None
     _search_keyword = None
@@ -55,9 +56,11 @@ class Media:
                 self.search = Search()
                 self.movie = Movie()
                 self.tv = TV()
+                self.episode = Episode()
                 self.find = Find()
                 self.person = Person()
                 self.trending = Trending()
+                self.discover = Discover()
                 self.meta = MetaHelper()
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
             if rmt_match_mode:
@@ -985,19 +988,15 @@ class Media:
             return []
         return self.__dict_tmdbinfos(self.movie.upcoming(page), MediaType.MOVIE)
 
-    def get_tmdb_trending(self, media_type="all", time_window="week", page=1):
+    def get_tmdb_trending_all_week(self, page=1):
         """
         获取即将上映电影
-        :param media_type: 媒体类型 movie/tv/all
-        :param time_window: 时间窗口 week/day
         :param page: 第几页
         :return: TMDB信息列表
         """
         if not self.movie:
             return []
-        return self.__dict_tmdbinfos(self.trending.trending(media_type,
-                                                            time_window,
-                                                            page=page))
+        return self.__dict_tmdbinfos(self.trending.all_week(page=page))
 
     def __get_tmdb_movie_detail(self, tmdbid, append_to_response=None):
         """
@@ -1800,6 +1799,23 @@ class Media:
             print(str(e))
             return []
 
+    def get_tmdb_discover(self, mtype, params=None, page=1):
+        """
+        浏览电影、电视剧（复杂过滤条件）
+        """
+        if not self.discover:
+            return []
+        try:
+            if mtype == MediaType.MOVIE:
+                movies = self.discover.discover_movies(params=params, page=page)
+                return self.__dict_tmdbinfos(movies, mtype)
+            elif mtype == MediaType.TV:
+                tvs = self.discover.discover_tv_shows(params=params, page=page)
+                return self.__dict_tmdbinfos(tvs, mtype)
+        except Exception as e:
+            print(str(e))
+        return []
+
     def get_person_medias(self, personid, mtype, page=1):
         """
         查询人物相关影视作品
@@ -2090,9 +2106,11 @@ class Media:
         """
         获取剧集中某一集封面
         """
-        res = self.tv.episode_images(tv_id, season_id, episode_id)
-        if len(res.get("stills", [])) > 0:
-            return TMDB_IMAGE_W500_URL % res.get("stills", [{}])[0].get("file_path")
+        if not self.episode:
+            return ""
+        res = self.episode.images(tv_id, season_id, episode_id)
+        if res:
+            return TMDB_IMAGE_W500_URL % res[0].get("file_path")
         else:
             return ""
 

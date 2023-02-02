@@ -2312,10 +2312,11 @@ class WebAction:
             }).get("Items")
         elif Type == "TRENDING":
             # TMDB流行趋势
-            res_list = Media().get_tmdb_trending(page=CurrentPage)
+            res_list = Media().get_tmdb_trending_all_week(page=CurrentPage)
         elif Type == "DISCOVER":
             # TMDB发现
-            pass
+            mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
+            res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage)
         elif Type == "DOUBANTAG":
             # 豆瓣发现
             pass
