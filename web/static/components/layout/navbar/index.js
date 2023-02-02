@@ -303,6 +303,14 @@ export class LayoutNavbar extends CustomElement {
 
   update_active(page) {
     this._active_name = page ?? window.history.state?.page;
+    for (const item of this.querySelectorAll(".dropdown-menu")) {
+      for (const a of item.querySelectorAll("a")) {
+        if (this._active_name === a.getAttribute("data-lit-page")) {
+          item.classList.add("show");
+          return;
+        }
+      }
+    }
   }
 
   render() {
@@ -389,10 +397,11 @@ export class LayoutNavbar extends CustomElement {
                               ${item.also ?? item.name}
                             </span>
                           </a>
-                          <div class="dropdown-menu ${item.list.map((drop) => (drop.page)).includes(this._active_name) ? "show" : ""}">
+                          <div class="dropdown-menu">
                             ${item.list.map((drop) => (
                             html`
                               <a class="dropdown-item ${this._active_name === drop.page ? "active" : ""}" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+                                data-lit-page=${drop.page}
                                 @click=${ () => { navmenu(drop.page) }}>
                                 ${drop.also ?? drop.name}
                               </a>`
