@@ -389,7 +389,7 @@ export class LayoutNavbar extends CustomElement {
                               ${item.also ?? item.name}
                             </span>
                           </a>
-                          <div class="dropdown-menu">
+                          <div class="dropdown-menu ${item.list.map((drop) => (drop.page)).includes(this._active_name) ? "show" : ""}">
                             ${item.list.map((drop) => (
                             html`
                               <a class="dropdown-item ${this._active_name === drop.page ? "active" : ""}" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
