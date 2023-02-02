@@ -1,4 +1,10 @@
-body, .page {
+body {
+    min-height: calc(100% + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
+}
+
+.page {
     height: 100%;
     overflow: hidden;
 }
@@ -32,14 +38,6 @@ body, .page {
     box-shadow: none;
 }
 
-.nav-search-bar {
-    padding-top: env(safe-area-inset-top) !important;
-}
-
-.lit-navar-close {
-    margin-top: env(safe-area-inset-top) !important;
-}
-
 @media (max-width: 992px) {
     .navbar ul.navbar-nav {
       overflow-y: auto;
@@ -48,21 +46,13 @@ body, .page {
 }
 
 .page-wrapper {
-    padding-top: calc(env(safe-area-inset-top) + 51px) !important;
+    padding-top: 51px !important;
     height: 100% !important;
     overflow: scroll !important;
 }
 
 .page-wrapper-top-off {
     margin-top: calc(0px - env(safe-area-inset-top) - 51px) !important;
-}
-
-.offcanvas {
-    padding-top: env(safe-area-inset-top) !important;
-}
-
-.modal-dialog {
-    padding-top: env(safe-area-inset-top) !important;
 }
 
 
