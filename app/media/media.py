@@ -908,6 +908,7 @@ class Media:
                     "first_air_date")[0:4] if info.get(
                     "first_air_date") else ""
                 typestr = 'MOV' if mtype == MediaType.MOVIE else 'TV'
+                title = info.get("title") if mtype == MediaType.MOVIE else info.get("name")
             else:
                 media_type = MediaType.MOVIE.value if info.get(
                     "media_type") == "movie" else MediaType.TV.value
@@ -917,12 +918,13 @@ class Media:
                     "first_air_date")[0:4] if info.get(
                     "first_air_date") else ""
                 typestr = 'MOV' if info.get("media_type") == "movie" else 'TV'
+                title = info.get("title") if info.get("media_type") == "movie" else info.get("name")
 
             ret_infos.append({
                 'id': tmdbid,
                 'orgid': tmdbid,
                 'tmdbid': tmdbid,
-                'title': typestr,
+                'title': title,
                 'type': typestr,
                 'media_type': media_type,
                 'year': year,
