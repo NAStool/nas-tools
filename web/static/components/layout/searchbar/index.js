@@ -114,10 +114,10 @@ export class LayoutSearchbar extends CustomElement {
         }
       }
     }
-    _changeColor();
+    // _changeColor();
     // 窗口大小发生改变时
     this._changeColor_resize = () => { _changeColor() }; // 防止无法卸载事件
-    window.addEventListener("resize", this._changeColor_resize);
+    // window.addEventListener("resize", this._changeColor_resize);
   }
 
   // 卸载事件

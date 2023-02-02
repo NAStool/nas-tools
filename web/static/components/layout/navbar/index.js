@@ -301,8 +301,8 @@ export class LayoutNavbar extends CustomElement {
     this._update_appversion = "";
     this._update_url = "https://github.com/jxxghp/nas-tools";
     this._is_update = false;
-    this.classList.add("navbar","navbar-vertical","navbar-expand-lg","navbar-dark","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
-  } 
+    this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
+  }
 
   firstUpdated() {
     // 加载页面
@@ -416,7 +416,7 @@ export class LayoutNavbar extends CustomElement {
         
       </style>
       <div class="container-fluid">
-        <div class="offcanvas offcanvas-start d-flex bg-dark lit-navbar-canvas" tabindex="-1" id="litLayoutNavbar">
+        <div class="offcanvas offcanvas-start d-flex lit-navbar-canvas" tabindex="-1" id="litLayoutNavbar">
           <div class="lit-navar-close d-lg-none">
             <button type="button" class="btn btn-lg btn-ghost-light" data-bs-dismiss="offcanvas" aria-label="Close">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -428,7 +428,7 @@ export class LayoutNavbar extends CustomElement {
           </div>
           <div class="d-flex flex-row flex-grow-1 lit-navbar-hide-scrollbar">
             <div class="d-flex flex-column flex-grow-1">
-              <h1 class="mt-3" style="text-align:center;filter:brightness(0) invert(1)">
+              <h1 class="mt-3" style="text-align:center;">
                 <a href="javascript:ScrollToTop()">
                   <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
                 </a>
@@ -477,7 +477,7 @@ export class LayoutNavbar extends CustomElement {
                 </ul>
               </div>
               <div class="align-items-end align-self-center nav-item btn-list pb-3">
-                <a href=${this._update_url} class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "btn-dark text-muted"}" target="_blank" rel="noreferrer">
+                <a href=${this._update_url} class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "text-muted"}" target="_blank" rel="noreferrer">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24"
                       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                       stroke-linejoin="round">
