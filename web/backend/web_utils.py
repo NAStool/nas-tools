@@ -146,8 +146,6 @@ class WebUtils:
             for tmdbinfo in tmdbinfos:
                 tmp_info = MetaInfo(title=keyword)
                 tmp_info.set_tmdb_info(tmdbinfo)
-                if tmp_info.type == MediaType.ANIME:
-                    tmp_info.type = MediaType.TV
                 if meta_info.type != MediaType.MOVIE and tmp_info.type == MediaType.MOVIE:
                     continue
                 if tmp_info.begin_season:
