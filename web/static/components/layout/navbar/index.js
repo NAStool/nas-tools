@@ -300,8 +300,12 @@ export class LayoutNavbar extends CustomElement {
       }
     }
     // 删除logo动画
-    document.querySelector("#logo_animation").remove();
-    document.querySelector("#page_content").removeAttribute("hidden");
+    setTimeout(() => {
+      document.querySelector("#logo_animation").remove();
+      this.removeAttribute("hidden");
+      document.querySelector("layout-searchbar").removeAttribute("hidden");
+      document.querySelector("#page_content").removeAttribute("hidden");
+    }, 1000);
   }
 
   update_active(page) {
