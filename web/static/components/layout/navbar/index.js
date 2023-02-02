@@ -204,7 +204,7 @@ const navbar_list = [
   },
   {
     name: "服务",
-    page: "search",
+    page: "service",
     icon: html`
       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-2" width="24" height="24"
           viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -284,16 +284,22 @@ const navbar_list = [
 export class LayoutNavbar extends CustomElement {
   static properties = {
     layout_gopage: { attribute: "layout-gopage" },
+    layout_appversion: { attribute: "layout-appversion"},
     layout_userpris: { attribute: "layout-userpris", type: Array },
     _active_name: { state: true},
+    _update_appversion: { state: true },
+    _update_url: { state: true },
     _is_update: { state: true },
   };
 
   constructor() {
     super();
     this.layout_gopage = "";
+    this.layout_appversion = "获取中..";
     this.layout_userpris = navbar_list.map((item) => (item.name));
     this._active_name = "";
+    this._update_appversion = "";
+    this._update_url = "https://github.com/jxxghp/nas-tools";
     this._is_update = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
   }
@@ -321,6 +327,31 @@ export class LayoutNavbar extends CustomElement {
       document.querySelector("#page_content").removeAttribute("hidden");
       document.querySelector("layout-searchbar").removeAttribute("hidden");
     }, 200);
+    // 检查更新
+    if (this.layout_userpris.includes("系统设置")) {
+      this._check_new_version();
+    }
+  }
+
+  _check_new_version() {
+    ajax_post("version", {}, (ret) => {
+      if (ret.code === 0) {
+        let url = null;
+        switch (compareVersion(ret.version, this.layout_appversion)) {
+          case 1:
+            url = ret.url;
+            break;
+          case 2:
+            url = "https://github.com/jxxghp/nas-tools/commits/master"
+            break;
+        }
+        if (url) {
+          this._update_url = url;
+          this._update_appversion = ret.version;
+          this._is_update = true;
+        }
+      }
+    });
   }
 
   update_active(page) {
@@ -446,17 +477,24 @@ export class LayoutNavbar extends CustomElement {
                 </ul>
               </div>
               <div class="align-items-end align-self-center nav-item btn-list pb-3">
-                <a href="https://github.com/jxxghp/nas-tools" class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "text-muted"}" target="_blank" rel="noreferrer">
+                <a href=${this._update_url} class="btn ${this._is_update ? "btn-yellow text-yellow-fg" : "text-muted"}" target="_blank" rel="noreferrer">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24"
                       viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                       stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path>
                   </svg>
-                  V2.8.2 e704d14
+                  ${!this._is_update ? this.layout_appversion : nothing}
                   ${this._is_update
                   ? html`
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines-filled ms-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <del>${this.layout_appversion}</del>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines-filled ms-2 text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                      @click=${ (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        update(this._update_appversion);
+                        return false;
+                      }}>
                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                       <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z" fill="currentColor"></path>
                       <path d="M9 21h6"></path>

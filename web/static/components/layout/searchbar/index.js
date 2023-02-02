@@ -158,6 +158,7 @@ export class LayoutSearchbar extends CustomElement {
               @keypress=${ (e) => {
                 if(e.which === 13 && this.input.value){
                   navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + this.input.value + "&keyword=" + this.input.value + "&source=" + this._search_source);
+                  this.input.value = "";
                 }
               }}>
             <span class="input-group-text form-control-rounded">
