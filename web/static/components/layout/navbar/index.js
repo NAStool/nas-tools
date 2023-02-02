@@ -378,7 +378,6 @@ export class LayoutNavbar extends CustomElement {
 
         .lit-navbar-canvas {
           width:calc(var(--tblr-offcanvas-width) - 80px)!important;
-          border-right: var(--tblr-offcanvas-border-width) solid #243049!important;
         }
 
         .lit-navar-close {
