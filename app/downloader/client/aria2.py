@@ -135,7 +135,7 @@ class Aria2(_IDownloadClient):
     def change_torrent(self, **kwargs):
         pass
 
-    def get_downloading_progress(self):
+    def get_downloading_progress(self, **kwargs):
         """
         获取正在下载的种子进度
         """
