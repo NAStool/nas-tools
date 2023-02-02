@@ -1,0 +1,1 @@
+UPDATE main.CONFIG_USERS SET PRIS = replace(PRIS, '推荐', '探索') WHERE 1
