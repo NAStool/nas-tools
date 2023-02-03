@@ -83,8 +83,8 @@ export class LayoutSearchbar extends CustomElement {
         }
 
         .lit-searchbar-blur {
-          backdrop-filter: blur(5px);
-          -webkit-backdrop-filter:blur(5px);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter:blur(8px);
         }
 
         .theme-dark .lit-searchbar-blur {
