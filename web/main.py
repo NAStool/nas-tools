@@ -344,12 +344,14 @@ def sites():
     DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
     CookieCloudCfg = SystemConfig().get_system_config('CookieCloud')
+    CookieUserInfoCfg = SystemConfig().get_system_config('CookieUserInfo')
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
                            DownloadSettings=DownloadSettings,
                            ChromeOk=ChromeOk,
-                           CookieCloudCfg=CookieCloudCfg)
+                           CookieCloudCfg=CookieCloudCfg,
+                           CookieUserInfoCfg=CookieUserInfoCfg)
 
 
 # 站点列表页面

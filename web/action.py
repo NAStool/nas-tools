@@ -4071,6 +4071,13 @@ class WebAction:
         password = data.get("password")
         twostepcode = data.get("two_step_code")
         ocrflag = data.get("ocrflag")
+        # 保存设置
+        SystemConfig().set_system_config(key="CookieUserInfo",
+                                         value={
+                                             "username": username,
+                                             "password": password,
+                                             "two_step_code": twostepcode
+                                         })
         retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
                                                                 username=username,
                                                                 password=password,

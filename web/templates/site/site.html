@@ -361,19 +361,19 @@
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="" id="cookieua_username" class="form-control" placeholder="站点登录用户名">
+              <input type="text" value="{{ CookieUserInfoCfg.username }}" id="cookieua_username" class="form-control" placeholder="站点登录用户名">
             </div>
           </div>
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="" id="cookieua_password" class="form-control" placeholder="登录密码">
+              <input type="password" value="{{ CookieUserInfoCfg.password }}" id="cookieua_password" class="form-control" placeholder="登录密码">
             </div>
           </div>
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label">两步验证</label>
-              <input type="text" value="" id="cookieua_two_step_code" class="form-control" placeholder="如有设置必须填写">
+              <input type="text" value="{{ CookieUserInfoCfg.two_step_code }}" id="cookieua_two_step_code" class="form-control" placeholder="如有设置必须填写">
             </div>
           </div>
         </div>

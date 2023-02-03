@@ -9,8 +9,12 @@ class SystemConfig:
 
     # 系统设置
     systemconfig = {
+        # 默认下载设置
         "DefaultDownloadSetting": None,
-        "CookieCloud": {}
+        # CookieCloud的设置
+        "CookieCloud": {},
+        # 自动获取Cookie的用户信息
+        "CookieUserInfo": {}
     }
 
     def __init__(self):
