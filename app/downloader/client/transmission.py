@@ -129,7 +129,7 @@ class Transmission(_IDownloadClient):
         if not self.trc:
             return []
         try:
-            torrents, _ = self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
+            torrents, _ = self.get_torrents(status=["downloading", "download_pending"], tag=tag)
             return torrents
         except Exception as err:
             ExceptionUtils.exception_traceback(err)

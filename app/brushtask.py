@@ -184,14 +184,18 @@ class BrushTask(object):
                                            downloadercfg=downloader_cfg,
                                            dlcount=rss_rule.get("dlcount")):
             return
+
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
             return
         else:
             log.info("【Brush】%s RSS获取数据：%s" % (site_name, len(rss_result)))
-        success_count = 0
 
+        max_dlcount = rss_rule.get("dlcount")
+        downloading_count = self.__get_downloading_count(downloader_cfg)
+        new_toreent_count = int(max_dlcount) - int(downloading_count)
+        success_count = 0
         for res in rss_result:
             try:
                 # 种子名
@@ -237,6 +241,10 @@ class BrushTask(object):
                                            site_info=site_info):
                     # 计数
                     success_count += 1
+                    # 添加种子后不能超过最大下载数量
+                    if success_count >= new_toreent_count:
+                        break
+
                     # 再判断一次
                     if not self.__is_allow_new_torrent(taskid=taskid,
                                                        taskname=task_name,
@@ -282,6 +290,7 @@ class BrushTask(object):
                 download_id = taskinfo.get("downloader")
                 remove_rule = taskinfo.get("remove_rule")
                 sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
+
                 # 当前任务种子详情
                 task_torrents = self.dbhelper.get_brushtask_torrents(taskid)
                 torrent_ids = [item.DOWNLOAD_ID for item in task_torrents if item.DOWNLOAD_ID]

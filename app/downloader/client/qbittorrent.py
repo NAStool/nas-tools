@@ -121,7 +121,7 @@ class Qbittorrent(_IDownloadClient):
         """
         if not self.qbc:
             return []
-        torrents, _ = self.get_torrents(status=["downloading"], tag=tag)
+        torrents, _ = self.get_torrents(status=["downloading", "download_pending"], tag=tag)
         return torrents
 
     def remove_torrents_tag(self, ids, tag):
