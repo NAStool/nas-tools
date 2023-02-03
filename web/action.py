@@ -2314,7 +2314,7 @@ class WebAction:
             # TMDB流行趋势
             res_list = Media().get_tmdb_trending_all_week(page=CurrentPage)
         elif Type == "DISCOVER":
-            # TMDB发现
+            # TMDB发现 with_genres with_original_language
             mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
             res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage)
         elif Type == "DOUBANTAG":
