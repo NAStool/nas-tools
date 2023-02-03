@@ -69,7 +69,7 @@ export class PageMediainfo extends CustomElement {
     return html`
       <style>
         .lit-media-info-page-bg {
-          background-color: rgb(var(--tblr-body-bg-rgb));
+          background-color: rgb(231, 235, 239);
         }
       </style>
       <div class="container-xl placeholder-glow page-wrapper-top-off lit-media-info-page-bg">
