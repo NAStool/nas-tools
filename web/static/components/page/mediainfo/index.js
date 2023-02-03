@@ -69,6 +69,10 @@ export class PageMediainfo extends CustomElement {
     return html`
       <style>
         .lit-media-info-page-bg {
+          background-color: rgb(var(--tblr-body-bg-rgb));
+        }
+        
+        .theme-light .lit-media-info-page-bg {
           background-color: rgb(231, 235, 239);
         }
       </style>
