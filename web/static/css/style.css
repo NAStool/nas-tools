@@ -7,6 +7,10 @@ body, .page {
     overflow: hidden;
 }
 
+.theme-light .page {
+    background-image: linear-gradient(180deg, rgba(123, 178, 233, 0.5) 0%, rgba(var(--tblr-body-bg-rgb),1) 50%);
+}
+
 .tooltip-inner {
     text-align: left;
 }

@@ -426,7 +426,7 @@ export class LayoutNavbar extends CustomElement {
         }
 
         .theme-light .lit-navbar {
-          background-color: rgb(231, 235, 239);
+          background-color: rgb(231, 235, 239, 0.5);
         }
 
         /* 屏蔽lg以下顶栏 */
