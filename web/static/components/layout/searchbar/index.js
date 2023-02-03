@@ -92,7 +92,7 @@ export class LayoutSearchbar extends CustomElement {
         }
 
         .theme-light .lit-searchbar-blur {
-          background-color: rgba(231,235,239,0.5)!important;
+          background-color: rgba(231,235,239,0.8)!important;
         }
 
       </style>
