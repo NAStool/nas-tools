@@ -330,6 +330,8 @@ export class LayoutNavbar extends CustomElement {
           break;
         }
       }
+      // 默认展开探索
+      setTimeout(() => { this.show_collapse("ranking") }, 200);
     }
     // 删除logo动画 加点延迟切换体验好
     setTimeout(() => {
@@ -337,8 +339,6 @@ export class LayoutNavbar extends CustomElement {
       this.removeAttribute("hidden");
       document.querySelector("#page_content").removeAttribute("hidden");
       document.querySelector("layout-searchbar").removeAttribute("hidden");
-      // 默认展开探索
-      this.show_collapse("ranking");
     }, 200);
     // 检查更新
     if (this.layout_userpris.includes("系统设置")) {
