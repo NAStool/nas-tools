@@ -22,8 +22,12 @@ class DoubanApi(object):
         "search": "/search/weixin",
         "search_agg": "/search",
 
+        # 探索, sort=U:综合排序 T:近期热度 S:高分优先 R:首播时间
         # tags='日本,动画,2022'&start=0&count=20&sort=U
         "movie_recommend": "/movie/recommend",
+        #
+        "tv_recommend": "/tv/recommend",
+        # 搜索
         "movie_tag": "/movie/tag",
         "tv_tag": "/tv/tag",
 
@@ -207,8 +211,8 @@ class DoubanApi(object):
     def movie_top250(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["movie_top250"], start=start, count=count, _ts=ts)
 
-    def movie_tag(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
-        return self.__invoke(self._urls["movie_tag"], start=start, count=count, _ts=ts)
+    def movie_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["movie_recommend"], tags='', sort=sort, start=start, count=count, _ts=ts)
 
-    def tv_tag(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
-        return self.__invoke(self._urls["tv_tag"], start=start, count=count, _ts=ts)
+    def tv_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["tv_recommend"], tags=tags, sort=sort, start=start, count=count, _ts=ts)
