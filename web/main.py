@@ -69,10 +69,10 @@ App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 def add_header(r):
     """
     统一添加Http头，标用缓存，避免Flask多线程+Chrome内核会发生的静态资源加载出错的问题
-    """
     r.headers["Cache-Control"] = "no-cache, no-store, max-age=0"
     r.headers["Pragma"] = "no-cache"
     r.headers["Expires"] = "0"
+    """
     return r
 
 
