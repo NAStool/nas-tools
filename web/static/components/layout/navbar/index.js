@@ -337,6 +337,8 @@ export class LayoutNavbar extends CustomElement {
       this.removeAttribute("hidden");
       document.querySelector("#page_content").removeAttribute("hidden");
       document.querySelector("layout-searchbar").removeAttribute("hidden");
+      // 默认展开探索
+      this.show_collapse("ranking");
     }, 200);
     // 检查更新
     if (this.layout_userpris.includes("系统设置")) {
@@ -367,9 +369,13 @@ export class LayoutNavbar extends CustomElement {
 
   update_active(page) {
     this._active_name = page ?? window.history.state?.page;
+    this.show_collapse(this._active_name);
+  }
+
+  show_collapse(page) {
     for (const item of this.querySelectorAll("[id^='lit-navbar-collapse-']")) {
       for (const a of item.querySelectorAll("a")) {
-        if (this._active_name === a.getAttribute("data-lit-page")) {
+        if (page === a.getAttribute("data-lit-page")) {
           item.classList.add("show");
           return;
         }
