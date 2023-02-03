@@ -11,7 +11,7 @@ from lxml import etree
 import log
 from app.helper import MetaHelper
 from app.media.meta.metainfo import MetaInfo
-from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException, Discover, Trending, Episode
+from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException, Discover, Trending, Episode, Genre
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
@@ -30,6 +30,7 @@ class Media:
     find = None
     trending = None
     discover = None
+    genre = None
     meta = None
     _rmt_match_mode = None
     _search_keyword = None
@@ -61,6 +62,7 @@ class Media:
                 self.person = Person()
                 self.trending = Trending()
                 self.discover = Discover()
+                self.genre = Genre()
                 self.meta = MetaHelper()
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
             if rmt_match_mode:
@@ -1651,6 +1653,22 @@ class Media:
         genres = tmdbinfo.get("genres") or []
         genres_list = [genre.get("name") for genre in genres]
         return ", ".join(genres_list) if genres_list else ""
+
+    def get_tmdb_genres(self, mtype):
+        """
+        获取TMDB的风格列表
+        :param: mtype: 媒体类型
+        """
+        if not self.genre:
+            return []
+        try:
+            if mtype == MediaType.MOVIE:
+                return self.genre.movie_list()
+            else:
+                return self.genre.tv_list()
+        except Exception as err:
+            print(str(err))
+        return []
 
     @staticmethod
     def get_get_production_country_names(tmdbinfo):

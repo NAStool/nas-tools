@@ -8,3 +8,4 @@ from .objs.find import Find
 from .objs.discover import Discover
 from .objs.trending import Trending
 from .objs.episode import Episode
+from .objs.genre import Genre
