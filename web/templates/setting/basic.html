@@ -388,7 +388,7 @@
               <div class="col-xl">
                 <div class="mb-3">
                   <label class="form-label">订阅RSS周期(秒) <span class="form-help"
-                                                                  title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能"
+                                                                  title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能；为了减小站点压力，最小周期不能小于300秒"
                                                                   data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control"
                          id="pt.pt_check_interval" placeholder="留空关闭RSS订阅" autocomplete="off">

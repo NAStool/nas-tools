@@ -118,8 +118,8 @@ class Scheduler:
                         log.error("RSS订阅周期 配置格式错误：%s" % str(e))
                         pt_check_interval = 0
                 if pt_check_interval:
-                    if pt_check_interval < 60:
-                        pt_check_interval = 60
+                    if pt_check_interval < 300:
+                        pt_check_interval = 300
                     self.SCHEDULER.add_job(Rss().rssdownload, 'interval', seconds=pt_check_interval)
                     log.info("RSS订阅服务启动")
 
