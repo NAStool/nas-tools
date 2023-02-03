@@ -69,7 +69,7 @@ class BuiltinIndexer(_IIndexClient):
                 is_public = False
                 proxy = site.get("proxy")
                 language = None
-                render = False if not chrome_ok else site.get("chrome")
+                render = False if not chrome_ok else None
                 parser = None
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
