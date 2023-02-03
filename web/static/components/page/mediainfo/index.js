@@ -67,7 +67,12 @@ export class PageMediainfo extends CustomElement {
 
   render() {
     return html`
-      <div class="container-xl placeholder-glow page-wrapper-top-off">
+      <style>
+        .lit-media-info-page-bg {
+          background-color: rgb(var(--tblr-body-bg-rgb));
+        }
+      </style>
+      <div class="container-xl placeholder-glow page-wrapper-top-off lit-media-info-page-bg">
         <!-- 渲染媒体信息 -->
         <div class="card rounded-0 lit-media-info-background" style="border:none;height:541px;">
           <custom-img style="border:none;height:541px;"
