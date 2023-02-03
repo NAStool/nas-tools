@@ -347,14 +347,14 @@ class DouBan:
         if not self.doubanapi:
             return []
         if mtype == MediaType.MOVIE:
-            infos = self.doubanapi.movie_tag(start=(page - 1) * self._movie_num,
-                                             count=self._movie_num)
+            infos = self.doubanapi.movie_recommend(start=(page - 1) * self._movie_num,
+                                                   count=self._movie_num)
         else:
-            infos = self.doubanapi.tv_tag(start=(page - 1) * self._tv_num,
-                                          count=self._tv_num)
+            infos = self.doubanapi.tv_recommend(start=(page - 1) * self._tv_num,
+                                                count=self._tv_num)
         if not infos:
             return []
-        return self.__dict_items(infos.get("data"))
+        return self.__dict_items(infos.get("items"))
 
     @staticmethod
     def __dict_items(infos, media_type=None):
@@ -377,6 +377,8 @@ class DouBan:
             year = info.get('year')
     
             if not media_type:
+                if info.get("type") not in("movie", "tv"):
+                    continue
                 mtype = MediaType.MOVIE if info.get("type") == "movie" else MediaType.TV
             else:
                 mtype = media_type
@@ -387,6 +389,8 @@ class DouBan:
                 poster_path = info.get('cover', {}).get("url")
                 if not poster_path:
                     poster_path = info.get('cover_url')
+                if not poster_path:
+                    poster_path = info.get('pic', {}).get("large")
                 # 简介
                 overview = info.get("card_subtitle") or ""
                 if not year and overview:
