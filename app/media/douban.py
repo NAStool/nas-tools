@@ -361,6 +361,8 @@ class DouBan:
             return []
         return self.__dict_items(infos.get("subject_collection_items"))
 
+
+
     def get_douban_disover(self, mtype, page=1, params=None):
         if not self.doubanapi:
             return []
