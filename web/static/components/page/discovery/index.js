@@ -45,6 +45,11 @@ export class PageDiscovery extends CustomElement {
         },
         {
           type: "TV",
+          title:"豆瓣热门电视剧",
+          subtype :"dbht",
+        },
+        {
+          type: "TV",
           title:"华语口碑剧集榜",
           subtype :"dbct",
         },
