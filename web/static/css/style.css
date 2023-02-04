@@ -141,3 +141,8 @@ body, .page {
 .grid-info-card {
     grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));
 }
+
+.offcanvas-backdrop.show {
+    opacity: 0.8 !important;
+    background-color: #000 !important;
+}
