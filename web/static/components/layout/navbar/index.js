@@ -342,6 +342,7 @@ const navbar_list = [
   },
   {
     name: "系统设置",
+    also: "设置",
     list: [
       {
         name: "基础设置",
@@ -593,6 +594,7 @@ export class LayoutNavbar extends CustomElement {
       for (const a of item.querySelectorAll("a")) {
         if (page === a.getAttribute("data-lit-page")) {
           item.classList.add("show");
+          this.querySelectorAll(`button[data-bs-target='#${item.id}']`)[0].classList.remove("collapsed");
           return;
         }
       }
