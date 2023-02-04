@@ -665,22 +665,22 @@ export class LayoutNavbar extends CustomElement {
         /* 屏蔽lg以下顶栏 */
         @media (max-width: 992px) {
           .lit-navbar {
-            max-height:0px!important;
-            min-height:0px!important;
-            padding:0px!important;
-            margin:0px!important;
+            max-height:0!important;
+            min-height:0!important;
+            padding:0!important;
+            margin:0!important;
           }
         }
 
         .theme-dark .lit-navbar-accordion-button {
-          color:#a8aaac!important;
+
         }
         .theme-light .lit-navbar-accordion-button {
-          color:#3d575b!important;
+
         }
-        /* .lit-navbar-accordion-button::after {
+        .lit-navbar-accordion-button::after {
           
-        } */
+        }
 
         .lit-navbar-accordion-item, .lit-navbar-accordion-item-active {
           border-radius:0.75rem;
@@ -697,7 +697,8 @@ export class LayoutNavbar extends CustomElement {
           background-color: #414d6dca!important;
         }
         .theme-light .lit-navbar-accordion-item-active {
-          background-color: #d8c8d2c7!important;
+          background-color: rgba(123, 178, 233, 0.5)!important;
+          color: #000!important;
         }
 
       </style>
@@ -773,13 +774,14 @@ export class LayoutNavbar extends CustomElement {
     `;
   }
 
-  _render_page_item(item, indent) {
+  _render_page_item(item, child) {
     return html`
-    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${indent ? "ps-3" : ""}" 
+    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${child ? "ps-3" : "lit-navbar-accordion-button"}" 
       href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+      style="${child ? "" : "font-size:1.1rem;"}"
       data-lit-page=${item.page}
       @click=${ () => { navmenu(item.page) }}>
-      <span class="nav-link-icon" style="color:var(--tblr-body-color);">
+      <span class="nav-link-icon" ?hidden=${!child} style="color:var(--tblr-body-color);">
         ${item.icon ?? nothing}
       </span>
       <span class="nav-link-title">
