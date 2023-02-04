@@ -1616,16 +1616,10 @@
     }
     //订阅站点
     let rss_sites = select_GetSelectedVAL("rss_sites");
-    if (rss_sites.length === RSS_SITES_LENGTH) {
-      rss_sites = [];
-    }
     //搜索站点
     let search_sites = [];
     if (!fuzzy_match) {
       search_sites = select_GetSelectedVAL("search_sites");
-      if (search_sites.length === SEARCH_SITES_LENGTH) {
-        search_sites = [];
-      }
     }
     // 储存订阅设置
     const rss_setting = {
@@ -1915,13 +1909,11 @@
   }
 
   // 刷新搜索站点列表
-  var SEARCH_SITES_LENGTH = 0;
   function refresh_searchsites_select(obj_id, item_name,aync = true) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let searchsites_select = $(`#${obj_id}`);
         let searchsites_select_content = "";
-        SEARCH_SITES_LENGTH = ret.indexers.length;
         if (ret.indexers.length > 0) {
           searchsites_select.parent().parent().show();
         } else {

@@ -72,7 +72,8 @@ class Searcher:
                  搜索到的结果数量
                  下载到的结果数量，如为None则表示未开启自动下载
         """
-        if not media_info:
+
+        if not media_info or sites == []:
             return None, {}, 0, 0
         # 进度计数重置
         self.progress.start('search')
