@@ -159,6 +159,8 @@
                     <span class="badge bg-green">已下载</span>
                   {% elif Item.STATE == 'RSS' %}
                     <span class="badge bg-blue">已订阅</span>
+                  {% elif Item.STATE == 'NEW' %}
+                    <span class="badge bg-blue">新增</span>
                   {% else %}
                     <span class="badge bg-orange">处理中</span>
                   {% endif %}
