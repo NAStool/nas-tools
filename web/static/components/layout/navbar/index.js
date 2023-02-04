@@ -630,7 +630,7 @@ export class LayoutNavbar extends CustomElement {
         }
 
         .lit-navbar-canvas {
-          width:calc(var(--tblr-offcanvas-width) - 80px)!important;
+          width:calc(var(--tblr-offcanvas-width) - 120px)!important;
         }
 
         .theme-light .lit-navbar-canvas {
@@ -640,7 +640,7 @@ export class LayoutNavbar extends CustomElement {
         .lit-navar-close {
           position:fixed;
           top:0;
-          left:calc(var(--tblr-offcanvas-width) - 80px);
+          left:calc(var(--tblr-offcanvas-width) - 120px);
           z-index:var(--tblr-offcanvas-zindex);
           width: 80px;
         }
