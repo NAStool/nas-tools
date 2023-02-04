@@ -343,6 +343,24 @@ class DouBan:
             return []
         return self.__dict_items(infos.get("subject_collection_items"))
 
+    def get_douban_chinese_weekly_tv(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.tv_chinese_best_weekly(start=(page - 1) * self._tv_num,
+                                                      count=self._tv_num)
+        if not infos:
+            return []
+        return self.__dict_items(infos.get("subject_collection_items"))
+
+    def get_douban_weekly_tv_global(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.tv_global_best_weekly(start=(page - 1) * self._tv_num,
+                                                     count=self._tv_num)
+        if not infos:
+            return []
+        return self.__dict_items(infos.get("subject_collection_items"))
+
     def get_douban_disover(self, mtype, page=1, params=None):
         if not self.doubanapi:
             return []
@@ -375,14 +393,14 @@ class DouBan:
             title = info.get('title')
             # 年份
             year = info.get('year')
-    
+
             if not media_type:
-                if info.get("type") not in("movie", "tv"):
+                if info.get("type") not in ("movie", "tv"):
                     continue
                 mtype = MediaType.MOVIE if info.get("type") == "movie" else MediaType.TV
             else:
                 mtype = media_type
-    
+
             if mtype == MediaType.MOVIE:
                 type_str = "MOV"
                 # 海报
@@ -391,22 +409,21 @@ class DouBan:
                     poster_path = info.get('cover_url')
                 if not poster_path:
                     poster_path = info.get('pic', {}).get("large")
-                # 简介
-                overview = info.get("card_subtitle") or ""
-                if not year and overview:
-                    if overview.split("/")[0].strip().isdigit():
-                        year = overview.split("/")[0].strip()
             else:
                 type_str = "TV"
                 # 海报
                 poster_path = info.get('pic', {}).get("normal")
-                # 简介
-                overview = info.get("comment") or ""
-    
+
+            # 简介
+            overview = info.get("card_subtitle") or ""
+            if not year and overview:
+                if overview.split("/")[0].strip().isdigit():
+                    year = overview.split("/")[0].strip()
+
             # 高清海报
             if poster_path:
                 poster_path = poster_path.replace("s_ratio_poster", "m_ratio_poster")
-    
+
             ret_infos.append({
                 'id': "DB:%s" % rid,
                 'orgid': rid,

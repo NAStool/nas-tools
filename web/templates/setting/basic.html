@@ -159,6 +159,14 @@
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
+              <div class="col-auto">
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-user-script">
+                  自定义CSS/JavaScript
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-user-script" title="自定义CSS/JavaScript">
+                  {{ SVG.code_dots() }}
+                </a>
+              </div>
               <div class="col"></div>
               <div class="col-auto">
                 <a id="basic_system_btn" href="javascript:save_basic_config('basic_system')" class="btn btn-primary">
@@ -979,6 +987,46 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-user-script" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="card modal-content" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+      <div class="card-header" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+        <ul class="nav nav-fill card-header-tabs nav-tabs rounded-3" data-bs-toggle="tabs"
+            role="tablist">
+          <li class="nav-item" role="presentation">
+            <a href="#tabs-user-css" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
+               aria-selected="true" role="tab">
+              CSS
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a href="#tabs-user-script" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
+               aria-selected="false" role="tab" tabindex="-1">
+              JavaScript
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body">
+        <div class="tab-content">
+          <div class="tab-pane fade active show" id="tabs-user-css" role="tabpanel">
+            <textarea class="form-control" id="user_script_css" rows="10" placeholder="自定义CSS">{{ CustomScriptCfg.css or '' }}</textarea>
+          </div>
+          <div class="tab-pane fade" id="tabs-user-script" role="tabpanel">
+            <textarea class="form-control" id="user_script_javascript" rows="10" placeholder="自定义JavaScript脚本">{{ CustomScriptCfg.javascript or '' }}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link" data-bs-dismiss="modal">取消</button>
+        <a id="user_script_save_btn" href="javascript:save_user_script()" class="btn btn-primary ms-auto">
+          保存
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal modal-blur fade" id="modal-release-groups" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -1006,13 +1054,13 @@
 </div>
 <script type="text/javascript">
   // 保存基础设置
-  function save_basic_config(type) {
+  function save_basic_config(type, flag=true) {
     let params = input_select_GetVal(type);
-    if (type !== "modal-scraper") {
+    if (flag) {
       $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
     ajax_post("update_config", params, function (ret) {
-      if (type !== "modal-scraper") {
+      if (flag) {
         $("#" + type + "_btn").text("保存").attr("disabled", false);
       }
     });
@@ -1020,11 +1068,11 @@
 
   // 保存搜刮配置
   function save_scraper_config() {
-    save_basic_config('modal-scraper');
+    save_basic_config('modal-scraper', false);
     $("#modal-scraper").modal("hide");
   }
 
-    // 保存自定义制作组/字幕组配置
+  // 保存自定义制作组/字幕组配置
   function save_release_groups_config(){
     let params = {'laboratory.release_groups': $("#release_groups").val().replace(/;$/g, '')};
     $("#release_groups_save_btn").text("保存中...").attr("disabled", true);
@@ -1032,6 +1080,17 @@
       $("#release_groups_save_btn").text("保存").attr("disabled", false);
     });
     $("#modal-customized-words").modal("hide");
+  }
+
+  // 保存自定义CSS/JavsScript配置
+  function save_user_script(){
+    let css_text = $("#user_script_css").val();
+    let javascript_text = $("#user_script_javascript").val();
+    $("#user_script_save_btn").text("保存中...").attr("disabled", true);
+    ajax_post("save_user_script", {css: css_text, javascript: javascript_text}, function (ret) {
+      $("#user_script_save_btn").text("保存").attr("disabled", false);
+    });
+    $("#modal-user-script").modal("hide");
   }
 
 </script>

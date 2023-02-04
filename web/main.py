@@ -127,6 +127,7 @@ def login():
         SiteFavicons = Sites().get_site_favicon()
         Indexers = Indexer().get_indexers()
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
+        CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -140,7 +141,8 @@ def login():
                                SiteFavicons=SiteFavicons,
                                RmtModeDict=RmtModeDict,
                                Indexers=Indexers,
-                               SearchSource=SearchSource)
+                               SearchSource=SearchSource,
+                               CustomScriptCfg=CustomScriptCfg)
 
     def redirect_to_login(errmsg=''):
         """
@@ -968,10 +970,12 @@ def basic():
     if proxy:
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
+    CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,
-                           RmtModeDict=RmtModeDict)
+                           RmtModeDict=RmtModeDict,
+                           CustomScriptCfg=CustomScriptCfg)
 
 
 # 自定义识别词设置页面

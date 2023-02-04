@@ -25,18 +25,13 @@ export class PageDiscovery extends CustomElement {
         },
         {
           type: "TRENDING",
-          title:"流行趋势",
+          title:"TMDB流行趋势",
           subtype :"tmdb",
         },
         {
           type: "MOV",
-          title:"TMDB热门电影",
-          subtype :"hm",
-        },
-        {
-          type: "TV",
-          title:"TMDB热门电视剧",
-          subtype :"ht",
+          title:"豆瓣最新电影",
+          subtype :"dbnm",
         },
         {
           type: "MOV",
@@ -44,14 +39,19 @@ export class PageDiscovery extends CustomElement {
           subtype :"dbhm",
         },
         {
-          type: "TV",
-          title:"豆瓣热门电视剧",
-          subtype :"dbht",
-        },
-        {
           type: "MOV",
           title:"豆瓣电影TOP250",
           subtype :"dbtop",
+        },
+        {
+          type: "TV",
+          title:"华语口碑剧集榜",
+          subtype :"dbct",
+        },
+        {
+          type: "TV",
+          title:"全球口碑剧集榜",
+          subtype :"dbgt",
         }
       ],
       "BANGUMI": [

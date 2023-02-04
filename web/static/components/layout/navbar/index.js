@@ -6,7 +6,7 @@ import { CustomElement } from "../../utility/utility.js";
 // name: 服务原名
 // page: 导航路径
 // icon: 项目图标
-// also: 显示别名 (可选)
+// : 显示别名 (可选)
 const navbar_list = [
   {
     name: "我的媒体库",
@@ -19,7 +19,7 @@ const navbar_list = [
     name: "探索",
     list: [
       {
-        name: "推荐",
+        name: "榜单推荐",
         page: "ranking",
         icon: html`
           <!-- https://tabler-icons.io/static/tabler-icons/icons-png/align-box-bottom-center.png -->
@@ -96,7 +96,15 @@ const navbar_list = [
         name: "BANGUMI",
         page: "bangumi",
         icon: html`
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-compass" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 16l2 -6l6 -2l-2 6l-6 2"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 3l0 2"></path><path d="M12 19l0 2"></path><path d="M3 12l2 0"></path><path d="M19 12l2 0"></path></svg>
+          <!-- https://tabler-icons.io/static/tabler-icons/icons-png/device-tv-old.png -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv-old" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+             <path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path>
+             <path d="M16 3l-4 4l-4 -4"></path>
+             <path d="M15 7v13"></path>
+             <path d="M18 15v.01"></path>
+             <path d="M18 12v.01"></path>
+          </svg>
         `,
       },
     ],
@@ -122,17 +130,11 @@ const navbar_list = [
         name: "数据统计",
         page: "statistics",
         icon: html`
-          <!-- https://tabler-icons.io/static/tabler-icons/icons-png/calculator.png -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calculator" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-            <path d="M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z"></path>
-            <path d="M8 14l0 .01"></path>
-            <path d="M12 14l0 .01"></path>
-            <path d="M16 14l0 .01"></path>
-            <path d="M8 17l0 .01"></path>
-            <path d="M12 17l0 .01"></path>
-            <path d="M16 17l0 .01"></path>
+          <!-- https://tabler-icons.io/static/tabler-icons/icons-png/chart-pie.png -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-pie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+             <path d="M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-6.8a2 2 0 0 1 -2 -2v-7a.9 .9 0 0 0 -1 -.8"></path>
+             <path d="M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a1 1 0 0 1 -1 -1v-4.5"></path>
           </svg>
         `,
       },
@@ -724,12 +726,12 @@ export class LayoutNavbar extends CustomElement {
                     ${item.list?.length > 0
                     ? html`
                       <button class="accordion-button lit-navbar-accordion-button collapsed ps-2 pe-1 py-2" style="font-size:1.1rem;" data-bs-toggle="collapse" data-bs-target="#lit-navbar-collapse-${index}" aria-expanded="false">
-                        ${item.name}
+                        ${item.also??item.name}
                       </button>
                       <div class="accordion-collapse collapse" id="lit-navbar-collapse-${index}">
-                        ${item.list.map((drop) => (this._render_page_item(drop)))}
+                        ${item.list.map((drop) => (this._render_page_item(drop, true)))}
                       </div>`
-                    : this._render_page_item(item)
+                    : this._render_page_item(item, false)
                     } `
                   : nothing }
                 `))}
@@ -771,9 +773,10 @@ export class LayoutNavbar extends CustomElement {
     `;
   }
 
-  _render_page_item(item) {
+  _render_page_item(item, indent) {
     return html`
-    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${indent ? "ps-3" : ""}" 
+      href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
       data-lit-page=${item.page}
       @click=${ () => { navmenu(item.page) }}>
       <span class="nav-link-icon" style="color:var(--tblr-body-color);">

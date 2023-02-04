@@ -14,7 +14,9 @@ class SystemConfig:
         # CookieCloud的设置
         "CookieCloud": {},
         # 自动获取Cookie的用户信息
-        "CookieUserInfo": {}
+        "CookieUserInfo": {},
+        # 用户自定义CSS/JavsScript
+        "CustomScript": {}
     }
 
     def __init__(self):

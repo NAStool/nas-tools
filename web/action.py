@@ -205,7 +205,8 @@ class WebAction:
             "media_similar": self.__media_similar,
             "media_recommendations": self.__media_recommendations,
             "media_person": self.__media_person,
-            "person_medias": self.__person_medias
+            "person_medias": self.__person_medias,
+            "save_user_script": self.__save_user_script
         }
 
     def action(self, cmd, data=None):
@@ -2235,70 +2236,77 @@ class WebAction:
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
-        res_list = []
 
+        res_list = []
         if Type in ['MOV', 'TV']:
-            if SubType == "hm":
-                # TMDB热门电影
-                res_list = Media().get_tmdb_hot_movies(CurrentPage)
-            elif SubType == "ht":
-                # TMDB热门电视剧
-                res_list = Media().get_tmdb_hot_tvs(CurrentPage)
-            elif SubType == "nm":
-                # TMDB最新电影
-                res_list = Media().get_tmdb_new_movies(CurrentPage)
-            elif SubType == "nt":
-                # TMDB最新电视剧
-                res_list = Media().get_tmdb_new_tvs(CurrentPage)
-            elif SubType == "dbom":
-                # 豆瓣正在上映
-                res_list = DouBan().get_douban_online_movie(CurrentPage)
-            elif SubType == "dbhm":
-                # 豆瓣热门电影
-                res_list = DouBan().get_douban_hot_movie(CurrentPage)
-            elif SubType == "dbht":
-                # 豆瓣热门电视剧
-                res_list = DouBan().get_douban_hot_tv(CurrentPage)
-            elif SubType == "dbdh":
-                # 豆瓣热门动画
-                res_list = DouBan().get_douban_hot_anime(CurrentPage)
-            elif SubType == "dbnm":
-                # 豆瓣最新电影
-                res_list = DouBan().get_douban_new_movie(CurrentPage)
-            elif SubType == "dbtop":
-                # 豆瓣TOP250电影
-                res_list = DouBan().get_douban_top250_movie(CurrentPage)
-            elif SubType == "dbzy":
-                # 豆瓣最新电视剧
-                res_list = DouBan().get_douban_hot_show(CurrentPage)
-            elif SubType == "sim":
-                # 相似推荐
-                TmdbId = data.get("tmdbid")
-                res_list = self.__media_similar({
-                    "tmdbid": TmdbId,
-                    "page": CurrentPage,
-                    "type": Type
-                }).get("data")
-            elif SubType == "more":
-                # 更多推荐
-                TmdbId = data.get("tmdbid")
-                res_list = self.__media_recommendations({
-                    "tmdbid": TmdbId,
-                    "page": CurrentPage,
-                    "type": Type
-                }).get("data")
-            elif SubType == "person":
-                # 人物作品
-                PersonId = data.get("personid")
-                res_list = self.__person_medias({
-                    "personid": PersonId,
-                    "type": Type,
-                    "page": CurrentPage
-                }).get("data")
-            elif SubType == "bangumi":
-                # Bangumi每日放送
-                Week = data.get("week")
-                res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
+            match SubType:
+                case "hm":
+                    # TMDB热门电影
+                    res_list = Media().get_tmdb_hot_movies(CurrentPage)
+                case "ht":
+                    # TMDB热门电视剧
+                    res_list = Media().get_tmdb_hot_tvs(CurrentPage)
+                case "nm":
+                    # TMDB最新电影
+                    res_list = Media().get_tmdb_new_movies(CurrentPage)
+                case "nt":
+                    # TMDB最新电视剧
+                    res_list = Media().get_tmdb_new_tvs(CurrentPage)
+                case "dbom":
+                    # 豆瓣正在上映
+                    res_list = DouBan().get_douban_online_movie(CurrentPage)
+                case "dbhm":
+                    # 豆瓣热门电影
+                    res_list = DouBan().get_douban_hot_movie(CurrentPage)
+                case "dbht":
+                    # 豆瓣热门电视剧
+                    res_list = DouBan().get_douban_hot_tv(CurrentPage)
+                case "dbdh":
+                    # 豆瓣热门动画
+                    res_list = DouBan().get_douban_hot_anime(CurrentPage)
+                case "dbnm":
+                    # 豆瓣最新电影
+                    res_list = DouBan().get_douban_new_movie(CurrentPage)
+                case "dbtop":
+                    # 豆瓣TOP250电影
+                    res_list = DouBan().get_douban_top250_movie(CurrentPage)
+                case "dbzy":
+                    # 豆瓣最新电视剧
+                    res_list = DouBan().get_douban_hot_show(CurrentPage)
+                case "dbct":
+                    # 华语口碑剧集榜
+                    res_list = DouBan().get_douban_chinese_weekly_tv(CurrentPage)
+                case "dbgt":
+                    # 全球口碑剧集榜
+                    res_list = DouBan().get_douban_weekly_tv_global(CurrentPage)
+                case "sim":
+                    # 相似推荐
+                    TmdbId = data.get("tmdbid")
+                    res_list = self.__media_similar({
+                        "tmdbid": TmdbId,
+                        "page": CurrentPage,
+                        "type": Type
+                    }).get("data")
+                case "more":
+                    # 更多推荐
+                    TmdbId = data.get("tmdbid")
+                    res_list = self.__media_recommendations({
+                        "tmdbid": TmdbId,
+                        "page": CurrentPage,
+                        "type": Type
+                    }).get("data")
+                case "person":
+                    # 人物作品
+                    PersonId = data.get("personid")
+                    res_list = self.__person_medias({
+                        "personid": PersonId,
+                        "type": Type,
+                        "page": CurrentPage
+                    }).get("data")
+                case "bangumi":
+                    # Bangumi每日放送
+                    Week = data.get("week")
+                    res_list = Bangumi().get_bangumi_calendar(page=CurrentPage, week=Week)
         elif Type == "SEARCH":
             # 搜索词条
             Keyword = data.get("keyword")
@@ -4378,3 +4386,17 @@ class WebAction:
         return {"code": 0, "data": Media().get_person_medias(personid=personid,
                                                              mtype=mtype,
                                                              page=page)}
+
+    @staticmethod
+    def __save_user_script(data):
+        """
+        保存用户自定义脚本
+        """
+        script = data.get("javascript") or ""
+        css = data.get("css") or ""
+        SystemConfig().set_system_config(key="CustomScript",
+                                         value={
+                                             "css": css,
+                                             "javascript": script
+                                         })
+        return {"code": 0, "msg": "保存成功"}
