@@ -108,6 +108,7 @@ export class PageMediainfo extends CustomElement {
                   </h1>
                   <div class="align-self-center align-self-md-start">
                     <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
+                    <a href="${this.media_info.douban_link}" target="_blank" ?hidden=${!this.media_info.douban_id}><span class="badge badge-outline text-orange">${this.media_info.douban_id}</span></a>
                     <span class="ms-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span ?hidden=${!this.media_info.genres}>| ${this.media_info.genres}</span>
                     ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("205px") : nothing }

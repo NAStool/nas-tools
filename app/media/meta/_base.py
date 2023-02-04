@@ -413,6 +413,11 @@ class MetaBase(object):
             return "https://movie.douban.com/subject/%s" % self.douban_id
         return ""
 
+    def get_douban_detail_url(self):
+        if self.douban_id:
+            return "https://movie.douban.com/subject/%s" % self.douban_id
+        return ""
+
     # 返回评分星星个数
     def get_stars(self):
         if not self.vote_average:
