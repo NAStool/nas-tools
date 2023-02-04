@@ -503,13 +503,13 @@ export class LayoutNavbar extends CustomElement {
                   <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
                 </a>
               </h1>
-              <div class="accordion px-3 py-2 flex-grow-1">
+              <div class="accordion px-2 py-2 flex-grow-1">
                 ${navbar_list.map((item, index) => ( html`
                   ${this.layout_userpris.includes(item.name)
                   ? html`
                     ${item.list?.length > 0
                     ? html`
-                      <button class="accordion-button lit-navbar-accordion-button collapsed px-1 py-2" style="font-size:1.1rem;" data-bs-toggle="collapse" data-bs-target="#lit-navbar-collapse-${index}" aria-expanded="false">
+                      <button class="accordion-button lit-navbar-accordion-button collapsed ps-2 pe-1 py-2" style="font-size:1.1rem;" data-bs-toggle="collapse" data-bs-target="#lit-navbar-collapse-${index}" aria-expanded="false">
                         ${item.name}
                       </button>
                       <div class="accordion-collapse collapse" id="lit-navbar-collapse-${index}">
@@ -559,7 +559,7 @@ export class LayoutNavbar extends CustomElement {
 
   _render_page_item(item) {
     return html`
-    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 px-3 py-2" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+    <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2" href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
       data-lit-page=${item.page}
       @click=${ () => { navmenu(item.page) }}>
       <span class="nav-link-icon" style="color:var(--tblr-body-color);">
