@@ -759,7 +759,8 @@ class Subscribe:
                 sites=rss_info.get("search_sites"),
                 filters=filter_dict)
             if search_result \
-                    and (not no_exists or not no_exists.get(media_info.tmdb_id)):
+                    or not no_exists \
+                    or not no_exists.get(media_info.tmdb_id):
                 # 洗版
                 if over_edition:
                     self.update_subscribe_over_edition(rtype=media_info.type,
