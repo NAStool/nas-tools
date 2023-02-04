@@ -610,12 +610,12 @@ export class LayoutNavbar extends CustomElement {
         }
         
         .nav-search-bar {
-          padding-top: env(safe-area-inset-top) !important;
+          padding-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top)) !important;
           padding-left: env(safe-area-inset-left) !important;
         }
         
         .lit-navar-close {
-            margin-top: env(safe-area-inset-top) !important;
+            margin-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top)) !important;
         }
 
         .lit-navbar-fixed {
