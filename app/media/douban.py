@@ -401,7 +401,9 @@ class DouBan:
                 # 海报
                 poster_path = info.get('pic', {}).get("normal")
                 # 简介
-                overview = info.get("comment") or ""
+                overview = info.get("comment") or info.get("card_subtitle", "")
+                if not isinstance(overview, str):
+                    overview = info.get("card_subtitle", "")
     
             # 高清海报
             if poster_path:
