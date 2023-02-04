@@ -4316,6 +4316,7 @@ class WebAction:
             "code": 0,
             "data": {
                 "tmdbid": media_info.tmdb_id,
+                "douban_id": media_info.douban_id,
                 "background": MediaHander.get_tmdb_backdrops(tmdbinfo=media_info.tmdb_info),
                 "image": media_info.get_poster_image(),
                 "vote": media_info.vote_average,
@@ -4328,6 +4329,7 @@ class WebAction:
                 "crews": MediaHander.get_tmdb_crews(tmdbinfo=media_info.tmdb_info, nums=6),
                 "actors": MediaHander.get_tmdb_cats(mtype=mtype, tmdbid=media_info.tmdb_id),
                 "link": media_info.get_detail_url(),
+                "douban_link": media_info.get_douban_detail_url(),
                 "fav": fav,
                 "rssid": rssid
             }
