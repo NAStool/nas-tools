@@ -592,7 +592,7 @@ class ModuleConf(object):
             "background": "bg-azure",
             "test_command": "app.downloader.client.client115|Client115",
             "config": {
-                "trhost": {
+                "cookie": {
                     "id": "client115.cookie",
                     "required": True,
                     "title": "Cookie",
