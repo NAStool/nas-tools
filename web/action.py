@@ -2322,13 +2322,25 @@ class WebAction:
             # TMDB流行趋势
             res_list = Media().get_tmdb_trending_all_week(page=CurrentPage)
         elif Type == "DISCOVER":
-            # TMDB发现 with_genres with_original_language
+            # TMDB发现
             mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
-            res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage)
+            # 过滤参数 with_genres with_original_language
+            params = data.get("filter_params")
+            res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage, params=params)
         elif Type == "DOUBANTAG":
             # 豆瓣发现
             mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
-            res_list = DouBan().get_douban_disover(mtype=mtype, page=CurrentPage)
+            # 参数
+            params = data.get("filter_params") or {}
+            # 排序
+            sort = params.get("sort") or "U"
+            # 选中的分类
+            selected_categories = json.dumps(params.get("selected_categories") or {})
+            # 过滤参数
+            res_list = DouBan().get_douban_disover(mtype=mtype,
+                                                   page=CurrentPage,
+                                                   sort=sort,
+                                                   selected_categories=selected_categories)
 
         # 补充存在与订阅状态
         filetransfer = FileTransfer()
