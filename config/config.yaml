@@ -50,6 +50,8 @@ app:
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
   # 【登录界面壁纸】：themoviedb、bing，设置为themoviedb时需要配置TMDB API Key时才生效
   wallpaper: bing
+  # Debug mode
+  debug: true
 
 # 【配置媒体库信息】
 media:
