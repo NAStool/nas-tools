@@ -161,7 +161,7 @@
             <div class="row align-items-center">
               <div class="col-auto">
                 <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-user-script">
-                  自定义CSS/JavaScript
+                  自定义 CSS/JavaScript
                 </a>
                 <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-user-script" title="自定义CSS/JavaScript">
                   {{ SVG.code_dots() }}
@@ -1011,10 +1011,10 @@
       <div class="card-body">
         <div class="tab-content">
           <div class="tab-pane fade active show" id="tabs-user-css" role="tabpanel">
-            <textarea class="form-control" id="user_script_css" rows="10" placeholder="自定义CSS">{{ CustomScriptCfg.css or '' }}</textarea>
+            <div class="form-control" id="user_script_css" style="height: 20rem;">{{ CustomScriptCfg.css or '' }}</div>
           </div>
           <div class="tab-pane fade" id="tabs-user-script" role="tabpanel">
-            <textarea class="form-control" id="user_script_javascript" rows="10" placeholder="自定义JavaScript脚本">{{ CustomScriptCfg.javascript or '' }}</textarea>
+            <div class="form-control" id="user_script_javascript" style="height: 20rem;">{{ CustomScriptCfg.javascript or '' }}</div>
           </div>
         </div>
       </div>
@@ -1053,6 +1053,24 @@
   </div>
 </div>
 <script type="text/javascript">
+
+  // CSS编辑器
+  css_editor = ace.edit("user_script_css");
+  localStorage.getItem("tablerTheme") === "dark" ? css_editor.setTheme("ace/theme/one_dark") : css_editor.setTheme("ace/theme/xcode");
+  css_editor.session.setMode("ace/mode/css");
+  css_editor.setOptions({
+    fontFamily: "Consolas, Monaco, monospace",
+    fontSize: "10pt"
+  });
+  // JavaScript编辑器
+  javascript_editor = ace.edit("user_script_javascript");
+  localStorage.getItem("tablerTheme") === "dark" ? javascript_editor.setTheme("ace/theme/one_dark") : javascript_editor.setTheme("ace/theme/xcode");
+  javascript_editor.session.setMode("ace/mode/javascript");
+  javascript_editor.setOptions({
+    fontFamily: "Consolas, Monaco, monospace",
+    fontSize: "10pt"
+  });
+
   // 保存基础设置
   function save_basic_config(type, flag=true) {
     let params = input_select_GetVal(type);
@@ -1084,8 +1102,8 @@
 
   // 保存自定义CSS/JavsScript配置
   function save_user_script(){
-    let css_text = $("#user_script_css").val();
-    let javascript_text = $("#user_script_javascript").val();
+    let css_text = css_editor.getValue();
+    let javascript_text = javascript_editor.getValue();
     $("#user_script_save_btn").text("保存中...").attr("disabled", true);
     ajax_post("save_user_script", {css: css_text, javascript: javascript_text}, function (ret) {
       $("#user_script_save_btn").text("保存").attr("disabled", false);

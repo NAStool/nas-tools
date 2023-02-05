@@ -24,10 +24,6 @@ body, .page {
     display: none;
 }
 
-.jsoneditor-mode-code {
-    border: 1px solid var(--tblr-border-color) !important;
-}
-
 .dropzone {
     border: 1px dashed var(--tblr-border-color) !important;
 }
