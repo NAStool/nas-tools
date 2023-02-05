@@ -2394,7 +2394,7 @@
 
     // 单选框事件
     $('input[type=radio][name=rename_type]').change(function () {
-      if (this.value == 'MOV') {
+      if (this.value === 'MOV') {
         $("#rename_season_div").hide();
         $("#rename_episode_div").hide();
         $("#rename_season").val('');

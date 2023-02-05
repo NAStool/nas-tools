@@ -320,9 +320,9 @@ function compareVersion(version1, version2) {
 
 // 计算滚动条相对于页面底部的距离比例
 function getScrollRate(){
-    const winH = $(window).height(); //页面可视区域高度
+    const winH = window.innerHeight; //页面可视区域高度
     const pageH = $("#page_content").height(); //页面总高度
-    const scrollT = $(window).scrollTop(); //滚动条top
+    const scrollT = document.body.scrollTop || window.pageYOffset; //滚动条top
     return (pageH - winH - scrollT) / winH;
 }
 
