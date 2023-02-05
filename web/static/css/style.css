@@ -43,8 +43,7 @@ body, .page {
 .page-wrapper {
     padding-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 51px) !important;
     padding-left: env(safe-area-inset-left) !important;
-    height: 100% !important;
-    overflow: scroll !important;
+    overflow: hidden !important;
 }
 
 .page-wrapper-top-off {
