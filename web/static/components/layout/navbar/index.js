@@ -708,9 +708,7 @@ export class LayoutNavbar extends CustomElement {
           <div class="d-flex flex-row flex-grow-1 lit-navbar-hide-scrollbar">
             <div class="d-flex flex-column flex-grow-1">
               <h1 class="mt-3" style="text-align:center;">
-                <a href="javascript:ScrollToTop()">
-                  <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
-                </a>
+                <img src="../static/img/logo-blue.png" alt="NAStool" style="height:3rem;width:auto;">
               </h1>
               <div class="accordion px-2 py-2 flex-grow-1">
                 ${navbar_list.map((item, index) => ( html`
@@ -770,7 +768,7 @@ export class LayoutNavbar extends CustomElement {
     return html`
     <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${child ? "ps-3" : "lit-navbar-accordion-button"}" 
       href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
-      style="${child ? "" : "font-size:1.1rem;"}"
+      style="${child ? "font-size:1rem" : "font-size:1.1rem;"}"
       data-lit-page=${item.page}
       @click=${ () => { navmenu(item.page) }}>
       <span class="nav-link-icon" ?hidden=${!child} style="color:var(--tblr-body-color);">

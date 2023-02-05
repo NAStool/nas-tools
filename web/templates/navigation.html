@@ -48,11 +48,9 @@
       layout-systemflag="{{ SystemFlag }}"
       layout-userpris='{{ UserPris|tojson|safe }}'>
   </layout-searchbar>
-  <div class="page-wrapper" id="page_wrapper">
-    <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
-    <div id="page_content" hidden>
-      {{ OOPS.loading() }}
-    </div>
+  <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
+  <div class="page-wrapper" id="page_content" hidden="">
+    {{ OOPS.loading() }}
   </div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
@@ -2124,7 +2122,7 @@
     const state = {
       title: document.title,
       html: $("#page_content").html(),         // 页面内容
-      scroll: $("#page_wrapper").scrollTop(),  // 页面滚动位置
+      scroll: $(".page").scrollTop(),  // 页面滚动位置
       CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
       page: CURRENT_PAGE_URI,                  // 当前页面地址
       extra: extra,                            // 额外的保存数据
@@ -2301,13 +2299,6 @@
     });
   }
 
-  //滚动到顶步
-  function ScrollToTop() {
-    $("#page_wrapper").animate({
-      scrollTop: 0
-    }, 500);
-  }
-
   //导航点击
   function navmenu(page, newflag=false) {
     if (!newflag) {
@@ -2318,19 +2309,19 @@
     sessionStorage.removeItem("CurrentPage");
 
     document.querySelector("#navbar-menu").update_active(page);
-    $(".page-wrapper").unbind('scroll');
+    $(window).unbind('scroll');
     page = page.replaceAll(" ", "%20");
     NProgress.start();
     $("#page_content").load(page, {}, function (response, status, xhr) {
       NProgress.done();
-      if ($("#page_content").find("title").first().text() == "登录 - NAStool") {
+      if ($("#page_content").find("title").first().text() === "登录 - NAStool") {
         window.location.reload();
       } else {
         fresh_tooltip();
         init_filetree_element();
       }
-      if (page != CURRENT_PAGE_URI) {
-        $("#page_wrapper").scrollTop(0);
+      if (page !== CURRENT_PAGE_URI) {
+        $(window).scrollTop(0);
         CURRENT_PAGE_URI = page;
       }
       // 并记录当前历史记录
@@ -2356,10 +2347,10 @@
           }
           CURRENT_PAGE_URI = e.state.page;
           document.querySelector("#navbar-menu").update_active();
-          $(".page-wrapper").unbind('scroll');
+          $(window).unbind('scroll');
           document.title = e.state.title;
           $('#page_content').html(e.state.html).ready(function() {
-            $("#page_wrapper").scrollTop(e.state.scroll);
+            $(window).scrollTop(e.state.scroll);
           })
         }
     });

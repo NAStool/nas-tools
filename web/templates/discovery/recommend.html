@@ -129,24 +129,13 @@
     });
   }
 
-  // 如果没有滚动条 继续加载
+
+  // 如果没有滚动条则继续加载
   function loading_data_max() {
-    const page_wrapper = document.querySelector(".page-wrapper");
-    if (page_wrapper && page_wrapper.scrollHeight <= page_wrapper.clientHeight) {
-      const normal_card = document.querySelectorAll("normal-card");
-      if (normal_card && normal_card.length >= 20) {
-        loading_data();
-      }
+    if (!hasScrollbar()) {
+      loading_data();
     }
   }
-
-  $(document).ready(function () {
-    $(".page-wrapper").scroll(function () {
-      if ($(window).height() + $(this).scrollTop() >= $("#page_content").height() + 50) {
-        loading_data();
-      }
-    });
-  });
 
   // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
   if (sessionStorage.CurrentPage) {
@@ -156,6 +145,16 @@
     // 否则初始化数据
     loading_data();
   }
+
+
+  // 滚动加载事件
+  $(document).ready(function ($) {
+    $(window).scroll(function(){
+      if(getScrollRate() < 0.01){
+        loading_data();
+      }
+    });
+  });
 
 </script>
 <script type="text/html" id="no_recommend_html">

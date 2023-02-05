@@ -4,8 +4,7 @@ html {
 }
 
 body, .page {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
 }
 
 .theme-light .page {

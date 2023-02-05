@@ -11,6 +11,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.sites import Sites
 from app.indexer import Indexer
+from app.utils import Torrent
 from app.utils.types import MediaType, SearchType
 from web.backend.web_utils import WebUtils
 
@@ -729,9 +730,9 @@ class Subscribe:
                                                   media=media_info)
                     continue
                 # 取交集做为缺失集
-                rss_no_exists = self.media.get_intersection_episodes(target=rss_no_exists,
-                                                                     source=library_no_exists,
-                                                                     title=media_info.tmdb_id)
+                rss_no_exists = Torrent.get_intersection_episodes(target=rss_no_exists,
+                                                                  source=library_no_exists,
+                                                                  title=media_info.tmdb_id)
                 if rss_no_exists.get(media_info.tmdb_id):
                     log.info("【Subscribe】%s 订阅缺失季集：%s" % (
                         media_info.get_title_string(),

@@ -2075,38 +2075,6 @@ class Media:
         return None
 
     @staticmethod
-    def get_intersection_episodes(target, source, title):
-        """
-        对两个季集字典进行判重，有相同项目的取集的交集
-        """
-        if not source or not title:
-            return target
-        if not source.get(title):
-            return target
-        if not target.get(title):
-            target[title] = source.get(title)
-            return target
-        index = -1
-        for target_info in target.get(title):
-            index += 1
-            source_info = None
-            for info in source.get(title):
-                if info.get("season") == target_info.get("season"):
-                    source_info = info
-                    break
-            if not source_info:
-                continue
-            if not source_info.get("episodes"):
-                continue
-            if not target_info.get("episodes"):
-                target_episodes = source_info.get("episodes")
-                target[title][index]["episodes"] = target_episodes
-                continue
-            target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
-            target[title][index]["episodes"] = target_episodes
-        return target
-
-    @staticmethod
     def get_detail_url(mtype, tmdbid):
         """
         获取TMDB/豆瓣详情页地址

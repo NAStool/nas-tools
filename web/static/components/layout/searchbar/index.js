@@ -47,14 +47,14 @@ export class LayoutSearchbar extends CustomElement {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
     // 当前状态：是否模糊
     let blur = false;
-    const page_wrapper = document.querySelector(".page-wrapper");
-    page_wrapper.addEventListener("scroll", () => {
+    window.addEventListener("scroll", () => {
+      const scroll_length = document.body.scrollTop || window.pageYOffset;
       // 滚动发生时改变模糊状态
-      if (!blur && page_wrapper.scrollTop >= 5) {
+      if (!blur && scroll_length >= 5) {
         // 模糊状态
         blur = true;
         this.classList.add("lit-searchbar-blur");
-      } else if (blur && page_wrapper.scrollTop < 5) {
+      } else if (blur && scroll_length < 5) {
         // 非模糊状态
        blur = false
        this.classList.remove("lit-searchbar-blur");
