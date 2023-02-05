@@ -23,8 +23,8 @@ class DouBan:
     doubanapi = None
     doubanweb = None
     message = None
-    _movie_num = 30
-    _tv_num = 30
+    _movie_num = 20
+    _tv_num = 20
 
     def __init__(self):
         self.init_config()
