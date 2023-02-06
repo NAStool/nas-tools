@@ -41,7 +41,8 @@ class ModuleConf(object):
         "qbittorrent": DownloaderType.QB,
         "transmission": DownloaderType.TR,
         "client115": DownloaderType.Client115,
-        "aria2": DownloaderType.Aria2
+        "aria2": DownloaderType.Aria2,
+        "pikpak": DownloaderType.PikPak
     }
 
     # 索引器
@@ -629,6 +630,38 @@ class ModuleConf(object):
                     "title": "令牌",
                     "type": "text",
                     "placeholder": ""
+                }
+            }
+        },
+        "pikpak": {
+            "name": "pikpak",
+            "img_url": "../static/img/pikpak.png",
+            "background": "bg-azure",
+            "test_command": "app.downloader.client.pikpak|pikpak",
+            "config": {
+                "username": {
+                    "id": "pikpak.username",
+                    "required": True,
+                    "title": "用户名",
+                    "tooltip": "用户名",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "password": {
+                    "id": "pikpak.password",
+                    "required": True,
+                    "title": "密码",
+                    "tooltip": "密码",
+                    "type": "password",
+                    "placeholder": ""
+                },
+                "proxy": {
+                    "id": "pikpak.proxy",
+                    "required": False,
+                    "title": "代理",
+                    "tooltip": "如果需要代理才能访问pikpak可以在此处填入代理地址",
+                    "type": "text",
+                    "placeholder": "127.0.0.1:7890"
                 }
             }
         },

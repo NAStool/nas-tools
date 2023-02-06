@@ -191,7 +191,8 @@ def update_config():
     # 密码初始化
     login_password = _config.get("app", {}).get("login_password") or "password"
     if login_password and not login_password.startswith("[hash]"):
-        _config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
+        _config['app']['login_password'] = "[hash]%s" % generate_password_hash(
+            login_password)
         overwrite_cofig = True
 
     # 实验室配置初始化
@@ -231,7 +232,7 @@ def update_config():
     if not _config.get("security", {}).get("api_key"):
         _config['security']['api_key'] = _config.get("security",
                                                      {}).get("subscribe_token") \
-                                         or StringUtils.generate_random_str()
+            or StringUtils.generate_random_str()
         if _config.get('security', {}).get('subscribe_token'):
             _config['security'].pop('subscribe_token')
         overwrite_cofig = True
@@ -284,10 +285,12 @@ def update_config():
         if dl_client and _config.get(dl_client):
             save_path = _config.get(dl_client).get('save_path')
             if not isinstance(save_path, dict):
-                save_path = {"movie": save_path, "tv": save_path, "anime": save_path}
+                save_path = {"movie": save_path,
+                             "tv": save_path, "anime": save_path}
             container_path = _config.get(dl_client).get('save_containerpath')
             if not isinstance(container_path, dict):
-                container_path = {"movie": container_path, "tv": container_path, "anime": container_path}
+                container_path = {"movie": container_path,
+                                  "tv": container_path, "anime": container_path}
             downloaddir = []
             type_dict = {"movie": "电影", "tv": "电视剧", "anime": "动漫"}
             for mtype, path in save_path.items():
@@ -321,6 +324,10 @@ def update_config():
             _config['aria2'].pop('save_path')
         if _config.get('aria2', {}).get('save_containerpath'):
             _config['aria2'].pop('save_containerpath')
+        if _config.get('pikpak', {}).get('save_path'):
+            _config['pikpak'].pop('save_path')
+        if _config.get('pikpak', {}).get('save_containerpath'):
+            _config['pikpak'].pop('save_containerpath')
         overwrite_cofig = True
     elif isinstance(_config.get('downloaddir'), dict):
         downloaddir_list = []
@@ -513,7 +520,8 @@ def update_config():
                 agent_id = message.get('wechat', {}).get('agentid')
                 default_proxy = message.get('wechat', {}).get('default_proxy')
                 token = message.get('wechat', {}).get('Token')
-                encodingAESkey = message.get('wechat', {}).get('EncodingAESKey')
+                encodingAESkey = message.get(
+                    'wechat', {}).get('EncodingAESKey')
                 if corpid and corpsecret and agent_id:
                     name = "WeChat"
                     ctype = 'wechat'
@@ -635,16 +643,20 @@ def update_config():
             # 是否解析种子详情为|分隔的第1位
             site_parse = str(site.NOTE).split("|")[0] or "Y"
             # 站点过滤规则为|分隔的第2位
-            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
+            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(
+                str(site.NOTE).split("|")) > 1 else ""
             # 站点未读消息为|分隔的第3位
             site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(
                 str(site.NOTE).split("|")) > 2 else "Y"
             # 自定义UA为|分隔的第4位
-            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
+            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(
+                str(site.NOTE).split("|")) > 3 else ""
             # 是否开启浏览器仿真为|分隔的第5位
-            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
+            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(
+                str(site.NOTE).split("|")) > 4 else "N"
             # 是否使用代理为|分隔的第6位
-            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
+            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(
+                str(site.NOTE).split("|")) > 5 else "N"
             _dbhelper.update_config_site_note(tid=site.ID, note=json.dumps({
                 "parse": site_parse,
                 "rule": rule_groupid,
@@ -673,7 +685,8 @@ def update_config():
             # 订阅站点
             if len(notes) > 0:
                 if notes[0]:
-                    rss_sites = [s for s in str(notes[0]).split('|') if s and len(s) < 20]
+                    rss_sites = [s for s in str(notes[0]).split(
+                        '|') if s and len(s) < 20]
             # 搜索站点
             if len(notes) > 1:
                 if notes[1]:
@@ -690,7 +703,8 @@ def update_config():
                     if len(filters) > 1:
                         pix = filters[1]
                     if len(filters) > 2:
-                        rule = int(filters[2]) if filters[2].isdigit() else None
+                        rule = int(
+                            filters[2]) if filters[2].isdigit() else None
                     if len(filters) > 3:
                         team = filters[3]
             # 总集数及当前集数

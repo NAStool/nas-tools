@@ -101,3 +101,4 @@ websockets==10.3
 Werkzeug==2.1.2
 wsproto==1.2.0
 zhconv==1.4.3
+pikpakapi==0.1.1
