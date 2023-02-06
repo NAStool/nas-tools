@@ -653,7 +653,7 @@ class WebAction:
                 key = torrent.get('gid')
             elif Client == DownloaderType.PikPak:
                 key = torrent.get('id')
-                if torrent.get('finish') == True:
+                if torrent.get('finish'):
                     speed = "PikPak: 下载完成"
                 else:
                     speed = "PikPak: 下载中"
@@ -2396,12 +2396,11 @@ class WebAction:
             # 豆瓣发现
             mtype = MediaType.MOVIE if SubType in self._MovieTypes else MediaType.TV
             # 参数
-            params = data.get("filter_params") or {}
+            # params = data.get("filter_params") or {}
             # 排序
             # sort = params.get("sort") or "U"
             # 选中的分类
-            selected_categories = json.dumps(
-                params.get("selected_categories") or {})
+            # selected_categories = json.dumps(params.get("selected_categories") or {})
             # 过滤参数
             res_list = DouBan().get_douban_disover(mtype=mtype,
                                                    page=CurrentPage)

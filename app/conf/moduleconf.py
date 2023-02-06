@@ -634,9 +634,9 @@ class ModuleConf(object):
             }
         },
         "pikpak": {
-            "name": "pikpak",
+            "name": "PikPak",
             "img_url": "../static/img/pikpak.png",
-            "background": "bg-azure",
+            "background": "bg-indigo",
             "test_command": "app.downloader.client.pikpak|pikpak",
             "config": {
                 "username": {

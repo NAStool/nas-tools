@@ -1,13 +1,14 @@
-import log
-from app.utils import StringUtils
-from app.utils.types import DownloaderType
-from config import Config
-from app.downloader.client._base import _IDownloadClient
-from pikpakapi import PikPakApi, DownloadStatus
 import asyncio
 
+from pikpakapi import PikPakApi, DownloadStatus
 
-class pikpak(_IDownloadClient):
+import log
+from app.downloader.client._base import _IDownloadClient
+from app.utils.types import DownloaderType
+from config import Config
+
+
+class PikPak(_IDownloadClient):
     schema = "pikpak"
     client_type = DownloaderType.PikPak.value
     _client_config = {}
@@ -38,7 +39,8 @@ class pikpak(_IDownloadClient):
     def connect(self):
         try:
             asyncio.run(self.downclient.login())
-        except:
+        except Exception as err:
+            print(str(err))
             return
 
     def get_status(self):
@@ -47,10 +49,10 @@ class pikpak(_IDownloadClient):
         try:
             asyncio.run(self.downclient.login())
             if self.downclient.user_id is None:
-                log.info("pikpak 登录失败")
+                log.info("PikPak 登录失败")
                 return False
-        except:
-            log.error("pikpak 登录出错")
+        except Exception as err:
+            log.error("PikPak 登录出错：%s" % str(err))
             return False
 
         return True
@@ -78,13 +80,11 @@ class pikpak(_IDownloadClient):
             if self.get_status():
                 return []
         try:
-            list = asyncio.run(self.downclient.offline_list())
-            return list['tasks']
-        except:
+            offline_list = asyncio.run(self.downclient.offline_list())
+            return offline_list['tasks']
+        except Exception as err:
+            print(str(err))
             return []
-
-    def remove_torrents_tag(self, **kwargs):
-        return []
 
     def get_transfer_task(self, **kwargs):
         pass
@@ -106,7 +106,7 @@ class pikpak(_IDownloadClient):
                 ))
                 return task["task"]["id"]
         except Exception as e:
-            log.error("pikpak 添加离线下载任务失败")
+            log.error("PikPak 添加离线下载任务失败: %s" % str(e))
             return None
 
     # 需要完成
@@ -141,5 +141,7 @@ class pikpak(_IDownloadClient):
                 'id': torrent.get('id'),
                 'file_id': torrent.get('file_id'),
                 'name': torrent.get('file_name'),
+                'nomenu': True,
+                'noprogress': True
             })
         return DispTorrents

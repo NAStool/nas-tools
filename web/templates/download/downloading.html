@@ -53,7 +53,7 @@
                   <div class="text-muted" id="speed_text_{{ Torrent.id }}">
                     {{ Torrent.speed }}
                   </div>
-                  {% if Client != 'pikpak' %}
+                  {% if not Torrent.noprogress %}
                     <div class="mt-3">
                       <div class="row g-2 align-items-center">
                         <div class="col-auto" id="progress_text_{{ Torrent.id }}">
@@ -75,7 +75,7 @@
                 </div>
                 <div class="col-auto">
                   <div class="dropdown">
-                    {% if Client != 'pikpak' %}
+                    {% if not Torrent.nomenu %}
                       <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                         {{ SVG.dots_vertical() }}
                       </a>
