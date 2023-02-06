@@ -19,7 +19,7 @@
 {% if Count > 0 and Results|length > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="row row-cards" id="media_cards">
+      <div class="d-grid gap-3" id="media_cards">
         {% for Title, Item in Results.items() %}
           <div class="card">
             <div class="ribbon g-cyan d-md-none">
