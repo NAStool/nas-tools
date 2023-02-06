@@ -28,7 +28,7 @@ fast-bencode==1.1.3
 flask-compress==1.13
 flask-restx==0.5.1
 greenlet==1.1.3.post0
-h11==0.13.0
+h11==0.12.0
 humanize==4.4.0
 idna==3.3
 influxdb==5.3.1
