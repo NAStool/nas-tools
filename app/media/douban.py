@@ -361,19 +361,15 @@ class DouBan:
             return []
         return self.__dict_items(infos.get("subject_collection_items"))
 
-    def get_douban_disover(self, mtype, page=1, sort="", selected_categories=""):
+    def get_douban_disover(self, mtype, page=1):
         if not self.doubanapi:
             return []
         if mtype == MediaType.MOVIE:
             infos = self.doubanapi.movie_recommend(start=(page - 1) * self._movie_num,
-                                                   count=self._movie_num,
-                                                   sort=sort,
-                                                   selected_categories=selected_categories)
+                                                   count=self._movie_num)
         else:
             infos = self.doubanapi.tv_recommend(start=(page - 1) * self._tv_num,
-                                                count=self._tv_num,
-                                                sort=sort,
-                                                selected_categories=selected_categories)
+                                                count=self._tv_num)
         if not infos:
             return []
         return self.__dict_items(infos.get("items"))

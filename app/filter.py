@@ -101,6 +101,9 @@ class Filter:
         """
         if not meta_info:
             return False, 0, ""
+        # 为-1时不使用过滤规则
+        if rulegroup and int(rulegroup) == -1:
+            return True, 0, "不过滤"
         if meta_info.subtitle:
             title = "%s %s" % (meta_info.org_string, meta_info.subtitle)
         else:
@@ -296,7 +299,7 @@ class Filter:
             key = filter_args.get("key")
             if not re.search(r"%s" % key, meta_info.org_string, re.I):
                 return False, 0, f"{meta_info.org_string} 不符合 {key} 要求"
-        # 过滤过滤规则
+        # 过滤过滤规则，-1表示不使用过滤规则，空则使用默认过滤规则
         if filter_args.get("rule"):
             # 已设置默认规则
             match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"))
