@@ -13,6 +13,7 @@ class DownloaderType(Enum):
     TR = 'Transmission'
     Client115 = '115网盘'
     Aria2 = 'Aria2'
+    PikPak = 'PikPak'
 
 
 class SyncType(Enum):
