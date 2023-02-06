@@ -49,6 +49,7 @@ parsel==1.6.0
 parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
+pikpakapi==0.1.1
 proces==0.1.2
 prompt-toolkit==3.0.31
 ptyprocess==0.7.0
@@ -101,4 +102,3 @@ websockets==10.3
 Werkzeug==2.1.2
 wsproto==1.2.0
 zhconv==1.4.3
-pikpakapi==0.1.1
