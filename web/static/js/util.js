@@ -328,5 +328,6 @@ function getScrollRate(){
 
 // 判断元素出现滚动条
 function hasScrollbar() {
-    return document.body.scrollHeight > (window.innerHeight || document.documentElement.clientHeight);
+    // 判断是否大于2是因为我观察到部分情况下body可滚动的高度会比可视区域大1
+    return (document.body.scrollHeight - (window.innerHeight || document.documentElement.clientHeight)) > 2;
 }
