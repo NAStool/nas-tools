@@ -1580,6 +1580,7 @@ class BrushTaskUpdate(ClientResource):
     parser.add_argument('brushtask_seedsize', type=int, help='上传量(GB)', location='form')
     parser.add_argument('brushtask_dltime', type=float, help='下载耗时(小时)', location='form')
     parser.add_argument('brushtask_avg_upspeed', type=int, help='平均上传速度(KB/S)', location='form')
+    parser.add_argument('brushtask_iatime', type=float, help='未活动时间(小时)', location='form')
     parser.add_argument('brushtask_pubdate', type=int, help='发布时间（小时）', location='form')
     parser.add_argument('brushtask_upspeed', type=int, help='上传限速（KB/S）', location='form')
     parser.add_argument('brushtask_downspeed', type=int, help='下载限速（KB/S）', location='form')

@@ -600,6 +600,30 @@
               </div>
             </div>
           </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">未活动时间(小时) <span class="form-help" title="超过设定时间未活动时会删除下载任务"
+                                                             data-bs-toggle="tooltip">?</span></label>
+              <div class="input-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false" id="brushtask_iatime_btn">
+                  忽略
+                </button>
+                <input type="hidden" id="brushtask_iatime_do">
+                <div class="dropdown-menu" style="">
+                  <a class="dropdown-item" id="brushtask_iatime_do_" href="javascript:void(0)"
+                     onclick="filter_item_change('', 'brushtask_iatime',$(this))">
+                    忽略
+                  </a>
+                  <a class="dropdown-item" id="brushtask_iatime_do_gt" href="javascript:void(0)"
+                     onclick="filter_item_change('gt', 'brushtask_iatime',$(this))">
+                    大于
+                  </a>
+                </div>
+                <input type="text" class="form-control" id="brushtask_iatime" readonly>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -716,6 +740,11 @@
         if (ret.task.remove_rule.avg_upspeed) {
           let avg_upspeed_str = ret.task.remove_rule.avg_upspeed.split('#');
           filter_item_change(avg_upspeed_str[0], 'brushtask_avg_upspeed', $('#brushtask_avg_upspeed_do_' + avg_upspeed_str[0]), avg_upspeed_str[1])
+        }
+        //未活动时间
+        if (ret.task.remove_rule.iatime) {
+          let iatime_str = ret.task.remove_rule.iatime.split('#');
+          filter_item_change(iatime_str[0], 'brushtask_iatime', $('#brushtask_iatime_do_' + iatime_str[0]), iatime_str[1])
         }
         //发布日期
         if (ret.task.rss_rule.pubdate) {
@@ -971,6 +1000,19 @@
       }
       $("#brushtask_avg_upspeed").removeClass("is-invalid");
     }
+    //未活动时间
+    let brushtask_iatime_do = $("#brushtask_iatime_do").val();
+    let brushtask_iatime = $("#brushtask_iatime").val();
+    if (brushtask_iatime_do && !brushtask_iatime) {
+      $("#brushtask_iatime").addClass("is-invalid");
+      return;
+    } else {
+      if (brushtask_iatime && isNaN(brushtask_iatime)) {
+        $("#brushtask_iatime").addClass("is-invalid");
+        return;
+      }
+      $("#brushtask_iatime").removeClass("is-invalid");
+    }
 
     // 参数
     const params = {
@@ -996,6 +1038,7 @@
       brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize,
       brushtask_dltime: brushtask_dltime_do + "#" + brushtask_dltime,
       brushtask_avg_upspeed: brushtask_avg_upspeed_do + "#" + brushtask_avg_upspeed,
+      brushtask_iatime: brushtask_iatime_do + "#" + brushtask_iatime,
       brushtask_upspeed: brushtask_upspeed,
       brushtask_downspeed: brushtask_downspeed,
       brushtask_pubdate: brushtask_pubdate_do + "#" + brushtask_pubdate
