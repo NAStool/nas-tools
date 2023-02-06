@@ -331,7 +331,7 @@ class BrushTask(object):
                         # 平均上传速度 Byte/s
                         avg_upspeed = int(uploaded / dltime)
                         # 已未活动 秒
-                        last_activity = int(torrent.get("last_activity"))
+                        last_activity = int(torrent.get("last_activity", 0))
                         iatime = date_now - last_activity if last_activity else 0
                         # 下载量
                         downloaded = torrent.get("downloaded")
@@ -371,7 +371,7 @@ class BrushTask(object):
                         avg_upspeed = int(uploaded / dltime)
                         # 已未活动 秒
                         date_now = int(time.mktime(datetime.now().timetuple()))
-                        last_activity = int(torrent.get("last_activity"))
+                        last_activity = int(torrent.get("last_activity", 0))
                         iatime = date_now - last_activity if last_activity else 0
                         # 下载量
                         downloaded = torrent.get("downloaded")
