@@ -1908,6 +1908,7 @@ class WebAction:
         brushtask_seedsize = data.get("brushtask_seedsize")
         brushtask_dltime = data.get("brushtask_dltime")
         brushtask_avg_upspeed = data.get("brushtask_avg_upspeed")
+        brushtask_iatime = data.get("brushtask_iatime")
         brushtask_pubdate = data.get("brushtask_pubdate")
         brushtask_upspeed = data.get("brushtask_upspeed")
         brushtask_downspeed = data.get("brushtask_downspeed")
@@ -1930,7 +1931,8 @@ class WebAction:
             "ratio": brushtask_seedratio,
             "uploadsize": brushtask_seedsize,
             "dltime": brushtask_dltime,
-            "avg_upspeed": brushtask_avg_upspeed
+            "avg_upspeed": brushtask_avg_upspeed,
+            "iatime": brushtask_iatime
         }
         # 添加记录
         item = {
@@ -2532,6 +2534,12 @@ class WebAction:
                 rule_htmls.append(
                     '<span class="badge badge-outline text-orange me-1 mb-1" title="平均上传速度">平均上传速度: %s %sKB/S</span>'
                     % (rule_filter_string.get(avg_upspeeds[0]), avg_upspeeds[1]))
+        if rules.get("iatime"):
+            iatimes = rules.get("iatime").split("#")
+            if iatimes[0]:
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="未活动时间">未活动时间: %s %s小时</span>'
+                    % (rule_filter_string.get(iatimes[0]), iatimes[1]))
 
         return "<br>".join(rule_htmls)
 

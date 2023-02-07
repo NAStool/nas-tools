@@ -77,6 +77,7 @@ class BrushDeleteType(Enum):
     UPLOADSIZE = "上传量"
     DLTIME = "下载耗时"
     AVGUPSPEED = "平均上传速度"
+    IATIME = "未活动时间"
 
 
 # 站点框架
