@@ -195,60 +195,85 @@
         <h5 class="modal-title">播放限速设置</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-      <div class="row" id="speedlimit_config">
-        <div class="col-12 col-lg">
-          <div class="mb-1">
-            <label class="form-label">Qbittorrent <span class="form-help"
-                                                        title="不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用"
-                                                        data-bs-toggle="tooltip">?</span></label>
-            <input type="text" value="{{ SpeedLimitConf.get("qb_upload") or '' }}"
-                   class="form-control" id="speedlimit_qb_upload"
-                   placeholder="上传限速，Kb/s"
-                   autocomplete="off">
+      <div class="modal-body" id="speedlimit_config">
+        <div class="row">
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Qbittorrent <span class="form-help"
+                                                          title="不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用"
+                                                          data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("qb_upload") or '' }}"
+                     class="form-control" id="speedlimit_qb_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("qb_download") or '' }}"
+                     class="form-control" id="speedlimit_qb_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
           </div>
-          <div class="mb-3">
-            <input type="text" value="{{ SpeedLimitConf.get("qb_download") or '' }}"
-                   class="form-control" id="speedlimit_qb_download"
-                   placeholder="下载限速，Kb/s"
-                   autocomplete="off">
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Transmission <span class="form-help"
+                                                           title="不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用"
+                                                           data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("tr_upload") or '' }}"
+                     class="form-control" id="speedlimit_tr_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("tr_download") or '' }}"
+                     class="form-control" id="speedlimit_tr_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
           </div>
-        </div>
-        <div class="col-12 col-lg">
-          <div class="mb-1">
-            <label class="form-label">Transmission <span class="form-help"
-                                                         title="不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用"
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">不限速源地址 <span class="form-help"
+                                                         title="仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制"
                                                          data-bs-toggle="tooltip">?</span></label>
-            <input type="text" value="{{ SpeedLimitConf.get("tr_upload") or '' }}"
-                   class="form-control" id="speedlimit_tr_upload"
-                   placeholder="上传限速，Kb/s"
-                   autocomplete="off">
-          </div>
-          <div class="mb-3">
-            <input type="text" value="{{ SpeedLimitConf.get("tr_download") or '' }}"
-                   class="form-control" id="speedlimit_tr_download"
-                   placeholder="下载限速，Kb/s"
-                   autocomplete="off">
-          </div>
-        </div>
-        <div class="col-12 col-lg">
-          <div class="mb-1">
-            <label class="form-label">不限速源地址 <span class="form-help"
-                                                       title="仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制"
-                                                       data-bs-toggle="tooltip">?</span></label>
-            <input type="text"
-                   value="{{ SpeedLimitConf.get("ipv4") or '' }}"
-                   class="form-control" id="speedlimit_ipv4" placeholder="IPv4 CIDR"
-                   autocomplete="off">
-          </div>
-          <div class="mb-3">
-            <input type="text"
-                   value="{{ SpeedLimitConf.get("ipv6") or '' }}"
-                   class="form-control" id="speedlimit_ipv6" placeholder="IPv6 CIDR"
-                   autocomplete="off">
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv4") or '' }}"
+                     class="form-control" id="speedlimit_ipv4" placeholder="IPv4 CIDR"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv6") or '' }}"
+                     class="form-control" id="speedlimit_ipv6" placeholder="IPv6 CIDR"
+                     autocomplete="off">
+            </div>
           </div>
         </div>
-      </div>
+        <details class="mb-2">
+          <summary class="summary">
+            自动限速设置 <span class="form-help" title="启用后根据自动限速设置，自动设置上传限制速度" data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2">
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">上行带宽</label>
+                <input type="text" value="{{ SpeedLimitConf.get("bandwidth") or '' }}" id="speedlimit_bandwidth" class="form-control" placeholder="Mbps，留空不启用">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">剩余比例 <span class="form-help" title="上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("residual_ratio") or '' }}" id="speedlimit_residual_ratio" class="form-control" placeholder="0.5">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">分配比例 <span class="form-help" title="Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("allocation") or '' }}" id="speedlimit_allocation" class="form-control" placeholder="1:1">
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
       <div class="modal-footer">
         <button onclick="save_speedlimit_config()"
