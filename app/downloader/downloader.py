@@ -1062,3 +1062,22 @@ class Downloader:
         if not self._download_setting.get(default_download_setting):
             default_download_setting = "-1"
         return default_download_setting
+
+    def set_speed_limit(self, downloader, download_limit=None, upload_limit=None):
+        """
+        设置速度限制
+        """
+        if not downloader:
+            return []
+        _client = self.__get_client(downloader)
+        try:
+            download_limit = int(download_limit) if download_limit else 0
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            download_limit = 0
+        try:
+            upload_limit = int(upload_limit) if upload_limit else 0
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            upload_limit = 0
+        _client.set_speed_limit(download_limit=download_limit, upload_limit=upload_limit)

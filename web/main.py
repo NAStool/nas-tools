@@ -23,13 +23,14 @@ from app.brushtask import BrushTask
 from app.conf import ModuleConf, SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
-from app.helper import SecurityHelper, MetaHelper, ChromeHelper
+from app.helper import SecurityHelper, MetaHelper, ChromeHelper, ThreadHelper
 from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
 from app.sites import Sites
+from app.speedlimiter import SpeedLimiter
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
@@ -1017,6 +1018,7 @@ def douban():
 def downloader():
     return render_template("setting/downloader.html",
                            Config=Config().get_config(),
+                           SpeedLimitConf=SystemConfig().get_system_config("SpeedLimit") or {},
                            DownloaderConf=ModuleConf.DOWNLOADER_CONF)
 
 
@@ -1304,11 +1306,12 @@ def plex_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
-    WebhookEvent().plex_action(request_json)
+    ThreadHelper().start_thread(WebhookEvent().plex_action, (request_json,))
+    ThreadHelper().start_thread(SpeedLimiter().plex_action, (request_json,))
     return 'Ok'
 
 
-# Emby Webhook
+# Jellyfin Webhook
 @App.route('/jellyfin', methods=['POST'])
 def jellyfin_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
@@ -1316,7 +1319,8 @@ def jellyfin_webhook():
         return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
-    WebhookEvent().jellyfin_action(request_json)
+    ThreadHelper().start_thread(WebhookEvent().jellyfin_action, (request_json,))
+    ThreadHelper().start_thread(SpeedLimiter().jellyfin_action, (request_json,))
     return 'Ok'
 
 
@@ -1328,7 +1332,8 @@ def emby_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
-    WebhookEvent().emby_action(request_json)
+    ThreadHelper().start_thread(WebhookEvent().emby_action, (request_json,))
+    ThreadHelper().start_thread(SpeedLimiter().emby_action, (request_json,))
     return 'Ok'
 
 
