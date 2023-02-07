@@ -4,6 +4,13 @@ from abc import ABCMeta, abstractmethod
 class _IMediaClient(metaclass=ABCMeta):
 
     @abstractmethod
+    def match(self, ctype):
+        """
+        匹配实例
+        """
+        pass
+
+    @abstractmethod
     def get_status(self):
         """
         检查连通性
