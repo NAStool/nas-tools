@@ -107,14 +107,16 @@ class SpeedLimiter:
                 download_limit=self.qb_download_limit,
                 upload_limit=self.qb_upload_limit
             )
-            log.info(f"【SpeedLimiter】Qbittorrent下载器开始限速")
+            if not self.limit_flag:
+                log.info(f"【SpeedLimiter】Qbittorrent下载器开始限速")
         if self.tr_limit:
             self.downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
                 download_limit=self.tr_download_limit,
                 upload_limit=self.tr_upload_limit
             )
-            log.info(f"【SpeedLimiter】Transmission下载器开始限速")
+            if not self.limit_flag:
+                log.info(f"【SpeedLimiter】Transmission下载器开始限速")
         self.limit_flag = True
 
     def __stop(self):
@@ -127,14 +129,16 @@ class SpeedLimiter:
                 download_limit=0,
                 upload_limit=0
             )
-            log.info(f"【SpeedLimiter】Qbittorrent下载器停止限速")
+            if self.limit_flag:
+                log.info(f"【SpeedLimiter】Qbittorrent下载器停止限速")
         if self.tr_limit:
             self.downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
                 download_limit=0,
                 upload_limit=0
             )
-            log.info(f"【SpeedLimiter】Transmission下载器停止限速")
+            if self.limit_flag:
+                log.info(f"【SpeedLimiter】Transmission下载器停止限速")
         self.limit_flag = False
 
     def emby_action(self, message):
