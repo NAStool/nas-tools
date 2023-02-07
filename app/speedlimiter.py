@@ -143,7 +143,7 @@ class SpeedLimiter:
         if mediaserver_type == MediaServerType.EMBY:
             for session in playing_sessions:
                 if not SecurityHelper.allow_access(self.unlimited_ips, session.get("RemoteEndPoint")) \
-                        and "Video" in session.get("PlayableMediaTypes"):
+                        and session.get("NowPlayingItem").get("MediaType") == "Video":
                     limit_flag = True
                     break
         elif mediaserver_type == MediaServerType.JELLYFIN:
