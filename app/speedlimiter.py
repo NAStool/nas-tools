@@ -140,19 +140,18 @@ class SpeedLimiter:
             return
         playing_sessions = self.mediaserver.get_playing_sessions()
         limit_flag = False
-        match mediaserver_type:
-            case MediaServerType.EMBY:
-                for session in playing_sessions:
-                    if not SecurityHelper.allow_access(self.unlimited_ips, session.get("RemoteEndPoint")) \
-                            and "Video" in session.get("PlayableMediaTypes"):
-                        limit_flag = True
-                        break
-            case MediaServerType.JELLYFIN:
-                pass
-            case MediaServerType.PLEX:
-                pass
-            case _:
-                pass
+        if mediaserver_type == MediaServerType.EMBY:
+            for session in playing_sessions:
+                if not SecurityHelper.allow_access(self.unlimited_ips, session.get("RemoteEndPoint")) \
+                        and "Video" in session.get("PlayableMediaTypes"):
+                    limit_flag = True
+                    break
+        elif mediaserver_type == MediaServerType.JELLYFIN:
+            pass
+        elif mediaserver_type == MediaServerType.PLEX:
+            pass
+        else:
+            return
         if time_check:
             if limit_flag:
                 self.__start()
