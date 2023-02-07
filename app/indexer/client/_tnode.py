@@ -46,7 +46,7 @@ class TNodeSpider(object):
             if csrf_token:
                 self._token = csrf_token.group(1)
 
-    def search(self, keyword, page=1):
+    def search(self, keyword, page=0):
         if not self._token:
             log.warn(f"【INDEXER】{self._name} 未获取到token，无法搜索")
             return []
