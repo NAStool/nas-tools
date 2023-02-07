@@ -7,9 +7,9 @@ from config import Config
 class _IDownloadClient(metaclass=ABCMeta):
 
     @abstractmethod
-    def init_config(self):
+    def match(self, ctype):
         """
-        初始化配置
+        匹配实例
         """
         pass
 

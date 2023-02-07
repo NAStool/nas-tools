@@ -26,9 +26,9 @@ class _IIndexClient(metaclass=ABCMeta):
         self.progress = ProgressHelper()
 
     @abstractmethod
-    def init_config(self):
+    def match(self, ctype):
         """
-        初始化配置
+        匹配实例
         """
         pass
 
