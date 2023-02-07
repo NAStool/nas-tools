@@ -67,10 +67,19 @@ export class PageMediainfo extends CustomElement {
 
   render() {
     return html`
-      <div class="container-xl placeholder-glow">
+      <style>
+        .lit-media-info-page-bg {
+          background-color: rgb(var(--tblr-body-bg-rgb));
+        }
+        
+        .theme-light .lit-media-info-page-bg {
+          background-color: rgb(231, 235, 239);
+        }
+      </style>
+      <div class="container-xl placeholder-glow page-wrapper-top-off lit-media-info-page-bg">
         <!-- 渲染媒体信息 -->
-        <div class="card rounded-0 lit-media-info-background" style="border:none;height:490px;">
-          <custom-img style="border:none;height:490px;"
+        <div class="card rounded-0 lit-media-info-background" style="border:none;height:calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 541px);">
+          <custom-img style="border:none;height:calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 541px);"
             div-style="display:inline;"
             img-placeholder="0"
             img-error="0"
@@ -99,6 +108,7 @@ export class PageMediainfo extends CustomElement {
                   </h1>
                   <div class="align-self-center align-self-md-start">
                     <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
+                    <a href="${this.media_info.douban_link}" target="_blank" ?hidden=${!this.media_info.douban_id}><span class="badge badge-outline text-orange">${this.media_info.douban_id}</span></a>
                     <span class="ms-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span ?hidden=${!this.media_info.genres}>| ${this.media_info.genres}</span>
                     ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("205px") : nothing }
@@ -223,7 +233,7 @@ export class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-mediatype=${item.media_type}
+                card-mediatype=${item.type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}
@@ -252,7 +262,7 @@ export class PageMediainfo extends CustomElement {
                 }}
                 lazy=1
                 card-tmdbid=${item.id}
-                card-mediatype=${item.media_type}
+                card-mediatype=${item.type}
                 card-showsub=1
                 card-image=${item.image}
                 card-fav=${item.fav}

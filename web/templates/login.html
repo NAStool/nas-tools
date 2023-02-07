@@ -1,36 +1,14 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/head.html' as HEAD %}
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=0">
-  <meta name="Robots" content="noindex,nofollow,noarchive">
-  <link rel="icon" type="image/png" href="../static/img/logo.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="../static/img/logo-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../static/img/logo-16x16.png">
-  <link rel="apple-touch-icon" sizes="256x256" href="../static/img/logo-black.png">
-  <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-startup-image" href="../static/img/startup.jpg">
-  <link rel="manifest" href="../static/site.webmanifest" crossorigin="use-credentials">
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NAStool">
-  <meta name="description" content="NAS媒体库资源归集整理自动化工具">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="referrer" content="never">
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="msapplication-TileColor" content="#1e293b"/>
-  <meta name="theme-color" content="#1e293b"/>
-  <meta name="HandheldFriendly" content="True"/>
-  <meta name="MobileOptimized" content="320"/>
+  {{ HEAD.meta_link() }}
   <title>登录 - NAStool</title>
   <!-- CSS files -->
   <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+  <link href="../static/css/style.css" rel="stylesheet"/>
 </head>
-
 <body class="d-flex flex-column"
       style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
 <div class="page page-center">

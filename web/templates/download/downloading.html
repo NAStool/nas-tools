@@ -53,41 +53,45 @@
                   <div class="text-muted" id="speed_text_{{ Torrent.id }}">
                     {{ Torrent.speed }}
                   </div>
-                  <div class="mt-3">
-                    <div class="row g-2 align-items-center">
-                      <div class="col-auto" id="progress_text_{{ Torrent.id }}">
-                        {{ Torrent.progress }}%
-                      </div>
-                      <div class="col">
-                        <div class="progress progress-sm">
-                          <div class="progress-bar" id="progress_{{ Torrent.id }}"
-                               style="width: {{ Torrent.progress }}%"
-                               role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0"
-                               aria-valuemax="100">
-                            <span class="visually-hidden"></span>
+                  {% if not Torrent.noprogress %}
+                    <div class="mt-3">
+                      <div class="row g-2 align-items-center">
+                        <div class="col-auto" id="progress_text_{{ Torrent.id }}">
+                          {{ Torrent.progress }}%
+                        </div>
+                        <div class="col">
+                          <div class="progress progress-sm">
+                            <div class="progress-bar" id="progress_{{ Torrent.id }}"
+                                style="width: {{ Torrent.progress }}%"
+                                role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0"
+                                aria-valuemax="100">
+                              <span class="visually-hidden"></span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  {% endif %}
                 </div>
                 <div class="col-auto">
                   <div class="dropdown">
-                    <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                      {{ SVG.dots_vertical() }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                      {% if Client != 'client115' %}
-                        <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
-                           class="dropdown-item"
-                           style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
-                        <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
-                           class="dropdown-item"
-                           style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
-                      {% endif %}
-                      <a href="javascript:remove_pt_download('{{ Torrent.id }}')"
-                         class="dropdown-item text-danger">删除</a>
-                    </div>
+                    {% if not Torrent.nomenu %}
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ SVG.dots_vertical() }}
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        {% if Client != 'client115' %}
+                          <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
+                            class="dropdown-item"
+                            style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
+                          <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
+                            class="dropdown-item"
+                            style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
+                        {% endif %}
+                        <a href="javascript:remove_pt_download('{{ Torrent.id }}')"
+                          class="dropdown-item text-danger">删除</a>
+                      </div>
+                    {% endif %}
                   </div>
                 </div>
                 <input type="hidden" class="download_ids" id="id_{{ Torrent.id }}" value="{{ Torrent.id }}">

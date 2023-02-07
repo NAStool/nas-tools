@@ -11,7 +11,7 @@ from lxml import etree
 import log
 from app.helper import MetaHelper
 from app.media.meta.metainfo import MetaInfo
-from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException
+from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbException, Discover, Trending, Episode, Genre
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
@@ -25,8 +25,12 @@ class Media:
     search = None
     movie = None
     tv = None
+    episode = None
     person = None
     find = None
+    trending = None
+    discover = None
+    genre = None
     meta = None
     _rmt_match_mode = None
     _search_keyword = None
@@ -53,8 +57,12 @@ class Media:
                 self.search = Search()
                 self.movie = Movie()
                 self.tv = TV()
+                self.episode = Episode()
                 self.find = Find()
                 self.person = Person()
+                self.trending = Trending()
+                self.discover = Discover()
+                self.genre = Genre()
                 self.meta = MetaHelper()
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
             if rmt_match_mode:
@@ -886,40 +894,51 @@ class Media:
         return return_media_infos
 
     @staticmethod
-    def __dict_tvinfos(tvs):
-        """
-        TMDB电视剧信息转为字典
-        """
-        return [{
-            'id': tv.get("id"),
-            'orgid': tv.get("id"),
-            'tmdbid': tv.get("id"),
-            'title': tv.get("name"),
-            'type': 'TV',
-            'media_type': MediaType.TV.value,
-            'year': tv.get("first_air_date")[0:4] if tv.get("first_air_date") else "",
-            'vote': round(float(tv.get("vote_average")), 1) if tv.get("vote_average") else 0,
-            'image': TMDB_IMAGE_W500_URL % tv.get("poster_path"),
-            'overview': tv.get("overview")
-        } for tv in tvs or []]
-
-    @staticmethod
-    def __dict_movieinfos(movies):
+    def __dict_tmdbinfos(infos, mtype=None):
         """
         TMDB电影信息转为字典
         """
-        return [{
-            'id': movie.get("id"),
-            'orgid': movie.get("id"),
-            'tmdbid': movie.get("id"),
-            'title': movie.get("title"),
-            'type': 'MOV',
-            'media_type': MediaType.MOVIE.value,
-            'year': movie.get("release_date")[0:4] if movie.get("release_date") else "",
-            'vote': round(float(movie.get("vote_average")), 1) if movie.get("vote_average") else 0,
-            'image': TMDB_IMAGE_W500_URL % movie.get("poster_path"),
-            'overview': movie.get("overview")
-        } for movie in movies or []]
+        if not infos:
+            return []
+        ret_infos = []
+        for info in infos:
+            tmdbid = info.get("id")
+            vote = round(float(info.get("vote_average")), 1) if info.get("vote_average") else 0,
+            image = TMDB_IMAGE_W500_URL % info.get("poster_path")
+            overview = info.get("overview")
+            if mtype:
+                media_type = mtype.value
+                year = info.get("release_date")[0:4] if info.get(
+                    "release_date") and mtype == MediaType.MOVIE else info.get(
+                    "first_air_date")[0:4] if info.get(
+                    "first_air_date") else ""
+                typestr = 'MOV' if mtype == MediaType.MOVIE else 'TV'
+                title = info.get("title") if mtype == MediaType.MOVIE else info.get("name")
+            else:
+                media_type = MediaType.MOVIE.value if info.get(
+                    "media_type") == "movie" else MediaType.TV.value
+                year = info.get("release_date")[0:4] if info.get(
+                    "release_date") and info.get(
+                    "media_type") == "movie" else info.get(
+                    "first_air_date")[0:4] if info.get(
+                    "first_air_date") else ""
+                typestr = 'MOV' if info.get("media_type") == "movie" else 'TV'
+                title = info.get("title") if info.get("media_type") == "movie" else info.get("name")
+
+            ret_infos.append({
+                'id': tmdbid,
+                'orgid': tmdbid,
+                'tmdbid': tmdbid,
+                'title': title,
+                'type': typestr,
+                'media_type': media_type,
+                'year': year,
+                'vote': vote,
+                'image': image,
+                'overview': overview
+            })
+
+        return ret_infos
 
     def get_tmdb_hot_movies(self, page):
         """
@@ -929,7 +948,7 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.__dict_movieinfos(self.movie.popular(page))
+        return self.__dict_tmdbinfos(self.movie.popular(page), MediaType.MOVIE)
 
     def get_tmdb_hot_tvs(self, page):
         """
@@ -939,7 +958,7 @@ class Media:
         """
         if not self.tv:
             return []
-        return self.__dict_tvinfos(self.tv.popular(page))
+        return self.__dict_tmdbinfos(self.tv.popular(page), MediaType.TV)
 
     def get_tmdb_new_movies(self, page):
         """
@@ -949,7 +968,7 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.__dict_movieinfos(self.movie.now_playing(page))
+        return self.__dict_tmdbinfos(self.movie.now_playing(page), MediaType.MOVIE)
 
     def get_tmdb_new_tvs(self, page):
         """
@@ -959,7 +978,7 @@ class Media:
         """
         if not self.tv:
             return []
-        return self.__dict_tvinfos(self.tv.on_the_air(page))
+        return self.__dict_tmdbinfos(self.tv.on_the_air(page), MediaType.TV)
 
     def get_tmdb_upcoming_movies(self, page):
         """
@@ -969,7 +988,17 @@ class Media:
         """
         if not self.movie:
             return []
-        return self.__dict_movieinfos(self.movie.upcoming(page))
+        return self.__dict_tmdbinfos(self.movie.upcoming(page), MediaType.MOVIE)
+
+    def get_tmdb_trending_all_week(self, page=1):
+        """
+        获取即将上映电影
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
+        if not self.movie:
+            return []
+        return self.__dict_tmdbinfos(self.trending.all_week(page=page))
 
     def __get_tmdb_movie_detail(self, tmdbid, append_to_response=None):
         """
@@ -1625,6 +1654,22 @@ class Media:
         genres_list = [genre.get("name") for genre in genres]
         return ", ".join(genres_list) if genres_list else ""
 
+    def get_tmdb_genres(self, mtype):
+        """
+        获取TMDB的风格列表
+        :param: mtype: 媒体类型
+        """
+        if not self.genre:
+            return []
+        try:
+            if mtype == MediaType.MOVIE:
+                return self.genre.movie_list()
+            else:
+                return self.genre.tv_list()
+        except Exception as err:
+            print(str(err))
+        return []
+
     @staticmethod
     def get_get_production_country_names(tmdbinfo):
         """
@@ -1728,7 +1773,7 @@ class Media:
             return []
         try:
             movies = self.movie.similar(movie_id=tmdbid, page=page) or []
-            return self.__dict_movieinfos(movies)
+            return self.__dict_tmdbinfos(movies, MediaType.MOVIE)
         except Exception as e:
             print(str(e))
             return []
@@ -1741,7 +1786,7 @@ class Media:
             return []
         try:
             movies = self.movie.recommendations(movie_id=tmdbid, page=page) or []
-            return self.__dict_movieinfos(movies)
+            return self.__dict_tmdbinfos(movies, MediaType.MOVIE)
         except Exception as e:
             print(str(e))
             return []
@@ -1754,7 +1799,7 @@ class Media:
             return []
         try:
             tvs = self.tv.similar(tv_id=tmdbid, page=page) or []
-            return self.__dict_tvinfos(tvs)
+            return self.__dict_tmdbinfos(tvs, MediaType.TV)
         except Exception as e:
             print(str(e))
             return []
@@ -1767,10 +1812,27 @@ class Media:
             return []
         try:
             tvs = self.tv.recommendations(tv_id=tmdbid, page=page) or []
-            return self.__dict_tvinfos(tvs)
+            return self.__dict_tmdbinfos(tvs, MediaType.TV)
         except Exception as e:
             print(str(e))
             return []
+
+    def get_tmdb_discover(self, mtype, params=None, page=1):
+        """
+        浏览电影、电视剧（复杂过滤条件）
+        """
+        if not self.discover:
+            return []
+        try:
+            if mtype == MediaType.MOVIE:
+                movies = self.discover.discover_movies(params=params, page=page)
+                return self.__dict_tmdbinfos(movies, mtype)
+            elif mtype == MediaType.TV:
+                tvs = self.discover.discover_tv_shows(params=params, page=page)
+                return self.__dict_tmdbinfos(tvs, mtype)
+        except Exception as e:
+            print(str(e))
+        return []
 
     def get_person_medias(self, personid, mtype, page=1):
         """
@@ -1782,10 +1844,10 @@ class Media:
         try:
             if mtype == MediaType.MOVIE:
                 movies = self.person.movie_credits(person_id=personid) or []
-                result = self.__dict_movieinfos(movies)
+                result = self.__dict_tmdbinfos(movies, mtype)
             elif mtype == MediaType.TV:
                 tvs = self.person.tv_credits(person_id=personid) or []
-                result = self.__dict_tvinfos(tvs)
+                result = self.__dict_tmdbinfos(tvs, mtype)
             return result[(page - 1) * 20: page * 20]
         except Exception as e:
             print(str(e))
@@ -2013,38 +2075,6 @@ class Media:
         return None
 
     @staticmethod
-    def get_intersection_episodes(target, source, title):
-        """
-        对两个季集字典进行判重，有相同项目的取集的交集
-        """
-        if not source or not title:
-            return target
-        if not source.get(title):
-            return target
-        if not target.get(title):
-            target[title] = source.get(title)
-            return target
-        index = -1
-        for target_info in target.get(title):
-            index += 1
-            source_info = None
-            for info in source.get(title):
-                if info.get("season") == target_info.get("season"):
-                    source_info = info
-                    break
-            if not source_info:
-                continue
-            if not source_info.get("episodes"):
-                continue
-            if not target_info.get("episodes"):
-                target_episodes = source_info.get("episodes")
-                target[title][index]["episodes"] = target_episodes
-                continue
-            target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
-            target[title][index]["episodes"] = target_episodes
-        return target
-
-    @staticmethod
     def get_detail_url(mtype, tmdbid):
         """
         获取TMDB/豆瓣详情页地址
@@ -2062,9 +2092,11 @@ class Media:
         """
         获取剧集中某一集封面
         """
-        res = self.tv.episode_images(tv_id, season_id, episode_id)
-        if len(res.get("stills", [])) > 0:
-            return TMDB_IMAGE_W500_URL % res.get("stills", [{}])[0].get("file_path")
+        if not self.episode:
+            return ""
+        res = self.episode.images(tv_id, season_id, episode_id)
+        if res:
+            return TMDB_IMAGE_W500_URL % res[0].get("file_path")
         else:
             return ""
 

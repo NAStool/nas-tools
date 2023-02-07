@@ -25,6 +25,15 @@ class TNodeSiteUserInfo(_ISiteUserInfo):
             self._user_detail_page = "api/user/getMainInfo"
             self._torrent_seeding_page = "api/user/listTorrentActivity?id=&type=seeding&page=1&size=20000"
 
+    def _parse_logged_in(self, html_text):
+        """
+        判断是否登录成功, 通过判断是否存在用户信息
+        暂时跳过检测，待后续优化
+        :param html_text:
+        :return:
+        """
+        return True
+
     def _parse_user_base_info(self, html_text):
         self.username = self.userid
 

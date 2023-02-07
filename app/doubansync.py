@@ -157,6 +157,11 @@ class DoubanSync:
                                                                           media_info=media)
                                     # 插入为已RSS状态
                                     self.dbhelper.insert_douban_media_state(media, "RSS")
+                            elif not search_state:
+                                log.info("【Douban】%s %s 更新到%s列表中..." % (
+                                    media.get_name(), media.year, media.type.value))
+                                self.dbhelper.insert_douban_media_state(media, "NEW")
+
                     else:
                         log.info("【Douban】%s %s 已处理过" % (media.get_name(), media.year))
                 except Exception as err:

@@ -40,11 +40,32 @@ export class LayoutSearchbar extends CustomElement {
     this.layout_userpris = ["系统设置"];
     this.layout_search_source = "tmdb";
     this._search_source = "tmdb";
-    this.classList.add("navbar", "fixed-top");
+    this.classList.add("navbar", "fixed-top", "lit-searchbar");
   }
 
   firstUpdated() {
     this._search_source = localStorage.getItem("SearchSource") ?? this.layout_search_source;
+    // 当前状态：是否模糊
+    let blur = false;
+    window.addEventListener("scroll", () => {
+      const scroll_length = document.body.scrollTop || window.pageYOffset;
+      // 滚动发生时改变模糊状态
+      if (!blur && scroll_length >= 5) {
+        // 模糊状态
+        blur = true;
+        this.classList.add("lit-searchbar-blur");
+      } else if (blur && scroll_length < 5) {
+        // 非模糊状态
+       blur = false
+       this.classList.remove("lit-searchbar-blur");
+      }
+    });
+
+  }
+
+  // 卸载事件
+  disconnectedCallback() {
+    super.disconnectedCallback();
   }
 
   get input() {
@@ -53,14 +74,36 @@ export class LayoutSearchbar extends CustomElement {
 
   render() {
     return html`
-      <div class="container-fluid">
-        <div class="d-flex flex-row flex-grow-1 align-items-center">
+      <style>
+
+        .lit-searchbar {
+          background-color: rgba(0,0,0,0)!important;
+          border-right: none!important;
+          box-shadow: none!important;
+        }
+
+        .lit-searchbar-blur {
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter:blur(8px);
+        }
+
+        .theme-dark .lit-searchbar-blur {
+          background-color: rgba(29,39,59,0.6)!important;
+        }
+
+        .theme-light .lit-searchbar-blur {
+          background-color: rgba(231,235,239,0.7)!important;
+        }
+
+      </style>
+      <div class="container-fluid nav-search-bar">
+        <div class="d-flex flex-row flex-grow-1 align-items-center py-1">
           <!-- 导航展开按钮 -->
           <layout-navbar-button></layout-navbar-button>
           <!-- 搜索栏 -->
           <div class="input-group input-group-flat mx-2">
             <span class="input-group-text form-control-rounded">
-              <a href="#" class="link-secondary" data-bs-toggle="tooltip" title="切换搜索源（豆瓣/TMDB）" aria-label="切换搜索源（豆瓣/TMDB）" data-bs-original-title="切换搜索源（豆瓣/TMDB）"
+              <a href="#" class="link-secondary"
                 @click=${ () => {
                   this._search_source = this._search_source === "tmdb" ? "douban" : "tmdb";
                   localStorage.setItem("SearchSource", this._search_source);
@@ -72,10 +115,11 @@ export class LayoutSearchbar extends CustomElement {
               @keypress=${ (e) => {
                 if(e.which === 13 && this.input.value){
                   navmenu("recommend?type=SEARCH&title=搜索结果&subtitle=" + this.input.value + "&keyword=" + this.input.value + "&source=" + this._search_source);
+                  this.input.value = "";
                 }
               }}>
             <span class="input-group-text form-control-rounded">
-              <a href="javascript:show_search_advanced_modal()" class="link-secondary" data-bs-toggle="tooltip" title="高级搜索" aria-label="高级搜索" data-bs-original-title="高级搜索">
+              <a href="javascript:show_search_advanced_modal()" class="link-secondary">
                 <!-- http://tabler-icons.io/i/adjustments -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -94,7 +138,7 @@ export class LayoutSearchbar extends CustomElement {
             </span>
           </div>
           <!-- 头像 -->
-          <div class="nav-item dropdown">
+          <div class="nav-item dropdown me-2">
               <a href="#" class="nav-link d-flex lh-1 text-reset ms-1 p-0" data-bs-toggle="dropdown">
                 <!-- http://tabler-icons.io/i/user -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user"

@@ -11,6 +11,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.sites import Sites
 from app.indexer import Indexer
+from app.utils import Torrent
 from app.utils.types import MediaType, SearchType
 from web.backend.web_utils import WebUtils
 
@@ -729,9 +730,9 @@ class Subscribe:
                                                   media=media_info)
                     continue
                 # 取交集做为缺失集
-                rss_no_exists = self.media.get_intersection_episodes(target=rss_no_exists,
-                                                                     source=library_no_exists,
-                                                                     title=media_info.tmdb_id)
+                rss_no_exists = Torrent.get_intersection_episodes(target=rss_no_exists,
+                                                                  source=library_no_exists,
+                                                                  title=media_info.tmdb_id)
                 if rss_no_exists.get(media_info.tmdb_id):
                     log.info("【Subscribe】%s 订阅缺失季集：%s" % (
                         media_info.get_title_string(),
@@ -759,7 +760,8 @@ class Subscribe:
                 sites=rss_info.get("search_sites"),
                 filters=filter_dict)
             if search_result \
-                    and (not no_exists or not no_exists.get(media_info.tmdb_id)):
+                    or not no_exists \
+                    or not no_exists.get(media_info.tmdb_id):
                 # 洗版
                 if over_edition:
                     self.update_subscribe_over_edition(rtype=media_info.type,
@@ -830,6 +832,8 @@ class Subscribe:
         """
         更新电视剧订阅缺失集数
         """
+        if not seasoninfo:
+            return
         self.dbhelper.update_rss_tv_state(rssid=rssid, state='R')
         for info in seasoninfo:
             if str(info.get("season")) == media_info.get_season_seq():

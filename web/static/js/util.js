@@ -316,3 +316,18 @@ function compareVersion(version1, version2) {
         return 0;
     }
 }
+
+
+// 计算滚动条相对于页面底部的距离比例
+function getScrollRate(){
+    const winH = window.innerHeight; //页面可视区域高度
+    const pageH = $("#page_content").height(); //页面总高度
+    const scrollT = document.body.scrollTop || window.pageYOffset; //滚动条top
+    return (pageH - winH - scrollT) / winH;
+}
+
+// 判断元素出现滚动条
+function hasScrollbar() {
+    // 判断是否大于2是因为我观察到部分情况下body可滚动的高度会比可视区域大1
+    return (document.body.scrollHeight - (window.innerHeight || document.documentElement.clientHeight)) > 2;
+}

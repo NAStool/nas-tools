@@ -47,10 +47,11 @@ class WebhookEvent:
         if message.get('Item'):
             if message.get('Item', {}).get('Type') == 'Episode':
                 eventItem['item_type'] = "TV"
-                eventItem['item_name'] = "%s %s%s" % (
+                eventItem['item_name'] = "%s %s%s %s" % (
                     message.get('Item', {}).get('SeriesName'),
                     "S" + str(message.get('Item', {}).get('ParentIndexNumber')),
-                    "E" + str(message.get('Item', {}).get('IndexNumber')))
+                    "E" + str(message.get('Item', {}).get('IndexNumber')),
+                    message.get('Item', {}).get('Name'))
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
@@ -59,7 +60,7 @@ class WebhookEvent:
                     eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('Item', {}).get('CompletionPercentage')
+                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
@@ -71,7 +72,7 @@ class WebhookEvent:
                     eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('Item', {}).get('CompletionPercentage')
+                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
         if message.get('Session'):
             eventItem['ip'] = message.get('Session').get('RemoteEndPoint')
             eventItem['device_name'] = message.get('Session').get('DeviceName')
@@ -153,7 +154,8 @@ class WebhookEvent:
         if event_info.get('ip'):
             message_texts.append(f"位置：{event_info.get('ip')} {WebUtils.get_location(event_info.get('ip'))}")
         if event_info.get('percentage'):
-            message_texts.append(f"进度：{event_info.get('percentage')}")
+            percentage = round(float(event_info.get('percentage')), 2)
+            message_texts.append(f"进度：{percentage}%")
         if event_info.get('overview'):
             message_texts.append(f"剧情：{event_info.get('overview')}")
         message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
@@ -166,7 +168,8 @@ class WebhookEvent:
                 tmdb_id = iteminfo.get('ProviderIds', {}).get('Tmdb')
                 try:
                     # 从tmdb获取剧集某季某集图片
-                    image_url = self.media.get_episode_images(tmdb_id, event_info.get('season_id'),
+                    image_url = self.media.get_episode_images(tmdb_id,
+                                                              event_info.get('season_id'),
                                                               event_info.get('episode_id'))
                 except IOError:
                     pass

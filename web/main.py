@@ -69,10 +69,10 @@ App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 def add_header(r):
     """
     统一添加Http头，标用缓存，避免Flask多线程+Chrome内核会发生的静态资源加载出错的问题
-    """
     r.headers["Cache-Control"] = "no-cache, no-store, max-age=0"
     r.headers["Pragma"] = "no-cache"
     r.headers["Expires"] = "0"
+    """
     return r
 
 
@@ -127,6 +127,7 @@ def login():
         SiteFavicons = Sites().get_site_favicon()
         Indexers = Indexer().get_indexers()
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
+        CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
         return render_template('navigation.html',
                                GoPage=GoPage,
                                UserName=userinfo.username,
@@ -140,7 +141,8 @@ def login():
                                SiteFavicons=SiteFavicons,
                                RmtModeDict=RmtModeDict,
                                Indexers=Indexers,
-                               SearchSource=SearchSource)
+                               SearchSource=SearchSource,
+                               CustomScriptCfg=CustomScriptCfg)
 
     def redirect_to_login(errmsg=''):
         """
@@ -344,12 +346,14 @@ def sites():
     DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
     CookieCloudCfg = SystemConfig().get_system_config('CookieCloud')
+    CookieUserInfoCfg = SystemConfig().get_system_config('CookieUserInfo')
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
                            DownloadSettings=DownloadSettings,
                            ChromeOk=ChromeOk,
-                           CookieCloudCfg=CookieCloudCfg)
+                           CookieCloudCfg=CookieCloudCfg,
+                           CookieUserInfoCfg=CookieUserInfoCfg)
 
 
 # 站点列表页面
@@ -410,34 +414,64 @@ def recommend():
                            Source=Source)
 
 
-# 电影推荐页面
-@App.route('/discovery_movie', methods=['POST', 'GET'])
+# 推荐页面
+@App.route('/ranking', methods=['POST', 'GET'])
 @login_required
-def discovery_movie():
-    return render_template("discovery/discovery.html",
-                           DiscoveryType="MOV")
+def ranking():
+    return render_template("discovery/ranking.html",
+                           DiscoveryType="RANKING")
 
 
-# 电视剧推荐页面
-@App.route('/discovery_tv', methods=['POST', 'GET'])
+# 豆瓣电影
+@App.route('/douban_movie', methods=['POST', 'GET'])
 @login_required
-def discovery_tv():
-    return render_template("discovery/discovery.html",
-                           DiscoveryType="TV")
+def douban_movie():
+    return render_template("discovery/recommend.html",
+                           Type="DOUBANTAG",
+                           SubType="MOV",
+                           Title="豆瓣电影")
+
+
+# 豆瓣电视剧
+@App.route('/douban_tv', methods=['POST', 'GET'])
+@login_required
+def douban_tv():
+    return render_template("discovery/recommend.html",
+                           Type="DOUBANTAG",
+                           SubType="TV",
+                           Title="豆瓣电视剧")
+
+
+@App.route('/tmdb_movie', methods=['POST', 'GET'])
+@login_required
+def tmdb_movie():
+    return render_template("discovery/recommend.html",
+                           Type="DISCOVER",
+                           SubType="MOV",
+                           Title="TMDB电影")
+
+
+@App.route('/tmdb_tv', methods=['POST', 'GET'])
+@login_required
+def tmdb_tv():
+    return render_template("discovery/recommend.html",
+                           Type="DISCOVER",
+                           SubType="TV",
+                           Title="TMDB电视剧")
 
 
 # Bangumi每日放送
-@App.route('/discovery_bangumi', methods=['POST', 'GET'])
+@App.route('/bangumi', methods=['POST', 'GET'])
 @login_required
 def discovery_bangumi():
-    return render_template("discovery/discovery.html",
+    return render_template("discovery/ranking.html",
                            DiscoveryType="BANGUMI")
 
 
 # 媒体详情页面
-@App.route('/discovery_detail', methods=['POST', 'GET'])
+@App.route('/media_detail', methods=['POST', 'GET'])
 @login_required
-def discovery_detail():
+def media_detail():
     TmdbId = request.args.get("id")
     Type = request.args.get("type")
     return render_template("discovery/mediainfo.html",
@@ -936,10 +970,12 @@ def basic():
     if proxy:
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
+    CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,
-                           RmtModeDict=RmtModeDict)
+                           RmtModeDict=RmtModeDict,
+                           CustomScriptCfg=CustomScriptCfg)
 
 
 # 自定义识别词设置页面

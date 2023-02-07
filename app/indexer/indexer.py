@@ -114,7 +114,7 @@ class Indexer(object):
         return self._client_type
 
     def search_by_keyword(self,
-                          key_word,
+                          key_word: [str, list],
                           filter_args: dict,
                           match_media=None,
                           in_from: SearchType = None):

@@ -132,6 +132,10 @@ class PathUtils:
                     and os.path.exists(os.path.join(os.path.dirname(path), "index.bdmv")):
                 return PathUtils.get_parent_paths(path, 2)
             else:
+                # 电视剧原盘下会存在多个目录形如：Spider Man 2021/DIsc1, Spider Man 2021/Disc2
+                for level1 in PathUtils.get_dir_level1_medias(path):
+                    if os.path.exists(os.path.join(level1, "BDMV", "index.bdmv")):
+                        return path
                 return None
         else:
             if str(os.path.splitext(path)[-1]).lower() in [".m2ts", ".ts"] \

@@ -13,6 +13,7 @@ class DownloaderType(Enum):
     TR = 'Transmission'
     Client115 = '115网盘'
     Aria2 = 'Aria2'
+    PikPak = 'PikPak'
 
 
 class SyncType(Enum):
@@ -76,6 +77,7 @@ class BrushDeleteType(Enum):
     UPLOADSIZE = "上传量"
     DLTIME = "下载耗时"
     AVGUPSPEED = "平均上传速度"
+    IATIME = "未活动时间"
 
 
 # 站点框架

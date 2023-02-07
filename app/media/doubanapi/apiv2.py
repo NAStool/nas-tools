@@ -16,17 +16,22 @@ from app.utils.commons import singleton
 @singleton
 class DoubanApi(object):
     _urls = {
-        # 搜索类 sort=U:近期热门 T:标记最多 S:评分最高 R:最新上映
+        # 搜索类
+        # sort=U:近期热门 T:标记最多 S:评分最高 R:最新上映
         # q=search_word&start=0&count=20&sort=U
         # 聚合搜索
         "search": "/search/weixin",
         "search_agg": "/search",
 
+        # 电影探索
+        # sort=U:综合排序 T:近期热度 S:高分优先 R:首播时间
         # tags='日本,动画,2022'&start=0&count=20&sort=U
         "movie_recommend": "/movie/recommend",
+        # 电视剧探索
+        "tv_recommend": "/tv/recommend",
+        # 搜索
         "movie_tag": "/movie/tag",
         "tv_tag": "/tv/tag",
-
         # q=search_word&start=0&count=20
         "movie_search": "/search/movie",
         "tv_search": "/search/movie",
@@ -35,9 +40,13 @@ class DoubanApi(object):
 
         # 各类主题合集
         # start=0&count=20
+        # 正在上映
         "movie_showing": "/subject_collection/movie_showing/items",
+        # 热门电影
         "movie_hot_gaia": "/subject_collection/movie_hot_gaia/items",
+        # 即将上映
         "movie_soon": "/subject_collection/movie_soon/items",
+        # TOP250
         "movie_top250": "/subject_collection/movie_top250/items",
         # 高分经典科幻片榜
         "movie_scifi": "/subject_collection/movie_scifi/items",
@@ -48,19 +57,30 @@ class DoubanApi(object):
         # 高分经典爱情片榜
         "movie_love": "/subject_collection/movie_love/items",
 
+        # 热门剧集
         "tv_hot": "/subject_collection/tv_hot/items",
+        # 国产剧
         "tv_domestic": "/subject_collection/tv_domestic/items",
+        # 美剧
         "tv_american": "/subject_collection/tv_american/items",
+        # 本剧
         "tv_japanese": "/subject_collection/tv_japanese/items",
+        # 韩剧
         "tv_korean": "/subject_collection/tv_korean/items",
+        # 动画
         "tv_animation": "/subject_collection/tv_animation/items",
+        # 综艺
         "tv_variety_show": "/subject_collection/tv_variety_show/items",
+        # 华语口碑周榜
         "tv_chinese_best_weekly": "/subject_collection/tv_chinese_best_weekly/items",
+        # 全球口碑周榜
         "tv_global_best_weekly": "/subject_collection/tv_global_best_weekly/items",
 
-        # 综艺
+        # 执门综艺
         "show_hot": "/subject_collection/show_hot/items",
+        # 国内综艺
         "show_domestic": "/subject_collection/show_domestic/items",
+        # 国外综艺
         "show_foreign": "/subject_collection/show_foreign/items",
 
         "book_bestseller": "/subject_collection/book_bestseller/items",
@@ -70,6 +90,7 @@ class DoubanApi(object):
         # 非虚构类热门
         "book_nonfiction_hot_weekly": "/subject_collection/book_nonfiction_hot_weekly/items",
 
+        # 音乐
         "music_single": "/subject_collection/music_single/items",
 
         # rank list
@@ -206,3 +227,15 @@ class DoubanApi(object):
 
     def movie_top250(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["movie_top250"], start=start, count=count, _ts=ts)
+
+    def movie_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["movie_recommend"], tags=tags, sort=sort, start=start, count=count, _ts=ts)
+
+    def tv_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["tv_recommend"], tags=tags, sort=sort, start=start, count=count, _ts=ts)
+
+    def tv_chinese_best_weekly(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["tv_chinese_best_weekly"], start=start, count=count, _ts=ts)
+
+    def tv_global_best_weekly(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["tv_global_best_weekly"], start=start, count=count, _ts=ts)

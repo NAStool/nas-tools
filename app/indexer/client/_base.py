@@ -67,7 +67,9 @@ class _IIndexClient(metaclass=ABCMeta):
         start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
-        search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
+        search_word = StringUtils.handler_special_chars(text=key_word,
+                                                        replace_word=" ",
+                                                        allow_space=True)
         api_url = f"{indexer.domain}?apikey={self.api_key}&t=search&q={search_word}"
         result_array = self.__parse_torznabxml(api_url)
         if len(result_array) == 0:

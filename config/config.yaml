@@ -20,7 +20,7 @@ app:
   # 【日志级别】：info、debug、error
   loglevel: info
   # 【WEB管理界面监听地址】：如需支持ipv6需设置为::，如::无法访问可改为0.0.0.0
-  web_host: '::'
+  web_host: "::"
   # 【WEB管理界面端口】：默认3000
   web_port: 3000
   # 【WEB管理页面登录用户】，默认admin
@@ -45,11 +45,13 @@ app:
     https:
   # 【本系统的WEB的外网地址】：需要是外网IP或者域名，需要包含端口，用于微信/Telegram信息点击跳转，如不需要可配空
   # 示例：http://IP:3000
-  domain: ''
+  domain: ""
   # 【UserAgent】：可适当修改，用于站点签到、豆瓣数据抓取等
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
   # 【登录界面壁纸】：themoviedb、bing，设置为themoviedb时需要配置TMDB API Key时才生效
   wallpaper: bing
+  # Debug mode
+  debug: true
 
 # 【配置媒体库信息】
 media:
@@ -72,7 +74,7 @@ media:
   # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件
   # 默认策略default-category分类设置可参考"default-category.yaml"，分类参见README.MD说明
   # 如不需要启动分类，则该项配置为空
-  category: 'default-category'
+  category: "default-category"
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 150
   # 【文件名转移忽略词】：文件名包含忽略词，忽略转移
@@ -83,10 +85,10 @@ media:
   filesize_cover: true
   # 【电影命名定义】：程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上
   # 电影占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
-  movie_name_format: '{title} ({year})/{title}-{part} ({year}) - {videoFormat}'
+  movie_name_format: "{title} ({year})/{title}-{part} ({year}) - {videoFormat}"
   # 【电视剧命名定义】：程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上
   # 电视剧占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
-  tv_name_format: '{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集'
+  tv_name_format: "{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集"
   # 【刮削元数据及图片】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
   nfo_poster: false
   # 【实时刷新媒体库】：开启后文件转移完成时会实时刷新媒体服务器（Emby/Jellyfin/Plex）的媒体库
@@ -149,7 +151,7 @@ scraper_pic:
     banner: true
     thumb: true
   # 电视剧
-  tv:  
+  tv:
     poster: true
     backdrop: true
     background: true
@@ -197,7 +199,7 @@ pt:
   search_no_result_rss: false
   # 【站点每日签到时间】
   # 两种配置方法，1、配置间隔，单位小时，建议不要设置为24小时的整数倍，避免每天的签到时间一样。2、配置固定时间，如'08:00'，注意要加引号和冒号。3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次
-  ptsignin_cron: '08:01'
+  ptsignin_cron: "08:01"
   # 【RSS订阅开关】：此处配置RSS订阅检查时间间隔，即每隔多长时间检查一下各站点是否有资源更新，建议不要少于30分钟，单位时间为秒
   # 配置为空或者0则不启用RSS订阅功能
   pt_check_interval: 1800
@@ -260,6 +262,15 @@ aria2:
   # 密码令牌
   secret:
 
+# 配置 pikpak 网盘下载器
+pikpak:
+  # 用户名
+  username:
+  # 密码
+  password:
+  # 代理
+  proxy:
+
 # 【下载目录】：配置下载目录，自按分类下载到指定目录
 downloaddir:
 
@@ -268,7 +279,7 @@ douban:
   # 【用户ID列表】：豆瓣电影点个我主页people后面的那一串数字，或者使用豆瓣App个人信息中查看。可以配置多个，注意要加引号
   # 这里可以是自己的，也可以是别人的，比如填写几个大V的账号ID，实现热门影视自动下载
   users:
-    - ''
+    - ""
   # 【豆瓣Cookie】：选配，嫌麻烦的可以不用配置，可能影响个别电影的同步
   cookie:
   # 【同步天数】：同步多少天内加入的数据
@@ -276,7 +287,7 @@ douban:
   # 【同步间隔】：多久同步一次数据，单位小时，建议不要太频繁，避免被检测到后封号
   interval:
   # 【同步数据类型】：同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用逗号分隔配置
-  types: 'wish'
+  types: "wish"
   # 【自动开载开关】：同步到豆瓣的数据后是否自动检索站点并下载（需要配置Jackett）
   auto_search: true
   # 【自动添加RSS开关】：站点检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）

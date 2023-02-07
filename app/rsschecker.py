@@ -295,7 +295,9 @@ class RssChecker(object):
                     # 检查种子是否匹配过滤条件
                     filter_args = {
                         "include": taskinfo.get("include"),
-                        "exclude": taskinfo.get("exclude")
+                        "exclude": taskinfo.get("exclude"),
+                        "rule": -1
+
                     }
                     match_flag, _, match_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                                 filter_args=filter_args)

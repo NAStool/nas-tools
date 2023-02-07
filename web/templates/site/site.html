@@ -156,7 +156,7 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">站点地址 <span class="form-help"
-                  title="站点访问地址，自动签到、站点数据统计、刷流、内置索引器等将使用，有独立签到页面的站点可以配置为签到页面，否则可以配置为首页"
+                  title="站点访问地址，自动签到、站点数据统计、刷流、内置索引器等将使用，有独立签到页面的站点可以配置为签到页面以实现自动签到，否则可以配置为首页（配置为首页时可通过开启站点浏览器仿真来实现自动签到）"
                   data-bs-toggle="tooltip">?</span></label>
               <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点http地址">
             </div>
@@ -361,19 +361,19 @@
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="" id="cookieua_username" class="form-control" placeholder="站点登录用户名">
+              <input type="text" value="{{ CookieUserInfoCfg.username }}" id="cookieua_username" class="form-control" placeholder="站点登录用户名">
             </div>
           </div>
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="" id="cookieua_password" class="form-control" placeholder="登录密码">
+              <input type="password" value="{{ CookieUserInfoCfg.password }}" id="cookieua_password" class="form-control" placeholder="登录密码">
             </div>
           </div>
           <div class="col-lg">
             <div class="mb-3">
               <label class="form-label">两步验证</label>
-              <input type="text" value="" id="cookieua_two_step_code" class="form-control" placeholder="如有设置必须填写">
+              <input type="text" value="{{ CookieUserInfoCfg.two_step_code }}" id="cookieua_two_step_code" class="form-control" placeholder="如有设置必须填写">
             </div>
           </div>
         </div>

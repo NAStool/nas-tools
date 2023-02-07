@@ -1,6 +1,18 @@
+html {
+    --safe-area-inset-top: 0px;
+    min-height: calc(100% + env(safe-area-inset-top)  + var(--safe-area-inset-top));
+}
+
 body, .page {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
+}
+
+.theme-light .page {
+    background-image: linear-gradient(180deg, rgba(123, 178, 233, 0.4) 0%, rgba(231, 235, 239, 1) 60%);
+}
+
+.theme-dark .page {
+    background-image: linear-gradient(180deg, var(--tblr-body-bg) 0%, var(--tblr-bg-surface) 50%);
 }
 
 .tooltip-inner {
@@ -16,36 +28,10 @@ body, .page {
     display: none;
 }
 
-.jsoneditor-mode-code {
-    border: 1px solid var(--tblr-border-color) !important;
-}
-
 .dropzone {
     border: 1px dashed var(--tblr-border-color) !important;
 }
 
-.navbar {
-    min-height: 3rem !important;
-}
-
-.navbar .input-group-flat:focus-within {
-    box-shadow: none;
-}
-
-.navbar-vertical {
-    padding-top: env(safe-area-inset-top) !important;
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-}
-
-.navbar-expand-md {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-}
 
 @media (max-width: 992px) {
     .navbar ul.navbar-nav {
@@ -55,17 +41,27 @@ body, .page {
 }
 
 .page-wrapper {
-    margin-top: calc(env(safe-area-inset-top) + 51px) !important;
-    height: 100% !important;
-    overflow: scroll !important;
+    padding-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top) + 51px) !important;
+    padding-left: env(safe-area-inset-left) !important;
+    overflow: hidden !important;
+}
+
+.page-wrapper-top-off {
+    margin-top: calc(0px - env(safe-area-inset-top) - var(--safe-area-inset-top) - 51px) !important;
+}
+
+#navbar-menu {
+    box-shadow: none!important;
+    border:0!important;
 }
 
 .offcanvas {
-    padding-top: env(safe-area-inset-top) !important;
+    padding-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top)) !important;
+    padding-left: env(safe-area-inset-left) !important;
 }
 
 .modal-dialog {
-    padding-top: env(safe-area-inset-top) !important;
+    padding-top: calc(env(safe-area-inset-top) + var(--safe-area-inset-top)) !important;
 }
 
 
@@ -95,10 +91,18 @@ body, .page {
 
 .lit-media-info-background {
     background-image:
-        linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0.5) 50%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-        linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%),
-        linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 90%, rgba(var(--tblr-body-bg-rgb),1) 100%);
+        linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0) 50%, rgba(var(--tblr-body-bg-rgb), 1) 100%),
+        linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 50%, rgba(var(--tblr-body-bg-rgb), 1) 100%),
+        linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 50%, rgba(var(--tblr-body-bg-rgb), 1) 100%);
     box-shadow:0 0 0 2px rgb(var(--tblr-body-bg-rgb));
+}
+
+.theme-light .lit-media-info-background {
+    background-image:
+        linear-gradient(180deg, rgba(231, 235, 239, 0) 50%, rgba(231, 235, 239, 1) 100%),
+        linear-gradient(90deg, rgba(231, 235, 239, 0) 50%, rgba(231, 235, 239, 1) 100%),
+        linear-gradient(270deg, rgba(231, 235, 239, 0) 50%, rgba(231, 235, 239, 1) 100%);
+    box-shadow:0 0 0 2px rgb(231, 235, 239);
 }
 
 .lit-media-info-image {
@@ -139,4 +143,9 @@ body, .page {
 
 .grid-info-card {
     grid-template-columns: repeat(auto-fill,minmax(20rem,1fr));
+}
+
+.offcanvas-backdrop.show {
+    opacity: 0.5 !important;
+    background-color: #000 !important;
 }

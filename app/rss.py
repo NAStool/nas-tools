@@ -10,7 +10,7 @@ from app.media import Media
 from app.media.meta import MetaInfo
 from app.sites import Sites
 from app.subscribe import Subscribe
-from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils, RssTitleUtils
+from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils, RssTitleUtils, Torrent
 from app.utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -236,9 +236,9 @@ class Rss:
                                         total_ep={season: total_ep}
                                     )
                                     # 取交集做为缺失集
-                                    rss_no_exists = self.media.get_intersection_episodes(target=rss_no_exists,
-                                                                                         source=library_no_exists,
-                                                                                         title=media_info.tmdb_id)
+                                    rss_no_exists = Torrent.get_intersection_episodes(target=rss_no_exists,
+                                                                                      source=library_no_exists,
+                                                                                      title=media_info.tmdb_id)
                                     if rss_no_exists.get(media_info.tmdb_id):
                                         log.info("【Rss】%s 订阅缺失季集：%s" % (
                                             media_info.get_title_string(),

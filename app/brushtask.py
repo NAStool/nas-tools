@@ -184,14 +184,18 @@ class BrushTask(object):
                                            downloadercfg=downloader_cfg,
                                            dlcount=rss_rule.get("dlcount")):
             return
+
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
             return
         else:
             log.info("【Brush】%s RSS获取数据：%s" % (site_name, len(rss_result)))
-        success_count = 0
 
+        max_dlcount = rss_rule.get("dlcount")
+        downloading_count = self.__get_downloading_count(downloader_cfg)
+        new_toreent_count = int(max_dlcount) - int(downloading_count)
+        success_count = 0
         for res in rss_result:
             try:
                 # 种子名
@@ -237,6 +241,10 @@ class BrushTask(object):
                                            site_info=site_info):
                     # 计数
                     success_count += 1
+                    # 添加种子后不能超过最大下载数量
+                    if success_count >= new_toreent_count:
+                        break
+
                     # 再判断一次
                     if not self.__is_allow_new_torrent(taskid=taskid,
                                                        taskname=task_name,
@@ -282,6 +290,7 @@ class BrushTask(object):
                 download_id = taskinfo.get("downloader")
                 remove_rule = taskinfo.get("remove_rule")
                 sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
+
                 # 当前任务种子详情
                 task_torrents = self.dbhelper.get_brushtask_torrents(taskid)
                 torrent_ids = [item.DOWNLOAD_ID for item in task_torrents if item.DOWNLOAD_ID]
@@ -321,6 +330,9 @@ class BrushTask(object):
                         total_uploaded += uploaded
                         # 平均上传速度 Byte/s
                         avg_upspeed = int(uploaded / dltime)
+                        # 已未活动 秒
+                        last_activity = int(torrent.get("last_activity", 0))
+                        iatime = date_now - last_activity if last_activity else 0
                         # 下载量
                         downloaded = torrent.get("downloaded")
                         total_downloaded += downloaded
@@ -328,7 +340,8 @@ class BrushTask(object):
                                                                             seeding_time=seeding_time,
                                                                             ratio=ratio,
                                                                             uploaded=uploaded,
-                                                                            avg_upspeed=avg_upspeed)
+                                                                            avg_upspeed=avg_upspeed,
+                                                                            iatime=iatime)
                         if need_delete:
                             log.info(
                                 "【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.get('name'), delete_type.value))
@@ -356,12 +369,17 @@ class BrushTask(object):
                         total_uploaded += uploaded
                         # 平均上传速度 Byte/s
                         avg_upspeed = int(uploaded / dltime)
+                        # 已未活动 秒
+                        date_now = int(time.mktime(datetime.now().timetuple()))
+                        last_activity = int(torrent.get("last_activity", 0))
+                        iatime = date_now - last_activity if last_activity else 0
                         # 下载量
                         downloaded = torrent.get("downloaded")
                         total_downloaded += downloaded
                         need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
                                                                             dltime=dltime,
-                                                                            avg_upspeed=avg_upspeed)
+                                                                            avg_upspeed=avg_upspeed,
+                                                                            iatime=iatime)
                         if need_delete:
                             log.info(
                                 "【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.get('name'), delete_type.value))
@@ -784,7 +802,7 @@ class BrushTask(object):
         return True
 
     @staticmethod
-    def __check_remove_rule(remove_rule, seeding_time=None, ratio=None, uploaded=None, dltime=None, avg_upspeed=None):
+    def __check_remove_rule(remove_rule, seeding_time=None, ratio=None, uploaded=None, dltime=None, avg_upspeed=None, iatime=None):
         """
         检查是否符合删种规则
         :param remove_rule: 删种规则
@@ -793,6 +811,7 @@ class BrushTask(object):
         :param uploaded: 上传量
         :param dltime: 下载耗时
         :param avg_upspeed: 上传平均速度
+        :param iatime: 未活动时间
         """
         if not remove_rule:
             return False
@@ -827,6 +846,12 @@ class BrushTask(object):
                     if len(rule_avg_upspeeds) > 1 and rule_avg_upspeeds[1]:
                         if float(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
                             return True, BrushDeleteType.AVGUPSPEED
+            if remove_rule.get("iatime") and iatime:
+                rule_times = remove_rule.get("iatime").split("#")
+                if rule_times[0]:
+                    if len(rule_times) > 1 and rule_times[1]:
+                        if float(iatime) > float(rule_times[1]) * 3600:
+                            return True, BrushDeleteType.IATIME
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         return False, BrushDeleteType.NOTDELETE

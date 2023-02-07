@@ -70,6 +70,8 @@ class StringUtils:
         """
         判断是否含有中文
         """
+        if isinstance(word, list):
+            word = " ".join(word)
         chn = re.compile(r'[\u4e00-\u9fff]')
         if chn.search(word):
             return True
@@ -157,13 +159,18 @@ class StringUtils:
         # 需要忽略的特殊字符
         CONVERT_EMPTY_CHARS = r"[、.。,，·:：;；!！'’\"“”()（）\[\]【】「」\-——\+\|\\_/&#～~]"
         if not text:
-            return ""
-        text = re.sub(r"[\u200B-\u200D\uFEFF]", "", re.sub(r"%s" % CONVERT_EMPTY_CHARS, replace_word, text),
-                      flags=re.IGNORECASE)
-        if not allow_space:
-            return re.sub(r"\s+", "", text)
+            return text
+        if not isinstance(text, list):
+            text = re.sub(r"[\u200B-\u200D\uFEFF]",
+                          "",
+                          re.sub(r"%s" % CONVERT_EMPTY_CHARS, replace_word, text),
+                          flags=re.IGNORECASE)
+            if not allow_space:
+                return re.sub(r"\s+", "", text)
+            else:
+                return re.sub(r"\s+", " ", text).strip()
         else:
-            return re.sub(r"\s+", " ", text).strip()
+            return [StringUtils.handler_special_chars(x) for x in text]
 
     @staticmethod
     def str_filesize(size, pre=2):

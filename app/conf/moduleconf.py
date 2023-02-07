@@ -41,7 +41,8 @@ class ModuleConf(object):
         "qbittorrent": DownloaderType.QB,
         "transmission": DownloaderType.TR,
         "client115": DownloaderType.Client115,
-        "aria2": DownloaderType.Aria2
+        "aria2": DownloaderType.Aria2,
+        "pikpak": DownloaderType.PikPak
     }
 
     # 索引器
@@ -592,7 +593,7 @@ class ModuleConf(object):
             "background": "bg-azure",
             "test_command": "app.downloader.client.client115|Client115",
             "config": {
-                "trhost": {
+                "cookie": {
                     "id": "client115.cookie",
                     "required": True,
                     "title": "Cookie",
@@ -629,6 +630,38 @@ class ModuleConf(object):
                     "title": "令牌",
                     "type": "text",
                     "placeholder": ""
+                }
+            }
+        },
+        "pikpak": {
+            "name": "PikPak",
+            "img_url": "../static/img/pikpak.png",
+            "background": "bg-indigo",
+            "test_command": "app.downloader.client.pikpak|pikpak",
+            "config": {
+                "username": {
+                    "id": "pikpak.username",
+                    "required": True,
+                    "title": "用户名",
+                    "tooltip": "用户名",
+                    "type": "text",
+                    "placeholder": ""
+                },
+                "password": {
+                    "id": "pikpak.password",
+                    "required": True,
+                    "title": "密码",
+                    "tooltip": "密码",
+                    "type": "password",
+                    "placeholder": ""
+                },
+                "proxy": {
+                    "id": "pikpak.proxy",
+                    "required": False,
+                    "title": "代理",
+                    "tooltip": "如果需要代理才能访问pikpak可以在此处填入代理地址",
+                    "type": "text",
+                    "placeholder": "127.0.0.1:7890"
                 }
             }
         },
@@ -788,6 +821,168 @@ class ModuleConf(object):
                     "type": "text",
                     "placeholder": ""
                 }
+            }
+        }
+    }
+
+    # 发现过滤器
+    DISCOVER_FILTER_CONF = {
+        "tmdb_movie": {
+            "with_genres": {
+                "name": "类型",
+                "type": "selectgroup",
+                "options": [{'value': 28, 'name': '动作'},
+                            {'value': 12, 'name': '冒险'},
+                            {'value': 16, 'name': '动画'},
+                            {'value': 35, 'name': '喜剧'},
+                            {'value': 80, 'name': '犯罪'},
+                            {'value': 18, 'name': '剧情'},
+                            {'value': 14, 'name': '奇幻'},
+                            {'value': 27, 'name': '恐怖'},
+                            {'value': 9648, 'name': '悬疑'},
+                            {'value': 10749, 'name': '爱情'},
+                            {'value': 878, 'name': '科幻'},
+                            {'value': 53, 'name': '惊悚'},
+                            {'value': 10752, 'name': '战争'}]
+            },
+            "with_original_language": {
+                "name": "语言",
+                "type": "selectgroup",
+                "options": [{'value': 'zh', 'name': '中文'},
+                            {'value': 'en', 'name': '英语'},
+                            {'value': 'ja', 'name': '日语'},
+                            {'value': 'ko', 'name': '韩语'},
+                            {'value': 'fr', 'name': '法语'},
+                            {'value': 'de', 'name': '德语'},
+                            {'value': 'ru', 'name': '俄语'},
+                            {'value': 'hi', 'name': '印地语'}]
+            }
+        },
+        "tmdb_tv": {
+            "with_genres": {
+                "name": "类型",
+                "type": "selectgroup",
+                "options": [{'value': 10759, 'name': '动作冒险'},
+                            {'value': 16, 'name': '动画'},
+                            {'value': 35, 'name': '喜剧'},
+                            {'value': 80, 'name': '犯罪'},
+                            {'value': 99, 'name': '纪录'},
+                            {'value': 18, 'name': '剧情'},
+                            {'value': 10762, 'name': '儿童'},
+                            {'value': 9648, 'name': '悬疑'},
+                            {'value': 10764, 'name': '真人秀'},
+                            {'value': 10765, 'name': '科幻'}]
+            },
+            "with_original_language": {
+                "name": "语言",
+                "type": "selectgroup",
+                "options": [{'id': 'zh', 'name': '中文'},
+                            {'id': 'en', 'name': '英语'},
+                            {'id': 'ja', 'name': '日语'},
+                            {'id': 'ko', 'name': '韩语'},
+                            {'id': 'fr', 'name': '法语'},
+                            {'id': 'de', 'name': '德语'},
+                            {'id': 'ru', 'name': '俄语'},
+                            {'id': 'hi', 'name': '印地语'}]
+            }
+        },
+        "douban_movie": {
+            "sort": {
+                "name": "排序",
+                "type": "select",
+                "options": [{'value': 'U', 'name': '综合排序'},
+                            {'value': 'T', 'name': '首播时间'},
+                            {'value': 'S', 'name': '高分优先'},
+                            {'value': 'R', 'name': '近期热度'}]
+            },
+            "类型": {
+                "parent": "selected_categories",
+                "name": "类型",
+                "type": "selectgroup",
+                "options": [{"value": "喜剧"},
+                            {"value": "爱情"},
+                            {"value": "动作"},
+                            {"value": "科幻"},
+                            {"value": "动画"},
+                            {"value": "悬疑"},
+                            {"value": "犯罪"},
+                            {"value": "惊悚"},
+                            {"value": "冒险"},
+                            {"value": "奇幻"},
+                            {"value": "恐怖"},
+                            {"value": "战争"},
+                            {"value": "武侠"},
+                            {"value": "灾难"}]
+            },
+            "地区": {
+                "parent": "selected_categories",
+                "name": "地区",
+                "type": "selectgroup",
+                "options": [{"value": "华语"},
+                            {"value": "中国大陆"},
+                            {"value": "中国香港"},
+                            {"value": "中国台湾"},
+                            {"value": "欧美"},
+                            {"value": "韩国"},
+                            {"value": "日本"},
+                            {"value": "意大利"},
+                            {"value": "西班牙"},
+                            {"value": "印度"},
+                            {"value": "泰国"}]
+            }
+        },
+        "douban_tv": {
+            "sort": {
+                "name": "排序",
+                "type": "select",
+                "options": [{'value': 'U', 'name': '综合排序'},
+                            {'value': 'T', 'name': '首播时间'},
+                            {'value': 'S', 'name': '高分优先'},
+                            {'value': 'R', 'name': '近期热度'}]
+            },
+            "形式": {
+                "parent": "selected_categories",
+                "name": "形式",
+                "type": "select",
+                "options": [{"value": "电视剧"},
+                            {"value": "综艺"}]
+            },
+            "类型": {
+                "parent": "selected_categories",
+                "name": "类型",
+                "type": "selectgroup",
+                "options": [{"value": "喜剧"},
+                            {"value": "爱情"},
+                            {"value": "悬疑"},
+                            {"value": "动画"},
+                            {"value": "武侠"},
+                            {"value": "古装"},
+                            {"value": "犯罪"},
+                            {"value": "科幻"},
+                            {"value": "恐怖"},
+                            {"value": "历史"},
+                            {"value": "战争"},
+                            {"value": "动作"},
+                            {"value": "冒险"},
+                            {"value": "传记"},
+                            {"value": "剧情"},
+                            {"value": "奇幻"},
+                            {"value": "惊悚"},
+                            {"value": "灾难"}]
+            },
+            "地区": {
+                "parent": "selected_categories",
+                "name": "地区",
+                "type": "selectgroup",
+                "options": [{"value": "华语"},
+                            {"value": "中国大陆"},
+                            {"value": "中国香港"},
+                            {"value": "中国台湾"},
+                            {"value": "欧美"},
+                            {"value": "韩国"},
+                            {"value": "日本"},
+                            {"value": "印度"},
+                            {"value": "泰国"}]
             }
         }
     }
