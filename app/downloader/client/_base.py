@@ -143,3 +143,10 @@ class _IDownloadClient(metaclass=ABCMeta):
         获取下载进度
         """
         pass
+
+    @abstractmethod
+    def set_speed_limit(self, **kwargs):
+        """
+        设置速度限制
+        """
+        pass

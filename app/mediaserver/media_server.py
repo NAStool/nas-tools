@@ -229,10 +229,18 @@ class MediaServer:
 
     def get_iteminfo(self, itemid):
         """
-          根据ItemId从媒体服务器查询项目详情
-          :param itemid: 在Emby中的ID
-          :return: 图片对应在TMDB中的URL
-          """
+        根据ItemId从媒体服务器查询项目详情
+        :param itemid: 在Emby中的ID
+        :return: 图片对应在TMDB中的URL
+        """
         if not self.server:
             return None
         return self.server.get_iteminfo(itemid)
+
+    def get_playing_sessions(self):
+        """
+        获取正在播放的会话
+        """
+        if not self.server:
+            return None
+        return self.server.get_playing_sessions()

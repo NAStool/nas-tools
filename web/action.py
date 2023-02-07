@@ -37,6 +37,7 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
+from app.speedlimiter import SpeedLimiter
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
@@ -4328,6 +4329,8 @@ class WebAction:
             return {"code": 1}
         try:
             SystemConfig().set_system_config(key=key, value=value)
+            if key == "SpeedLimit":
+                SpeedLimiter().init_config()
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
