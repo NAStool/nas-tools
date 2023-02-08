@@ -985,14 +985,30 @@ class WebAction:
         """
         log_list = []
         refresh_new = data.get('refresh_new')
-        if not refresh_new:
-            log_list = list(log.LOG_QUEUE)
-        elif log.LOG_INDEX:
-            if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
+        source = data.get('source')
+
+        if not source:
+            if not refresh_new:
                 log_list = list(log.LOG_QUEUE)
-            else:
-                log_list = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
-        log.LOG_INDEX = 0
+            elif log.LOG_INDEX:
+                if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
+                    log_list = list(log.LOG_QUEUE)
+                else:
+                    log_list = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+            log.LOG_INDEX = 0
+        else:
+            queue_logs = list(log.LOG_QUEUE)
+            for message in queue_logs:
+                if str(message.get("source")) == source:
+                    log_list.append(message)
+                else:
+                    continue
+
+            if refresh_new:
+                if int(refresh_new) < len(log_list):
+                    log_list = log_list[int(refresh_new):]
+                elif int(refresh_new) >= len(log_list):
+                    log_list = []
         return {"loglist": log_list}
 
     @staticmethod

@@ -271,9 +271,26 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">实时日志</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                id="logging_close_head"></button>
+        <div class="select_logger">
+          <h5 class="modal-title">实时日志</h5>
+          <svg focusable="false"  class="logger-btn" data-icon="filter" width="1em" height="1em" fill="currentColor" aria-hidden="true" viewBox="64 64 896 896"><path d="M349 838c0 17.7 14.2 32 31.8 32h262.4c17.6 0 31.8-14.3 31.8-32V642H349v196zm531.1-684H143.9c-24.5 0-39.8 26.7-27.5 48l221.3 376h348.8l221.3-376c12.1-21.3-3.2-48-27.7-48z"></path></svg>
+          <div class="logger-select">
+            <div class="logger-li">All</div>
+            <div class="logger-li">System</div>
+            <div class="logger-li">Rss</div>
+            <div class="logger-li">Rmt</div>
+            <div class="logger-li">Meta</div>
+            <div class="logger-li">Brush</div>
+            <div class="logger-li">Douban</div>
+            <div class="logger-li">Spider</div>
+            <div class="logger-li">Message</div>
+            <div class="logger-li">Indexer</div>
+            <div class="logger-li">Searcher</div>
+            <div class="logger-li">Subscribe</div>
+            <div class="logger-li">Downloader</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
       </div>
       <div id="logging_table" class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
       <table class="table table-vcenter card-table table-hover table-striped">
@@ -859,7 +876,6 @@
 <script src="../static/js/util.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
-
   // 显示全局加载蒙版
   function show_wait_modal(blur) {
     if (blur) {
@@ -2148,10 +2164,14 @@
     refresh_logging_flag = false;
   }
 
+  // 日志来源筛选时关掉之前的刷新日志计时器
+  var refresh_logging_timer
+  let logger_source = "";
+
   //刷新日志
   function refresh_logging(flag) {
     let refresh_new = $("#logging_content").children().length;
-    ajax_post("logging", {"refresh_new": refresh_new}, function (ret) {
+    ajax_post("logging", {"refresh_new": refresh_new, "source": logger_source}, function (ret) {
       if (ret.loglist) {
         let log_list = ret.loglist;
         let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
@@ -2204,7 +2224,7 @@
         stop_logging();
       }
       if (refresh_logging_flag === true) {
-        setTimeout("refresh_logging(true)", 2000);
+        refresh_logging_timer = window.setTimeout("refresh_logging(true)", 2000);
       }
     }, true, false);
   }
@@ -2223,10 +2243,16 @@
   //实时日志关闭
   $("#logging_close_btn").unbind("click").click(function () {
     stop_logging();
+     // 清空日志
+    $("#logging_content").html("")
+    logger_source = ""
   });
 
   $("#logging_close_head").unbind("click").click(function () {
     stop_logging();
+     // 清空日志
+    $("#logging_content").html("")
+    logger_source = ""
   });
 
   // 显示实时日志
@@ -2234,6 +2260,32 @@
     start_logging();
     $('#modal-logging').modal('show');
   }
+
+  // 显示日志来源筛选
+  $(".logger-btn").bind("click").click(function (e) {
+    if (e.stopPropagation) e.stopPropagation();
+    $('.logger-select').css('display','block')
+  });
+
+  // 隐藏日志来源筛选
+  $('.modal-content').unbind("click").click(function () {
+    $('.logger-select').css('display','none')
+  });
+
+  // 日志来源筛选
+  $('.logger-li').click(function(e){
+    logger_source = $(this).text();
+    if (logger_source === "All") logger_source = "";
+
+    // 关闭之前的定时刷新日志
+    clearTimeout(refresh_logging_timer)
+
+    // 清空日志
+    $("#logging_content").html("")
+
+    // 重新拉取日志
+    refresh_logging()
+  })
 
   //刷新消息中心
   function refresh_message(time_str) {
