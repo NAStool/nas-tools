@@ -273,25 +273,13 @@
       <div class="modal-header">
         <div class="select_logger">
           <h5 class="modal-title">实时日志</h5>
-          <svg focusable="false"  class="logger-btn" data-icon="filter" width="1em" height="1em" fill="currentColor" aria-hidden="true" viewBox="64 64 896 896"><path d="M349 838c0 17.7 14.2 32 31.8 32h262.4c17.6 0 31.8-14.3 31.8-32V642H349v196zm531.1-684H143.9c-24.5 0-39.8 26.7-27.5 48l221.3 376h348.8l221.3-376c12.1-21.3-3.2-48-27.7-48z"></path></svg>
-          <div class="logger-select">
-            <div class="logger-li">All</div>
-            <div class="logger-li">System</div>
-            <div class="logger-li">Rss</div>
-            <div class="logger-li">Rmt</div>
-            <div class="logger-li">Meta</div>
-            <div class="logger-li">Sync</div>
-            <div class="logger-li">Sites</div>
-            <div class="logger-li">Brush</div>
-            <div class="logger-li">Douban</div>
-            <div class="logger-li">Spider</div>
-            <div class="logger-li">Message</div>
-            <div class="logger-li">Indexer</div>
-            <div class="logger-li">Searcher</div>
-            <div class="logger-li">Subscribe</div>
-            <div class="logger-li">Downloader</div>
-            <div class="logger-li">TorrentRemover</div>
-          </div>
+           <div class="dropdown">
+              <a href='#' class="btn-action" data-bs-toggle="dropdown" aria-expanded="false" onclick="get_logging_source()">
+                {{ SVG.log_select() }}
+              </a>
+              <div class="dropdown-menu dropdown-menu-end" id="dropdown-menu-logger">
+              </div>
+           </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
       </div>
@@ -2264,20 +2252,18 @@
     $('#modal-logging').modal('show');
   }
 
-  // 显示日志来源筛选
-  $(".logger-btn").bind("click").click(function (e) {
-    if (e.stopPropagation) e.stopPropagation();
-    $('.logger-select').css('display','block')
-  });
-
-  // 隐藏日志来源筛选
-  $('.modal-content').unbind("click").click(function () {
-    $('.logger-select').css('display','none')
-  });
+  // 渲染日志来源下拉列表
+  function get_logging_source(){
+    $("#dropdown-menu-logger").html('')
+    var menu=['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover']
+    for(var i=0;i<menu.length;i++){
+      $("#dropdown-menu-logger").append(`<a class="dropdown-item"  href="javascript:logger_select('${menu[i]}')">${menu[i]}</a>`);
+    }
+  }
 
   // 日志来源筛选
-  $('.logger-li').click(function(e){
-    logger_source = $(this).text();
+  function logger_select(source){
+    logger_source = source
     if (logger_source === "All") logger_source = "";
 
     // 关闭之前的定时刷新日志
@@ -2288,7 +2274,7 @@
 
     // 重新拉取日志
     refresh_logging()
-  })
+  }
 
   //刷新消息中心
   function refresh_message(time_str) {
