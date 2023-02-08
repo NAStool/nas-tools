@@ -513,3 +513,18 @@ class Qbittorrent(_IDownloadClient):
                 'progress': progress
             })
         return DispTorrents
+
+    def set_speed_limit(self, download_limit=None, upload_limit=None):
+        """
+        设置速度限制
+        """
+        if not self.qbc:
+            return
+        try:
+            if self.qbc.transfer.upload_limit != upload_limit:
+                self.qbc.transfer.upload_limit = upload_limit
+            if self.qbc.transfer.download_limit != download_limit:
+                self.qbc.transfer.download_limit = download_limit
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False

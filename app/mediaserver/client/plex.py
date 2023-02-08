@@ -208,3 +208,9 @@ class Plex(_IMediaClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         yield {}
+
+    def get_playing_sessions(self):
+        """
+        获取正在播放的会话
+        """
+        pass

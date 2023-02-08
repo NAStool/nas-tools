@@ -43,6 +43,7 @@ from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
 from app.torrentremover import TorrentRemover
+from app.speedlimiter import SpeedLimiter
 from check_config import update_config, check_config
 from version import APP_VERSION
 
@@ -119,6 +120,8 @@ def start_service():
     RssChecker()
     # 启动自动删种服务
     TorrentRemover()
+    # 启动播放限速服务
+    SpeedLimiter()
     # 加载索引器配置
     IndexerHelper()
     # 初始化浏览器

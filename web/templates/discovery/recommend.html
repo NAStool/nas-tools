@@ -132,9 +132,12 @@
 
   // 如果没有滚动条则继续加载
   function loading_data_max() {
-    if (!hasScrollbar()) {
-      loading_data();
-    }
+    // 加入延迟是因为需要确保组件已经完成渲染才能正确计算可滚动高度
+    setTimeout(() => {
+      if (!hasScrollbar()) {
+        loading_data();
+      }
+    }, 200);
   }
 
   // 后退时sessionStorage.CurrentPage 未被清除, 则更新当前页码
