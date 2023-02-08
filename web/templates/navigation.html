@@ -1584,10 +1584,13 @@
   }
 
 
-  function refresh_site_options(obj_id) {
+  function refresh_site_options(obj_id, show_all=false) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let site_options = '';
+        if (show_all) {
+          site_options += `<option value="">全部</option>`;
+        }
         for (let indexer of ret.indexers) {
           site_options += `<option value="${indexer.name}">${indexer.name}</option>`;
         }
@@ -1702,7 +1705,7 @@
 
   // 显示高级搜索框
   function show_search_advanced_modal() {
-    refresh_site_options("advanced_search_site");
+    refresh_site_options("advanced_search_site", true);
     refresh_filter_select("advanced_search_rule");
     $("#modal-search-advanced").modal("show");
   }
