@@ -497,3 +497,30 @@ class Transmission(_IDownloadClient):
                 'progress': progress
             })
         return DispTorrents
+
+    def set_speed_limit(self, download_limit=None, upload_limit=None):
+        """
+        设置速度限制
+        """
+        if not self.trc:
+            return
+        try:
+            session = self.trc.get_session()
+            download_limit_enabled = True if download_limit else False
+            upload_limit_enabled = True if upload_limit else False
+            if download_limit_enabled == session.speed_limit_down_enabled and \
+                    upload_limit_enabled == session.speed_limit_up_enabled and \
+                    download_limit == session.speed_limit_down and \
+                    upload_limit == session.speed_limit_up:
+                return
+            self.trc.set_session(
+                speed_limit_down=download_limit if download_limit != session.speed_limit_down
+                else session.speed_limit_down,
+                speed_limit_up=upload_limit if upload_limit != session.speed_limit_up
+                else session.speed_limit_up,
+                speed_limit_down_enabled=download_limit_enabled,
+                speed_limit_up_enabled=upload_limit_enabled
+            )
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False

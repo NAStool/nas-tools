@@ -27,10 +27,6 @@
       }
   {% endfor %}
   </style>
-  <!-- 用户自定义CSS -->
-  <style>
-    {{ CustomScriptCfg.css|safe or "" }}
-  </style>
 </head>
 <body class="layout-fluid">
 <div class="page">
@@ -275,9 +271,17 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">实时日志</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                id="logging_close_head"></button>
+        <div class="select_logger">
+          <h5 class="modal-title">实时日志</h5>
+           <div class="dropdown">
+              <a href='#' class="btn-action" data-bs-toggle="dropdown" aria-expanded="false" onclick="get_logging_source()">
+                {{ SVG.log_select() }}
+              </a>
+              <div class="dropdown-menu dropdown-menu-end" id="dropdown-menu-logger">
+              </div>
+           </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
       </div>
       <div id="logging_table" class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
       <table class="table table-vcenter card-table table-hover table-striped">
@@ -719,7 +723,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col">
-            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="名称">
+            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="输入名称查询">
           </div>
           <div class="col-auto">
             <button onclick="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')" class="btn btn-primary btn-icon" aria-label="Button">
@@ -863,7 +867,6 @@
 <script src="../static/js/util.js"></script>
 <!-- 提示弹窗 -->
 <script type="text/javascript">
-
   // 显示全局加载蒙版
   function show_wait_modal(blur) {
     if (blur) {
@@ -1569,10 +1572,13 @@
   }
 
 
-  function refresh_site_options(obj_id) {
+  function refresh_site_options(obj_id, show_all=false) {
     ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
       if (ret.code === 0) {
         let site_options = '';
+        if (show_all) {
+          site_options += `<option value="">全部</option>`;
+        }
         for (let indexer of ret.indexers) {
           site_options += `<option value="${indexer.name}">${indexer.name}</option>`;
         }
@@ -1687,7 +1693,7 @@
 
   // 显示高级搜索框
   function show_search_advanced_modal() {
-    refresh_site_options("advanced_search_site");
+    refresh_site_options("advanced_search_site", true);
     refresh_filter_select("advanced_search_rule");
     $("#modal-search-advanced").modal("show");
   }
@@ -2077,7 +2083,7 @@
           for(let i=0; i<data.length; i++){
             html += `<div class="list-group-item" onclick="$(this).find('input:radio').prop('checked', true);"><div class="row align-items-center">`;
             html += `<div class="col-auto"><input type="radio" name="search_tmdbid_check" value="${data[i].tmdb_id}" class="form-check-input"></div>`;
-            html += `<div class="col-auto"><img class="rounded w-5 shadow-sm" src="${data[i].poster_path}" onerror="this.src='../static/img/no-image.png'"></div>`;
+            html += `<div class="col-auto"><img class="rounded w-5 shadow-sm" src="${data[i].image}" onerror="this.src='../static/img/no-image.png'"></div>`;
             html += `<div class="col text-truncate"><a href="${data[i].link}" target="_blank" class="text-reset d-block">${data[i].title} (${data[i].year})</a><div class="text-muted mt-n1 text-wrap" style="-webkit-line-clamp:3; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">${data[i].overview}</div></div>`;
             html += `</div></div>`;
           }
@@ -2152,10 +2158,14 @@
     refresh_logging_flag = false;
   }
 
+  // 日志来源筛选时关掉之前的刷新日志计时器
+  var refresh_logging_timer
+  let logger_source = "";
+
   //刷新日志
   function refresh_logging(flag) {
     let refresh_new = $("#logging_content").children().length;
-    ajax_post("logging", {"refresh_new": refresh_new}, function (ret) {
+    ajax_post("logging", {"refresh_new": refresh_new, "source": logger_source}, function (ret) {
       if (ret.loglist) {
         let log_list = ret.loglist;
         let tdstyle = "padding-top: 0.5rem; padding-bottom: 0.5rem";
@@ -2208,7 +2218,7 @@
         stop_logging();
       }
       if (refresh_logging_flag === true) {
-        setTimeout("refresh_logging(true)", 2000);
+        refresh_logging_timer = window.setTimeout("refresh_logging(true)", 2000);
       }
     }, true, false);
   }
@@ -2227,16 +2237,46 @@
   //实时日志关闭
   $("#logging_close_btn").unbind("click").click(function () {
     stop_logging();
+     // 清空日志
+    $("#logging_content").html("")
+    logger_source = ""
   });
 
   $("#logging_close_head").unbind("click").click(function () {
     stop_logging();
+     // 清空日志
+    $("#logging_content").html("")
+    logger_source = ""
   });
 
   // 显示实时日志
   function show_logging_modal() {
     start_logging();
     $('#modal-logging').modal('show');
+  }
+
+  // 渲染日志来源下拉列表
+  function get_logging_source(){
+    $("#dropdown-menu-logger").html('')
+    var menu=['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover']
+    for(var i=0;i<menu.length;i++){
+      $("#dropdown-menu-logger").append(`<a class="dropdown-item"  href="javascript:logger_select('${menu[i]}')">${menu[i]}</a>`);
+    }
+  }
+
+  // 日志来源筛选
+  function logger_select(source){
+    logger_source = source
+    if (logger_source === "All") logger_source = "";
+
+    // 关闭之前的定时刷新日志
+    clearTimeout(refresh_logging_timer)
+
+    // 清空日志
+    $("#logging_content").html("")
+
+    // 重新拉取日志
+    refresh_logging()
   }
 
   //刷新消息中心
@@ -2421,6 +2461,10 @@
 </script>
 <!-- 动态载入自定义组件 -->
 <script src="../static/components/index.js"></script>
+<!-- 用户自定义CSS -->
+<style>
+  {{ CustomScriptCfg.css|safe or "" }}
+</style>
 <!-- 用户自定义JavaScript -->
 <script type="text/javascript">
   {{ CustomScriptCfg.javascript|safe or "" }}

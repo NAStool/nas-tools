@@ -15,8 +15,15 @@
             {{ SVG.folders() }}
             下载目录
           </a>
-          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon">
+          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon" title="下载目录">
             {{ SVG.folders() }}
+          </a>
+          <a href="javascript:$('#modal-speedlimit').modal('show')" class="btn d-none d-sm-inline-block">
+            {{ SVG.forbid() }}
+            播放限速
+          </a>
+          <a href="javascript:$('#modal-speedlimit').modal('show')" class="btn d-sm-none btn-icon" title="播放限速">
+            {{ SVG.forbid() }}
           </a>
           <a href="javascript:navmenu('download_setting')" class="btn d-none d-sm-inline-block">
             {{ SVG.settings() }}
@@ -180,6 +187,103 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-speedlimit" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">播放限速设置</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="speedlimit_config">
+        <div class="row">
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Qbittorrent <span class="form-help"
+                                                          title="不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用"
+                                                          data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("qb_upload") or '' }}"
+                     class="form-control" id="speedlimit_qb_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("qb_download") or '' }}"
+                     class="form-control" id="speedlimit_qb_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
+          </div>
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Transmission <span class="form-help"
+                                                           title="不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用"
+                                                           data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("tr_upload") or '' }}"
+                     class="form-control" id="speedlimit_tr_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("tr_download") or '' }}"
+                     class="form-control" id="speedlimit_tr_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
+          </div>
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">不限速源地址 <span class="form-help"
+                                                         title="仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制"
+                                                         data-bs-toggle="tooltip">?</span></label>
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv4") or '' }}"
+                     class="form-control" id="speedlimit_ipv4" placeholder="IPv4 CIDR"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv6") or '' }}"
+                     class="form-control" id="speedlimit_ipv6" placeholder="IPv6 CIDR"
+                     autocomplete="off">
+            </div>
+          </div>
+        </div>
+        <details class="mb-2">
+          <summary class="summary">
+            自动限速设置 <span class="form-help" title="启用后根据自动限速设置，自动设置上传限制速度" data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2">
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">上行带宽</label>
+                <input type="text" value="{{ SpeedLimitConf.get("bandwidth") or '' }}" id="speedlimit_bandwidth" class="form-control" placeholder="Mbps，留空不启用">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">剩余比例 <span class="form-help" title="上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("residual_ratio") or '' }}" id="speedlimit_residual_ratio" class="form-control" placeholder="0.5">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">分配比例 <span class="form-help" title="Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("allocation") or '' }}" id="speedlimit_allocation" class="form-control" placeholder="1:1">
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button onclick="save_speedlimit_config()"
+           class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 当前处理的类型
   var currType = "";
@@ -257,9 +361,19 @@
     ajax_post("update_config", {downloaddir: download_dir}, function () {
       window_history_refresh();
     });
-
   }
 
+  //保存播放限速设置
+  function save_speedlimit_config() {
+    $("#modal-speedlimit").modal('hide');
+    let params = {
+      key: "SpeedLimit",
+      value: input_select_GetVal("speedlimit_config", "speedlimit_"),
+    };
+    ajax_post("set_system_config", params, function () {
+      window_history_refresh();
+    });
+  }
   //删除下载目录
   function del_downloaddir(id) {
     if (id) {

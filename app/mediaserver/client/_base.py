@@ -99,3 +99,10 @@ class _IMediaClient(metaclass=ABCMeta):
         :param parent: 上一级的ID
         """
         pass
+
+    @abstractmethod
+    def get_playing_sessions(self):
+        """
+        获取正在播放的会话
+        """
+        pass

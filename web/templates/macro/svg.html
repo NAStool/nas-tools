@@ -595,6 +595,16 @@
   </svg>
 {% endmacro %}
 
+<!-- 日志筛选 -->
+<!-- http://tabler-icons.io/i/tex -->
+{% macro log_select(class) %}
+
+  <svg focusable="false"  class="logger-btn" data-icon="filter" width="1em" height="1em"
+       fill="currentColor" aria-hidden="true" viewBox="64 64 896 896">
+    <path d="M349 838c0 17.7 14.2 32 31.8 32h262.4c17.6 0 31.8-14.3 31.8-32V642H349v196zm531.1-684H143.9c-24.5 0-39.8 26.7-27.5 48l221.3 376h348.8l221.3-376c12.1-21.3-3.2-48-27.7-48z"></path>
+  </svg>
+{% endmacro %}
+
 <!-- 详情圆角 -->
 <!-- http://tabler-icons.io/i/info-square-rounded -->
 {% macro info_square_rounded(class) %}
@@ -1035,12 +1045,37 @@
 <!-- https://tabler-icons.io/i/code-dots -->
 {% macro code_dots(class) %}
 
-<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-code-dots {{ class }}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-code-dots {{ class }}" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M15 12h.01"></path>
+    <path d="M12 12h.01"></path>
+    <path d="M9 12h.01"></path>
+    <path d="M6 19a2 2 0 0 1 -2 -2v-4l-1 -1l1 -1v-4a2 2 0 0 1 2 -2"></path>
+    <path d="M18 19a2 2 0 0 0 2 -2v-4l1 -1l-1 -1v-4a2 2 0 0 0 -2 -2"></path>
+  </svg>
+{% endmacro %}
+
+<!-- forbid -->
+<!-- https://tabler-icons.io/i/forbid -->
+{% macro forbid(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-forbid" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+    <path d="M9 9l6 6"></path>
+  </svg>
+{% endmacro %}
+
+<!-- 过滤 -->
+<!-- https://tabler-icons.io/i/filter -->
+{% macro filter(class) %}
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-   <path d="M15 12h.01"></path>
-   <path d="M12 12h.01"></path>
-   <path d="M9 12h.01"></path>
-   <path d="M6 19a2 2 0 0 1 -2 -2v-4l-1 -1l1 -1v-4a2 2 0 0 1 2 -2"></path>
-   <path d="M18 19a2 2 0 0 0 2 -2v-4l1 -1l-1 -1v-4a2 2 0 0 0 -2 -2"></path>
-</svg>
+   <path d="M5.5 5h13a1 1 0 0 1 .5 1.5l-5 5.5l0 7l-4 -3l0 -4l-5 -5.5a1 1 0 0 1 .5 -1.5"></path>
+  </svg>
 {% endmacro %}
