@@ -158,35 +158,3 @@ body, .page {
 .select_logger h5{
     padding-right:5px
 }
-
-.select_logger svg{
-    cursor: pointer;
-}
-
-.logger-select{
-    position: absolute;
-    top: 43px;
-    left: 57px;
-    width:80px;
-    height:210px;
-    background:#fff;
-    border-radius:10px;
-    box-shadow: 0 0 10px 0 #ccc;
-    display:none;
-    overflow-y: scroll;
-}
-
-.logger-select .logger-li{
-    width:100%;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size:13px;
-    color:#333;
-   cursor: pointer;
-}
-
-.logger-select .logger-li:hover {
-    background: #f2f2f2;
-}
