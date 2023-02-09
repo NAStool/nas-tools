@@ -13,3 +13,4 @@ from .opensubtitles import OpenSubtitles
 from .words_helper import WordsHelper
 from .submodule_helper import SubmoduleHelper
 from .cookiecloud_helper import CookieCloudHelper
+from .ffmpeg_helper import FfmpegHelper

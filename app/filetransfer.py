@@ -820,7 +820,8 @@ class FileTransfer:
                                                    scraper_nfo=self._scraper_nfo,
                                                    scraper_pic=self._scraper_pic,
                                                    dir_path=ret_dir_path,
-                                                   file_name=os.path.basename(ret_file_path))
+                                                   file_name=os.path.basename(ret_file_path),
+                                                   file_ext=file_ext)
                 # 更新进度
                 self.progress.update(ptype="filetransfer",
                                      value=round(total_count / len(Medias) * 100),

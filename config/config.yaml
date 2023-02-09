@@ -163,6 +163,8 @@ scraper_pic:
     season_poster: true
     season_banner: true
     season_thumb: true
+    # 集
+    episode_thumb: false
 
 # 【配置消息通知服务】
 message:

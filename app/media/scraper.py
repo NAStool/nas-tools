@@ -3,6 +3,7 @@ import time
 from xml.dom import minidom
 
 import log
+from app.helper import FfmpegHelper
 from app.media.douban import DouBan
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils, ExceptionUtils
@@ -283,14 +284,15 @@ class Scraper:
         with open(out_file, "wb") as xml_file:
             xml_file.write(xml_str)
 
-    def gen_scraper_files(self, media, scraper_nfo, scraper_pic, dir_path, file_name):
+    def gen_scraper_files(self, media, scraper_nfo, scraper_pic, dir_path, file_name, file_ext):
         """
         刮削元数据
         :param media: 已识别的媒体信息
         :param scraper_nfo: NFO刮削配置
         :param scraper_pic: 图片刮削配置
         :param dir_path: 文件路径
-        :param file_name: 文件名
+        :param file_name: 文件名，不含后缀
+        :param file_ext: 文件后缀
         """
         if not scraper_nfo:
             scraper_nfo = {}
@@ -455,6 +457,15 @@ class Scraper:
                                     self.__save_image(seasonthumb,
                                                       os.path.dirname(dir_path),
                                                       "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
+                        # 处理集
+                        if scraper_tv_pic.get("episode_thumb"):
+                            episode_thumb = os.path.join(dir_path, file_name, "-thumb.jpg")
+                            if not os.path.exists(episode_thumb):
+                                video_path = os.path.join(dir_path, file_name + file_ext)
+                                log.info(f"【Scraper】正在生成缩略图：{video_path} ...")
+                                FfmpegHelper().get_thumb_image_from_video(video_path=video_path,
+                                                                          image_path=episode_thumb)
+                                log.info(f"【Scraper】缩略图生成完成：{episode_thumb}")
 
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
