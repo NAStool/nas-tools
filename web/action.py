@@ -86,7 +86,7 @@ class WebAction:
             "check_sync_path": self.__check_sync_path,
             "remove_rss_media": self.__remove_rss_media,
             "add_rss_media": self.__add_rss_media,
-            "re_identification": self.__re_identification,
+            "re_identification": self.re_identification,
             "media_info": self.__media_info,
             "test_connection": self.__test_connection,
             "user_manager": self.__user_manager,
@@ -277,6 +277,7 @@ class WebAction:
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
             "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
         command = commands.get(msg)
@@ -313,7 +314,7 @@ class WebAction:
                         "https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
                 else:
                     cfg['app']['proxies'] = {"https": "%s" %
-                                             cfg_value, "http": "%s" % cfg_value}
+                                                      cfg_value, "http": "%s" % cfg_value}
             else:
                 cfg['app']['proxies'] = {"https": None, "http": None}
             return cfg
@@ -1436,7 +1437,7 @@ class WebAction:
                     title=name, tmdbid=media_info.tmdb_id)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
-    def __re_identification(self, data):
+    def re_identification(self, data):
         """
         未识别的重新识别
         """
@@ -3772,6 +3773,22 @@ class WebAction:
             })
 
         return {"code": 0, "items": Items}
+
+    def unidentification(self):
+        """
+        重新识别所有未识别记录
+        """
+        ItemIds = []
+        Records = self.dbhelper.get_transfer_unknown_paths()
+        for rec in Records:
+            if not rec.PATH:
+                continue
+            ItemIds.append({
+                "id": rec.ID
+            })
+
+        if len(ItemIds) > 0:
+            WebAction.re_identification(self, {"flag": "unidentification", "ids": ItemIds})
 
     def get_customwords(self, data=None):
         words = []
