@@ -314,7 +314,7 @@ class WebAction:
                         "https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
                 else:
                     cfg['app']['proxies'] = {"https": "%s" %
-                                                      cfg_value, "http": "%s" % cfg_value}
+                                             cfg_value, "http": "%s" % cfg_value}
             else:
                 cfg['app']['proxies'] = {"https": None, "http": None}
             return cfg
