@@ -137,7 +137,7 @@ https://spk7.imnks.com/
 
   由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能接收到消息，使用有固定公网IP的代理服务器转发可解决该问题
 
-    如使用nginx搭建代理服务，需在配置中增加以下代理配置：
+    如使用 Nginx 搭建代理服务，需在配置中增加以下代理配置：
     ```
     location /cgi-bin/gettoken {
       proxy_pass https://qyapi.weixin.qq.com;
@@ -147,12 +147,18 @@ https://spk7.imnks.com/
     }
     ```
 
-    如使用Caddy搭建代理服务，需在配置中增加以下代理配置（`{upstream_hostport}` 部分不是变量，不要改，原封不动复制粘贴过去即可）。
+    如使用 Caddy 搭建代理服务，需在配置中增加以下代理配置（`{upstream_hostport}` 部分不是变量，不要改，原封不动复制粘贴过去即可）。
     ```
     reverse_proxy https://qyapi.weixin.qq.com {
       header_up Host {upstream_hostport}
     }
     ```
+
+    如使用 Traefik 搭建代理服务，需在额外配置:
+    ```
+    loadBalancer.passHostHeader=false
+    ```
+
     注意：代理服务器仅适用于在微信中接收工具推送的消息，消息回调与代理服务器无关。
 
 
