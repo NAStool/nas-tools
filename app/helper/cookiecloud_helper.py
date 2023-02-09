@@ -22,7 +22,7 @@ class CookieCloudHelper(object):
         if not self._server or not self._key or not self._password:
             return {}, "CookieCloud参数不正确"
         req_url = "%s/get/%s" % (self._server, self._key)
-        ret = self._req.post_res(url=req_url, params=json.dumps({"password": self._password}))
+        ret = self._req.post_res(url=req_url, json={"password": self._password})
         if ret and ret.status_code == 200:
             result = ret.json()
             if not result:
