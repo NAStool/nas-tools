@@ -459,7 +459,7 @@ class Scraper:
                                                       "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
                         # 处理集
                         if scraper_tv_pic.get("episode_thumb"):
-                            episode_thumb = os.path.join(dir_path, file_name, "-thumb.jpg")
+                            episode_thumb = os.path.join(dir_path, file_name + "-thumb.jpg")
                             if not os.path.exists(episode_thumb):
                                 video_path = os.path.join(dir_path, file_name + file_ext)
                                 log.info(f"【Scraper】正在生成缩略图：{video_path} ...")
