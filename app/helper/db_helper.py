@@ -1344,7 +1344,10 @@ class DbHelper:
         """
         if strict_urls:
             # 根据站点优先级排序
-            return self._db.excute(f"""SELECT s.* FROM SITE_USER_INFO_STATS s LEFT JOIN CONFIG_SITE c ON s.SITE = c.NAME WHERE s.URL IN {tuple(strict_urls)} ORDER BY c.PRI ASC LIMIT {num}""")
+            return self._db.query(SITEUSERINFOSTATS) \
+                .join(CONFIGSITE, SITEUSERINFOSTATS.SITE == CONFIGSITE.NAME) \
+                .filter(SITEUSERINFOSTATS.URL.in_(tuple(strict_urls + ["__DUMMY__"]))) \
+                .order_by(cast(CONFIGSITE.PRI, Integer).asc()).limit(num).all()
         else:
             return self._db.query(SITEUSERINFOSTATS).limit(num).all()
 
@@ -1653,8 +1656,9 @@ class DbHelper:
             return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
             # 根据站点优先级排序
-            return self._db.excute("SELECT s.* FROM	SITE_BRUSH_TASK s LEFT JOIN CONFIG_SITE c ON s.SITE = c.ID ORDER BY	c.PRI ASC").all()
-
+            return self._db.query(SITEBRUSHTASK)\
+                .join(CONFIGSITE, SITEBRUSHTASK.SITE == CONFIGSITE.ID) \
+                .order_by(cast(CONFIGSITE.PRI, Integer).asc()).all()
     def get_brushtask_totalsize(self, brush_id):
         """
         查询刷流任务总体积
