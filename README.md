@@ -177,7 +177,7 @@ https://spk7.imnks.com/
 
    **一级菜单及一级菜单下的前几个子菜单顺序需要一模一样**，在符合截图的示例项后可以自己增加别的二级菜单项。
 
-   ![image](https://user-images.githubusercontent.com/54088512/215088822-b8353fa9-9569-4c96-a47e-e5ab387b1943.png)
+   ![image](https://user-images.githubusercontent.com/54088512/217709966-3d73d983-8eff-42d0-a132-b5ef943c3b87.png)
 
 
 2) **Telegram Bot机器人**
@@ -203,6 +203,7 @@ https://spk7.imnks.com/
    | /udt | 系统更新 |
    | /rst  | 目录同步 |
    | /db   | 豆瓣想看 |
+   | /utf   | 重新识别 |
 
 4) **Synology Chat**
 
