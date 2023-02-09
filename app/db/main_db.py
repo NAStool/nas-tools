@@ -79,7 +79,7 @@ class MainDb:
         """
         执行SQL语句
         """
-        self.session.execute(sql)
+        return self.session.execute(sql)
 
     def flush(self):
         """
