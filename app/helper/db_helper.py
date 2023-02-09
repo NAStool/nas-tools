@@ -1343,6 +1343,7 @@ class DbHelper:
         查询站点数据历史
         """
         if strict_urls:
+            # 根据站点优先级排序
             return self._db.excute(f"""SELECT s.* FROM SITE_USER_INFO_STATS s LEFT JOIN CONFIG_SITE c ON s.SITE = c.NAME WHERE s.URL IN {tuple(strict_urls)} ORDER BY c.PRI ASC LIMIT {num}""")
         else:
             return self._db.query(SITEUSERINFOSTATS).limit(num).all()
@@ -1651,6 +1652,7 @@ class DbHelper:
         if brush_id:
             return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
+            # 根据站点优先级排序
             return self._db.excute("SELECT s.* FROM	SITE_BRUSH_TASK s LEFT JOIN CONFIG_SITE c ON s.SITE = c.ID ORDER BY	c.PRI ASC").all()
 
     def get_brushtask_totalsize(self, brush_id):
