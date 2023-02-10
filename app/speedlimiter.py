@@ -42,7 +42,7 @@ class SpeedLimiter:
         if config:
             try:
                 self.bandwidth = int(float(config.get("bandwidth") or 0)) * 1000000
-                residual_ratio = int(float(config.get("residual_ratio") or 1))
+                residual_ratio = float(config.get("residual_ratio") or 1)
                 if residual_ratio > 1:
                     residual_ratio = 1
                 allocation = (config.get("allocation") or "1:1").split(":")
