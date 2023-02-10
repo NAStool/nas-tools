@@ -184,15 +184,17 @@
                                     data-season="{{ SE_key.replace(' ', '') }}">
                                     <div class="row g-2 align-items-center">
                                       <div class="col-auto">
-                                        <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
-                                        {% if SiteDict[torrent.site|hash] %}
-                                          {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
-                                          {{ torrent.site|first }}
+                                        <a  href="{{ torrent.pageurl }}" target="_blank">
+                                          <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
+                                          {% if SiteDict[torrent.site|hash] %}
+                                            {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
+                                            {{ torrent.site|first }}
+                                            {% endif %}
+                                          {% else %}
+                                            {{ torrent.site|first }}
                                           {% endif %}
-                                        {% else %}
-                                          {{ torrent.site|first }}
-                                        {% endif %}
-                                        </span>
+                                          </span>
+                                        </a>
                                       </div>
                                       <div class="col">
                                         <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")'>{{ torrent.torrent_name }}</a>
