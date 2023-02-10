@@ -1,4 +1,5 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -100,7 +101,7 @@
                     </div>
                   {% endfor %}
                 {% else %}
-                  <div class="text-muted mt-2">未设置规则</div>
+                  {{ OOPS.empty('没有规则', '请点击"+"添加规则。') }}
                 {% endif %}
               </div>
             </div>
@@ -110,18 +111,7 @@
     </div>
   </div>
 {% else %}
-  <div class="page-body">
-    <div class="container-xl d-flex flex-column justify-content-center">
-      <div class="empty">
-        <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
-        </div>
-        <p class="empty-title">没有规则</p>
-        <p class="empty-subtitle text-muted">
-          没有配置任何规则，请点击“新增规则组“按钮。
-        </p>
-      </div>
-    </div>
-  </div>
+  {{ OOPS.empty('没有规则', '没有配置任何规则，请点击“新增规则组“按钮。') }}
 {% endif %}
 <div class="modal modal-blur fade" id="modal-add-filterrule" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
