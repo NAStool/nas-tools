@@ -3783,9 +3783,7 @@ class WebAction:
         for rec in Records:
             if not rec.PATH:
                 continue
-            ItemIds.append({
-                "id": rec.ID
-            })
+            ItemIds.append(rec.ID)
 
         if len(ItemIds) > 0:
             WebAction.re_identification(self, {"flag": "unidentification", "ids": ItemIds})
