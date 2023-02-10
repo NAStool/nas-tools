@@ -1656,9 +1656,10 @@ class DbHelper:
             return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
             # 根据站点优先级排序
-            return self._db.query(SITEBRUSHTASK)\
+            return self._db.query(SITEBRUSHTASK) \
                 .join(CONFIGSITE, SITEBRUSHTASK.SITE == CONFIGSITE.ID) \
                 .order_by(cast(CONFIGSITE.PRI, Integer).asc()).all()
+
     def get_brushtask_totalsize(self, brush_id):
         """
         查询刷流任务总体积
