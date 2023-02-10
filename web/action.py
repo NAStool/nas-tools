@@ -4012,7 +4012,7 @@ class WebAction:
         name = data.get("name")
         if path and name:
             try:
-                os.rename(path, os.path.join(os.path.dirname(path), name))
+                shutil.move(path, os.path.join(os.path.dirname(path), name))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 return {"code": -1, "msg": str(e)}
