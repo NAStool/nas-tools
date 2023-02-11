@@ -1,4 +1,5 @@
 {% import 'macro/oops.html' as OOPS %}
+{% import 'macro/form.html' as FORM %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -6,6 +7,11 @@
       <div class="col">
         <h2 class="page-title" id="recommend_title"></h2>
         <div class="text-muted mt-1" id="recommend_subtitle"></div>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          {{ FORM.gen_recommend_filter_dropdown(FilterConf, Params) }}
+        </div>
       </div>
     </div>
   </div>
@@ -55,6 +61,12 @@
   // 来源
   Source = '{{ Source or "" }}';
 
+  // 过滤器
+  Filter = '{{ Filter or "" }}';
+
+  // 过滤参数
+  Params = {{ Params|safe or "{}" }}
+
   // 插入N个占位卡片 代替loading动画
   var page_card_num = 20;
   function add_loading_card_placeholder() {
@@ -88,7 +100,8 @@
       "tmdbid": TmdbId,
       "personid": PersonId,
       "keyword": Keyword,
-      "source": Source
+      "source": Source,
+      "params": Params
     }, function (ret) {
       if (ret.Items.length > 0) {
         // 记录页码
@@ -97,7 +110,7 @@
         loading = false;
         page_card_num = ret.Items.length;
       } else {
-        if (CurrentPage == 1) {
+        if (CurrentPage === 1) {
           $("#recommend_content").removeClass("grid-media-card").html($("#no_recommend_html").text());
         }
       }
@@ -147,6 +160,12 @@
   } else {
     // 否则初始化数据
     loading_data();
+  }
+
+  // 带过滤参数刷新页面
+  function filter_refresh(filterkey, value) {
+    Params[filterkey] = value;
+    navmenu(`recommend?type=${Type}&subtype=${SubType}&title=${Title}&subtitle=${SubTitle}&filter=${Filter}&params=${JSON.stringify(Params)}`)
   }
 
 

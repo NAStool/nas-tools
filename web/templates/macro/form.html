@@ -80,3 +80,31 @@
   {% endfor %}
 {% endmacro %}
 
+<!-- 生成过滤的下拉选项 -->
+{% macro gen_recommend_filter_dropdown(Fields, Params) %}
+  {% for FieldId, FieldAttr in Fields.items() %}
+    {% if FieldAttr.type == "dropdown" %}
+    <div class="dropdown">
+      <button class="btn btn-ghost-secondary ms-auto dropdown-toggle"
+         data-bs-toggle="dropdown" aria-expanded="false">
+        {% if not Params or not Params.get(FieldId) %}
+          {{ FieldAttr.name }}
+        {% else %}
+          {% for Option in FieldAttr.options %}
+            {% if Option.value == Params.get(FieldId) %}
+              {{ Option.name }}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </button>
+      <div class="dropdown-menu dropdown-menu-end">
+        {% for Option in FieldAttr.options %}
+        <a class="dropdown-item" href='javascript:filter_refresh("{{ FieldId }}", "{{ Option.value }}")' >
+          {{ Option.name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
