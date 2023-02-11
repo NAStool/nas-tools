@@ -2,7 +2,7 @@
 {% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
-  <div class="page-header d-print-none">
+  <div class="page-header d-print-none d-none d-md-block">
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title text-nowrap">
@@ -21,7 +21,7 @@
     <div class="container-xl">
       <div class="d-grid gap-3" id="media_cards">
         {% for Title, Item in Results.items() %}
-          <div class="card">
+          <div class="card bg-transparent border-0">
             <div class="ribbon g-cyan d-md-none">
               <a class="text-white" href="javascript:show_search_filter_modal('{{ Item.key }}')">
                 筛选
