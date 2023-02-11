@@ -228,10 +228,10 @@ class DoubanApi(object):
     def movie_top250(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["movie_top250"], start=start, count=count, _ts=ts)
 
-    def movie_recommend(self, tags='', sort='U', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+    def movie_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["movie_recommend"], tags=tags, sort=sort, start=start, count=count, _ts=ts)
 
-    def tv_recommend(self, tags='', sort='U', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+    def tv_recommend(self, tags='', sort='T', start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
         return self.__invoke(self._urls["tv_recommend"], tags=tags, sort=sort, start=start, count=count, _ts=ts)
 
     def tv_chinese_best_weekly(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
