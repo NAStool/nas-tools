@@ -177,7 +177,7 @@ https://spk7.imnks.com/
 
    **一级菜单及一级菜单下的前几个子菜单顺序需要一模一样**，在符合截图的示例项后可以自己增加别的二级菜单项。
 
-   ![image](https://user-images.githubusercontent.com/54088512/217709966-3d73d983-8eff-42d0-a132-b5ef943c3b87.png)
+   ![image](https://user-images.githubusercontent.com/54088512/218261870-ed15b6b6-895f-45e4-913c-4dda75144a9a.png)
 
 
 2) **Telegram Bot机器人**
@@ -194,16 +194,19 @@ https://spk7.imnks.com/
 
   **命令与功能对应关系**
 
-   |  命令   | 功能 |
-   | ----  | ----  |
-   | /rss  | RSS订阅 |
-   | /ptt  | 下载文件转移 |
-   | /ptr  | 删种 |
-   | /pts | 站点签到 |
-   | /udt | 系统更新 |
-   | /rst  | 目录同步 |
-   | /db   | 豆瓣想看 |
-   | /utf   | 重新识别 |
+   |  命令   | 功能      |
+   |---------| ----  |
+   | /rss  | RSS订阅   |
+   | /ssa   | 订阅搜索    |
+   | /ptt  | 下载文件转移  |
+   | /ptr  | 自动删种    |
+   | /pts | 站点签到    |
+   | /udt | 系统更新    |
+   | /tbl   | 清理转移缓存  |
+   | /trh   | 清理RSS缓存 |
+   | /rst  | 目录同步    |
+   | /db   | 豆瓣想看    |
+   | /utf   | 重新识别    |
 
 4) **Synology Chat**
 
