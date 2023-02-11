@@ -92,7 +92,7 @@
                              value="{{ Result.downloadvolumefactor }}">
                     </td>
                     <td>
-                      <div class="font-weight-medium strong">
+                      <div class="font-weight-medium strong text-nowrap">
                         <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
                         {% if Result.uploadvolumefactor != 1.0 %}
                           <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
