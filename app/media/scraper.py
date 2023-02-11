@@ -257,19 +257,23 @@ class Scraper:
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
     @staticmethod
-    def __save_image(url, out_path, itype="poster"):
+    def __save_image(url, out_path, itype=''):
         """
         下载poster.jpg并保存
         """
         if not url or not out_path:
             return
-        if os.path.exists(os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))):
+        if itype:
+            image_path = os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))
+        else:
+            image_path = out_path
+        if os.path.exists(image_path):
             return
         try:
             log.info(f"【Scraper】正在下载{itype}图片：{url} ...")
             r = RequestUtils().get_res(url)
             if r:
-                with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
+                with open(file=image_path,
                           mode="wb") as img:
                     img.write(r.content)
                 log.info(f"【Scraper】{itype}图片已保存：{out_path}")
@@ -325,7 +329,7 @@ class Scraper:
                 if scraper_movie_pic.get("poster"):
                     poster_image = media.get_poster_image(original=True)
                     if poster_image:
-                        self.__save_image(poster_image, dir_path)
+                        self.__save_image(poster_image, dir_path, "poster")
                 # backdrop
                 if scraper_movie_pic.get("backdrop"):
                     backdrop_image = media.get_backdrop_image(default=False, original=True)
@@ -375,7 +379,7 @@ class Scraper:
                     if scraper_tv_pic.get("poster"):
                         poster_image = media.get_poster_image(original=True)
                         if poster_image:
-                            self.__save_image(poster_image, os.path.dirname(dir_path))
+                            self.__save_image(poster_image, os.path.dirname(dir_path), "poster")
                     # backdrop
                     if scraper_tv_pic.get("backdrop"):
                         backdrop_image = media.get_backdrop_image(default=False, original=True)
@@ -457,15 +461,24 @@ class Scraper:
                                     self.__save_image(seasonthumb,
                                                       os.path.dirname(dir_path),
                                                       "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
-                        # 处理集
+                        # 处理集图片
                         if scraper_tv_pic.get("episode_thumb"):
                             episode_thumb = os.path.join(dir_path, file_name + "-thumb.jpg")
                             if not os.path.exists(episode_thumb):
-                                video_path = os.path.join(dir_path, file_name + file_ext)
-                                log.info(f"【Scraper】正在生成缩略图：{video_path} ...")
-                                FfmpegHelper().get_thumb_image_from_video(video_path=video_path,
-                                                                          image_path=episode_thumb)
-                                log.info(f"【Scraper】缩略图生成完成：{episode_thumb}")
+                                # 优先从TMDB查询
+                                episode_image = self.media.get_episode_images(tv_id=media.tmdb_id,
+                                                                              season_id=media.get_season_seq(),
+                                                                              episode_id=media.get_episode_seq(),
+                                                                              orginal=True)
+                                if episode_image:
+                                    self.__save_image(episode_image, episode_thumb)
+                                else:
+                                    # 从视频文件生成缩略图
+                                    video_path = os.path.join(dir_path, file_name + file_ext)
+                                    log.info(f"【Scraper】正在生成缩略图：{video_path} ...")
+                                    FfmpegHelper().get_thumb_image_from_video(video_path=video_path,
+                                                                              image_path=episode_thumb)
+                                    log.info(f"【Scraper】缩略图生成完成：{episode_thumb}")
 
         except Exception as e:
             ExceptionUtils.exception_traceback(e)

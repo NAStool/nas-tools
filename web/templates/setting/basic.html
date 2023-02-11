@@ -987,7 +987,7 @@
                     <label class="form-check">
                       <input class="form-check-input" type="checkbox" id="scraper_pic.tv.episode_thumb" {% if
                         Config.scraper_pic and Config.scraper_pic.tv.episode_thumb %}checked{% endif %}>
-                      <span class="form-check-label">thumb <span class="form-help" title="开启后将读取视频文件生成集缩略图，需要ffmpeg，最新完整版Docker镜像已包含，lite版本镜像默认不支持该功能" data-bs-toggle="tooltip">?</span></span>
+                      <span class="form-check-label">thumb <span class="form-help" title="开启后将生成集缩略图，优先查询TMDB，如TMDB无数据则读取视频文件生成（需要ffmpeg，最新完整版Docker镜像已包含，lite版本镜像默认不支持该功能）" data-bs-toggle="tooltip">?</span></span>
                     </label>
                   </div>
                 </div>
