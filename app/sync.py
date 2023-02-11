@@ -75,6 +75,8 @@ class Sync(object):
             for sync_item in self._sync_paths:
                 if not sync_item:
                     continue
+                # ID
+                sync_id = sync_item.ID
                 # 启用标志
                 enabled = True if sync_item.ENABLED else False
                 # 仅硬链接标志
@@ -106,8 +108,13 @@ class Sync(object):
                     os.makedirs(unknown_path)
                 # 登记关系
                 if os.path.exists(monpath):
-                    self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path,
-                                                     'onlylink': only_link, 'syncmod': path_syncmode}
+                    self.sync_dir_config[monpath] = {
+                        'id': sync_id,
+                        'target': target_path,
+                        'unknown': unknown_path,
+                        'onlylink': only_link,
+                        'syncmod': path_syncmode
+                    }
                 else:
                     log.error("【Sync】%s 目录不存在！" % monpath)
 
@@ -300,7 +307,7 @@ class Sync(object):
                         observer = Observer(timeout=10)
                     self._observer.append(observer)
                     observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
-                    observer.setDaemon(True)
+                    observer.daemon = True
                     observer.start()
                     log.info("%s 的监控服务启动" % monpath)
                 except Exception as e:
@@ -316,12 +323,14 @@ class Sync(object):
                 observer.stop()
         self._observer = []
 
-    def transfer_all_sync(self):
+    def transfer_all_sync(self, sid=None):
         """
         全量转移Sync目录下的文件，WEB界面点击目录同步时获发
         """
         for monpath, target_dirs in self.sync_dir_config.items():
             if not monpath:
+                continue
+            if sid and sid != target_dirs.get('id'):
                 continue
             target_path = target_dirs.get('target')
             unknown_path = target_dirs.get('unknown')
