@@ -82,6 +82,7 @@
 
 <!-- 生成过滤的下拉选项 -->
 {% macro gen_recommend_filter_dropdown(Fields, Params) %}
+  {% if Fields %}
   {% for FieldId, FieldAttr in Fields.items() %}
     {% if FieldAttr.type == "dropdown" %}
     <div class="dropdown">
@@ -107,4 +108,5 @@
     </div>
     {% endif %}
   {% endfor %}
+  {% endif %}
 {% endmacro %}
