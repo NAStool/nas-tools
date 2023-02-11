@@ -307,24 +307,22 @@ class Scraper:
             if media.type == MediaType.MOVIE:
                 scraper_movie_nfo = scraper_nfo.get("movie")
                 scraper_movie_pic = scraper_pic.get("movie")
-                # 已存在时不处理
-                if os.path.exists(os.path.join(dir_path, "movie.nfo")):
-                    return
-                if os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
-                    return
-                #  nfo
+                #  movie nfo
                 if scraper_movie_nfo.get("basic") or scraper_movie_nfo.get("credits"):
-                    # 查询Douban信息
-                    if scraper_movie_nfo.get("credits") and scraper_movie_nfo.get("credits_chinese"):
-                        doubaninfo = self.douban.get_douban_info(media)
-                    else:
-                        doubaninfo = None
-                    #  生成电影描述文件
-                    self.gen_movie_nfo_file(tmdbinfo=media.tmdb_info,
-                                            doubaninfo=doubaninfo,
-                                            scraper_movie_nfo=scraper_movie_nfo,
-                                            out_path=dir_path,
-                                            file_name=file_name)
+                    # 已存在时不处理
+                    if not os.path.exists(os.path.join(dir_path, "movie.nfo")) \
+                            and not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                        # 查询Douban信息
+                        if scraper_movie_nfo.get("credits") and scraper_movie_nfo.get("credits_chinese"):
+                            doubaninfo = self.douban.get_douban_info(media)
+                        else:
+                            doubaninfo = None
+                        #  生成电影描述文件
+                        self.gen_movie_nfo_file(tmdbinfo=media.tmdb_info,
+                                                doubaninfo=doubaninfo,
+                                                scraper_movie_nfo=scraper_movie_nfo,
+                                                out_path=dir_path,
+                                                file_name=file_name)
                 # poster
                 if scraper_movie_pic.get("poster"):
                     poster_image = media.get_poster_image(original=True)
@@ -360,12 +358,11 @@ class Scraper:
                     thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tmdb_id)
                     if thumb_image:
                         self.__save_image(thumb_image, dir_path, "thumb")
-
             # 电视剧
             else:
                 scraper_tv_nfo = scraper_nfo.get("tv")
                 scraper_tv_pic = scraper_pic.get("tv")
-                # 处理根目录
+                # tv nfo
                 if not os.path.exists(os.path.join(os.path.dirname(dir_path), "tvshow.nfo")):
                     if scraper_tv_nfo.get("basic") or scraper_tv_nfo.get("credits"):
                         # 查询Douban信息
@@ -375,93 +372,98 @@ class Scraper:
                             doubaninfo = None
                         # 根目录描述文件
                         self.gen_tv_nfo_file(media.tmdb_info, doubaninfo, scraper_tv_nfo, os.path.dirname(dir_path))
-                    # poster
-                    if scraper_tv_pic.get("poster"):
-                        poster_image = media.get_poster_image(original=True)
-                        if poster_image:
-                            self.__save_image(poster_image, os.path.dirname(dir_path), "poster")
-                    # backdrop
-                    if scraper_tv_pic.get("backdrop"):
-                        backdrop_image = media.get_backdrop_image(default=False, original=True)
-                        if backdrop_image:
-                            self.__save_image(backdrop_image, os.path.dirname(dir_path), "fanart")
-                    # background
-                    if scraper_tv_pic.get("background"):
-                        background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
-                        if background_image:
-                            self.__save_image(background_image, dir_path, "show")
-                    # logo
-                    if scraper_tv_pic.get("logo"):
-                        logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
-                        if logo_image:
-                            self.__save_image(logo_image, dir_path, "logo")
-                    # clearart
-                    if scraper_tv_pic.get("clearart"):
-                        clearart_image = media.fanart.get_disc(media_type=media.type, queryid=media.tvdb_id)
-                        if clearart_image:
-                            self.__save_image(clearart_image, dir_path, "clearart")
-                    # banner
-                    if scraper_tv_pic.get("banner"):
-                        banner_image = media.fanart.get_banner(media_type=media.type, queryid=media.tvdb_id)
-                        if banner_image:
-                            self.__save_image(banner_image, dir_path, "banner")
-                    # thumb
-                    if scraper_tv_pic.get("thumb"):
-                        thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tvdb_id)
-                        if thumb_image:
-                            self.__save_image(thumb_image, dir_path, "thumb")
-                # 处理集
-                if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
-                    # 查询TMDB信息
-                    if scraper_tv_nfo.get("season_basic") \
-                            or scraper_tv_nfo.get("episode_basic") \
-                            or scraper_tv_nfo.get("episode_credits"):
+                # poster
+                if scraper_tv_pic.get("poster"):
+                    poster_image = media.get_poster_image(original=True)
+                    if poster_image:
+                        self.__save_image(poster_image, os.path.dirname(dir_path), "poster")
+                # backdrop
+                if scraper_tv_pic.get("backdrop"):
+                    backdrop_image = media.get_backdrop_image(default=False, original=True)
+                    if backdrop_image:
+                        self.__save_image(backdrop_image, os.path.dirname(dir_path), "fanart")
+                # background
+                if scraper_tv_pic.get("background"):
+                    background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
+                    if background_image:
+                        self.__save_image(background_image, dir_path, "show")
+                # logo
+                if scraper_tv_pic.get("logo"):
+                    logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
+                    if logo_image:
+                        self.__save_image(logo_image, dir_path, "logo")
+                # clearart
+                if scraper_tv_pic.get("clearart"):
+                    clearart_image = media.fanart.get_disc(media_type=media.type, queryid=media.tvdb_id)
+                    if clearart_image:
+                        self.__save_image(clearart_image, dir_path, "clearart")
+                # banner
+                if scraper_tv_pic.get("banner"):
+                    banner_image = media.fanart.get_banner(media_type=media.type, queryid=media.tvdb_id)
+                    if banner_image:
+                        self.__save_image(banner_image, dir_path, "banner")
+                # thumb
+                if scraper_tv_pic.get("thumb"):
+                    thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tvdb_id)
+                    if thumb_image:
+                        self.__save_image(thumb_image, dir_path, "thumb")
+                # season nfo
+                if scraper_tv_nfo.get("season_basic"):
+                    if not os.path.exists(os.path.join(dir_path, "season.nfo")):
+                        # season nfo
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
-                        if scraper_tv_nfo.get("episode_basic") or scraper_tv_nfo.get("episode_credits"):
+                        if seasoninfo:
+                            self.gen_tv_season_nfo_file(seasoninfo, int(media.get_season_seq()), dir_path)
+                # episode nfo
+                if scraper_tv_nfo.get("episode_basic") \
+                        or scraper_tv_nfo.get("episode_credits"):
+                    if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                        seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
+                                                                          season=int(media.get_season_seq()))
+                        if seasoninfo:
                             self.gen_tv_episode_nfo_file(tmdbinfo=seasoninfo,
                                                          scraper_tv_nfo=scraper_tv_nfo,
                                                          season=int(media.get_season_seq()),
                                                          episode=int(media.get_episode_seq()),
                                                          out_path=dir_path,
                                                          file_name=file_name)
-                        # 处理季
-                        if not os.path.exists(os.path.join(dir_path, "season.nfo")):
-                            # season nfo
-                            if scraper_tv_nfo.get("season_basic"):
-                                self.gen_tv_season_nfo_file(seasoninfo, int(media.get_season_seq()), dir_path)
-                            # season poster
-                            if scraper_tv_pic.get("season_poster"):
-                                seasonposter = media.fanart.get_seasonposter(media_type=media.type,
-                                                                             queryid=media.tvdb_id,
-                                                                             season=media.get_season_seq())
-                                if seasonposter:
-                                    self.__save_image(seasonposter,
-                                                      os.path.dirname(dir_path),
-                                                      "season%s-poster" % media.get_season_seq().rjust(2, '0'))
-                                else:
-                                    self.__save_image(TMDB_IMAGE_W500_URL % seasoninfo.get("poster_path"),
-                                                      os.path.dirname(dir_path),
-                                                      "season%s-poster" % media.get_season_seq().rjust(2, '0'))
-                            # season banner
-                            if scraper_tv_pic.get("season_banner"):
-                                seasonbanner = media.fanart.get_seasonbanner(media_type=media.type,
-                                                                             queryid=media.tvdb_id,
-                                                                             season=media.get_season_seq())
-                                if seasonbanner:
-                                    self.__save_image(seasonbanner,
-                                                      os.path.dirname(dir_path),
-                                                      "season%s-banner" % media.get_season_seq().rjust(2, '0'))
-                            # season thumb
-                            if scraper_tv_pic.get("season_thumb"):
-                                seasonthumb = media.fanart.get_seasonthumb(media_type=media.type,
-                                                                           queryid=media.tvdb_id,
-                                                                           season=media.get_season_seq())
-                                if seasonthumb:
-                                    self.__save_image(seasonthumb,
-                                                      os.path.dirname(dir_path),
-                                                      "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
-                # 处理集图片
+                # season poster
+                if scraper_tv_pic.get("season_poster"):
+                    season_poster = "season%s-poster" % media.get_season_seq().rjust(2, '0')
+                    seasonposter = media.fanart.get_seasonposter(media_type=media.type,
+                                                                 queryid=media.tvdb_id,
+                                                                 season=media.get_season_seq())
+                    if seasonposter:
+                        self.__save_image(seasonposter,
+                                          os.path.dirname(dir_path),
+                                          season_poster)
+                    else:
+                        seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
+                                                                          season=int(media.get_season_seq()))
+                        if seasoninfo:
+                            self.__save_image(TMDB_IMAGE_W500_URL % seasoninfo.get("poster_path"),
+                                              os.path.dirname(dir_path),
+                                              season_poster)
+                # season banner
+                if scraper_tv_pic.get("season_banner"):
+                    seasonbanner = media.fanart.get_seasonbanner(media_type=media.type,
+                                                                 queryid=media.tvdb_id,
+                                                                 season=media.get_season_seq())
+                    if seasonbanner:
+                        self.__save_image(seasonbanner,
+                                          os.path.dirname(dir_path),
+                                          "season%s-banner" % media.get_season_seq().rjust(2, '0'))
+                # season thumb
+                if scraper_tv_pic.get("season_thumb"):
+                    seasonthumb = media.fanart.get_seasonthumb(media_type=media.type,
+                                                               queryid=media.tvdb_id,
+                                                               season=media.get_season_seq())
+                    if seasonthumb:
+                        self.__save_image(seasonthumb,
+                                          os.path.dirname(dir_path),
+                                          "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
+                # episode thumb
                 if scraper_tv_pic.get("episode_thumb"):
                     episode_thumb = os.path.join(dir_path, file_name + "-thumb.jpg")
                     if not os.path.exists(episode_thumb):
