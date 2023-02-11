@@ -537,7 +537,7 @@ class SiteConf:
         'www.hdpianyuan.com': {
             "proxy": False
         },
-        'skrbtfi.top': {
+        'skrbtla.top': {
             "proxy": False,
             "referer": True,
             "parser": "RenderSpider"
