@@ -10,7 +10,12 @@ class CookieCloudHelper(object):
     _password = None
 
     def __init__(self, server, key, password):
-        self._server = StringUtils.get_base_url(server)
+        self._server = server
+        if self._server:
+            if not self._server.startswith("http"):
+                self._server = "http://%s" % self._server
+            if self._server.endswith("/"):
+                self._server = self._server[:-1]
         self._key = key
         self._password = password
         self._req = RequestUtils(content_type="application/json")
