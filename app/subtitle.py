@@ -278,19 +278,22 @@ class Subtitle:
                 log.warn(f"【Subtitle】读取页面代码失败：{media_info.page_url}")
                 return
             html = etree.HTML(res.text)
-            sublink = None
+            sublink_list = []
             for xpath in SiteConf.SITE_SUBTITLE_XPATH:
                 sublinks = html.xpath(xpath)
                 if sublinks:
-                    sublink = sublinks[0]
-                    if not sublink.startswith("http"):
-                        base_url = StringUtils.get_base_url(media_info.page_url)
-                        if sublink.startswith("/"):
-                            sublink = "%s%s" % (base_url, sublink)
-                        else:
-                            sublink = "%s/%s" % (base_url, sublink)
-                    break
-            if sublink:
+                    for sublink in sublinks:
+                        if not sublink:
+                            continue
+                        if not sublink.startswith("http"):
+                            base_url = StringUtils.get_base_url(media_info.page_url)
+                            if sublink.startswith("/"):
+                                sublink = "%s%s" % (base_url, sublink)
+                            else:
+                                sublink = "%s/%s" % (base_url, sublink)
+                        sublink_list.append(sublink)
+            # 下载所有字幕文件
+            for sublink in sublink_list:
                 log.info(f"【Subtitle】找到字幕下载链接：{sublink}，开始下载...")
                 # 下载
                 ret = request.get_res(sublink)
@@ -302,7 +305,7 @@ class Subtitle:
                     file_name = self.__get_url_subtitle_name(ret.headers.get('content-disposition'), sublink)
                     if not file_name:
                         log.warn(f"【Subtitle】链接不是字幕文件：{sublink}")
-                        return
+                        continue
                     if file_name.lower().endswith(".zip"):
                         # ZIP包
                         zip_file = os.path.join(self._save_tmp_path, file_name)
@@ -335,9 +338,9 @@ class Subtitle:
                         self.__transfer_subtitle(sub_file, target_sub_file)
                 else:
                     log.error(f"【Subtitle】下载字幕文件失败：{sublink}")
-                    return
-            else:
-                return
+                    continue
+            if sublink_list:
+                log.info(f"【Subtitle】{media_info.page_url} 页面字幕下载完成")
         elif res is not None:
             log.warn(f"【Subtitle】连接 {media_info.page_url} 失败，状态码：{res.status_code}")
         else:
