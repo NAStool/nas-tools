@@ -195,7 +195,7 @@ class BrushTask(object):
         max_dlcount = rss_rule.get("dlcount")
         success_count = 0
         if max_dlcount:
-            downloading_count = self.__get_downloading_count(downloader_cfg)
+            downloading_count = self.__get_downloading_count(downloader_cfg) or 0
             new_torrent_count = int(max_dlcount) - int(downloading_count)
 
         for res in rss_result:
