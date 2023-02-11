@@ -43,12 +43,13 @@
             </div>
           </div>
           <div class="table-responsive" style="min-height: 300px; overflow: hidden">
-            <table class="table table-vcenter card-table">
+            <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
                 <th>索引</th>
-                <th></th>
                 <th>标题</th>
+                <th>TMDB</th>
+                <th></th>
                 <th></th>
               </tr>
               </thead>
@@ -72,6 +73,8 @@
                     </td>
                     <td>
                       <div>{{ TmdbCache[1].title }}</div>
+                    </td>
+                    <td>
                       <div class="text-muted text-nowrap">{{ TmdbCache[1].id }}
                         {% if TmdbCache[1].media_type == "电影" %}
                           <a class="ms-1"
@@ -117,7 +120,7 @@
                 {% endfor %}
               {% else %}
                 <tr>
-                  <td colspan="4" align="center">没有数据</td>
+                  <td colspan="5" align="center">没有数据</td>
                 </tr>
               {% endif %}
               </tbody>
