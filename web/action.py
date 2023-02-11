@@ -2420,7 +2420,7 @@ class WebAction:
             # 参数
             params = data.get("params") or {}
             # 排序
-            sort = params.get("sort") or "U"
+            sort = params.get("sort") or "T"
             # 选中的分类
             tags = params.get("tags") or ""
             # 过滤参数
