@@ -96,8 +96,8 @@ class WebAction:
             "tv_calendar_data": self.__tv_calendar_data,
             "modify_tmdb_cache": self.__modify_tmdb_cache,
             "rss_detail": self.__rss_detail,
-            "truncate_blacklist": self.__truncate_blacklist,
-            "truncate_rsshistory": self.__truncate_rsshistory,
+            "truncate_blacklist": self.truncate_blacklist,
+            "truncate_rsshistory": self.truncate_rsshistory,
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
@@ -277,6 +277,9 @@ class WebAction:
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/ssa": {"func": Subscribe().subscribe_search_all, "desp": "订阅搜索"},
+            "/tbl": {"func": WebAction().truncate_blacklist, "desp": "清理转移缓存"},
+            "/trh": {"func": WebAction().truncate_rsshistory, "desp": "清理RSS缓存"},
             "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
             "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
@@ -1884,14 +1887,14 @@ class WebAction:
             MetaHelper().save_meta_data(force=True)
         return {"code": 0}
 
-    def __truncate_blacklist(self, data):
+    def truncate_blacklist(self, data):
         """
         清空文件转移黑名单记录
         """
         self.dbhelper.truncate_transfer_blacklist()
         return {"code": 0}
 
-    def __truncate_rsshistory(self, data):
+    def truncate_rsshistory(self, data):
         """
         清空RSS历史记录
         """
