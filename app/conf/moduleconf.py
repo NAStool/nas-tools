@@ -910,7 +910,7 @@ class ModuleConf(object):
             "sort": {
                 "name": "排序",
                 "type": "dropdown",
-                "options": [{'value': 'T', 'name': '默认'},
+                "options": [{'value': '', 'name': '默认'},
                             {'value': 'U', 'name': '综合排序'},
                             {'value': 'T', 'name': '首播时间'},
                             {'value': 'S', 'name': '高分优先'},
@@ -940,7 +940,7 @@ class ModuleConf(object):
             "sort": {
                 "name": "排序",
                 "type": "dropdown",
-                "options": [{'value': 'T', 'name': '默认'},
+                "options": [{'value': '', 'name': '默认'},
                             {'value': 'U', 'name': '综合排序'},
                             {'value': 'T', 'name': '首播时间'},
                             {'value': 'S', 'name': '高分优先'},

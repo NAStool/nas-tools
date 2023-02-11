@@ -93,7 +93,6 @@
           {% for Option in FieldAttr.options %}
             {% if Option.value == Params.get(FieldId) %}
               {{ Option.name }}
-              {% break %}
             {% endif %}
           {% endfor %}
         {% endif %}
