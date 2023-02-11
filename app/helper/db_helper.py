@@ -41,7 +41,7 @@ class DbHelper:
                     EPISODE=media_item.get_episode_string() if ident_flag else '',
                     ES_STRING=media_item.get_season_episode_string() if ident_flag else '',
                     VOTE=media_item.vote_average or "0",
-                    IMAGE=media_item.get_backdrop_image(default=False),
+                    IMAGE=media_item.get_backdrop_image(default=False, original=True),
                     POSTER=media_item.get_poster_image(),
                     TMDBID=media_item.tmdb_id,
                     OVERVIEW=media_item.overview,
