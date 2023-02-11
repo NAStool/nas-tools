@@ -171,92 +171,90 @@
                              class="accordion-collapse collapse {% if loop.index0 == 0 %}show{% endif %}"
                              data-bs-parent="#search_results_accordion_{{ Item.key }}">
                           <div class="accordion-body p-1">
-                            <div class="list-group">
-                              <div class="list-group card-list-group mt-1">
-                                <!-- 种子列表 -->
-                              {% for unique_key, unique in group.group_torrents.items() %}
-                                {% for torrent in unique.torrent_list %}
-                                  <div class="list-group-item p-1 search_results_torrent"
-                                    data-site="{{ torrent.site }}"
-                                    data-free="{{ torrent.uploadvalue|string + ' ' + torrent.downloadvalue|string }}"
-                                    data-video="{{ torrent.video_encode }}"
-                                    data-group="{{ group_key }}"
-                                    data-season="{{ SE_key.replace(' ', '') }}">
-                                    <div class="row g-2 align-items-center">
-                                      <div class="col-auto">
-                                        <a  href="{{ torrent.pageurl }}" target="_blank">
-                                          <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
-                                          {% if SiteDict[torrent.site|hash] %}
-                                            {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
-                                            {{ torrent.site|first }}
-                                            {% endif %}
+                            <div class="card-list-group mt-1">
+                              <!-- 种子列表 -->
+                            {% for unique_key, unique in group.group_torrents.items() %}
+                              {% for torrent in unique.torrent_list %}
+                                <div class="list-group-item p-1 search_results_torrent"
+                                  data-site="{{ torrent.site }}"
+                                  data-free="{{ torrent.uploadvalue|string + ' ' + torrent.downloadvalue|string }}"
+                                  data-video="{{ torrent.video_encode }}"
+                                  data-group="{{ group_key }}"
+                                  data-season="{{ SE_key.replace(' ', '') }}">
+                                  <div class="row g-2 align-items-center">
+                                    <div class="col-auto">
+                                      <a  href="{{ torrent.pageurl }}" target="_blank">
+                                        <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
+                                        {% if SiteDict[torrent.site|hash] %}
+                                          {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
+                                          {{ torrent.site|first }}
+                                          {% endif %}
+                                        {% else %}
+                                          {{ torrent.site|first }}
+                                        {% endif %}
+                                        </span>
+                                      </a>
+                                    </div>
+                                    <div class="col">
+                                      <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")'>{{ torrent.torrent_name }}</a>
+                                      <div class="text-muted">
+                                        {{ torrent.description or '' }}
+                                      </div>
+                                      <div>
+                                        <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
+                                        {% if torrent.video_encode %}
+                                        <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
+                                        {% endif %}
+                                        {% if torrent.reseffect %}
+                                          <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
+                                        {% endif %}
+                                        {% if torrent.size %}
+                                          <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
+                                        {% endif %}
+                                        {% if torrent.releasegroup %}
+                                          <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
+                                        {% endif %}
+                                        {% if torrent.uploadvalue != 1.0 %}
+                                        <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
+                                        {% endif %}
+                                        {% if torrent.downloadvalue != 1.0 %}
+                                          {% if torrent.downloadvalue == 0.0 %}
+                                            <span class="badge text-white bg-lime mb-1">FREE</span>
                                           {% else %}
-                                            {{ torrent.site|first }}
+                                            <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
                                           {% endif %}
-                                          </span>
+                                        {% endif %}
+                                        {% if torrent.seeders %}
+                                        <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
+                                        {% endif %}
+                                      </div>
+                                    </div>
+                                    <div class="col-auto ms-2 d-none d-md-inline-block">
+                                      <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")' class="link-secondary" title="下载">
+                                        {{ SVG.download() }}
+                                      </a>
+                                    </div>
+                                    <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
+                                      <div class="dropdown">
+                                        <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                          {{ SVG.dots() }}
                                         </a>
-                                      </div>
-                                      <div class="col">
-                                        <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")'>{{ torrent.torrent_name }}</a>
-                                        <div class="text-muted">
-                                          {{ torrent.description or '' }}
-                                        </div>
-                                        <div>
-                                          <span class="badge bg-black text-dark-fg mb-1">{{ torrent.site }}</span>
-                                          {% if torrent.video_encode %}
-                                          <span class="badge text-white bg-orange mb-1">{{ torrent.video_encode }}</span>
-                                          {% endif %}
-                                          {% if torrent.reseffect %}
-                                            <span class="badge text-white bg-purple mb-1">{{ torrent.reseffect }}</span>
-                                          {% endif %}
-                                          {% if torrent.size %}
-                                            <span class="badge text-white bg-yellow mb-1">{{ torrent.size }}</span>
-                                          {% endif %}
-                                          {% if torrent.releasegroup %}
-                                            <span class="badge text-white bg-cyan mb-1">{{ torrent.releasegroup }}</span>
-                                          {% endif %}
-                                          {% if torrent.uploadvalue != 1.0 %}
-                                          <span class="badge text-white bg-azure mb-1">{{ (torrent.uploadvalue * 100) | int }}%UL</span>
-                                          {% endif %}
-                                          {% if torrent.downloadvalue != 1.0 %}
-                                            {% if torrent.downloadvalue == 0.0 %}
-                                              <span class="badge text-white bg-lime mb-1">FREE</span>
-                                            {% else %}
-                                              <span class="badge text-white bg-indigo mb-1">{{ (torrent.downloadvalue * 100) | int }}%DL</span>
-                                            {% endif %}
-                                          {% endif %}
-                                          {% if torrent.seeders %}
-                                          <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
-                                          {% endif %}
-                                        </div>
-                                      </div>
-                                      <div class="col-auto ms-2 d-none d-md-inline-block">
-                                        <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")' class="link-secondary" title="下载">
-                                          {{ SVG.download() }}
-                                        </a>
-                                      </div>
-                                      <div class="col-auto lh-1 ms-2 d-none d-md-inline-block">
-                                        <div class="dropdown">
-                                          <a href="#" class="link-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                                            {{ SVG.dots() }}
+                                        <div class="dropdown-menu dropdown-menu-end" style="">
+                                          {% if torrent.enclosure and torrent.enclosure.startswith('http') %}
+                                          <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
+                                            下载种子文件
                                           </a>
-                                          <div class="dropdown-menu dropdown-menu-end" style="">
-                                            {% if torrent.enclosure and torrent.enclosure.startswith('http') %}
-                                            <a class="dropdown-item" href="{{ torrent.enclosure }}" target="_blank">
-                                              下载种子文件
-                                            </a>
-                                            {% endif %}
-                                            <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
-                                              查看种子详情
-                                            </a>
-                                          </div>
+                                          {% endif %}
+                                          <a class="dropdown-item" href="{{ torrent.pageurl }}" target="_blank">
+                                            查看种子详情
+                                          </a>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                {% endfor %}
+                                </div>
                               {% endfor %}
-                              </div>
+                            {% endfor %}
                             </div>
                           </div>
                         </div>

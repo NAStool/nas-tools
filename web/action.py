@@ -3502,7 +3502,7 @@ class WebAction:
                 title_string = f"{title_string} ({item.YEAR})"
             # 电视剧季集标识
             mtype = item.TYPE or ""
-            SE_key = item.ES_STRING or "TV" if mtype != "MOV" else "MOV"
+            SE_key = item.ES_STRING if item.ES_STRING and mtype != "MOV" else "MOV"
             media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 种子信息
             torrent_item = {

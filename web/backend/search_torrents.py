@@ -161,7 +161,9 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        dbhepler.insert_search_results(media_list)
+        dbhepler.insert_search_results(media_items=media_list,
+                                       ident_flag=ident_flag,
+                                       title=content)
         return 0, ""
 
 
