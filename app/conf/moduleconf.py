@@ -193,6 +193,14 @@ class ModuleConf(object):
                         "title": "API Key",
                         "tooltip": "在Bark客户端中点击右上角的“...”按钮，选择“生成Bark Key”，然后将生成的KEY填入此处",
                         "type": "text"
+                    },
+                    "params": {
+                        "id": "bark_params",
+                        "required": False,
+                        "title": "附加参数",
+                        "tooltip": "添加到Bark通知中的附加参数，可用于自定义通知特性",
+                        "type": "text",
+                        "placeholder": "group=xxx&sound=xxx&url=xxx"
                     }
                 }
             },
@@ -291,6 +299,14 @@ class ModuleConf(object):
                         "tooltip": "在Slack中创建应用，获取App-Level Token",
                         "type": "text",
                         "placeholder": "xapp-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx"
+                    },
+                    "channel": {
+                        "id": "slack_channel",
+                        "required": False,
+                        "title": "频道名称",
+                        "tooltip": "Slack中的频道名称，默认为全体；需要将机器人添加到该频道，以接收非交互类的通知消息",
+                        "type": "text",
+                        "placeholder": "全体"
                     }
                 }
             },
