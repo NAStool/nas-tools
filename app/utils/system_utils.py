@@ -91,8 +91,12 @@ class SystemUtils:
         """
         执行命令，获得返回结果
         """
-        with os.popen(cmd) as p:
-            return p.readline().strip()
+        try:
+            with os.popen(cmd) as p:
+                return p.readline().strip()
+        except Exception as err:
+            print(str(err))
+            return ""
 
     @staticmethod
     def is_docker():
@@ -144,7 +148,7 @@ class SystemUtils:
         try:
             tmp_file = os.path.normpath(os.path.join(os.path.dirname(src),
                                                      os.path.basename(dest)))
-            os.rename(os.path.normpath(src), tmp_file)
+            shutil.move(os.path.normpath(src), tmp_file)
             shutil.move(tmp_file, os.path.normpath(dest))
             return 0, ""
         except Exception as err:

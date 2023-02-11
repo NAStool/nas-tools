@@ -37,6 +37,7 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
+from app.speedlimiter import SpeedLimiter
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType
@@ -85,7 +86,7 @@ class WebAction:
             "check_sync_path": self.__check_sync_path,
             "remove_rss_media": self.__remove_rss_media,
             "add_rss_media": self.__add_rss_media,
-            "re_identification": self.__re_identification,
+            "re_identification": self.re_identification,
             "media_info": self.__media_info,
             "test_connection": self.__test_connection,
             "user_manager": self.__user_manager,
@@ -276,6 +277,7 @@ class WebAction:
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
             "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
         command = commands.get(msg)
@@ -984,14 +986,30 @@ class WebAction:
         """
         log_list = []
         refresh_new = data.get('refresh_new')
-        if not refresh_new:
-            log_list = list(log.LOG_QUEUE)
-        elif log.LOG_INDEX:
-            if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
+        source = data.get('source')
+
+        if not source:
+            if not refresh_new:
                 log_list = list(log.LOG_QUEUE)
-            else:
-                log_list = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
-        log.LOG_INDEX = 0
+            elif log.LOG_INDEX:
+                if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
+                    log_list = list(log.LOG_QUEUE)
+                else:
+                    log_list = list(log.LOG_QUEUE)[-log.LOG_INDEX:]
+            log.LOG_INDEX = 0
+        else:
+            queue_logs = list(log.LOG_QUEUE)
+            for message in queue_logs:
+                if str(message.get("source")) == source:
+                    log_list.append(message)
+                else:
+                    continue
+
+            if refresh_new:
+                if int(refresh_new) < len(log_list):
+                    log_list = log_list[int(refresh_new):]
+                elif int(refresh_new) >= len(log_list):
+                    log_list = []
         return {"loglist": log_list}
 
     @staticmethod
@@ -1419,7 +1437,7 @@ class WebAction:
                     title=name, tmdbid=media_info.tmdb_id)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
-    def __re_identification(self, data):
+    def re_identification(self, data):
         """
         未识别的重新识别
         """
@@ -3756,6 +3774,20 @@ class WebAction:
 
         return {"code": 0, "items": Items}
 
+    def unidentification(self):
+        """
+        重新识别所有未识别记录
+        """
+        ItemIds = []
+        Records = self.dbhelper.get_transfer_unknown_paths()
+        for rec in Records:
+            if not rec.PATH:
+                continue
+            ItemIds.append(rec.ID)
+
+        if len(ItemIds) > 0:
+            WebAction.re_identification(self, {"flag": "unidentification", "ids": ItemIds})
+
     def get_customwords(self, data=None):
         words = []
         words_info = self.dbhelper.get_custom_words(gid=-1)
@@ -3980,7 +4012,7 @@ class WebAction:
         name = data.get("name")
         if path and name:
             try:
-                os.rename(path, os.path.join(os.path.dirname(path), name))
+                shutil.move(path, os.path.join(os.path.dirname(path), name))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 return {"code": -1, "msg": str(e)}
@@ -4328,6 +4360,8 @@ class WebAction:
             return {"code": 1}
         try:
             SystemConfig().set_system_config(key=key, value=value)
+            if key == "SpeedLimit":
+                SpeedLimiter().init_config()
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)

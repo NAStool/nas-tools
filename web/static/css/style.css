@@ -149,3 +149,12 @@ body, .page {
     opacity: 0.5 !important;
     background-color: #000 !important;
 }
+
+.select_logger{
+    display:flex;
+    align-items: center;
+}
+
+.select_logger h5{
+    padding-right:5px
+}

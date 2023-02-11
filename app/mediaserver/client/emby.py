@@ -470,3 +470,23 @@ class Emby(_IMediaClient):
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.server_type}】连接Users/Items出错：" + str(e))
         yield {}
+
+    def get_playing_sessions(self):
+        """
+        获取正在播放的会话
+        """
+        if not self._host or not self._apikey:
+            return []
+        playing_sessions = []
+        req_url = "%semby/Sessions?api_key=%s" % (self._host, self._apikey)
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res and res.status_code == 200:
+                sessions = res.json()
+                for session in sessions:
+                    if session.get("NowPlayingItem"):
+                        playing_sessions.append(session)
+            return playing_sessions
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return []
