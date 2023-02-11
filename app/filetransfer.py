@@ -500,10 +500,9 @@ class FileTransfer:
                     file_list = [bluray_disk_dir]
                     log.info("【Rmt】当前为蓝光原盘文件夹：%s" % str(in_path))
                 else:
-                    if udf_flag:
-                        # 自定义转移时未输入大小限制默认不限制
-                        now_filesize = 0 if not str(min_filesize).isdigit() else int(
-                            min_filesize) * 1024 * 1024
+                    if str(min_filesize) == "0":
+                        # 不限制大小
+                        now_filesize = 0
                     else:
                         # 未输入大小限制默认为配置大小限制
                         now_filesize = self._min_filesize if not str(min_filesize).isdigit() else int(
