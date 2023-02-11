@@ -2418,13 +2418,15 @@ class WebAction:
             # 豆瓣发现
             mtype = MediaType.MOVIE if SubType in MovieTypes else MediaType.TV
             # 参数
-            # params = data.get("filter_params") or {}
+            params = data.get("params") or {}
             # 排序
-            # sort = params.get("sort") or "U"
+            sort = params.get("sort") or "U"
             # 选中的分类
-            # selected_categories = json.dumps(params.get("selected_categories") or {})
+            tags = params.get("tags") or ""
             # 过滤参数
             res_list = DouBan().get_douban_disover(mtype=mtype,
+                                                   sort=sort,
+                                                   tags=tags,
                                                    page=CurrentPage)
 
         # 补充存在与订阅状态
