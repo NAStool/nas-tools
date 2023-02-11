@@ -32,8 +32,8 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
         if [ "${hash_old}" != "${hash_new}" ]; then
             echo "检测到requirements.txt有变化，重新安装依赖..."
             if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
-                pip install --upgrade pip setuptools wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
-                pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+                pip install --upgrade pip setuptools wheel -i "${PYPI_MIRROR}"
+                pip install -r requirements.txt -i "${PYPI_MIRROR}"
             else
                 pip install --upgrade pip setuptools wheel
                 pip install -r requirements.txt
@@ -64,7 +64,7 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
             if [ "${hash_old}" != "${hash_new}" ]; then
                 echo "检测到package_list.txt有变化，更新软件包..."
                 if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
-                    sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
+                    sed -i "s/dl-cdn.alpinelinux.org/${ALPINE_MIRROR}/g" /etc/apk/repositories
                     apk update -f
                 fi
                 apk add --no-cache libffi-dev
