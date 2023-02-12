@@ -1871,9 +1871,6 @@
       syncmod = '{{ SyncMod }}';
     }
     let source = CURRENT_PAGE_URI;
-    if (source === 'mediafile') {
-      source = `mediafile?dir=${inpath}`;
-    }
     $("#rename_source").val(source);
     $("#rename_manual_type").val(manual_type);
     if (manual_type === 3) {
