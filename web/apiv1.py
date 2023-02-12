@@ -597,7 +597,7 @@ class DownloadConfigUpdate(ClientResource):
     parser.add_argument('download_limit', type=int, help='下载速度限制', location='form')
     parser.add_argument('ratio_limit', type=int, help='分享率限制', location='form')
     parser.add_argument('seeding_time_limit', type=int, help='做种时间限制', location='form')
-    parser.add_argument('downloader', type=str, help='下载器（Qbittorrent/Transmission/115网盘/Aria2）', location='form')
+    parser.add_argument('downloader', type=str, help='下载器（Qbittorrent/Transmission）', location='form')
 
     @download.doc(parser=parser)
     def post(self):
