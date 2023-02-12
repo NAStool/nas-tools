@@ -2490,3 +2490,13 @@ class DbHelper:
         查询豆瓣同步记录
         """
         return self._db.query(DOUBANMEDIAS).order_by(DOUBANMEDIAS.ADD_TIME.desc()).all()
+
+    def is_exists_pt_user_info(self):
+        """
+        判断是否存在pt站点用户信息
+        """
+        count = self._db.query(SITEUSERINFOSTATS).count()
+        if count > 0:
+            return True
+        else:
+            return False
