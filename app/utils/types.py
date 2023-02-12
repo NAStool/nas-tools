@@ -12,7 +12,6 @@ class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
     Client115 = '115网盘'
-    Aria2 = 'Aria2'
     PikPak = 'PikPak'
 
 
@@ -59,8 +58,6 @@ class OsType(Enum):
 
 
 class IndexerType(Enum):
-    JACKETT = "Jackett"
-    PROWLARR = "Prowlarr"
     BUILTIN = "Indexer"
 
 
