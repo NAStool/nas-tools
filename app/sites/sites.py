@@ -470,9 +470,8 @@ class Sites:
             else:
                 # 天空签到 验证码识别
                 if 'hdsky.me' in site_url and Config().get_config('ocr').get('app_id'):
-                    sign_status = Sites().sign_in_hdsky(site_info)
-                    if sign_status:
-                        return "【天空】签到成功"
+                    # 签到失败则继续模拟登陆
+                    Sites().sign_in_hdsky(site_info)
 
                 if site_url.find("attendance.php") != -1:
                     checkin_text = "签到"
@@ -547,9 +546,11 @@ class Sites:
                                    proxies=Config().get_proxies() if site_info.get("proxy") else None
                                    ).post_res(url=site_url.rstrip('/') + '/showup.php', params=data)
                 if res and res.status_code == 200:
-                    # 签到成功
-                    return True
-        return False
+                    if json.loads(res.text)["success"]:
+                        return '【天空】签到成功'
+                    elif json.loads(res.text)["message"] == "data_unmatch":
+                        # 重复签到
+                        return '【天空】今日已签到'
 
     def refresh_pt_date_now(self):
         """
