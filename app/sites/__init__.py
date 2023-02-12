@@ -1,3 +1,4 @@
-from app.sites.site_user_info_factory import SiteUserInfoFactory
+from app.sites.site_userinfo import SiteUserInfo
 from .sites import Sites
-from .sitecookie import SiteCookie
+from .site_cookie import SiteCookie
+from .site_signin import SiteSignin

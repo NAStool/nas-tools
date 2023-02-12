@@ -29,7 +29,7 @@ from app.media.meta import MetaInfo
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
-from app.sites import Sites
+from app.sites import Sites, SiteUserInfo
 from app.speedlimiter import SpeedLimiter
 from app.subscribe import Subscribe
 from app.sync import Sync
@@ -560,7 +560,7 @@ def statistics():
     SiteRatios = []
     SiteErrs = {}
     # 站点上传下载
-    SiteData = Sites().get_pt_date(specify_sites=refresh_site, force=refresh_force)
+    SiteData = SiteUserInfo().get_pt_date(specify_sites=refresh_site, force=refresh_force)
     if isinstance(SiteData, dict):
         for name, data in SiteData.items():
             if not data:
@@ -589,7 +589,7 @@ def statistics():
                 SiteRatios.append(round(float(ratio), 1))
 
     # 近期上传下载各站点汇总
-    CurrentUpload, CurrentDownload, _, _, _ = Sites().get_pt_site_statistics_history(
+    CurrentUpload, CurrentDownload, _, _, _ = SiteUserInfo().get_pt_site_statistics_history(
         days=2)
 
     # 站点用户数据

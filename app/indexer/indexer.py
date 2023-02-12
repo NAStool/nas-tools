@@ -23,7 +23,7 @@ class Indexer(object):
             'app.indexer.client',
             filter_func=lambda _, obj: hasattr(obj, 'schema')
         )
-        log.debug(f"【Indexer】: 已经加载的索引器：{self._indexer_schemas}")
+        log.debug(f"【Indexer】加载索引器：{self._indexer_schemas}")
         self.init_config()
 
     def init_config(self):

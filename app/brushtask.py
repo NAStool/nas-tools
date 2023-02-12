@@ -192,8 +192,10 @@ class BrushTask(object):
         else:
             log.info("【Brush】%s RSS获取数据：%s" % (site_name, len(rss_result)))
 
+        # 同时下载数
         max_dlcount = rss_rule.get("dlcount")
         success_count = 0
+        new_torrent_count = 0
         if max_dlcount:
             downloading_count = self.__get_downloading_count(downloader_cfg) or 0
             new_torrent_count = int(max_dlcount) - int(downloading_count)

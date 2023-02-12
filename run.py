@@ -108,6 +108,8 @@ def init_system():
 
 def start_service():
     log.console("开始启动服务...")
+    # 加载索引器配置
+    IndexerHelper()
     # 启动虚拟显示
     DisplayHelper()
     # 启动定时服务
@@ -122,9 +124,7 @@ def start_service():
     TorrentRemover()
     # 启动播放限速服务
     SpeedLimiter()
-    # 加载索引器配置
-    IndexerHelper()
-    # 初始化浏览器
+    # 初始化浏览器驱动
     if not is_windows_exe:
         ChromeHelper().init_driver()
 

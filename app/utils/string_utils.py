@@ -243,6 +243,8 @@ class StringUtils:
         """
         获取URL根地址
         """
+        if not url:
+            return ""
         scheme, netloc = StringUtils.get_url_netloc(url)
         return f"{scheme}://{netloc}"
 

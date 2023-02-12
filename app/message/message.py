@@ -28,7 +28,7 @@ class Message(object):
             'app.message.client',
             filter_func=lambda _, obj: hasattr(obj, 'schema')
         )
-        log.debug(f"【Message】: 已经加载的消息服务：{self._message_schemas}")
+        log.debug(f"【Message】加载消息服务：{self._message_schemas}")
         self.init_config()
 
     def init_config(self):

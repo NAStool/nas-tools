@@ -31,8 +31,7 @@ from app.message import Message, MessageCenter
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
-from app.sites import Sites
-from app.sites.sitecookie import SiteCookie
+from app.sites import Sites, SiteUserInfo, SiteSignin, SiteCookie
 from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
@@ -273,7 +272,7 @@ class WebAction:
         commands = {
             "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desp": "删种"},
             "/ptt": {"func": Downloader().transfer, "desp": "下载文件转移"},
-            "/pts": {"func": Sites().signin, "desp": "站点签到"},
+            "/pts": {"func": SiteSignin().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
@@ -419,7 +418,7 @@ class WebAction:
         commands = {
             "autoremovetorrents": TorrentRemover().auto_remove_torrents,
             "pttransfer": Downloader().transfer,
-            "ptsignin": Sites().signin,
+            "ptsignin": SiteSignin().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
             "douban": DoubanSync().sync,
@@ -2198,7 +2197,7 @@ class WebAction:
         resp = {"code": 0}
 
         resp.update(
-            {"dataset": Sites().get_pt_site_activity_history(data["name"])})
+            {"dataset": SiteUserInfo().get_pt_site_activity_history(data["name"])})
         return resp
 
     @staticmethod
@@ -2234,7 +2233,7 @@ class WebAction:
 
         resp = {"code": 0}
 
-        seeding_info = Sites().get_pt_site_seeding_info(
+        seeding_info = SiteUserInfo().get_pt_site_seeding_info(
             data["name"]).get("seeding_info", [])
         # 调整为dataset组织数据
         dataset = [["seeders", "size"]]
@@ -4384,7 +4383,7 @@ class WebAction:
         sort_by = data.get("sort_by")
         sort_on = data.get("sort_on")
         site_hash = data.get("site_hash")
-        statistics = Sites().get_site_user_statistics(sites=sites, encoding=encoding)
+        statistics = SiteUserInfo().get_site_user_statistics(sites=sites, encoding=encoding)
         if sort_by and sort_on in ["asc", "desc"]:
             if sort_on == "asc":
                 statistics.sort(key=lambda x: x[sort_by])

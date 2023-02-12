@@ -12,7 +12,7 @@ from app.downloader import Downloader
 from app.helper import MetaHelper
 from app.mediaserver import MediaServer
 from app.rss import Rss
-from app.sites import Sites
+from app.sites import Sites, SiteUserInfo, SiteSignin
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import ExceptionUtils
@@ -83,7 +83,7 @@ class Scheduler:
                     except Exception as e:
                         log.info("站点自动签到时间 配置格式错误：%s" % str(e))
                         hour = minute = 0
-                    self.SCHEDULER.add_job(Sites().signin,
+                    self.SCHEDULER.add_job(SiteSignin().signin,
                                            "cron",
                                            hour=hour,
                                            minute=minute)
@@ -95,7 +95,7 @@ class Scheduler:
                         log.info("站点自动签到时间 配置格式错误：%s" % str(e))
                         hours = 0
                     if hours:
-                        self.SCHEDULER.add_job(Sites().signin,
+                        self.SCHEDULER.add_job(SiteSignin().signin,
                                                "interval",
                                                hours=hours)
                         log.info("站点自动签到服务启动")
@@ -184,7 +184,7 @@ class Scheduler:
         self.SCHEDULER.add_job(Subscribe().subscribe_search, 'interval', seconds=RSS_CHECK_INTERVAL)
 
         # 站点数据刷新
-        self.SCHEDULER.add_job(Sites().refresh_pt_date_now,
+        self.SCHEDULER.add_job(SiteUserInfo().refresh_pt_date_now,
                                'interval',
                                hours=REFRESH_PT_DATA_INTERVAL,
                                next_run_time=datetime.datetime.now() + datetime.timedelta(minutes=1))
@@ -232,7 +232,7 @@ class Scheduler:
         if hour < 0 or minute < 0:
             log.warn("站点自动签到时间 配置格式错误：不启动任务")
             return
-        self.SCHEDULER.add_job(Sites().signin,
+        self.SCHEDULER.add_job(SiteSignin().signin,
                                "date",
                                run_date=datetime.datetime(year, month, day, hour, minute, second))
 

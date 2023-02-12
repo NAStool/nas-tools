@@ -45,7 +45,7 @@ class Downloader:
             'app.downloader.client',
             filter_func=lambda _, obj: hasattr(obj, 'schema')
         )
-        log.debug(f"【Downloader】: 已经加载的下载器：{self._downloader_schema}")
+        log.debug(f"【Downloader】加载下载器：{self._downloader_schema}")
         self.init_config()
 
     def init_config(self):
