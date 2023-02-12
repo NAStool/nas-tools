@@ -91,17 +91,17 @@ body, .page {
 
 .lit-media-info-background {
     background-image:
-        linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0) 30%, rgba(var(--tblr-body-bg-rgb), 1) 100%),
-        linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 30%, rgba(var(--tblr-body-bg-rgb), 1) 100%),
-        linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 30%, rgba(var(--tblr-body-bg-rgb), 1) 100%);
+        linear-gradient(180deg, rgba(var(--tblr-body-bg-rgb),0) 30vh, rgba(var(--tblr-body-bg-rgb), 1) 100%),
+        linear-gradient(90deg, rgba(var(--tblr-body-bg-rgb),0) 30vh, rgba(var(--tblr-body-bg-rgb), 1) 100%),
+        linear-gradient(270deg, rgba(var(--tblr-body-bg-rgb),0) 30vh, rgba(var(--tblr-body-bg-rgb), 1) 100%);
     box-shadow:0 0 0 2px rgb(var(--tblr-body-bg-rgb));
 }
 
 .theme-light .lit-media-info-background {
     background-image:
-        linear-gradient(180deg, rgba(231, 235, 239, 0) 30%, rgba(231, 235, 239, 1) 100%),
-        linear-gradient(90deg, rgba(231, 235, 239, 0) 30%, rgba(231, 235, 239, 1) 100%),
-        linear-gradient(270deg, rgba(231, 235, 239, 0) 30%, rgba(231, 235, 239, 1) 100%);
+        linear-gradient(180deg, rgba(231, 235, 239, 0) 30vh, rgba(231, 235, 239, 1) 100%),
+        linear-gradient(90deg, rgba(231, 235, 239, 0) 30vh, rgba(231, 235, 239, 1) 100%),
+        linear-gradient(270deg, rgba(231, 235, 239, 0) 30vh, rgba(231, 235, 239, 1) 100%);
     box-shadow:0 0 0 2px rgb(231, 235, 239);
 }
 
