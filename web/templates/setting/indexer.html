@@ -118,13 +118,14 @@
               <div class="form-selectgroup">
               {% for Indexer in Indexers %}
                 {% if Indexer.public %}
-                  <label class="form-selectgroup-item">
-                    <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
-                            class="form-selectgroup-input"
-                            {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
-                    <span class="form-selectgroup-label">{{ Indexer.name }}</span>
-                  </label>
-                {% endfor %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
+                          class="form-selectgroup-input"
+                          {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                  <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                </label>
+                {% endif %}
+              {% endfor %}
               </div>
             </div>
             {% endif %}
