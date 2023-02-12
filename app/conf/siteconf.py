@@ -517,13 +517,6 @@ class SiteConf:
         'mikanani.me': {
             "proxy": False
         },
-        'gaoqing.fm': {
-            "proxy": False
-        },
-        'www.mp4ba.vip': {
-            "proxy": False,
-            "referer": True
-        },
         'www.miobt.com': {
             "proxy": True
         },
@@ -533,14 +526,6 @@ class SiteConf:
         },
         'btsow.quest': {
             "proxy": True
-        },
-        'www.hdpianyuan.com': {
-            "proxy": False
-        },
-        'skrbtla.top': {
-            "proxy": False,
-            "referer": True,
-            "parser": "RenderSpider"
         },
         'www.comicat.org': {
             "proxy": False
