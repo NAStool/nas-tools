@@ -21,6 +21,7 @@ from app.conf import SiteConf
 from app.utils import RequestUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from config import Config
+from app.utils.ocr import Ocr
 
 lock = Lock()
 
@@ -467,6 +468,12 @@ class Sites:
                     return f"【{site}】签到失败！"
             # 模拟登录
             else:
+                # 天空签到 验证码识别
+                if 'hdsky.me' in site_url and Config().get_config('ocr').get('app_id'):
+                    sign_status = Sites().sign_in_hdsky(site_info)
+                    if sign_status:
+                        return "【天空】签到成功"
+
                 if site_url.find("attendance.php") != -1:
                     checkin_text = "签到"
                 else:
@@ -493,6 +500,58 @@ class Sites:
         except Exception as e:
             log.error("【Sites】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
             return f"{site} 签到出错：{str(e)}！"
+
+    @staticmethod
+    def sign_in_hdsky(site_info):
+        """
+        天空签到
+        """
+        site_url = site_info.get("signurl")
+        site_cookie = site_info.get("cookie")
+        ua = site_info.get("ua")
+
+        # 获取验证码url
+        image_url = site_url.rstrip('/') + '/image_code_ajax.php'
+        # 获取验证码请求
+        image_res = RequestUtils(cookies=site_cookie,
+                                 headers=ua,
+                                 proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                 ).post_res(url=image_url, params={'action': 'new'})
+        if image_res and image_res.status_code == 200:
+            # 完整验证码url
+            img_get_url = site_url + 'image.php?action=regimage&imagehash=' + json.loads(image_res.text)["code"]
+
+            # ocr识别多次，获取6位验证码
+            times = 0
+            ocr_result = None
+            # 识别几次
+            while times <= 5:
+                # 目前只支持百度ocr
+                if Config().get_config('ocr').get('ocr_type') == "baidu":
+                    # 百度识别
+                    ocr_result = Ocr().baidu_captcha(Config().get_config('ocr'), img_get_url)
+                if ocr_result:
+                    if len(ocr_result) == 6:
+                        break
+                times += 1
+                time.sleep(1)
+
+            if ocr_result:
+                # 组装请求参数
+                data = {
+                    'action': 'showup',
+                    'imagehash': json.loads(image_res.text)["code"],
+                    'imagestring': ocr_result
+                }
+                # 访问签到链接
+                res = RequestUtils(cookies=site_cookie,
+                                   headers=ua,
+                                   proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                   ).post_res(url=site_url.rstrip('/') + '/showup.php', params=data)
+                if res and res.status_code == 200:
+                    # 签到成功
+                    return True
+        return False
 
     def refresh_pt_date_now(self):
         """

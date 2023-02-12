@@ -9,6 +9,8 @@ backports.shutil-get-terminal-size==1.0.0
 beautifulsoup4==4.11.1
 better-exceptions==0.3.3
 bs4==0.0.1
+baidu-aip==4.16.7
+chardet==5.1.0
 cacheout==0.14.1
 certifi==2022.6.15
 cffi==1.15.1
