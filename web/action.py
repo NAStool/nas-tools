@@ -2211,8 +2211,7 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        _, _, site, upload, download = Sites(
-        ).get_pt_site_statistics_history(data["days"] + 1)
+        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(data["days"] + 1)
 
         # 调整为dataset组织数据
         dataset = [["site", "upload", "download"]]
