@@ -2491,9 +2491,9 @@ class DbHelper:
         """
         return self._db.query(DOUBANMEDIAS).order_by(DOUBANMEDIAS.ADD_TIME.desc()).all()
 
-    def is_exists_pt_user_info(self):
+    def check_pris(self):
         """
-        判断是否存在pt站点用户信息
+        判断页面信息
         """
         count = self._db.query(SITEUSERINFOSTATS).count()
         if count > 0:

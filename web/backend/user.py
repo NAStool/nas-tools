@@ -14,7 +14,7 @@ class User(UserMixin):
 
     def __init__(self, user=None):
         self.dbhelper = DbHelper()
-        pris_check = self.dbhelper.is_exists_pt_user_info()
+        pris_check = self.dbhelper.check_pris()
         if user:
             self.id = user.get('id')
             self.username = user.get('name')
