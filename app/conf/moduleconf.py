@@ -52,8 +52,6 @@ class ModuleConf(object):
 
     # 索引器
     INDEXER_DICT = {
-        "prowlarr": IndexerType.PROWLARR,
-        "jackett": IndexerType.JACKETT,
         "builtin": IndexerType.BUILTIN
     }
 
@@ -787,64 +785,7 @@ class ModuleConf(object):
     }
 
     # 索引器
-    INDEXER_CONF = {
-        "jackett": {
-            "name": "Jackett",
-            "img_url": "./static/img/jackett.png",
-            "background": "bg-black",
-            "test_command": "app.indexer.client.jackett|Jackett",
-            "config": {
-                "host": {
-                    "id": "jackett.host",
-                    "required": True,
-                    "title": "Jackett地址",
-                    "tooltip": "Jackett访问地址和端口，如为https需加https://前缀。注意需要先在Jackett中添加indexer，才能正常测试通过和使用",
-                    "type": "text",
-                    "placeholder": "http://127.0.0.1:9117"
-                },
-                "api_key": {
-                    "id": "jackett.api_key",
-                    "required": True,
-                    "title": "Api Key",
-                    "tooltip": "Jackett管理界面右上角复制API Key",
-                    "type": "text",
-                    "placeholder": ""
-                },
-                "password": {
-                    "id": "jackett.password",
-                    "required": False,
-                    "title": "密码",
-                    "tooltip": "Jackett管理界面中配置的Admin password，如未配置可为空",
-                    "type": "password",
-                    "placeholder": ""
-                }
-            }
-        },
-        "prowlarr": {
-            "name": "Prowlarr",
-            "img_url": "../static/img/prowlarr.png",
-            "background": "bg-orange",
-            "test_command": "app.indexer.client.prowlarr|Prowlarr",
-            "config": {
-                "host": {
-                    "id": "prowlarr.host",
-                    "required": True,
-                    "title": "Prowlarr地址",
-                    "tooltip": "Prowlarr访问地址和端口，如为https需加https://前缀。注意需要先在Prowlarr中添加搜刮器，同时勾选所有搜刮器后搜索一次，才能正常测试通过和使用",
-                    "type": "text",
-                    "placeholder": "http://127.0.0.1:9696"
-                },
-                "api_key": {
-                    "id": "prowlarr.api_key",
-                    "required": True,
-                    "title": "Api Key",
-                    "tooltip": "在Prowlarr->Settings->General->Security-> API Key中获取",
-                    "type": "text",
-                    "placeholder": ""
-                }
-            }
-        }
-    }
+    INDEXER_CONF = {}
 
     # 发现过滤器
     DISCOVER_FILTER_CONF = {

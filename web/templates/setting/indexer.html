@@ -107,6 +107,7 @@
                 {% endif %}
               </div>
             </div>
+            {% if PublicCount > 0 %}
             <div class="mb-3">
               <div class="btn-list">
                 <label class="form-label">公开站点 <span class="form-help"
@@ -115,24 +116,18 @@
                 <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_public')">全选</a>
               </div>
               <div class="form-selectgroup">
-                {% if PublicCount > 0 %}
-                  {% for Indexer in Indexers %}
-                    {% if Indexer.public %}
-                      <label class="form-selectgroup-item">
-                        <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
-                               class="form-selectgroup-input"
-                               {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
-                        <span class="form-selectgroup-label">{{ Indexer.name }}</span>
-                      </label>
-                    {% endif %}
-                  {% endfor %}
-                {% else %}
+              {% for Indexer in Indexers %}
+                {% if Indexer.public %}
                   <label class="form-selectgroup-item">
-                    <span class="form-selectgroup-label">无</span>
+                    <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
+                            class="form-selectgroup-input"
+                            {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                    <span class="form-selectgroup-label">{{ Indexer.name }}</span>
                   </label>
-                {% endif %}
+                {% endfor %}
               </div>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>

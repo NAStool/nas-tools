@@ -42,7 +42,7 @@ class BuiltinIndexer(_IIndexClient):
         """
         return True
 
-    def get_indexers(self, check=True, public=True, indexer_id=None):
+    def get_indexers(self, check=True, public=False, indexer_id=None):
         ret_indexers = []
         # 选中站点配置
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []

@@ -30,7 +30,7 @@ class Indexer(object):
         self.progress = ProgressHelper()
         self._client_type = ModuleConf.INDEXER_DICT.get(
             Config().get_config("pt").get('search_indexer') or 'builtin'
-        )
+        ) or IndexerType.BUILTIN
         self._client = self.__get_client(self._client_type)
 
     def __build_class(self, ctype, conf):
