@@ -470,8 +470,11 @@ class Sites:
             else:
                 # 天空签到 验证码识别
                 if 'hdsky.me' in site_url and Config().get_config('ocr').get('app_id'):
-                    # 签到失败则继续模拟登陆
-                    Sites().sign_in_hdsky(site_info)
+                    log.info(f"【Sites】开始站点签到：{site}")
+                    sign_msg = Sites().sign_in_hdsky(log, site_info)
+                    if sign_msg:
+                        # 签到成功或已签到则返回，否则继续模拟登陆
+                        return sign_msg
 
                 if site_url.find("attendance.php") != -1:
                     checkin_text = "签到"
@@ -501,7 +504,7 @@ class Sites:
             return f"{site} 签到出错：{str(e)}！"
 
     @staticmethod
-    def sign_in_hdsky(site_info):
+    def sign_in_hdsky(log, site_info):
         """
         天空签到
         """
@@ -547,10 +550,15 @@ class Sites:
                                    ).post_res(url=site_url.rstrip('/') + '/showup.php', params=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
+                        log.info(f"【Sites】天空签到成功")
                         return '【天空】签到成功'
-                    elif json.loads(res.text)["message"] == "data_unmatch":
+                    elif str(json.loads(res.text)["message"]) == "date_unmatch":
                         # 重复签到
+                        log.warn(f"【Sites】天空重复成功")
                         return '【天空】今日已签到'
+                    elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
+                        # 验证码错误
+                        log.warn(f"【Sites】天空签到失败：验证码错误")
 
     def refresh_pt_date_now(self):
         """
