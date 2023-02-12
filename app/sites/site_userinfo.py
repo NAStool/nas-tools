@@ -13,6 +13,10 @@ from app.utils import RequestUtils, ExceptionUtils
 from config import Config
 
 lock = Lock()
+# 站点上一次更新时间
+_last_update_time = 0
+# 站点数据
+_sites_data = {}
 
 
 class SiteUserInfo(object):
@@ -26,10 +30,6 @@ class SiteUserInfo(object):
         self.sites = Sites()
         self.dbhelper = DbHelper()
         self.message = Message()
-        # 站点数据
-        self._sites_data = {}
-        # 站点数据更新时间
-        self._last_update_time = None
         # 加载模块
         self._site_schema = SubmoduleHelper.import_submodules('app.sites.siteuserinfo',
                                                               filter_func=lambda _, obj: hasattr(obj, 'schema'))
@@ -134,6 +134,7 @@ class SiteUserInfo(object):
         :param site_info:
         :return:
         """
+        global _sites_data
         site_name = site_info.get("name")
         site_url = site_info.get("strict_url")
         if not site_url:
@@ -158,27 +159,30 @@ class SiteUserInfo(object):
 
                 # 获取不到数据时，仅返回错误信息，不做历史数据更新
                 if site_user_info.err_msg:
-                    self._sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
+                    _sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
                     return
 
                 # 发送通知，存在未读消息
                 self.__notify_unread_msg(site_name, site_user_info, unread_msg_notify)
 
-                self._sites_data.update({site_name: {
-                    "upload": site_user_info.upload,
-                    "username": site_user_info.username,
-                    "user_level": site_user_info.user_level,
-                    "join_at": site_user_info.join_at,
-                    "download": site_user_info.download,
-                    "ratio": site_user_info.ratio,
-                    "seeding": site_user_info.seeding,
-                    "seeding_size": site_user_info.seeding_size,
-                    "leeching": site_user_info.leeching,
-                    "bonus": site_user_info.bonus,
-                    "url": site_url,
-                    "err_msg": site_user_info.err_msg,
-                    "message_unread": site_user_info.message_unread}
-                })
+                _sites_data.update(
+                    {
+                        site_name: {
+                            "upload": site_user_info.upload,
+                            "username": site_user_info.username,
+                            "user_level": site_user_info.user_level,
+                            "join_at": site_user_info.join_at,
+                            "download": site_user_info.download,
+                            "ratio": site_user_info.ratio,
+                            "seeding": site_user_info.seeding,
+                            "seeding_size": site_user_info.seeding_size,
+                            "leeching": site_user_info.leeching,
+                            "bonus": site_user_info.bonus,
+                            "url": site_url,
+                            "err_msg": site_user_info.err_msg,
+                            "message_unread": site_user_info.message_unread
+                        }
+                    })
 
                 return site_user_info
 
@@ -187,9 +191,10 @@ class SiteUserInfo(object):
             log.error(f"【Sites】站点 {site_name} 获取流量数据失败：{str(e)}")
 
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
+        global _sites_data
         if site_user_info.message_unread <= 0:
             return
-        if self._sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
+        if _sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
             return
         if not unread_msg_notify:
             return
@@ -214,13 +219,15 @@ class SiteUserInfo(object):
         """
         获取站点上传下载量
         """
+        global _sites_data
         self.__refresh_all_site_data(force=force, specify_sites=specify_sites)
-        return self._sites_data
+        return _sites_data
 
     def __refresh_all_site_data(self, force=False, specify_sites=None):
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
+        global _last_update_time
         if not self.sites.get_sites():
             return
 
@@ -228,8 +235,8 @@ class SiteUserInfo(object):
 
             if not force \
                     and not specify_sites \
-                    and self._last_update_time \
-                    and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
+                    and _last_update_time \
+                    and (datetime.now() - _last_update_time).seconds < 6 * 3600:
                 return
 
             if specify_sites \
@@ -263,7 +270,7 @@ class SiteUserInfo(object):
             self.sites.init_favicons()
 
             # 更新时间
-            self._last_update_time = datetime.now()
+            _last_update_time = datetime.now()
 
     def get_pt_site_statistics_history(self, days=7):
         """
