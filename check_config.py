@@ -280,6 +280,15 @@ def update_config():
         }
         overwrite_cofig = True
 
+    # OCR配置初始化
+    if not _config.get('ocr'):
+        _config['ocr'] = {
+            "app_id": '',
+            "api_key": '',
+            "secret_key": '',
+            "ocr_type": 'baidu'
+        }
+
     # 下载目录配置初始化
     if not _config.get('downloaddir'):
         dl_client = _config.get('pt', {}).get('pt_client')

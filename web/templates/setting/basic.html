@@ -470,6 +470,14 @@
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
+              <div class="col-auto">
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-ocr">
+                  OCR
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-ocr" title="OCR">
+                  {{ SVG.tex() }}
+                </a>
+              </div>
               <div class="col"></div>
               <div class="col-auto">
                 <a id="basic_service_btn" href="javascript:save_basic_config('basic_service')" class="btn btn-primary">
@@ -1070,6 +1078,57 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-ocr" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">OCR <span class="form-help" title="OCR，目前用于站点签到识别验证码" data-bs-toggle="tooltip">?</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">OCR类型 <span class="form-help" title="目前只支持百度，百度开放平台申请"
+                  data-bs-toggle="tooltip">?</span></label>
+              <select class="form-select" value="{{ Config.ocr.ocr_type or '' }}" id="ocr.ocr_type">
+                <option value="baidu" selected>百度</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">APP ID</label>
+              <input type="text" value="{{ Config.ocr.app_id or '' }}" class="form-control"
+                     id="ocr.app_id" placeholder="APP ID" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">API KEY</label>
+              <input type="text" value="{{ Config.ocr.api_key or '' }}" class="form-control"
+                     id="ocr.api_key" placeholder="API KEY" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">SECRET KEY</label>
+              <input type="text" value="{{ Config.ocr.secret_key or '' }}" class="form-control"
+                     id="ocr.secret_key" placeholder="SECRET KEY" autocomplete="off">
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+          <a id="ocr_save_btn" href="javascript:save_ocr_config()" class="btn btn-primary">
+            保存
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 
   // CSS编辑器
@@ -1127,6 +1186,12 @@
       $("#user_script_save_btn").text("保存").attr("disabled", false);
     });
     $("#modal-user-script").modal("hide");
+  }
+
+  // 保存OCR配置
+  function save_ocr_config(){
+    save_basic_config('modal-ocr', false);
+    $("#modal-ocr").modal("hide");
   }
 
 </script>
