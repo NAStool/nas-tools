@@ -1,5 +1,5 @@
 ![logo-blue](https://user-images.githubusercontent.com/51039935/197520391-f35db354-6071-4c12-86ea-fc450f04bc85.png)
-# NAS媒体库资源归集、整理自动化工具
+# NAS媒体库管理工具
 
 [![GitHub stars](https://img.shields.io/github/stars/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/network/members)
@@ -13,34 +13,12 @@ Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 TG频道：https://t.me/nastool
 
-WIKI：https://github.com/jxxghp/nas-tools/wiki
-
 API: http://localhost:3000/api/v1/
 
 
 ## 功能：
 
-本软件的初衷是实现影视资源的自动化管理，释放双手、聚焦观影。需要有良好的网络环境及私有站点才能获得较好的使用体验。
-
-### 1、资源检索和订阅
-* 站点RSS聚合，想看的加入订阅，资源自动实时追新。
-* 通过微信、Telegram、Slack、Synology Chat或者WEB界面聚合资源搜索下载，最新热门资源一键搜索或者订阅。
-* 与豆瓣联动，在豆瓣中标记想看后台自动检索下载，未出全的自动加入订阅。
-
-### 2、媒体库整理
-* 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
-* 对目录进行监控，文件变化时自动识别媒体信息硬链接到媒体库并重命名。
-* 解决保种与媒体库整理冲突的问题，专为中文环境优化，支持国产剧集和动漫，重命名准确率高，改名后Emby/Jellyfin/Plex完美刮削海报墙。
-
-### 3、站点养护
-* 全面的站点数据统计，实时监测你的站点流量情况。
-* 全自动化托管养站，支持远程下载器（本工具内建刷流功能仅为日常养站使用，如果追求数据建议使用更加强大的刷流工具：<a href="https://github.com/vertex-app/vertex" target="_blank">Vertex</a>）。
-* 站点每日自动登录保号。
-
-### 4、消息服务
-* 支持微信、Telegram、Slack、Synology Chat、Bark、PushPlus、爱语飞飞等近十种渠道图文消息通知
-* 支持通过微信、Telegram、Slack、Synology Chat远程控制订阅和下载。
-* Emby/Jellyfin/Plex播放状态通知。
+NAS媒体库管理工具。
 
 
 ## 安装
