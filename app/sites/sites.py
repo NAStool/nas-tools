@@ -510,13 +510,11 @@ class Sites:
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
 
-        # 获取验证码url
-        image_url = site_url.rstrip('/') + '/image_code_ajax.php'
         # 获取验证码请求
         image_res = RequestUtils(cookies=site_cookie,
                                  headers=ua,
                                  proxies=Config().get_proxies() if site_info.get("proxy") else None
-                                 ).post_res(url=image_url, params={'action': 'new'})
+                                 ).post_res(url=site_url.rstrip('/') + '/image_code_ajax.php', params={'action': 'new'})
         if image_res and image_res.status_code == 200:
             # 完整验证码url
             img_get_url = site_url + 'image.php?action=regimage&imagehash=' + json.loads(image_res.text)["code"]
