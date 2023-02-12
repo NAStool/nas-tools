@@ -2017,10 +2017,10 @@ class Media:
         """
         获取TMDB热门电影随机一张背景图
         """
-        # 随机类型
-        mtype = MediaType.MOVIE if random.uniform(0, 1) > 0.5 else MediaType.TV
-        # 热门电影/电视剧
         try:
+            # 随机类型
+            mtype = MediaType.MOVIE if random.uniform(0, 1) > 0.5 else MediaType.TV
+            # 热门电影/电视剧
             if mtype == MediaType.MOVIE:
                 medias = self.discover.discover_movies(params={"sort_by": "popularity.desc"})
             else:
