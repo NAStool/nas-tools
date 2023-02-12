@@ -32,7 +32,6 @@ class SiteSignin(object):
         # 加载模块
         self._site_schema = SubmoduleHelper.import_submodules('app.sites.sitesignin',
                                                               filter_func=lambda _, obj: hasattr(obj, 'match'))
-        self._site_schema.sort(key=lambda x: x.order)
         log.debug(f"【Sites】加载站点签到：{self._site_schema}")
 
     def __build_class(self, url):
