@@ -13,11 +13,13 @@ from app.helper import ChromeHelper, SubmoduleHelper, DbHelper, SiteHelper
 from app.message import Message
 from app.sites.sites import Sites
 from app.utils import RequestUtils, ExceptionUtils, StringUtils
+from app.utils.commons import singleton
 from config import Config
 
 lock = Lock()
 
 
+@singleton
 class SiteSignin(object):
     sites = None
     dbhelper = None
@@ -26,13 +28,16 @@ class SiteSignin(object):
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
-        self.sites = Sites()
-        self.dbhelper = DbHelper()
-        self.message = Message()
         # 加载模块
         self._site_schema = SubmoduleHelper.import_submodules('app.sites.sitesignin',
                                                               filter_func=lambda _, obj: hasattr(obj, 'match'))
         log.debug(f"【Sites】加载站点签到：{self._site_schema}")
+        self.init_config()
+
+    def init_config(self):
+        self.sites = Sites()
+        self.dbhelper = DbHelper()
+        self.message = Message()
 
     def __build_class(self, url):
         for site_schema in self._site_schema:
