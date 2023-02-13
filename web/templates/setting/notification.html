@@ -1,0 +1,476 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          消息通知
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.plus() }}
+            新增消息通知
+          </a>
+          <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-sm-none btn-icon">
+            {{ SVG.plus() }}
+          </a>
+          <a href="javascript:show_send_custom_message_modal()" class="btn btn-twitter d-none d-sm-inline-block">
+            {{ SVG.send() }}
+            发送自定义消息
+          </a>
+          <a href="javascript:show_send_custom_message_modal()" class="btn btn-twitter d-sm-none btn-icon">
+            {{ SVG.send() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom py-3">
+          <div class="d-flex">
+            <div class="text-muted">
+              共 {{ ClientCount }} 条记录
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table table-hover table-striped">
+            <thead>
+            <tr>
+              <th class="w-7 text-nowrap">类型</th>
+              <th>名称</th>
+              <th>推送内容</th>
+              <th class="w-5 text-nowrap">交互</th>
+              <th class="w-5 text-nowrap">启用</th>
+              <th class="w-3"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if MessageClients %}
+              {% for Id, Attr in MessageClients.items() %}
+                <tr>
+                  <td>
+                  <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                        style="background-image: url({{ Channels[Attr.type].img_url }})"></span>
+                  </td>
+                  <td>{{ Attr.name }}</td>
+                  <td>
+                    <small>
+                      {% for swid in Attr.switchs %}
+                        <span class="badge
+                          {% if "download" in swid %}
+                          bg-blue-lt
+                          {% elif "transfer" in swid %}
+                          bg-azure-lt
+                          {% elif "rss" in swid %}
+                          bg-indigo-lt
+                          {% elif "site" in swid %}
+                          bg-purple-lt
+                          {% elif "brushtask" in swid %}
+                          bg-pink-lt
+                          {% elif "mediaserver" in swid %}
+                          bg-orange-lt
+                          {% endif %}
+                          me-1 mb-1">{{ Switchs[swid].name }}</span>
+                      {% endfor %}
+                    </small>
+                  </td>
+                  <td>
+                    {% if Channels[Attr.type].search_type %}
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %}
+                               checked {% endif %}
+                               onclick="check_message_client('interactive', '{{ Id }}', this.checked, '{{ Attr.type }}')">
+                      </label>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <label class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %} checked {% endif %}
+                             onclick="check_message_client('enable', '{{ Id }}', this.checked, '{{ Attr.type }}')">
+                    </label>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑消息服务">
+                        {{ SVG.edit() }}
+                      </a>
+                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除消息服务"
+                         class="ms-2">
+                        {{ SVG.x() }}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" align="center">未配置</td>
+              </tr>
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-message-client" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="client_modal_title"></h5>
+        <input type="hidden" id="client_id">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-9" id="div_client_name">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="text" id="client_name" class="form-control" placeholder="别名">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">状态</label>
+              <select class="form-select" id="client_enabled">
+                <option value="1" selected>启用</option>
+                <option value="0">停用</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-3" id="div_client_interactive">
+            <div class="mb-3">
+              <label class="form-label required">交互</label>
+              <select class="form-select" id="client_interactive">
+                <option value="1" selected>是</option>
+                <option value="0">否</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-selectgroup-boxes row mb-3">
+          <label class="form-label required">类型</label>
+          {% for Id, Attr in Channels.items() %}
+            <div class="col-lg-4">
+              <div class="mb-1">
+                <label class="form-selectgroup-item" for="type_{{ Id }}">
+                  <input type="radio" name="client_type" id="type_{{ Id }}" value="{{ Id }}"
+                         class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                          style="background-image: url({{ Attr.img_url }})"></span>
+                    <span class="form-selectgroup-title strong mb-1">{{ Attr.name }}</span>
+                  </span>
+                </span>
+                </label>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% for ClientId, ClientAttr in Channels.items() %}
+        <div id="div_client_config_{{ ClientId }}">
+          {{ FORM.gen_form_empty_elements(ClientAttr.config) }}
+        </div>
+        {% endfor %}
+        <details>
+          <summary class="summary">
+            推送设置
+            <a href="javascript:void(0)" class="ms-2" onclick="select_btn_SelectALL(this, 'message_switchs')">全选</a>
+          </summary>
+          <div class="row mt-2">
+            <div class="form-selectgroup">
+              {% for SwitchID in Switchs %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="message_switchs" value="{{ SwitchID }}" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label">{{ Switchs[SwitchID].name }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button onclick="add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
+           class="btn me-auto">
+          测试
+        </button>
+        <button onclick="add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
+           class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-send-custom-message" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">发送自定义消息</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class='row'>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label required">标题</label>
+              <input type="text" value="" id="custom_message_title" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label required">图片</label>
+              <input type="text" value="" id="custom_message_image" class="form-control"  placeholder="url">
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">内容</label>
+              <textarea class="form-control" id="custom_message_text" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="send_custom_message_btn" onclick="send_custom_message()" class="btn btn-primary">
+          发送
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+  // 恢复输入项为默认值
+  function reset_message_config_fields() {
+    {% for ClientId, ClientAttr in Channels.items() %}
+      {% for FieldId, FieldAttr in ClientAttr.config.items() %}
+        {% if FieldAttr.type == "switch" %}
+          {% if FieldAttr.default %}
+            $("#{{ FieldAttr.id }}").prop('checked', true);
+          {% else %}
+            $("#{{ FieldAttr.id }}").prop('checked', false);
+          {% endif %}
+        {% else %}
+          {% if FieldAttr.default %}
+            $("#{{ FieldAttr.id }}").val('{{ FieldAttr.default }}');
+          {% else %}
+            $("#{{ FieldAttr.id }}").val('');
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  }
+
+  // 显示新增消息服务
+  function show_add_message_client_modal() {
+    $("#client_id").val('');
+    $("#client_modal_title").text("新增消息通知");
+    reset_message_config_fields();
+    show_client_type("{{ Channels.keys()|first }}");
+    $("#test_message_client_btn").text("测试").attr("disabled", false);
+    select_SelectALL(true, "message_switchs")
+    $("#modal-message-client").modal("show");
+  }
+
+  // 显示编辑消息服务
+  function show_edit_message_client_modal(cid) {
+    $("#client_id").val(cid);
+    $("#client_modal_title").text("编辑消息通知");
+    ajax_post("get_message_client", {cid: cid}, function (ret) {
+      if (ret.code == 0) {
+        $("#client_name").val(ret.detail.name);
+        $("#client_enabled").val(ret.detail.enabled);
+        $("#client_interactive").val(ret.detail.interactive);
+        // 清空输入项
+        reset_message_config_fields();
+        let type = ret.detail.type;
+        {% for ClientId, ClientAttr in Channels.items() %}
+          if (type === "{{ ClientId }}") {
+          {% for FieldId, FieldAttr in ClientAttr.config.items() %}
+            {% if FieldAttr.type == "switch" %}
+              if (ret.detail.config.{{ FieldId }}) {
+                $("#{{ FieldAttr.id }}").prop("checked", true);
+              } else {
+                $("#{{ FieldAttr.id }}").prop("checked", false);
+              }
+            {% else %}
+              $("#{{ FieldAttr.id }}").val(ret.detail.config.{{ FieldId }});
+            {% endif %}
+          {% endfor %}
+          }
+        {% endfor %}
+        show_client_type(type);
+        $("#test_message_client_btn").text("测试").attr("disabled", false);
+        if (ret.detail.switchs.length === 0) {
+          select_SelectALL(true, "message_switchs");
+        } else {
+          select_SelectPart(ret.detail.switchs, "message_switchs");
+        }
+        $("#modal-message-client").modal("show");
+      }
+    });
+  }
+
+  // 新增/编辑消息
+  function add_or_edit_or_test_message_client(action) {
+    let type = $('input:radio[name=client_type]:checked').val();
+    let interactive = $("#client_interactive").val();
+    let config = {}
+    {% for ClientId, ClientAttr in Channels.items() %}
+      if (type === "{{ ClientId }}") {
+      {% for FieldId, FieldAttr in ClientAttr.config.items() %}
+        {% if FieldAttr.type == "switch" %}
+          let {{ FieldId }} = 0;
+          if ($("#{{ FieldAttr.id }}").prop("checked")) {
+            {{ FieldId }} = 1;
+          }
+        {% else %}
+          let {{ FieldId }} = $("#{{ FieldAttr.id }}").val();
+        {% endif %}
+      {% endfor %}
+      {% for FieldId, FieldAttr in ClientAttr.config.items() %}
+        {% if FieldAttr.type != "switch" and FieldAttr.required %}
+          if (!{{ FieldId }}) {
+            $("#{{ FieldAttr.id }}").addClass("is-invalid");
+            return;
+          } else {
+            $("#{{ FieldAttr.id }}").removeClass("is-invalid");
+          }
+        {% endif %}
+      {% endfor %}
+      config = JSON.stringify({
+        {% for FieldId, FieldAttr in ClientAttr.config.items() %}
+          {{ FieldId }}: {{ FieldId }},
+        {% endfor %}
+      })
+      }
+    {% endfor %}
+    let cid = $("#client_id").val();
+    let name = $("#client_name").val();
+    let enabled = $("#client_enabled").val();
+    // 推送设置
+    let switchs = select_GetSelectedVAL("message_switchs")
+    const params = {
+      cid: cid,
+      name: name,
+      type: type,
+      config: config,
+      switchs: switchs,
+      enabled: enabled,
+      interactive: interactive
+    };
+    if (action === "save") {
+      $("#add_or_edit_message_client_btn").text("保存中").attr("disabled", true);
+      ajax_post("update_message_client", params, function (ret) {
+        $("#modal-message-client").modal('hide');
+        $("#add_or_edit_message_client_btn").attr("disabled", false);
+        window_history_refresh();
+      });
+    } else if (action === "test") {
+      $("#test_message_client_btn").text("测试中").attr("disabled", true);
+      ajax_post("test_message_client", params, function (ret) {
+        if (ret.code === 0) {
+          $("#test_message_client_btn").text("测试成功").attr("disabled", false);
+        } else {
+          $("#test_message_client_btn").text("测试失败！").attr("disabled", false);
+        }
+      });
+    }
+  }
+
+
+  // 打开推送设置框
+  function check_message_client(flag, cid, checked, type) {
+    ajax_post("check_message_client", {flag: flag, cid: cid, checked: checked, type: type}, function (ret) {
+      if (ret.code === 0) {
+        window_history_refresh();
+      }
+    });
+  }
+
+  // 打开推送设置框
+  function delete_message_client(cid, name) {
+    show_confirm_modal("删除消息服务 " + name + " ？", function () {
+      hide_confirm_modal();
+      ajax_post("delete_message_client", {"cid": cid}, function (ret) {
+        window_history_refresh();
+      });
+    });
+  }
+
+  // 单选框事件
+  $('input[type=radio][name=client_type]').change(function () {
+    let type = this.value;
+    show_client_type(type);
+  });
+
+  // 消息服务端类型
+  function show_client_type(type) {
+    {% for ClientId, ClientAttr in Channels.items() %}
+      if (type === "{{ ClientId }}") {
+        $("div[id^='div_client_config']").each(function () {
+          $(this).hide();
+        });
+        $("#div_client_config_{{ ClientId }}").show();
+          {% if ClientAttr.get("search_type") %}
+            $("#div_client_name").attr('class', 'col-lg-6');
+            $("#div_client_interactive").show();
+          {% else %}
+            $("#div_client_name").attr('class', 'col-lg-9');
+            $("#div_client_interactive").hide();
+          {% endif %}
+        $("#type_{{ ClientId }}").prop("checked", true);
+      }
+    {% endfor %}
+  }
+
+  // 显示自定义消息
+  function show_send_custom_message_modal() {
+    $("#custom_message_title").val("");
+    $("#custom_message_text").val("");
+    $("#custom_message_image").val("");
+    $("#modal-send-custom-message").modal("show");
+  }
+
+  // 发送自定义消息
+  function send_custom_message(){
+    $("#send_custom_message_btn").text("发送中").attr("disabled", true);
+    let title = $("#custom_message_title").val();
+    if (!title) {
+      $("#custom_message_title").addClass("is-invalid");
+      return;
+    } else {
+      $("#custom_message_title").removeClass("is-invalid");
+    }
+    let params = {
+      title: title,
+      text: $("#custom_message_text").val(),
+      image: $("#custom_message_image").val()
+    };
+    ajax_post("send_custom_message", params, function (ret) {
+      if (ret.code === 0) {
+        $("#modal-send-custom-message").modal("hide");
+        show_success_modal("自定义消息已发送");
+        $("#send_custom_message_btn").text("发送").attr("disabled", false);
+      }
+    });
+  }
+</script>

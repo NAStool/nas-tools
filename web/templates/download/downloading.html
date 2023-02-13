@@ -1,0 +1,206 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          正在下载
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-none d-sm-inline-block dropdown-toggle">
+            {{ SVG.plus() }}
+            新增下载
+          </button>
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-sm-none btn-icon">
+            {{ SVG.plus() }}
+          </button>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item" onclick="show_torrent_download_modal('torrent')">
+              种子文件
+            </button>
+            <button class="dropdown-item" onclick="show_torrent_download_modal('magnet')">
+              磁力链接
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if DownloadCount > 0 %}
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="d-grid gap-3 grid-info-card">
+        {% for Torrent in Torrents %}
+          <div class="card">
+            <div class="card-body">
+              <div class="row align-items-center">
+                {% if Torrent.image %}
+                  <div class="col-3">
+                    <img src="{{ Torrent.image }}" class="rounded" alt="">
+                  </div>
+                {% endif %}
+                <div class="col">
+                  <h3 class="card-title mb-1">
+                    <a class="text-reset">{{ Torrent.title }}</a>
+                  </h3>
+                  <div class="text-muted" id="speed_text_{{ Torrent.id }}">
+                    {{ Torrent.speed }}
+                  </div>
+                  {% if not Torrent.noprogress %}
+                    <div class="mt-3">
+                      <div class="row g-2 align-items-center">
+                        <div class="col-auto" id="progress_text_{{ Torrent.id }}">
+                          {{ Torrent.progress }}%
+                        </div>
+                        <div class="col">
+                          <div class="progress progress-sm">
+                            <div class="progress-bar" id="progress_{{ Torrent.id }}"
+                                style="width: {{ Torrent.progress }}%"
+                                role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0"
+                                aria-valuemax="100">
+                              <span class="visually-hidden"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="col-auto">
+                  <div class="dropdown">
+                    {% if not Torrent.nomenu %}
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ SVG.dots_vertical() }}
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        {% if Client != 'client115' %}
+                          <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
+                            class="dropdown-item"
+                            style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
+                          <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
+                            class="dropdown-item"
+                            style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
+                        {% endif %}
+                        <a href="javascript:remove_pt_download('{{ Torrent.id }}')"
+                          class="dropdown-item text-danger">删除</a>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                <input type="hidden" class="download_ids" id="id_{{ Torrent.id }}" value="{{ Torrent.id }}">
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% else %}
+{{ OOPS.nodatafound('没有下载任务', '当前下载器中没有正在下载的任务。') }}
+{% endif %}
+<script type="text/javascript">
+  // 下载控制
+  function start_pt_download(id) {
+    ajax_post("pt_start", {"id": id}, function (ret) {
+      get_torrent_info(ret.id)
+    });
+  }
+
+  function stop_pt_download(id) {
+    ajax_post("pt_stop", {"id": id}, function (ret) {
+      get_torrent_info(ret.id)
+    });
+  }
+
+  function remove_pt_download(id) {
+    ajax_post("pt_remove", {"id": id}, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  //更新所有种子页面信息
+  function get_all_torrents_info() {
+    let ids = [];
+    $(".download_ids").each(function () {
+      ids.push($(this).val());
+    });
+    if (ids.length == 0) {
+      return;
+    }
+    ajax_post("pt_info", {"ids": ids}, function (ret) {
+      if (ret.retcode == "0") {
+        for (let torrent of ret.torrents) {
+          update_torrent_ui(torrent);
+        }
+        setTimeout("get_all_torrents_info()", 2000);
+      }
+    }, true, false);
+  }
+
+  //更新一个种子页面信息
+  function get_torrent_info(id) {
+    ajax_post("pt_info", {"ids": id}, function (ret) {
+      if (ret.retcode == "0") {
+        for (let torrent of ret.torrents) {
+          update_torrent_ui(torrent);
+        }
+      }
+    }, true, false);
+  }
+
+  //更新单个种子的页面信息
+  function update_torrent_ui(info) {
+    $(`#speed_text_${info.id}`).text(info.speed);
+    $(`#progress_text_${info.id}`).text(`${info.progress}%`);
+    $(`#progress_${info.id}`).attr("style", `width: ${info.progress}%`)
+        .attr("aria-valuenow", info.progress);
+    if (info.state === "Stoped") {
+      $(`#start_btn_${info.id}`).show()
+      $(`#stop_btn_${info.id}`).hide()
+    } else {
+      $(`#start_btn_${info.id}`).hide()
+      $(`#stop_btn_${info.id}`).show()
+    }
+  }
+
+  //显示新增下载界面
+  function show_torrent_download_modal(type) {
+    show_download_modal('', '', '', function(){
+      let magnet = $("#torrent_magnets").val();
+      if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0] && !magnet) {
+        return;
+      }
+      $("#search_download_btn").text("处理中...").attr("disabled", true);
+      const params = {
+        "files": torrent_dropzone.files,
+        "magnets": magnet.split("\n"),
+        "dl_dir": $("#search_download_dir").val(),
+        "dl_setting": $("#search_download_setting").val()
+      }
+      ajax_post("download_torrent", params, function (ret) {
+        $("#search_download_btn").attr("disabled", false).text("下载");
+        $("#modal-search-download").modal('hide');
+        if (ret.code == 0) {
+          torrent_dropzone.removeAllFiles();
+          $("#torrent_magnets").val("");
+          window_history_refresh();
+        } else {
+          show_fail_modal(`添加下载失败：${ret.msg}`, function() {
+            $("#modal-search-download").modal('show');
+          });
+        }
+      });
+    }, type);
+  }
+
+  //事件
+  setTimeout("get_all_torrents_info()", 2000);
+
+</script>

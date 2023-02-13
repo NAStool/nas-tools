@@ -1,0 +1,147 @@
+<script type="text/javascript">
+  window.customElements.define("custom-chips",
+  class extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    // 被载入文档时
+    connectedCallback() {
+      // 获取是否有属性值, 生成html
+      // this.innerHTML == "" 表示当前是第一次初始化, 没有被重载
+      if (this.innerHTML === ""){
+        this.render(this.getArgs("data-type"), this.getArgs("data-text"), this.getArgs("data-href"));
+      }
+    }
+
+    // 自定义方法, 按指定数组排序, 遍历字典, 一次性生成多个chips
+    add_chips_all(sort_array, data_dict) {
+      // 完全体应该 清空组件内容
+      // this.innerHTML == ""
+      // 开始遍历排序列表生成chips
+      let custom_words_flag = data_dict.ignored_words.length + data_dict.replaced_words.length + data_dict.offset_words.length;
+      for (let key of sort_array) {
+        let href = "";
+        let flag = null;
+        // 对特定的标签指定herf属性
+        switch(key){
+          case "name":
+            href = (data_dict.name === "无法识别") ? null : `https://www.themoviedb.org/search?query=${encodeURI(data_dict.name)}`;
+            break;
+          case "tmdbid":
+            href = data_dict.tmdblink;
+            break;
+          case "season_episode":
+            href = data_dict.tmdb_S_E_link;
+            break;
+          case "org_string":
+          case "ignored_words":
+          case "replaced_words":
+          case "offset_words":
+            flag = custom_words_flag;
+            break;
+          case "title":
+            data_dict.title = (!data_dict.tmdbid) ? "未匹配TMDB" : data_dict.title;
+            break;
+        }
+        console.log("正在新增chips: ", key, data_dict[key], href);
+        this.render(key, data_dict[key], href, flag);
+        this.style.display = "block";
+      }
+    }
+
+    render(chips_type, chips_content, chips_href, chips_flag) {
+      // 支持的标题
+      const title = {
+        org_string: "识别用名",
+        ignored_words: "应用屏蔽词",
+        replaced_words: "应用替换词",
+        offset_words: "应用集数偏移",
+        type:"类型",
+        category:"类别",
+        name:"识别名称",
+        title:"标题",
+        tmdbid:"TMDB ID",
+        year:"年份",
+        season_episode:"季集",
+        part:"分集",
+        restype:"质量",
+        effect:"特性",
+        pix:"分辨率",
+        video_codec:"视频编码",
+        audio_codec:"音频编码",
+        team:"制作组/字幕组",
+      }
+      // 所对应样式
+      const color = {
+        org_string: "badge-outline text-wrap text-orange",
+        ignored_words: "badge-outline text-wrap text-cyan",
+        replaced_words: "badge-outline text-wrap text-cyan",
+        offset_words: "badge-outline text-wrap text-cyan",
+        type:"bg-blue",
+        category:"bg-blue",
+        name:(chips_content === "无法识别") ? "bg-red text-wrap" :"bg-yellow text-wrap",
+        title:(chips_content !== "未匹配TMDB") ? "bg-green" : "bg-red",
+        tmdbid:"bg-green",
+        year:"bg-orange",
+        season_episode:"bg-orange",
+        part:"bg-orange",
+        restype:"",
+        effect:"",
+        pix:"",
+        video_codec:"",
+        audio_codec:"",
+        team:"bg-cyan text-wrap",
+      }
+      if (chips_content && chips_type && title.hasOwnProperty(chips_type)) {
+        if (chips_content.length && chips_flag) {
+          let label_element = document.createElement("label");
+          label_element.setAttribute("class", "form-label mb-3");
+          label_element.innerHTML = `${title[chips_type]}：`;
+          if (typeof(chips_content) === "string") {
+            let span_element = document.createElement("span");
+            span_element.setAttribute("class", `badge me-1 ${color[chips_type]}`);
+            span_element.innerHTML = chips_content;
+            label_element.appendChild(span_element);
+          } else {
+            for (let custom_word of chips_content) {
+            let child_element = document.createElement("span");
+            child_element.setAttribute("class", `badge me-1 ${color[chips_type]}`);
+            child_element.innerHTML = custom_word;
+            label_element.appendChild(child_element);
+            }
+          }
+          this.appendChild(label_element);
+        } else if (chips_flag == null) {
+          let span_element = document.createElement("span");
+          span_element.setAttribute("title", title[chips_type])
+          if (chips_href) {
+            let a_element = document.createElement("a");
+            a_element.setAttribute("class", `badge me-1 mb-1 ${color[chips_type]}`);
+            a_element.setAttribute("href", chips_href);
+            a_element.setAttribute("target", "_blank");
+            a_element.innerHTML = chips_content;
+            span_element.appendChild(a_element);
+          } else {
+            span_element.setAttribute("class", `badge me-1 mb-1 ${color[chips_type]}`);
+            span_element.innerHTML = chips_content;
+          }
+          this.appendChild(span_element);
+        }
+        // 该组件不需要区分重载与初始化 直接赋值组件内部为空 并刷新内容
+      }
+    }
+
+    getArgs(name, default_value) {
+      if (!default_value) {
+        default_value = "";
+      }
+      let value = this.getAttribute(name);
+      if (!value || value == "None" || value == "null") {
+        return default_value;
+      } else {
+        return value;
+      }
+    }
+  });
+</script>

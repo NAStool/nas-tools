@@ -1,0 +1,238 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          媒体库
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>电影</strong></h3>
+            <a href="javascript:show_directory_modal('movie')" class="btn btn-primary btn-icon ms-auto">
+              {{ SVG.plus() }}
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable table-hover table-striped">
+              <thead>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Config.media.movie_path %}
+                {% for path in Config.media.movie_path %}
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('movie', '{{ path }}')" title="删除目录">
+                        {{ SVG.x() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" align="center">未配置</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>电视剧</strong></h3>
+            <a href="javascript:show_directory_modal('tv')" class="btn btn-primary btn-icon ms-auto">
+              {{ SVG.plus() }}
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable table-hover table-striped">
+              <thead>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Config.media.tv_path %}
+                {% for path in Config.media.tv_path %}
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('tv', '{{ path }}')" title="删除目录">
+                        {{ SVG.x() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" align="center">未配置</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>动漫</strong></h3>
+            <a href="javascript:show_directory_modal('anime')" class="btn btn-primary btn-icon ms-auto">
+              {{ SVG.plus() }}
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable table-hover table-striped">
+              <thead>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Config.media.anime_path %}
+                {% for path in Config.media.anime_path %}
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('anime', '{{ path }}')" title="删除目录">
+                        {{ SVG.x() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" align="center">未配置</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>未识别</strong></h3>
+            <a href="javascript:show_directory_modal('unknown')" class="btn btn-primary btn-icon ms-auto">
+              {{ SVG.plus() }}
+            </a>
+          </div>
+          <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap datatable table-hover table-striped">
+              <thead>
+              <tr>
+                <th>目录</th>
+                <th class="w-3"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if Config.media.unknown_path %}
+                {% for path in Config.media.unknown_path %}
+                  <tr>
+                    <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
+                    </td>
+                    <td>
+                      <a href="javascript:sub_directory_config('unknown', '{{ path }}')" title="删除目录">
+                        {{ SVG.x() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="2" align="center">未配置</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-dirctory" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新增目录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">路径 <span class="form-help"
+                                                   title="Emby/Jellyfin/Plex媒体库对应文件的路径，下载文件转移、目录同步未配置目的目录时，媒体文件将重命名转移到该目录"
+                                                   data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="path_str" class="form-control filetree-folders-only" autocomplete="off">
+              <input type="hidden" value="" id="path_type" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_directory_config()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 打开新增窗口
+  function show_directory_modal(type) {
+    $("#path_type").val(type);
+    $("#modal-dirctory").modal('show');
+  }
+
+  // 新增目录
+  function add_directory_config() {
+    const type = $("#path_type").val();
+    const value = $("#path_str").val();
+    const params = {"oper": "add", "key": "media." + type + "_path", "value": value};
+    $("#modal-dirctory").modal('hide');
+    ajax_post("update_directory", params, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  // 删除目录
+  function sub_directory_config(type, value) {
+    const params = {"oper": "sub", "key": "media." + type + "_path", "value": value};
+    ajax_post("update_directory", params, function (ret) {
+      window_history_refresh();
+    });
+  }
+</script>

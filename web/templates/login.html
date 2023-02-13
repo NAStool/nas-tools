@@ -1,0 +1,58 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/head.html' as HEAD %}
+<!doctype html>
+<html lang="en">
+<head>
+  {{ HEAD.meta_link() }}
+  <title>登录 - NAStool</title>
+  <!-- CSS files -->
+  <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+  <link href="../static/css/style.css" rel="stylesheet"/>
+</head>
+<body class="d-flex flex-column"
+      style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
+<div class="page page-center">
+  <div class="container-tight py-4">
+    <form class="card card-md" action="/" method="post" autocomplete="off"
+          style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
+      <input type="hidden" name="next" value="{{ GoPage }}"/>
+      <div class="card-body">
+        <div class="text-center mb-4">
+          <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo-blue.png" height="48"
+                                                                      alt=""></a>
+        </div>
+        <label class="form-label">用户名</label>
+        <div class="input-icon mb-3">
+            <span class="input-icon-addon">
+              {{ SVG.user() }}
+            </span>
+          <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
+                 placeholder="用户名" value="" autocomplete="off">
+        </div>
+        <label class="form-label">密码</label>
+        <div class="input-icon">
+            <span class="input-icon-addon">
+              {{ SVG.keyboard() }}
+            </span>
+          <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
+                 placeholder="密码" autocomplete="off">
+        </div>
+        <div class="invalid-feedback mb-3" id="login_retmsg" style="display:block">{{ err_msg }}</div>
+        <div class="mb-3">
+          <label class="form-check">
+            <input type="checkbox" name="remember" class="form-check-input" checked/>
+            <span class="form-check-label">保持登录</span>
+          </label>
+        </div>
+        <div class="form-footer">
+          <button type="submit" class="btn btn-primary w-100">登录</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="../static/js/tabler.min.js"></script>
+<script src="../static/js/demo.min.js"></script>
+</body>
+
+</html>

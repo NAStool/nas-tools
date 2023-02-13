@@ -1,0 +1,218 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          豆瓣
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-md-12">
+        <div class="card" id="config_douban">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-label required">豆瓣用户ID <span class="form-help"
+                                                                      title="如有多个豆瓣用户ID，使用英文逗号,分隔"
+                                                                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.douban.users %}{{ Config.douban.users|join(',') }}{% endif %}"
+                         class="form-control" id="douban.users" placeholder="用户1,用户2,用户3" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-label required">同步周期(天) <span class="form-help"
+                                                                        title="同步多少天内标记的豆瓣数据"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.days or '' }}" class="form-control" id="douban.days"
+                         placeholder="30" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-label required">同步间隔(小时) <span class="form-help"
+                                                                          title="每隔多长时间同步一次豆瓣标记数据"
+                                                                          data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.interval or '' }}" class="form-control"
+                         id="douban.interval" placeholder="留空关闭豆瓣同步" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-label required">同步数据类型 <span class="form-help"
+                                                                        title="同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用英文逗号,分隔配置"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.types or '' }}" class="form-control" id="douban.types"
+                         placeholder="do,wish,collect">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label required">豆瓣Cookie <span class="form-help"
+                                                                      title="部分电影需要配置Cookie才能同步到数据"
+                                                                      data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.cookie or '' }}" class="form-control" id="douban.cookie"
+                         placeholder="" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="douban.auto_search" {% if
+                      Config.douban.auto_search %}checked{% endif %}>
+                    <span class="form-check-label">自动搜索下载 <span class="form-help"
+                                                                      title="开启后豆瓣同步的数据会自动进行站点聚合检索下载"
+                                                                      data-bs-toggle="tooltip">?</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="douban.auto_rss"
+                           {% if Config.douban.auto_rss %}checked{% endif %}>
+                    <span class="form-check-label">自动添加订阅 <span class="form-help"
+                                                                      title="开启后未进行搜索下载的或搜索下载不完整的将加入RSS订阅"
+                                                                      data-bs-toggle="tooltip">?</span></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <a href="javascript:void(0)" class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-douban-history">
+                  历史记录
+                </a>
+                <a href="javascript:void(0)" class="btn d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-douban-history" title="同步历史">
+                  {{ SVG.history() }}
+                </a>
+              </div>
+              <div class="col"></div>
+              <div class="col-auto">
+                <a id="douban_save_btn" href="javascript:save_douban_config()" class="btn btn-primary">
+                  保存
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-douban-history" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">豆瓣历史记录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive" style="min-height: 300px">
+        <table class="table table-vcenter card-table table-hover table-striped">
+          <thead>
+          <tr>
+            <th></th>
+            <th>标题</th>
+            <th>类型</th>
+            <th>状态</th>
+            <th>添加时间</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          {% if HistoryCount > 0 %}
+            {% for Item in DoubanHistory %}
+              <tr id="douban_history_{{ Item.ID }}">
+                <td class="w-5">
+                  <img class="rounded w-5" src="{{ Item.IMAGE }}"
+                       onerror="this.src='../static/img/no-image.png'" alt=""
+                       style="min-width: 50px"/>
+                </td>
+                <td>
+                  <div>{{ Item.NAME }} ({{ Item.YEAR }})</div>
+                  {% if Item.RATING %}
+                    <div class="text-muted text-nowrap">
+                    评份：{{ Item.RATING }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {{ Item.TYPE }}
+                </td>
+                <td>
+                  {% if Item.STATE == 'DOWNLOADED' %}
+                    <span class="badge bg-green">已下载</span>
+                  {% elif Item.STATE == 'RSS' %}
+                    <span class="badge bg-blue">已订阅</span>
+                  {% elif Item.STATE == 'NEW' %}
+                    <span class="badge bg-blue">新增</span>
+                  {% else %}
+                    <span class="badge bg-orange">处理中</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <small>{{ Item.ADD_TIME or '' }}</small>
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                      {{ SVG.dots_vertical() }}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                      <a class="dropdown-item text-danger"
+                         href='javascript:delete_douban_history("{{ Item.ID }}")'>
+                        删除
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" align="center">没有数据</td>
+            </tr>
+          {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 保存设置
+  function save_douban_config() {
+    const params = input_select_GetVal("config_douban");
+    $("#douban_save_btn").attr("disabled", true).text("保存中...");
+    ajax_post("update_config", params, function (ret) {
+      $("#douban_save_btn").attr("disabled", false).text("保存");
+    });
+  }
+
+  // 删除豆瓣历史记录
+  function delete_douban_history(id){
+    ajax_post("delete_douban_history", {"id": id}, function (ret) {
+      $("#douban_history_" + id).remove();
+    });
+
+  }
+</script>

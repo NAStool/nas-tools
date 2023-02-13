@@ -1,0 +1,100 @@
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          媒体服务器
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+    {% for Type, MediaServer in MediaServerConf.items() %}
+      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+        <div class="card-cover card-cover-blurred text-center {{ MediaServer.background }}">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url({{ MediaServer.img_url }})">
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{{ MediaServer.name }}</div>
+          <div class="text-muted">{% if Config.media.media_server == Type %}<span class="badge bg-green"
+                                                                                    title="已开启"></span>
+            正在使用{% endif %}</div>
+        </div>
+      </a>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% for Type, MediaServer in MediaServerConf.items() %}
+<div class="modal modal-blur fade" id="modal-{{ Type }}" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ MediaServer.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      {{ FORM.gen_form_config_elements(Type, Config, MediaServer.config) }}
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:test_mediaserver_config('{{ Type }}')" id="{{ Type }}_test_btn" class="btn me-auto">
+          测试
+        </a>
+        <a href="javascript:save_mediaserver_config('{{ Type }}')" id="{{ Type }}_save_btn" class="btn btn-primary">
+          确定
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+<script type="text/javascript">
+  // 当前处理的类型
+  var currType = "";
+
+  // 保存配置
+  function save_config(type, func, test) {
+    currType = type;
+    const params = input_select_GetVal(`modal-${type}`);
+    params['test'] = test || false;
+    params['media.media_server'] = type;
+    ajax_post("update_config", params, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_mediaserver_config(type) {
+    $("#modal-" + type).modal('hide');
+    save_config(type, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  //保存配置和测试配置
+  function test_mediaserver_config(type) {
+    $("#" + type + "_test_btn").text("测试中...").attr("disabled", true);
+    save_config(type, function (ret) {
+      let command;
+      {% for Type, MediaServer in MediaServerConf.items() %}
+      if (currType === "{{ Type }}") {
+        command = "{{ MediaServer.test_command }}";
+      }
+      {% endfor %}
+      ajax_post("test_connection", {"command": command}, function (ret) {
+        if (ret.code === 0) {
+          $("#" + currType + "_test_btn").text("测试成功").attr("disabled", false);
+        } else {
+          $("#" + currType + "_test_btn").text("测试失败！").attr("disabled", false);
+        }
+      });
+    }, true);
+  }
+</script>
