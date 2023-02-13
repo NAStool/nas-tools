@@ -179,7 +179,7 @@ sync:
 
 # 【配置站点检索信息】
 pt:
-  # 【下载使用的客户端软件】：qbittorrent、transmission、client115等
+  # 【下载使用的客户端软件】：qbittorrent、transmission
   pt_client: qbittorrent
   # 【下载软件监控开关】：是否监控下载软件：true、false，如为true则下载完成会自动转移和重命名，如为false则不会处理
   # 下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
@@ -231,20 +231,6 @@ transmission:
   # transmission 登录用户名和密码
   trusername:
   trpassword:
-
-# 配置 115 网盘下载器
-client115:
-  # 115 Cookie 抓包获取
-  cookie:
-
-# 配置 pikpak 网盘下载器
-pikpak:
-  # 用户名
-  username:
-  # 密码
-  password:
-  # 代理
-  proxy:
 
 # 【下载目录】：配置下载目录，自按分类下载到指定目录
 downloaddir:

@@ -624,25 +624,7 @@ class WebAction:
                 progress = round(torrent.get('progress') * 100)
                 # 主键
                 key = torrent.get('hash')
-            elif Client == DownloaderType.Client115:
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
-                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595),
-                                             dlspeed, chr(8593), upspeed)
-                # 进度
-                progress = round(torrent.get('percentDone'), 1)
-                # 主键
-                key = torrent.get('info_hash')
-            elif Client == DownloaderType.PikPak:
-                key = torrent.get('id')
-                if torrent.get('finish'):
-                    speed = "PikPak: 下载完成"
-                else:
-                    speed = "PikPak: 下载中"
-                state = ""
-                progress = ""
-            else:
+            elif Client == DownloaderType.TR:
                 if torrent.status in ['stopped']:
                     state = "Stoped"
                     speed = "已暂停"
@@ -656,9 +638,14 @@ class WebAction:
                 progress = round(torrent.progress, 1)
                 # 主键
                 key = torrent.id
-
-            torrent_info = {'id': key, 'speed': speed,
-                            'state': state, 'progress': progress}
+            else:
+                continue
+            torrent_info = {
+                'id': key,
+                'speed': speed,
+                'state': state,
+                'progress': progress
+            }
             if torrent_info not in DispTorrents:
                 DispTorrents.append(torrent_info)
         return {"retcode": 0, "torrents": DispTorrents}

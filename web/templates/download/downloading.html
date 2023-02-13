@@ -80,14 +80,12 @@
                         {{ SVG.dots_vertical() }}
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        {% if Client != 'client115' %}
-                          <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
-                            class="dropdown-item"
-                            style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
-                          <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
-                            class="dropdown-item"
-                            style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
-                        {% endif %}
+                        <a href="javascript:start_pt_download('{{ Torrent.id }}')" id="start_btn_{{ Torrent.id }}"
+                          class="dropdown-item"
+                          style="{% if Torrent.state == 'Downloading' %}display:none{% endif %}">开始</a>
+                        <a href="javascript:stop_pt_download('{{ Torrent.id }}')" id="stop_btn_{{ Torrent.id }}"
+                          class="dropdown-item"
+                          style="{% if Torrent.state == 'Stoped' %}display:none{% endif %}">暂停</a>
                         <a href="javascript:remove_pt_download('{{ Torrent.id }}')"
                           class="dropdown-item text-danger">删除</a>
                       </div>

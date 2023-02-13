@@ -11,8 +11,6 @@ class MediaType(Enum):
 class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
-    Client115 = '115网盘'
-    PikPak = 'PikPak'
 
 
 class SyncType(Enum):
