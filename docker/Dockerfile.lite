@@ -16,7 +16,7 @@ RUN apk add --no-cache libffi-dev  \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/master/requirements.txt \
     && npm install pm2 -g \
     && apk del --purge libffi-dev gcc musl-dev libxml2-dev libxslt-dev \
     && pip uninstall -y cython \
@@ -28,7 +28,7 @@ ENV LANG="C.UTF-8" \
     NASTOOL_CN_UPDATE=true \
     NASTOOL_VERSION=lite \
     PS1="\u@\h:\w \$ " \
-    REPO_URL="https://github.com/jxxghp/nas-tools.git" \
+    REPO_URL="https://github.com/NAStool/nas-tools.git" \
     PYPI_MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple" \
     ALPINE_MIRROR="mirrors.ustc.edu.cn" \
     PUID=0 \
