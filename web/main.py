@@ -974,8 +974,8 @@ def unidentification():
     PageRange = range(StartPage, EndPage + 1)
     return render_template("rename/unidentification.html",
                            TotalCount=Result.get("total"),
-                           Count=len(Result.get("iteams")),
-                           Items=Result.get("iteams"),
+                           Count=len(Result.get("items")),
+                           Items=Result.get("items"),
                            CurrentPage=Result.get("currentPage"),
                            TotalPage=Result.get("totalPage"),
                            PageRange=PageRange,
