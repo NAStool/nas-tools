@@ -41,7 +41,7 @@ class MainDb:
         """
         config = Config().get_config()
         init_files = Config().get_config("app").get("init_files") or []
-        config_dir = os.path.join(Config().get_root_path(), "config")
+        config_dir = Config().get_script_path()
         sql_files = PathUtils.get_dir_level1_files(in_path=config_dir, exts=".sql")
         config_flag = False
         for sql_file in sql_files:

@@ -325,11 +325,6 @@ class WebAction:
             vals = cfg_value.split(",")
             cfg['douban']['users'] = vals
             return cfg
-        # 索引器
-        if cfg_key == "jackett.indexers":
-            vals = cfg_value.split("\n")
-            cfg['jackett']['indexers'] = vals
-            return cfg
         # 最大支持三层赋值
         keys = cfg_key.split(".")
         if keys:
@@ -639,23 +634,6 @@ class WebAction:
                 progress = round(torrent.get('percentDone'), 1)
                 # 主键
                 key = torrent.get('info_hash')
-            elif Client == DownloaderType.Aria2:
-                if torrent.get('status') != 'active':
-                    state = "Stoped"
-                    speed = "已暂停"
-                else:
-                    state = "Downloading"
-                    dlspeed = StringUtils.str_filesize(
-                        torrent.get('downloadSpeed'))
-                    upspeed = StringUtils.str_filesize(
-                        torrent.get('uploadSpeed'))
-                    speed = "%s%sB/s %s%sB/s" % (chr(8595),
-                                                 dlspeed, chr(8593), upspeed)
-                # 进度
-                progress = round(int(torrent.get('completedLength')) /
-                                 int(torrent.get("totalLength")), 1) * 100
-                # 主键
-                key = torrent.get('gid')
             elif Client == DownloaderType.PikPak:
                 key = torrent.get('id')
                 if torrent.get('finish'):
@@ -3887,8 +3865,7 @@ class WebAction:
         查询所有过滤规则
         """
         RuleGroups = Filter().get_rule_infos()
-        sql_file = os.path.join(Config().get_root_path(),
-                                "config", "init_filter.sql")
+        sql_file = os.path.join(Config().get_script_path(), "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_list = f.read().split(';\n')
             Init_RuleGroups = []

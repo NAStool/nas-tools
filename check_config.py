@@ -321,10 +321,6 @@ def update_config():
             _config['client115'].pop('save_path')
         if _config.get('client115', {}).get('save_containerpath'):
             _config['client115'].pop('save_containerpath')
-        if _config.get('aria2', {}).get('save_path'):
-            _config['aria2'].pop('save_path')
-        if _config.get('aria2', {}).get('save_containerpath'):
-            _config['aria2'].pop('save_containerpath')
         if _config.get('pikpak', {}).get('save_path'):
             _config['pikpak'].pop('save_path')
         if _config.get('pikpak', {}).get('save_containerpath'):

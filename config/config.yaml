@@ -179,7 +179,7 @@ sync:
 
 # 【配置站点检索信息】
 pt:
-  # 【下载使用的客户端软件】：qbittorrent、transmission、client115、aria2
+  # 【下载使用的客户端软件】：qbittorrent、transmission、client115等
   pt_client: qbittorrent
   # 【下载软件监控开关】：是否监控下载软件：true、false，如为true则下载完成会自动转移和重命名，如为false则不会处理
   # 下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
@@ -188,9 +188,7 @@ pt:
   pt_monitor_only: true
   # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy、minio、miniocopy，详情参考顶部说明
   rmt_mode: link
-  #【聚合检索使用的检索器】：jackett、prowlarr、builtin，需要配置jackett或prowlarr对应的配置区域，builtin为内置索引器需要在配置文件目录/sites目录下存入对应的站点配置文件
-  # 1、通过微信发送关键字，实时检索下载，发送格式示例：电视剧 西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载，使用说明参考：https://github.com/jxxghp/nas-tools/wiki/
-  # 2、使用WEB UI中的搜索界面搜索资源，会识别显示真实名称，并显示媒体图片和评分等信息，会同时匹配种子名称跟真实名称
+  #【聚合检索使用的检索器】：builtin
   search_indexer: builtin
   # 【内建索引器使用的站点】：只有在该站点列表中内建索引器搜索时才会使用
   indexer_sites:
@@ -211,22 +209,6 @@ pt:
   download_order: site
   # 【搜索结果数量限制】：每个站点返回搜索结果的最大数量
   site_search_result_num: 100
-
-# 【配置Jackett检索器】
-jackett:
-  # 【Jackett地址】：Jackett地址和端口，格式：http(s)://IP:PORT
-  host:
-  # 【Jackett ApiKey】：Jackett配置页面右上角复制API Key
-  api_key:
-  # 【Jackett管理密码】：如未设置可为空
-  password:
-
-# 【配置prowlarr检索器】
-prowlarr:
-  # 【Prowlarr地址】
-  host:
-  # 【Prowlarr ApiKey】：Prowlarr设置页面获取API Key
-  api_key:
 
 # 【配置qBittorrent下载软件】：pt区的pt_client如配置为qbittorrent则需要同步配置该项
 qbittorrent:
@@ -255,15 +237,6 @@ client115:
   # 115 Cookie 抓包获取
   cookie:
 
-# 配置Aria2下载器
-aria2:
-  # Aria2地址
-  host:
-  # Aria2 RPC端口
-  port:
-  # 密码令牌
-  secret:
-
 # 配置 pikpak 网盘下载器
 pikpak:
   # 用户名
@@ -290,7 +263,7 @@ douban:
   interval:
   # 【同步数据类型】：同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用逗号分隔配置
   types: "wish"
-  # 【自动开载开关】：同步到豆瓣的数据后是否自动检索站点并下载（需要配置Jackett）
+  # 【自动开载开关】：同步到豆瓣的数据后是否自动检索站点并下载
   auto_search: true
   # 【自动添加RSS开关】：站点检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
   auto_rss: true
