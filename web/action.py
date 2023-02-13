@@ -164,6 +164,7 @@ class WebAction:
             "get_rss_history": self.get_rss_history,
             "get_transfer_history": self.get_transfer_history,
             "get_unknown_list": self.get_unknown_list,
+            "get_unknown_list_by_page": self.get_unknown_list_by_page,
             "get_customwords": self.get_customwords,
             "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
@@ -3756,6 +3757,49 @@ class WebAction:
             })
 
         return {"code": 0, "items": Items}
+    
+    def get_unknown_list_by_page(self, data):
+        """
+        查询所有未识别记录
+        """
+        PageNum = data.get("pagenum")
+        if not PageNum:
+            PageNum = 30
+        SearchStr = data.get("keyword")
+        CurrentPage = data.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = int(CurrentPage)
+        totalCount, Records = self.dbhelper.get_transfer_unknown_paths_by_page(
+            CurrentPage, PageNum)  
+        Items = []
+        for rec in Records:
+            if not rec.PATH:
+                continue
+            path = rec.PATH.replace("\\", "/") if rec.PATH else ""
+            path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
+            sync_mode = rec.MODE or ""
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES,
+                                                   sync_mode) if sync_mode else ""
+            Items.append({
+                "id": rec.ID,
+                "path": path,
+                "to": path_to,
+                "name": path,
+                "sync_mode": sync_mode,
+                "rmt_mode": rmt_mode,
+            })
+        TotalPage = floor(totalCount / PageNum) + 1
+
+        return {
+            "code": 0, 
+            "total": totalCount,
+            "items": Items,
+            "totalPage": TotalPage,
+            "pageNum": PageNum,
+            "currentPage": CurrentPage
+        }
 
     def unidentification(self):
         """

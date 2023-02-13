@@ -106,12 +106,46 @@
               </tbody>
             </table>
           </div>
+          {% if TotalCount > 0 %}
+            <div class="card-footer d-flex align-items-center">
+              <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+              <ul class="pagination m-0 ms-auto">
+                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                  <a class="page-link" href="javascript:go_pre_page({{ CurrentPage }})" tabindex="-1"
+                     aria-disabled="true">
+                    {{ SVG.chevron_left() }}
+                  </a>
+                </li>
+                {% for page in PageRange %}
+                  <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                    <a class="page-link"
+                       href="javascript:navmenu('unidentification?page={{ page }}')">{{ page }}</a>
+                  </li>
+                {% endfor %}
+                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                  <a class="page-link"
+                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                    {{ SVG.chevron_right() }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
+  // 上一页
+  function go_pre_page(page) {
+    navmenu("history?page=" + (page - 1))
+  }
+
+  // 下一页
+  function go_next_page(page) {
+    navmenu("history?page=" + (page + 1))
+  }
 
   //显示弹出窗口
   function show_rename_modal(id, path, rmt_mode) {

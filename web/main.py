@@ -952,10 +952,34 @@ def tmdbcache():
 @App.route('/unidentification', methods=['POST', 'GET'])
 @login_required
 def unidentification():
-    Items = WebAction().get_unknown_list().get("items")
+    pagenum = request.args.get("pagenum")
+    current_page = request.args.get("page")
+    Result = WebAction().get_unknown_list_by_page({"page": current_page, "pagenum": pagenum})
+    if Result.get("totalPage") <= 5:
+        StartPage = 1
+        EndPage = Result.get("totalPage")
+    else:
+        if Result.get("currentPage") <= 3:
+            StartPage = 1
+            EndPage = 5
+        elif Result.get("currentPage") >= Result.get("totalPage") - 2:
+            StartPage = Result.get("totalPage") - 4
+            EndPage = Result.get("totalPage")
+        else:
+            StartPage = Result.get("currentPage") - 2
+            if Result.get("totalPage") > Result.get("currentPage") + 2:
+                EndPage = Result.get("currentPage") + 2
+            else:
+                EndPage = Result.get("totalPage")
+    PageRange = range(StartPage, EndPage + 1)
     return render_template("rename/unidentification.html",
-                           TotalCount=len(Items),
-                           Items=Items)
+                           TotalCount=Result.get("total"),
+                           Count=len(Result.get("iteams")),
+                           Items=Result.get("iteams"),
+                           CurrentPage=Result.get("currentPage"),
+                           TotalPage=Result.get("totalPage"),
+                           PageRange=PageRange,
+                           PageNum=Result.get("currentPage"))
 
 
 # 文件管理页面
