@@ -180,7 +180,7 @@ class Config(object):
         return os.path.join(self.get_root_path(), "config")
 
     def get_script_path(self):
-        return os.path.join(self.get_config_path(), "scripts")
+        return os.path.join(self.get_inner_config_path(), "scripts")
 
     def get_domain(self):
         domain = (self.get_config('app') or {}).get('domain')
