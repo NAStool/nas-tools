@@ -14,11 +14,15 @@ class User(UserMixin):
 
     def __init__(self, user=None):
         self.dbhelper = DbHelper()
+        pris_check = self.dbhelper.check_pris()
         if user:
             self.id = user.get('id')
             self.username = user.get('name')
             self.password_hash = user.get('password')
-            self.pris = user.get('pris')
+            if self.id:
+                self.pris = user.get('pris') if pris_check else ""
+            else:
+                self.pris = user.get('pris') if pris_check else "站点管理,系统设置"
         self.admin_users = [{
             "id": 0,
             "name": Config().get_config('app').get('login_user'),
