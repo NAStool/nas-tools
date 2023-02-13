@@ -1,0 +1,1067 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          数据统计
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% if SiteNames %}
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-cards mb-3">
+        <div class="col-12 col-md-4 col-xl-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                <span class="bg-blue avatar text-white">
+                  {{ SVG.world_upload() }}
+                </span>
+                </div>
+                <div class="col">
+                  <div class="d-flex align-items-center">
+                    <div class="subheader">总上传量</div>
+                  </div>
+                  <div class="d-flex align-items-baseline">
+                    <div class="h1 mb-0 me-2">{{ TotalUpload | filesizeformat(true) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                <span class="bg-red avatar text-white">
+                  {{ SVG.world_download() }}
+                </span>
+                </div>
+                <div class="col">
+                  <div class="d-flex align-items-center">
+                    <div class="subheader">总下载量</div>
+                  </div>
+                  <div class="d-flex align-items-baseline">
+                    <div class="h1 mb-0 me-2">{{ TotalDownload | filesizeformat(true) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                <span class="bg-green avatar text-white">
+                  {{ SVG.arrow_big_up_lines() }}
+                </span>
+                </div>
+                <div class="col">
+                  <div class="d-flex align-items-center">
+                    <div class="subheader">总做种数</div>
+                  </div>
+                  <div class="d-flex align-items-baseline">
+                    <div class="h1 mb-0 me-2">{{ TotalSeeding }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-xl-3">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                <span class="bg-green avatar text-white">
+                  {{ SVG.cloud_upload() }}
+                </span>
+                </div>
+                <div class="col">
+                  <div class="d-flex align-items-center">
+                    <div class="subheader">总做种体积</div>
+                  </div>
+                  <div class="d-flex align-items-baseline">
+                    <div class="h1 mb-0 me-2">{{ TotalSeedingSize | filesizeformat(true) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row row-cards">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <h3 class="card-title">今日上传量 共{{ CurrentUpload | filesizeformat(true) }}</h3>
+              </div>
+              <div id="chart-recent-upload"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <h3 class="card-title">今日下载量 共{{ CurrentDownload | filesizeformat(true) }}</h3>
+              </div>
+              <div id="chart-recent-download"></div>
+            </div>
+          </div>
+        </div>
+        <div class="d-none d-lg-block col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <h3 class="card-title" id="site-history-title">历史数据</h3>
+              </div>
+              <div class="row align-items-center">
+                <div class="col-auto ms-auto d-print-none">
+                  <div class="btn-list">
+                    <button id="btn-history-one-week" class="btn btn-ghost-info active btn-site-history"
+                            onclick="show_site_history(this, 7)">最近一周
+                    </button>
+                    <button id="btn-history-one-month" class="btn btn-ghost-info btn-site-history"
+                            onclick="show_site_history(this, 30)">最近一月
+                    </button>
+                    <button id="btn-history-one-year" class="btn btn-ghost-info btn-site-history"
+                            onclick="show_site_history(this, 365)">最近一年
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="chart-site-history"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <h3 class="card-title">站点数据</h3>
+                {% if SiteUserStatistics | count > 0 %}
+                <div class="ms-auto">
+                <a href="javascript:show_statistics_pic_setting_moadl()" class="btn-icon">
+                  {{ SVG.share() }}
+                </a>
+                </div>
+                {% endif %}
+                <div class="ms-3 text-muted">
+                  共 {{ SiteUserStatistics | count }} 条记录
+                </div>
+                <a href="javascript:void(0)" class="btn-icon ms-3"
+                {% if SiteUserStatistics | count> 0 %}onclick="navmenu('statistics?refresh_force=1')"{% endif %}>
+                  {{ SVG.refresh() }}
+                </a>
+              </div>
+            </div>
+            <div id="table-site-user-data" class="table-responsive" style="min-height: 300px">
+              <table class="table table-vcenter card-table table-hover table-striped">
+                <thead>
+                <tr>
+                  <th class="flex-fill">
+                    <button class="table-sort" data-sort="sort-name">站点</button>
+                  </th>
+                  <th><span class="d-none d-lg-block">等级</span></th>
+                  <th>
+                    <button class="table-sort" data-sort="sort-data">数据量</button>
+                  </th>
+                  <th>
+                    <button class="table-sort" data-sort="sort-ratio">分享率</button>
+                  </th>
+                  <th>
+                    <button class="table-sort" data-sort="sort-seeding">做种数</button>
+                  </th>
+                  <th>
+                    <button class="table-sort" data-sort="sort-size">做种体积</button>
+                  </th>
+                  <th>
+                    <button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button>
+                  </th>
+                  <th><span class="d-none d-lg-block"><button class="table-sort"
+                                                              data-sort="sort-jtime">加入时间</button></span></th>
+                  <th><span class="d-none d-lg-block"><button class="table-sort"
+                                                              data-sort="sort-rtime">更新时间</button></span></th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody class="table-tbody">
+                {% if SiteUserStatistics | count > 0 %}
+                  {% for item in SiteUserStatistics %}
+                    <tr>
+                      <td class="sort-name">
+                        <div class="d-flex py-1 align-items-center">
+                          {% if SiteErr.get(item.site) %}
+                            <span class="badge bg-warning me-2" title="{{ SiteErr.get(item.site) }}"></span>
+                          {% else %}
+                            <span class="badge bg-success me-2"></span>
+                          {% endif %}
+                          <span onclick="navmenu('statistics?refresh_site={{ item.site }}')" title="点击刷新站点数据"
+                               class="avatar avatar-sm rounded me-2 siteicon-{{ item.site|hash }}" width="24"
+                                height="24" alt="" style="cursor:pointer"></span>
+                          <div class="flex-fill">
+                            <div class="font-weight-medium"><a href="{{ item.url }}" target="_blank">{{ item.site }}</a>
+                              {% if item.msg_unread > 0 %}
+                                {{ SVG.message() }}
+                              {% endif %}
+                            </div>
+                            <div class="text-muted">{{ item.username }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="d-none d-lg-block">{{ item.user_level }}</span>
+                      </td>
+                      <td class="sort-data" data-data="{{ item.upload }}">
+                        <div class="flex-fill">
+                          <span class="text-green">{{ SVG.arrow_narrow_up() }}</span>
+                          <small>{{ item.upload | filesizeformat(true) }}</small>
+                        </div>
+                        <div class="flex-fill">
+                          <span class="text-red">{{ SVG.arrow_narrow_down() }}</span>
+                          <small>{{ item.download | filesizeformat(true) }}</small>
+                        </div>
+                      </td>
+                      <td class="sort-ratio"
+                          data-ratio="{% if item.ratio == 0.0 %}Infinity{% else %}{{ item.ratio }}{% endif %}">
+                        {% if item.ratio == 0.0 or item.ratio > 10000 %}Infinity{% else %}
+                          {{ '%.2f' | format(item.ratio) }}{% endif %}
+                      </td>
+                      <td class="sort-seeding" data-seeding="{{ item.seeding }}"><a
+                              href="javascript:show_site_seeding_info('{{ item.site }}')"
+                              aria-label="seeding_info">{{ item.seeding }}</a></td>
+                      <td class="sort-size" data-size="{{ item.seeding_size }}"><a
+                              href="javascript:show_site_seeding_info('{{ item.site }}')"
+                              aria-label="seeding_info">{{ item.seeding_size | filesizeformat(true) }}</a></td>
+                      <td class="sort-bonus" data-bouns="{{ item.bonus }}">{{ item.bonus }}</td>
+                      <td class="sort-jtime">
+                        <span class="d-none d-lg-block">{{ item.join_at | string | truncate(10, True, '') }}</span>
+                      </td>
+                      <td class="sort-rtime">
+                        <span class="d-none d-lg-block">{{ item.update_at }}</span>
+                      </td>
+                      <td class="activity">
+                        <a href="javascript:show_site_activity('{{ item.site }}')" class="btn-icon"
+                           aria-label="activity">
+                          {{ SVG.activity() }}
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="8" align="center">没有数据</td>
+                  </tr>
+                {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal modal-blur fade" id="site-activity" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="site-activity-title">站点信息</h5>
+          <input type="hidden" id="site-activity-name" name="site-name" value="">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="site-activity-chart"></div>
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal modal-blur fade" id="site-seeding-info" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="site-seeding-info-title">站点信息</h5>
+          <input type="hidden" id="site-seeding-info-name" name="site-name" value="">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="site-seeding-info-chart"></div>
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal modal-blur fade" id="modal-statistics-pic-setting" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">分享设置 </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="mb-3">
+              <div class="btn-list">
+                <label class="form-label">分享站点</label>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'statistic_sites')">全选</a>
+              </div>
+              <div class="form-selectgroup">
+              {% for item in SiteUserStatistics %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="statistic_sites" value="{{ item.site }}" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label">{{ item.site }}</span>
+                </label>
+              {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">排序依据</label>
+                  <select class="form-select" id="statistics_pic_sort_by">
+                    <option value="upload" selected>上传量</option>
+                    <option value="download">下载量</option>
+                    <option value="ratio">分享率</option>
+                    <option value="seeding_size">做种体积</option>
+                    <option value="seeding">做种数量</option>
+                  </select>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">排序方式</label>
+                  <select class="form-select" id="statistics_pic_sort_on">
+                    <option value="desc" selected>降序</option>
+                    <option value="asc">升序</option>
+                  </select>
+              </div>
+            </div>
+            <div class="col-xl-3">
+              <div class="mb-3" style="height: 25%;"></div>
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="statistics_pic_site_blur">
+                  <span class="form-check-label">站点图片模糊 </span>
+                </label>
+              </div>
+            </div>
+            <div class="col-xl-3">
+              <div class="mb-3" style="height: 25%;"></div>
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="statistics_pic_username_blur">
+                  <span class="form-check-label">站点用户名模糊 </span>
+                </label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+          <a id="statistics_photo_generate_btn" href="javascript:gen_and_save_statistics_pic()" class="btn btn-primary">
+            生成图片
+          </a>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $('#site-activity').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+      let site_name = $('#site-activity-name').val();
+
+      // 单站点历史数据图
+      if (typeof (chart_site_activity) != 'undefined') {
+        chart_site_activity.dispose();
+      }
+      chart_site_activity = echarts.init($('#site-activity-chart')[0], null, {
+        height: 350
+      });
+      chart_site_activity.showLoading();
+
+      ajax_post("get_site_activity", {"name": site_name}, function (ret) {
+            chart_site_activity.hideLoading();
+            if (ret.code == 0) {
+              const colors = ['#206bc4', '#d63939', '#2fb344', '#d6b344'];
+              let options_site_activity = {
+                animation: false,
+                color: colors,
+                dataset: {
+                  source: ret.dataset
+                },
+                dataZoom: [
+                  {
+                    type: 'inside'
+                  },
+                  {
+                    type: 'slider'
+                  }
+                ],
+                tooltip: {
+                  trigger: 'axis',
+                  axisPointer: {
+                    type: 'cross'
+                  },
+                  formatter: function (params) {
+                      let html = params[0].axisValueLabel + '<br>';
+                      for (let i = 0; i < params.length; i++) {
+                          let value = params[i].data[params[i].encode.y[0]];
+                          if (params[i].seriesIndex == 3) {
+                              html += params[i].marker + params[i].seriesName + ': ' + value + ' (' + numeral(value).format('0.0 a') + ')' + '<br>';
+                          } else {
+                              html += params[i].marker + params[i].seriesName + ': ' + numeral(value).format('0.0 ib') + '<br>';
+                          }
+                      }
+                      return html;
+                  }
+                },
+                grid: {
+                  right: '30%'
+                },
+                toolbox: {
+                  feature: {
+                    restore: {show: true},
+                  }
+                },
+                legend: {
+                  data: ['总上传量', '总下载量', '做种体积', '积分']
+                },
+                xAxis: [
+                  {
+                    type: 'time',
+                    axisTick: {
+                      alignWithLabel: true
+                    },
+                  }
+                ],
+                yAxis: [
+                  {
+                    type: 'value',
+                    name: '总上传量',
+                    position: 'left',
+                    alignTicks: true,
+                    axisLine: {
+                      show: true,
+                      lineStyle: {
+                        color: colors[0]
+                      }
+                    },
+                    axisLabel: {
+                      formatter: function (value, index) {
+                        return numeral(value).format('0.0 ib');
+                      }
+                    },
+                    axisPointer: {
+                      label: {
+                        formatter: function (params) {
+                          return numeral(params.value).format('0.0 ib');
+                        }
+                      }
+                    }
+                  },
+                  {
+                    type: 'value',
+                    name: '总下载量',
+                    position: 'right',
+                    alignTicks: true,
+                    offset: 70,
+                    axisLine: {
+                      show: true,
+                      lineStyle: {
+                        color: colors[1]
+                      }
+                    },
+                    axisLabel: {
+                      formatter: function (value, index) {
+                        return numeral(value).format('0.0 ib');
+                      }
+                    },
+                    axisPointer: {
+                      label: {
+                        formatter: function (params) {
+                          return numeral(params.value).format('0.0 ib');
+                        }
+                      }
+                    }
+                  },
+                  {
+                    type: 'value',
+                    name: '做种体积',
+                    position: 'right',
+                    alignTicks: true,
+                    axisLine: {
+                      show: true,
+                      lineStyle: {
+                        color: colors[2]
+                      }
+                    },
+                    axisLabel: {
+                      formatter: function (value, index) {
+                        return numeral(value).format('0.0 ib');
+                      }
+                    },
+                    axisPointer: {
+                      label: {
+                        formatter: function (params) {
+                          return numeral(params.value).format('0.0 ib');
+                        }
+                      }
+                    }
+                  },
+                  {
+                    type: 'value',
+                    name: '积分',
+                    position: 'right',
+                    alignTicks: true,
+                    offset: 140,
+                    axisLine: {
+                      show: true,
+                      lineStyle: {
+                        color: colors[3]
+                      }
+                    },
+                    axisLabel: {
+                      formatter: function (value, index) {
+                        return numeral(value).format('0.0 a')
+                      }
+                    },
+                    axisPointer: {
+                      label: {
+                        formatter: function (params) {
+                          return numeral(params.value).format('0.0 a');
+                        }
+                      }
+                    }
+                  },
+                ],
+                series: [
+                  {
+                    name: '总上传量',
+                    type: 'line',
+                    large: true, smooth: true, symbol: 'none',
+                    yAxisIndex: '0',
+                    encode: {
+                      x: "time",
+                      y: "upload"
+                    }
+                  },
+                  {
+                    name: '总下载量',
+                    type: 'line',
+                    large: true, smooth: true, symbol: 'none',
+                    yAxisIndex: '1',
+                    encode: {
+                      x: "time",
+                      y: "download"
+                    }
+                  },
+                  {
+                    name: '做种体积',
+                    type: 'line',
+                    large: true, smooth: true, symbol: 'none',
+                    yAxisIndex: '2',
+                    encode: {
+                      x: "time",
+                      y: "seeding_size"
+                    }
+                  },
+                  {
+                    name: '积分',
+                    type: 'line',
+                    large: true, smooth: true, symbol: 'none',
+                    yAxisIndex: '3',
+                    encode: {
+                      x: "time",
+                      y: "bonus"
+                    }
+                  }
+                ]
+              };
+              chart_site_activity.setOption(options_site_activity);
+            } else {
+              show_fail_modal(`${site_name} 查询失败：${ret.msg}！`);
+            }
+          }
+      );
+    });
+
+    function show_site_activity(site_name) {
+      $('#site-activity-title').text(site_name + " 历史数据");
+      $('#site-activity-name').val(site_name);
+      $('#site-activity').modal("show");
+    }
+
+    function show_site_seeding_info(site_name) {
+      $('#site-seeding-info-name').val(site_name);
+      $('#site-seeding-info-title').text(site_name + " 做种分布");
+      $('#site-seeding-info').modal("show");
+    }
+
+    $('#site-seeding-info').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+      let site_name = $('#site-seeding-info-name').val();
+      // 做种散点图
+      if (typeof (chart_seeding_info) != 'undefined') {
+        chart_seeding_info.dispose();
+      }
+      chart_seeding_info = echarts.init($('#site-seeding-info-chart')[0], null, {
+        height: 350
+      });
+      chart_seeding_info.showLoading();
+
+      ajax_post("get_site_seeding_info", {"name": site_name}, function (ret) {
+            chart_seeding_info.hideLoading();
+            if (ret.code == 0) {
+              let options_seeding_info = {
+                large: true,
+                animation: false,
+                dataset:
+                    {
+                      source: ret.dataset
+                    }
+                ,
+                tooltip: {
+                  position: 'top',
+                  showDelay: 0,
+                  trigger: 'item', formatter: function (params) {
+                    return (
+                        '人数 : ' + params.value[0] +
+                        '<br/>' + '体积 : ' +
+                        numeral(params.value[1]).format('0.0 ib')
+                    );
+                  }
+                },
+                xAxis: {
+                  scale: true,
+                  type: 'value',
+                  name: '做种人数'
+                },
+                yAxis: {
+                  scale: true,
+                  type: 'value',
+                  axisLabel: {
+                    formatter: function (value, index) {
+                      return numeral(value).format('0.0 ib');
+                    }
+                  }
+                },
+                series: {
+                  type: 'scatter',
+                  name: '做种人数',
+                  encode: {tooltip: [1]}
+                }
+              };
+              chart_seeding_info.setOption(options_seeding_info);
+            } else {
+              show_fail_modal(`${site_name} 查询失败：${ret.msg}！`);
+            }
+          }
+      );
+
+    });
+
+    // 今日上传饼图
+    if (typeof (pie_ul) != 'undefined')
+      pie_ul.dispose();
+    pie_ul = echarts.init($('#chart-recent-upload')[0], null, {
+      height: 300
+    });
+    // 今日下载饼图
+    if (typeof (pie_dl) != 'undefined')
+      pie_dl.dispose();
+    pie_dl = echarts.init($('#chart-recent-download')[0], null, {
+      height: 300
+    });
+    // 站点历史柱状图
+    if (typeof (chart_history) != 'undefined')
+      chart_history.dispose();
+    chart_history = echarts.init($('#chart-site-history')[0], null, {
+      height: 350
+    });
+
+    // 响应大小调整
+    window.onresize = function () {
+      pie_ul.resize();
+      pie_dl.resize();
+      chart_history.resize();
+    };
+
+    function show_site_history(obj, days) {
+      $('.btn-site-history').removeClass('active');
+      $(obj).addClass('active');
+      chart_history.showLoading();
+
+      ajax_post("get_site_history", {"days": days}, function (ret) {
+            chart_history.hideLoading();
+            if (ret.code == 0) {
+              let rotate = ret.dataset.length > 15 ? 40 : 0;
+              let option_history = {
+                animation: false,
+                grid: {
+                    left: 0,
+                    top: 50,
+                    right: 20,
+                    bottom: "0%",
+                    containLabel: true
+                },
+                color: ['#206bc4', '#d63939'],
+                tooltip: {
+                  trigger: 'axis',
+                  axisPointer: {
+                    type: 'shadow'
+                  }, valueFormatter: value => numeral(value).format('0.0 ib')
+                },
+                dataset: {
+                  source: ret.dataset
+                },
+                toolbox: {
+                  show: true,
+                  orient: 'vertical',
+                  left: 'right',
+                  top: 'center'
+                },
+                xAxis: [
+                  {
+                    type: 'category',
+                    axisTick: {show: false},
+                    axisLabel: {
+                      rotate: rotate,
+                    },
+                  }
+                ],
+                yAxis: [
+                  {
+                    type: 'value',
+                    axisLabel: {
+                      formatter: function (value, index) {
+                        return numeral(value).format('0.0 ib');
+                      }
+                    }
+                  }
+                ],
+                series: [
+                  {name: "上传量", type: 'bar'}, {name: "下载量", type: 'bar'}
+                ]
+              };
+              chart_history.setOption(option_history);
+              let up_all = 0;
+              let dl_all = 0;
+              let len = ret.dataset.length;
+              for (let i = 1; i < len; i++) {
+                up_all += ret.dataset[i][1];
+              }
+              for (let i = 1; i < len; i++) {
+                dl_all += ret.dataset[i][2];
+              }
+              up_all = numeral(up_all).format('0.0 ib')
+              dl_all = numeral(dl_all).format('0.0 ib')
+              $('#site-history-title').text("历史数据 (上传量 " + up_all + " / 下载量 " + dl_all + ")")
+            } else {
+              show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
+            }
+          }
+      );
+    }
+
+    // 当前一周数据
+    $('#btn-history-one-week').trigger('click');
+
+    pie_dl.showLoading();
+    pie_ul.showLoading();
+    ajax_post("get_site_history", {"days": 1}, function (ret) {
+          pie_dl.hideLoading();
+          pie_ul.hideLoading();
+          if (ret.code == 0) {
+            let option_ul = {
+              tooltip: {
+                trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+              },
+              dataset: {
+                source: ret.dataset.filter(item => {
+                  return (item[1] > 0 || item[1] === 'upload')
+                })
+              },
+              series: [
+                {
+                  type: 'pie',
+                  encode: {
+                    itemName: 'site',
+                    value: 'upload'
+                  },
+                  label: {
+                    formatter: function (params) {
+                      value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                      return params.name + ': ' + value;
+                    }
+                  },
+                  emptyCircleStyle: {
+                    color: 'transparent',
+                    borderColor: '#ddd',
+                    borderWidth: 1
+                  }
+                },
+              ]
+            };
+            pie_ul.setOption(option_ul)
+            let option_dl = {
+              tooltip: {
+                trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+              },
+              dataset: {
+                source: ret.dataset.filter(item => {
+                  return (item[2] > 0 || item[2] === 'download')
+                })
+              },
+              series: [
+                {
+                  type: 'pie',
+                  encode: {
+                    itemName: 'site',
+                    value: 'download'
+                  },
+                  label: {
+                    formatter: function (params) {
+                      value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                      return params.name + ': ' + value;
+                    }
+                  }, emptyCircleStyle: {
+                    color: 'transparent',
+                    borderColor: '#ddd',
+                    borderWidth: 1
+                  }
+                }
+              ]
+            };
+            pie_dl.setOption(option_dl)
+          } else {
+            show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
+          }
+        }
+    );
+
+    tableDataList = new List('table-site-user-data', {
+      sortClass: 'table-sort',
+      listClass: 'table-tbody',
+      valueNames: ['sort-name', 'sort-bonus', 'sort-jtime', 'sort-rtime',
+        {attr: 'data-size', name: 'sort-size'},
+        {attr: 'data-seeding', name: 'sort-seeding'},
+        {attr: 'data-data', name: 'sort-data'},
+        {attr: 'data-ratio', name: 'sort-ratio'}
+      ]
+    });
+
+    // 显示统计数据图片生成设置
+    function show_statistics_pic_setting_moadl() {
+      let statistics_pic_setting = localStorage.getItem("StatisticsPicSetting");
+      if (statistics_pic_setting) {
+        statistics_pic_setting = JSON.parse(statistics_pic_setting);
+        $('#statistics_pic_sort_by').val(statistics_pic_setting["sort_by"]);
+        $('#statistics_pic_sort_on').val(statistics_pic_setting["sort_on"]);
+        $('#statistics_pic_site_blur').prop("checked", statistics_pic_setting["site_blur"]);
+        $('#statistics_pic_username_blur').prop("checked", statistics_pic_setting["username_blur"]);
+        select_SelectPart(statistics_pic_setting["sites"], "statistic_sites")
+      } else {
+        $('#statistics_pic_sort_by').val("upload");
+        $('#statistics_pic_sort_on').val("desc");
+        $('#statistics_pic_site_blur').prop("checked", true);
+        $('#statistics_pic_username_blur').prop("checked", true);
+        select_SelectALL(true, "statistic_sites")
+      }
+      $('#modal-statistics-pic-setting').modal("show");
+    }
+
+    // 生成统计数据图片并下载
+    function gen_and_save_statistics_pic() {
+      let sort_by = $('#statistics_pic_sort_by').val();
+      let sort_on = $('#statistics_pic_sort_on').val();
+      let site_blur = $('#statistics_pic_site_blur').prop("checked");
+      let username_blur = $('#statistics_pic_username_blur').prop("checked");
+      // 生成图片（明亮风格使用素色背景，暗黑风格使用深色背景）并下载
+      let theme = localStorage.getItem("tablerTheme");
+      let pic_bgcolor = (!theme || theme === "light") ? '#ffffff' : '#1f273c';
+      let card_bgcolor = (!theme || theme === "light") ? '#f8fafc' : '#1a2234';
+      let sites = select_GetSelectedVAL("statistic_sites")
+      // 储存生成设置
+      let statistics_pic_setting = {
+        "sort_by": sort_by,
+        "sort_on": sort_on,
+        "site_blur": site_blur,
+        "username_blur": username_blur,
+        "sites": sites
+      };
+      localStorage.setItem("StatisticsPicSetting", JSON.stringify(statistics_pic_setting));
+      let params = {
+        "sort_by": sort_by,
+        "sort_on": sort_on,
+        "sites": sites,
+        "encoding": "DICT",
+        "site_hash": "Y"
+      };
+      ajax_post("get_site_user_statistics", params, function(ret){
+        let statistics = ret.data;
+        let table_content = '';
+        let site_blur_text = (site_blur) ? 'filter:blur(3px)' : '';
+        let username_blur_text = (username_blur) ? 'filter:blur(3px)' : '';
+        let total_upload = 0;
+        let total_download = 0;
+        let total_seeding = 0;
+        let total_seeding_size = 0;
+        for (let statistic of statistics) {
+          let ratio = (statistic.ratio === 0 || statistic.ratio > 10000) ? '∞' : statistic.ratio.toFixed(2);
+          let tr = $("#statistics_pic_tr_template").text()
+            .replaceAll('{SITE_HASH}', statistic.site_hash)
+            .replaceAll('{SITE_BLUR}', site_blur_text)
+            .replaceAll('{SITE}', statistic.site)
+            .replaceAll('{USERNAME_BLUR}', username_blur_text)
+            .replaceAll('{USERNAME}', statistic.username)
+            .replaceAll('{UPLOAD}', bytesToSize(statistic.upload))
+            .replaceAll('{DOWNLOAD}', bytesToSize(statistic.download))
+            .replaceAll('{RATIO}', ratio)
+            .replaceAll('{SEEDING}', statistic.seeding)
+            .replaceAll('{SEEDING_SIZE}', bytesToSize(statistic.seeding_size))
+          table_content += tr;
+          total_upload += statistic.upload;
+          total_download += statistic.download;
+          total_seeding += statistic.seeding;
+          total_seeding_size += statistic.seeding_size;
+        }
+        let table_text = $("#statistics_pic_table_template").text()
+          .replaceAll('{TBODY_CONTENT}', table_content)
+          .replaceAll('{TOTALUPLOAD}', bytesToSize(total_upload))
+          .replaceAll('{TOTALDOWNLOAD}', bytesToSize(total_download))
+          .replaceAll('{TOTALSEEDING}', total_seeding)
+          .replaceAll('{TOTALSEEDINGSIZE}', bytesToSize(total_seeding_size))
+          .replaceAll('{BGCOLOR}', card_bgcolor);
+        let pic = document.createElement('div');
+        pic.setAttribute('style', 'max-width: 800px');
+        pic.innerHTML = table_text;
+        $('body').append(pic);
+        domtoimage.toBlob(pic, {bgcolor: pic_bgcolor}).then(function (blob) {
+         saveAs(blob, 'nastool_statistics.png');
+         $('#modal-statistics-pic-setting').modal("hide");
+        });
+      });
+    }
+
+  </script>
+  <script id="statistics_pic_table_template" type="text/html">
+  <div class="container-xl" style="padding: 0.25rem;">
+    <div class="row row-cards mb-3">
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-blue avatar text-white">{{ SVG.world_upload() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总上传量</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALUPLOAD}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-red avatar text-white">{{ SVG.world_download() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总下载量</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALDOWNLOAD}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-green avatar text-white">{{ SVG.arrow_big_up_lines() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总做种数</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALSEEDING}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <div class="col-12 col-md-3">
+        <div class="card card-sm" style="background-color: {BGCOLOR}">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto bg-green avatar text-white">{{ SVG.cloud_upload() }}</div>
+              <div class="col">
+                <div class="d-flex align-items-center subheader">总做种体积</div>
+                <div class="d-flex align-items-baseline h2 mb-0 me-2">{TOTALSEEDINGSIZE}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-vcenter card-table table-hover table-striped">
+      <thead>
+      <tr>
+        <th class="flex-fill">站点</th>
+        <th>上传量</th>
+        <th>下载量</th>
+        <th>分享率</th>
+        <th>做种数</th>
+        <th>做种体积</th>
+      </tr>
+      </thead>
+      <tbody class="table-tbody">
+        {TBODY_CONTENT}
+      </tbody>
+    </table>
+  </div>
+
+
+  </script>
+  <script id="statistics_pic_tr_template" type="text/html">
+  <tr>
+    <td>
+      <div class="d-flex py-1 align-items-center">
+        <span class="avatar avatar-sm rounded me-2 siteicon-{SITE_HASH}" width="24" height="24" style={SITE_BLUR}></span>
+        <div class="flex-fill">
+          <div class="font-weight-medium">{SITE}</div>
+          <div class="text-muted" style={USERNAME_BLUR}>{USERNAME}</div>
+        </div>
+      </div>
+    </td>
+    <td>
+      <div class="flex-fill">
+        <span class="text-green">{{ SVG.arrow_narrow_up() }}</span>
+        <strong>{UPLOAD}</strong>
+      </div>
+    <td>
+      <div class="flex-fill">
+        <span class="text-red">{{ SVG.arrow_narrow_down() }}</span>
+        {DOWNLOAD}
+      </div>
+    </td>
+    <td><strong>{RATIO}</strong></td>
+    <td>{SEEDING}</td>
+    <td><strong>{SEEDING_SIZE}</strong></td>
+  </tr>
+
+  </script>
+{% else %}
+{{ OOPS.nodatafound('没有数据', '没有生成站点统计数据，请确认是否正确配置站点信息。') }}
+{% endif %}

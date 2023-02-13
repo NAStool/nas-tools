@@ -1,0 +1,192 @@
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          索引器
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-builtin">
+        <div class="card-cover card-cover-blurred text-center" style="background-color: #2E72B9">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url(../static/img/indexer.jpg)">
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">内建索引器</div>
+          <div class="text-muted">{% if Config.pt.search_indexer == "builtin" %}<span class="badge bg-green"
+                                                                                      title="已开启"></span>
+            正在使用{% endif %}</div>
+        </div>
+      </a>
+      {% for Type, Indexer in IndexerConf.items() %}
+      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+        <div class="card-cover card-cover-blurred text-center {{ Indexer.background }}">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url('{{ Indexer.img_url }}')">
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{{ Indexer.name }}</div>
+          <div class="text-muted">{% if Config.pt.search_indexer == Type %}<span class="badge bg-green"
+                                                                                      title="已开启"></span>
+            正在使用{% endif %}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% for Type, Indexer in IndexerConf.items() %}
+<div class="modal modal-blur fade" id="modal-{{ Type }}" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ Indexer.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      {{ FORM.gen_form_config_elements(Type, Config, Indexer.config) }}
+      </div>
+      <div class="modal-footer">
+        <button onclick="test_indexer_config('{{ Type }}')" id="{{ Type }}_test_btn" class="btn me-auto">
+          测试
+        </button>
+        <button onclick="save_indexer_config('{{ Type }}')" id="{{ Type }}_save_btn" class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+<div class="modal modal-blur fade" id="modal-builtin" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">内建索引器</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <div class="btn-list">
+                <label class="form-label required">私有站点 <span class="form-help"
+                                                                  title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持"
+                                                                  data-bs-toggle="tooltip">?</span></label>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_private')">全选</a>
+              </div>
+              <div class="form-selectgroup">
+                {% if PrivateCount > 0 %}
+                  {% for Indexer in Indexers %}
+                    {% if not Indexer.public %}
+                      <label class="form-selectgroup-item">
+                        <input type="checkbox" name="indexer_sites_private" value="{{ Indexer.id }}"
+                               class="form-selectgroup-input"
+                               {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                        <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                      </label>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <label class="form-selectgroup-item">
+                    <span class="form-selectgroup-label">无</span>
+                  </label>
+                {% endif %}
+              </div>
+            </div>
+            {% if PublicCount > 0 %}
+            <div class="mb-3">
+              <div class="btn-list">
+                <label class="form-label">公开站点 <span class="form-help"
+                                                         title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示；部分站点需要有浏览器内核环境才能使用；同时大部分公开站点都需要网络代理才能访问"
+                                                         data-bs-toggle="tooltip">?</span></label>
+                <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_public')">全选</a>
+              </div>
+              <div class="form-selectgroup">
+              {% for Indexer in Indexers %}
+                {% if Indexer.public %}
+                <label class="form-selectgroup-item">
+                  <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
+                          class="form-selectgroup-input"
+                          {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                  <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                </label>
+                {% endif %}
+              {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 当前处理的类型
+  var currType = "";
+
+  // 保存配置
+  function save_config(type, func, test) {
+    currType = type;
+    let params = {};
+    if (type !== "builtin") {
+      params = input_select_GetVal(`modal-${type}`);
+      $(`#modal-${type} textarea`).each(function () {
+        const key = $(this).attr("id");
+        params[key] = $(this).val();
+      });
+    } else {
+      let sites = select_GetSelectedVAL("^indexer_sites");
+      params['pt.indexer_sites'] = sites
+    }
+    params['test'] = test || false;
+    params['pt.search_indexer'] = type;
+    ajax_post("update_config", params, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_indexer_config(type) {
+    $(`#modal-${type}`).modal('hide');
+    save_config(type, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  //保存配置和测试配置
+  function test_indexer_config(type) {
+    $(`#${type}_test_btn`).text("测试中...").attr("disabled", true);
+    save_config(type, function (ret) {
+      let command;
+      {% for Type, Indexer in IndexerConf.items() %}
+      if (currType === "{{ Type }}") {
+        command = "{{ Indexer.test_command }}";
+      }
+      {% endfor %}
+      ajax_post("test_connection", {"command": command}, function (ret) {
+        if (ret.code === 0) {
+          $(`#${currType}_test_btn`).text("测试成功").attr("disabled", false);
+        } else {
+          $(`#${currType}_test_btn`).text("测试失败！").attr("disabled", false);
+        }
+      });
+    }, true);
+  }
+
+</script>

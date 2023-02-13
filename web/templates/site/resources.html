@@ -1,0 +1,290 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          站点资源 - {{ Title }}
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:batch_download()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.arrow_big_down() }}
+            一键下载
+          </a>
+          <a href="javascript:batch_download()" class="btn btn-primary d-sm-none btn-icon">
+            {{ SVG.arrow_big_down() }}
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn d-none d-sm-inline-block" title="返回">
+            {{ SVG.arrow_back_up() }}
+            返回
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn d-sm-none btn-icon" title="返回">
+            {{ SVG.arrow_back_up() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+              <div class="ms-auto text-muted">
+                搜索:
+                <div class="ms-2 d-inline-block">
+                  <input id="search_word" value="{{ KeyWord or '' }}" type="text" class="form-control form-control-sm"
+                         aria-label="搜索">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="site-resources-table" class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+              <tr>
+                <th class="w-1">
+                  <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'resources_item')">
+                </th>
+                <th>标题</th>
+                <th>
+                  <button class="table-sort" data-sort="sort-pubdate">发布时间</button>
+                </th>
+                <th>
+                  <button class="table-sort" data-sort="sort-size">大小</button>
+                </th>
+                <th>
+                  <button class="table-sort" data-sort="sort-seeders">种子数</button>
+                </th>
+                <th>
+                  <button class="table-sort" data-sort="sort-peers">下载数</button>
+                </th>
+                <th>
+                  <button class="table-sort" data-sort="sort-grabs">完成数</button>
+                </th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody class="table-tbody">
+              {% if TotalCount > 0 %}
+                {% for Result in Results %}
+                  <tr>
+                    <td>
+                      <input class="form-check-input m-0 align-middle" name="resources_item" value="{{ loop.index0 }}" type="checkbox">
+                      <input type="hidden" id="enclosure_{{ loop.index0 }}" value="{{ Result.enclosure }}">
+                      <input type="hidden" id="title_{{ loop.index0 }}" value="{{ Result.title }}">
+                      <input type="hidden" id="description_{{ loop.index0 }}" value="{{ Result.description }}">
+                      <input type="hidden" id="page_url_{{ loop.index0 }}" value="{{ Result.page_url }}">
+                      <input type="hidden" id="size_{{ loop.index0 }}" value="{{ Result.size }}">
+                      <input type="hidden" id="seeders_{{ loop.index0 }}" value="{{ Result.seeders }}">
+                      <input type="hidden" id="uploadvolumefactor_{{ loop.index0 }}"
+                             value="{{ Result.uploadvolumefactor }}">
+                      <input type="hidden" id="downloadvolumefactor_{{ loop.index0 }}"
+                             value="{{ Result.downloadvolumefactor }}">
+                    </td>
+                    <td>
+                      <div class="font-weight-medium strong text-nowrap">
+                        <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
+                        {% if Result.uploadvolumefactor != 1.0 %}
+                          <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                        {% endif %}
+                        {% if Result.downloadvolumefactor != 1.0 %}
+                          {% if Result.downloadvolumefactor == 0.0 %}
+                            <span class="badge text-white bg-lime">FREE</span>
+                          {% else %}
+                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                          {% endif %}
+                        {% endif %}
+                        <a class="ms-2 mb-1" title="名称测试"
+                           href='javascript:nametest("{{ loop.index0 }}", "{{ Result.title }}")'
+                           data-bs-toggle="tooltip">
+                          {{ SVG.text_recognition() }}
+                        </a>
+                      </div>
+                      <div class="text-muted">
+                        {% if Result.imdbid %}
+                          <a href="https://www.imdb.com/title/{{ Result.imdbid }}/" target="_blank"><img
+                                  src="../static/img/icon-imdb.png"></a>
+                        {% endif %}
+                        {{ Result.description }}
+                      </div>
+                      <custom-chips class="mt-1" id="testresults_{{ loop.index0 }}"></custom-chips>
+                    </td>
+                    <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
+                    <td class="sort-size" data-size="{{ Result.size }}">
+                      <span class="badge badge-outline text-orange">{{ Result.size|str_filesize }}</span>
+                    </td>
+                    <td class="sort-seeders" data-seeders="{{ Result.seeders }}">{{ Result.seeders }}</td>
+                    <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
+                    <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
+                    <td>
+                      <a href='javascript:download_site_resource({{ loop.index0 }}, "{{ Result.title }}")'
+                         title="下载">
+                        {{ SVG.download() }}
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="8" align="center">没有数据</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+          {% if TotalCount > 0 and not KeyWord %}
+            <div class="card-footer d-flex align-items-center">
+              <p class="m-0 text-muted"></p>
+              <ul class="pagination m-0 ms-auto">
+                <li class="page-item {% if CurrentPage == 0 %} disabled {% endif %}">
+                  <a class="page-link" href='javascript:go_pre_page({{ CurrentPage }})' tabindex="-1"
+                     aria-disabled="true">
+                    {{ SVG.chevron_left() }}
+                  </a>
+                </li>
+                {% for page in PageRange %}
+                  <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                    <a class="page-link" href='javascript:go_page({{ page }})'>{{ page + 1 }}</a>
+                  </li>
+                {% endfor %}
+                <li class="page-item {% if CurrentPage + 1 >= TotalPage %} disabled {% endif %}">
+                  <a class="page-link"
+                     href='{% if CurrentPage < TotalPage %}javascript:go_next_page({{ CurrentPage }}){% else %}javascript:void(0){% endif %}'>
+                    {{ SVG.chevron_right() }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //排序表单
+  tableDataList = new List('site-resources-table', {
+    sortClass: 'table-sort',
+    listClass: 'table-tbody',
+    valueNames: ['sort-seeders', 'sort-peers', 'sort-grabs',
+                {attr: 'data-size', name: 'sort-size'},
+                {attr: 'data-pubdate', name: 'sort-pubdate'}]
+  });
+
+  //跳转页
+  function go_page(page) {
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page}&keyword=${$("#search_word").val()}`)
+  }
+
+  // 上一页
+  function go_pre_page(page) {
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page - 1}&keyword=${$("#search_word").val()}`)
+  }
+
+  // 下一页
+  function go_next_page(page) {
+    navmenu(`resources?site={{ SiteId }}&title={{ Title }}&page=${page + 1}&keyword=${$("#search_word").val()}`)
+  }
+
+  //下载按钮
+  function download_site_resource(id, name) {
+    show_download_modal(id, name, "{{ Title }}", function(){
+      $("#modal-search-download").modal('hide');
+      download_resource(id, false);
+    })
+  }
+
+  //下载种子
+  var total_downloads = [];
+  var current_download = 0;
+
+  function download_resource(id, batch) {
+    const site = "{{ Title }}";
+    const enclosure = $(`#enclosure_${id}`).val();
+    const title = $(`#title_${id}`).val();
+    const description = $(`#description_${id}`).val();
+    const page_url = $(`#page_url_${id}`).val();
+    const size = $(`#size_${id}`).val();
+    const seeders = $(`#seeders_${id}`).val();
+    const uploadvolumefactor = $(`#uploadvolumefactor_${id}`).val();
+    const downloadvolumefactor = $(`#downloadvolumefactor_${id}`).val();
+    if (!batch || current_download === 0) {
+    }
+    const params = {
+      site: site,
+      enclosure: enclosure,
+      title: title,
+      dl_dir: $("#search_download_dir").val(),
+      dl_setting: $("#search_download_setting").val(),
+      description: description,
+      page_url: page_url,
+      size: size,
+      seeders: seeders,
+      uploadvolumefactor: uploadvolumefactor,
+      downloadvolumefactor: downloadvolumefactor
+    };
+    ajax_post("download_link", params, function (ret) {
+      if (!batch) {
+        if (ret.code === 0) {
+          show_success_modal(`${title} 添加下载成功！`);
+        } else {
+          show_fail_modal(`${title} 添加下载失败 ${ret.msg}`);
+        }
+      } else {
+        current_download = current_download + 1;
+        if (current_download < total_downloads.length) {
+          if (ret.code !== 0) {
+            show_fail_modal(`${title} 添加下载失败 ${ret.msg}`, function () {
+              download_resource(total_downloads[current_download], true);
+            });
+          } else {
+            download_resource(total_downloads[current_download], true);
+          }
+        } else {
+          show_success_modal("添加下载完成！");
+        }
+      }
+    });
+
+  }
+
+  //批量下载
+  function batch_download() {
+    total_downloads = [];
+    let download_items_id = select_GetSelectedVAL("resources_item");
+    for (let id in download_items_id) {
+      if ($(`#title_${id}`).val()) {
+        total_downloads.push(id);
+      }
+    }
+    if (total_downloads.length === 0) {
+      return;
+    }
+    current_download = 0;
+    download_resource(total_downloads[current_download], true);
+  }
+
+  //名称测试
+  function nametest(id, title) {
+    media_name_test(title, `testresults_${id}`, function () {
+    });
+  }
+
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page={{ CurrentPage }}" + "&keyword=" + $("#search_word").val());
+    }
+  });
+
+</script>

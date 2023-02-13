@@ -1,0 +1,162 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          手动识别
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.transform() }}
+            自定义识别
+          </a>
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-sm-none btn-icon">
+            {{ SVG.transform() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+            </div>
+            <div class="card-actions btn-actions">
+              <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
+                {{ SVG.refresh() }}
+              </a>
+              <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
+                {{ SVG.trash() }}
+              </a>
+            </div>
+          </div>
+          <div class="table-responsive" style="min-height: 300px">
+            <table class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+              <tr>
+                {% if TotalCount > 0 %}
+                  <th class="w-1">
+                    <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'unknow_record')">
+                  </th>
+                {% endif %}
+                <th>文件名</th>
+                <th class="w-5">转移方式</th>
+                <th class="w-5"></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if TotalCount > 0 %}
+                {% for Path in Items %}
+                  <tr>
+                    <td>
+                      <input class="form-check-input m-0 align-middle" name="unknow_record" value="{{ Path.id }}" type="checkbox">
+                    </td>
+                    <td>
+                      <a href='javascript:navmenu("mediafile?dir={{ Path.name.replace("\\", "/") }}")'>{{ Path.name }}</a>
+                      {% if Path.to %}
+                        <div class="text-muted">
+                          => {{ Path.to }}
+                        </div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="text-muted">
+                        {{ Path.sync_mode }}
+                      </div>
+                    <td>
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ SVG.dots_vertical() }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item" href='javascript:re_identification("unidentification", ["{{ Path.id }}"])'>
+                            重新识别
+                          </a>
+                          <a class="dropdown-item"
+                             href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}", "{{ Path.rmt_mode }}")'>
+                            手动识别
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
+                            删除
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="3" align="center">没有数据</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+  //显示弹出窗口
+  function show_rename_modal(id, path, rmt_mode) {
+    show_manual_transfer_modal(1, path, rmt_mode, '', id, '');
+  }
+
+  //显示自定义识别窗口
+  function show_rename_udf_modal() {
+    show_manual_transfer_modal(3, '', '', '', '', '');
+  }
+
+  //删除路径
+  function del_unknown_path(id) {
+    if (id == "") {
+      return;
+    }
+    const cmd = "del_unknown_path";
+    const data = {"id": id};
+    ajax_post(cmd, data, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+
+  //批量删除
+  function delete_checked_unknown() {
+    let logids = select_GetSelectedVAL("unknow_record");
+    if (logids.length === 0) {
+      return;
+    }
+    show_confirm_modal("是否确认删除所有选中的未识别记录？", function () {
+      hide_confirm_modal();
+      ajax_post("del_unknown_path", {"id": logids}, function (ret) {
+        window_history_refresh();
+      });
+    })
+  }
+
+  //批量重新识别
+  function reidentification_all() {
+    let logids = select_GetSelectedVAL("unknow_record");
+    if (logids.length === 0) {
+      return;
+    }
+    re_identification("unidentification", logids);
+  }
+
+</script>

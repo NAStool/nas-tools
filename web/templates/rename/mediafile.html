@@ -1,0 +1,430 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card bg-transparent border-0">
+      <div class="ribbon ribbon-top g-cyan d-md-none">
+        <a class="text-white" href="javascript:js_change_card()">
+          切换
+        </a>
+      </div>
+      <div class="row g-0">
+        <div class="col-md-4 border-end js-change-card-a">
+          <div class="card-body">
+            <h4 class="subheader">目录</h4>
+            <div class="input-icon mb-2">
+              <span class="input-icon-addon">
+                {{ SVG.folders() }}
+              </span>
+              <input type="text" id="mediafile_path" value="{{ Dir }}" class="form-control" placeholder="/"
+                     aria-label="目录路径">
+            </div>
+            <a href="javascript:return_to_parentdir()">
+              {{ SVG.arrow_back_up() }}
+              上级目录
+            </a>
+            <div id="mediafile_tree"></div>
+          </div>
+        </div>
+        <div class="col d-md-block js-change-card-b" style="display: none;">
+          <div class="card-body border-0">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between">
+              <div class="text-muted align-self-center">
+                共 <span id="mediafile_num">0</span> 个文件
+              </div>
+              <div class="align-self-center">
+                <a href="javascript:mediafile_transfer_all()" class="btn" title="转移当前目录">
+                  {{ SVG.transform() }}
+                  转移目录
+                </a>
+                <a href="javascript:mediafile_findlinks_all()" class="btn" title="查询所有文件硬链接">
+                  {{ SVG.link() }}
+                  所有硬链接
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body border-0">
+            <input type="hidden" id="mediafile_current_dir">
+            <input type="hidden" id="mediafile_current_files">
+            <div class="d-grid gap-3" id="mediafile_file_container">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-mediafile-modify" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">文件重命名</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">文件名</label>
+          <div class="row mb-3">
+            <input type="hidden" id="mediafile_modify_path">
+            <input type="text" value="" id="mediafile_modify_name" class="form-control" placeholder="新文件名">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:modify_media_file()" id="mediafile_modify_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-find-links-dir" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">硬链接查询</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">查找目录</label>
+          <div class="row mb-3">
+            <input type="text" value="" id="find_links_dir" class="form-control filetree-folders-only" placeholder="选择路径">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="find_links_dir_btn" class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-hardlinks" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ms-2">
+          <h5 class="modal-title">硬链接文件</h5>
+        </div>
+        <div class="ms-3">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="table-responsive"  style="overflow-y: auto; max-height: 35em;">
+        <table id="table-hardlinks" class="table table-vcenter card-table table-hover table-striped"></table>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:void(0)" class="me-auto ms-3" onclick="select_btn_SelectALL(this, 'hardlink_files')">全选</a>
+        <a href="javascript:mediafile_delete_all()" class="btn btn-danger ms-auto d-none d-sm-inline-block">
+         批量删除
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+  function js_change_card() {
+    const card_a = document.querySelector(".js-change-card-a");
+    const card_b = document.querySelector(".js-change-card-b");
+    if ($(card_a).css("display") === "none") {
+      $(card_a).show();
+      $(card_b).hide();
+    } else {
+      $(card_b).show();
+      $(card_a).hide();
+    }
+  }
+
+  //刷新文件列表
+  function refresh_files(folder) {
+    if (folder) {
+      $("#mediafile_current_dir").val(folder);
+    } else {
+      folder = $("#mediafile_current_dir").val();
+    }
+    ajax_post("get_sub_path", {"dir": folder, "filter": "MEDIAFILE|SUBFILE"}, function (ret) {
+      $("#mediafile_file_container").empty();
+      $("#mediafile_current_files").val('')
+      if (ret.data) {
+        let files = [];
+        $("#mediafile_num").text(ret.count);
+        for (let i = 0; i < ret.data.length; i++) {
+          let filepath = ret.data[i].path;
+          files.push(filepath);
+          let fileext = ret.data[i].ext;
+          let filename = ret.data[i].name;
+          let filesize = ret.data[i].size;
+          let template_html = $("#mediafile_item_template").text();
+          $("#mediafile_file_container").append(
+              template_html.replaceAll("{FILEEXT}", fileext)
+                  .replaceAll("{FILENAME}", filename.replace("'", "&apos;"))
+                  .replaceAll("{FILESIZE}", filesize + "B")
+                  .replaceAll("{FILEPOS}", i)
+                  .replaceAll("{FILEPATH}", filepath.replace("'", "&apos;"))
+          );
+        $("#mediafile_current_files").val(JSON.stringify(files))
+        }
+      }
+    });
+  }
+
+  // 初始化文件树
+  function init_mediafile_tree() {
+    let ft = $('#mediafile_tree');
+    ft.empty();
+    ft.fileTree(
+        {
+          script: 'dirlist',
+          root: encodeURIComponent($("#mediafile_path").val()),
+          filter: 'HIDE_FILES_FILTER',
+          allowBrowsing: true
+        },
+        function (file) {
+        },
+        function (folder) {
+          refresh_files(folder);
+        });
+    refresh_files($("#mediafile_path").val());
+  }
+
+  // 回车响应
+  $('#mediafile_path').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      if (!$(this).val()) {
+        return;
+      }
+      init_mediafile_tree();
+    }
+  });
+
+  // 识别测试
+  function mediafile_name_test(name, result_div) {
+    if (!name) {
+      return;
+    }
+    media_name_test(name, result_div, function () {
+    });
+  }
+
+  // 文件转移
+  function mediafile_transfer(name, id) {
+    let path = $("#mediafilepath_" + id).val();
+    show_manual_transfer_modal(3, path, '', '', '', '');
+  }
+
+  function mediafile_transfer_all() {
+    let path = $("#mediafile_current_dir").val();
+    show_manual_transfer_modal(3, path, '', '', '', '');
+  }
+
+  // 文件重命名
+  function show_mediafile_rename_modal(name, id) {
+    let path = $("#mediafilepath_" + id).val();
+    $("#mediafile_modify_path").val(path);
+    $("#mediafile_modify_name").val(name);
+    $("#modal-mediafile-modify").modal('show');
+  }
+
+  function modify_media_file() {
+    let path = $("#mediafile_modify_path").val();
+    let name = $("#mediafile_modify_name").val();
+    ajax_post("rename_file", {path: path, name: name}, function (ret) {
+      $("#modal-mediafile-modify").modal('hide');
+      refresh_files();
+    });
+  }
+
+  // 文件删除
+  function delete_files(files) {
+    hide_confirm_modal();
+    ajax_post("delete_files", {files: files}, function (ret) {
+      refresh_files();
+    });
+  }
+
+  // 多个文件删除
+  function mediafile_delete_all() {
+    let files = select_GetSelectedVAL("hardlink_files");
+    if (files.length === 0) {
+      show_fail_modal("没有硬链接文件被选中！");
+      return;
+    }
+    show_confirm_modal(`即将删除所有选中的硬链接文件，如文件所在目录已经没有了其它媒体文件则目录也将被删除，是否确认？`, function () {
+      delete_files(files)
+      $("#modal-hardlinks").modal("hide");
+    });
+  }
+
+  // 单个文件删除
+  function mediafile_delete(name, id) {
+    let file = $(`#mediafilepath_${id}`).val();
+    show_confirm_modal(`是否确认删除文件 ${name} ？注意：没有其它媒体文件的目录也被将删除。`, function () {
+      delete_files([file])
+    });
+  }
+
+  // 下载字幕
+  function mediafile_subtitle(name, id) {
+    let path = $(`#mediafilepath_${id}`).val();
+    ajax_post("download_subtitle", {path: path, name: name}, function (ret) {
+      if (ret.code == 0) {
+        show_success_modal(ret.msg, function () {
+          refresh_files();
+        });
+      } else {
+        show_fail_modal(`${ret.msg}！`);
+      }
+    });
+  }
+
+  // 查询硬链接
+  function find_hardlinks(files, dir) {
+    ajax_post("find_hardlinks", {files: files, dir: dir}, function (ret) {
+      if (ret.code === 0) {
+        if (ret.data) {
+          let table_content = '';
+          for (let file in ret.data) {
+            // 查询文件的硬链接文件
+            let hardlinks = ret.data[file];
+            let tbody_content = '';
+            for (let hardlink of hardlinks) {
+              tbody_content += $("#hardlinks_tbody_template").text()
+                .replaceAll("{HARDLINK_FILE}", hardlink.file)
+                .replaceAll("{HARDLINK_FILENAME}", hardlink.filename)
+                .replaceAll("{HARDLINK_FILEPATH}", hardlink.filepath);
+            }
+            // 查询文件
+            table_content += $("#hardlinks_table_content_template").text()
+              .replaceAll("{FILE}", file)
+              .replaceAll("{TBODY_CONTENT}", tbody_content);
+          }
+          $("#table-hardlinks").empty().append(table_content);
+          $("#modal-hardlinks").modal("show");
+        } else {
+          show_success_modal("查询成功，但未找到硬链接文件！");
+        }
+      } else {
+        show_fail_modal("查询硬链接文件失败！");
+      }
+    });
+  }
+
+  // 查询所有硬链接
+  function mediafile_findlinks_all() {
+    let files = $("#mediafile_current_files").val();
+    if (!files) {
+      show_fail_modal("当前目录下没有文件！");
+      return;
+    }
+    files = JSON.parse(files)
+    show_findlinks_modal(files);
+  }
+
+  // 查询硬链接
+  function mediafile_findlinks(name, id) {
+    let file = $(`#mediafilepath_${id}`).val();
+    show_findlinks_modal([file]);
+  }
+
+  // 显示查询目录范围对话框
+  function show_findlinks_modal(files) {
+    $("#find_links_dir_btn").unbind("click").click(function(){
+      let dir = $("#find_links_dir").val();
+      if (!dir) {
+        $("#find_links_dir").addClass("is-invalid");
+        return;
+      }else{
+        $("#find_links_dir").removeClass("is-invalid");
+      }
+      $("#modal-find-links-dir").modal("hide");
+      find_hardlinks(files, dir);
+    });
+    $("#modal-find-links-dir").modal("show");
+  }
+
+  // 返回上级目录
+  function return_to_parentdir() {
+    let dir = $("#mediafile_path").val();
+    let parentdir = dir.substring(0, dir.lastIndexOf("/"));
+    $("#mediafile_path").val(parentdir);
+    init_mediafile_tree();
+  }
+
+  // 初始列表
+  init_mediafile_tree();
+
+</script>
+<script id="mediafile_item_template" type="text/html">
+  <div class="card">
+    <div class="row">
+      <div class="col-auto">
+        <div class="m-1">
+          <div class="avatar avatar-md">{FILEEXT}</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-2 ps-0">
+          <div class="row">
+            <div class="col">
+              <h3 class="mb-0"><a href='javascript:mediafile_transfer("{FILENAME}", "{FILEPOS}")'>{FILENAME}</a></h3>
+              <custom-chips class="mt-1" id="testresults_{FILEPOS}"></custom-chips>
+              <input type="hidden" value="{FILEPATH}" id="mediafilepath_{FILEPOS}">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="mt-1 list-inline list-inline-dots mb-0 text-muted">
+                <div class="list-inline-item">
+                    {{ SVG.file_info() }}
+                    {FILESIZE}
+                </div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="mt-1 btn-list">
+                <button onclick='mediafile_name_test("{FILENAME}", "testresults_{FILEPOS}")' class="btn btn-sm btn-pill">识别</button>
+                <button onclick='mediafile_transfer("{FILENAME}", "{FILEPOS}")' class="btn btn-sm btn-pill">转移</button>
+                <button onclick='mediafile_subtitle("{FILENAME}", "{FILEPOS}")' class="btn btn-sm btn-pill">下载字幕</button>
+                <button onclick='mediafile_findlinks("{FILENAME}", "{FILEPOS}")' class="btn btn-sm btn-pill">硬链接查询</button>
+                <button onclick='show_mediafile_rename_modal("{FILENAME}", "{FILEPOS}")' class="btn btn-sm btn-pill">重命名</button>
+                <button onclick='mediafile_delete("{FILENAME}", "{FILEPOS}")' class="btn btn-sm btn-pill">删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="hardlinks_table_content_template" type="text/html">
+<thead>
+  <tr>
+    <th class="w-1"></th>
+    <th>{FILE}</th>
+  </tr>
+</thead>
+<tbody>
+  {TBODY_CONTENT}
+</tbody>
+
+</script>
+
+<script id="hardlinks_tbody_template" type="text/html">
+<tr class="ms-3">
+  <td class="w-1">
+    <input class="form-check-input m-0 align-middle" name="hardlink_files" value="{HARDLINK_FILE}" type="checkbox" aria-label="">
+  </td>
+  <td>
+    <div class="ms-3">
+      <span class="text-muted">{{ SVG.link() }}</span>
+      {HARDLINK_FILENAME}
+    </div>
+    <div class="ms-3"><span class="text-muted">{HARDLINK_FILEPATH}</span></div>
+  </td>
+</tr>
+
+</script>

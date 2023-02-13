@@ -1,0 +1,403 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          服务
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+      {% for Scheduler in SchedulerTasks %}
+      <div class="card card-sm card-link-pop">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-{{ Scheduler.color }} text-white avatar">
+                {{ Scheduler.svg|safe }}
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">
+                <a href="javascript:show_service_modal('{{ Scheduler.id }}','{{ Scheduler.name }}')"
+                  id="service_btn">{{ Scheduler.name }}</a>
+              </div>
+              <div class="text-muted">
+                {{ Scheduler.time }}
+              </div>
+            </div>
+            {% if Scheduler.state == "ON" %}
+            <div class="col-auto align-self-center">
+              <div class="badge bg-primary"></div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
+      </div>
+      <p class="empty-title">没有服务</p>
+      <p class="empty-subtitle text-muted">
+        没有开启任何后台服务。
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="modal-nametest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">名称识别测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="overflow: hidden">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">资源名称 <span class="form-help"
+                  title="用于测试名称识别情况，无法识别请查询TMDB后酌情添加自定义识别词" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="test_name" class="form-control" placeholder="种子名/文件名等">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <custom-chips id="test_result"></custom-chips>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="nametest_btn" class="btn btn-primary">识别</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-ruletest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">过滤规则测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-7">
+            <div class="mb-3">
+              <label class="form-label required">标题</label>
+              <input type="text" value="" id="test_title" class="form-control" placeholder="种子名称">
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="mb-3">
+              <label class="form-label required">大小(GB)</label>
+              <input type="text" value="" id="test_size" class="form-control" placeholder="种子大小">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">过滤规则</label>
+              <select class="form-select" id="test_rulegroup">
+                  {% if RuleGroups %}
+                  <option value="0">请选择</option>
+                  {% for RuleGroup in RuleGroups %}
+                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                  {% endfor %}
+                  {% else %}
+                  <option value="0">未配置</option>
+                  {% endif %}
+                </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">副标题</label>
+              <textarea rows="3" id="test_subtitle" class="form-control" placeholder="种子描述"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="mb-3" id="testrule_result">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="ruletest_btn" class="btn btn-primary">测试</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-nettest" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">网络连通性测试</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>测试对象</th>
+              <th>连通性</th>
+              <th>耗时</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for target in SchedulerTasks[-2].targets %}
+            <tr>
+              <td>
+                <span>{{ target }}</span>
+                <input name="nettest_item" value="{{ target }}|{{ loop.index0 }}" type="hidden">
+              </td>
+              <td id="nettest_item_res_{{ loop.index0 }}"></td>
+              <td id="nettest_item_res_time_{{ loop.index0 }}"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="nettest_btn" class="btn btn-primary">测试</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-backup" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">备份&恢复</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="dropzone" id="back_file" action="/upload">
+          <div class="fallback">
+            <input name="file" type="file" accept="*.zip" />
+          </div>
+          <div class="dz-message">
+            <h3 class="dropzone-msg-title">上传备份文件</h3>
+            <span class="dropzone-msg-desc">点击或者拖动备份文件到此处</span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="backup_btn" class="btn btn-primary">备份当前配置</button>
+        <button id="restore_btn" class="btn btn-danger">恢复配置</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 显示服务提示框
+  function show_service_modal(id, name) {
+    if (id === "nametest") {
+      $('#modal-nametest').modal('show');
+    } else if (id === "ruletest") {
+      $('#modal-ruletest').modal('show');
+    } else if (id === "nettest") {
+      $('[id^="nettest_item_res"]').empty();
+      $('#modal-nettest').modal('show');
+    } else if (id === "blacklist") {
+      show_confirm_modal("清理文件整理缓存后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function () {
+        hide_confirm_modal();
+        ajax_post("truncate_blacklist", {}, function (ret) {
+          show_success_modal("文件缓存清理完成！");
+        });
+      });
+    } else if (id === "rsshistory") {
+      show_confirm_modal("清理RSS缓存后，已订阅下载但未入库的资源可能会被重新下载，是否确认？", function () {
+        hide_confirm_modal();
+        ajax_post("truncate_rsshistory", {}, function (ret) {
+          show_success_modal("RSS缓存清理完成！");
+        });
+      });
+    } else if (id === "backup") {
+      $('#modal-backup').modal('show');
+    } else {
+      show_ask_modal("是否立即运行 " + name + "？", function () {
+        hide_ask_modal();
+        run_scheduler(id, name);
+      });
+    }
+  }
+
+  // 运行服务
+  function run_scheduler(id, name) {
+    const data = {"item": id};
+    ajax_post("sch", data, function (ret) {
+      show_success_modal(`${name} 服务启动成功，正在后台运行`);
+    });
+  }
+
+  // 名称测试
+  $("#nametest_btn").unbind("click").click(function () {
+    name_test($(this));
+  });
+
+  // 规则测试
+  $("#ruletest_btn").unbind("click").click(function () {
+    rule_test($(this));
+  });
+
+  // 网络测试
+  $("#nettest_btn").unbind("click").click(async function () {
+    let btn_obj = $(this);
+    let url_indexs = select_GetHiddenVAL("nettest_item");
+    let nettest_count_total = url_indexs.length;
+    let nettest_count_finished = 0;
+    btn_obj.text("测试中...").attr("disabled", true);
+    for (let url_index of url_indexs){
+      net_test_one(url_index, ret=>{
+        if (ret) {
+          nettest_count_finished++;
+          if (nettest_count_finished >= nettest_count_total) {
+            btn_obj.text("测试").attr("disabled", false);
+          }
+        }
+      });
+    }
+  });
+
+  // 备份
+  $("#backup_btn").unbind("click").click(function () {
+    $(this).text("备份中...").attr("disabled", true);
+    ajax_backup(function () {
+      $(this).attr("disabled", false).text("备份当前配置");
+    });
+  });
+
+  // 恢复备份
+  $("#restore_btn").unbind("click").click(function () {
+    if (!backup_dropzone || !backup_dropzone.files || !backup_dropzone.files[0]) {
+      return;
+    }
+    $(this).text("恢复中...").attr("disabled", true);
+    ajax_post("restory_backup", { file_name: backup_dropzone.files[backup_dropzone.files.length - 1].name }, function (ret) {
+      $(this).attr("disabled", false).text("恢复配置");
+      $("#modal-backup").modal('hide');
+      if (ret.code === 0) {
+        show_success_modal("备份恢复成功，请重启系统生效！");
+      } else {
+        show_fail_modal(`备份恢复失败：${ret.msg}`, function() {
+          $("#modal-backup").modal('show');
+        });
+      }
+    });
+  });
+
+  //名称识别测试
+  function name_test(btn_obj) {
+    const name_obj = $('#test_name');
+    const name = name_obj.val();
+    if (!name) {
+      name_obj.addClass("is-invalid");
+      return;
+    } else {
+      name_obj.removeClass("is-invalid");
+    }
+    btn_obj.text("识别中...").attr("disabled", true);
+    media_name_test(name, "test_result", function () {
+      btn_obj.text("识别").attr("disabled", false);
+    });
+  }
+
+  //过滤规则测试
+  function rule_test(btn_obj) {
+    const title_obj = $("#test_title");
+    const title = title_obj.val();
+    if (!title) {
+      title_obj.addClass("is-invalid");
+      return;
+    } else {
+      title_obj.removeClass("is-invalid");
+    }
+    const size_obj = $("#test_size");
+    const size = size_obj.val();
+    if (!size || isNaN(size)) {
+      size_obj.addClass("is-invalid");
+      return;
+    } else {
+      size_obj.removeClass("is-invalid");
+    }
+    const rulegroup_obj = $("#test_rulegroup");
+    const rulegroup = rulegroup_obj.val();
+    if (rulegroup === "0") {
+      rulegroup_obj.addClass("is-invalid");
+      return;
+    } else {
+      rulegroup_obj.removeClass("is-invalid");
+    }
+
+    const subtitle = $("#test_subtitle").val();
+    btn_obj.text("测试中...").attr("disabled", true);
+    const params = {
+      "title": title,
+      "size": size,
+      "rulegroup": rulegroup,
+      "subtitle": subtitle
+    };
+    ajax_post("rule_test", params, function (ret) {
+      btn_obj.text("测试").attr("disabled", false);
+      if (ret.code === 0) {
+        let content = "";
+        if (ret.flag) {
+          content += `<span class="badge bg-green me-1 mb-1">${ret.text}</span>
+                      <span class="badge badge-outline text-blue me-1 mb-1" title="命中规则在规则组内的序号">优先级：${ret.order}</span>`;
+        } else {
+          content += `<span class="badge bg-red me-1 mb-1">${ret.text}</span>`;
+        }
+        $("#testrule_result").empty().append(content);
+      }
+    });
+  }
+
+  // 单个网络测试
+  function net_test_one(url_index, callBack) {
+    if (!url_index) {
+      return;
+    }
+    let url = url_index.split("|")[0];
+    let index = url_index.split("|")[1];
+    ajax_post("net_test", decodeURI(url), function (ret) {
+      if (ret.res) {
+        $(`#nettest_item_res_${index}`).html('<span class="badge bg-green me-1 mb-1">是</span>');
+        $(`#nettest_item_res_time_${index}`).html(`<span class="text-green">${ret.time}</span>`);
+      } else {
+        $(`#nettest_item_res_${index}`).html('<span class="badge bg-red me-1 mb-1">否</span>');
+        $(`#nettest_item_res_time_${index}`).html(`<span class="text-red">${ret.time}</span>`);
+      }
+      callBack(true)
+    });
+  }
+
+  // 初始化DropZone
+  backup_dropzone = new Dropzone("#back_file");
+  backup_dropzone.options.acceptedFiles = ".zip";
+</script>

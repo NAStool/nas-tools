@@ -1,0 +1,464 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          下载器
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.folders() }}
+            下载目录
+          </a>
+          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon" title="下载目录">
+            {{ SVG.folders() }}
+          </a>
+          <a href="javascript:$('#modal-speedlimit').modal('show')" class="btn d-none d-sm-inline-block">
+            {{ SVG.forbid() }}
+            播放限速
+          </a>
+          <a href="javascript:$('#modal-speedlimit').modal('show')" class="btn d-sm-none btn-icon" title="播放限速">
+            {{ SVG.forbid() }}
+          </a>
+          <a href="javascript:navmenu('download_setting')" class="btn d-none d-sm-inline-block">
+            {{ SVG.settings() }}
+            下载设置
+          </a>
+          <a href="javascript:navmenu('download_setting')" class="btn d-sm-none btn-icon" title="下载设置">
+            {{ SVG.settings() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+    {% for Type, Downloader in DownloaderConf.items() %}
+      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+        <div class="card-cover card-cover-blurred text-center {{ Downloader.background }}">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url('{{ Downloader.img_url }}')">
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{{ Downloader.name }}</div>
+          <div class="text-muted">{% if Config.pt.pt_client == Type %}<span class="badge bg-green"
+                                                                                     title="已开启"></span>
+            默认使用{% endif %}</div>
+        </div>
+      </a>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% for Type, Downloader in DownloaderConf.items() %}
+<div class="modal modal-blur fade" id="modal-{{ Type }}" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ Downloader.name }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      {{ FORM.gen_form_config_elements(Type, Config, Downloader.config) }}
+      </div>
+      <div class="modal-footer">
+        <button onclick="test_downloader_config('{{ Type }}')" id="{{ Type }}_test_btn" class="btn me-auto">
+          测试
+        </button>
+        <button onclick="save_downloader_config('{{ Type }}')" id="{{ Type }}_save_btn"
+           class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+<div class="modal modal-blur fade" id="modal-downloaddir" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">下载目录配置</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="mb-3" id="dirdiv_container">
+            <label class="form-label required">目录信息 <span class="form-help"
+                                                              title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类"
+                                                              data-bs-toggle="tooltip">?</span></label>
+            {% if Config.downloaddir %}
+              {% for attr in Config.downloaddir %}
+                <div class="row" id="dirdiv_{{ loop.index0 }}">
+                  <div class="col-12 col-lg-2 mb-1">
+                    <select class="form-select" name="dir_type" id="dir_type_{{ loop.index0 }}"
+                            onchange="get_categories(this)">
+                      <option value="" {% if not attr.type %}selected{% endif %}>全部</option>
+                      <option value="电影" {% if attr.type=='电影' %}selected{% endif %}>电影</option>
+                      <option value="电视剧" {% if attr.type=='电视剧' %}selected{% endif %}>电视剧</option>
+                      <option value="动漫" {% if attr.type=='动漫' %}selected{% endif %}>动漫</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-lg-2 mb-1">
+                    <input type="hidden" id="dir_subtype_{{ loop.index0 }}" value="{{ attr['category'] or '' }}">
+                    <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{ loop.index0 }}">
+                      <option value="" selected>全部</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-lg mb-1">
+                    <input type="text" value="{{ attr.save_path or '' }}" name="save_path" class="form-control"
+                           placeholder="下载保存目录" autocomplete="off">
+                  </div>
+                  <div class="col-12 col-lg mb-1">
+                    <input type="text" value="{{ attr.container_path or '' }}" name="container_path"
+                           class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+                  </div>
+                  <div class="col-12 col-lg mb-1">
+                    <input type="text" value="{{ attr.label or '' }}" name="path_label" class="form-control"
+                           placeholder="分类标签" autocomplete="off">
+                  </div>
+                  <div class="col-12 col-lg-1 mb-1 mt-2">
+                    <a href="javascript:del_downloaddir('{{ loop.index0 }}')" class="btn-icon text-red" title="删除下载目录">
+                      {{ SVG.circle_minus() }}
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="row" id="dirdiv_0">
+                <div class="col-12 col-lg-2 mb-1">
+                  <select class="form-select" name="dir_type" id="dir_type_0" onchange="get_categories(this)">
+                    <option value="" selected>全部</option>
+                    <option value="电影">电影</option>
+                    <option value="电视剧">电视剧</option>
+                    <option value="动漫">动漫</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="hidden" id="dir_subtype_0" value="">
+                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_0">
+                    <option value="" selected>全部</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录"
+                         autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="container_path" class="form-control filetree-folders-only"
+                         placeholder="访问目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签"
+                         autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-1 mb-1 mt-2">
+                  <a href="javascript:del_downloaddir('0')" class="btn-icon text-red" title="删除目录">
+                    {{ SVG.circle_minus() }}
+                  </a>
+                </div>
+              </div>
+            {% endif %}
+            <div class="row" id="dirdiv_add">
+              <div class="mt-2">
+                <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
+                  {{ SVG.folder_plus() }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:save_downloaddir_config()" id="downloaddir_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-speedlimit" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">播放限速设置</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="speedlimit_config">
+        <div class="row">
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Qbittorrent <span class="form-help"
+                                                          title="不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用"
+                                                          data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("qb_upload") or '' }}"
+                     class="form-control" id="speedlimit_qb_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("qb_download") or '' }}"
+                     class="form-control" id="speedlimit_qb_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
+          </div>
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">Transmission <span class="form-help"
+                                                           title="不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用"
+                                                           data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{{ SpeedLimitConf.get("tr_upload") or '' }}"
+                     class="form-control" id="speedlimit_tr_upload"
+                     placeholder="上传限速，Kb/s"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text" value="{{ SpeedLimitConf.get("tr_download") or '' }}"
+                     class="form-control" id="speedlimit_tr_download"
+                     placeholder="下载限速，Kb/s"
+                     autocomplete="off">
+            </div>
+          </div>
+          <div class="col-12 col-lg">
+            <div class="mb-1">
+              <label class="form-label">不限速源地址 <span class="form-help"
+                                                         title="仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制"
+                                                         data-bs-toggle="tooltip">?</span></label>
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv4") or '' }}"
+                     class="form-control" id="speedlimit_ipv4" placeholder="IPv4 CIDR"
+                     autocomplete="off">
+            </div>
+            <div class="mb-3">
+              <input type="text"
+                     value="{{ SpeedLimitConf.get("ipv6") or '' }}"
+                     class="form-control" id="speedlimit_ipv6" placeholder="IPv6 CIDR"
+                     autocomplete="off">
+            </div>
+          </div>
+        </div>
+        <details class="mb-2">
+          <summary class="summary">
+            自动限速设置 <span class="form-help" title="启用后根据自动限速设置，自动设置上传限制速度" data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2">
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">上行带宽</label>
+                <input type="text" value="{{ SpeedLimitConf.get("bandwidth") or '' }}" id="speedlimit_bandwidth" class="form-control" placeholder="Mbps，留空不启用">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">剩余比例 <span class="form-help" title="上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("residual_ratio") or '' }}" id="speedlimit_residual_ratio" class="form-control" placeholder="0.5">
+              </div>
+            </div>
+            <div class="col-12 col-lg">
+              <div class="mb-3">
+                <label class="form-label">分配比例 <span class="form-help" title="Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{{ SpeedLimitConf.get("allocation") or '' }}" id="speedlimit_allocation" class="form-control" placeholder="1:1">
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button onclick="save_speedlimit_config()"
+           class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 当前处理的类型
+  var currType = "";
+
+  // 保存配置
+  function save_config(type, func, test) {
+    currType = type;
+    const params = input_select_GetVal(`modal-${type}`)
+    params["test"] = test || false;
+    params['pt.pt_client'] = type;
+    ajax_post("update_config", params, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_downloader_config(type) {
+    $("#modal-" + type).modal('hide');
+    save_config(type, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  //保存配置和测试配置
+  function test_downloader_config(type) {
+    $("#" + type + "_test_btn").text("测试中...").attr("disabled", true);
+    save_config(type, function (ret) {
+      let command;
+      {% for Type, Downloader in DownloaderConf.items() %}
+      if (currType === "{{ Type }}") {
+        command = "{{ Downloader.test_command }}";
+      }
+      {% endfor %}
+      ajax_post("test_connection", {"command": command}, function (ret) {
+        if (ret.code === 0) {
+          $("#" + currType + "_test_btn").text("测试成功").attr("disabled", false);
+        } else {
+          $("#" + currType + "_test_btn").text("测试失败！").attr("disabled", false);
+        }
+      });
+    }, true);
+  }
+
+  //显示下载目录配置
+  function show_downloaddir_modal() {
+    $('#modal-downloaddir').modal('show');
+  }
+
+  //获取同一行其它输入框的值
+  function get_dir_item_value(obj, name) {
+    let item = $(obj).parent().parent().find("[name='" + name + "']")[0];
+    if (item) {
+      return $(item).val();
+    } else {
+      return '';
+    }
+  }
+
+  //保存下载目录配置
+  function save_downloaddir_config() {
+    $("#modal-downloaddir").modal('hide');
+    let download_dir = [];
+    $("[name='save_path']").each(function () {
+      let save_path = $(this).val();
+      let type = get_dir_item_value(this, 'dir_type');
+      let category = get_dir_item_value(this, 'dir_subtype');
+      let container_path = get_dir_item_value(this, 'container_path');
+      let label = get_dir_item_value(this, 'path_label');
+      download_dir.push({
+        "save_path": save_path,
+        "type": type,
+        "category": category,
+        "container_path": container_path,
+        "label": label
+      });
+    });
+    ajax_post("update_config", {downloaddir: download_dir}, function () {
+      window_history_refresh();
+    });
+  }
+
+  //保存播放限速设置
+  function save_speedlimit_config() {
+    $("#modal-speedlimit").modal('hide');
+    let params = {
+      key: "SpeedLimit",
+      value: input_select_GetVal("speedlimit_config", "speedlimit_"),
+    };
+    ajax_post("set_system_config", params, function () {
+      window_history_refresh();
+    });
+  }
+  //删除下载目录
+  function del_downloaddir(id) {
+    if (id) {
+      $("#dirdiv_" + id).remove();
+    }
+  }
+
+  //获取二级分类
+  function get_categories(obj) {
+    let obj_id = $(obj).attr("id");
+    if (!obj_id) {
+      return;
+    }
+    let id = obj_id.replace("dir_type_", "");
+    let value = $("#dir_subtype_" + id).val();
+    if (!id) {
+      return;
+    }
+    if (!$(obj).val()) {
+      $("#dir_subtype_value_" + id).empty()
+          .append('<option value="" selected>全部</option>');
+      return;
+    }
+    ajax_post("get_categories", {"type": $(obj).val(), "id": id, "value": value}, function (ret) {
+      $("#dir_subtype_value_" + ret.id).empty()
+          .append('<option value="" selected>全部</option>');
+      if (ret.category) {
+        for (let i = 0; i < ret.category.length; i++) {
+          $("#dir_subtype_value_" + ret.id).append('<option value="' + ret.category[i] + '">' + ret.category[i] + '</option>');
+        }
+      }
+      if (ret.value) {
+        $("#dir_subtype_value_" + ret.id).val(ret.value);
+      }
+    });
+  }
+
+  //获取所有二级分类
+  var CURRENT_DIRDIV_LEVEL = 0;
+  $("[name='dir_type']").each(function () {
+    get_categories(this);
+    CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+  });
+
+  //添加下载目录
+  function add_downloaddir() {
+    let html = $("#dirdiv_template").text();
+    $("#dirdiv_add").before(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
+    CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+    $('.filetree-folders-only').each(function () {
+      $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+    });
+  }
+
+</script>
+<script id="dirdiv_template" type="text/html">
+<div class="row" id="dirdiv_{DIRDIV_LEVEL}">
+  <div class="col-12 col-lg-2 mb-1">
+    <select class="form-select" name="dir_type" id="dir_type_{DIRDIV_LEVEL}" onchange="get_categories(this)">
+      <option value="" selected>全部</option>
+      <option value="电影">电影</option>
+      <option value="电视剧">电视剧</option>
+      <option value="动漫">动漫</option>
+    </select>
+  </div>
+  <div class="col-12 col-lg-2 mb-1">
+    <input type="hidden" id="dir_subtype_{DIRDIV_LEVEL}" value="">
+    <select class="form-select" name="dir_subtype" id="dir_subtype_value_{DIRDIV_LEVEL}">
+      <option value="" selected>全部</option>
+    </select>
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg-1 mb-1 mt-2">
+    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon text-red" title="删除目录">
+      {{ SVG.circle_minus() }}
+    </a>
+  </div>
+</div>
+
+</script>

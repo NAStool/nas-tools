@@ -1,0 +1,960 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          自定义订阅
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_userrss_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.plus() }}
+            新建订阅任务
+          </a>
+          <a href="javascript:show_userrss_modal()" class="btn btn-primary d-sm-none btn-icon">
+            {{ SVG.plus() }}
+          </a>
+          <a href="javascript:navmenu('rss_parser')" class="btn d-none d-sm-inline-block">
+            {{ SVG.cpu() }}
+            RSS解析器
+          </a>
+          <a href="javascript:navmenu('rss_parser')" class="btn d-sm-none btn-icon" title="RSS解析器">
+            {{ SVG.cpu() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for Task in Tasks %}
+      <div class="card">
+        <div class="card-header">
+          <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()"
+             title="展开/折叠" data-bs-toggle="tooltip">
+            <div>
+              {% if Task.state == 'Y' %}
+              <span class="badge bg-green"></span>
+              {% else %}
+              <span class="badge bg-red"></span>
+              {% endif %}
+            </div>
+          </a>
+          <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" style="text-decoration-line: none; color: unset"
+             title="展开/折叠" data-bs-toggle="tooltip">
+            <div class="ms-3"><h3 class="card-title">{{ Task.name }}</h3></div>
+          </a>
+          <div class="ms-2 me-auto d-none d-sm-block">
+            <a href="javascript:run_userrss_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
+              data-bs-toggle="tooltip">
+              {{ SVG.bolt('icon-filled') }}
+            </a>
+          </div>
+          {% if Task.uses == 'D' and Task.recognization == "Y" %}
+          <span class="badge bg-azure ms-auto">TMDB</span>
+          <a href="#" class="link-secondary ms-2 d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ SVG.dots() }}
+          </a>
+          {% else %}
+          <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ SVG.dots() }}
+          </a>
+          {% endif %}
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item text-info" onclick="run_userrss_now('{{ Task.id }}')">
+              立即运行
+            </button>
+            <button class="dropdown-item" onclick="show_rss_articles_modal('{{ Task.id }}')">
+              预览
+            </button>
+            <button class="dropdown-item" onclick="edit_userrss_modal('{{ Task.id }}')">
+              编辑
+            </button>
+            <button class="dropdown-item text-danger" onclick="del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')">
+              删除
+            </button>
+          </div>
+          <div class="card-actions btn-actions ms-1 d-none d-sm-block">
+            <a href="javascript:$('#detail_{{ Task.id }}').slideToggle()" class="btn-action"
+               title="展开/折叠" data-bs-toggle="tooltip">
+              {{ SVG.menu_2() }}
+            </a>
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
+               title="预览报文" data-bs-toggle="tooltip">
+              {{ SVG.eye() }}
+            </a>
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
+               title="编辑任务" data-bs-toggle="tooltip">
+              {{ SVG.edit() }}
+            </a>
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action"
+               title="删除任务" data-bs-toggle="tooltip">
+              {{ SVG.x() }}
+            </a>
+          </div>
+        </div>
+        <div class="card-body" id="detail_{{ Task.id }}"
+          style="display: {% if Count > 2 %}none{% else %}block{% endif %};">
+          <div class="datagrid">
+            <div class="datagrid-item">
+              <div class="datagrid-title">地址</div>
+              <div class="datagrid-content">
+                <div class="d-flex align-items-center" style="word-break: break-all;">
+                  {{ Task.address|split('?', 0) }}
+                </div>
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">解析器</div>
+              <div class="datagrid-content">
+                <span class="badge me-2">{{ Task.parser_name }}</span>
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">刷新间隔</div>
+              <div class="datagrid-content">
+                {{ Task.interval }} 分钟
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">动作</div>
+              <div class="datagrid-content">
+                <span class="badge me-2 bg-blue">{{ Task.uses_text }}</span>
+              </div>
+            </div>
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
+              <div class="datagrid-title">包含</div>
+              <div class="datagrid-content">
+                {% if Task.include %}
+                <span class="badge badge-outline text-green me-2 text-wrap text-start">{{ Task.include }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
+              <div class="datagrid-title">排除</div>
+              <div class="datagrid-content">
+                {% if Task.exclude %}
+                <span class="badge badge-outline text-red me-2 text-wrap text-start">{{ Task.exclude }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
+              <div class="datagrid-title">过滤规则</div>
+              <div class="datagrid-content">
+                {% if Task.filter_name %}
+                <span class="badge badge-outline text-orange me-2">{{ Task.filter_name }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
+              <div class="datagrid-title">保存路径</div>
+              <div class="datagrid-content">{{ Task.save_path or '自动' }}</div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">状态</div>
+              <div class="datagrid-content">
+                {% if Task.state == 'Y' %}
+                <span class="badge me-2 bg-green">正在运行</span>
+                {% else %}
+                <span class="badge me-2 bg-red">已停用</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">已处理数量</div>
+              <div class="datagrid-content">
+                {% if Task.uses == 'D' %}
+                <a id="rss_history_btn" href="javascript:show_rss_history_modal('{{ Task.id }}')" class="btn-link">
+                  {{ Task.counter or 0 }}
+                </a>
+                {% else %}
+                {{ Task.counter or 0 }}
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">最后更新时间</div>
+              <div class="datagrid-content">
+                {{ Task.update_time or '' }}
+              </div>
+            </div>
+            {% if Task.uses == 'D' %}
+            <div class="datagrid-item">
+              <div class="datagrid-title">下载设置</div>
+              <div class="datagrid-content">
+                {% if Task.download_setting|string in DownloadSettings %}
+                <span class="badge me-2 bg-yellow">{{ DownloadSettings[Task.download_setting|string] }}</span>
+                {% else %}
+                <span class="badge me-2 bg-red">默认</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+{{ OOPS.nodatafound('没有订阅任务', '当前没有自定义订阅任何内容。') }}
+{% endif %}
+<div class="modal modal-blur fade" id="modal-userrss" tabindex="-1" role="dialog" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="userrss_modal_title"></h5>
+        <input type="hidden" id="userrss_id">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="overflow-x: hidden">
+        <div id="userrss_common_div">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">名称</label>
+                <input type="text" id="userrss_name" class="form-control" placeholder="别名">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">状态</label>
+                <select class="form-select" id="userrss_state">
+                  <option value="Y" selected>正常</option>
+                  <option value="N">停用</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_interval" class="form-control" placeholder="30">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_address" class="form-control" placeholder="RSS地址">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">解析器 <span class="form-help" title="使用RSS解析器中配置的解析格式解析RSS报文"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_parser">
+                  {% for RssParser in RssParsers %}
+                  <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-selectgroup-boxes row mb-3">
+          <label class="form-label required">动作</label>
+          <div class="col-lg-6">
+            <div class="mb-1">
+              <label class="form-selectgroup-item" for="use_D">
+                <input type="radio" name="userrss_uses" id="use_D" value="D" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">下载</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-1">
+              <label class="form-selectgroup-item" for="use_R">
+                <input type="radio" name="userrss_uses" id="use_R" value="R" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">订阅</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="userrss_download_div">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_download_include" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_download_exclude" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">过滤规则 <span class="form-help" title="只有符合过滤规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_download_rule">
+                  <option value="" selected>请选择</option>
+                  {% for Id, Attr in RuleGroups.items() %}
+                  <option value="{{ Id }}">{{ Attr }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">保存路径</label>
+                <input type="text" id="userrss_download_save_path" class="form-control" placeholder="留空自动选择保存路径">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">下载设置</label>
+                <select class="form-select" id="userrss_download_download_setting">
+                  <option value="">默认</option>
+                  {% for Id, Attr in DownloadSettings.items() %}
+                  <option value="{{ Id }}">{{ Attr }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_download_recognization">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="userrss_rss_div">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_rss_include" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_rss_exclude" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+          </div>
+          <details class="mb-2">
+            <summary class="summary">
+              订阅设置 <span class="form-help" title="订阅设置将在添加电影/电视剧订阅时同步" data-bs-toggle="tooltip">?</span>
+            </summary>
+            <div class="row mt-2">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">质量</label>
+                  <select class="form-select" id="userrss_rss_restype">
+                    <option value="" selected>全部</option>
+                    {% for Restype in RestypeDict %}
+                      <option value="{{ Restype }}">{{ Restype }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">分辨率</label>
+                  <select class="form-select" id="userrss_rss_pix">
+                    <option value="" selected>全部</option>
+                    {% for Pix in PixDict %}
+                      <option value="{{ Pix }}">{{ Pix }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">制作组/字幕组</label>
+                  <input type="text" value="" id="userrss_rss_team" class="form-control" placeholder="支持正则表达式">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">过滤规则 <span class="form-help"
+                                                           title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
+                                                           data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="userrss_rss_rule">
+                    <option value="" selected>站点规则</option>
+                    {% for Id, Attr in RuleGroups.items() %}
+                    <option value="{{ Id }}">{{ Attr }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">下载设置</label>
+                  <select class="form-select" id="userrss_rss_download_setting"
+                          onchange="refresh_savepath_select('userrss_rss_save_path', true, $(this).val())">
+                    <option value="" selected>站点设置</option>
+                    {% for Id, Attr in DownloadSettings.items() %}
+                    <option value="{{ Id }}">{{ Attr }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">保存路径</label>
+                  <select class="form-select" id="userrss_rss_save_path" aria-label="保存目录">
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-2">
+                <div class="mb-3">
+                  <label class="form-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span>
+                  </label>
+                  <select class="form-select" id="userrss_rss_over_edition">
+                    <option value="0" selected>否</option>
+                    <option value="1">是</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row rss_sites_container">
+              <div class="mb-3">
+                <div class="btn-list">
+                  <label class="form-label">订阅站点</label>
+                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_rss_sites')">全选</a>
+                </div>
+                <div class="form-selectgroup" id="userrss_rss_rss_sites_group"></div>
+              </div>
+            </div>
+            <div class="row rss_sites_container">
+              <div class="mb-3">
+                <div class="btn-list">
+                  <label class="form-label">搜索站点</label>
+                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_search_sites')">全选</a>
+                </div>
+                <div class="form-selectgroup" id="userrss_rss_search_sites_group"></div>
+              </div>
+            </div>
+          </details>
+        </div>
+        {% if Count > 0 %}
+        <details>
+          <summary class="summary">
+            模板
+          </summary>
+          <div class="row mt-2">
+            <div class="form-selectgroup">
+              {% for Task in Tasks %}
+              <label class="form-selectgroup-item">
+                <input type="button" class="form-selectgroup-input" onclick="apply_templated('{{ Task.id }}')">
+                <span class="form-selectgroup-label">{{ Task.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_or_edit_userrss_task()" id="add_or_edit_userrss_btn" class="btn btn-primary">保存</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-rss-articles" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="ms-2">
+          <h5 class="modal-title">订阅预览</h5>
+          <input type="hidden" id="article_check_id" value="" >
+        </div>
+        <div class="ms-5">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>      
+      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+        <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
+        </table>
+      </div>
+      <div class="modal-footer">
+        <span class="rss_articles_download_btn me-auto">
+          <a href="javascript:batch_articles_action('download')"
+            class="btn btn-primary d-none d-sm-inline-block ">
+            {{ SVG.download() }}
+            批量下载
+          </a>
+          <a href="javascript:batch_articles_action('download')"
+            class="btn btn-primary btn-icon d-sm-none">
+            {{ SVG.download() }}
+          </a>
+        </span>
+        <a href="javascript:batch_articles_action('set_finished')"
+          class="btn btn-green d-none d-sm-inline-block">
+          {{ SVG.circle_check() }}
+          已处理
+        </a>
+        <a href="javascript:batch_articles_action('set_finished')"
+          class="btn btn-green btn-icon d-sm-none">
+          {{ SVG.circle_check() }}
+        </a>
+        <a href="javascript:batch_articles_action('set_unfinish')"
+          class="btn btn-yellow d-none d-sm-inline-block">
+          {{ SVG.circle_x() }}
+          未处理
+        </a>
+        <a href="javascript:batch_articles_action('set_unfinish')"
+          class="btn btn-yellow btn-icon d-sm-none">
+          {{ SVG.circle_x() }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-rss-history" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">订阅下载历史</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+        <table id="table-rss-history" class="table table-vcenter card-table table-hover table-striped">
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 恢复自定义订阅默认设置
+  function recover_userrss_setting(uses) {
+    if (uses.includes("R")) {
+      // 下载
+      $("#userrss_download_include").val('');
+      $("#userrss_download_exclude").val('');
+      $("#userrss_download_rule").val('');
+      $("#userrss_download_save_path").val('');
+      $("#userrss_download_download_setting").val('');
+      $("#userrss_download_recognization").val('Y');
+    }
+    if (uses.includes("D")) {
+      // 订阅
+      $("#userrss_rss_include").val('');
+      $("#userrss_rss_exclude").val('');
+      $("#userrss_rss_restype").val('');
+      $("#userrss_rss_pix").val('');
+      $("#userrss_rss_team").val('');
+      $("#userrss_rss_rule").val('');
+      $("#userrss_rss_download_setting").val('');
+      $("#userrss_rss_over_edition").val('0');
+      select_SelectALL(false, 'userrss_rss_rss_sites');
+      select_SelectALL(false, 'userrss_rss_search_sites')
+    }
+  }
+
+  // 设置自定义订阅
+  function set_userrss_setting(detail) {
+    if (detail.uses === "D") {
+      $("#userrss_download_include").val(detail.include);
+      $("#userrss_download_exclude").val(detail.exclude);
+      $("#userrss_download_rule").val(detail.filter);
+      $("#userrss_download_save_path").val(detail.save_path);
+      $("#userrss_download_download_setting").val(detail.download_setting);
+      $("#userrss_download_recognization").val(detail.recognization);
+    } else if (detail.uses === "R") {
+      $("#userrss_rss_include").val(detail.include);
+      $("#userrss_rss_exclude").val(detail.exclude);
+      $("#userrss_rss_restype").val(detail.filter_args.restype);
+      $("#userrss_rss_pix").val(detail.filter_args.pix);
+      $("#userrss_rss_team").val(detail.filter_args.team);
+      $("#userrss_rss_rule").val(detail.filter);
+      $("#userrss_rss_download_setting").val(detail.download_setting);
+      refresh_savepath_select('userrss_rss_save_path', false, detail.download_setting)
+      $("#userrss_rss_save_path").val(detail.save_path);
+      $("#userrss_rss_over_edition").val(detail.over_edition);
+      if (detail.sites.rss_sites.length === 0) {
+        select_SelectALL(true, 'userrss_rss_rss_sites')
+      } else {
+        select_SelectPart(detail.sites.rss_sites, 'userrss_rss_rss_sites');
+      }
+      if (detail.sites.search_sites.length === 0) {
+        select_SelectALL(true, 'userrss_rss_search_sites')
+      } else {
+        select_SelectPart(detail.sites.search_sites, 'userrss_rss_search_sites');
+      }
+    }
+  }
+  // 显示新增任务
+  function show_userrss_modal() {
+    $("#userrss_id").val('');
+    $("#userrss_modal_title").text("新增订阅");
+    recover_userrss_setting("DR");
+    refresh_savepath_select('userrss_rss_save_path', true, '')
+    // 公共
+    $("#userrss_name").val('');
+    $("#userrss_interval").val('');
+    $("#userrss_address").val('');
+    $("#userrss_parser").val('1');
+    $("#userrss_state").val('N');
+    show_userrss_uses('D');
+    $("#modal-userrss").modal('show');
+  }
+
+  // 显示编辑任务
+  function edit_userrss_modal(id) {
+    $("#userrss_id").val(id);
+    $("#userrss_modal_title").text("编辑订阅");
+    ajax_post("get_userrss_task", { id: id }, function (ret) {
+    if (ret.code === 0) {
+      let detail = ret.detail;
+      recover_userrss_setting(detail.uses);
+      // 公共
+      $("#userrss_name").val(detail.name);
+      $("#userrss_interval").val(detail.interval);
+      $("#userrss_address").val(detail.address);
+      $("#userrss_parser").val(detail.parser);
+      $("#userrss_state").val(detail.state);
+      show_userrss_uses(detail.uses);
+      set_userrss_setting(detail)
+      $("#modal-userrss").modal('show');
+      }
+    });
+  }
+
+  // 显示删除任务
+  function del_userrss_modal(taskid, name) {
+    show_confirm_modal("删除订阅任务 " + name + " ？", function () {
+      hide_confirm_modal();
+      ajax_post("delete_userrss_task", { "id": taskid }, function (ret) {
+        window_history_refresh();
+      });
+    });
+  }
+
+  // 新增/编辑任务保存
+  function add_or_edit_userrss_task() {
+    const userrss_common = input_select_GetVal('userrss_common_div', 'userrss_');
+    if (!userrss_common.name) {
+      $("#userrss_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#userrss_name").removeClass("is-invalid");
+    }
+    if (!userrss_common.interval || isNaN(userrss_common.interval)) {
+      $("#userrss_interval").addClass("is-invalid");
+      return;
+    } else {
+      $("#userrss_interval").removeClass("is-invalid");
+    }
+    if (!userrss_common.address) {
+      $("#userrss_address").addClass("is-invalid");
+      return;
+    } else {
+      $("#userrss_address").removeClass("is-invalid");
+    }
+    if (!userrss_common.parser) {
+      $("#userrss_parser").addClass("is-invalid");
+      return;
+    } else {
+      $("#userrss_parser").removeClass("is-invalid");
+    }
+    const uses = $('input:radio[name=userrss_uses]:checked').val();
+    let userrss_detail = {};
+    if (uses === "D") {
+      userrss_detail = input_select_GetVal('userrss_download_div', 'userrss_download_');
+    } else if (uses === "R") {
+      userrss_detail = input_select_GetVal('userrss_rss_div', 'userrss_rss_');
+      let rss_sites = select_GetSelectedVAL('userrss_rss_rss_sites');
+      let search_sites = select_GetSelectedVAL('userrss_rss_search_sites');
+      userrss_detail.sites = {
+        rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
+        search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+      }
+    } else {
+      return;
+    }
+    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val()};
+    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
+    ajax_post("update_userrss_task", params, function (ret) {
+      $("#modal-userrss").modal('hide');
+      $("#add_or_edit_userrss_btn").attr("disabled", false);
+      window_history_refresh();
+    });
+  }
+
+  // 立即运行任务
+  function run_userrss_now(id) {
+    ajax_post("run_userrss", { "id": id }, function (ret) {
+      show_success_modal("任务运行完成！", function () {
+        window_history_refresh();
+      });
+    });
+  }
+
+  // 报文预览
+  function show_rss_articles_modal(id) {
+    ajax_post("list_rss_articles", { "id": id }, function (ret) {
+      let content;
+      $("#table-rss-articles").empty();
+      if (ret.code === 0) {
+        const articles = ret.data;
+        let content_th = `<thead><tr>
+                          <th class="w-1">
+                            <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                                   onclick="select_SelectALL($(this).prop('checked'), 'rss_articles_item')">
+                          </th>
+                          <th>标题</th>
+                          <th>状态</th>
+                          <th>发布时间</th>
+                          <th></th>
+                          </tr></thead>`;
+        let content_td = '';
+        for (let i = 0; i < articles.length; i++) {
+          const article = articles[i];
+          let title = '';
+          let recognization = '';
+          let size = '';
+          let date = '';
+          let finish_flag = '';
+          let input_checkbox = '';
+          if (article.title) {
+            const title_param = article.title.replace(/\'/g, "&#39;");
+            input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
+                              <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
+                              <input type="hidden" id="title_${i}" value="${title_param}">`;
+            title = `<span style="word-break: keep-all">${article.title}</span>`;
+            recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
+                              {{ SVG.text_recognition() }}
+                              </a>`;
+            if (article.link) {
+              title = `<a href="${article.link}" target="_blank">${title}</a>`;
+            }
+          }
+          if (article.date) {
+            date = article.date.split(" ");
+            date = `<small>${date[0]}<br>${date[1]}</small>`;
+          }
+          if (article.size) {
+            size = `<span class="badge badge-outline text-green me-1 ms-2" title="大小">${article.size}</span>`;
+          }
+          if (article.finish_flag) {
+            finish_flag = `<span class="badge badge-outline text-blue me-1 mb-1">已处理</span>`;
+          } else {
+            finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
+          }
+          let download_btn = '';
+          if (ret.uses === "D") {
+            download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
+          }
+          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-1" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          let content_tb = `<tbody>${content_td}</tbody>`;
+          content = `${content_th}${content_tb}`;
+        }
+        $("#table-rss-articles").append(content);
+      } else {
+        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        $("#table-rss-articles").append(content);
+      }
+      if (ret.uses !== "D") {
+        $(".rss_articles_download_btn").hide();
+      } else {
+        $(".rss_articles_download_btn").show();
+      }
+      $("#article_check_id").val(id);
+      $("#modal-rss-articles").modal('show');
+    });
+  }
+
+  // 获取选中按钮
+  function get_article_checked(){
+    let articles = [];
+    let articles_id = select_GetSelectedVAL("rss_articles_item");
+    for (let id of articles_id) {
+      let enclosure = $(`#enclosure_${id}`).val();
+      articles.push({
+        "title": $(`#title_${id}`).val(),
+        "enclosure": enclosure === "null" ? "" : enclosure
+      });
+    }
+    return articles;
+  }
+
+
+  // 批量处理
+  function batch_articles_action(flag) {
+    const articles = get_article_checked();
+    const id = $("#article_check_id").val();
+    if (articles.length === 0) {
+      return;
+    }
+    if (flag.startsWith("set_")) {
+      articles_check(id, flag, articles);
+    } else if (flag === "download") {
+      articles_download(id, articles);
+    }
+  }
+
+
+  // 报文处理设置
+  function articles_check(id, flag, articles) {
+    $("#modal-rss-articles").modal('hide');
+    ajax_post("rss_articles_check", { "articles": articles, "flag": flag }, function (ret) {
+      show_rss_articles_modal(id);
+    });
+  }
+
+  // 报文下载
+  function articles_download(id, articles) {
+    $("#modal-rss-articles").modal('hide');
+    ajax_post("rss_articles_download", { "articles": articles, "taskid": id }, function (ret) {
+      if (ret.code == 0) {
+        show_success_modal("添加下载成功！", function() {
+          show_rss_articles_modal(id);//
+        });
+      } else if (ret.code == 1) {
+        show_fail_modal(" 添加下载失败！", function() {
+          show_rss_articles_modal(id);//
+        });
+      }
+    });
+  }
+
+  // 单个报文下载
+  function single_article_download(id, article_id) {
+    const article = [{ title: $(`#title_${article_id}`).val(), enclosure: $(`#enclosure_${article_id}`).val() }];
+    articles_download(id, article);
+  }
+
+  // rss报文测试
+  function rss_article_test(id, taskid, title) {
+    const info_id = `info_${id}`;
+    const flag_a = $(`#flag_${id}`);
+    make_cursor_busy();
+    ajax_post("rss_article_test", { "taskid": taskid, "title": title }, function (ret) {
+      cancel_cursor_busy();
+      if (ret.code === 0) {
+        flag_a.empty();
+        media_name_test_ui(ret.data, info_id);
+        if (ret.data.match_flag) {
+          flag_a.append(`<br><span class="badge badge-outline text-green me-1 mb-1">匹配</span>`);
+        } else {
+          flag_a.append(`<br><span class="badge badge-outline text-red me-1 mb-1">不匹配</span>`);
+        }
+        if (ret.data.exist_flag) {
+          flag_a.append(`<br><span class="badge badge-outline text-green me-1 mb-1">本地已存在</span>`);
+        } else {
+          flag_a.append(`<br><span class="badge badge-outline text-orange me-1 mb-1">本地不存在</span>`);
+        }
+      }
+    })
+  }
+
+  // 订阅下载记录
+  function show_rss_history_modal(id) {
+    ajax_post("list_rss_history", { "id": id }, function (ret) {
+      let content;
+      if (ret.code == 0) {
+        const downloads = ret.data;
+        let content_th = `<thead><tr>
+                          <th>标题</th>
+                          <th>下载器</th>
+                          <th>下载时间</th>
+                          </tr></thead>`;
+        let content_td = '';
+        for (let i = 0; i < downloads.length; i++) {
+          const download = downloads[i];
+          let title = '';
+          let downloader = '';
+          let date = '';
+          if (download.title) {
+            title = `<span class="text-muted">${download.title}</span>`
+          };
+          if (download.date) {
+            date = download.date.split(" ");
+            date = `<small class="text-muted">${date[0]}<br>${date[1]}</small>`;
+          };
+          if (download.downloader) {
+            downloader = `<span class="badge me-1 mb-1" title="下载器">${download.downloader}</span>`;
+          };
+          content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td class="text-nowrap">${date}</td></tr>`;
+          let content_tb = `<tbody>${content_td}</tbody>`;
+          content = `${content_th}${content_tb}`;
+        };
+      } else {
+        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+      }
+      $("#table-rss-history").empty().append(content);
+      $("#modal-rss-history").modal('show');
+    });
+  }
+
+  // 应用订阅模板
+  function apply_templated(id) {
+    ajax_post("get_userrss_task", { id: id }, function (ret) {
+      if (ret.code === 0) {
+        let detail = ret.detail;
+        recover_userrss_setting(detail.uses);
+        $("#userrss_interval").val(detail.interval);
+        $("#userrss_parser").val(detail.parser);
+        $("#userrss_state").val(detail.state);
+        show_userrss_uses(detail.uses);
+        set_userrss_setting(detail);
+      }
+    });
+  }
+
+  // 单选框事件
+  $('input[type=radio][name=userrss_uses]').change(function () {
+    show_userrss_uses(this.value);
+  });
+
+  // 自定义订阅动作 D:下载 R:订阅
+  function show_userrss_uses(use) {
+    if (use === 'D') {
+      $("#userrss_download_div").show();
+      $("#userrss_rss_div").hide();
+      $("#use_D").prop("checked", true);
+    }
+    else if (use === 'R') {
+      refresh_rsssites_select("userrss_rss_rss_sites_group", "userrss_rss_rss_sites", false);
+      refresh_searchsites_select("userrss_rss_search_sites_group", "userrss_rss_search_sites", false);
+      $("#userrss_download_div").hide();
+      $("#userrss_rss_div").show();
+      $("#use_R").prop("checked", true);
+    }
+  }
+</script>
