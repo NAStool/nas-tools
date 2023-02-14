@@ -1,5 +1,5 @@
 from queue import Queue, Empty
-from threading import Thread, Timer
+from threading import Thread
 
 import log
 from app.utils.commons import singleton
@@ -98,7 +98,7 @@ class EventManager:
         self._eventQueue.put(event)
 
 
-class Event:
+class Event(object):
     """
     事件对象
     """
