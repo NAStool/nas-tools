@@ -96,6 +96,8 @@ class Qbittorrent(_IDownloadClient):
         if not self.qbc:
             return [], True
         try:
+            if len(tag) == 0:
+                tag = None
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
             if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
