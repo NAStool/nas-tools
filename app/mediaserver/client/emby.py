@@ -514,6 +514,9 @@ class Emby(_IMediaClient):
                 else:
                     eventItem['overview'] = message.get('Item', {}).get('Overview')
                 eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
+                if not eventItem['percentage']:
+                    eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
+                                              message.get('Item', {}).get('RunTimeTicks') * 100
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
@@ -526,6 +529,9 @@ class Emby(_IMediaClient):
                 else:
                     eventItem['overview'] = message.get('Item', {}).get('Overview')
                 eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
+                if not eventItem['percentage']:
+                    eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
+                                              message.get('Item', {}).get('RunTimeTicks') * 100
         if message.get('Session'):
             eventItem['ip'] = message.get('Session').get('RemoteEndPoint')
             eventItem['device_name'] = message.get('Session').get('DeviceName')
