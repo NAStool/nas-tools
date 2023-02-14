@@ -472,11 +472,12 @@ class Message(object):
                     url="brushtask"
                 )
 
-    def send_mediaserver_message(self, event_info: dict, channel):
+    def send_mediaserver_message(self, event_info: dict, channel, image_url):
         """
         发送媒体服务器的消息
         :param event_info: 事件信息
-        :param channel: 服务器类型
+        :param channel: 服务器类型:
+        :param image_url: 图片
         """
         if not event_info or not channel:
             return
@@ -525,27 +526,13 @@ class Message(object):
         message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
 
         # 消息图片
-        image_url = ''
-        if event_info.get('item_id'):
-            if event_info.get("item_type") == "TV":
-                iteminfo = self.mediaserver.get_iteminfo(event_info.get('item_id'))
-                tmdb_id = iteminfo.get('ProviderIds', {}).get('Tmdb')
-                try:
-                    # 从tmdb获取剧集某季某集图片
-                    image_url = self.media.get_episode_images(tmdb_id,
-                                                              event_info.get('season_id'),
-                                                              event_info.get('episode_id'))
-                except IOError:
-                    pass
-
-            if not image_url:
-                image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'),
-                                                             "Backdrop") or _webhook_images.get(channel)
-        else:
+        if not image_url:
             image_url = _webhook_images.get(channel)
+
         # 插入消息中心
         message_content = "\n".join(message_texts)
         self.messagecenter.insert_system_message(level="INFO", title=message_title, content=message_content)
+
         # 发送消息
         for client in self._active_clients:
             if "mediaserver_message" in client.get("switchs"):

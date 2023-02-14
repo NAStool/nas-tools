@@ -4,6 +4,7 @@ import log
 from app.conf import ModuleConf
 from app.db import MediaDb
 from app.helper import ProgressHelper, SubmoduleHelper
+from app.media import Media
 from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
@@ -22,6 +23,7 @@ class MediaServer:
     mediadb = None
     progress = None
     message = None
+    media = None
 
     def __init__(self):
         self._mediaserver_schemas = SubmoduleHelper.import_submodules(
@@ -35,6 +37,7 @@ class MediaServer:
         self.mediadb = MediaDb()
         self.message = Message()
         self.progress = ProgressHelper()
+        self.media = Media()
         # 当前使用的媒体库服务器
         _type = Config().get_config('media').get('media_server') or 'emby'
         self._server_type = ModuleConf.MEDIASERVER_DICT.get(_type)
@@ -107,6 +110,8 @@ class MediaServer:
         :return: 图片对应在TMDB中的URL
         """
         if not self.server:
+            return None
+        if not item_id:
             return None
         return self.server.get_image_by_id(item_id, image_type)
 
@@ -238,6 +243,8 @@ class MediaServer:
         """
         if not self.server:
             return None
+        if not itemid:
+            return None
         return self.server.get_iteminfo(itemid)
 
     def get_playing_sessions(self):
@@ -258,4 +265,16 @@ class MediaServer:
             return
         event_info = self.server.get_webhook_message(message)
         if event_info:
-            self.message.send_mediaserver_message(event_info, channel.value)
+            # 获取消息图片
+            image_url = None
+            if event_info.get("item_type") == "TV":
+                item_info = self.get_iteminfo(event_info.get('item_id'))
+                if item_info:
+                    image_url = self.media.get_episode_images(item_info.get('ProviderIds', {}).get('Tmdb'),
+                                                              event_info.get('season_id'),
+                                                              event_info.get('episode_id'))
+            else:
+                image_url = self.get_image_by_id(event_info.get('item_id'), "Backdrop")
+            self.message.send_mediaserver_message(event_info=event_info,
+                                                  channel=channel.value,
+                                                  image_url=image_url)
