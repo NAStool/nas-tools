@@ -1358,7 +1358,7 @@ def plex_webhook():
     ThreadHelper().start_thread(MediaServer().webhook_message_handler,
                                 (request_json, MediaServerType.PLEX))
     # 触发事件
-    EventManager().send_event(EventType.JellyfinWebhook, request_json)
+    EventManager().send_event(EventType.PlexWebhook, request_json)
     return 'Ok'
 
 
