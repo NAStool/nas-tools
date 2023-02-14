@@ -43,8 +43,7 @@ from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
 from app.torrentremover import TorrentRemover
-from app.speedlimiter import SpeedLimiter
-from app.plugins import EventManager
+from app.plugins import PluginManager
 from check_config import update_config, check_config
 from version import APP_VERSION
 
@@ -125,10 +124,8 @@ def start_service():
     RssChecker()
     # 启动自动删种服务
     TorrentRemover()
-    # 启动播放限速服务
-    SpeedLimiter()
-    # 启动事件管理器
-    EventManager()
+    # 加载插件
+    PluginManager()
 
 
 def monitor_config():

@@ -76,7 +76,7 @@ class EventManager:
         # 将事件管理器设为停止
         self._active = False
         # 等待事件处理线程退出
-        log.info("【System】事件管理器停止")
+        log.info("事件管理器停止")
         self._thread.join()
 
     def add_event_listener(self, etype: EventType, handler):
@@ -117,7 +117,7 @@ class EventManager:
 
     def register(self, etype: EventType):
         """
-        事件注册注解
+        事件注册
         :param etype: 事件类型
         """
 
@@ -132,8 +132,13 @@ class Event(object):
     """
     事件对象
     """
+
     def __init__(self, etype=None):
         # 事件类型
         self.etype = etype
         # 字典用于保存具体的事件数据
         self.dict = {}
+
+
+# 实例引用，用于注册事件
+EventHandler = EventManager()
