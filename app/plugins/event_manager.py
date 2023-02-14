@@ -66,7 +66,6 @@ class EventManager:
         # 将事件管理器设为启动
         self._active = True
         # 启动事件处理线程
-        log.info("事件管理器启动")
         self._thread.start()
 
     def stop(self):
@@ -76,7 +75,6 @@ class EventManager:
         # 将事件管理器设为停止
         self._active = False
         # 等待事件处理线程退出
-        log.info("事件管理器停止")
         self._thread.join()
 
     def add_event_listener(self, etype: EventType, handler):

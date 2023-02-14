@@ -28,6 +28,7 @@ from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
+from app.plugins import PluginManager
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
@@ -36,7 +37,6 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
-from app.plugins.modules.speedlimiter import SpeedLimiter
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, MovieTypes, TvTypes
@@ -207,7 +207,8 @@ class WebAction:
             "media_person": self.__media_person,
             "person_medias": self.__person_medias,
             "save_user_script": self.__save_user_script,
-            "run_directory_sync": self.__run_directory_sync
+            "run_directory_sync": self.__run_directory_sync,
+            "update_plugin_config": self.__update_plugin_config
         }
 
     def action(self, cmd, data=None):
@@ -250,10 +251,16 @@ class WebAction:
         stop_scheduler()
         # 停止监控
         stop_monitor()
+        # 关闭虚拟显示
+        DisplayHelper().stop_service()
+        # 关闭刷流
+        BrushTask().stop_service()
+        # 关闭自定义订阅
+        RssChecker().stop_service()
+        # 关闭插件
+        PluginManager().stop_plugins()
         # 签退
         logout_user()
-        # 关闭虚拟显示
-        DisplayHelper().quit()
         # 重启进程
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
@@ -4375,8 +4382,6 @@ class WebAction:
             return {"code": 1}
         try:
             SystemConfig().set_system_config(key=key, value=value)
-            if key == "SpeedLimit":
-                SpeedLimiter().init_config()
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -4596,3 +4601,16 @@ class WebAction:
         """
         Sync().transfer_all_sync(sid=data.get("sid"))
         return {"code": 0, "msg": "执行成功"}
+
+    @staticmethod
+    def __update_plugin_config(data):
+        """
+        保存插件配置
+        """
+        plugin_id = data.get("plugin")
+        config = data.get("config")
+        if not plugin_id:
+            return {"code": 1, "msg": "数据错误"}
+        PluginManager().save_plugin_config(pid=plugin_id, conf=config)
+        PluginManager().reload_plugin(plugin_id)
+        return {"code": 0, "msg": "保存成功"}

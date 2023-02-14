@@ -28,7 +28,7 @@ from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
-from app.plugins import EventManager
+from app.plugins import EventManager, PluginManager
 from app.rsschecker import RssChecker
 from app.sites import Sites, SiteUserInfo
 from app.subscribe import Subscribe
@@ -1177,6 +1177,15 @@ def rss_parser():
     return render_template("rss/rss_parser.html",
                            RssParsers=RssParsers,
                            Count=len(RssParsers))
+
+
+# 插件页面
+@App.route('/plugin', methods=['POST', 'GET'])
+@login_required
+def plugin():
+    Plugins = PluginManager().get_plugins_conf()
+    return render_template("setting/plugin.html",
+                           Plugins=Plugins)
 
 
 # 事件响应

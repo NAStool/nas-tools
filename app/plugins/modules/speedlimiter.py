@@ -1,4 +1,3 @@
-from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.mediaserver import MediaServer
 from app.plugins import EventHandler
@@ -14,102 +13,166 @@ import log
 
 class SpeedLimiter(_IPluginModule):
 
+    # 插件ID
+    module_id = "SpeedLimiter"
     # 插件名称
-    module_name = "SpeedLimiter"
+    module_name = "播放限速"
     # 插件描述
-    module_desc = "播放限速"
+    module_desc = "媒体服务器开始播放时，自动对下载器进行限速。"
     # 插件图标
-    module_icon = ""
+    module_icon = "SpeedLimiter.jpg"
+    # 主题色
+    module_color = "bg-blue"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "Shurelol"
 
     # 私有属性
-    downloader = None
-    mediaserver = None
-    limit_enabled = False
-    limit_flag = False
-    qb_limit = False
-    qb_download_limit = 0
-    qb_upload_limit = 0
-    qb_upload_ratio = 0
-    tr_limit = False
-    tr_download_limit = 0
-    tr_upload_limit = 0
-    tr_upload_ratio = 0
-    unlimited_ips = {"ipv4": "0.0.0.0/0", "ipv6": "::/0"}
-    auto_limit = False
-    bandwidth = 0
+    _downloader = None
+    _mediaserver = None
+    _limit_enabled = False
+    _limit_flag = False
+    _qb_limit = False
+    _qb_download_limit = 0
+    _qb_upload_limit = 0
+    _qb_upload_ratio = 0
+    _tr_limit = False
+    _tr_download_limit = 0
+    _tr_upload_limit = 0
+    _tr_upload_ratio = 0
+    _unlimited_ips = {"ipv4": "0.0.0.0/0", "ipv6": "::/0"}
+    _auto_limit = False
+    _bandwidth = 0
 
     _scheduler = None
 
     def __init__(self):
         self.init_config()
 
-    def save_config(self, conf):
-        pass
+    @staticmethod
+    def get_fields():
+        return {
+            "speedlimit_qb_upload": {
+                "id": "speedlimit_qb_upload",
+                "required": False,
+                "title": "Qbittorrent",
+                "tooltip": "不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用",
+                "type": "text",
+                "placeholder": "上传限速，Kb/s"
+            },
+            "speedlimit_qb_download": {
+                "id": "speedlimit_qb_download",
+                "title": " ",
+                "required": False,
+                "type": "text",
+                "placeholder": "下载限速，Kb/s"
+            },
+            "speedlimit_tr_upload": {
+                "id": "speedlimit_tr_upload",
+                "required": False,
+                "title": "Transmission",
+                "tooltip": "不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用",
+                "type": "text",
+                "placeholder": "上传限速，Kb/s"
+            },
+            "speedlimit_tr_download": {
+                "id": "speedlimit_tr_download",
+                "title": " ",
+                "required": False,
+                "type": "text",
+                "placeholder": "下载限速，Kb/s"
+            },
+            "speedlimit_ipv4": {
+                "id": "speedlimit_ipv4",
+                "required": False,
+                "title": "不限速源地址",
+                "tooltip": "仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制",
+                "type": "text",
+                "placeholder": "IPv4 CIDR"
+            },
+            "speedlimit_ipv6": {
+                "id": "speedlimit_ipv6",
+                "title": " ",
+                "required": False,
+                "type": "text",
+                "placeholder": "IPv6 CIDR"
+            },
+            "speedlimit_bandwidth": {
+                "id": "speedlimit_bandwidth",
+                "required": False,
+                "title": "上行带宽",
+                "type": "text",
+                "placeholder": "Mbps，留空不启用"
+            },
+            "speedlimit_residual_ratio": {
+                "id": "speedlimit_residual_ratio",
+                "required": False,
+                "title": "剩余比例",
+                "tooltip": "上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1",
+                "type": "text",
+                "placeholder": "0.5"
+            },
+            "speedlimit_allocation": {
+                "id": "speedlimit_allocation",
+                "required": False,
+                "title": "分配比例",
+                "tooltip": "Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）",
+                "type": "text",
+                "placeholder": "1:1"
+            }
+        }
 
-    def get_fields(self, ctype):
-        pass
+    def init_config(self, config=None):
+        self._downloader = Downloader()
+        self._mediaserver = MediaServer()
 
-    def init_config(self):
-        self.downloader = Downloader()
-        self.mediaserver = MediaServer()
-
-        config = SystemConfig().get_system_config("SpeedLimit")
+        # 读取配置
         if config:
             try:
-                self.bandwidth = int(float(config.get("bandwidth") or 0)) * 1000000
-                residual_ratio = float(config.get("residual_ratio") or 1)
+                self._bandwidth = int(float(config.get("speedlimit_bandwidth") or 0)) * 1000000
+                residual_ratio = float(config.get("speedlimit_residual_ratio") or 1)
                 if residual_ratio > 1:
                     residual_ratio = 1
-                allocation = (config.get("allocation") or "1:1").split(":")
+                allocation = (config.get("speedlimit_allocation") or "1:1").split(":")
                 if len(allocation) != 2 or not str(allocation[0]).isdigit() or not str(allocation[-1]).isdigit():
                     allocation = ["1", "1"]
-                self.qb_upload_ratio = round(int(allocation[0]) / (int(allocation[-1]) + int(allocation[0])) * residual_ratio, 2)
-                self.tr_upload_ratio = round(int(allocation[-1]) / (int(allocation[-1]) + int(allocation[0])) * residual_ratio, 2)
+                self._qb_upload_ratio = round(int(allocation[0]) / (int(allocation[-1]) + int(allocation[0])) * residual_ratio, 2)
+                self._tr_upload_ratio = round(int(allocation[-1]) / (int(allocation[-1]) + int(allocation[0])) * residual_ratio, 2)
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
-                self.bandwidth = 0
-                self.qb_upload_ratio = 0
-                self.tr_upload_ratio = 0
-            self.auto_limit = True if self.bandwidth and (self.qb_upload_ratio or self.tr_upload_ratio) else False
+                self._bandwidth = 0
+                self._qb_upload_ratio = 0
+                self._tr_upload_ratio = 0
+            self._auto_limit = True if self._bandwidth and (self._qb_upload_ratio or self._tr_upload_ratio) else False
             try:
-                self.qb_download_limit = int(float(config.get("qb_download") or 0)) * 1024
-                self.qb_upload_limit = int(float(config.get("qb_upload") or 0)) * 1024
+                self._qb_download_limit = int(float(config.get("speedlimit_qb_download") or 0)) * 1024
+                self._qb_upload_limit = int(float(config.get("speedlimit_qb_upload") or 0)) * 1024
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
-                self.qb_download_limit = 0
-                self.qb_upload_limit = 0
-            self.qb_limit = True if self.qb_download_limit or self.qb_upload_limit or self.auto_limit else False
+                self._qb_download_limit = 0
+                self._qb_upload_limit = 0
+            self._qb_limit = True if self._qb_download_limit or self._qb_upload_limit or self._auto_limit else False
             try:
-                self.tr_download_limit = int(float(config.get("tr_download") or 0))
-                self.tr_upload_limit = int(float(config.get("tr_upload") or 0))
+                self._tr_download_limit = int(float(config.get("speedlimit_tr_download") or 0))
+                self._tr_upload_limit = int(float(config.get("speedlimit_tr_upload") or 0))
             except Exception as e:
-                self.tr_download_limit = 0
-                self.tr_upload_limit = 0
+                self._tr_download_limit = 0
+                self._tr_upload_limit = 0
                 ExceptionUtils.exception_traceback(e)
-            self.tr_limit = True if self.tr_download_limit or self.tr_upload_limit or self.auto_limit else False
-            self.limit_enabled = True if self.qb_limit or self.tr_limit else False
-            self.unlimited_ips["ipv4"] = config.get("ipv4") or "0.0.0.0/0"
-            self.unlimited_ips["ipv6"] = config.get("ipv6") or "::/0"
+            self._tr_limit = True if self._tr_download_limit or self._tr_upload_limit or self._auto_limit else False
+            self._limit_enabled = True if self._qb_limit or self._tr_limit else False
+            self._unlimited_ips["speedlimit_ipv4"] = config.get("speedlimit_ipv4") or "0.0.0.0/0"
+            self._unlimited_ips["speedlimit_ipv6"] = config.get("speedlimit_ipv6") or "::/0"
         else:
-            self.limit_enabled = False
+            self._limit_enabled = False
         # 移出现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        self.stop_service()
         # 启动限速任务
-        if self.limit_enabled:
+        if self._limit_enabled:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             self._scheduler.add_job(func=self.__check_playing_sessions,
-                                    args=[self.mediaserver.get_type(), True],
+                                    args=[self._mediaserver.get_type(), True],
                                     trigger='interval',
                                     seconds=300)
             self._scheduler.print_jobs()
@@ -120,53 +183,53 @@ class SpeedLimiter(_IPluginModule):
         """
         开始限速
         """
-        if self.qb_limit:
-            self.downloader.set_speed_limit(
+        if self._qb_limit:
+            self._downloader.set_speed_limit(
                 downloader=DownloaderType.QB,
-                download_limit=self.qb_download_limit,
-                upload_limit=self.qb_upload_limit
+                download_limit=self._qb_download_limit,
+                upload_limit=self._qb_upload_limit
             )
-            if not self.limit_flag:
+            if not self._limit_flag:
                 log.info(f"【SpeedLimiter】Qbittorrent下载器开始限速")
-        if self.tr_limit:
-            self.downloader.set_speed_limit(
+        if self._tr_limit:
+            self._downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
-                download_limit=self.tr_download_limit,
-                upload_limit=self.tr_upload_limit
+                download_limit=self._tr_download_limit,
+                upload_limit=self._tr_upload_limit
             )
-            if not self.limit_flag:
+            if not self._limit_flag:
                 log.info(f"【SpeedLimiter】Transmission下载器开始限速")
-        self.limit_flag = True
+        self._limit_flag = True
 
     def __stop(self):
         """
         停止限速
         """
-        if self.qb_limit:
-            self.downloader.set_speed_limit(
+        if self._qb_limit:
+            self._downloader.set_speed_limit(
                 downloader=DownloaderType.QB,
                 download_limit=0,
                 upload_limit=0
             )
-            if self.limit_flag:
+            if self._limit_flag:
                 log.info(f"【SpeedLimiter】Qbittorrent下载器停止限速")
-        if self.tr_limit:
-            self.downloader.set_speed_limit(
+        if self._tr_limit:
+            self._downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
                 download_limit=0,
                 upload_limit=0
             )
-            if self.limit_flag:
+            if self._limit_flag:
                 log.info(f"【SpeedLimiter】Transmission下载器停止限速")
-        self.limit_flag = False
+        self._limit_flag = False
 
     @EventHandler.register(EventType.EmbyWebhook)
     def emby_action(self, message):
         """
         检查emby Webhook消息
         """
-        if self.limit_enabled and message.get("Event") in ["playback.start", "playback.stop"]:
-            self.__check_playing_sessions(mediaserver_type=MediaServerType.EMBY, time_check=False)
+        if self._limit_enabled and message.get("Event") in ["playback.start", "playback.stop"]:
+            self.__check_playing_sessions(_mediaserver_type=MediaServerType.EMBY, time_check=False)
 
     @EventHandler.register(EventType.JellyfinWebhook)
     def jellyfin_action(self, message):
@@ -182,47 +245,60 @@ class SpeedLimiter(_IPluginModule):
         """
         pass
 
-    def __check_playing_sessions(self, mediaserver_type, time_check=False):
+    def __check_playing_sessions(self, _mediaserver_type, time_check=False):
         """
         检查是否限速
         """
-        if mediaserver_type != self.mediaserver.get_type():
+        if _mediaserver_type != self._mediaserver.get_type():
             return
-        playing_sessions = self.mediaserver.get_playing_sessions()
-        limit_flag = False
-        if mediaserver_type == MediaServerType.EMBY:
+        playing_sessions = self._mediaserver.get_playing_sessions()
+        _limit_flag = False
+        if _mediaserver_type == MediaServerType.EMBY:
             total_bit_rate = 0
             for session in playing_sessions:
-                if not SecurityHelper.allow_access(self.unlimited_ips, session.get("RemoteEndPoint")) \
+                if not SecurityHelper.allow_access(self._unlimited_ips, session.get("RemoteEndPoint")) \
                         and session.get("NowPlayingItem").get("MediaType") == "Video":
                     total_bit_rate += int(session.get("NowPlayingItem").get("Bitrate")) or 0
             if total_bit_rate:
-                limit_flag = True
-                if self.auto_limit:
-                    residual_bandwidth = (self.bandwidth - total_bit_rate)
-                    if residual_bandwidth < 0:
-                        self.qb_upload_limit = 10*1024
-                        self.tr_upload_limit = 10
+                _limit_flag = True
+                if self._auto_limit:
+                    residual__bandwidth = (self._bandwidth - total_bit_rate)
+                    if residual__bandwidth < 0:
+                        self._qb_upload_limit = 10*1024
+                        self._tr_upload_limit = 10
                     else:
-                        qb_upload_limit = residual_bandwidth / 8 / 1024 * self.qb_upload_ratio
-                        tr_upload_limit = residual_bandwidth / 8 / 1024 * self.tr_upload_ratio
-                        self.qb_upload_limit = qb_upload_limit * 1024 if qb_upload_limit > 10 else 10*1024
-                        self.tr_upload_limit = tr_upload_limit if tr_upload_limit > 10 else 10
-        elif mediaserver_type == MediaServerType.JELLYFIN:
+                        _qb_upload_limit = residual__bandwidth / 8 / 1024 * self._qb_upload_ratio
+                        _tr_upload_limit = residual__bandwidth / 8 / 1024 * self._tr_upload_ratio
+                        self._qb_upload_limit = _qb_upload_limit * 1024 if _qb_upload_limit > 10 else 10*1024
+                        self._tr_upload_limit = _tr_upload_limit if _tr_upload_limit > 10 else 10
+        elif _mediaserver_type == MediaServerType.JELLYFIN:
             pass
-        elif mediaserver_type == MediaServerType.PLEX:
+        elif _mediaserver_type == MediaServerType.PLEX:
             pass
         else:
             return
-        if time_check or self.auto_limit:
-            if limit_flag:
+        if time_check or self._auto_limit:
+            if _limit_flag:
                 self.__start()
             else:
                 self.__stop()
         else:
-            if not self.limit_flag and limit_flag:
+            if not self._limit_flag and _limit_flag:
                 self.__start()
-            elif self.limit_flag and not limit_flag:
+            elif self._limit_flag and not _limit_flag:
                 self.__stop()
             else:
                 pass
+
+    def stop_service(self):
+        """
+        退出插件
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))
