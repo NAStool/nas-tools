@@ -135,9 +135,6 @@ class WebhookEvent:
             "jellyfin": "https://play-lh.googleusercontent.com/SCsUK3hCCRqkJbmLDctNYCfehLxsS4ggD1ZPHIFrrAN1Tn9yhjmGMPep2D9lMaaa9eQi"
         }
 
-        if self.is_ignore_webhook_message(event_info.get('user_name'), event_info.get('device_name')):
-            return
-
         # 消息标题
         if event_info.get('item_type') == "TV":
             message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
@@ -181,18 +178,3 @@ class WebhookEvent:
             image_url = _webhook_images.get(channel)
         # 发送消息
         self.message.send_mediaserver_message(title=message_title, text="\n".join(message_texts), image=image_url)
-
-    def is_ignore_webhook_message(self, user_name, device_name):
-        """
-        判断是否忽略通知
-        """
-        if not user_name and not device_name:
-            return False
-        webhook_ignore = self.message.get_webhook_ignore()
-        if not webhook_ignore:
-            return False
-        if user_name in webhook_ignore or \
-                device_name in webhook_ignore or \
-                (user_name + ':' + device_name) in webhook_ignore:
-            return True
-        return False

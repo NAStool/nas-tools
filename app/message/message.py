@@ -20,7 +20,6 @@ class Message(object):
     _active_clients = []
     _active_interactive_clients = {}
     _client_configs = {}
-    _webhook_ignore = None
     _domain = None
 
     def __init__(self):
@@ -97,12 +96,6 @@ class Message(object):
         if not state:
             log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
         return state
-
-    def get_webhook_ignore(self):
-        """
-        获取Emby/Jellyfin不通知的设备清单
-        """
-        return self._webhook_ignore or []
 
     def __sendmsg(self, client, title, text="", image="", url="", user_id=""):
         """
