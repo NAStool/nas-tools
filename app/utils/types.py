@@ -90,5 +90,14 @@ class SiteSchema(Enum):
     TNode = "TNode"
 
 
+# 可监听事件
+class EventType(Enum):
+    EmbyWebhook = "emby.webhook"
+    JellyfinWebhook = "jellyfin.webhook"
+    PlexWebhook = "plex.webhook"
+
+
+# 电影类型关键字
 MovieTypes = ['MOV', '电影']
+# 电视剧类型关键字
 TvTypes = ['TV', '电视剧']

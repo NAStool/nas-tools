@@ -28,6 +28,7 @@ from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
+from app.plugins import EventManager
 from app.rsschecker import RssChecker
 from app.sites import Sites, SiteUserInfo
 from app.speedlimiter import SpeedLimiter
@@ -1319,9 +1320,11 @@ def plex_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(MediaServer().webhook_message_handler, (request_json, 'plex'))
-    # TODO
-    ThreadHelper().start_thread(SpeedLimiter().plex_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.PLEX))
+    # 触发事件
+    EventManager().send_event(EventType.JellyfinWebhook, request_json)
     return 'Ok'
 
 
@@ -1333,9 +1336,11 @@ def jellyfin_webhook():
         return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(MediaServer().webhook_message_handler, (request_json, 'jellyfin'))
-    # TODO
-    ThreadHelper().start_thread(SpeedLimiter().jellyfin_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.JELLYFIN))
+    # 触发事件
+    EventManager().send_event(EventType.JellyfinWebhook, request_json)
     return 'Ok'
 
 
@@ -1347,9 +1352,11 @@ def emby_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(MediaServer().webhook_message_handler, (request_json, 'emby'))
-    # TODO
-    ThreadHelper().start_thread(SpeedLimiter().emby_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.EMBY))
+    # 触发事件
+    EventManager().send_event(EventType.EmbyWebhook, request_json)
     return 'Ok'
 
 

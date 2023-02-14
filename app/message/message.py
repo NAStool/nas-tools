@@ -494,9 +494,9 @@ class Message(object):
             "item.rate": "标记了",
         }
         _webhook_images = {
-            "emby": "https://emby.media/notificationicon.png",
-            "plex": "https://www.plex.tv/wp-content/uploads/2022/04/new-logo-process-lines-gray.png",
-            "jellyfin": "https://play-lh.googleusercontent.com/SCsUK3hCCRqkJbmLDctNYCfehLxsS4ggD1ZPHIFrrAN1Tn9yhjmGMPep2D9lMaaa9eQi"
+            "Emby": "https://emby.media/notificationicon.png",
+            "Plex": "https://www.plex.tv/wp-content/uploads/2022/04/new-logo-process-lines-gray.png",
+            "Jellyfin": "https://play-lh.googleusercontent.com/SCsUK3hCCRqkJbmLDctNYCfehLxsS4ggD1ZPHIFrrAN1Tn9yhjmGMPep2D9lMaaa9eQi"
         }
 
         if not _webhook_actions.get(event_info.get('event')):

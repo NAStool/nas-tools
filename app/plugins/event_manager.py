@@ -3,6 +3,7 @@ from threading import Thread
 
 import log
 from app.utils.commons import singleton
+from app.utils.types import EventType
 
 
 @singleton
@@ -11,7 +12,19 @@ class EventManager:
     事件管理器
     """
 
+    # 事件队列
+    _eventQueue = None
+    # 事件响应函数字典
+    _handlers = {}
+    # 事件处理线程
+    _thread = None
+    # 开关
+    _active = False
+
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         # 事件队列
         self._eventQueue = Queue()
         # 事件响应函数字典
@@ -66,17 +79,18 @@ class EventManager:
         log.info("【System】事件管理器停止")
         self._thread.join()
 
-    def add_event_listener(self, etype, handler):
+    def add_event_listener(self, etype: EventType, handler):
         """
         注册事件处理
         """
         try:
-            handlerList = self._handlers[etype]
+            handlerList = self._handlers[etype.value]
         except KeyError:
             handlerList = []
-            self._handlers[etype] = handlerList
+            self._handlers[etype.value] = handlerList
         if handler not in handlerList:
             handlerList.append(handler)
+        log.debug(f"已注册事件：{self._handlers}")
 
     def remove_event_listener(self, etype, handler):
         """
@@ -91,11 +105,27 @@ class EventManager:
         except KeyError:
             pass
 
-    def send_event(self, event):
+    def send_event(self, etype: EventType, data: dict = None):
         """
         发送事件
         """
+        if etype not in EventType:
+            return
+        event = Event(etype.value)
+        event.dict = data or {}
         self._eventQueue.put(event)
+
+    def register(self, etype: EventType):
+        """
+        事件注册注解
+        :param etype: 事件类型
+        """
+
+        def decorator(f):
+            self.add_event_listener(etype, f)
+            return f
+
+        return decorator
 
 
 class Event(object):

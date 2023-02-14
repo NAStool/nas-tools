@@ -248,14 +248,14 @@ class MediaServer:
             return None
         return self.server.get_playing_sessions()
 
-    def webhook_message_handler(self, message, channel):
+    def webhook_message_handler(self, message: str, channel: MediaServerType):
         """
         处理Webhook消息
         """
         if not self.server:
             return
-        if channel != self.server.schema:
+        if channel != self._server_type:
             return
         event_info = self.server.get_webhook_message(message)
         if event_info:
-            self.message.send_mediaserver_message(event_info, channel)
+            self.message.send_mediaserver_message(event_info, channel.value)

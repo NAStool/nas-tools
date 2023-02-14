@@ -1,9 +1,10 @@
 from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.mediaserver import MediaServer
+from app.plugins import EventManager
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import DownloaderType, MediaServerType
+from app.utils.types import DownloaderType, MediaServerType, EventType
 from app.helper.security_helper import SecurityHelper
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
@@ -141,6 +142,7 @@ class SpeedLimiter:
                 log.info(f"【SpeedLimiter】Transmission下载器停止限速")
         self.limit_flag = False
 
+    @EventManager().register(EventType.EmbyWebhook)
     def emby_action(self, message):
         """
         检查emby Webhook消息
@@ -148,12 +150,14 @@ class SpeedLimiter:
         if self.limit_enabled and message.get("Event") in ["playback.start", "playback.stop"]:
             self.__check_playing_sessions(mediaserver_type=MediaServerType.EMBY, time_check=False)
 
+    @EventManager().register(EventType.JellyfinWebhook)
     def jellyfin_action(self, message):
         """
         检查jellyfin Webhook消息
         """
         pass
 
+    @EventManager().register(EventType.PlexWebhook)
     def plex_action(self, message):
         """
         检查plex Webhook消息
