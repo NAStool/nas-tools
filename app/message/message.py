@@ -1,5 +1,6 @@
 import json
 import re
+import time
 from enum import Enum
 
 import log
@@ -10,6 +11,7 @@ from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, MediaType
 from config import Config
+from web.backend.web_utils import WebUtils
 
 
 @singleton
@@ -470,22 +472,88 @@ class Message(object):
                     url="brushtask"
                 )
 
-    def send_mediaserver_message(self, title, text, image):
+    def send_mediaserver_message(self, event_info: dict, channel):
         """
         发送媒体服务器的消息
+        :param event_info: 事件信息
+        :param channel: 服务器类型
         """
-        if not title or not text or not image:
+        if not event_info or not channel:
             return
+        # 拼装消息内容
+        _webhook_actions = {
+            "system.webhooktest": "测试",
+            "playback.start": "开始播放",
+            "playback.stop": "停止播放",
+            "user.authenticated": "登录成功",
+            "user.authenticationfailed": "登录失败",
+            "media.play": "开始播放",
+            "PlaybackStart": "开始播放",
+            "PlaybackStop": "停止播放",
+            "media.stop": "停止播放",
+            "item.rate": "标记了",
+        }
+        _webhook_images = {
+            "emby": "https://emby.media/notificationicon.png",
+            "plex": "https://www.plex.tv/wp-content/uploads/2022/04/new-logo-process-lines-gray.png",
+            "jellyfin": "https://play-lh.googleusercontent.com/SCsUK3hCCRqkJbmLDctNYCfehLxsS4ggD1ZPHIFrrAN1Tn9yhjmGMPep2D9lMaaa9eQi"
+        }
+
+        if not _webhook_actions.get(event_info.get('event')):
+            return
+
+        # 消息标题
+        if event_info.get('item_type') == "TV":
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
+        elif event_info.get('item_type') == "MOV":
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}电影 {event_info.get('item_name')}"
+        else:
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}"
+
+        # 消息内容
+        if {event_info.get('user_name')}:
+            message_texts = [f"用户：{event_info.get('user_name')}"]
+        if event_info.get('device_name'):
+            message_texts.append(f"设备：{event_info.get('client')} {event_info.get('device_name')}")
+        if event_info.get('ip'):
+            message_texts.append(f"位置：{event_info.get('ip')} {WebUtils.get_location(event_info.get('ip'))}")
+        if event_info.get('percentage'):
+            percentage = round(float(event_info.get('percentage')), 2)
+            message_texts.append(f"进度：{percentage}%")
+        if event_info.get('overview'):
+            message_texts.append(f"剧情：{event_info.get('overview')}")
+        message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
+
+        # 消息图片
+        image_url = ''
+        if event_info.get('item_id'):
+            if event_info.get("item_type") == "TV":
+                iteminfo = self.mediaserver.get_iteminfo(event_info.get('item_id'))
+                tmdb_id = iteminfo.get('ProviderIds', {}).get('Tmdb')
+                try:
+                    # 从tmdb获取剧集某季某集图片
+                    image_url = self.media.get_episode_images(tmdb_id,
+                                                              event_info.get('season_id'),
+                                                              event_info.get('episode_id'))
+                except IOError:
+                    pass
+
+            if not image_url:
+                image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'),
+                                                             "Backdrop") or _webhook_images.get(channel)
+        else:
+            image_url = _webhook_images.get(channel)
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        message_content = "\n".join(message_texts)
+        self.messagecenter.insert_system_message(level="INFO", title=message_title, content=message_content)
         # 发送消息
         for client in self._active_clients:
             if "mediaserver_message" in client.get("switchs"):
                 self.__sendmsg(
                     client=client,
-                    title=title,
-                    text=text,
-                    image=image
+                    title=message_title,
+                    text=message_content,
+                    image=image_url
                 )
 
     def send_custom_message(self, title, text="", image=""):

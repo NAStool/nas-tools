@@ -4,6 +4,7 @@ import log
 from app.conf import ModuleConf
 from app.db import MediaDb
 from app.helper import ProgressHelper, SubmoduleHelper
+from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaServerType
@@ -20,6 +21,7 @@ class MediaServer:
     _server = None
     mediadb = None
     progress = None
+    message = None
 
     def __init__(self):
         self._mediaserver_schemas = SubmoduleHelper.import_submodules(
@@ -31,6 +33,7 @@ class MediaServer:
 
     def init_config(self):
         self.mediadb = MediaDb()
+        self.message = Message()
         self.progress = ProgressHelper()
         # 当前使用的媒体库服务器
         _type = Config().get_config('media').get('media_server') or 'emby'
@@ -244,3 +247,15 @@ class MediaServer:
         if not self.server:
             return None
         return self.server.get_playing_sessions()
+
+    def webhook_message_handler(self, message, channel):
+        """
+        处理Webhook消息
+        """
+        if not self.server:
+            return
+        if channel != self.server.schema:
+            return
+        event_info = self.server.get_webhook_message(message)
+        if event_info:
+            self.message.send_mediaserver_message(event_info, channel)
