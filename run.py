@@ -37,13 +37,14 @@ from web.main import App
 from app.utils import SystemUtils, ConfigLoadCache
 from app.utils.commons import INSTANCES
 from app.db import init_db, update_db, init_data
-from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
+from app.helper import IndexerHelper, DisplayHelper, init_chrome
 from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
 from app.torrentremover import TorrentRemover
 from app.speedlimiter import SpeedLimiter
+from app.plugins import EventManager
 from check_config import update_config, check_config
 from version import APP_VERSION
 
@@ -124,9 +125,8 @@ def start_service():
     TorrentRemover()
     # 启动播放限速服务
     SpeedLimiter()
-    # 初始化浏览器驱动
-    if not is_windows_exe:
-        ChromeHelper().init_driver()
+    # 启动事件管理器
+    EventManager()
 
 
 def monitor_config():
@@ -194,6 +194,9 @@ if __name__ == '__main__':
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable), 'r').read().splitlines()) <= 2:
             p1 = threading.Thread(target=traystart, daemon=True)
             p1.start()
+    else:
+        # 初始化浏览器驱动
+        init_chrome()
 
     # gunicorn 启动
     App.run(**get_run_config())
