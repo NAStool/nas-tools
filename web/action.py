@@ -841,6 +841,8 @@ class WebAction:
                 # 根据flag删除文件
                 source_path = paths[0].SOURCE_PATH
                 source_filename = paths[0].SOURCE_FILENAME
+                # 删除该识别记录对应的转移记录
+                self.dbhelper.delete_transfer_blacklist("%s/%s" % (source_path, source_filename))
                 dest = paths[0].DEST
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
