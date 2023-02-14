@@ -224,22 +224,22 @@ class SpeedLimiter(_IPluginModule):
         self._limit_flag = False
 
     @EventHandler.register(EventType.EmbyWebhook)
-    def emby_action(self, message):
+    def emby_action(self, event):
         """
         检查emby Webhook消息
         """
-        if self._limit_enabled and message.get("Event") in ["playback.start", "playback.stop"]:
+        if self._limit_enabled and event.dict.get("Event") in ["playback.start", "playback.stop"]:
             self.__check_playing_sessions(_mediaserver_type=MediaServerType.EMBY, time_check=False)
 
     @EventHandler.register(EventType.JellyfinWebhook)
-    def jellyfin_action(self, message):
+    def jellyfin_action(self, event):
         """
         检查jellyfin Webhook消息
         """
         pass
 
     @EventHandler.register(EventType.PlexWebhook)
-    def plex_action(self, message):
+    def plex_action(self, event):
         """
         检查plex Webhook消息
         """
