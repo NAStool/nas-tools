@@ -187,6 +187,7 @@ class WebAction:
             "get_download_dirs": self.__get_download_dirs,
             "find_hardlinks": self.__find_hardlinks,
             "update_sites_cookie_ua": self.__update_sites_cookie_ua,
+            "update_site_cookie_ua": self.__update_site_cookie_ua,
             "set_site_captcha_code": self.__set_site_captcha_code,
             "update_torrent_remove_task": self.__update_torrent_remove_task,
             "get_torrent_remove_task": self.__get_torrent_remove_task,
@@ -4219,6 +4220,17 @@ class WebAction:
         if retcode == 0:
             Sites().init_config()
         return {"code": retcode, "messages": messages}
+
+    def __update_site_cookie_ua(self, data):
+        """
+        更新单个站点的Cookie和UA
+        """
+        siteid = data.get("site_id")
+        cookie = data.get("site_cookie")
+        ua = data.get("site_ua")
+        self.dbhelper.update_site_cookie_ua(tid=siteid, cookie=cookie, ua=ua)
+        Sites().init_config()
+        return {"code": 0, "messages": "请求发送成功"}
 
     @staticmethod
     def __set_site_captcha_code(data):

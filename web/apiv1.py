@@ -285,6 +285,21 @@ class SiteUpdate(ClientResource):
         return WebAction().api_action(cmd='update_site', data=self.parser.parse_args())
 
 
+@site.route('/updateCookie')
+class SiteUpdateCookie(ApiResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('site_id', type=int, help='更新站点ID', location='form')
+    parser.add_argument('site_cookie', type=str, help='Cookie', location='form')
+    parser.add_argument('site_ua', type=str, help='Ua', location='form')
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        更新站点Cookie和Ua
+        """
+        return WebAction().api_action(cmd='update_site_cookie_ua', data=self.parser.parse_args())
+
+
 @site.route('/info')
 class SiteInfo(ClientResource):
     parser = reqparse.RequestParser()
