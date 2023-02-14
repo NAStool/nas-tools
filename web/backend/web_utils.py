@@ -155,3 +155,27 @@ class WebUtils:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                 medias.append(tmp_info)
         return medias
+
+    @staticmethod
+    def get_page_range(current_page, total_page):
+        """
+        计算分页范围
+        """
+        if total_page <= 5:
+            StartPage = 1
+            EndPage = total_page
+        else:
+            if current_page <= 3:
+                StartPage = 1
+                EndPage = 5
+            elif current_page >= total_page - 2:
+                StartPage = total_page - 4
+                EndPage = total_page
+            else:
+                StartPage = current_page - 2
+                if total_page > current_page + 2:
+                    EndPage = current_page + 2
+                else:
+                    EndPage = total_page
+        return range(StartPage, EndPage + 1)
+

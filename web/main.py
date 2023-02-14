@@ -873,23 +873,8 @@ def history():
     keyword = request.args.get("s") or ""
     current_page = request.args.get("page")
     Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
-    if Result.get("totalPage") <= 5:
-        StartPage = 1
-        EndPage = Result.get("totalPage")
-    else:
-        if Result.get("currentPage") <= 3:
-            StartPage = 1
-            EndPage = 5
-        elif Result.get("currentPage") >= Result.get("totalPage") - 2:
-            StartPage = Result.get("totalPage") - 4
-            EndPage = Result.get("totalPage")
-        else:
-            StartPage = Result.get("currentPage") - 2
-            if Result.get("totalPage") > Result.get("currentPage") + 2:
-                EndPage = Result.get("currentPage") + 2
-            else:
-                EndPage = Result.get("totalPage")
-    PageRange = range(StartPage, EndPage + 1)
+    PageRange = WebUtils.get_page_range(current_page=Result.get("currentPage"),
+                                        total_page=Result.get("totalPage"))
 
     return render_template("rename/history.html",
                            TotalCount=Result.get("total"),
@@ -918,24 +903,9 @@ def tmdbcache():
     else:
         current_page = int(current_page)
     total_count, tmdb_caches = MetaHelper().dump_meta_data(search_str, current_page, page_num)
-
     total_page = floor(total_count / page_num) + 1
-
-    if total_page <= 5:
-        start_page = 1
-        end_page = total_page
-    else:
-        if current_page <= 3:
-            start_page = 1
-            end_page = 5
-        else:
-            start_page = current_page - 3
-            if total_page > current_page + 3:
-                end_page = current_page + 3
-            else:
-                end_page = total_page
-
-    page_range = range(start_page, end_page + 1)
+    page_range = WebUtils.get_page_range(current_page=current_page,
+                                         total_page=total_page)
 
     return render_template("rename/tmdbcache.html",
                            TotalCount=total_count,
@@ -956,23 +926,8 @@ def unidentification():
     keyword = request.args.get("s") or ""
     current_page = request.args.get("page")
     Result = WebAction().get_unknown_list_by_page({"keyword": keyword, "page": current_page, "pagenum": pagenum})
-    if Result.get("totalPage") <= 5:
-        StartPage = 1
-        EndPage = Result.get("totalPage")
-    else:
-        if Result.get("currentPage") <= 3:
-            StartPage = 1
-            EndPage = 5
-        elif Result.get("currentPage") >= Result.get("totalPage") - 2:
-            StartPage = Result.get("totalPage") - 4
-            EndPage = Result.get("totalPage")
-        else:
-            StartPage = Result.get("currentPage") - 2
-            if Result.get("totalPage") > Result.get("currentPage") + 2:
-                EndPage = Result.get("currentPage") + 2
-            else:
-                EndPage = Result.get("totalPage")
-    PageRange = range(StartPage, EndPage + 1)
+    PageRange = WebUtils.get_page_range(current_page=Result.get("currentPage"),
+                                        total_page=Result.get("totalPage"))
     return render_template("rename/unidentification.html",
                            TotalCount=Result.get("total"),
                            Count=len(Result.get("items")),
