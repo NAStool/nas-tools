@@ -1,5 +1,4 @@
 import datetime
-import xml.dom.minidom
 from abc import ABCMeta, abstractmethod
 
 import log
@@ -7,7 +6,6 @@ from app.filter import Filter
 from app.helper import ProgressHelper
 from app.media import Media
 from app.media.meta import MetaInfo
-from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils
 from app.utils.types import MediaType, SearchType
 
 

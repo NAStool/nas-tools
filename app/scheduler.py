@@ -12,7 +12,7 @@ from app.downloader import Downloader
 from app.helper import MetaHelper
 from app.mediaserver import MediaServer
 from app.rss import Rss
-from app.sites import Sites, SiteUserInfo, SiteSignin
+from app.sites import SiteUserInfo, SiteSignin
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import ExceptionUtils
