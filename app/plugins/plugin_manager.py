@@ -55,8 +55,7 @@ class PluginManager:
         """
         for pid, plugin in self._plugins.items():
             self._running_plugins[pid] = self.run_plugin(pid, *args, **kwargs)
-            if hasattr(self._running_plugins[pid], "init_config"):
-                self._running_plugins[pid].init_config(self.get_plugin_config(pid))
+            self.reload_plugin(pid)
 
     def reload_plugin(self, pid):
         if not self._running_plugins.get(pid):
