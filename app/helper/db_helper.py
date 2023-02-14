@@ -312,7 +312,7 @@ class DbHelper:
         """
         return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').all()
     
-    def get_transfer_unknown_paths_by_page(self, page, rownum):
+    def get_transfer_unknown_paths_by_page(self, search, page, rownum):
         """
         按页查询未识别的记录列表
         """
@@ -320,8 +320,16 @@ class DbHelper:
             begin_pos = 0
         else:
             begin_pos = (int(page) - 1) * int(rownum)
-
-        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').count(), self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').order_by(
+        if search:
+            search = f"%{search}%"
+            count = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N') 
+                                                           & (TRANSFERUNKNOWN.PATH.like(search))).count()
+            data = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N') 
+                                                           & (TRANSFERUNKNOWN.PATH.like(search))).order_by(
+                TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()    
+            return count, data
+        else:
+            return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').count(), self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').order_by(
                 TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()    
 
     @DbPersist(_db)

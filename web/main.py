@@ -953,8 +953,9 @@ def tmdbcache():
 @login_required
 def unidentification():
     pagenum = request.args.get("pagenum")
+    keyword = request.args.get("s") or ""
     current_page = request.args.get("page")
-    Result = WebAction().get_unknown_list_by_page({"page": current_page, "pagenum": pagenum})
+    Result = WebAction().get_unknown_list_by_page({"keyword": keyword, "page": current_page, "pagenum": pagenum})
     if Result.get("totalPage") <= 5:
         StartPage = 1
         EndPage = Result.get("totalPage")
@@ -976,6 +977,7 @@ def unidentification():
                            TotalCount=Result.get("total"),
                            Count=len(Result.get("items")),
                            Items=Result.get("items"),
+                           Search=keyword,
                            CurrentPage=Result.get("currentPage"),
                            TotalPage=Result.get("totalPage"),
                            PageRange=PageRange,

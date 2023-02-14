@@ -32,6 +32,13 @@
               <div class="text-muted">
                 共 {{ TotalCount }} 条记录
               </div>
+              <div class="ms-auto text-muted">
+                搜索:
+                <div class="ms-2 d-inline-block">
+                  <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
+                         aria-label="搜索">
+                </div>
+              </div>              
             </div>
             <div class="card-actions btn-actions">
               <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
@@ -111,7 +118,7 @@
               <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
               <ul class="pagination m-0 ms-auto">
                 <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
-                  <a class="page-link" href="javascript:go_pre_page({{ CurrentPage }})" tabindex="-1"
+                  <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
                      aria-disabled="true">
                     {{ SVG.chevron_left() }}
                   </a>
@@ -119,12 +126,12 @@
                 {% for page in PageRange %}
                   <li class="page-item {% if page==CurrentPage %} active {% endif %}">
                     <a class="page-link"
-                       href="javascript:navmenu('unidentification?page={{ page }}')">{{ page }}</a>
+                       href="javascript:navmenu('unidentification?s={{ Search }}&page={{ page }}')">{{ page }}</a>
                   </li>
                 {% endfor %}
                 <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
                   <a class="page-link"
-                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
                     {{ SVG.chevron_right() }}
                   </a>
                 </li>
@@ -138,14 +145,22 @@
 </div>
 <script type="text/javascript">
   // 上一页
-  function go_pre_page(page) {
-    navmenu("unidentification?page=" + (page - 1))
+  function go_pre_page(search, page) {
+    navmenu("unidentification?s=" + search + "&page=" + (page - 1))
   }
 
   // 下一页
-  function go_next_page(page) {
-    navmenu("unidentification?page=" + (page + 1))
+  function go_next_page(search, page) {
+    navmenu("unidentification?s=" + search + "&page=" + (page + 1))
   }
+
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      const keyword = $("#search_word").val();
+      navmenu("unidentification?s=" + keyword);
+    }
+  });
 
   //显示弹出窗口
   function show_rename_modal(id, path, rmt_mode) {

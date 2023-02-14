@@ -3772,7 +3772,7 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
         totalCount, Records = self.dbhelper.get_transfer_unknown_paths_by_page(
-            CurrentPage, PageNum)  
+            SearchStr, CurrentPage, PageNum)  
         Items = []
         for rec in Records:
             if not rec.PATH:
