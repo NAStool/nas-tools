@@ -28,7 +28,7 @@ from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
-from app.plugins import PluginManager
+from app.plugins import PluginManager, EventManager
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
