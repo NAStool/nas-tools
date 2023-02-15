@@ -790,7 +790,7 @@ class FileTransfer:
                     in_from=in_from,
                     rmt_mode=rmt_mode,
                     in_path=reg_path,
-                    out_path=new_file if not bluray_disk_dir else None,
+                    out_path=new_file if not bluray_disk_dir else ret_dir_path,
                     dest=dist_path,
                     media_info=media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
@@ -840,7 +840,7 @@ class FileTransfer:
         # 刷新媒体库
         if refresh_library_items and self._refresh_mediaserver:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
-        # 启新进程下载字幕
+        # TODO 启新进程下载字幕
         if download_subtitle_items:
             self.threadhelper.start_thread(Subtitle().download_subtitle, (download_subtitle_items,))
         # 总结

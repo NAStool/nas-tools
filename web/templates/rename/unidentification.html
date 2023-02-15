@@ -30,14 +30,28 @@
           <div class="card-header">
             <div class="d-flex">
               <div class="text-muted">
-                共 {{ TotalCount }} 条记录
+                共 {{ TotalCount }} 条记录<span class="d-none d-md-inline-block"> ，搜索：</span>
               </div>
+              <div class="ms-auto text-muted">
+                <div class="ms-2 d-none d-md-inline-block">
+                  <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
+                         aria-label="搜索">
+                </div>
+              </div>              
             </div>
-            <div class="card-actions btn-actions">
-              <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
+            <div class="card-actions">
+              <a href="javascript:reidentification_all()" class="btn d-none d-md-inline-block" title="重新识别">
+                {{ SVG.refresh() }}
+                重新识别
+              </a>
+              <a href="javascript:reidentification_all()" class="btn-action d-md-none" title="重新识别">
                 {{ SVG.refresh() }}
               </a>
-              <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
+              <a href="javascript:delete_checked_unknown()" class="btn d-none d-md-inline-block" title="批量删除">
+                {{ SVG.trash() }}
+                批量删除
+              </a>
+              <a href="javascript:delete_checked_unknown()" class="btn-action d-md-none" title="批量删除">
                 {{ SVG.trash() }}
               </a>
             </div>
@@ -106,12 +120,54 @@
               </tbody>
             </table>
           </div>
+          {% if TotalCount > 0 %}
+            <div class="card-footer d-flex align-items-center">
+              <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+              <ul class="pagination m-0 ms-auto">
+                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                  <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
+                     aria-disabled="true">
+                    {{ SVG.chevron_left() }}
+                  </a>
+                </li>
+                {% for page in PageRange %}
+                  <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                    <a class="page-link"
+                       href="javascript:navmenu('unidentification?s={{ Search }}&page={{ page }}')">{{ page }}</a>
+                  </li>
+                {% endfor %}
+                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                  <a class="page-link"
+                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                    {{ SVG.chevron_right() }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
+  // 上一页
+  function go_pre_page(search, page) {
+    navmenu("unidentification?s=" + search + "&page=" + (page - 1))
+  }
+
+  // 下一页
+  function go_next_page(search, page) {
+    navmenu("unidentification?s=" + search + "&page=" + (page + 1))
+  }
+
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      const keyword = $("#search_word").val();
+      navmenu("unidentification?s=" + keyword);
+    }
+  });
 
   //显示弹出窗口
   function show_rename_modal(id, path, rmt_mode) {

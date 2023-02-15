@@ -26,11 +26,11 @@ from app.filter import Filter
 from app.helper import SecurityHelper, MetaHelper, ChromeHelper, ThreadHelper
 from app.indexer import Indexer
 from app.media.meta import MetaInfo
-from app.mediaserver import WebhookEvent
+from app.mediaserver import MediaServer
 from app.message import Message
+from app.plugins import EventManager, PluginManager
 from app.rsschecker import RssChecker
 from app.sites import Sites, SiteUserInfo
-from app.speedlimiter import SpeedLimiter
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
@@ -875,23 +875,8 @@ def history():
     keyword = request.args.get("s") or ""
     current_page = request.args.get("page")
     Result = WebAction().get_transfer_history({"keyword": keyword, "page": current_page, "pagenum": pagenum})
-    if Result.get("totalPage") <= 5:
-        StartPage = 1
-        EndPage = Result.get("totalPage")
-    else:
-        if Result.get("currentPage") <= 3:
-            StartPage = 1
-            EndPage = 5
-        elif Result.get("currentPage") >= Result.get("totalPage") - 2:
-            StartPage = Result.get("totalPage") - 4
-            EndPage = Result.get("totalPage")
-        else:
-            StartPage = Result.get("currentPage") - 2
-            if Result.get("totalPage") > Result.get("currentPage") + 2:
-                EndPage = Result.get("currentPage") + 2
-            else:
-                EndPage = Result.get("totalPage")
-    PageRange = range(StartPage, EndPage + 1)
+    PageRange = WebUtils.get_page_range(current_page=Result.get("currentPage"),
+                                        total_page=Result.get("totalPage"))
 
     return render_template("rename/history.html",
                            TotalCount=Result.get("total"),
@@ -920,24 +905,9 @@ def tmdbcache():
     else:
         current_page = int(current_page)
     total_count, tmdb_caches = MetaHelper().dump_meta_data(search_str, current_page, page_num)
-
     total_page = floor(total_count / page_num) + 1
-
-    if total_page <= 5:
-        start_page = 1
-        end_page = total_page
-    else:
-        if current_page <= 3:
-            start_page = 1
-            end_page = 5
-        else:
-            start_page = current_page - 3
-            if total_page > current_page + 3:
-                end_page = current_page + 3
-            else:
-                end_page = total_page
-
-    page_range = range(start_page, end_page + 1)
+    page_range = WebUtils.get_page_range(current_page=current_page,
+                                         total_page=total_page)
 
     return render_template("rename/tmdbcache.html",
                            TotalCount=total_count,
@@ -954,10 +924,21 @@ def tmdbcache():
 @App.route('/unidentification', methods=['POST', 'GET'])
 @login_required
 def unidentification():
-    Items = WebAction().get_unknown_list().get("items")
+    pagenum = request.args.get("pagenum")
+    keyword = request.args.get("s") or ""
+    current_page = request.args.get("page")
+    Result = WebAction().get_unknown_list_by_page({"keyword": keyword, "page": current_page, "pagenum": pagenum})
+    PageRange = WebUtils.get_page_range(current_page=Result.get("currentPage"),
+                                        total_page=Result.get("totalPage"))
     return render_template("rename/unidentification.html",
-                           TotalCount=len(Items),
-                           Items=Items)
+                           TotalCount=Result.get("total"),
+                           Count=len(Result.get("items")),
+                           Items=Result.get("items"),
+                           Search=keyword,
+                           CurrentPage=Result.get("currentPage"),
+                           TotalPage=Result.get("totalPage"),
+                           PageRange=PageRange,
+                           PageNum=Result.get("currentPage"))
 
 
 # 文件管理页面
@@ -1155,6 +1136,15 @@ def rss_parser():
                            Count=len(RssParsers))
 
 
+# 插件页面
+@App.route('/plugin', methods=['POST', 'GET'])
+@login_required
+def plugin():
+    Plugins = PluginManager().get_plugins_conf()
+    return render_template("setting/plugin.html",
+                           Plugins=Plugins)
+
+
 # 事件响应
 @App.route('/do', methods=['POST'])
 @action_login_check
@@ -1321,8 +1311,11 @@ def plex_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('payload', {}))
     log.debug("收到Plex Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(WebhookEvent().plex_action, (request_json,))
-    ThreadHelper().start_thread(SpeedLimiter().plex_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.PLEX))
+    # 触发事件
+    EventManager().send_event(EventType.PlexWebhook, request_json)
     return 'Ok'
 
 
@@ -1334,8 +1327,11 @@ def jellyfin_webhook():
         return '不允许的IP地址请求'
     request_json = request.get_json()
     log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(WebhookEvent().jellyfin_action, (request_json,))
-    ThreadHelper().start_thread(SpeedLimiter().jellyfin_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.JELLYFIN))
+    # 触发事件
+    EventManager().send_event(EventType.JellyfinWebhook, request_json)
     return 'Ok'
 
 
@@ -1347,8 +1343,11 @@ def emby_webhook():
         return '不允许的IP地址请求'
     request_json = json.loads(request.form.get('data', {}))
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
-    ThreadHelper().start_thread(WebhookEvent().emby_action, (request_json,))
-    ThreadHelper().start_thread(SpeedLimiter().emby_action, (request_json,))
+    # 发送消息
+    ThreadHelper().start_thread(MediaServer().webhook_message_handler,
+                                (request_json, MediaServerType.EMBY))
+    # 触发事件
+    EventManager().send_event(EventType.EmbyWebhook, request_json)
     return 'Ok'
 
 

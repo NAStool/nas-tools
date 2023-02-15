@@ -28,6 +28,7 @@ from app.media import Category, Media, Bangumi, DouBan
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
+from app.plugins import PluginManager, EventManager
 from app.rss import Rss
 from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
@@ -36,10 +37,9 @@ from app.subscribe import Subscribe
 from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
-from app.speedlimiter import SpeedLimiter
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils, Torrent
-from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, MovieTypes, TvTypes
+from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, MovieTypes, TvTypes, EventType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.web_utils import WebUtils
@@ -48,7 +48,6 @@ from web.backend.web_utils import WebUtils
 class WebAction:
     dbhelper = None
     _actions = {}
-    TvTypes = ['TV', '电视剧']
 
     def __init__(self):
         self.dbhelper = DbHelper()
@@ -164,6 +163,7 @@ class WebAction:
             "get_rss_history": self.get_rss_history,
             "get_transfer_history": self.get_transfer_history,
             "get_unknown_list": self.get_unknown_list,
+            "get_unknown_list_by_page": self.get_unknown_list_by_page,
             "get_customwords": self.get_customwords,
             "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
@@ -187,6 +187,7 @@ class WebAction:
             "get_download_dirs": self.__get_download_dirs,
             "find_hardlinks": self.__find_hardlinks,
             "update_sites_cookie_ua": self.__update_sites_cookie_ua,
+            "update_site_cookie_ua": self.__update_site_cookie_ua,
             "set_site_captcha_code": self.__set_site_captcha_code,
             "update_torrent_remove_task": self.__update_torrent_remove_task,
             "get_torrent_remove_task": self.__get_torrent_remove_task,
@@ -206,7 +207,8 @@ class WebAction:
             "media_person": self.__media_person,
             "person_medias": self.__person_medias,
             "save_user_script": self.__save_user_script,
-            "run_directory_sync": self.__run_directory_sync
+            "run_directory_sync": self.__run_directory_sync,
+            "update_plugin_config": self.__update_plugin_config
         }
 
     def action(self, cmd, data=None):
@@ -249,10 +251,16 @@ class WebAction:
         stop_scheduler()
         # 停止监控
         stop_monitor()
+        # 关闭虚拟显示
+        DisplayHelper().stop_service()
+        # 关闭刷流
+        BrushTask().stop_service()
+        # 关闭自定义订阅
+        RssChecker().stop_service()
+        # 关闭插件
+        PluginManager().stop_plugins()
         # 签退
         logout_user()
-        # 关闭虚拟显示
-        DisplayHelper().quit()
         # 重启进程
         if os.name == "nt":
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
@@ -282,6 +290,16 @@ class WebAction:
             "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
             "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
+
+        # 触发事件
+        EventManager().send_event(etype=EventType.MessageIncoming, data={
+            "channel": in_from.value,
+            "user_id": user_id,
+            "user_name": user_name,
+            "message": msg
+
+        })
+
         command = commands.get(msg)
         message = Message()
 
@@ -624,25 +642,7 @@ class WebAction:
                 progress = round(torrent.get('progress') * 100)
                 # 主键
                 key = torrent.get('hash')
-            elif Client == DownloaderType.Client115:
-                state = "Downloading"
-                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
-                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
-                speed = "%s%sB/s %s%sB/s" % (chr(8595),
-                                             dlspeed, chr(8593), upspeed)
-                # 进度
-                progress = round(torrent.get('percentDone'), 1)
-                # 主键
-                key = torrent.get('info_hash')
-            elif Client == DownloaderType.PikPak:
-                key = torrent.get('id')
-                if torrent.get('finish'):
-                    speed = "PikPak: 下载完成"
-                else:
-                    speed = "PikPak: 下载中"
-                state = ""
-                progress = ""
-            else:
+            elif Client == DownloaderType.TR:
                 if torrent.status in ['stopped']:
                     state = "Stoped"
                     speed = "已暂停"
@@ -656,9 +656,14 @@ class WebAction:
                 progress = round(torrent.progress, 1)
                 # 主键
                 key = torrent.id
-
-            torrent_info = {'id': key, 'speed': speed,
-                            'state': state, 'progress': progress}
+            else:
+                continue
+            torrent_info = {
+                'id': key,
+                'speed': speed,
+                'state': state,
+                'progress': progress
+            }
             if torrent_info not in DispTorrents:
                 DispTorrents.append(torrent_info)
         return {"retcode": 0, "torrents": DispTorrents}
@@ -854,6 +859,8 @@ class WebAction:
                 # 根据flag删除文件
                 source_path = paths[0].SOURCE_PATH
                 source_filename = paths[0].SOURCE_FILENAME
+                # 删除该识别记录对应的转移记录
+                self.dbhelper.delete_transfer_blacklist("%s/%s" % (source_path, source_filename))
                 dest = paths[0].DEST
                 dest_path = paths[0].DEST_PATH
                 dest_filename = paths[0].DEST_FILENAME
@@ -3756,6 +3763,49 @@ class WebAction:
             })
 
         return {"code": 0, "items": Items}
+    
+    def get_unknown_list_by_page(self, data):
+        """
+        查询所有未识别记录
+        """
+        PageNum = data.get("pagenum")
+        if not PageNum:
+            PageNum = 30
+        SearchStr = data.get("keyword")
+        CurrentPage = data.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = int(CurrentPage)
+        totalCount, Records = self.dbhelper.get_transfer_unknown_paths_by_page(
+            SearchStr, CurrentPage, PageNum)  
+        Items = []
+        for rec in Records:
+            if not rec.PATH:
+                continue
+            path = rec.PATH.replace("\\", "/") if rec.PATH else ""
+            path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
+            sync_mode = rec.MODE or ""
+            rmt_mode = ModuleConf.get_dictenum_key(ModuleConf.RMT_MODES,
+                                                   sync_mode) if sync_mode else ""
+            Items.append({
+                "id": rec.ID,
+                "path": path,
+                "to": path_to,
+                "name": path,
+                "sync_mode": sync_mode,
+                "rmt_mode": rmt_mode,
+            })
+        TotalPage = floor(totalCount / PageNum) + 1
+
+        return {
+            "code": 0, 
+            "total": totalCount,
+            "items": Items,
+            "totalPage": TotalPage,
+            "pageNum": PageNum,
+            "currentPage": CurrentPage
+        }
 
     def unidentification(self):
         """
@@ -4039,6 +4089,7 @@ class WebAction:
                           "episode": media.begin_episode,
                           "bluray": False,
                           "imdbid": media.imdb_id}]
+        # TODO
         success, retmsg = Subtitle().download_subtitle(items=subtitle_item)
         if success:
             return {"code": 0, "msg": retmsg}
@@ -4233,6 +4284,17 @@ class WebAction:
             Sites().init_config()
         return {"code": retcode, "messages": messages}
 
+    def __update_site_cookie_ua(self, data):
+        """
+        更新单个站点的Cookie和UA
+        """
+        siteid = data.get("site_id")
+        cookie = data.get("site_cookie")
+        ua = data.get("site_ua")
+        self.dbhelper.update_site_cookie_ua(tid=siteid, cookie=cookie, ua=ua)
+        Sites().init_config()
+        return {"code": 0, "messages": "请求发送成功"}
+
     @staticmethod
     def __set_site_captcha_code(data):
         """
@@ -4342,8 +4404,6 @@ class WebAction:
             return {"code": 1}
         try:
             SystemConfig().set_system_config(key=key, value=value)
-            if key == "SpeedLimit":
-                SpeedLimiter().init_config()
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -4563,3 +4623,16 @@ class WebAction:
         """
         Sync().transfer_all_sync(sid=data.get("sid"))
         return {"code": 0, "msg": "执行成功"}
+
+    @staticmethod
+    def __update_plugin_config(data):
+        """
+        保存插件配置
+        """
+        plugin_id = data.get("plugin")
+        config = data.get("config")
+        if not plugin_id:
+            return {"code": 1, "msg": "数据错误"}
+        PluginManager().save_plugin_config(pid=plugin_id, conf=config)
+        PluginManager().reload_plugin(plugin_id)
+        return {"code": 0, "msg": "保存成功"}

@@ -77,3 +77,11 @@ class DictHelper:
             return True
         else:
             return False
+
+    def list(self, dtype):
+        """
+        查询字典列表
+        """
+        if not dtype:
+            return []
+        return self._db.query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype).all()

@@ -8,55 +8,44 @@ from app.utils.commons import singleton
 class SystemConfig:
 
     # 系统设置
-    systemconfig = {
-        # 默认下载设置
-        "DefaultDownloadSetting": None,
-        # CookieCloud的设置
-        "CookieCloud": {},
-        # 自动获取Cookie的用户信息
-        "CookieUserInfo": {},
-        # 用户自定义CSS/JavsScript
-        "CustomScript": {},
-        # 播放限速设置
-        "SpeedLimit": {}
-    }
+    systemconfig = {}
 
     def __init__(self):
+        self.dicthelper = DictHelper()
         self.init_config()
 
-    def init_config(self, key=None):
+    def init_config(self):
         """
         缓存系统设置
         """
-        def __set_value(_key, _value):
-            if isinstance(_value, dict) \
-                    or isinstance(_value, list):
-                dict_value = DictHelper().get("SystemConfig", _key)
-                if dict_value:
-                    self.systemconfig[_key] = json.loads(dict_value)
-                else:
-                    self.systemconfig[_key] = {}
+        for item in self.dicthelper.list("SystemConfig"):
+            if not item:
+                continue
+            if self.__is_obj(item.VALUE):
+                self.systemconfig[item.KEY] = json.loads(item.VALUE)
             else:
-                self.systemconfig[_key] = DictHelper().get("SystemConfig", _key)
+                self.systemconfig[item.KEY] = item.VALUE
 
-        if key:
-            __set_value(key, self.systemconfig.get(key))
+    @staticmethod
+    def __is_obj(obj):
+        if isinstance(obj, list) or isinstance(obj, dict):
+            return True
         else:
-            for key, value in self.systemconfig.items():
-                __set_value(key, value)
+            return str(obj).startswith("{") or str(obj).startswith("[")
 
     def set_system_config(self, key, value):
         """
         设置系统设置
         """
-        if isinstance(value, dict) \
-                or isinstance(value, list):
+        # 更新内存
+        self.systemconfig[key] = value
+        # 写入数据库
+        if self.__is_obj(value):
             if value:
                 value = json.dumps(value)
             else:
-                value = None
-        DictHelper().set("SystemConfig", key, value)
-        self.init_config(key)
+                value = ''
+        self.dicthelper.set("SystemConfig", key, value)
 
     def get_system_config(self, key=None):
         """

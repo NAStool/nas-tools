@@ -317,14 +317,6 @@ def update_config():
             _config['transmission'].pop('save_path')
         if _config.get('transmission', {}).get('save_containerpath'):
             _config['transmission'].pop('save_containerpath')
-        if _config.get('client115', {}).get('save_path'):
-            _config['client115'].pop('save_path')
-        if _config.get('client115', {}).get('save_containerpath'):
-            _config['client115'].pop('save_containerpath')
-        if _config.get('pikpak', {}).get('save_path'):
-            _config['pikpak'].pop('save_path')
-        if _config.get('pikpak', {}).get('save_containerpath'):
-            _config['pikpak'].pop('save_containerpath')
         overwrite_cofig = True
     elif isinstance(_config.get('downloaddir'), dict):
         downloaddir_list = []

@@ -8,6 +8,7 @@ from app.utils import RequestUtils, SystemUtils, ExceptionUtils
 
 
 class Jellyfin(_IMediaClient):
+
     schema = "jellyfin"
     server_type = MediaServerType.JELLYFIN.value
     _client_config = {}
@@ -422,3 +423,13 @@ class Jellyfin(_IMediaClient):
         获取正在播放的会话
         """
         pass
+
+    def get_webhook_message(self, message):
+        """
+        解析Jellyfin报文
+        """
+        eventItem = {'event': message.get('NotificationType', {}),
+                     'item_name': message.get('Name'),
+                     'user_name': message.get('NotificationUsername')
+                     }
+        return eventItem
