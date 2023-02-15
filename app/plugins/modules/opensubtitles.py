@@ -18,8 +18,6 @@ from config import Config, RMT_SUBEXT
 
 class OpenSubtitles(_IPluginModule):
 
-    # 插件ID
-    module_id = "OpenSubtitles"
     # 插件名称
     module_name = "OpenSubtitles"
     # 插件描述
@@ -35,7 +33,7 @@ class OpenSubtitles(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "opensubtitles_"
     # 加载顺序
-    module_order = 3
+    module_order = 2
 
     # 私有属性
     _cookie = ""
@@ -57,14 +55,24 @@ class OpenSubtitles(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        return {
-            "enable": {
-                "required": False,
-                "title": "开启opensubtitles.org字幕下载",
-                "tooltip": "需要确保网络能正常连通www.opensubtitles.org",
-                "type": "switch"
-            }
-        }
+        return [
+                    # 同一板块
+                    {
+                        'type': 'div',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': '开启opensubtitles.org字幕下载',
+                                    'required': "",
+                                    'tooltip': '需要确保网络能正常连通www.opensubtitles.org',
+                                    'type': 'switch',
+                                    'id': 'enable',
+                                }
+                            ]
+                        ]
+                    }
+            ]
 
     def stop_service(self):
         pass
@@ -100,7 +108,7 @@ class OpenSubtitles(_IPluginModule):
         log.info("【Plugin】开始从Opensubtitle.org检索字幕: %s，imdbid=%s" % (item_name, imdb_id))
         subtitles = self.search_subtitles(imdb_id=imdb_id, name=item_name, year=item_year)
         if not subtitles:
-            log.info("【Plugin】%s 未检索到字幕" % item_name)
+            log.warn("【Plugin】%s 未检索到字幕" % item_name)
         else:
             log.info("【Plugin】opensubtitles.org返回数据：%s" % len(subtitles))
             # 成功数

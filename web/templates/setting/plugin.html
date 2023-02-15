@@ -32,25 +32,13 @@
   </div>
 </div>
 {% for Id, Plugin in Plugins.items() %}
-<div class="modal modal-blur fade" id="modal-plugin-{{ Id }}" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ Plugin.name }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      {{ FORM.gen_form_plugin_elements(Plugin.config, Plugin.fields, Plugin.prefix) }}
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:save_plugin_config('{{ Id }}', '{{ Plugin.prefix }}')" class="btn btn-primary">
-          确定
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
+<plugin-modal
+  plugin-id="{{ Id }}"
+  plugin-name="{{ Plugin.name }}"
+  plugin-config='{{ Plugin.config|tojson|safe }}'
+  plugin-fields='{{ Plugin.fields|tojson|safe }}'
+  plugin-prefix="{{ Plugin.prefix }}">
+</plugin-modal>
 {% endfor %}
 <script type="text/javascript">
   // 保存配置
@@ -67,4 +55,17 @@
     });
   }
 
+</script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      let options = {
+        delay: {show: 50, hide: 50},
+        html: tooltipTriggerEl.getAttribute("data-bs-html") === "true" ?? false,
+        placement: tooltipTriggerEl.getAttribute('data-bs-placement') ?? 'auto'
+      };
+      return new bootstrap.Tooltip(tooltipTriggerEl, options);
+    });
+  });
 </script>

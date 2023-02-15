@@ -13,8 +13,6 @@ import log
 
 class SpeedLimiter(_IPluginModule):
 
-    # 插件ID
-    module_id = "SpeedLimiter"
     # 插件名称
     module_name = "播放限速"
     # 插件描述
@@ -53,69 +51,113 @@ class SpeedLimiter(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        return {
-            "ipv4": {
-                "required": False,
-                "title": "不限速地址范围",
-                "tooltip": "以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制",
-                "type": "text",
-                "placeholder": "192.168.1.0/24",
-                "default": "192.168.1.0/24"
-            },
-            "ipv6": {
-                "title": "&nbsp;",
-                "required": False,
-                "type": "text",
-                "placeholder": "IPv6 CIDR"
-            },
-            "qb_upload": {
-                "required": False,
-                "title": "Qbittorrent限速",
-                "tooltip": "媒体服务器播放时对Qbittorrent下载器进行限速，不限速地址范围除外，0或留空不启用",
-                "type": "text",
-                "placeholder": "上传限速，KB/s"
-            },
-            "qb_download": {
-                "title": "&nbsp;",
-                "required": False,
-                "type": "text",
-                "placeholder": "下载限速，KB/s"
-            },
-            "tr_upload": {
-                "required": False,
-                "title": "Transmission限速",
-                "tooltip": "媒体服务器播放时对Transmission下载器进行限速，不限速地址范围除外，0或留空不启用",
-                "type": "text",
-                "placeholder": "上传限速，Kb/s"
-            },
-            "tr_download": {
-                "title": "&nbsp;",
-                "required": False,
-                "type": "text",
-                "placeholder": "下载限速，Kb/s"
-            },
-            "bandwidth": {
-                "required": False,
-                "title": "上行带宽",
-                "type": "text",
-                "tooltip": "设置后将根据上行带宽、剩余比例、分配比例自动计算限速数值，否则使用Qbittorrent、Transmisson设定的限速数值",
-                "placeholder": "Mbps，留空不启用自动限速"
-            },
-            "residual_ratio": {
-                "required": False,
-                "title": "剩余比例",
-                "tooltip": "上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1",
-                "type": "text",
-                "placeholder": "0.5"
-            },
-            "allocation": {
-                "required": False,
-                "title": "分配比例",
-                "tooltip": "Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）",
-                "type": "text",
-                "placeholder": "1:1"
-            }
-        }
+        return [
+                    # 同一板块
+                    {
+                        'type': 'div',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': 'Qbittorrent',
+                                    'required': "",
+                                    'tooltip': '媒体服务器播放时对Qbittorrent下载器进行限速，不限速地址范围除外，0或留空不启用',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'qb_upload',
+                                            'placeholder': '上传限速，KB/s'
+                                        },
+                                        {
+                                            'id': 'qb_download',
+                                            'placeholder': '下载限速，KB/s'
+                                        }
+                                    ]
+
+                                },
+                                {
+                                    'title': 'Transmission',
+                                    'required': "",
+                                    'tooltip': '媒体服务器播放时对Transmission下载器进行限速，不限速地址范围除外，0或留空不启用',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'tr_upload',
+                                            'placeholder': '上传限速，KB/s'
+                                        },
+                                        {
+                                            'id': 'tr_download',
+                                            'placeholder': '下载限速，KB/s'
+                                        }
+                                    ]
+                                },
+                                {
+                                    'title': '不限速地址范围',
+                                    'required': 'required',
+                                    'tooltip': '以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'ipv4',
+                                            'placeholder': '192.168.1.0/24',
+                                        },
+                                        {
+                                            'id': 'ipv6',
+                                            'placeholder': 'FE80::/10',
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    {
+                        'type': 'details',
+                        'summary': '自动限速设置',
+                        'tooltip': '以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': '上行带宽',
+                                    'required': "",
+                                    'type': 'text',
+                                    'tooltip': '设置后将根据上行带宽、剩余比例、分配比例自动计算限速数值，否则使用Qbittorrent、Transmisson设定的限速数值',
+                                    'content': [
+                                        {
+                                            'id': 'bandwidth',
+                                            'placeholder': 'Mbps，留空不启用自动限速'
+                                        },
+                                    ]
+                                },
+                                {
+                                    'title': '剩余比例',
+                                    'required': "",
+                                    'tooltip': '上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'residual_ratio',
+                                            'placeholder': '0.5'
+                                        }
+                                    ]
+
+                                },
+                                {
+                                    'title': '分配比例',
+                                    'required': "",
+                                    'tooltip': 'Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'allocation',
+                                            'placeholder': '1:1'
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    }
+                ]
 
     def init_config(self, config=None):
         self._downloader = Downloader()

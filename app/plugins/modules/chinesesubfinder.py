@@ -10,8 +10,6 @@ from config import Config
 
 class ChineseSubFinder(_IPluginModule):
 
-    # 插件ID
-    module_id = "ChineseSubFinder"
     # 插件名称
     module_name = "ChineseSubFinder"
     # 插件描述
@@ -25,7 +23,7 @@ class ChineseSubFinder(_IPluginModule):
     # 插件作者
     module_author = "jxxghp"
     # 插件配置项ID前缀
-    module_config_prefix = "opensubtitles_"
+    module_config_prefix = "chinesesubfinder_"
     # 加载顺序
     module_order = 3
 
@@ -53,36 +51,68 @@ class ChineseSubFinder(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        return {
-            "host": {
-                "required": True,
-                "title": "服务器地址",
-                "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
-                "type": "text",
-                "placeholder": "http://127.0.0.1:19035"
-            },
-            "api_key": {
-                "required": True,
-                "title": "Api Key",
-                "tooltip": "在ChineseSubFinder->配置中心->实验室->API Key处生成",
-                "type": "text",
-                "placeholder": ""
-            },
-            "local_path": {
-                "required": False,
-                "title": "本地路径",
-                "tooltip": "NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置",
-                "type": "text",
-                "placeholder": "本地映射路径"
-            },
-            "remote_path": {
-                "required": False,
-                "title": "远程路径",
-                "tooltip": "ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置",
-                "type": "text",
-                "placeholder": "远程映射路径"
-            }
-        }
+        return [
+                    # 同一板块
+                    {
+                        'type': 'div',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': '服务器地址',
+                                    'required': "required",
+                                    'tooltip': '配置IP地址和端口，如为https则需要增加https://前缀',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'host',
+                                            'placeholder': 'http://127.0.0.1:19035'
+                                        }
+                                    ]
+
+                                },
+                                {
+                                    'title': 'Api Key',
+                                    'required': "required",
+                                    'tooltip': '在ChineseSubFinder->配置中心->实验室->API Key处生成',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'api_key',
+                                            'placeholder': ''
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    'title': '本地路径',
+                                    'required': "required",
+                                    'tooltip': 'NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'local_path',
+                                            'placeholder': '本地映射路径'
+                                        }
+                                    ]
+                                },
+                                {
+                                    'title': '远程路径',
+                                    'required': "required",
+                                    'tooltip': 'ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'remote_path',
+                                            'placeholder': '远程映射路径'
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    }
+            ]
 
     def stop_service(self):
         pass
@@ -100,13 +130,18 @@ class ChineseSubFinder(_IPluginModule):
         
         req_url = "%sapi/v1/add-job" % self._host
 
-        if item.get("bluray"):
-            file_path = "%s.mp4" % item.get("file")
+        item_type = item.get("type")
+        item_bluray = item.get("bluray")
+        item_file = item.get("file")
+        item_file_ext = item.get("file_ext")
+
+        if item_bluray:
+            file_path = "%s.mp4" % item_file
         else:
-            if os.path.splitext(item.get("file"))[-1] != item.get("file_ext"):
-                file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
+            if os.path.splitext(item_file)[-1] != item_file_ext:
+                file_path = "%s%s" % (item_file, item_file_ext)
             else:
-                file_path = item.get("file")
+                file_path = item_file
 
         # 路径替换
         if self._local_path and self._remote_path and file_path.startswith(self._local_path):
@@ -115,11 +150,11 @@ class ChineseSubFinder(_IPluginModule):
         # 一个名称只建一个任务
         log.info("【Plugin】通知ChineseSubFinder下载字幕: %s" % file_path)
         params = {
-            "video_type": 0 if item.get("type") == MediaType.MOVIE.value else 1,
+            "video_type": 0 if item_type == MediaType.MOVIE.value else 1,
             "physical_video_file_full_path": file_path,
             "task_priority_level": 3,
             "media_server_inside_video_id": "",
-            "is_bluray": item.get("bluray")
+            "is_bluray": item_bluray
         }
         try:
             res = RequestUtils(headers={

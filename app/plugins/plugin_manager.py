@@ -1,6 +1,9 @@
+from threading import Thread
+
 import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
+from app.plugins.event_manager import EventManager
 from app.utils.commons import singleton
 
 
@@ -10,6 +13,7 @@ class PluginManager:
     插件管理器
     """
     systemconfig = None
+    eventmanager = None
 
     # 插件列表
     _plugins = {}
@@ -17,54 +21,94 @@ class PluginManager:
     _running_plugins = {}
     # 配置Key
     _config_key = "plugin.%s"
+    # 事件处理线程
+    _thread = None
+    # 开关
+    _active = False
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
         self.systemconfig = SystemConfig()
-        self.load_plugins()
-        self.run_plugins()
+        self.eventmanager = EventManager()
+        # 启动事件处理进程
+        self.start_service()
 
-    def load_plugins(self):
+    def __run(self):
+        """
+        事件处理线程
+        """
+        while self._active:
+            event, handlers = self.eventmanager.get_event()
+            if event:
+                log.info(f"处理事件：{event.event_type} - {handlers}")
+                for handler in handlers:
+                    try:
+                        names = handler.__qualname__.split(".")
+                        self.run_plugin(names[0], names[1], event)
+                    except Exception as e:
+                        log.error(f"事件处理出错：{str(e)}")
+
+    def start_service(self):
+        """
+        启动
+        """
+        # 加载插件
+        self.__load_plugins()
+        # 将事件管理器设为启动
+        self._active = True
+        self._thread = Thread(target=self.__run)
+        # 启动事件处理线程
+        self._thread.start()
+
+    def stop_service(self):
+        """
+        停止
+        """
+        # 将事件管理器设为停止
+        self._active = False
+        # 等待事件处理线程退出
+        self._thread.join()
+        # 停止所有插件
+        self.__stop_plugins()
+
+    def __load_plugins(self):
         """
         加载所有插件
         """
         plugins = SubmoduleHelper.import_submodules(
             "app.plugins.modules",
-            filter_func=lambda _, obj: hasattr(obj, 'module_id')
+            filter_func=lambda _, obj: hasattr(obj, 'init_config')
         )
         plugins.sort(key=lambda x: x.module_order if hasattr(x, "module_order") else 0)
         for plugin in plugins:
-            module_id = getattr(plugin, "module_id")
-            if not module_id:
-                continue
-            log.info(f"加载插件：{module_id}")
+            module_id = plugin.__name__
             self._plugins[module_id] = plugin
+            self._running_plugins[module_id] = plugin()
+            self.reload_plugin(module_id)
+            log.info(f"加载插件：{plugin}")
 
-    def run_plugin(self, pid, *args, **kwargs):
+    def run_plugin(self, pid, method, *args, **kwargs):
         """
         运行插件
         """
-        if not self._plugins.get(pid):
+        if not self._running_plugins.get(pid):
             return None
-        return self._plugins[pid](*args, **kwargs)
-
-    def run_plugins(self, *args, **kwargs):
-        """
-        运行所有插件
-        """
-        for pid, plugin in self._plugins.items():
-            self._running_plugins[pid] = self.run_plugin(pid, *args, **kwargs)
-            self.reload_plugin(pid)
+        if not hasattr(self._running_plugins[pid], method):
+            return
+        return getattr(self._running_plugins[pid], method)(*args, **kwargs)
 
     def reload_plugin(self, pid):
+        """
+        生效插件配置
+        """
         if not self._running_plugins.get(pid):
             return
         if hasattr(self._running_plugins[pid], "init_config"):
             self._running_plugins[pid].init_config(self.get_plugin_config(pid))
 
-    def stop_plugins(self):
+    def __stop_plugins(self):
         """
         停止所有插件
         """
