@@ -43,7 +43,7 @@ class EventManager:
         while self._active:
             try:
                 event = self._eventQueue.get(block=True, timeout=1)
-                log.info(f"处理事件：{event}")
+                log.info(f"处理事件：{event.etype}")
                 self.__process_event(event)
             except Empty:
                 pass
@@ -90,16 +90,16 @@ class EventManager:
             handlerList.append(handler)
         log.debug(f"已注册事件：{self._handlers}")
 
-    def remove_event_listener(self, etype, handler):
+    def remove_event_listener(self, etype: EventType, handler):
         """
         移除监听器的处理函数
         """
         try:
-            handlerList = self._handlers[etype]
+            handlerList = self._handlers[etype.value]
             if handler in handlerList:
                 handlerList.remove(handler)
             if not handlerList:
-                del self._handlers[etype]
+                del self._handlers[etype.value]
         except KeyError:
             pass
 
