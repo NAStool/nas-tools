@@ -164,13 +164,13 @@ class OpenSubtitles(_IPluginModule):
                 if subtitle_count > 2:
                     break
             if not subtitle_count:
-                if item.get('episode'):
+                if item_episode:
                     log.info("【Plugin】%s 第%s季 第%s集 未找到符合条件的字幕" % (
-                        item.get("name"), item.get("season"), item.get("episode")))
+                        item_name, item_season, item_episode))
                 else:
-                    log.info("【Plugin】%s 未找到符合条件的字幕" % item.get("name"))
+                    log.info("【Plugin】%s 未找到符合条件的字幕" % item_name)
             else:
-                log.info("【Plugin】%s 共下载了 %s 个字幕" % (item.get("name"), subtitle_count))
+                log.info("【Plugin】%s 共下载了 %s 个字幕" % (item_name, subtitle_count))
 
     def search_subtitles(self, imdb_id, name, year):
         if imdb_id:
