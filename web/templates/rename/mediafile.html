@@ -26,7 +26,7 @@
           </div>
         </div>
         <div class="col d-md-block js-change-card-b" style="display: none;">
-          <div class="card-body border-0">
+          <div class="card-body py-0 border-0">
             <div class="d-flex flex-column flex-md-row justify-content-md-between">
               <div class="text-muted align-self-center">
                 共 <span id="mediafile_num">0</span> 个文件
@@ -46,7 +46,7 @@
           <div class="card-body border-0">
             <input type="hidden" id="mediafile_current_dir">
             <input type="hidden" id="mediafile_current_files">
-            <div class="d-grid gap-3" id="mediafile_file_container">
+            <div class="row-cards" id="mediafile_file_container">
             </div>
           </div>
         </div>
@@ -353,12 +353,26 @@
     init_mediafile_tree();
   }
 
+  // 计算高度
+  function init_mediafile_height() {
+    $("#mediafile_tree").css("height", $(window).height() - 225).css("overflow-y", "auto");
+    $("#mediafile_file_container").css("height", $(window).height() - 200).css("overflow-y", "auto");
+  }
+
   // 初始列表
   init_mediafile_tree();
 
+  // 初始化高度
+  init_mediafile_height();
+
+  // 窗口大小改变时重新计算高度
+  $(window).resize(function () {
+    init_mediafile_height();
+  });
+
 </script>
 <script id="mediafile_item_template" type="text/html">
-  <div class="card">
+  <div class="card mb-2">
     <div class="row">
       <div class="col-auto pe-0">
         <div class="m-2">
