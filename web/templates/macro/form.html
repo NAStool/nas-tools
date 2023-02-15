@@ -112,7 +112,7 @@
 {% endmacro %}
 
 <!-- 生成配置对应的表单元素 -->
-{% macro gen_form_plugin_elements(Config, Fields) %}
+{% macro gen_form_plugin_elements(Config, Fields, Prefix) %}
   {% for FieldId, FieldAttr in Fields.items() %}
     {% if loop.index%2 == 1 %}
     <div class="row">
@@ -121,27 +121,27 @@
       <div class="mb-3">
         {% if FieldAttr.type == "switch" %}
         <label class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if Config.get(FieldId) %}checked{% endif %}>
-          <span class="form-check-label">{{ FieldAttr.title }}
+          <input class="form-check-input" type="checkbox" id="{{ Prefix }}{{ FieldId }}" {% if Config.get(FieldId) %}checked{% endif %}>
+          <span class="form-check-label">{{ FieldAttr.title|safe }}
             {% if FieldAttr.tooltip %}
             <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
             {% endif %}
           </span>
         </label>
         {% else %}
-        <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
+        <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title|safe }}
           {% if FieldAttr.tooltip %}
           <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
           {% endif %}
         </label>
           {% if FieldAttr.type == "select" %}
-          <select class="form-select" id="{{ FieldAttr.id }}">
+          <select class="form-select" id="{{ Prefix }}{{ FieldId }}">
             {% for OptionValue, OptionTitle in FieldAttr.options.items() %}
             <option value="{{ OptionValue }}" {% if Config.get(FieldId) == OptionValue %}selected{% endif %}>{{ OptionTitle }}</option>
             {% endfor %}
           </select>
           {% else %}
-          <input type="{{ FieldAttr.type }}" id="{{ FieldAttr.id }}" class="form-control" value="{{ Config.get(FieldId) or '' }}" placeholder="{{ FieldAttr.placeholder }}">
+          <input type="{{ FieldAttr.type }}" id="{{ Prefix }}{{ FieldId }}" class="form-control" value="{{ Config.get(FieldId) or '' }}" placeholder="{{ FieldAttr.placeholder }}">
           {% endif %}
         {% endif %}
       </div>

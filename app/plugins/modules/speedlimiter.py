@@ -27,6 +27,8 @@ class SpeedLimiter(_IPluginModule):
     module_version = "1.0"
     # 插件作者
     module_author = "Shurelol"
+    # 插件配置项ID前缀
+    module_config_prefix = "speedlimit_"
 
     # 私有属性
     _downloader = None
@@ -53,68 +55,61 @@ class SpeedLimiter(_IPluginModule):
     @staticmethod
     def get_fields():
         return {
-            "speedlimit_qb_upload": {
-                "id": "speedlimit_qb_upload",
+            "ipv4": {
                 "required": False,
-                "title": "Qbittorrent",
-                "tooltip": "不限速源地址外进行媒体播放时对Qbittorrent下载器进行限速，0或留空不启用",
+                "title": "不限速地址范围",
+                "tooltip": "以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制",
                 "type": "text",
-                "placeholder": "上传限速，Kb/s"
+                "placeholder": "192.168.1.0/24",
+                "default": "192.168.1.0/24"
             },
-            "speedlimit_qb_download": {
-                "id": "speedlimit_qb_download",
-                "title": " ",
-                "required": False,
-                "type": "text",
-                "placeholder": "下载限速，Kb/s"
-            },
-            "speedlimit_tr_upload": {
-                "id": "speedlimit_tr_upload",
-                "required": False,
-                "title": "Transmission",
-                "tooltip": "不限速源地址外进行媒体播放时对Transmission下载器进行限速，0或留空不启用",
-                "type": "text",
-                "placeholder": "上传限速，Kb/s"
-            },
-            "speedlimit_tr_download": {
-                "id": "speedlimit_tr_download",
-                "title": " ",
-                "required": False,
-                "type": "text",
-                "placeholder": "下载限速，Kb/s"
-            },
-            "speedlimit_ipv4": {
-                "id": "speedlimit_ipv4",
-                "required": False,
-                "title": "不限速源地址",
-                "tooltip": "仅配置的地址范围外进行媒体播放时进行下载器限速，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制",
-                "type": "text",
-                "placeholder": "IPv4 CIDR"
-            },
-            "speedlimit_ipv6": {
-                "id": "speedlimit_ipv6",
-                "title": " ",
+            "ipv6": {
+                "title": "&nbsp;",
                 "required": False,
                 "type": "text",
                 "placeholder": "IPv6 CIDR"
             },
-            "speedlimit_bandwidth": {
-                "id": "speedlimit_bandwidth",
+            "qb_upload": {
+                "required": False,
+                "title": "Qbittorrent限速",
+                "tooltip": "媒体服务器播放时对Qbittorrent下载器进行限速，不限速地址范围除外，0或留空不启用",
+                "type": "text",
+                "placeholder": "上传限速，KB/s"
+            },
+            "qb_download": {
+                "title": "&nbsp;",
+                "required": False,
+                "type": "text",
+                "placeholder": "下载限速，KB/s"
+            },
+            "tr_upload": {
+                "required": False,
+                "title": "Transmission限速",
+                "tooltip": "媒体服务器播放时对Transmission下载器进行限速，不限速地址范围除外，0或留空不启用",
+                "type": "text",
+                "placeholder": "上传限速，Kb/s"
+            },
+            "tr_download": {
+                "title": "&nbsp;",
+                "required": False,
+                "type": "text",
+                "placeholder": "下载限速，Kb/s"
+            },
+            "bandwidth": {
                 "required": False,
                 "title": "上行带宽",
                 "type": "text",
-                "placeholder": "Mbps，留空不启用"
+                "tooltip": "设置后将根据上行带宽、剩余比例、分配比例自动计算限速数值，否则使用Qbittorrent、Transmisson设定的限速数值",
+                "placeholder": "Mbps，留空不启用自动限速"
             },
-            "speedlimit_residual_ratio": {
-                "id": "speedlimit_residual_ratio",
+            "residual_ratio": {
                 "required": False,
                 "title": "剩余比例",
                 "tooltip": "上行带宽扣除播放媒体比特率后，乘以剩余比例为剩余带宽分配给下载器，最大为1",
                 "type": "text",
                 "placeholder": "0.5"
             },
-            "speedlimit_allocation": {
-                "id": "speedlimit_allocation",
+            "allocation": {
                 "required": False,
                 "title": "分配比例",
                 "tooltip": "Qbittorrent与Transmission下载器分配剩余带宽比例，如Qbittorrent下载器无需上传限速，可设为0:x（x可为任意正整数）",
@@ -130,11 +125,11 @@ class SpeedLimiter(_IPluginModule):
         # 读取配置
         if config:
             try:
-                self._bandwidth = int(float(config.get("speedlimit_bandwidth") or 0)) * 1000000
-                residual_ratio = float(config.get("speedlimit_residual_ratio") or 1)
+                self._bandwidth = int(float(config.get("bandwidth") or 0)) * 1000000
+                residual_ratio = float(config.get("residual_ratio") or 1)
                 if residual_ratio > 1:
                     residual_ratio = 1
-                allocation = (config.get("speedlimit_allocation") or "1:1").split(":")
+                allocation = (config.get("allocation") or "1:1").split(":")
                 if len(allocation) != 2 or not str(allocation[0]).isdigit() or not str(allocation[-1]).isdigit():
                     allocation = ["1", "1"]
                 self._qb_upload_ratio = round(int(allocation[0]) / (int(allocation[-1]) + int(allocation[0])) * residual_ratio, 2)
@@ -146,24 +141,24 @@ class SpeedLimiter(_IPluginModule):
                 self._tr_upload_ratio = 0
             self._auto_limit = True if self._bandwidth and (self._qb_upload_ratio or self._tr_upload_ratio) else False
             try:
-                self._qb_download_limit = int(float(config.get("speedlimit_qb_download") or 0)) * 1024
-                self._qb_upload_limit = int(float(config.get("speedlimit_qb_upload") or 0)) * 1024
+                self._qb_download_limit = int(float(config.get("qb_download") or 0)) * 1024
+                self._qb_upload_limit = int(float(config.get("qb_upload") or 0)) * 1024
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 self._qb_download_limit = 0
                 self._qb_upload_limit = 0
             self._qb_limit = True if self._qb_download_limit or self._qb_upload_limit or self._auto_limit else False
             try:
-                self._tr_download_limit = int(float(config.get("speedlimit_tr_download") or 0))
-                self._tr_upload_limit = int(float(config.get("speedlimit_tr_upload") or 0))
+                self._tr_download_limit = int(float(config.get("tr_download") or 0))
+                self._tr_upload_limit = int(float(config.get("tr_upload") or 0))
             except Exception as e:
                 self._tr_download_limit = 0
                 self._tr_upload_limit = 0
                 ExceptionUtils.exception_traceback(e)
             self._tr_limit = True if self._tr_download_limit or self._tr_upload_limit or self._auto_limit else False
             self._limit_enabled = True if self._qb_limit or self._tr_limit else False
-            self._unlimited_ips["speedlimit_ipv4"] = config.get("speedlimit_ipv4") or "0.0.0.0/0"
-            self._unlimited_ips["speedlimit_ipv6"] = config.get("speedlimit_ipv6") or "::/0"
+            self._unlimited_ips["ipv4"] = config.get("ipv4") or "0.0.0.0/0"
+            self._unlimited_ips["ipv6"] = config.get("ipv6") or "::/0"
         else:
             self._limit_enabled = False
         # 移出现有任务

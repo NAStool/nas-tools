@@ -107,6 +107,8 @@ class PluginManager:
                 conf.update({"color": plugin.module_color})
             if hasattr(plugin, "module_author"):
                 conf.update({"author": plugin.module_author})
+            if hasattr(plugin, "module_config_prefix"):
+                conf.update({"prefix": plugin.module_config_prefix})
             # 配置项
             conf.update({"fields": plugin.get_fields() or {}})
             # 配置值

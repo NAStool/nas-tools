@@ -41,10 +41,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      {{ FORM.gen_form_plugin_elements(Plugin.config, Plugin.fields) }}
+      {{ FORM.gen_form_plugin_elements(Plugin.config, Plugin.fields, Plugin.prefix) }}
       </div>
       <div class="modal-footer">
-        <a href="javascript:save_plugin_config('{{ Id }}')" class="btn btn-primary">
+        <a href="javascript:save_plugin_config('{{ Id }}', '{{ Plugin.prefix }}')" class="btn btn-primary">
           确定
         </a>
       </div>
@@ -54,15 +54,15 @@
 {% endfor %}
 <script type="text/javascript">
   // 保存配置
-  function save_config(id, func) {
-    const params = input_select_GetVal(`modal-plugin-${id}`);
+  function save_config(id, prefix, func) {
+    const params = input_select_GetVal(`modal-plugin-${id}`, prefix);
     ajax_post("update_plugin_config", {plugin: id, config: params}, func);
   }
 
   //保存配置、关闭和刷新页面
-  function save_plugin_config(plugin) {
+  function save_plugin_config(plugin, prefix) {
     $("#modal-plugin-" + plugin).modal('hide');
-    save_config(plugin, function (ret) {
+    save_config(plugin, prefix, function (ret) {
       window_history_refresh();
     });
   }
