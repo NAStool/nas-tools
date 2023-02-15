@@ -43,13 +43,15 @@ class PluginManager:
             self.reload_plugin(plugin)
             log.info(f"加载插件：{module_id}")
 
-    def run_plugin(self, pid, *args, **kwargs):
+    def run_plugin(self, pid, method, *args, **kwargs):
         """
         运行插件
         """
-        if not self._plugins.get(pid):
+        if not self._running_plugins.get(pid):
             return None
-        return self._plugins[pid](*args, **kwargs)
+        if not hasattr(self._running_plugins[pid], method):
+            return
+        return getattr(self._running_plugins[pid], method)(*args, **kwargs)
 
     def reload_plugin(self, pid):
         """
