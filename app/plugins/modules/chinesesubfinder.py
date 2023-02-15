@@ -100,13 +100,18 @@ class ChineseSubFinder(_IPluginModule):
         
         req_url = "%sapi/v1/add-job" % self._host
 
-        if item.get("bluray"):
-            file_path = "%s.mp4" % item.get("file")
+        item_type = item.get("type")
+        item_bluray = item.get("bluray")
+        item_file = item.get("file")
+        item_file_ext = item.get("file_ext")
+
+        if item_bluray:
+            file_path = "%s.mp4" % item_file
         else:
-            if os.path.splitext(item.get("file"))[-1] != item.get("file_ext"):
-                file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
+            if os.path.splitext(item_file)[-1] != item_file_ext:
+                file_path = "%s%s" % (item_file, item_file_ext)
             else:
-                file_path = item.get("file")
+                file_path = item_file
 
         # 路径替换
         if self._local_path and self._remote_path and file_path.startswith(self._local_path):
@@ -115,11 +120,11 @@ class ChineseSubFinder(_IPluginModule):
         # 一个名称只建一个任务
         log.info("【Plugin】通知ChineseSubFinder下载字幕: %s" % file_path)
         params = {
-            "video_type": 0 if item.get("type") == MediaType.MOVIE.value else 1,
+            "video_type": 0 if item_type == MediaType.MOVIE.value else 1,
             "physical_video_file_full_path": file_path,
             "task_priority_level": 3,
             "media_server_inside_video_id": "",
-            "is_bluray": item.get("bluray")
+            "is_bluray": item_bluray
         }
         try:
             res = RequestUtils(headers={
