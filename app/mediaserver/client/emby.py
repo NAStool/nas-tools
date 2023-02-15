@@ -496,7 +496,7 @@ class Emby(_IMediaClient):
         """
         解析Emby报文
         """
-        eventItem = {'event': message.get('Event', {})}
+        eventItem = {'event': message.get('Event', '')}
         if message.get('Item'):
             if message.get('Item', {}).get('Type') == 'Episode':
                 eventItem['item_type'] = "TV"

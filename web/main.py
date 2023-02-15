@@ -1075,16 +1075,6 @@ def notification():
                            MessageClients=MessageClients)
 
 
-# 字幕设置页面
-@App.route('/subtitle', methods=['POST', 'GET'])
-@login_required
-def subtitle():
-    ChromeOk = ChromeHelper().get_status()
-    return render_template("setting/subtitle.html",
-                           Config=Config().get_config(),
-                           ChromeOk=ChromeOk)
-
-
 # 用户管理页面
 @App.route('/users', methods=['POST', 'GET'])
 @login_required
