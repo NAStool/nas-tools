@@ -290,6 +290,16 @@ class WebAction:
             "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
             "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
         }
+
+        # 触发事件
+        EventManager().send_event(etype=EventType.MessageIncoming, data={
+            "channel": in_from.value,
+            "user_id": user_id,
+            "user_name": user_name,
+            "message": msg
+
+        })
+
         command = commands.get(msg)
         message = Message()
 

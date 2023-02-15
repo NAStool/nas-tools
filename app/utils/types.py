@@ -110,6 +110,8 @@ class EventType(Enum):
     SubscribeAdd = "subscribe.add"
     # 订阅完成
     SubscribeFinished = "subscribe.finished"
+    # 交互消息
+    MessageIncoming = "message.incoming"
 
 
 # 电影类型关键字
