@@ -42,7 +42,7 @@ class PluginManager:
         while self._active:
             event, handlers = self.eventmanager.get_event()
             if event:
-                log.info(f"处理事件：{event.event_type}")
+                log.info(f"处理事件：{event.event_type} - {handlers}")
                 for handler in handlers:
                     try:
                         names = handler.__qualname__.split(".")

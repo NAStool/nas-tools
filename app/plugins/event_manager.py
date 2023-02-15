@@ -72,14 +72,18 @@ class EventManager:
         event.event_data = data or {}
         self._eventQueue.put(event)
 
-    def register(self, etype: EventType):
+    def register(self, etype: [EventType, list]):
         """
         事件注册
         :param etype: 事件类型
         """
 
         def decorator(f):
-            self.add_event_listener(etype, f)
+            if isinstance(etype, list):
+                for et in etype:
+                    self.add_event_listener(et, f)
+            else:
+                self.add_event_listener(etype, f)
             return f
 
         return decorator
