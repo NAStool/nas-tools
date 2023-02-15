@@ -99,7 +99,8 @@ class Qbittorrent(_IDownloadClient):
             tag = None
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
-            torrents = self.filter_torrent_by_tag(torrents, tag=tag)
+            if tag:
+                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
             return torrents or [], False
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
