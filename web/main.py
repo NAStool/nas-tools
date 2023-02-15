@@ -53,6 +53,8 @@ App = Flask(__name__)
 App.config['JSON_AS_ASCII'] = False
 App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
+App.config.from_envvar('NASTOOL_FLASK_CONFIG')
+
 
 # 启用压缩
 Compress(App)
