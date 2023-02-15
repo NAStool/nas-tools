@@ -87,7 +87,7 @@ class PluginManager:
             self._plugins[module_id] = plugin
             self._running_plugins[module_id] = plugin()
             self.reload_plugin(module_id)
-            log.info(f"加载插件：{module_id}")
+            log.info(f"加载插件：{plugin}")
 
     def run_plugin(self, pid, method, *args, **kwargs):
         """
