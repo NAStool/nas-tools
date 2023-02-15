@@ -790,7 +790,7 @@ class FileTransfer:
                     in_from=in_from,
                     rmt_mode=rmt_mode,
                     in_path=reg_path,
-                    out_path=new_file if not bluray_disk_dir else None,
+                    out_path=new_file if not bluray_disk_dir else ret_dir_path,
                     dest=dist_path,
                     media_info=media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
