@@ -45,6 +45,7 @@ class WebUtils:
         获取最新版本号
         """
         try:
+            releases_update_only = Config().get_config("app").get("releases_update_only")
             version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
                 "https://api.github.com/repos/NAStool/nas-tools/releases/latest")
             commit_res = RequestUtils(proxies=Config().get_proxies()).get_res(
@@ -52,7 +53,10 @@ class WebUtils:
             if version_res and commit_res:
                 ver_json = version_res.json()
                 commit_json = commit_res.json()
-                version = f"{ver_json['tag_name']} {commit_json['sha'][:7]}"
+                if releases_update_only:
+                    version = f"{ver_json['tag_name']}"
+                else:
+                    version = f"{ver_json['tag_name']} {commit_json['sha'][:7]}"
                 url = ver_json["html_url"]
                 return version, url, True
         except Exception as e:

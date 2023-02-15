@@ -52,6 +52,8 @@ app:
   wallpaper: bing
   # Debug mode
   debug: true
+  # 开启后，只有Releases更新，才会有更新提示
+  releases_update_only: false
 
 # 【配置媒体库信息】
 media:
