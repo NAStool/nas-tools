@@ -35,7 +35,7 @@ class OpenSubtitles(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "opensubtitles_"
     # 加载顺序
-    module_order = 3
+    module_order = 2
 
     # 私有属性
     _cookie = ""
