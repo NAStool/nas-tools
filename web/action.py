@@ -48,7 +48,6 @@ from web.backend.web_utils import WebUtils
 class WebAction:
     dbhelper = None
     _actions = {}
-    TvTypes = ['TV', '电视剧']
 
     def __init__(self):
         self.dbhelper = DbHelper()
