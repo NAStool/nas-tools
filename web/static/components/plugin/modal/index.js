@@ -45,15 +45,12 @@ export class PluginModal extends CustomElement {
           case "text":
             row_content = html`${row_content}${this.__render_text(col)}`;
             break;
-          case "select":
-            row_content = html`${row_content}${this.__render_select(col)}`;
-            break;
           case "switch":
             row_content = html`${row_content}${this.__render_switch(col)}`;
             break;
         }
       }
-      div_content =  html`${div_content}<div class="row">${row_content}</div>`;
+      div_content =  html`${div_content}<div class="row mb-2">${row_content}</div>`;
     }
     return div_content
   }
@@ -81,29 +78,37 @@ export class PluginModal extends CustomElement {
       if (index === "0") {
         text_content = html`<div class="mb-1">
                       <label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>
-                      <input type="text" value="${this.__render_value(id)}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">
+                      <input type="text" value="${this.config[id] || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">
                     </div>`
       } else {
         text_content = html`${text_content}<div class="mb-3">
-                      <input type="text" value="${this.__render_value(id)}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">
+                      <input type="text" value="${this.config[id] || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">
                     </div>`
       }
     }
     return html`<div class="col-12 col-lg">${text_content}</div>`
   }
 
-  __render_select(field_content) {
-    let content = ``;
-    return `<div class="col-12 col-lg"></div>`
-  }
 
   __render_switch(field_content) {
-    let content = ``;
-    return `<div class="col-12 col-lg"></div>`
-  }
-
-  __render_value(id) {
-    return `${this.config[id] || ""}`;
+    let title = field_content["title"];
+    let required = field_content["required"];
+    let tooltip = field_content["tooltip"];
+    let id = field_content["id"];
+    let checkbox = html``;
+    if (this.config[id]) {
+      checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}" checked>`
+    } else {
+      checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}">`
+    }
+    return html`<div class="col-12 col-lg">
+                  <div class="mb-1">
+                    <label class="form-check form-switch ${required}">
+                    ${checkbox}
+                    <span class="form-check-label">${title} ${this.__render_note(tooltip)}</span>
+                  </label>
+                  </div>
+                </div>`
   }
 
   __render_note(tooltip) {
