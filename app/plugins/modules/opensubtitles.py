@@ -57,14 +57,24 @@ class OpenSubtitles(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        return {
-            "enable": {
-                "required": False,
-                "title": "开启opensubtitles.org字幕下载",
-                "tooltip": "需要确保网络能正常连通www.opensubtitles.org",
-                "type": "switch"
-            }
-        }
+        return [
+                    # 同一板块
+                    {
+                        'type': 'div',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': '开启opensubtitles.org字幕下载',
+                                    'required': "",
+                                    'tooltip': '需要确保网络能正常连通www.opensubtitles.org',
+                                    'type': 'switch',
+                                    'id': 'enable',
+                                }
+                            ]
+                        ]
+                    }
+            ]
 
     def stop_service(self):
         pass

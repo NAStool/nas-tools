@@ -25,7 +25,7 @@ class ChineseSubFinder(_IPluginModule):
     # 插件作者
     module_author = "jxxghp"
     # 插件配置项ID前缀
-    module_config_prefix = "opensubtitles_"
+    module_config_prefix = "chinesesubfinder_"
     # 加载顺序
     module_order = 3
 
@@ -53,36 +53,68 @@ class ChineseSubFinder(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        return {
-            "host": {
-                "required": True,
-                "title": "服务器地址",
-                "tooltip": "配置IP地址和端口，如为https则需要增加https://前缀",
-                "type": "text",
-                "placeholder": "http://127.0.0.1:19035"
-            },
-            "api_key": {
-                "required": True,
-                "title": "Api Key",
-                "tooltip": "在ChineseSubFinder->配置中心->实验室->API Key处生成",
-                "type": "text",
-                "placeholder": ""
-            },
-            "local_path": {
-                "required": False,
-                "title": "本地路径",
-                "tooltip": "NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置",
-                "type": "text",
-                "placeholder": "本地映射路径"
-            },
-            "remote_path": {
-                "required": False,
-                "title": "远程路径",
-                "tooltip": "ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置",
-                "type": "text",
-                "placeholder": "远程映射路径"
-            }
-        }
+        return [
+                    # 同一板块
+                    {
+                        'type': 'div',
+                        'content': [
+                            # 同一行
+                            [
+                                {
+                                    'title': '服务器地址',
+                                    'required': "required",
+                                    'tooltip': '配置IP地址和端口，如为https则需要增加https://前缀',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'host',
+                                            'placeholder': 'http://127.0.0.1:19035'
+                                        }
+                                    ]
+
+                                },
+                                {
+                                    'title': 'Api Key',
+                                    'required': "required",
+                                    'tooltip': '在ChineseSubFinder->配置中心->实验室->API Key处生成',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'api_key',
+                                            'placeholder': ''
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    'title': '本地路径',
+                                    'required': "required",
+                                    'tooltip': 'NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'local_path',
+                                            'placeholder': '本地映射路径'
+                                        }
+                                    ]
+                                },
+                                {
+                                    'title': '远程路径',
+                                    'required': "required",
+                                    'tooltip': 'ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                                    'type': 'text',
+                                    'content': [
+                                        {
+                                            'id': 'remote_path',
+                                            'placeholder': '远程映射路径'
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    }
+            ]
 
     def stop_service(self):
         pass
