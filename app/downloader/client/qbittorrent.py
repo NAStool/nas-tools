@@ -98,9 +98,8 @@ class Qbittorrent(_IDownloadClient):
         if not tag:
             tag = None
         try:
-            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
-            if self.is_ver_less_4_4():
-                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
+            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
+            torrents = self.filter_torrent_by_tag(torrents, tag=tag)
             return torrents or [], False
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
@@ -188,7 +187,7 @@ class Qbittorrent(_IDownloadClient):
             return []
         remove_torrents = []
         remove_torrents_ids = []
-        torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"))
+        torrents, error_flag = self.get_torrents()
         if error_flag:
             return []
         tags = config.get("filter_tags")
@@ -226,8 +225,12 @@ class Qbittorrent(_IDownloadClient):
                 continue
             if qb_category and torrent.category not in qb_category:
                 continue
-            if tags and not (torrent.tags or set(tags).issubset(set(torrent.tags.split(",")))):
-                continue
+            if tags:
+                if not torrent.tags:
+                    continue
+                torrent_tags = torrent.tags.split(", ") if isinstance(torrent.tags, str) else torrent.tags
+                if not set(tags).issubset(set(torrent_tags)):
+                    continue
             remove_torrents.append({
                 "id": torrent.hash,
                 "name": torrent.name,
@@ -462,9 +465,6 @@ class Qbittorrent(_IDownloadClient):
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
 
-    def is_ver_less_4_4(self):
-        return v(self.ver) < v("v4.4.0")
-
     @staticmethod
     def filter_torrent_by_tag(torrents, tag):
         if not tag:
@@ -473,12 +473,10 @@ class Qbittorrent(_IDownloadClient):
             tag = [tag]
         results = []
         for torrent in torrents:
-            include_flag = True
-            for t in tag:
-                if t and t not in torrent.get("tags"):
-                    include_flag = False
-                    break
-            if include_flag:
+            if not torrent.tags:
+                continue
+            torrent_tags = torrent.tags.split(", ") if isinstance(torrent.tags, str) else torrent.tags
+            if set(tag).issubset(set(torrent_tags)):
                 results.append(torrent)
         return results
 
