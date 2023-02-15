@@ -34,12 +34,12 @@ from app.rsschecker import RssChecker
 from app.scheduler import stop_scheduler
 from app.sites import Sites, SiteUserInfo, SiteSignin, SiteCookie
 from app.subscribe import Subscribe
-from app.subtitle import Subtitle
 from app.sync import Sync, stop_monitor
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils, Torrent
-from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, MovieTypes, TvTypes, EventType
+from app.utils.types import RmtMode, OsType, SearchType, DownloaderType, SyncType, MediaType, MovieTypes, TvTypes, \
+    EventType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.web_utils import WebUtils
@@ -292,7 +292,7 @@ class WebAction:
         }
 
         # 触发事件
-        EventManager().send_event(etype=EventType.MessageIncoming, data={
+        EventManager().send_event(EventType.MessageIncoming, {
             "channel": in_from.value,
             "user_id": user_id,
             "user_name": user_name,
@@ -334,7 +334,7 @@ class WebAction:
                         "https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
                 else:
                     cfg['app']['proxies'] = {"https": "%s" %
-                                             cfg_value, "http": "%s" % cfg_value}
+                                                      cfg_value, "http": "%s" % cfg_value}
             else:
                 cfg['app']['proxies'] = {"https": None, "http": None}
             return cfg
@@ -2161,7 +2161,7 @@ class WebAction:
         else:
             res = RequestUtils(timeout=5).get_res(target)
         seconds = int((datetime.datetime.now() -
-                      start_time).microseconds / 1000)
+                       start_time).microseconds / 1000)
         if not res:
             return {"res": False, "time": "%s 毫秒" % seconds}
         elif res.ok:
@@ -2201,7 +2201,7 @@ class WebAction:
         # 调整为dataset组织数据
         dataset = [["site", "upload", "download"]]
         dataset.extend([[site, upload, download]
-                       for site, upload, download in zip(site, upload, download)])
+                        for site, upload, download in zip(site, upload, download)])
         resp.update({"dataset": dataset})
         return resp
 
@@ -2416,14 +2416,13 @@ class WebAction:
                                                    page=CurrentPage)
 
         # 补充存在与订阅状态
-        filetransfer = FileTransfer()
         for res in res_list:
-            fav, rssid = filetransfer.get_media_exists_flag(mtype=Type,
-                                                            title=res.get(
-                                                                "title"),
-                                                            year=res.get(
-                                                                "year"),
-                                                            mediaid=res.get("id"))
+            fav, rssid = self.get_media_exists_flag(mtype=Type,
+                                                    title=res.get(
+                                                        "title"),
+                                                    year=res.get(
+                                                        "year"),
+                                                    mediaid=res.get("id"))
             res.update({
                 'fav': fav,
                 'rssid': rssid
@@ -3763,7 +3762,7 @@ class WebAction:
             })
 
         return {"code": 0, "items": Items}
-    
+
     def get_unknown_list_by_page(self, data):
         """
         查询所有未识别记录
@@ -3778,7 +3777,7 @@ class WebAction:
         else:
             CurrentPage = int(CurrentPage)
         totalCount, Records = self.dbhelper.get_transfer_unknown_paths_by_page(
-            SearchStr, CurrentPage, PageNum)  
+            SearchStr, CurrentPage, PageNum)
         Items = []
         for rec in Records:
             if not rec.PATH:
@@ -3799,7 +3798,7 @@ class WebAction:
         TotalPage = floor(totalCount / PageNum) + 1
 
         return {
-            "code": 0, 
+            "code": 0,
             "total": totalCount,
             "items": Items,
             "totalPage": TotalPage,
@@ -4079,22 +4078,15 @@ class WebAction:
         if not media.imdb_id:
             media.set_tmdb_info(Media().get_tmdb_info(mtype=media.type,
                                                       tmdbid=media.tmdb_id))
-        subtitle_item = [{"type": media.type,
-                          "file": os.path.splitext(path)[0],
-                          "file_ext": os.path.splitext(name)[-1],
-                          "name": media.en_name if media.en_name else media.cn_name,
-                          "title": media.title,
-                          "year": media.year,
-                          "season": media.begin_season,
-                          "episode": media.begin_episode,
-                          "bluray": False,
-                          "imdbid": media.imdb_id}]
-        # TODO
-        success, retmsg = Subtitle().download_subtitle(items=subtitle_item)
-        if success:
-            return {"code": 0, "msg": retmsg}
-        else:
-            return {"code": -1, "msg": retmsg}
+        event_item = media.to_dict()
+        event_item.update({
+            "file": os.path.splitext(path)[0],
+            "file_ext": os.path.splitext(name)[-1],
+            "bluray": False
+        })
+        # 触发字幕下载事件
+        EventManager().send_event(EventType.SubtitleDownload, event_item)
+        return {"code": 0, "msg": "字幕下载任务已提交，正在后台运行。"}
 
     @staticmethod
     def __get_download_setting(data):
@@ -4477,7 +4469,7 @@ class WebAction:
             cookie_str = ""
             for content in content_list:
                 cookie_str += content.get("name") + \
-                    "=" + content.get("value") + ";"
+                              "=" + content.get("value") + ";"
             if not cookie_str:
                 continue
             site_info = Sites().get_sites(siteurl=domain)
@@ -4492,8 +4484,7 @@ class WebAction:
             return {"code": 0, "msg": f"成功更新 {success_count} 个站点的Cookie数据"}
         return {"code": 0, "msg": "同步完成，但未更新任何站点的Cookie！"}
 
-    @staticmethod
-    def media_detail(data):
+    def media_detail(self, data):
         """
         获取媒体详情
         """
@@ -4512,10 +4503,10 @@ class WebAction:
                 "msg": "无法查询到TMDB信息"
             }
         # 查询存在及订阅状态
-        fav, rssid = FileTransfer().get_media_exists_flag(mtype=mtype,
-                                                          title=media_info.title,
-                                                          year=media_info.year,
-                                                          mediaid=media_info.tmdb_id)
+        fav, rssid = self.get_media_exists_flag(mtype=mtype,
+                                                title=media_info.title,
+                                                year=media_info.year,
+                                                mediaid=media_info.tmdb_id)
         MediaHander = Media()
         return {
             "code": 0,
@@ -4636,3 +4627,39 @@ class WebAction:
         PluginManager().save_plugin_config(pid=plugin_id, conf=config)
         PluginManager().reload_plugin(plugin_id)
         return {"code": 0, "msg": "保存成功"}
+
+    def get_media_exists_flag(self, mtype, title, year, mediaid):
+        """
+        获取媒体存在标记：是否存在、是否订阅
+        :param: mtype 媒体类型
+        :param: title 媒体标题
+        :param: year 媒体年份
+        :param: mediaid TMDBID/DB:豆瓣ID/BG:Bangumi的ID
+        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
+        """
+        if str(mediaid).isdigit():
+            tmdbid = mediaid
+        else:
+            tmdbid = None
+        if mtype in MovieTypes:
+            rssid = self.dbhelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid)
+        else:
+            if not tmdbid:
+                meta_info = MetaInfo(title=title)
+                title = meta_info.get_name()
+                season = meta_info.get_season_string()
+                if season:
+                    year = None
+            else:
+                season = None
+            rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, season=season, tmdbid=tmdbid)
+        if rssid:
+            # 已订阅
+            fav = "1"
+        elif MediaServer().check_item_exists(title=title, year=year, tmdbid=tmdbid):
+            # 已下载
+            fav = "2"
+        else:
+            # 未订阅、未下载
+            fav = "0"
+        return fav, rssid

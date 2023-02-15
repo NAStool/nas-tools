@@ -1,5 +1,3 @@
-import json
-
 import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
@@ -17,6 +15,8 @@ class PluginManager:
     _plugins = {}
     # 运行态插件列表
     _running_plugins = {}
+    # 配置Key
+    _config_key = "plugin.%s"
 
     def __init__(self):
         self.init_config()
@@ -34,6 +34,7 @@ class PluginManager:
             "app.plugins.modules",
             filter_func=lambda _, obj: hasattr(obj, 'module_id')
         )
+        plugins.sort(key=lambda x: x.module_order if hasattr(x, "module_order") else 0)
         for plugin in plugins:
             module_id = getattr(plugin, "module_id")
             if not module_id:
@@ -77,7 +78,7 @@ class PluginManager:
         """
         if not self._plugins.get(pid):
             return {}
-        return self.systemconfig.get_system_config(f"plugin.{pid}") or {}
+        return self.systemconfig.get_system_config(self._config_key % pid) or {}
 
     def save_plugin_config(self, pid, conf):
         """
@@ -85,7 +86,7 @@ class PluginManager:
         """
         if not self._plugins.get(pid):
             return False
-        return self.systemconfig.set_system_config(f"plugin.{pid}", conf)
+        return self.systemconfig.set_system_config(self._config_key % pid, conf)
 
     def get_plugins_conf(self):
         """

@@ -14,11 +14,10 @@ from app.helper import DbHelper, ProgressHelper
 from app.helper import ThreadHelper
 from app.media import Media, Category, Scraper
 from app.media.meta import MetaInfo
-from app.mediaserver import MediaServer
 from app.message import Message
-from app.subtitle import Subtitle
+from app.plugins import EventManager
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils
-from app.utils.types import MediaType, SyncType, RmtMode
+from app.utils.types import MediaType, SyncType, RmtMode, EventType
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
 
@@ -34,6 +33,7 @@ class FileTransfer:
     threadhelper = None
     dbhelper = None
     progress = None
+    eventmanager = None
 
     _default_rmt_mode = None
     _movie_path = None
@@ -61,11 +61,11 @@ class FileTransfer:
         self.media = Media()
         self.message = Message()
         self.category = Category()
-        self.mediaserver = MediaServer()
         self.scraper = Scraper()
         self.threadhelper = ThreadHelper()
         self.dbhelper = DbHelper()
         self.progress = ProgressHelper()
+        self.eventmanager = EventManager()
         self.init_config()
 
     def init_config(self):
@@ -567,8 +567,6 @@ class FileTransfer:
         message_medias = {}
         # 需要刷新媒体库的清单
         refresh_library_items = []
-        # 需要下载字段的清单
-        download_subtitle_items = []
         # 处理识别后的每一个文件或单个文件夹
         for file_item, media in Medias.items():
             try:
@@ -772,19 +770,14 @@ class FileTransfer:
                                                              tmdbid=media.tmdb_id,
                                                              append_to_response="all"))
                 # 下载字幕条目
-                subtitle_item = {"type": media.type,
-                                 "file": ret_file_path,
-                                 "file_ext": os.path.splitext(file_item)[-1],
-                                 "name": media.en_name if media.en_name else media.cn_name,
-                                 "title": media.title,
-                                 "year": media.year,
-                                 "season": media.begin_season,
-                                 "episode": media.begin_episode,
-                                 "bluray": True if bluray_disk_dir else False,
-                                 "imdbid": media.imdb_id}
-                # 登记字幕下载
-                if subtitle_item not in download_subtitle_items:
-                    download_subtitle_items.append(subtitle_item)
+                subtitle_item = media.to_dict()
+                subtitle_item.update({
+                    "file": ret_file_path,
+                    "file_ext": os.path.splitext(file_item)[-1],
+                    "bluray": True if bluray_disk_dir else False
+                })
+                # 登记字幕下载事件
+                self.eventmanager.send_event(EventType.SubtitleDownload, subtitle_item)
                 # 转移历史记录
                 self.dbhelper.insert_transfer_history(
                     in_from=in_from,
@@ -840,9 +833,6 @@ class FileTransfer:
         # 刷新媒体库
         if refresh_library_items and self._refresh_mediaserver:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
-        # TODO 启新进程下载字幕
-        if download_subtitle_items:
-            self.threadhelper.start_thread(Subtitle().download_subtitle, (download_subtitle_items,))
         # 总结
         log.info("【Rmt】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         if alert_count > 0:
@@ -1253,42 +1243,6 @@ class FileTransfer:
                 log.error("【Rmt】文件名转移忽略词设置有误：%s" % str(err))
 
         return file_list, ""
-
-    def get_media_exists_flag(self, mtype, title, year, mediaid):
-        """
-        获取媒体存在标记：是否存在、是否订阅
-        :param: mtype 媒体类型
-        :param: title 媒体标题
-        :param: year 媒体年份
-        :param: mediaid TMDBID/DB:豆瓣ID/BG:Bangumi的ID
-        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
-        """
-        if str(mediaid).isdigit():
-            tmdbid = mediaid
-        else:
-            tmdbid = None
-        if mtype in ["MOV", "电影", MediaType.MOVIE]:
-            rssid = self.dbhelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid)
-        else:
-            if not tmdbid:
-                meta_info = MetaInfo(title=title)
-                title = meta_info.get_name()
-                season = meta_info.get_season_string()
-                if season:
-                    year = None
-            else:
-                season = None
-            rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, season=season, tmdbid=tmdbid)
-        if rssid:
-            # 已订阅
-            fav = "1"
-        elif MediaServer().check_item_exists(title=title, year=year, tmdbid=tmdbid):
-            # 已下载
-            fav = "2"
-        else:
-            # 未订阅、未下载
-            fav = "0"
-        return fav, rssid
 
 
 if __name__ == "__main__":

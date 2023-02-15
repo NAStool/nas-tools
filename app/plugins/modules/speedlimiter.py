@@ -29,6 +29,8 @@ class SpeedLimiter(_IPluginModule):
     module_author = "Shurelol"
     # 插件配置项ID前缀
     module_config_prefix = "speedlimit_"
+    # 加载顺序
+    module_order = 1
 
     # 私有属性
     _downloader = None
@@ -48,9 +50,6 @@ class SpeedLimiter(_IPluginModule):
     _bandwidth = 0
 
     _scheduler = None
-
-    def __init__(self):
-        self.init_config()
 
     @staticmethod
     def get_fields():
@@ -185,7 +184,7 @@ class SpeedLimiter(_IPluginModule):
                 upload_limit=self._qb_upload_limit
             )
             if not self._limit_flag:
-                log.info(f"【SpeedLimiter】Qbittorrent下载器开始限速")
+                log.info(f"【Plugin】Qbittorrent下载器开始限速")
         if self._tr_limit:
             self._downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
@@ -193,7 +192,7 @@ class SpeedLimiter(_IPluginModule):
                 upload_limit=self._tr_upload_limit
             )
             if not self._limit_flag:
-                log.info(f"【SpeedLimiter】Transmission下载器开始限速")
+                log.info(f"【Plugin】Transmission下载器开始限速")
         self._limit_flag = True
 
     def __stop(self):
@@ -207,7 +206,7 @@ class SpeedLimiter(_IPluginModule):
                 upload_limit=0
             )
             if self._limit_flag:
-                log.info(f"【SpeedLimiter】Qbittorrent下载器停止限速")
+                log.info(f"【Plugin】Qbittorrent下载器停止限速")
         if self._tr_limit:
             self._downloader.set_speed_limit(
                 downloader=DownloaderType.TR,
@@ -215,7 +214,7 @@ class SpeedLimiter(_IPluginModule):
                 upload_limit=0
             )
             if self._limit_flag:
-                log.info(f"【SpeedLimiter】Transmission下载器停止限速")
+                log.info(f"【Plugin】Transmission下载器停止限速")
         self._limit_flag = False
 
     @EventHandler.register(EventType.EmbyWebhook)
@@ -231,14 +230,16 @@ class SpeedLimiter(_IPluginModule):
         """
         检查jellyfin Webhook消息
         """
-        pass
+        if self._limit_enabled and event.event_data.get("NotificationType") in ["PlaybackStart", "PlaybackStop"]:
+            self.__check_playing_sessions(_mediaserver_type=MediaServerType.JELLYFIN, time_check=False)
 
     @EventHandler.register(EventType.PlexWebhook)
     def plex_action(self, event):
         """
         检查plex Webhook消息
         """
-        pass
+        if self._limit_enabled and event.event_data.get("event") in ["media.play", "media.stop"]:
+            self.__check_playing_sessions(_mediaserver_type=MediaServerType.PLEX, time_check=False)
 
     def __check_playing_sessions(self, _mediaserver_type, time_check=False):
         """

@@ -106,6 +106,8 @@ class EventType(Enum):
     TransferFinished = "transfer.finished"
     # 入库失败
     TransferFail = "transfer.fail"
+    # 下载字幕
+    SubtitleDownload = "subtitle.download"
     # 新增订阅
     SubscribeAdd = "subscribe.add"
     # 订阅完成

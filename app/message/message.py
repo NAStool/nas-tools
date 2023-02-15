@@ -234,7 +234,7 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_text)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.DownloadAdd, data=can_item.to_dict())
+        self.eventmanager.send_event(EventType.DownloadAdd, can_item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_start" in client.get("switchs"):
@@ -271,7 +271,7 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.TransferFinished, data=media_info.to_dict())
+        self.eventmanager.send_event(EventType.TransferFinished, media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "transfer_finished" in client.get("switchs"):
@@ -305,7 +305,7 @@ class Message(object):
             # 插入消息中心
             self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
             # 解发事件
-            self.eventmanager.send_event(etype=EventType.TransferFinished, data=item_info.to_dict())
+            self.eventmanager.send_event(EventType.TransferFinished, item_info.to_dict())
             # 发送消息
             for client in self._active_clients:
                 if "transfer_finished" in client.get("switchs"):
@@ -325,7 +325,7 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.DownloadFail, data=item.to_dict())
+        self.eventmanager.send_event(EventType.DownloadFail, item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_fail" in client.get("switchs"):
@@ -353,7 +353,7 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.SubscribeAdd, data=media_info.to_dict())
+        self.eventmanager.send_event(EventType.SubscribeAdd, media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -382,7 +382,7 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.SubscribeFinished, data=media_info.to_dict())
+        self.eventmanager.send_event(EventType.SubscribeFinished, media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_finished" in client.get("switchs"):
@@ -443,8 +443,8 @@ class Message(object):
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 解发事件
-        self.eventmanager.send_event(etype=EventType.TransferFail,
-                                     data={"path": path, "count": count, "reason": text})
+        self.eventmanager.send_event(EventType.TransferFail,
+                                     {"path": path, "count": count, "reason": text})
         # 发送消息
         for client in self._active_clients:
             if "transfer_fail" in client.get("switchs"):
@@ -508,9 +508,9 @@ class Message(object):
             "user.authenticated": "登录成功",
             "user.authenticationfailed": "登录失败",
             "media.play": "开始播放",
+            "media.stop": "停止播放",
             "PlaybackStart": "开始播放",
             "PlaybackStop": "停止播放",
-            "media.stop": "停止播放",
             "item.rate": "标记了",
         }
         _webhook_images = {

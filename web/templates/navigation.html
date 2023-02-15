@@ -2185,7 +2185,7 @@
           } else {
             tcolor = "text";
           }
-          if (["Rmt", "Subtitle"].includes(source) && text.includes(" 到 ")) {
+          if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
             tstyle = `white-space: pre;`
             text = text.replace(/\s到\s/, "\n=> ")
           }
@@ -2253,7 +2253,7 @@
   // 渲染日志来源下拉列表
   function get_logging_source(){
     $("#dropdown-menu-logger").html('')
-    var menu=['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover']
+    var menu=['All', 'System', 'Rss', 'Rmt', 'Meta', 'Sync', 'Sites', 'Brush', 'Douban', 'Spider', 'Message', 'Indexer', 'Searcher', 'Subscribe', 'Downloader', 'TorrentRemover', 'Plugin']
     for(var i=0;i<menu.length;i++){
       $("#dropdown-menu-logger").append(`<a class="dropdown-item"  href="javascript:logger_select('${menu[i]}')">${menu[i]}</a>`);
     }

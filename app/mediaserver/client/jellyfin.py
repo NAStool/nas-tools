@@ -428,7 +428,7 @@ class Jellyfin(_IMediaClient):
         """
         解析Jellyfin报文
         """
-        eventItem = {'event': message.get('NotificationType', {}),
+        eventItem = {'event': message.get('NotificationType', ''),
                      'item_name': message.get('Name'),
                      'user_name': message.get('NotificationUsername')
                      }

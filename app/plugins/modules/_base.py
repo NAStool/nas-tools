@@ -21,6 +21,8 @@ class _IPluginModule(metaclass=ABCMeta):
     module_author = ""
     # 插件配置项ID前缀：为了避免各插件配置表单相冲突，配置表单元素ID自动在前面加上此前缀
     module_config_prefix = "plugin_"
+    # 显示顺序
+    module_order = 0
 
     @staticmethod
     @abstractmethod
@@ -31,10 +33,10 @@ class _IPluginModule(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def init_config(self, conf: dict):
+    def init_config(self, config: dict):
         """
         生效配置信息
-        :param conf: 配置信息字典
+        :param config: 配置信息字典
         """
         pass
 

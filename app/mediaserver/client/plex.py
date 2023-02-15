@@ -219,7 +219,7 @@ class Plex(_IMediaClient):
         """
         解析Plex报文
         """
-        eventItem = {'event': message.get('event', {}),
+        eventItem = {'event': message.get('event', ''),
                      'item_name': message.get('Metadata', {}).get('title'),
                      'user_name': message.get('Account', {}).get('title')
                      }
