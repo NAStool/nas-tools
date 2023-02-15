@@ -167,6 +167,8 @@ scraper_pic:
     season_thumb: true
     # 集
     episode_thumb: false
+    # 开启后，读取视频文件生成缩略图
+    episode_thumb_ffmpeg: false
 
 # 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
 sync:
