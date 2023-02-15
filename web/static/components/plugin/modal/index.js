@@ -113,7 +113,7 @@ export class PluginModal extends CustomElement {
 
   __render_note(tooltip) {
     if (tooltip) {
-      return html`<span class="form-help" data-bs-toggle="tooltip" data-bs-original-title="${tooltip}">?</span>`;
+      return html`<span class="form-help" data-bs-toggle="tooltip" title="${tooltip}">?</span>`;
     }
   }
 
