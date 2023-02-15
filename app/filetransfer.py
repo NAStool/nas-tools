@@ -840,7 +840,7 @@ class FileTransfer:
         # 刷新媒体库
         if refresh_library_items and self._refresh_mediaserver:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
-        # 启新进程下载字幕
+        # TODO 启新进程下载字幕
         if download_subtitle_items:
             self.threadhelper.start_thread(Subtitle().download_subtitle, (download_subtitle_items,))
         # 总结

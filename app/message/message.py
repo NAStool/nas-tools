@@ -7,9 +7,10 @@ import log
 from app.conf import ModuleConf
 from app.helper import DbHelper, SubmoduleHelper
 from app.message.message_center import MessageCenter
+from app.plugins import EventManager
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import SearchType, MediaType
+from app.utils.types import SearchType, MediaType, EventType
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -18,6 +19,7 @@ from web.backend.web_utils import WebUtils
 class Message(object):
     dbhelper = None
     messagecenter = None
+    eventmanager = None
     _message_schemas = []
     _active_clients = []
     _active_interactive_clients = {}
@@ -35,6 +37,8 @@ class Message(object):
     def init_config(self):
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
+        self.eventmanager = EventManager()
+
         self._domain = Config().get_domain()
         # 停止旧服务
         if self._active_clients:
@@ -229,6 +233,8 @@ class Message(object):
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.DownloadAdd, data=can_item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_start" in client.get("switchs"):
@@ -264,6 +270,8 @@ class Message(object):
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.TransferFinished, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "transfer_finished" in client.get("switchs"):
@@ -296,6 +304,8 @@ class Message(object):
                 msg_str = f"{msg_str}，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 插入消息中心
             self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+            # 解发事件
+            self.eventmanager.send_event(etype=EventType.TransferFinished, data=item_info.to_dict())
             # 发送消息
             for client in self._active_clients:
                 if "transfer_finished" in client.get("switchs"):
@@ -314,6 +324,8 @@ class Message(object):
         text = f"站点：{item.site}\n种子名称：{item.org_string}\n种子链接：{item.enclosure}\n错误信息：{error_msg}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.DownloadFail, data=item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_fail" in client.get("switchs"):
@@ -340,6 +352,8 @@ class Message(object):
             msg_str = f"{msg_str}，用户：{media_info.user_name}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.SubscribeAdd, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -367,6 +381,8 @@ class Message(object):
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.SubscribeFinished, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_finished" in client.get("switchs"):
@@ -426,6 +442,9 @@ class Message(object):
         text = f"源路径：{path}\n原因：{text}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.TransferFail,
+                                     data={"path": path, "count": count, "reason": text})
         # 发送消息
         for client in self._active_clients:
             if "transfer_fail" in client.get("switchs"):
