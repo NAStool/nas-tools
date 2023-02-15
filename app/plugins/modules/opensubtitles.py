@@ -108,7 +108,7 @@ class OpenSubtitles(_IPluginModule):
         log.info("【Plugin】开始从Opensubtitle.org检索字幕: %s，imdbid=%s" % (item_name, imdb_id))
         subtitles = self.search_subtitles(imdb_id=imdb_id, name=item_name, year=item_year)
         if not subtitles:
-            log.info("【Plugin】%s 未检索到字幕" % item_name)
+            log.warn("【Plugin】%s 未检索到字幕" % item_name)
         else:
             log.info("【Plugin】opensubtitles.org返回数据：%s" % len(subtitles))
             # 成功数

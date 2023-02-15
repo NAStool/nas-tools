@@ -1,11 +1,10 @@
-from queue import Empty
+from threading import Thread
 
 import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
 from app.plugins.event_manager import EventManager
 from app.utils.commons import singleton
-from threading import Thread
 
 
 @singleton
