@@ -20,21 +20,22 @@ class Rss:
     _sites = []
     filter = None
     media = None
+    sites = None
     downloader = None
     searcher = None
     dbhelper = None
     subscribe = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.media = Media()
         self.downloader = Downloader()
         self.sites = Sites()
         self.filter = Filter()
         self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
-        self.init_config()
-
-    def init_config(self):
         self._sites = self.sites.get_sites(rss=True)
 
     def rssdownload(self):

@@ -11,8 +11,6 @@ class MediaType(Enum):
 class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
-    Client115 = '115网盘'
-    PikPak = 'PikPak'
 
 
 class SyncType(Enum):
@@ -92,5 +90,31 @@ class SiteSchema(Enum):
     TNode = "TNode"
 
 
+# 可监听事件
+class EventType(Enum):
+    # Emby Webhook通知
+    EmbyWebhook = "emby.webhook"
+    # Jellyfin Webhook通知
+    JellyfinWebhook = "jellyfin.webhook"
+    # Plex Webhook通知
+    PlexWebhook = "plex.webhook"
+    # 新增下载
+    DownloadAdd = "download.add"
+    # 下载失败
+    DownloadFail = "download.fail"
+    # 入库完成
+    TransferFinished = "transfer.finished"
+    # 入库失败
+    TransferFail = "transfer.fail"
+    # 新增订阅
+    SubscribeAdd = "subscribe.add"
+    # 订阅完成
+    SubscribeFinished = "subscribe.finished"
+    # 交互消息
+    MessageIncoming = "message.incoming"
+
+
+# 电影类型关键字
 MovieTypes = ['MOV', '电影']
+# 电视剧类型关键字
 TvTypes = ['TV', '电视剧']

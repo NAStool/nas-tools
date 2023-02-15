@@ -2090,12 +2090,14 @@ class Media:
         """
         if not self.episode:
             return ""
+        if not tv_id or not season_id or not episode_id:
+            return ""
         res = self.episode.images(tv_id, season_id, episode_id)
         if res:
             if orginal:
-                return TMDB_IMAGE_ORIGINAL_URL % res[0].get("file_path")
+                return TMDB_IMAGE_ORIGINAL_URL % res[-1].get("file_path")
             else:
-                return TMDB_IMAGE_W500_URL % res[0].get("file_path")
+                return TMDB_IMAGE_W500_URL % res[-1].get("file_path")
         else:
             return ""
 

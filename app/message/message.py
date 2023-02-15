@@ -1,26 +1,29 @@
 import json
 import re
+import time
 from enum import Enum
 
 import log
 from app.conf import ModuleConf
 from app.helper import DbHelper, SubmoduleHelper
 from app.message.message_center import MessageCenter
+from app.plugins import EventManager
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import SearchType, MediaType
+from app.utils.types import SearchType, MediaType, EventType
 from config import Config
+from web.backend.web_utils import WebUtils
 
 
 @singleton
 class Message(object):
     dbhelper = None
     messagecenter = None
+    eventmanager = None
     _message_schemas = []
     _active_clients = []
     _active_interactive_clients = {}
     _client_configs = {}
-    _webhook_ignore = None
     _domain = None
 
     def __init__(self):
@@ -34,6 +37,8 @@ class Message(object):
     def init_config(self):
         self.dbhelper = DbHelper()
         self.messagecenter = MessageCenter()
+        self.eventmanager = EventManager()
+
         self._domain = Config().get_domain()
         # 停止旧服务
         if self._active_clients:
@@ -97,12 +102,6 @@ class Message(object):
         if not state:
             log.error(f"【Message】{ctype} 发送测试消息失败：%s" % ret_msg)
         return state
-
-    def get_webhook_ignore(self):
-        """
-        获取Emby/Jellyfin不通知的设备清单
-        """
-        return self._webhook_ignore or []
 
     def __sendmsg(self, client, title, text="", image="", url="", user_id=""):
         """
@@ -234,6 +233,8 @@ class Message(object):
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.DownloadAdd, data=can_item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_start" in client.get("switchs"):
@@ -269,6 +270,8 @@ class Message(object):
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.TransferFinished, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "transfer_finished" in client.get("switchs"):
@@ -301,6 +304,8 @@ class Message(object):
                 msg_str = f"{msg_str}，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             # 插入消息中心
             self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+            # 解发事件
+            self.eventmanager.send_event(etype=EventType.TransferFinished, data=item_info.to_dict())
             # 发送消息
             for client in self._active_clients:
                 if "transfer_finished" in client.get("switchs"):
@@ -319,6 +324,8 @@ class Message(object):
         text = f"站点：{item.site}\n种子名称：{item.org_string}\n种子链接：{item.enclosure}\n错误信息：{error_msg}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.DownloadFail, data=item.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "download_fail" in client.get("switchs"):
@@ -345,6 +352,8 @@ class Message(object):
             msg_str = f"{msg_str}，用户：{media_info.user_name}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.SubscribeAdd, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_added" in client.get("switchs"):
@@ -372,6 +381,8 @@ class Message(object):
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=msg_title, content=msg_str)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.SubscribeFinished, data=media_info.to_dict())
         # 发送消息
         for client in self._active_clients:
             if "rss_finished" in client.get("switchs"):
@@ -431,6 +442,9 @@ class Message(object):
         text = f"源路径：{path}\n原因：{text}"
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 解发事件
+        self.eventmanager.send_event(etype=EventType.TransferFail,
+                                     data={"path": path, "count": count, "reason": text})
         # 发送消息
         for client in self._active_clients:
             if "transfer_fail" in client.get("switchs"):
@@ -477,22 +491,75 @@ class Message(object):
                     url="brushtask"
                 )
 
-    def send_mediaserver_message(self, title, text, image):
+    def send_mediaserver_message(self, event_info: dict, channel, image_url):
         """
         发送媒体服务器的消息
+        :param event_info: 事件信息
+        :param channel: 服务器类型:
+        :param image_url: 图片
         """
-        if not title or not text or not image:
+        if not event_info or not channel:
             return
+        # 拼装消息内容
+        _webhook_actions = {
+            "system.webhooktest": "测试",
+            "playback.start": "开始播放",
+            "playback.stop": "停止播放",
+            "user.authenticated": "登录成功",
+            "user.authenticationfailed": "登录失败",
+            "media.play": "开始播放",
+            "PlaybackStart": "开始播放",
+            "PlaybackStop": "停止播放",
+            "media.stop": "停止播放",
+            "item.rate": "标记了",
+        }
+        _webhook_images = {
+            "Emby": "https://emby.media/notificationicon.png",
+            "Plex": "https://www.plex.tv/wp-content/uploads/2022/04/new-logo-process-lines-gray.png",
+            "Jellyfin": "https://play-lh.googleusercontent.com/SCsUK3hCCRqkJbmLDctNYCfehLxsS4ggD1ZPHIFrrAN1Tn9yhjmGMPep2D9lMaaa9eQi"
+        }
+
+        if not _webhook_actions.get(event_info.get('event')):
+            return
+
+        # 消息标题
+        if event_info.get('item_type') == "TV":
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
+        elif event_info.get('item_type') == "MOV":
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}电影 {event_info.get('item_name')}"
+        else:
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}"
+
+        # 消息内容
+        if {event_info.get('user_name')}:
+            message_texts = [f"用户：{event_info.get('user_name')}"]
+        if event_info.get('device_name'):
+            message_texts.append(f"设备：{event_info.get('client')} {event_info.get('device_name')}")
+        if event_info.get('ip'):
+            message_texts.append(f"位置：{event_info.get('ip')} {WebUtils.get_location(event_info.get('ip'))}")
+        if event_info.get('percentage'):
+            percentage = round(float(event_info.get('percentage')), 2)
+            message_texts.append(f"进度：{percentage}%")
+        if event_info.get('overview'):
+            message_texts.append(f"剧情：{event_info.get('overview')}")
+        message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
+
+        # 消息图片
+        if not image_url:
+            image_url = _webhook_images.get(channel)
+
         # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        message_content = "\n".join(message_texts)
+        self.messagecenter.insert_system_message(level="INFO", title=message_title, content=message_content)
+
         # 发送消息
         for client in self._active_clients:
             if "mediaserver_message" in client.get("switchs"):
                 self.__sendmsg(
                     client=client,
-                    title=title,
-                    text=text,
-                    image=image
+                    title=message_title,
+                    text=message_content,
+                    image=image_url
                 )
 
     def send_custom_message(self, title, text="", image=""):

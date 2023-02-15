@@ -214,3 +214,13 @@ class Plex(_IMediaClient):
         获取正在播放的会话
         """
         pass
+
+    def get_webhook_message(self, message):
+        """
+        解析Plex报文
+        """
+        eventItem = {'event': message.get('event', {}),
+                     'item_name': message.get('Metadata', {}).get('title'),
+                     'user_name': message.get('Account', {}).get('title')
+                     }
+        return eventItem

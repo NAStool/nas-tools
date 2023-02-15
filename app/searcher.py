@@ -20,15 +20,15 @@ class Searcher:
     _search_auto = True
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.downloader = Downloader()
         self.media = Media()
         self.message = Message()
         self.progress = ProgressHelper()
         self.dbhelper = DbHelper()
         self.indexer = Indexer()
-        self.init_config()
-
-    def init_config(self):
         self._search_auto = Config().get_config("pt").get('search_auto', True)
 
     def search_medias(self,
