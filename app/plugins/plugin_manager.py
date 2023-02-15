@@ -24,7 +24,6 @@ class PluginManager:
     def init_config(self):
         self.systemconfig = SystemConfig()
         self.load_plugins()
-        self.run_plugins()
 
     def load_plugins(self):
         """
@@ -39,8 +38,10 @@ class PluginManager:
             module_id = getattr(plugin, "module_id")
             if not module_id:
                 continue
-            log.info(f"加载插件：{module_id}")
             self._plugins[module_id] = plugin
+            self._running_plugins[module_id] = plugin()
+            self.reload_plugin(plugin)
+            log.info(f"加载插件：{module_id}")
 
     def run_plugin(self, pid, *args, **kwargs):
         """
@@ -50,15 +51,10 @@ class PluginManager:
             return None
         return self._plugins[pid](*args, **kwargs)
 
-    def run_plugins(self, *args, **kwargs):
-        """
-        运行所有插件
-        """
-        for pid, plugin in self._plugins.items():
-            self._running_plugins[pid] = self.run_plugin(pid, *args, **kwargs)
-            self.reload_plugin(pid)
-
     def reload_plugin(self, pid):
+        """
+        生效插件配置
+        """
         if not self._running_plugins.get(pid):
             return
         if hasattr(self._running_plugins[pid], "init_config"):
