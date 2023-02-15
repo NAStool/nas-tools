@@ -13,8 +13,6 @@ import log
 
 class SpeedLimiter(_IPluginModule):
 
-    # 插件ID
-    module_id = "SpeedLimiter"
     # 插件名称
     module_name = "播放限速"
     # 插件描述

@@ -258,7 +258,7 @@ class WebAction:
         # 关闭自定义订阅
         RssChecker().stop_service()
         # 关闭插件
-        PluginManager().stop_plugins()
+        PluginManager().stop_service()
         # 签退
         logout_user()
         # 重启进程

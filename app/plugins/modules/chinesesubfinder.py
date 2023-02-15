@@ -10,8 +10,6 @@ from config import Config
 
 class ChineseSubFinder(_IPluginModule):
 
-    # 插件ID
-    module_id = "ChineseSubFinder"
     # 插件名称
     module_name = "ChineseSubFinder"
     # 插件描述

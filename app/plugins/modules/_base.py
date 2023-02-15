@@ -5,8 +5,6 @@ class _IPluginModule(metaclass=ABCMeta):
     """
     插件模块基类
     """
-    # 插件ID
-    module_id = ""
     # 插件名称
     module_name = ""
     # 插件描述

@@ -18,8 +18,6 @@ from config import Config, RMT_SUBEXT
 
 class OpenSubtitles(_IPluginModule):
 
-    # 插件ID
-    module_id = "OpenSubtitles"
     # 插件名称
     module_name = "OpenSubtitles"
     # 插件描述

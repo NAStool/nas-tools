@@ -1,5 +1,4 @@
 from queue import Queue, Empty
-from threading import Thread
 
 import log
 from app.utils.commons import singleton
@@ -16,10 +15,6 @@ class EventManager:
     _eventQueue = None
     # 事件响应函数字典
     _handlers = {}
-    # 事件处理线程
-    _thread = None
-    # 开关
-    _active = False
 
     def __init__(self):
         self.init_config()
@@ -29,53 +24,17 @@ class EventManager:
         self._eventQueue = Queue()
         # 事件响应函数字典
         self._handlers = {}
-        # 事件处理线程
-        self._thread = Thread(target=self.__run)
-        # 开关
-        self._active = True
-        # 默认启动
-        self.start()
 
-    def __run(self):
+    def get_event(self):
         """
-        事件处理线程
+        获取事件
         """
-        while self._active:
-            try:
-                event = self._eventQueue.get(block=True, timeout=1)
-                log.info(f"处理事件：{event.event_type}")
-                self.__process_event(event)
-            except Empty:
-                pass
-
-    def __process_event(self, event):
-        """
-        处理事件
-        """
-        if event.event_type in self._handlers:
-            for handler in self._handlers[event.event_type]:
-                try:
-                    handler(event)
-                except Exception as err:
-                    log.error(f"处理事件出错：{err}")
-
-    def start(self):
-        """
-        启动
-        """
-        # 将事件管理器设为启动
-        self._active = True
-        # 启动事件处理线程
-        self._thread.start()
-
-    def stop(self):
-        """
-        停止
-        """
-        # 将事件管理器设为停止
-        self._active = False
-        # 等待事件处理线程退出
-        self._thread.join()
+        try:
+            event = self._eventQueue.get(block=True, timeout=1)
+            handlerList = self._handlers.get(event.event_type)
+            return event, handlerList
+        except Empty:
+            return None, []
 
     def add_event_listener(self, etype: EventType, handler):
         """
@@ -88,7 +47,7 @@ class EventManager:
             self._handlers[etype.value] = handlerList
         if handler not in handlerList:
             handlerList.append(handler)
-        log.debug(f"已注册事件：{self._handlers}")
+            log.info(f"已注册事件：{handler}")
 
     def remove_event_listener(self, etype: EventType, handler):
         """
