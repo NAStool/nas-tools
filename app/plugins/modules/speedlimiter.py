@@ -223,7 +223,7 @@ class SpeedLimiter(_IPluginModule):
         """
         检查emby Webhook消息
         """
-        if self._limit_enabled and event.dict.get("Event") in ["playback.start", "playback.stop"]:
+        if self._limit_enabled and event.event_data.get("Event") in ["playback.start", "playback.stop"]:
             self.__check_playing_sessions(_mediaserver_type=MediaServerType.EMBY, time_check=False)
 
     @EventHandler.register(EventType.JellyfinWebhook)
