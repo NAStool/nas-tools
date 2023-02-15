@@ -52,7 +52,7 @@ class EventManager:
         """
         处理事件
         """
-        if event.etype in self._handlers:
+        if event.event_type in self._handlers:
             for handler in self._handlers[event.event_type]:
                 try:
                     handler(event)
