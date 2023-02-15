@@ -43,7 +43,7 @@ class EventManager:
         while self._active:
             try:
                 event = self._eventQueue.get(block=True, timeout=1)
-                log.info(f"处理事件：{event.etype}")
+                log.info(f"处理事件：{event.event_type}")
                 self.__process_event(event)
             except Empty:
                 pass
@@ -53,7 +53,7 @@ class EventManager:
         处理事件
         """
         if event.etype in self._handlers:
-            for handler in self._handlers[event.etype]:
+            for handler in self._handlers[event.event_type]:
                 try:
                     handler(event)
                 except Exception as err:
@@ -110,7 +110,7 @@ class EventManager:
         if etype not in EventType:
             return
         event = Event(etype.value)
-        event.dict = data or {}
+        event.event_data = data or {}
         self._eventQueue.put(event)
 
     def register(self, etype: EventType):
@@ -131,11 +131,11 @@ class Event(object):
     事件对象
     """
 
-    def __init__(self, etype=None):
+    def __init__(self, event_type=None):
         # 事件类型
-        self.etype = etype
+        self.event_type = event_type
         # 字典用于保存具体的事件数据
-        self.dict = {}
+        self.event_data = {}
 
 
 # 实例引用，用于注册事件
