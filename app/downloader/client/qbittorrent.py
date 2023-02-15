@@ -191,6 +191,7 @@ class Qbittorrent(_IDownloadClient):
         torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"))
         if error_flag:
             return []
+        tags = config.get("filter_tags")
         ratio = config.get("ratio")
         # 做种时间 单位：小时
         seeding_time = config.get("seeding_time")
@@ -224,6 +225,8 @@ class Qbittorrent(_IDownloadClient):
             if qb_state and torrent.state not in qb_state:
                 continue
             if qb_category and torrent.category not in qb_category:
+                continue
+            if tags and not (torrent.tags or set(tags).issubset(set(torrent.tags.split(",")))):
                 continue
             remove_torrents.append({
                 "id": torrent.hash,

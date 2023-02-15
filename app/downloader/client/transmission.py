@@ -307,7 +307,7 @@ class Transmission(_IDownloadClient):
             if tr_error_key and not re.findall(tr_error_key, torrent.error_string, re.I):
                 continue
             labels = set(torrent.labels)
-            if tags and (not labels or not set(tags).issubset(labels)):
+            if tags and not (labels or set(tags).issubset(labels)):
                 continue
             remove_torrents.append({
                 "id": torrent.id,
