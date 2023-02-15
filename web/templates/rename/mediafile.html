@@ -46,7 +46,8 @@
           <div class="card-body border-0">
             <input type="hidden" id="mediafile_current_dir">
             <input type="hidden" id="mediafile_current_files">
-            <div class="row-cards" id="mediafile_file_container">
+            <div class="row row-cards" style="overflow-y: auto; overflow-x: hidden">
+              <div class="col" id="mediafile_file_container"></div>
             </div>
           </div>
         </div>
@@ -355,8 +356,8 @@
 
   // 计算高度
   function init_mediafile_height() {
-    $("#mediafile_tree").css("height", $(window).height() - 225).css("overflow-y", "auto");
-    $("#mediafile_file_container").css("height", $(window).height() - 200).css("overflow-y", "auto");
+    $("#mediafile_tree").css("height", $(window).height() - 225);
+    $("#mediafile_file_container").css("height", $(window).height() - 200);
   }
 
   // 初始列表
