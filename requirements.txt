@@ -99,6 +99,6 @@ watchdog==2.1.9
 wcwidth==0.2.5
 webdriver-manager==3.8.5
 websockets==10.3
-Werkzeug==2.1.2
+Werkzeug==2.2.3
 wsproto==1.2.0
 zhconv==1.4.3
