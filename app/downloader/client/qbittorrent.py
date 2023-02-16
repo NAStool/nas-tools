@@ -100,7 +100,18 @@ class Qbittorrent(_IDownloadClient):
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
             if tag:
-                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
+                results = []
+                if not isinstance(tag, list):
+                    tag = [tag]
+                for torrent in torrents:
+                    include_flag = True
+                    for t in tag:
+                        if t and t not in torrent.get("tags"):
+                            include_flag = False
+                            break
+                    if include_flag:
+                        results.append(torrent)
+                return results or [], False
             return torrents or [], False
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
@@ -188,10 +199,9 @@ class Qbittorrent(_IDownloadClient):
             return []
         remove_torrents = []
         remove_torrents_ids = []
-        torrents, error_flag = self.get_torrents()
+        torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"))
         if error_flag:
             return []
-        tags = config.get("filter_tags")
         ratio = config.get("ratio")
         # 做种时间 单位：小时
         seeding_time = config.get("seeding_time")
@@ -226,12 +236,6 @@ class Qbittorrent(_IDownloadClient):
                 continue
             if qb_category and torrent.category not in qb_category:
                 continue
-            if tags:
-                if not torrent.tags:
-                    continue
-                torrent_tags = torrent.tags.split(", ") if isinstance(torrent.tags, str) else torrent.tags
-                if not set(tags).issubset(set(torrent_tags)):
-                    continue
             remove_torrents.append({
                 "id": torrent.hash,
                 "name": torrent.name,
@@ -465,21 +469,6 @@ class Qbittorrent(_IDownloadClient):
             return
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
-
-    @staticmethod
-    def filter_torrent_by_tag(torrents, tag):
-        if not tag:
-            return torrents
-        if not isinstance(tag, list):
-            tag = [tag]
-        results = []
-        for torrent in torrents:
-            if not torrent.tags:
-                continue
-            torrent_tags = torrent.tags.split(", ") if isinstance(torrent.tags, str) else torrent.tags
-            if set(tag).issubset(set(torrent_tags)):
-                results.append(torrent)
-        return results
 
     def change_torrent(self, **kwargs):
         """
