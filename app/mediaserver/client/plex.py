@@ -98,15 +98,16 @@ class Plex(_IMediaClient):
         if not self._plex:
             return {}
         sections = self._plex.library.sections()
-        MovieCount = SeriesCount = SongCount = 0
+        MovieCount = SeriesCount = SongCount = EpisodeCount = 0
         for sec in sections:
             if sec.type == "movie":
                 MovieCount += sec.totalSize
             if sec.type == "show":
                 SeriesCount += sec.totalSize
+                EpisodeCount += sec.totalViewSize(libtype='episode')
             if sec.type == "artist":
                 SongCount += sec.totalSize
-        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": 0}
+        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": EpisodeCount}
 
     def get_movies(self, title, year=None):
         """
@@ -185,6 +186,13 @@ class Plex(_IMediaClient):
             libraries.append({"id": library.key, "name": library.title})
         return libraries
 
+    def get_iteminfo(self, itemid):
+        """
+        获取单个项目详情
+        """
+
+        return None
+
     def get_items(self, parent):
         """
         获取媒体服务器所有媒体库列表
@@ -228,9 +236,40 @@ class Plex(_IMediaClient):
     def get_webhook_message(self, message):
         """
         解析Plex报文
+        eventItem  字段的含义
+        event      事件类型
+        item_type  媒体类型 TV,MOV
+        item_name  TV:琅琊榜 S1E6 剖心明志 虎口脱险
+                   MOV:猪猪侠大冒险(2001)
+        overview   剧情描述
         """
-        eventItem = {'event': message.get('event', ''),
-                     'item_name': message.get('Metadata', {}).get('title'),
-                     'user_name': message.get('Account', {}).get('title')
-                     }
+        eventItem = {'event': message.get('event', '')}
+        if message.get('Metadata'):
+            if message.get('Metadata', {}).get('type') == 'episode':
+                eventItem['item_type'] = "TV"
+                eventItem['item_name'] = "%s %s%s %s" % (
+                    message.get('Metadata', {}).get('grandparentTitle'),
+                    "S" + str(message.get('Metadata', {}).get('parentIndex')),
+                    "E" + str(message.get('Metadata', {}).get('index')),
+                    message.get('Metadata', {}).get('title'))
+                if message.get('Metadata', {}).get('summary') and len(message.get('Metadata', {}).get('summary')) > 100:
+                    eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
+                else:
+                    eventItem['overview'] = message.get('Metadata', {}).get('summary')
+            else:
+                eventItem['item_type'] = "MOV"
+                eventItem['item_name'] = "%s %s" % (
+                    message.get('Metadata', {}).get('title'), "(" + str(message.get('Metadata', {}).get('year')) + ")")
+                if len(message.get('Metadata', {}).get('summary')) > 100:
+                    eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
+                else:
+                    eventItem['overview'] = message.get('Metadata', {}).get('summary')
+        if message.get('Player'):
+            eventItem['ip'] = message.get('Player').get('publicAddress')
+            eventItem['client'] = message.get('Player').get('title')
+            # 这里给个空,防止拼消息的时候出现None
+            eventItem['device_name'] = ' '
+        if message.get('Account'):
+            eventItem['user_name'] = message.get("Account").get('title')
+
         return eventItem
