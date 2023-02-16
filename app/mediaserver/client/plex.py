@@ -98,15 +98,16 @@ class Plex(_IMediaClient):
         if not self._plex:
             return {}
         sections = self._plex.library.sections()
-        MovieCount = SeriesCount = SongCount = 0
+        MovieCount = SeriesCount = SongCount = EpisodeCount = 0
         for sec in sections:
             if sec.type == "movie":
                 MovieCount += sec.totalSize
             if sec.type == "show":
                 SeriesCount += sec.totalSize
+                EpisodeCount += sec.totalViewSize(libtype='episode')
             if sec.type == "artist":
                 SongCount += sec.totalSize
-        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": 0}
+        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": EpisodeCount}
 
     def get_movies(self, title, year=None):
         """
@@ -185,6 +186,14 @@ class Plex(_IMediaClient):
             libraries.append({"id": library.key, "name": library.title})
         return libraries
 
+    def get_iteminfo(self, itemid):
+        """
+        获取单个项目详情
+        """
+        print(itemid)
+
+        return {}
+
     def get_items(self, parent):
         """
         获取媒体服务器所有媒体库列表
@@ -238,6 +247,7 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
+                eventItem['item_id'] = message.get('Metadata', {}).get('key')
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
@@ -246,6 +256,7 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
+                eventItem['item_id'] = message.get('Metadata', {}).get('key')
         if message.get('Player'):
             eventItem['ip'] = message.get('Player').get('publicAddress')
             eventItem['client'] = message.get('Player').get('title')
