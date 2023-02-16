@@ -422,7 +422,21 @@ class Jellyfin(_IMediaClient):
         """
         获取正在播放的会话
         """
-        pass
+        if not self._host or not self._apikey:
+            return []
+        playing_sessions = []
+        req_url = "%sSessions?api_key=%s" % (self._host, self._apikey)
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res and res.status_code == 200:
+                sessions = res.json()
+                for session in sessions:
+                    if session.get("NowPlayingItem"):
+                        playing_sessions.append(session)
+            return playing_sessions
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return []
 
     def get_webhook_message(self, message):
         """

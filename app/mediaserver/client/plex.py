@@ -213,7 +213,17 @@ class Plex(_IMediaClient):
         """
         获取正在播放的会话
         """
-        pass
+        if not self._plex:
+            return []
+        sessions = self._plex.sessions()
+        ret_sessions = []
+        for session in sessions:
+            ret_sessions.append({
+                "type": session.TAG,
+                "bitrate": sum([m.bitrate for m in session.media]),
+                "address": session.player.address
+            })
+        return ret_sessions
 
     def get_webhook_message(self, message):
         """

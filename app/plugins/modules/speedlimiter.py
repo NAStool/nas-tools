@@ -118,7 +118,7 @@ class SpeedLimiter(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '自动限速设置',
-                'tooltip': '以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制',
+                'tooltip': '设置后根据上行带宽及剩余比例自动计算限速数值，目前仅支持Emby',
                 'content': [
                     # 同一行
                     [
@@ -346,16 +346,25 @@ class SpeedLimiter(_IPluginModule):
         if _mediaserver_type == MediaServerType.EMBY:
             for session in playing_sessions:
                 if not SecurityHelper.allow_access(self._unlimited_ips, session.get("RemoteEndPoint")) \
-                        and session.get("NowPlayingItem").get("MediaType") == "Video":
-                    total_bit_rate += int(session.get("NowPlayingItem").get("Bitrate")) or 0
-            # 计算限速标志及速率
-            _limit_flag = __calc_limit(total_bit_rate)
+                        and session.get("NowPlayingItem", {}).get("MediaType") == "Video":
+                    total_bit_rate += int(session.get("NowPlayingItem", {}).get("Bitrate") or 0)
         elif _mediaserver_type == MediaServerType.JELLYFIN:
-            pass
+            for session in playing_sessions:
+                if not SecurityHelper.allow_access(self._unlimited_ips, session.get("RemoteEndPoint")) \
+                        and session.get("NowPlayingItem", {}).get("MediaType") == "Video":
+                    media_streams = session.get("NowPlayingItem", {}).get("MediaStreams") or []
+                    for media_stream in media_streams:
+                        total_bit_rate += int(media_stream.get("BitRate") or 0)
         elif _mediaserver_type == MediaServerType.PLEX:
-            pass
+            for session in playing_sessions:
+                if not SecurityHelper.allow_access(self._unlimited_ips, session.get("address")) \
+                        and session.get("type") == "Video":
+                    total_bit_rate += int(session.get("bitrate") or 0)
         else:
             return
+
+        # 计算限速标志及速率
+        _limit_flag = __calc_limit(total_bit_rate)
 
         # 启动限速
         if time_check or self._auto_limit:
