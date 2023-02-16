@@ -275,7 +275,7 @@ class StringUtils:
         if season_re:
             mtype = MediaType.TV
             season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
-        episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
+        episode_re = re.search(r"第\s*([0-9一二三四五六七八九十百零]+)\s*集", content, re.IGNORECASE)
         if episode_re:
             mtype = MediaType.TV
             episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
@@ -285,7 +285,7 @@ class StringUtils:
         if year_re:
             year = year_re.group(1)
         key_word = re.sub(
-            r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
+            r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十百零]+\s*集|[\s(]+(\d{4})[\s)]*', '',
             content,
             flags=re.IGNORECASE).strip()
         if key_word:
