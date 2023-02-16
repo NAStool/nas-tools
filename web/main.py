@@ -1268,6 +1268,10 @@ def wechat():
             # 解析消息内容
             content = ""
             if msg_type == "event":
+                # 校验用户有权限执行交互命令
+                if conf.get("adminUser") and not any(user_id == admin_user for admin_user in str(conf.get("adminUser")).split(";")):
+                    Message().send_channel_msg(channel=SearchType.WX, title="用户无权限执行菜单命令", user_id=user_id)
+                    return make_response(content, 200)
                 # 事件消息
                 event_key = DomUtils.tag_value(root_node, "EventKey")
                 if event_key:

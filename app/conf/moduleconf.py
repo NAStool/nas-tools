@@ -157,6 +157,14 @@ class ModuleConf(object):
                         "tooltip": "需要交互功能时才需要填写，在微信企业应用管理后台-接收消息设置页面生成，填入完成后重启本应用，然后再在微信页面输入地址确定",
                         "type": "text",
                         "placeholder": "API接收消息EncodingAESKey"
+                    },
+                    "adminUser": {
+                        "id": "wechat_adminUser",
+                        "required": False,
+                        "title": "AdminUser",
+                        "tooltip": "需要交互功能时才需要填写，可执行交互菜单命令的用户名，为空则不限制，多个;号分割。可在企业微信后台查看成员的Account ID",
+                        "type": "text",
+                        "placeholder": "可执行交互菜单的用户名"
                     }
                 }
             },
