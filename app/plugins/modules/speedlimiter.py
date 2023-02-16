@@ -118,7 +118,7 @@ class SpeedLimiter(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '自动限速设置',
-                'tooltip': '设置后根据上行带宽及剩余比例自动计算限速数值，目前仅支持Emby',
+                'tooltip': '设置后根据上行带宽及剩余比例自动计算限速数值',
                 'content': [
                     # 同一行
                     [
