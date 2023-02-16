@@ -386,27 +386,27 @@ class Scraper:
                 if scraper_tv_pic.get("background"):
                     background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
                     if background_image:
-                        self.__save_image(background_image, dir_path, "show")
+                        self.__save_image(background_image, os.path.dirname(dir_path), "show")
                 # logo
                 if scraper_tv_pic.get("logo"):
                     logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
                     if logo_image:
-                        self.__save_image(logo_image, dir_path, "logo")
+                        self.__save_image(logo_image, os.path.dirname(dir_path), "logo")
                 # clearart
                 if scraper_tv_pic.get("clearart"):
                     clearart_image = media.fanart.get_disc(media_type=media.type, queryid=media.tvdb_id)
                     if clearart_image:
-                        self.__save_image(clearart_image, dir_path, "clearart")
+                        self.__save_image(clearart_image, os.path.dirname(dir_path), "clearart")
                 # banner
                 if scraper_tv_pic.get("banner"):
                     banner_image = media.fanart.get_banner(media_type=media.type, queryid=media.tvdb_id)
                     if banner_image:
-                        self.__save_image(banner_image, dir_path, "banner")
+                        self.__save_image(banner_image, os.path.dirname(dir_path), "banner")
                 # thumb
                 if scraper_tv_pic.get("thumb"):
                     thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tvdb_id)
                     if thumb_image:
-                        self.__save_image(thumb_image, dir_path, "thumb")
+                        self.__save_image(thumb_image, os.path.dirname(dir_path), "thumb")
                 # season nfo
                 if scraper_tv_nfo.get("season_basic"):
                     if not os.path.exists(os.path.join(dir_path, "season.nfo")):
