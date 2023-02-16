@@ -248,7 +248,9 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
         if message.get('Player'):
             eventItem['ip'] = message.get('Player').get('publicAddress')
-            eventItem['client'] = message.get('Player').get('Client')
+            eventItem['client'] = message.get('Player').get('title')
+            # 这里给个空,防止拼消息的时候出现None
+            eventItem['device_name'] = ' '
         if message.get('Account'):
             eventItem['user_name'] = message.get("Account").get('title')
 
