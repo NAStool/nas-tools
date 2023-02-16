@@ -190,9 +190,8 @@ class Plex(_IMediaClient):
         """
         获取单个项目详情
         """
-        print(itemid)
 
-        return {}
+        return None
 
     def get_items(self, parent):
         """
@@ -247,7 +246,6 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
-                eventItem['item_id'] = message.get('Metadata', {}).get('key')
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
@@ -256,7 +254,6 @@ class Plex(_IMediaClient):
                     eventItem['overview'] = str(message.get('Metadata', {}).get('summary'))[:100] + "..."
                 else:
                     eventItem['overview'] = message.get('Metadata', {}).get('summary')
-                eventItem['item_id'] = message.get('Metadata', {}).get('key')
         if message.get('Player'):
             eventItem['ip'] = message.get('Player').get('publicAddress')
             eventItem['client'] = message.get('Player').get('title')
