@@ -136,6 +136,9 @@ class Transmission(_IDownloadClient):
             return []
 
     def set_torrents_status(self, ids, tags=None):
+        """
+        设置种子为已整理状态
+        """
         if not self.trc:
             return
         if isinstance(ids, list):
@@ -158,6 +161,9 @@ class Transmission(_IDownloadClient):
             ExceptionUtils.exception_traceback(err)
 
     def set_torrent_tag(self, tid, tag):
+        """
+        设置种子标签
+        """
         if not tid or not tag:
             return
         try:
@@ -232,6 +238,9 @@ class Transmission(_IDownloadClient):
             ExceptionUtils.exception_traceback(err)
 
     def get_transfer_task(self, tag):
+        """
+        获取下载文件转移任务
+        """
         # 处理所有任务
         torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
@@ -254,14 +263,17 @@ class Transmission(_IDownloadClient):
         return trans_tasks
 
     def get_remove_torrents(self, config=None):
+        """
+        获取自动删种任务
+        """
         if not config:
             return []
         remove_torrents = []
         remove_torrents_ids = []
-        torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"), status=config.get("tr_state"))
+        torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"),
+                                                 status=config.get("tr_state"))
         if error_flag:
             return []
-        tags = config.get("filter_tags")
         ratio = config.get("ratio")
         # 做种时间 单位：小时
         seeding_time = config.get("seeding_time")

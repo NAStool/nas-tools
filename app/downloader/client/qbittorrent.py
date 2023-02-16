@@ -4,8 +4,6 @@ import time
 from datetime import datetime
 from urllib import parse
 
-from pkg_resources import parse_version as v
-
 import log
 import qbittorrentapi
 from app.downloader.client._base import _IDownloadClient
@@ -96,7 +94,8 @@ class Qbittorrent(_IDownloadClient):
         if not self.qbc:
             return [], True
         try:
-            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
+            torrents = self.qbc.torrents_info(torrent_hashes=ids,
+                                              status_filter=status)
             if tag:
                 results = []
                 if not isinstance(tag, list):
@@ -148,6 +147,9 @@ class Qbittorrent(_IDownloadClient):
             return False
 
     def set_torrents_status(self, ids, tags=None):
+        """
+        设置种子状态为已整理，以及是否强制做种
+        """
         if not self.qbc:
             return
         try:
@@ -170,6 +172,9 @@ class Qbittorrent(_IDownloadClient):
             ExceptionUtils.exception_traceback(err)
 
     def get_transfer_task(self, tag):
+        """
+        获取下载文件转移任务种子
+        """
         # 处理下载完成的任务
         torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
@@ -193,6 +198,9 @@ class Qbittorrent(_IDownloadClient):
         return trans_tasks
 
     def get_remove_torrents(self, config=None):
+        """
+        获取自动删种任务种子
+        """
         if not config:
             return []
         remove_torrents = []
