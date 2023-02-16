@@ -258,7 +258,7 @@ class Transmission(_IDownloadClient):
             return []
         remove_torrents = []
         remove_torrents_ids = []
-        torrents, error_flag = self.get_torrents()
+        torrents, error_flag = self.get_torrents(tag=config.get("filter_tags"), status=config.get("tr_state"))
         if error_flag:
             return []
         tags = config.get("filter_tags")
@@ -273,7 +273,6 @@ class Transmission(_IDownloadClient):
         upload_avs = config.get("upload_avs")
         savepath_key = config.get("savepath_key")
         tracker_key = config.get("tracker_key")
-        tr_state = config.get("tr_state")
         tr_error_key = config.get("tr_error_key")
         for torrent in torrents:
             date_done = torrent.date_done or torrent.date_added
@@ -302,12 +301,7 @@ class Transmission(_IDownloadClient):
                             break
                     if not tacker_key_flag:
                         continue
-            if tr_state and torrent.status not in tr_state:
-                continue
             if tr_error_key and not re.findall(tr_error_key, torrent.error_string, re.I):
-                continue
-            labels = set(torrent.labels)
-            if tags and (not labels or not set(tags).issubset(labels)):
                 continue
             remove_torrents.append({
                 "id": torrent.id,

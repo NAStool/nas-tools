@@ -356,7 +356,8 @@ class Downloader:
         if not downloader or not config:
             return []
         _client = self.__get_client(downloader)
-        if self._pt_monitor_only:
+        config["filter_tags"] = []
+        if config.get("onlynastool"):
             config["filter_tags"] = config["tags"] + [PT_TAG]
         else:
             config["filter_tags"] = config["tags"]

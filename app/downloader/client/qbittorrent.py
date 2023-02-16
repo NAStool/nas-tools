@@ -95,12 +95,21 @@ class Qbittorrent(_IDownloadClient):
         """
         if not self.qbc:
             return [], True
-        if not tag:
-            tag = None
         try:
-            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
-            if self.is_ver_less_4_4():
-                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
+            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
+            if tag:
+                results = []
+                if not isinstance(tag, list):
+                    tag = [tag]
+                for torrent in torrents:
+                    include_flag = True
+                    for t in tag:
+                        if t and t not in torrent.get("tags"):
+                            include_flag = False
+                            break
+                    if include_flag:
+                        results.append(torrent)
+                return results or [], False
             return torrents or [], False
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
@@ -458,26 +467,6 @@ class Qbittorrent(_IDownloadClient):
             return
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
-
-    def is_ver_less_4_4(self):
-        return v(self.ver) < v("v4.4.0")
-
-    @staticmethod
-    def filter_torrent_by_tag(torrents, tag):
-        if not tag:
-            return torrents
-        if not isinstance(tag, list):
-            tag = [tag]
-        results = []
-        for torrent in torrents:
-            include_flag = True
-            for t in tag:
-                if t and t not in torrent.get("tags"):
-                    include_flag = False
-                    break
-            if include_flag:
-                results.append(torrent)
-        return results
 
     def change_torrent(self, **kwargs):
         """
