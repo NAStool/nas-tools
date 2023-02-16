@@ -25,6 +25,7 @@ class DoubanSync:
     downloader = None
     dbhelper = None
     subscribe = None
+    message = None
     _interval = None
     _auto_search = None
     _auto_rss = None
@@ -33,6 +34,9 @@ class DoubanSync:
     _types = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.douban = DouBan()
         self.searcher = Searcher()
         self.downloader = Downloader()
@@ -40,9 +44,6 @@ class DoubanSync:
         self.message = Message()
         self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
-        self.init_config()
-
-    def init_config(self):
         douban = Config().get_config('douban')
         if douban:
             # 同步间隔

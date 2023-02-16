@@ -53,14 +53,7 @@ class RssChecker(object):
         self.downloader = Downloader()
         self.subscribe = Subscribe()
         # 移除现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        self.stop_service()
         # 读取解析器列表
         rss_parsers = self.dbhelper.get_userrss_parser()
         self._rss_parsers = []
@@ -660,3 +653,16 @@ class RssChecker(object):
             if mediainfos:
                 mediainfos_all += mediainfos
         return mediainfos_all
+
+    def stop_service(self):
+        """
+        停止服务
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))

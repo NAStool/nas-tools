@@ -37,13 +37,13 @@ from web.main import App
 from app.utils import SystemUtils, ConfigLoadCache
 from app.utils.commons import INSTANCES
 from app.db import init_db, update_db, init_data
-from app.helper import IndexerHelper, DisplayHelper, ChromeHelper
+from app.helper import IndexerHelper, DisplayHelper, init_chrome
 from app.brushtask import BrushTask
 from app.rsschecker import RssChecker
 from app.scheduler import run_scheduler, restart_scheduler
 from app.sync import run_monitor, restart_monitor
 from app.torrentremover import TorrentRemover
-from app.speedlimiter import SpeedLimiter
+from app.plugins import PluginManager
 from check_config import update_config, check_config
 from version import APP_VERSION
 
@@ -60,7 +60,7 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
-def get_run_config():
+def get_run_config(forcev4=False):
     """
     获取运行配置
     """
@@ -72,7 +72,9 @@ def get_run_config():
 
     app_conf = Config().get_config('app')
     if app_conf:
-        if app_conf.get("web_host"):
+        if forcev4:
+            _web_host = "0.0.0.0"
+        elif app_conf.get("web_host"):
             _web_host = app_conf.get("web_host").replace('[', '').replace(']', '')
         _web_port = int(app_conf.get('web_port')) if str(app_conf.get('web_port', '')).isdigit() else 3000
         _ssl_cert = app_conf.get('ssl_cert')
@@ -122,11 +124,8 @@ def start_service():
     RssChecker()
     # 启动自动删种服务
     TorrentRemover()
-    # 启动播放限速服务
-    SpeedLimiter()
-    # 初始化浏览器驱动
-    if not is_windows_exe:
-        ChromeHelper().init_driver()
+    # 加载插件
+    PluginManager()
 
 
 def monitor_config():
@@ -194,6 +193,9 @@ if __name__ == '__main__':
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable), 'r').read().splitlines()) <= 2:
             p1 = threading.Thread(target=traystart, daemon=True)
             p1.start()
+    else:
+        # 初始化浏览器驱动
+        init_chrome()
 
     # gunicorn 启动
-    App.run(**get_run_config())
+    App.run(**get_run_config(is_windows_exe))

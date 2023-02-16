@@ -30,11 +30,6 @@ export class PageDiscovery extends CustomElement {
         },
         {
           type: "MOV",
-          title:"豆瓣最新电影",
-          subtype :"dbnm",
-        },
-        {
-          type: "MOV",
           title:"豆瓣热门电影",
           subtype :"dbhm",
         },
@@ -45,7 +40,7 @@ export class PageDiscovery extends CustomElement {
         },
         {
           type: "TV",
-          title:"豆瓣热门电视剧",
+          title:"豆瓣热门剧集",
           subtype :"dbht",
         },
         {

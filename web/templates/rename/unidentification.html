@@ -30,21 +30,28 @@
           <div class="card-header">
             <div class="d-flex">
               <div class="text-muted">
-                共 {{ TotalCount }} 条记录
+                共 {{ TotalCount }} 条记录<span class="d-none d-md-inline-block"> ，搜索：</span>
               </div>
               <div class="ms-auto text-muted">
-                搜索:
-                <div class="ms-2 d-inline-block">
+                <div class="ms-2 d-none d-md-inline-block">
                   <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
                          aria-label="搜索">
                 </div>
               </div>              
             </div>
-            <div class="card-actions btn-actions">
-              <a href="javascript:reidentification_all()" class="btn-action" title="批量重新识别">
+            <div class="card-actions">
+              <a href="javascript:reidentification_all()" class="btn d-none d-md-inline-block" title="重新识别">
+                {{ SVG.refresh() }}
+                重新识别
+              </a>
+              <a href="javascript:reidentification_all()" class="btn-action d-md-none" title="重新识别">
                 {{ SVG.refresh() }}
               </a>
-              <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
+              <a href="javascript:delete_checked_unknown()" class="btn d-none d-md-inline-block" title="批量删除">
+                {{ SVG.trash() }}
+                批量删除
+              </a>
+              <a href="javascript:delete_checked_unknown()" class="btn-action d-md-none" title="批量删除">
                 {{ SVG.trash() }}
               </a>
             </div>

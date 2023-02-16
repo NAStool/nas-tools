@@ -3,6 +3,7 @@ from threading import Lock
 
 import log
 from app.conf import ModuleConf
+from app.conf import SystemConfig
 from app.filetransfer import FileTransfer
 from app.helper import DbHelper, ThreadHelper, SubmoduleHelper
 from app.media import Media
@@ -10,8 +11,6 @@ from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
 from app.sites import Sites
-from app.subtitle import Subtitle
-from app.conf import SystemConfig
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
@@ -303,7 +302,7 @@ class Downloader:
                         else:
                             subtitle_dir = visit_dir
                         ThreadHelper().start_thread(
-                            Subtitle().download_subtitle_from_site,
+                            self.sites.download_subtitle_from_site,
                             (media_info, site_info.get("cookie"), site_info.get("ua"), subtitle_dir)
                         )
                 return ret, ""

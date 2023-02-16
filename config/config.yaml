@@ -52,6 +52,8 @@ app:
   wallpaper: bing
   # Debug mode
   debug: true
+  # 开启后，只有Releases更新，才会有更新提示
+  releases_update_only: false
 
 # 【配置媒体库信息】
 media:
@@ -166,11 +168,6 @@ scraper_pic:
     # 集
     episode_thumb: false
 
-# 【配置消息通知服务】
-message:
-  # 【Emby播放状态通知白名单】：配置了Emby webhooks插件回调时，用户播放媒体库中的媒体时会发送消息通知，本处配置哪些用户的设备不通知，避免打扰，配置格式：用户:设备名称，可用 - 增加多项
-  webhook_ignore:
-
 # 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
 sync:
   # 监控目录配置已转移至数据库
@@ -179,7 +176,7 @@ sync:
 
 # 【配置站点检索信息】
 pt:
-  # 【下载使用的客户端软件】：qbittorrent、transmission、client115等
+  # 【下载使用的客户端软件】：qbittorrent、transmission
   pt_client: qbittorrent
   # 【下载软件监控开关】：是否监控下载软件：true、false，如为true则下载完成会自动转移和重命名，如为false则不会处理
   # 下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
@@ -232,20 +229,6 @@ transmission:
   trusername:
   trpassword:
 
-# 配置 115 网盘下载器
-client115:
-  # 115 Cookie 抓包获取
-  cookie:
-
-# 配置 pikpak 网盘下载器
-pikpak:
-  # 用户名
-  username:
-  # 密码
-  password:
-  # 代理
-  proxy:
-
 # 【下载目录】：配置下载目录，自按分类下载到指定目录
 downloaddir:
 
@@ -267,25 +250,6 @@ douban:
   auto_search: true
   # 【自动添加RSS开关】：站点检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
   auto_rss: true
-
-# 【配置字幕自动下载】
-subtitle:
-  # 【下载渠道】：opensubtitles、chinesesubfinder
-  server: opensubtitles
-  # opensubtitles.org
-  opensubtitles:
-    # 是否启用
-    enable: true
-  # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
-  chinesesubfinder:
-    # IP地址和端口
-    host:
-    # API KEY
-    api_key:
-    # NASTOOL媒体的映射路径
-    local_path:
-    # ChineseSubFinder媒体的映射路径
-    remote_path:
 
 # 【配置安全】
 security:

@@ -212,6 +212,19 @@ class DbHelper:
                                                      TRANSFERHISTORY.DEST_FILENAME == dest_filename).count()
         return True if ret > 0 else False
 
+    def update_transfer_history_date(self, source_path, source_filename, dest_path, dest_filename, date):
+        """
+        更新历史转移记录时间
+        """
+        self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.SOURCE_PATH == source_path,
+                                               TRANSFERHISTORY.SOURCE_FILENAME == source_filename,
+                                               TRANSFERHISTORY.DEST_PATH == dest_path,
+                                               TRANSFERHISTORY.DEST_FILENAME == dest_filename).update(
+            {
+                "DATE": date
+            }
+        )
+
     @DbPersist(_db)
     def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, out_path, dest, media_info):
         """
@@ -235,10 +248,12 @@ class DbHelper:
             dest_filename = ""
             season_episode = media_info.get_season_string()
         title = media_info.title
+        timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         if self.is_transfer_history_exists(source_path, source_filename, dest_path, dest_filename):
+            # 更新历史转移记录的时间
+            self.update_transfer_history_date(source_path, source_filename, dest_path, dest_filename, timestr)
             return
         dest = dest or ""
-        timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         self._db.insert(
             TRANSFERHISTORY(
                 MODE=str(rmt_mode.value),
@@ -311,7 +326,7 @@ class DbHelper:
         查询未识别的记录列表
         """
         return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').all()
-    
+
     def get_transfer_unknown_paths_by_page(self, search, page, rownum):
         """
         按页查询未识别的记录列表
@@ -322,15 +337,16 @@ class DbHelper:
             begin_pos = (int(page) - 1) * int(rownum)
         if search:
             search = f"%{search}%"
-            count = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N') 
+            count = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N')
                                                            & (TRANSFERUNKNOWN.PATH.like(search))).count()
-            data = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N') 
-                                                           & (TRANSFERUNKNOWN.PATH.like(search))).order_by(
-                TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()    
+            data = self._db.query(TRANSFERUNKNOWN).filter((TRANSFERUNKNOWN.STATE == 'N')
+                                                          & (TRANSFERUNKNOWN.PATH.like(search))).order_by(
+                TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()
             return count, data
         else:
-            return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').count(), self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').order_by(
-                TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()    
+            return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').count(), self._db.query(
+                TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').order_by(
+                TRANSFERUNKNOWN.ID.desc()).limit(int(rownum)).offset(begin_pos).all()
 
     @DbPersist(_db)
     def update_transfer_unknown_state(self, path):
@@ -473,6 +489,14 @@ class DbHelper:
             self._db.insert(TRANSFERBLACKLIST(
                 PATH=os.path.normpath(path)
             ))
+
+    @DbPersist(_db)
+    def delete_transfer_blacklist(self, path):
+        """
+        删除黑名单记录
+        """
+        self._db.query(TRANSFERBLACKLIST).filter(TRANSFERBLACKLIST.PATH == str(path)).delete()
+        self._db.query(SYNCHISTORY).filter(SYNCHISTORY.PATH == str(path)).delete()
 
     @DbPersist(_db)
     def truncate_transfer_blacklist(self, ):

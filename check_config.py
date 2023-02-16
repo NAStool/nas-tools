@@ -2,6 +2,7 @@ import json
 import os
 from werkzeug.security import generate_password_hash
 from app.helper import DbHelper
+from app.plugins import PluginManager
 from app.utils import StringUtils, ExceptionUtils
 from config import Config
 
@@ -232,7 +233,7 @@ def update_config():
     if not _config.get("security", {}).get("api_key"):
         _config['security']['api_key'] = _config.get("security",
                                                      {}).get("subscribe_token") \
-            or StringUtils.generate_random_str()
+                                         or StringUtils.generate_random_str()
         if _config.get('security', {}).get('subscribe_token'):
             _config['security'].pop('subscribe_token')
         overwrite_cofig = True
@@ -317,14 +318,6 @@ def update_config():
             _config['transmission'].pop('save_path')
         if _config.get('transmission', {}).get('save_containerpath'):
             _config['transmission'].pop('save_containerpath')
-        if _config.get('client115', {}).get('save_path'):
-            _config['client115'].pop('save_path')
-        if _config.get('client115', {}).get('save_containerpath'):
-            _config['client115'].pop('save_containerpath')
-        if _config.get('pikpak', {}).get('save_path'):
-            _config['pikpak'].pop('save_path')
-        if _config.get('pikpak', {}).get('save_containerpath'):
-            _config['pikpak'].pop('save_containerpath')
         overwrite_cofig = True
     elif isinstance(_config.get('downloaddir'), dict):
         downloaddir_list = []
@@ -744,6 +737,30 @@ def update_config():
                 rid=tv.ID,
                 desc=json.dumps(__parse_rss_desc(tv.DESC))
             )
+
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 字幕兼容旧配置
+    try:
+        subtitle = Config().get_config('subtitle') or {}
+        if subtitle:
+            if subtitle.get("server") == "opensubtitles":
+                PluginManager().save_plugin_config(pid="OpenSubtitles",
+                                                   conf={
+                                                       "enable": subtitle.get("opensubtitles", {}).get("enable")
+                                                   })
+            else:
+                chinesesubfinder = subtitle.get("chinesesubfinder", {})
+                PluginManager().save_plugin_config(pid="ChineseSubFinder", conf={
+                    "host": chinesesubfinder.get("host"),
+                    "api_key": chinesesubfinder.get("api_key"),
+                    "local_path": chinesesubfinder.get("local_path"),
+                    "remote_path": chinesesubfinder.get("remote_path")
+                })
+            # 删除旧配置
+            _config.pop("subtitle")
+            overwrite_cofig = True
 
     except Exception as e:
         ExceptionUtils.exception_traceback(e)

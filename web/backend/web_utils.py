@@ -45,6 +45,7 @@ class WebUtils:
         获取最新版本号
         """
         try:
+            releases_update_only = Config().get_config("app").get("releases_update_only")
             version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
                 "https://api.github.com/repos/NAStool/nas-tools/releases/latest")
             commit_res = RequestUtils(proxies=Config().get_proxies()).get_res(
@@ -52,7 +53,10 @@ class WebUtils:
             if version_res and commit_res:
                 ver_json = version_res.json()
                 commit_json = commit_res.json()
-                version = f"{ver_json['tag_name']} {commit_json['sha'][:7]}"
+                if releases_update_only:
+                    version = f"{ver_json['tag_name']}"
+                else:
+                    version = f"{ver_json['tag_name']} {commit_json['sha'][:7]}"
                 url = ver_json["html_url"]
                 return version, url, True
         except Exception as e:
@@ -155,3 +159,27 @@ class WebUtils:
                     tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                 medias.append(tmp_info)
         return medias
+
+    @staticmethod
+    def get_page_range(current_page, total_page):
+        """
+        计算分页范围
+        """
+        if total_page <= 5:
+            StartPage = 1
+            EndPage = total_page
+        else:
+            if current_page <= 3:
+                StartPage = 1
+                EndPage = 5
+            elif current_page >= total_page - 2:
+                StartPage = total_page - 4
+                EndPage = total_page
+            else:
+                StartPage = current_page - 2
+                if total_page > current_page + 2:
+                    EndPage = current_page + 2
+                else:
+                    EndPage = total_page
+        return range(StartPage, EndPage + 1)
+

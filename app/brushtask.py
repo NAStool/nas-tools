@@ -41,14 +41,7 @@ class BrushTask(object):
         self.sites = Sites()
         self.filter = Filter()
         # 移除现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        self.stop_service()
         # 读取下载器列表
         downloaders = self.dbhelper.get_user_downloaders()
         self._downloader_infos = []
@@ -397,6 +390,8 @@ class BrushTask(object):
                 else:
                     # 将查询的torrent_ids转为数字型
                     torrent_ids = [int(x) for x in torrent_ids if str(x).isdigit()]
+                    if not torrent_ids:
+                        continue
                     # 检查完成状态
                     downloader = Transmission(config=downloader_cfg)
                     torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
@@ -859,3 +854,16 @@ class BrushTask(object):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         return False, BrushDeleteType.NOTDELETE
+
+    def stop_service(self):
+        """
+        停止服务
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))

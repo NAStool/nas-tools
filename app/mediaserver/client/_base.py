@@ -106,3 +106,10 @@ class _IMediaClient(metaclass=ABCMeta):
         获取正在播放的会话
         """
         pass
+
+    @abstractmethod
+    def get_webhook_message(self, message):
+        """
+        解析Webhook报文，获取消息内容结构
+        """
+        pass

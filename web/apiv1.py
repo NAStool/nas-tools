@@ -337,6 +337,21 @@ class SiteDelete(ClientResource):
         return WebAction().api_action(cmd='del_site', data=self.parser.parse_args())
 
 
+@site.route('/cookie/update')
+class SiteUpdateCookie(ApiResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('site_id', type=int, help='更新站点ID', location='form')
+    parser.add_argument('site_cookie', type=str, help='Cookie', location='form')
+    parser.add_argument('site_ua', type=str, help='Ua', location='form')
+
+    @site.doc(parser=parser)
+    def post(self):
+        """
+        更新站点Cookie和Ua
+        """
+        return WebAction().api_action(cmd='update_site_cookie_ua', data=self.parser.parse_args())
+
+
 @site.route('/statistics/activity')
 class SiteStatisticsActivity(ClientResource):
     parser = reqparse.RequestParser()
