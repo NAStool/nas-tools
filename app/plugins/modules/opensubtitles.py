@@ -17,7 +17,6 @@ from config import Config, RMT_SUBEXT
 
 
 class OpenSubtitles(_IPluginModule):
-
     # 插件名称
     module_name = "OpenSubtitles"
     # 插件描述
@@ -56,23 +55,23 @@ class OpenSubtitles(_IPluginModule):
     @staticmethod
     def get_fields():
         return [
-                    # 同一板块
-                    {
-                        'type': 'div',
-                        'content': [
-                            # 同一行
-                            [
-                                {
-                                    'title': '开启opensubtitles.org字幕下载',
-                                    'required': "",
-                                    'tooltip': '需要确保网络能正常连通www.opensubtitles.org',
-                                    'type': 'switch',
-                                    'id': 'enable',
-                                }
-                            ]
-                        ]
-                    }
-            ]
+            # 同一板块
+            {
+                'type': 'div',
+                'content': [
+                    # 同一行
+                    [
+                        {
+                            'title': '开启opensubtitles.org字幕下载',
+                            'required': "",
+                            'tooltip': '需要确保网络能正常连通www.opensubtitles.org',
+                            'type': 'switch',
+                            'id': 'enable',
+                        }
+                    ]
+                ]
+            }
+        ]
 
     def stop_service(self):
         pass

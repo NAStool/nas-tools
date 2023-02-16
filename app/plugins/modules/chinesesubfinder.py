@@ -9,7 +9,6 @@ from config import Config
 
 
 class ChineseSubFinder(_IPluginModule):
-
     # 插件名称
     module_name = "ChineseSubFinder"
     # 插件描述
@@ -52,67 +51,67 @@ class ChineseSubFinder(_IPluginModule):
     @staticmethod
     def get_fields():
         return [
-                    # 同一板块
-                    {
-                        'type': 'div',
-                        'content': [
-                            # 同一行
-                            [
+            # 同一板块
+            {
+                'type': 'div',
+                'content': [
+                    # 同一行
+                    [
+                        {
+                            'title': '服务器地址',
+                            'required': "required",
+                            'tooltip': '配置IP地址和端口，如为https则需要增加https://前缀',
+                            'type': 'text',
+                            'content': [
                                 {
-                                    'title': '服务器地址',
-                                    'required': "required",
-                                    'tooltip': '配置IP地址和端口，如为https则需要增加https://前缀',
-                                    'type': 'text',
-                                    'content': [
-                                        {
-                                            'id': 'host',
-                                            'placeholder': 'http://127.0.0.1:19035'
-                                        }
-                                    ]
-
-                                },
-                                {
-                                    'title': 'Api Key',
-                                    'required': "required",
-                                    'tooltip': '在ChineseSubFinder->配置中心->实验室->API Key处生成',
-                                    'type': 'text',
-                                    'content': [
-                                        {
-                                            'id': 'api_key',
-                                            'placeholder': ''
-                                        }
-                                    ]
-                                }
-                            ],
-                            [
-                                {
-                                    'title': '本地路径',
-                                    'required': "required",
-                                    'tooltip': 'NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
-                                    'type': 'text',
-                                    'content': [
-                                        {
-                                            'id': 'local_path',
-                                            'placeholder': '本地映射路径'
-                                        }
-                                    ]
-                                },
-                                {
-                                    'title': '远程路径',
-                                    'required': "required",
-                                    'tooltip': 'ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
-                                    'type': 'text',
-                                    'content': [
-                                        {
-                                            'id': 'remote_path',
-                                            'placeholder': '远程映射路径'
-                                        }
-                                    ]
+                                    'id': 'host',
+                                    'placeholder': 'http://127.0.0.1:19035'
                                 }
                             ]
-                        ]
-                    }
-            ]
+
+                        },
+                        {
+                            'title': 'Api Key',
+                            'required': "required",
+                            'tooltip': '在ChineseSubFinder->配置中心->实验室->API Key处生成',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'api_key',
+                                    'placeholder': ''
+                                }
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            'title': '本地路径',
+                            'required': "required",
+                            'tooltip': 'NAStool访问媒体库的路径，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path',
+                                    'placeholder': '本地映射路径'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '远程路径',
+                            'required': "required",
+                            'tooltip': 'ChineseSubFinder的媒体目录访问路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NAStool与ChineseSubFinder的媒体目录路径一致则不用配置',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'remote_path',
+                                    'placeholder': '远程映射路径'
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            }
+        ]
 
     def stop_service(self):
         pass
@@ -127,7 +126,7 @@ class ChineseSubFinder(_IPluginModule):
         item = event.event_data
         if not item:
             return
-        
+
         req_url = "%sapi/v1/add-job" % self._host
 
         item_type = item.get("type")
