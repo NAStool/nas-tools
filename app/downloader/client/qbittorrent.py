@@ -95,8 +95,6 @@ class Qbittorrent(_IDownloadClient):
         """
         if not self.qbc:
             return [], True
-        if not tag:
-            tag = None
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
             if tag:
