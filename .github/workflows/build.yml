@@ -1,0 +1,20 @@
+name: Build NAStool Image
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
+      - docker/Dockerfile
+      - docker/Dockerfile.lite
+      - .github/workflows/build.yml
+      - requirements.txt
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@master
