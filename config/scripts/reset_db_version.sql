@@ -1,1 +1,0 @@
-delete from alembic_version where 1
