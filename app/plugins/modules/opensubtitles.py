@@ -88,7 +88,7 @@ class OpenSubtitles(_IPluginModule):
             return
         # 媒体信息
         item_media = item.get("media_info")
-        if item.get("type") != MediaType.MOVIE.value and not item_media.get("imdb_id"):
+        if item_media.get("type") != MediaType.MOVIE.value and not item_media.get("imdb_id"):
             log.warn("【Plugin】电视剧类型需要imdbid才能检索字幕！")
             return
         # 查询名称

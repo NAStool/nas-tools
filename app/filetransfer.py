@@ -774,7 +774,6 @@ class FileTransfer:
                 # 解发字幕下载事件
                 self.eventmanager.send_event(EventType.SubtitleDownload, {
                     "media_info": media.to_dict(),
-                    "type": media.type.value,
                     "file": ret_file_path,
                     "file_ext": os.path.splitext(file_item)[-1],
                     "bluray": True if bluray_disk_dir else False

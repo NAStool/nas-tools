@@ -129,7 +129,8 @@ class ChineseSubFinder(_IPluginModule):
 
         req_url = "%sapi/v1/add-job" % self._host
 
-        item_type = item.get("type")
+        item_media = item.get("media_info")
+        item_type = item_media.get("type")
         item_bluray = item.get("bluray")
         item_file = item.get("file")
         item_file_ext = item.get("file_ext")

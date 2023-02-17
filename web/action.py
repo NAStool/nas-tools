@@ -4078,14 +4078,13 @@ class WebAction:
         if not media.imdb_id:
             media.set_tmdb_info(Media().get_tmdb_info(mtype=media.type,
                                                       tmdbid=media.tmdb_id))
-        event_item = media.to_dict()
-        event_item.update({
+        # 触发字幕下载事件
+        EventManager().send_event(EventType.SubtitleDownload, {
+            "media_info": media.to_dict(),
             "file": os.path.splitext(path)[0],
             "file_ext": os.path.splitext(name)[-1],
             "bluray": False
         })
-        # 触发字幕下载事件
-        EventManager().send_event(EventType.SubtitleDownload, event_item)
         return {"code": 0, "msg": "字幕下载任务已提交，正在后台运行。"}
 
     @staticmethod
