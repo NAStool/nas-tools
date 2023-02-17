@@ -9,4 +9,4 @@ jobs:
         uses: rokroskar/workflow-run-cleanup-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG: FALSE
+          DEBUG: TRUE
