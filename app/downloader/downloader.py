@@ -10,10 +10,11 @@ from app.media import Media
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
+from app.plugins import EventManager
 from app.sites import Sites
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, EventType
 from config import Config, PT_TAG, RMT_MEDIAEXT
 
 lock = Lock()
@@ -38,6 +39,7 @@ class Downloader:
     sites = None
     dbhelper = None
     systemconfig = None
+    eventmanager = None
 
     def __init__(self):
         self._downloader_schema = SubmoduleHelper.import_submodules(
@@ -55,6 +57,7 @@ class Downloader:
         self.media = Media()
         self.sites = Sites()
         self.systemconfig = SystemConfig()
+        self.eventmanager = EventManager()
         # 下载器配置
         pt = Config().get_config('pt')
         if pt:
@@ -132,6 +135,26 @@ class Downloader:
         :param torrent_file: 种子文件路径
         :return: 种子或状态，错误信息
         """
+
+        def __download_fail_event(msg):
+            """
+            触发下载失败事件
+            """
+            self.eventmanager.send_event(EventType.DownloadFail, {
+                "media_info": media_info.to_dict(),
+                "reason": msg
+            })
+
+        # 触发下载事件
+        self.eventmanager.send_event(EventType.DownloadAdd, {
+            "media_info": media_info.to_dict(),
+            "is_paused": is_paused,
+            "tag": tag,
+            "download_dir": download_dir,
+            "download_setting": download_setting,
+            "torrent_file": torrent_file
+        })
+
         # 标题
         title = media_info.org_string
         # 详情页面
@@ -146,6 +169,7 @@ class Downloader:
         else:
             url = media_info.enclosure
             if not url:
+                __download_fail_event("下载链接为空")
                 return None, "下载链接为空"
             # 获取种子内容，磁力链不解析
             if url.startswith("magnet:"):
@@ -165,6 +189,7 @@ class Downloader:
                     content = self.sites.parse_site_download_url(page_url=url,
                                                                  xpath=_xpath)
                     if not content:
+                        __download_fail_event("无法从详情页面：%s 解析出下载链接" % url)
                         return None, "无法从详情页面：%s 解析出下载链接" % url
                     # 解析出磁力链，补充Trackers
                     if content.startswith("magnet:"):
@@ -173,6 +198,7 @@ class Downloader:
                     elif _hash:
                         content = Torrent.convert_hash_to_magnet(hash_text=content, title=title)
                         if not content:
+                            __download_fail_event("%s 转换磁力链失败" % content)
                             return None, "%s 转换磁力链失败" % content
                 # 从HTTP链接下载种子
                 else:
@@ -190,6 +216,7 @@ class Downloader:
         if retmsg:
             log.warn("【Downloader】%s" % retmsg)
         if not content:
+            __download_fail_event(retmsg)
             return None, retmsg
 
         # 下载设置
@@ -307,9 +334,11 @@ class Downloader:
                         )
                 return ret, ""
             else:
-                return ret, "请检查下载任务是否已存在"
+                __download_fail_event("下载器添加下载任务失败，请检查下载任务是否已存在")
+                return ret, "下载器添加下载任务失败，请检查下载任务是否已存在"
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
+            __download_fail_event(str(e))
             log.error("【Downloader】添加下载任务出错：%s" % str(e))
             return None, str(e)
 

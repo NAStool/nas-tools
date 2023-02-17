@@ -8,11 +8,12 @@ from app.helper import DbHelper, MetaHelper
 from app.media import Media, DouBan
 from app.media.meta import MetaInfo
 from app.message import Message
+from app.plugins import EventManager
 from app.searcher import Searcher
 from app.sites import Sites
 from app.indexer import Indexer
 from app.utils import Torrent
-from app.utils.types import MediaType, SearchType
+from app.utils.types import MediaType, SearchType, EventType
 from web.backend.web_utils import WebUtils
 
 lock = Lock()
@@ -28,6 +29,7 @@ class Subscribe:
     sites = None
     douban = None
     filter = None
+    eventmanager = None
 
     def __init__(self):
         self.dbhelper = DbHelper()
@@ -40,6 +42,7 @@ class Subscribe:
         self.douban = DouBan()
         self.indexer = Indexer()
         self.filter = Filter()
+        self.eventmanager = EventManager()
 
     def add_rss_subscribe(self, mtype, name, year,
                           keyword=None,
@@ -226,6 +229,24 @@ class Subscribe:
                                                    keyword=keyword)
 
         if code == 0:
+            # 解发事件
+            self.eventmanager.send_event(EventType.SubscribeAdd, {
+                "media": media_info.to_dict(),
+                "rssid": rssid,
+                "rss_sites": rss_sites,
+                "search_sites": search_sites,
+                "over_edition": over_edition,
+                "filter_restype": filter_restype,
+                "filter_pix": filter_pix,
+                "filter_team": filter_team,
+                "filter_rule": filter_rule,
+                "save_path": save_path,
+                "download_setting": download_setting,
+                "total_ep": total_ep,
+                "current_ep": current_ep,
+                "fuzzy_match": fuzzy_match,
+                "keyword": keyword
+            })
             return code, "添加订阅成功", media_info
         elif code == 9:
             return code, "订阅已存在", media_info
@@ -279,6 +300,12 @@ class Subscribe:
                                              start=rss[0].CURRENT_EP)
             # 删除订阅
             self.dbhelper.delete_rss_tv(rssid=rssid)
+
+        # 解发事件
+        self.eventmanager.send_event(EventType.SubscribeFinished, {
+            "media_info": media.to_dict(),
+            "rssid": rssid
+        })
 
         # 发送订阅完成的消息
         log.info("【Rss】%s %s %s 订阅完成，删除订阅..." % (

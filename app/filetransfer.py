@@ -769,21 +769,29 @@ class FileTransfer:
                 media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type,
                                                              tmdbid=media.tmdb_id,
                                                              append_to_response="all"))
-                # 下载字幕条目
-                subtitle_item = media.to_dict()
-                subtitle_item.update({
+                # 输出路径
+                out_path = new_file if not bluray_disk_dir else ret_dir_path
+                # 解发字幕下载事件
+                self.eventmanager.send_event(EventType.SubtitleDownload, {
+                    "media_info": media.to_dict(),
+                    "type": media.type.value,
                     "file": ret_file_path,
                     "file_ext": os.path.splitext(file_item)[-1],
                     "bluray": True if bluray_disk_dir else False
                 })
-                # 登记字幕下载事件
-                self.eventmanager.send_event(EventType.SubtitleDownload, subtitle_item)
+                # 解发转移完成事件
+                self.eventmanager.send_event(EventType.TransferFinished, {
+                    "in_path": in_path,
+                    "file": file_item,
+                    "dest": out_path,
+                    "media_info": media.to_dict()
+                })
                 # 转移历史记录
                 self.dbhelper.insert_transfer_history(
                     in_from=in_from,
                     rmt_mode=rmt_mode,
                     in_path=reg_path,
-                    out_path=new_file if not bluray_disk_dir else ret_dir_path,
+                    out_path=out_path,
                     dest=dist_path,
                     media_info=media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
@@ -836,7 +844,15 @@ class FileTransfer:
         # 总结
         log.info("【Rmt】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         if alert_count > 0:
-            self.message.send_transfer_fail_message(in_path, alert_count, "、".join(alert_messages))
+            reason = "、".join(alert_messages)
+            # 解发事件
+            self.eventmanager.send_event(EventType.TransferFail, {
+                "path": in_path,
+                "count": alert_count,
+                "reason": reason
+            })
+            # 发送消息
+            self.message.send_transfer_fail_message(in_path, alert_count, reason)
         elif failed_count == 0:
             # 删除空目录
             if rmt_mode == RmtMode.MOVE \

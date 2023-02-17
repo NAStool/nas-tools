@@ -86,19 +86,21 @@ class OpenSubtitles(_IPluginModule):
         item = event.event_data
         if not item:
             return
-        if item.get("type") != MediaType.MOVIE.value and not item.get("imdb_id"):
+        # 媒体信息
+        item_media = item.get("media_info")
+        if item.get("type") != MediaType.MOVIE.value and not item_media.get("imdb_id"):
             log.warn("【Plugin】电视剧类型需要imdbid才能检索字幕！")
             return
         # 查询名称
-        item_name = item.get("en_name") or item.get("cn_name")
+        item_name = item_media.get("en_name") or item_media.get("cn_name")
         # 查询IMDBID
-        imdb_id = item.get("imdb_id")
+        imdb_id = item_media.get("imdb_id")
         # 查询年份
-        item_year = item.get("year")
+        item_year = item_media.get("year")
         # 查询季
-        item_season = item.get("season")
+        item_season = item_media.get("season")
         # 查询集
-        item_episode = item.get("episode")
+        item_episode = item_media.get("episode")
         # 文件路径
         item_file = item.get("file")
         # 后缀
