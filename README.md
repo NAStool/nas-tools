@@ -11,7 +11,7 @@
 
 Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
-TG频道：https://t.me/nastool
+TG频道：https://t.me/nastool_official
 
 API: http://localhost:3000/api/v1/
 
