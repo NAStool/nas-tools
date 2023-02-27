@@ -94,7 +94,7 @@ class BrushTask(object):
                 "label": task.LABEL,
                 "state": True if task.STATE == "Y" else False,
                 "downloader": task.DOWNLOADER,
-                "downloader_name": downloader_info.get("name"),
+                "downloader_name": downloader_info.get("name") if downloader_info else None,
                 "transfer": True if task.TRANSFER == "Y" else False,
                 "sendmessage": True if task.SENDMESSAGE == "Y" else False,
                 "free": task.FREELEECH,
