@@ -645,24 +645,22 @@
     if (downloader_id) {
       downloader_type = DownloaderTypes[downloader_id].type;
     }
+    if (config) {
+      $("#torrent_remove_qb_category").val(config.qb_category.join(';'));
+      $("#torrent_remove_qb_state").val(config.qb_state.join(';'));
+      $("#torrent_remove_tr_error_key").val(config.tr_error_key);
+      $("#torrent_remove_tr_state").val(config.tr_state.join(';'));
+    }
     let qb_config_obj = $("#div_qb_config");
     let tr_config_obj = $("#div_tr_config");
     switch (downloader_type) {
       case 'qbittorrent':
         qb_config_obj.show();
         tr_config_obj.hide();
-        if (config) {
-          $("#torrent_remove_qb_category").val(config.qb_category.join(';'));
-          $("#torrent_remove_qb_state").val(config.qb_state.join(';'));
-        }
         break;
       case 'transmission':
         qb_config_obj.hide();
         tr_config_obj.show();
-        if (config) {
-          $("#torrent_remove_tr_error_key").val(config.tr_error_key);
-          $("#torrent_remove_tr_state").val(config.tr_state.join(';'));
-        }
         break;
       default:
         qb_config_obj.hide();
