@@ -5,6 +5,5 @@
 /setup.py
 /build_sites.py
 /web/backend/user.py
-/third_party/**
 /build/**
 /venv/**
