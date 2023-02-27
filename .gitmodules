@@ -1,0 +1,18 @@
+[submodule "third_party/feapder"]
+	path = third_party/feapder
+	url = https://github.com/jxxghp/feapder
+[submodule "third_party/qbittorrent-api"]
+	path = third_party/qbittorrent-api
+	url = https://github.com/rmartin16/qbittorrent-api
+[submodule "third_party/anitopy"]
+	path = third_party/anitopy
+	url = https://github.com/igorcmoura/anitopy
+[submodule "third_party/plexapi"]
+	path = third_party/plexapi
+	url = https://github.com/pkkid/python-plexapi
+[submodule "third_party/transmission-rpc"]
+	path = third_party/transmission-rpc
+	url = https://github.com/trim21/transmission-rpc
+[submodule "third_party/slack_bolt"]
+	path = third_party/slack_bolt
+	url = https://github.com/slackapi/bolt-python

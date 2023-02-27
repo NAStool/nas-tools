@@ -1,0 +1,47 @@
+{% import 'macro/oops.html' as OOPS %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          站点资源
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+{% if Count > 0 %}
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="d-grid gap-3 grid-info-card">
+        {% for Site in Sites %}
+        <a class="card card-link-pop"
+           href='javascript:void(0)'
+           onclick='open_site_resources(this, "resources?site={{ Site.id }}&title={{ Site.name }}")'>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-auto">
+                <span class="avatar rounded siteicon-{{ Site.name|hash }}"></span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium">{{ Site.name }}</div>
+                <div class="text-muted">{{ Site.domain }}</div>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% else %}
+{{ OOPS.nodatafound('没有站点', '没有找到任何站点，请正确维护站点信息。') }}
+{% endif %}
+<script type="text/javascript">
+  function open_site_resources(self, url) {
+    $(self).addClass("card-inactive");
+    navmenu(url);
+  }
+</script>

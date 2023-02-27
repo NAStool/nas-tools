@@ -1,0 +1,604 @@
+{% import 'macro/svg.html' as SVG %}
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          下载器
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_add_downloader_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.plus() }}
+            新增下载器
+          </a>
+          <a href="javascript:show_add_downloader_modal()" class="btn btn-primary d-sm-none btn-icon" title="下载目录">
+            {{ SVG.plus() }}
+          </a>
+          <a href="javascript:goto_download_setting()" class="btn d-none d-sm-inline-block">
+            {{ SVG.settings() }}
+            下载设置
+          </a>
+          <a href="javascript:goto_download_setting()" class="btn d-sm-none btn-icon" title="下载设置">
+            {{ SVG.settings() }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom py-3">
+          <div class="d-flex">
+            <div class="text-muted">
+              共 {{ DownloadersCount }} 条记录
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table table-hover table-striped">
+            <thead>
+            <tr>
+              <th class="w-3 text-nowrap"></th>
+              <th class="w-5 text-nowrap">类型</th>
+              <th>名称</th>
+              <th>地址</th>
+              <th class="w-5 text-nowrap">监控</th>
+              <th class="w-5 text-nowrap">隔离</th>
+              <th class="w-5 text-nowrap">转移方式</th>
+              <th class="w-5 text-nowrap">状态</th>
+              <th class="w-3"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if Downloaders %}
+              {% for Id, Attr in Downloaders.items() %}
+                <tr>
+                  <td>
+                    <div class="ms-2">
+                      <a href="javascript:set_default_downloader('{{ Attr.id }}')" class="btn-action" title="设置默认">
+                        {% if DefaultDownloader == Id %}
+                          <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
+                        {% else %}
+                          {{ SVG.star() }}
+                        {% endif %}
+                      </a>
+                    </div>
+                  </td>
+                  <td>
+                  <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                        style="background-image: url({{ DownloaderConf[Attr.type].img_url }})"></span>
+                  </td>
+                  <td>{{ Attr.name }}</td>
+                  <td>
+                    {% if Attr.config.get("host")  %}
+                      {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if DownloaderConf[Attr.type].monitor_enable %}
+                      <label class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" {% if Attr.transfer == 1 %}
+                               checked {% endif %}
+                               onclick="check_downloader('transfer', '{{ Id }}', this.checked)">
+                      </label>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if DownloaderConf[Attr.type].monitor_enable %}
+                      <label class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" {% if Attr.only_nastool == 1 %}
+                               checked {% endif %}
+                               onclick="check_downloader('only_nastool', '{{ Id }}', this.checked)">
+                      </label>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if DownloaderConf[Attr.type].monitor_enable and Attr.transfer %}
+                      <span class="badge">{{ Attr.rmt_mode_name }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <label class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %}
+                             checked {% endif %}
+                             onclick="check_downloader('enabled', '{{ Id }}', this.checked)">
+                    </label>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_downloader_modal('{{ Id }}')" title="编辑下载器">
+                        {{ SVG.edit() }}
+                      </a>
+                      <a href="javascript:delete_downloader('{{ Id }}', '{{ Attr.name }}')" title="删除下载器"
+                         class="ms-2">
+                        {{ SVG.x() }}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="9" align="center">未配置</td>
+              </tr>
+            {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-downloader" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="downloader_modal_title">新增下载器</h5>
+        <input type="hidden" id="downloader_id">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row" id="div_downloader_normal">
+          <div class="col-lg-9">
+            <div class="mb-3">
+              <label class="form-label required">名称</label>
+              <input type="text" id="downloader_name" class="form-control" placeholder="别名">
+            </div>
+          </div>
+          <div class="col-lg-3">
+            <div class="mb-3">
+              <label class="form-label required">状态</label>
+              <select class="form-select" id="downloader_enabled">
+                <option value="1" selected>启用</option>
+                <option value="0">停用</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-selectgroup-boxes row mb-3">
+          <label class="form-label required">类型</label>
+          {% for Id, Attr in DownloaderConf.items() %}
+            <div class="col-lg">
+              <div class="mb-1">
+                <label class="form-selectgroup-item" for="type_{{ Id }}">
+                  <input type="radio" name="downloader_type" id="type_{{ Id }}" value="{{ Id }}"
+                         class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content d-flex align-items-center">
+                    <span class="avatar avatar-sm avatar-thumb avatar-rounded"
+                          style="background-image: url({{ Attr.img_url }})"></span>
+                    <span class="form-selectgroup-title strong ms-1">{{ Attr.name }}</span>
+                  </span>
+                </span>
+                </label>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% for Id, Attr in DownloaderConf.items() %}
+        <div id="div_downloader_config_{{ Id }}">
+          {{ FORM.gen_form_empty_elements(Attr.config) }}
+        </div>
+        {% endfor %}
+        <div class="row" id="div_downloader_transfer">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">监控 <span class="form-help" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="监控下载软件，下载完成后自动进行文件转移，与目录同步监控下载目录二选一开启">?</span></label>
+              <select class="form-select" id="downloader_transfer">
+                <option value="1">是</option>
+                <option value="0" selected>否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">隔离 <span class="form-help" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="启用后只有含NASTOOL标签的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></label>
+              <select class="form-select" id="downloader_only_nastool">
+                <option value="1">是</option>
+                <option value="0" selected>否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">转移方式</label>
+              <select class="form-select" id="downloader_rmt_mode">
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}">{{ mode.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <details class="mb-3">
+          <summary class="summary required">下载目录设置 <span class="form-help"
+                                                           title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类"
+                                                           data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2" id="div_downloader_downloaddir"></div>
+          <div class="row">
+            <div class="mt-2">
+              <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
+                {{ SVG.folder_plus() }}
+              </a>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button onclick="add_or_edit_or_test_downloader('test')" id="test_downloader_btn" class="btn me-auto">
+          测试
+        </button>
+        <button onclick="add_or_edit_or_test_downloader('save')" id="add_or_edit_downloader_btn" class="btn btn-primary">
+          确定
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 恢复输入项为默认值
+  function reset_downloader_config_fields() {
+    {% for Id, Attr in DownloaderConf.items() %}
+      {% for FieldId, FieldAttr in Attr.config.items() %}
+        {% if FieldAttr.type == "switch" %}
+          {% if FieldAttr.default %}
+            $("#{{ FieldAttr.id }}").prop('checked', true);
+          {% else %}
+            $("#{{ FieldAttr.id }}").prop('checked', false);
+          {% endif %}
+        {% else %}
+          {% if FieldAttr.default %}
+            $("#{{ FieldAttr.id }}").val('{{ FieldAttr.default }}');
+          {% else %}
+            $("#{{ FieldAttr.id }}").val('');
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  }
+
+  // 显示新增下载器
+  function show_add_downloader_modal() {
+    $("#downloader_id").val('');
+    $("#downloader_modal_title").text("新增下载器");
+    reset_downloader_config_fields();
+    show_downloader_type("{{ DownloaderConf.keys()|first }}");
+    $("#downloader_transfer").val("0");
+    $("#downloader_only_nastool").val("0");
+    $("#downloader_rmt_mode").val("link");
+    CURRENT_DIRDIV_LEVEL = 0;
+    $("#div_downloader_downloaddir").empty();
+    add_downloaddir();
+    $("#test_downloader_btn").text("测试").attr("disabled", false);
+    $("#modal-downloader").modal("show");
+  }
+
+  // 显示编辑下载器
+  function show_edit_downloader_modal(did){
+    $("#downloader_id").val(did);
+    $("#downloader_modal_title").text("编辑下载器");
+    ajax_post("get_downloaders", {did: did}, function (ret) {
+      if (ret.code === 0) {
+        let detail = ret.detail;
+        $("#downloader_name").val(detail.name);
+        $("#downloader_enabled").val(detail.enabled);
+        // 清空输入项
+        reset_downloader_config_fields();
+        let type = detail.type;
+        switch (type) {
+          {% for Id, Attr in DownloaderConf.items() %}
+          case "{{ Id }}":
+            {% for FieldId, FieldAttr in Attr.config.items() %}
+              {% if FieldAttr.type == "switch" %}
+                if (detail.config.{{ FieldId }}) {
+                  $("#{{ FieldAttr.id }}").prop("checked", true);
+                } else {
+                  $("#{{ FieldAttr.id }}").prop("checked", false);
+                }
+              {% else %}
+                $("#{{ FieldAttr.id }}").val(detail.config.{{ FieldId }});
+              {% endif %}
+            {% endfor %}
+            break;
+          {% endfor %}
+          default:
+            break;
+        }
+        show_downloader_type(type);
+        $("#downloader_transfer").val(detail.transfer);
+        $("#downloader_only_nastool").val(detail.only_nastool);
+        $("#downloader_rmt_mode").val(detail.rmt_mode);
+        $("#test_message_client_btn").text("测试").attr("disabled", false);
+        let download_dirs = detail.download_dir
+        CURRENT_DIRDIV_LEVEL = 0;
+        $("#div_downloader_downloaddir").empty();
+        for (let download_dir of download_dirs) {
+          add_downloaddir(download_dir.type, download_dir.category, download_dir.save_path, download_dir.container_path, download_dir.label);
+        }
+        $("#modal-downloader").modal("show");
+      }
+    });
+  }
+
+  // 检查下载器
+  function check_downloader(flag, did, checked){
+    ajax_post("check_downloader", {flag: flag, did: did, checked: checked}, function (ret) {
+      if (ret.code === 0) {
+        window_history_refresh();
+      }
+    });
+  }
+
+  // 删除下载器
+  function delete_downloader(did, name){
+    show_confirm_modal("删除下载器 " + name + " ？", function () {
+      hide_confirm_modal();
+      ajax_post("del_downloader", { "did": did }, function (ret) {
+        window_history_refresh();
+      });
+    });
+  }
+
+  // 新增/编辑下载器
+  function add_or_edit_or_test_downloader(action) {
+    let type = $('input:radio[name=downloader_type]:checked').val();
+    let config = {};
+    let transfer = 0;
+    let only_nastool = 0;
+    let rmt_mode = "";
+    switch (type) {
+      {% for Id, Attr in DownloaderConf.items() %}
+      case "{{ Id }}":
+        {% for FieldId, FieldAttr in Attr.config.items() %}
+          {% if FieldAttr.type == "switch" %}
+            if ($("#{{ FieldAttr.id }}").prop("checked")) {
+              config.{{ FieldId }} = 1;
+            } else {
+              config.{{ FieldId }} = 0;
+            }
+          {% else %}
+            config.{{ FieldId }} = $("#{{ FieldAttr.id }}").val();
+            {% if FieldAttr.required %}
+              if (!config.{{ FieldId }}) {
+                $("#{{ FieldAttr.id }}").addClass("is-invalid");
+                return;
+              } else {
+                $("#{{ FieldAttr.id }}").removeClass("is-invalid");
+              }
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% if Attr.monitor_enable %}
+          transfer = $("#downloader_transfer").val();
+          only_nastool = $("#downloader_only_nastool").val();
+          rmt_mode = $("#downloader_rmt_mode").val();
+        {% else %}
+          transfer = 0;
+          only_nastool = 0;
+          rmt_mode = "";
+        {% endif %}
+        break;
+      {% endfor %}
+      default:
+        break;
+    }
+    let name_obj = $("#downloader_name");
+    let name = name_obj.val();
+    if (!name) {
+      name_obj.addClass("is-invalid");
+      return;
+    } else {
+      name_obj.removeClass("is-invalid");
+    }
+    // 下载目录设置
+    let download_dir = [];
+    $("[id^='dirdiv_']").each(function () {
+      let suffix = $(this).attr('id').replace("dirdiv_", "");
+      download_dir.push({
+        save_path: $(`#save_path_${suffix}`).val(),
+        type: $(`#dir_type_${suffix}`).val(),
+        category: $(`#dir_subtype_${suffix}`).val(),
+        container_path: $(`#container_path_${suffix}`).val(),
+        label: $(`#path_label_${suffix}`).val()
+      });
+    });
+    const params = {
+      did: $("#downloader_id").val(),
+      name: name,
+      enabled: $("#downloader_enabled").val(),
+      transfer: transfer,
+      only_nastool: only_nastool,
+      rmt_mode: rmt_mode,
+      type: type,
+      config: JSON.stringify(config),
+      download_dir: JSON.stringify(download_dir)
+    };
+    switch (action) {
+      case "save":
+        let save_btn = $("#add_or_edit_downloader_btn");
+        save_btn.text("保存中").attr("disabled", true);
+        ajax_post("update_downloader", params, function (ret) {
+          $("#modal-downloader").modal('hide');
+          save_btn.attr("disabled", false);
+          window_history_refresh();
+        });
+        break;
+      case "test":
+        let test_btn = $("#test_downloader_btn");
+        test_btn.text("测试中").attr("disabled", true);
+        ajax_post("test_downloader", params, function (ret) {
+          if (ret.code === 0) {
+            test_btn.text("测试成功").attr("disabled", false);
+          } else {
+            test_btn.text("测试失败！").attr("disabled", false);
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  var CURRENT_DIRDIV_LEVEL = 0;
+  //添加下载目录
+  function add_downloaddir(dir_type, dir_subtype, save_path, container_path, label) {
+    let html = $("#div_downloader_downloaddir_template").text();
+    $("#div_downloader_downloaddir").append(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
+    $(`#container_path_${CURRENT_DIRDIV_LEVEL}`).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+    if (dir_type) {
+      $(`#dir_type_${CURRENT_DIRDIV_LEVEL}`).val(dir_type);
+      get_categories(CURRENT_DIRDIV_LEVEL.toString())
+    }
+    if (dir_subtype) {
+      $(`#dir_subtype_${CURRENT_DIRDIV_LEVEL}`).val(dir_subtype);
+    }
+    if (save_path) {
+      $(`#save_path_${CURRENT_DIRDIV_LEVEL}`).val(save_path);
+    }
+    if (container_path) {
+      $(`#container_path_${CURRENT_DIRDIV_LEVEL}`).val(container_path);
+    }
+    if (label) {
+      $(`#path_label_${CURRENT_DIRDIV_LEVEL}`).val(label);
+    }
+    CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+  }
+
+  //删除下载目录
+  function del_downloaddir(id) {
+    if (id) {
+      $(`#dirdiv_${id}`).remove();
+    }
+  }
+
+  //获取二级分类
+  function get_categories(id) {
+    if (!id) {
+      return;
+    }
+    let dir_type = $(`#dir_type_${id}`).val();
+    let subtype_obj = $(`#dir_subtype_${id}`);
+    if (!dir_type || !subtype_obj) {
+      return;
+    }
+    let sub_types = {{ Categories|safe }}[dir_type];
+    let subtypes_used = [];
+    $("[id^='dirdiv_']").each(function () {
+      let suffix = $(this).attr('id').replace("dirdiv_", "");
+      let type = $(`#dir_type_${suffix}`).val();
+      let subtype = $(`#dir_subtype_${suffix}`).val();
+      if (type === dir_type && subtype) {
+        subtypes_used.push(subtype);
+      }
+    });
+    let subtype_content = `<option value="" selected>全部</option>`;
+    for (let sub_type of sub_types) {
+      if (!subtypes_used.includes(sub_type)) {
+        subtype_content += `<option value="${sub_type}">${sub_type}</option>`;
+      }
+    }
+    subtype_obj.empty().append(subtype_content);
+  }
+
+  // 单选框事件
+  $('input[type=radio][name=downloader_type]').change(function () {
+    show_downloader_type(this.value);
+  });
+
+  // 下载器类型类型
+  function show_downloader_type(type) {
+    switch (type) {
+      {% for Id, Attr in DownloaderConf.items() %}
+      case "{{ Id }}":
+        $("div[id^='div_downloader_config']").each(function () {
+          $(this).hide();
+        });
+        $("#div_downloader_config_{{ Id }}").show();
+        {% if Attr.get("monitor_enable") %}
+          $("#div_downloader_transfer").show();
+        {% else %}
+          $("#div_downloader_transfer").hide();
+        {% endif %}
+        $("#type_{{ Id }}").prop("checked", true);
+        break;
+      {% endfor %}
+      default:
+        break;
+    }
+  }
+
+  // 设置默认下载器
+  function set_default_downloader(did){
+    let params = {
+      'key': "DefaultDownloader",
+      'value': did
+    };
+    ajax_post("set_system_config", params, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+  // 跳转下载设置
+  function goto_download_setting(){
+    let downloaders = {{ Downloaders|safe }};
+    if (!Object.keys(downloaders).length) {
+      show_fail_modal("请先添加下载器！");
+    } else {
+      navmenu('download_setting');
+    }
+  }
+
+</script>
+<script id="div_downloader_downloaddir_template" type="text/html">
+<div class="row mb-2" id="dirdiv_{DIRDIV_LEVEL}">
+  <div class="col-lg-12">
+    <div class="row">
+      <div class="col-12 col-lg mb-1">
+        <select class="form-select" name="dir_type" id="dir_type_{DIRDIV_LEVEL}" onchange="get_categories($(this).attr('id').replace('dir_type_', ''))">
+          <option value="" selected>全部</option>
+          <option value="电影">电影</option>
+          <option value="电视剧">电视剧</option>
+          <option value="动漫">动漫</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg mb-1">
+        <select class="form-select" name="dir_subtype" id="dir_subtype_{DIRDIV_LEVEL}">
+          <option value="" selected>全部</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg mb-1">
+        <input type="text" value="" id="path_label_{DIRDIV_LEVEL}" class="form-control" placeholder="分类标签" autocomplete="off">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-lg mb-1">
+        <input type="text" value="" id="save_path_{DIRDIV_LEVEL}" class="form-control" placeholder="下载保存目录" autocomplete="off">
+      </div>
+      <div class="col-12 col-lg mb-1">
+        <input type="text" value="" id="container_path_{DIRDIV_LEVEL}" class="form-control" placeholder="访问目录" autocomplete="off">
+      </div>
+      <div class="col-12 col-lg mb-1 align-self-center" style="text-align: center">
+        <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon text-red" title="删除目录">
+        {{ SVG.circle_minus() }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</script>

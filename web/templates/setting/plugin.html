@@ -1,0 +1,87 @@
+{% import 'macro/form.html' as FORM %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          插件
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+    {% for Id, Plugin in Plugins.items() %}
+      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-plugin-{{ Id }}">
+        <div class="card-cover card-cover-blurred text-center {{ Plugin.color }}">
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              {% if Plugin.icon and not Plugin.icon.startswith('http') %}
+                style="background-image: url('../static/img/plugins/{{ Plugin.icon }}')"
+              {% elif Plugin.icon %}
+                style="background-image: url('{{ Plugin.icon }}')"
+              {% endif %}
+          >
+          {% if not Plugin.icon %}
+            {{ Plugin.name|first }}
+          {% endif %}
+          </span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{% if Plugin.state %}<span class="badge bg-green"></span>{% endif %} {{ Plugin.name }}</div>
+          <div class="text-muted">{{ Plugin.desc }}</div>
+        </div>
+      </a>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% for Id, Plugin in Plugins.items() %}
+  <plugin-modal
+    plugin-id="{{ Id }}"
+    plugin-name="{{ Plugin.name }}"
+    plugin-config='{{ Plugin.config|tojson|safe }}'
+    plugin-fields='{{ Plugin.fields|tojson|safe }}'
+    plugin-prefix="{{ Plugin.prefix }}"
+  >
+  </plugin-modal>
+{% endfor %}
+<script type="text/javascript">
+  // 保存配置
+  function save_config(id, prefix, func) {
+    let params = input_select_GetVal(`modal-plugin-${id}`, prefix);
+    let selectgroup_config = {};
+    $(`#modal-plugin-${id} div[class='form-selectgroup']`).each(function(){
+      let name = $(this).attr("id");
+      selectgroup_config[name.replace(prefix, "")] = select_GetSelectedVAL(name);
+    })
+    params = {...params, ...selectgroup_config}
+    console.log(params)
+    ajax_post("update_plugin_config", {plugin: id, config: params}, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_plugin_config(plugin, prefix) {
+    $("#modal-plugin-" + plugin).modal('hide');
+    save_config(plugin, prefix, function (ret) {
+      window_history_refresh();
+    });
+  }
+
+</script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      let options = {
+        delay: {show: 50, hide: 50},
+        html: tooltipTriggerEl.getAttribute("data-bs-html") === "true" ?? false,
+        placement: tooltipTriggerEl.getAttribute('data-bs-placement') ?? 'auto'
+      };
+      return new bootstrap.Tooltip(tooltipTriggerEl, options);
+    });
+  });
+</script>

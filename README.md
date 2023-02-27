@@ -6,7 +6,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/NAStool/nas-tools?style=plastic)](https://github.com/NAStool/nas-tools/issues)
 [![GitHub license](https://img.shields.io/github/license/NAStool/nas-tools?style=plastic)](https://github.com/NAStool/nas-tools/blob/master/LICENSE.md)
 [![Docker pulls](https://img.shields.io/docker/pulls/jxxghp/nas-tools?style=plastic)](https://hub.docker.com/r/jxxghp/nas-tools)
-[![Platform](https://img.shields.io/badge/platform-amd64/arm64-pink?style=plastic)](https://hub.docker.com/r/jxxghp/nas-tools)
+[![Platform](https://img.shields.io/badge/platform-amd64-pink?style=plastic)](https://hub.docker.com/r/jxxghp/nas-tools)
 
 
 Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
