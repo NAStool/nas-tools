@@ -756,9 +756,9 @@ class ModuleConf(object):
                 "type": "dropdown",
                 "options": [{'value': '', 'name': '默认'},
                             {'value': 'U', 'name': '综合排序'},
-                            {'value': 'T', 'name': '首播时间'},
+                            {'value': 'T', 'name': '近期热度'},
                             {'value': 'S', 'name': '高分优先'},
-                            {'value': 'R', 'name': '近期热度'}]
+                            {'value': 'R', 'name': '首播时间'}]
             },
             "tags": {
                 "name": "类型",
@@ -786,9 +786,9 @@ class ModuleConf(object):
                 "type": "dropdown",
                 "options": [{'value': '', 'name': '默认'},
                             {'value': 'U', 'name': '综合排序'},
-                            {'value': 'T', 'name': '首播时间'},
+                            {'value': 'T', 'name': '近期热度'},
                             {'value': 'S', 'name': '高分优先'},
-                            {'value': 'R', 'name': '近期热度'}]
+                            {'value': 'R', 'name': '首播时间'}]
             },
             "tags": {
                 "name": "地区",
