@@ -1,5 +1,6 @@
 import os
 from threading import Lock
+from enum import Enum
 import json
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -33,6 +34,8 @@ class Downloader:
     _download_order = None
     _download_settings = {}
     _downloader_confs = {}
+    # 下载器ID-名称枚举类
+    _DownloaderEnum = None
     _scheduler = None
 
     message = None
@@ -94,6 +97,9 @@ class Downloader:
                 "config": config,
                 "download_dir": json.loads(downloader_conf.DOWNLOAD_DIR)
             }
+        # 下载器ID-名称枚举类生成
+        self._DownloaderEnum = Enum('DownloaderIdName',
+                                    {id: conf.get("name") for id, conf in self._downloader_confs.items()})
         pt = Config().get_config('pt')
         if pt:
             self._download_order = pt.get("download_order")
@@ -332,6 +338,7 @@ class Downloader:
                             or self.get_download_setting(self.default_download_setting_id)
         else:
             download_attr = self.get_download_setting(self.default_download_setting_id)
+        download_setting_name = download_attr.get('name')
 
         # 下载器实例
         if not downloader_id:
@@ -340,7 +347,9 @@ class Downloader:
         downloader = self.__get_client(downloader_id)
 
         if not downloader or not downloader_conf:
-            return None, None, "下载设置所选下载器失效"
+            __download_fail("请检查下载设置所选下载器是否有效且启用")
+            return None, None, f"下载设置 {download_setting_name} 所选下载器失效"
+        downloader_name = downloader_conf.get("name")
 
         # 开始添加下载
         try:
@@ -396,9 +405,9 @@ class Downloader:
             # 添加下载
             print_url = content if isinstance(content, str) else url
             if is_paused:
-                log.info("【Downloader】添加下载任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
+                log.info(f"【Downloader】下载器 {downloader_name} 添加任务并暂停：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             else:
-                log.info("【Downloader】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
+                log.info(f"【Downloader】下载器 {downloader_name} 添加任务：%s，目录：%s，Url：%s" % (title, download_dir, print_url))
             # 下载ID
             download_id = None
             downloader_type = downloader.get_type()
@@ -469,15 +478,15 @@ class Downloader:
                 # 发送下载消息
                 if in_from:
                     media_info.user_name = user_name
-                    self.message.send_download_message(in_from, media_info)
+                    self.message.send_download_message(in_from, media_info, download_setting_name, downloader_name)
                 return downloader_id, download_id, ""
             else:
                 __download_fail("请检查下载任务是否已存在")
-                return downloader_id, None, "下载器添加下载任务失败，请检查下载任务是否已存在"
+                return downloader_id, None, f"下载器 {downloader_name} 添加下载任务失败，请检查下载任务是否已存在"
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             __download_fail(str(e))
-            log.error("【Downloader】添加下载任务出错：%s" % str(e))
+            log.error(f"【Downloader】下载器 {downloader_name} 添加任务出错：%s" % str(e))
             return None, None, str(e)
 
     def transfer(self, downloader_id=None):
@@ -508,7 +517,7 @@ class Downloader:
                     continue
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(
-                        in_from=_client.get_type(),
+                        in_from=self._DownloaderEnum[str(downloader_id)],
                         in_path=task.get("path"),
                         rmt_mode=rmt_mode)
                     if not done_flag:

@@ -191,16 +191,22 @@ class Message(object):
             return state
         return False
 
-    def send_download_message(self, in_from: SearchType, can_item):
+    def send_download_message(self, in_from: SearchType, can_item, download_setting_name=None, downloader_name=None):
         """
         发送下载的消息
         :param in_from: 下载来源
         :param can_item: 下载的媒体信息
+        :param download_setting_name: 下载设置名称
+        :param downloader_name: 下载器名称
         :return: 发送状态、错误信息
         """
         msg_title = f"{can_item.get_title_ep_string()} 开始下载"
         msg_text = f"{can_item.get_star_string()}"
         msg_text = f"{msg_text}\n来自：{in_from.value}"
+        if download_setting_name:
+            msg_text = f"{msg_text}\n下载设置：{download_setting_name}"
+        if downloader_name:
+            msg_text = f"{msg_text}\n下载器：{downloader_name}"
         if can_item.user_name:
             msg_text = f"{msg_text}\n用户：{can_item.user_name}"
         if can_item.site:
