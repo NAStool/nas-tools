@@ -318,7 +318,7 @@ class MediaServer:
         """
         if not self.server:
             return
-        if channel != self._server_type:
+        if channel != self.server.get_type():
             return
         event_info = self.server.get_webhook_message(message)
         if event_info:
