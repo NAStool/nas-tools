@@ -58,7 +58,6 @@ def get_run_config(forcev4=False):
     _web_port = 3000
     _ssl_cert = None
     _ssl_key = None
-    _debug = False
 
     app_conf = Config().get_config('app')
     if app_conf:
@@ -70,9 +69,15 @@ def get_run_config(forcev4=False):
         _ssl_cert = app_conf.get('ssl_cert')
         _ssl_key = app_conf.get('ssl_key')
         _ssl_key = app_conf.get('ssl_key')
-        _debug = True if app_conf.get("debug") else False
 
-    app_arg = dict(host=_web_host, port=_web_port, debug=_debug, threaded=True, use_reloader=False)
+    _use_debugger = True if App.debug else False
+    try:
+        # Use Flask's debugger if external debugger is requested
+        _use_debugger = not App.config.get('DEBUG_WITH_EXTERNAL')
+    except:
+        pass
+
+    app_arg = dict(host=_web_host, port=_web_port, debug=App.debug, threaded=True, use_reloader=_use_debugger, use_debugger=_use_debugger)
     if _ssl_cert:
         app_arg['ssl_context'] = (_ssl_cert, _ssl_key)
     return app_arg
@@ -125,10 +130,8 @@ if __name__ == '__main__':
         sys.stdout = NullWriter()
         sys.stderr = NullWriter()
 
-
         def traystart():
             TrayIcon(homepage, log_path)
-
 
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable), 'r').read().splitlines()) <= 2:
             p1 = threading.Thread(target=traystart, daemon=True)
