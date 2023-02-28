@@ -234,7 +234,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg">
+              <div class="col-lg-4">
                 <div class="mb-3">
                   <label class="form-label">二级分类策略 <span class="form-help"
                                                                title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空"
@@ -243,18 +243,21 @@
                          placeholder="default-category" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-lg-4">
                 <div class="mb-3">
-                  <label class="form-label required">默认文件转移方式 <span class="form-help"
-                                                                            title="默认使用的文件转移方式，下载器监控转移等场景使用，根据不同的程序版本可选项会有所不同。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；Rclone针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL，可自行通过Docker添加环境变量传递参数优化传输，参考：https://rclone.org/docs/#environment-variables；Minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
-                                                                            data-bs-toggle="tooltip">?</span></label>
-                  <select class="form-select" id="pt.rmt_mode">
-                  {% for mode in RmtModeDict %}
-                    <option value="{{ mode.value }}" {% if Config.pt.rmt_mode==mode.value %}selected{% endif %}>{{ mode.name }}</option>
-                  {% endfor %}
+                  <label class="form-label required">下载优先规则 <span class="form-help"
+                                                                        title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="pt.download_order">
+                    <option value="" {% if not Config.pt.download_order %}selected{% endif %}>默认</option>
+                    <option value="site" {% if Config.pt.download_order=='site' %}selected{% endif %}>站点优先</option>
+                    <option value="seeder" {% if Config.pt.download_order=='seeder' %}selected{% endif %}>做种数优先
+                    </option>
                   </select>
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">转移最小文件大小(MB) <span class="form-help"
@@ -264,8 +267,6 @@
                          id="media.min_filesize" placeholder="200" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">文件路径转移忽略词 <span class="form-help"
@@ -282,19 +283,6 @@
                                                                  data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.ignored_files or '' }}" class="form-control"
                          id="media.ignored_files" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-lg">
-                <div class="mb-3">
-                  <label class="form-label required">下载优先规则 <span class="form-help"
-                                                                        title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先"
-                                                                        data-bs-toggle="tooltip">?</span></label>
-                  <select class="form-select" id="pt.download_order">
-                    <option value="" {% if not Config.pt.download_order %}selected{% endif %}>默认</option>
-                    <option value="site" {% if Config.pt.download_order=='site' %}selected{% endif %}>站点优先</option>
-                    <option value="seeder" {% if Config.pt.download_order=='seeder' %}selected{% endif %}>做种数优先
-                    </option>
-                  </select>
                 </div>
               </div>
             </div>
