@@ -1,0 +1,9 @@
+/.idea/**
+*.pyc
+*.c
+/test.py
+/setup.py
+/build_sites.py
+/web/backend/user.py
+/build/**
+/venv/**

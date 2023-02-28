@@ -1,0 +1,282 @@
+{% import 'macro/svg.html' as SVG %}
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          历史记录
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:batch_check_action('reidentification')"
+             class="btn btn-primary ms-auto d-none d-sm-inline-block">
+            {{ SVG.refresh() }}
+            重新识别
+          </a>
+          <a href="javascript:batch_check_action('reidentification')" class="btn btn-primary d-sm-none btn-icon" >
+            {{ SVG.refresh() }}
+          </a>
+          <div class="dropdown">
+            <a href="#" class="btn btn-danger ms-auto d-none d-sm-inline-block dropdown-toggle"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              {{ SVG.trash() }}
+              批量删除
+            </a>
+            <a href="#" class="btn btn-danger d-sm-none btn-icon"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              {{ SVG.trash() }}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item text-danger" href="javascript:batch_check_action('del_source')" >
+                删除源文件
+              </a>
+              <a class="dropdown-item text-danger" href="javascript:batch_check_action('del_dest')" >
+                删除媒体库文件
+              </a>
+              <a class="dropdown-item text-danger" href="javascript:batch_check_action('del_all')" >
+                删除源及媒体库文件
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Page title actions -->
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+              <div class="ms-auto text-muted">
+                搜索:
+                <div class="ms-2 d-inline-block">
+                  <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
+                         aria-label="搜索">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="min-height: 300px">
+            <table class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+              <tr>
+                {% if TotalCount > 0 %}
+                  <th class="w-1">
+                    <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
+                           onclick="select_SelectALL($(this).prop('checked'), 'transfer_history')">
+                  </th>
+                {% endif %}
+                <th>媒体信息</th>
+                <th>文件信息</th>
+                <th>时间</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody>
+              {% if TotalCount > 0 %}
+                {% for History in Historys %}
+                  <tr>
+                    <td class="w-1">
+                      <input class="form-check-input m-0 align-middle" name="transfer_history" value="{{ History.ID }}" type="checkbox">
+                    </td>
+                    <td>
+                      <div class="d-flex py-1 align-items-center">
+                      <span class="avatar me-2 text-nowrap">
+                        {% if History.TYPE == "电影" %}
+                          {{ SVG.movie() }}
+                        {% else %}
+                          {{ SVG.device_tv() }}
+                        {% endif %}
+                      </span>
+                        <div class="flex-fill">
+                          <div class="font-weight-medium text-nowrap">
+                            {% if History.TMDBID %}
+                              <a href="https://www.themoviedb.org/{% if History.TYPE == "电影" %}movie{% else %}tv{% endif %}/{{ History.TMDBID }}"
+                                 target="_blank">
+                              {{ History.TITLE }} ({{ History.YEAR }})
+                              </a>
+                              {% if History.SEASON_EPISODE %}
+                              <br><a href="https://www.themoviedb.org/tv/{{ History.TMDBID }}{{ History.SEASON_EPISODE.replace('S', '/season/').replace('E', '/episode/')  }}"
+                               target="_blank">
+                              <span class="text-orange">{{ History.SEASON_EPISODE }}</span></a>
+                              {% endif %}
+                            {% else %}
+                              {{ History.TITLE }} ({{ History.YEAR }})
+                              {% if History.SEASON_EPISODE %}
+                              <span class="text-orange">{{ History.SEASON_EPISODE }}</span>
+                              {% endif %}
+                            {% endif %}
+                          </div>
+                          {% if History.CATEGORY %}
+                            <div class="text-muted">类别：{{ History.CATEGORY }}</div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-wrap">
+                        <a href='javascript:navmenu("mediafile?dir={{ History.SOURCE_PATH.replace("\\", "/") }}")'>
+                          {{ History.SOURCE_FILENAME or '' }}</a>
+                      </div>
+                      <div class="text-wrap">
+                        {% if History.DEST_PATH or History.DEST_FILENAME %}
+                        <span class="text-muted">=> </span>
+                        {% endif %}
+                        {% if History.DEST_PATH %}
+                          <a class="text-green"
+                             href='javascript:navmenu("mediafile?dir={{ History.DEST_PATH.replace("\\", "/") }}")'>
+                            {{ History.DEST_FILENAME or '' }}
+                          </a>
+                        {% else %}
+                          {{ History.DEST_FILENAME or '' }}
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-nowrap">
+                        <small>{{ History.DATE }}</small>
+                        <div class="text-muted"><small>来自：{{ History.SOURCE or '' }}</small></div>
+                        <div class="text-muted"><small>转移方式：{{ History.SYNC_MODE }}</small></div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ SVG.dots_vertical() }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item"
+                             href='javascript:re_identification("history", ["{{ History.ID }}"])'>
+                            重新识别
+                          </a>
+                          <a class="dropdown-item"
+                             href='javascript:rename_history("{{ History.TYPE }}", "{{ History.SOURCE_FILENAME }}", "{{ History.ID }}", "{{ History.RMT_MODE }}")'>
+                            手动识别
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href='javascript:single_delete_history("del_source", "{{ History.ID }}", "{{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}")'>
+                            删除源文件
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href='javascript:single_delete_history("del_dest", "{{ History.ID }}", "{{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}")'>
+                            删除媒体库文件
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href='javascript:single_delete_history("del_all", "{{ History.ID }}", "{{ History.TITLE }} ({{ History.YEAR }}) {{ History.SEASON_EPISODE }}")'>
+                            删除源及媒体库文件
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="4" align="center">没有数据</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+          {% if TotalCount > 0 %}
+            <div class="card-footer d-flex align-items-center">
+              <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+              <ul class="pagination m-0 ms-auto">
+                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                  <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
+                     aria-disabled="true">
+                    {{ SVG.chevron_left() }}
+                  </a>
+                </li>
+                {% for page in PageRange %}
+                  <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                    <a class="page-link"
+                       href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a>
+                  </li>
+                {% endfor %}
+                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                  <a class="page-link"
+                     href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                    {{ SVG.chevron_right() }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 上一页
+  function go_pre_page(search, page) {
+    navmenu("history?s=" + search + "&page=" + (page - 1))
+  }
+
+  // 下一页
+  function go_next_page(search, page) {
+    navmenu("history?s=" + search + "&page=" + (page + 1))
+  }
+
+  //手动重新识别
+  function rename_history(type, path, id, rmt_mode) {
+    show_manual_transfer_modal(2, path, rmt_mode, type, '', id);
+  }
+
+  //删除
+  function delete_history(flag, logids, name) {
+    let msg = "";
+    if (flag === 'del_all') {
+      msg = '源文件及媒体库';
+    } else if (flag === 'del_source') {
+      msg = '源';
+    } else if  (flag === 'del_dest') {
+      msg = '媒体库';
+    }
+    show_confirm_modal(`${name} 对应${msg}文件将被同步删除，是否确认？`, function () {
+      hide_confirm_modal();
+      ajax_post("delete_history", {"flag": flag, "logids": logids}, function (ret) {
+        window_history_refresh();
+      });
+    });
+  }
+
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      const keyword = $("#search_word").val();
+      navmenu("history?s=" + keyword);
+    }
+  });
+
+  // 批量删除/重新识别
+  function batch_check_action(flag) {
+    let logids = select_GetSelectedVAL("transfer_history")
+    if (logids.length === 0) {
+      return;
+    }
+    if (flag.startsWith("del")) {
+      delete_history(flag, logids, "");
+    } else if (flag === "reidentification") {
+      re_identification("history", logids);
+    }
+  }
+
+  //单条记录删除
+  function single_delete_history(flag, logid, name) {
+    const logids = [logid];
+    delete_history(flag, logids, name);
+  }
+
+</script>
