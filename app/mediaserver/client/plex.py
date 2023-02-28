@@ -88,13 +88,34 @@ class Plex(_IMediaClient):
         if not self._plex:
             return []
         ret_array = []
-        historys = self._plex.library.history(num)
-        for his in historys:
-            event_type = "PL"
-            event_date = his.viewedAt.strftime('%Y-%m-%d %H:%M:%S')
-            event_str = "开始播放 %s" % his.title
-            activity = {"type": event_type, "event": event_str, "date": event_date}
-            ret_array.append(activity)
+        try:
+            # type的含义: 1 电影 4 剧集单集
+            # 根据最后播放时间倒序获取数据
+            historys = self._plex.library.search(sort='lastViewedAt:desc', limit=num, type='1,4')
+            for his in historys:
+                # 过滤掉最后播放时间为空的
+                if his.lastViewedAt:
+                    if his.type == "episode":
+                        event_title = "%s %s%s %s" % (
+                            his.grandparentTitle,
+                            "S" + str(his.parentIndex),
+                            "E" + str(his.index),
+                            his.title
+                        )
+                        event_str = "开始播放剧集 %s" % event_title
+                    else:
+                        event_title = "%s %s" % (
+                            his.title, "(" + str(his.year) + ")")
+                        event_str = "开始播放电影 %s" % event_title
+
+                    event_type = "PL"
+                    event_date = his.lastViewedAt.strftime('%Y-%m-%d %H:%M:%S')
+                    activity = {"type": event_type, "event": event_str, "date": event_date}
+                    ret_array.append(activity)
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.server_type}】连接System/ActivityLog/Entries出错：" + str(e))
+            return []
         if ret_array:
             ret_array = sorted(ret_array, key=lambda x: x['date'], reverse=True)
         return ret_array
