@@ -159,15 +159,19 @@ class SpeedLimiter(_IPluginModule):
             try:
                 # 下载限速
                 self._download_limit = int(float(config.get("download_limit") or 0))
-                # 上传限速
-                self._upload_limit = int(float(config.get("download_limit") or 0))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 self._download_limit = 0
+            
+            try:
+                # 上传限速
+                self._upload_limit = int(float(config.get("upload_limit") or 0))
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
                 self._upload_limit = 0
 
             # 限速服务开关
-            self._limit_enabled = True if self._download_limit or self._upload_limit else False
+            self._limit_enabled = True if self._download_limit or self._upload_limit or self._auto_limit else False
 
             # 不限速地址
             self._unlimited_ips["ipv4"] = config.get("ipv4") or "0.0.0.0/0"

@@ -318,7 +318,7 @@ class MediaServer:
         """
         if not self.server:
             return
-        if channel != self._server_type:
+        if channel != self.server.get_type():
             return
         event_info = self.server.get_webhook_message(message)
         if event_info:
@@ -331,7 +331,7 @@ class MediaServer:
                                                               season_id=event_info.get('season_id'),
                                                               episode_id=event_info.get('episode_id'))
             else:
-                if self._server_type == MediaServerType.PLEX:
+                if self._server_type == "plex":
                     # Plex:根据返回的tmdb_id去调用tmdb获取
                     image_url = self.media.get_tmdb_backdrop(mtype=MediaType.MOVIE,
                                                              tmdbid=event_info.get('tmdb_id'))
