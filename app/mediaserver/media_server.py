@@ -6,9 +6,11 @@ from app.conf import SystemConfig
 from app.db import MediaDb
 from app.helper import ProgressHelper, SubmoduleHelper
 from app.media import Media
+from app.media.fanart import Fanart
 from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
+from app.utils.types import MediaServerType, MediaType
 from app.utils.types import MediaServerType, MovieTypes
 from config import Config
 
@@ -330,7 +332,12 @@ class MediaServer:
                                                               event_info.get('season_id'),
                                                               event_info.get('episode_id'))
             else:
-                image_url = self.get_image_by_id(event_info.get('item_id'), "Backdrop")
+                if self._server_type == MediaServerType.PLEX:
+                    # Plex:根据返回的tmdb_id去调用fanart获取
+                    image_url = Fanart().get_backdrop(MediaType.MOVIE, event_info.get('tmdb_id'))
+                else:
+                    # Emby,Jellyfin:根据返回的item_id去调用媒体服务器获取
+                    image_url = self.get_image_by_id(event_info.get('item_id'), "Backdrop")
             self.message.send_mediaserver_message(event_info=event_info,
                                                   channel=channel.value,
                                                   image_url=image_url)
