@@ -1,6 +1,6 @@
 import os
 import threading
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import QueuePool
 
@@ -79,7 +79,7 @@ class MainDb:
         """
         执行SQL语句
         """
-        self.session.execute(sql)
+        self.session.execute(text(sql))
 
     def flush(self):
         """
