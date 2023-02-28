@@ -3502,8 +3502,9 @@ class WebAction:
                             season=int(filter_season.replace("S", "")) if filter_season else None
                         )
                     # One Piece S01-S21 E01-E1028 1999 1080p WEB-DL H.264 -@OPFansMaplesnow
-                    except:
-                        pass
+                    except Exception as e:
+                        print(str(e))
+
                 SearchResults[title_string] = {
                     "key": item.ID,
                     "title": item.TITLE,

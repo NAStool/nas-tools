@@ -28,7 +28,6 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
     git clean -dffx
     git fetch --depth 1 origin ${branch}
     git reset --hard origin/${branch}
-    chmod +x docker/entrypoint.sh
 
     if [ $? -eq 0 ]; then
         echo "更新成功..."
