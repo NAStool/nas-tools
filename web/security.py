@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from functools import wraps
 from cryptography.fernet import Fernet
 
@@ -126,3 +127,10 @@ def encrypt_message(message, key):
     f = Fernet(key)
     encrypted_message = f.encrypt(message.encode())
     return encrypted_message.decode()
+
+
+def hash_sha256(message):
+    """
+    对字符串做hash运算
+    """
+    return hashlib.sha256(message.encode()).hexdigest()

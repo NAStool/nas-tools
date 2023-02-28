@@ -884,6 +884,7 @@
         {% for SiteId, SiteAttr in CooperationSites.items() %}
         <div class="row user_auth_params" id="user_auth_{{ SiteId }}_params" style="{% if loop.index0 != 0 %}display:none{% endif %}">
           {% for ParamId, ParamAttr in SiteAttr.params.items() %}
+          {% if ParamAttr.name %}
           <div class="col-12 col-lg">
             <div class="mb-3">
               <label class="form-label">{{ ParamAttr.name }} <span class="form-help"
@@ -892,6 +893,7 @@
               <input type="{{ ParamAttr.type }}" id="{{ SiteId }}_{{ ParamId }}" class="form-control" placeholder="{{ ParamAttr.placeholder }}">
             </div>
           </div>
+          {% endif %}
           {% endfor %}
         </div>
         {% endfor %}
