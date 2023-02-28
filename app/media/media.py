@@ -1492,8 +1492,23 @@ class Media:
         ret_info.reverse()
         return ret_info
 
+    def get_tmdb_backdrop(self, mtype, tmdbid):
+        """
+        获取TMDB的背景图
+        """
+        if not tmdbid:
+            return ""
+        tmdbinfo = self.get_tmdb_info(mtype=mtype,
+                                      tmdbid=tmdbid,
+                                      append_to_response="images",
+                                      chinese=False)
+        if not tmdbinfo:
+            return ""
+        results = self.get_tmdb_backdrops(tmdbinfo=tmdbinfo, original=False)
+        return results[0] if results else ""
+
     @staticmethod
-    def get_tmdb_backdrops(tmdbinfo):
+    def get_tmdb_backdrops(tmdbinfo, original=True):
         """
         获取TMDB的背景图
         """
@@ -1541,9 +1556,10 @@ class Media:
         """
         if not tmdbinfo:
             return []
+        prefix_url = TMDB_IMAGE_ORIGINAL_URL if original else TMDB_IMAGE_W500_URL
         backdrops = tmdbinfo.get("images", {}).get("backdrops") or []
-        result = [TMDB_IMAGE_ORIGINAL_URL % backdrop.get("file_path") for backdrop in backdrops]
-        result.append(TMDB_IMAGE_ORIGINAL_URL % tmdbinfo.get("backdrop_path"))
+        result = [prefix_url % backdrop.get("file_path") for backdrop in backdrops]
+        result.append(prefix_url % tmdbinfo.get("backdrop_path"))
         return result
 
     @staticmethod

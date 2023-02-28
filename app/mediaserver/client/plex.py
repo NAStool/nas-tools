@@ -113,7 +113,7 @@ class Plex(_IMediaClient):
                     ret_array.append(activity)
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.server_type}】连接System/ActivityLog/Entries出错：" + str(e))
+            log.error(f"【{self.client_name}】连接System/ActivityLog/Entries出错：" + str(e))
             return []
         if ret_array:
             ret_array = sorted(ret_array, key=lambda x: x['date'], reverse=True)
@@ -301,7 +301,8 @@ class Plex(_IMediaClient):
             ExceptionUtils.exception_traceback(err)
         yield {}
 
-    def __get_ids(self, guids):
+    @staticmethod
+    def __get_ids(guids):
         guid_mapping = {
             "imdb://": "imdb_id",
             "tmdb://": "tmdb_id",
