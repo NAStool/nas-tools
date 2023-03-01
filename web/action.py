@@ -41,7 +41,6 @@ from app.utils.types import RmtMode, OsType, SearchType, SyncType, MediaType, Mo
     EventType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
-from web.backend.user import UserAuth
 from web.backend.web_utils import WebUtils
 
 
@@ -4655,7 +4654,7 @@ class WebAction:
         """
         return {
             "code": 0,
-            "menus": UserAuth().get_topmenus()
+            "menus": current_user.get_topmenus()
         }
 
     @staticmethod
@@ -4665,7 +4664,7 @@ class WebAction:
         """
         site = data.get("site")
         params = data.get("params")
-        state, msg = UserAuth().check_user(site, params)
+        state, msg = current_user.check_user(site, params)
         if state:
             return {"code": 0, "msg": "认证成功"}
         return {"code": 1, "msg": f"{msg or '认证失败，请检查合作站点账号是否正常！'}"}
