@@ -253,7 +253,6 @@ class Plex(_IMediaClient):
             libraries.append({"id": library.key, "name": library.title})
         return libraries
 
-    @staticmethod
     def get_iteminfo(self, itemid):
         """
         获取单个项目详情

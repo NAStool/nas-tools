@@ -40,7 +40,7 @@ from config import PT_TRANSFER_INTERVAL, Config
 from web.action import WebAction
 from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
-from web.backend.user import User, UserAuth
+from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.backend.web_utils import WebUtils
 from web.security import require_auth
@@ -129,7 +129,7 @@ def login():
         Indexers = Indexer().get_indexers()
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
         CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
-        CooperationSites = UserAuth().get_authsites()
+        CooperationSites = current_user.get_authsites()
         return render_template('navigation.html',
                                GoPage=GoPage,
                                CurrentUser=current_user,
@@ -637,7 +637,7 @@ def service():
     pt = Config().get_config('pt')
 
     # 所有服务
-    Services = UserAuth().get_services()
+    Services = current_user.get_services()
 
     # RSS订阅
     if "rssdownload" in Services:
@@ -1014,7 +1014,7 @@ def rss_parser():
 @App.route('/plugin', methods=['POST', 'GET'])
 @login_required
 def plugin():
-    Plugins = PluginManager().get_plugins_conf()
+    Plugins = PluginManager().get_plugins_conf(current_user.level)
     return render_template("setting/plugin.html",
                            Plugins=Plugins)
 
