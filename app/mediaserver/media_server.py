@@ -204,7 +204,7 @@ class MediaServer:
             # 清空登记薄
             self.mediadb.empty()
             for library in self.get_libraries():
-                if library.get("id") not in librarys:
+                if str(library.get("id")) not in librarys:
                     continue
                 # 获取媒体库所有项目
                 self.progress.update(ptype="mediasync",
