@@ -52,7 +52,7 @@ class MetaBase(object):
     # 音频编码
     audio_encode = None
     # 二级分类
-    category = None
+    category = ""
     # TMDB ID
     tmdb_id = 0
     # IMDB ID

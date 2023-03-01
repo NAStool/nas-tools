@@ -393,7 +393,7 @@ class BrushTask(object):
         downloader_id = taskinfo.get("downloader")
         downloader_name = taskinfo.get("downloader_name")
         total_size = self.dbhelper.get_brushtask_totalsize(taskinfo.get("id"))
-        if taskinfo.get(""):
+        if seed_size:
             if float(seed_size) * 1024 ** 3 <= int(total_size):
                 log.warn("【Brush】刷流任务 %s 当前保种体积 %sGB，不再新增下载"
                          % (task_name, round(int(total_size) / 1024 / 1024 / 1024, 1)))
