@@ -41,6 +41,7 @@ from app.utils.types import RmtMode, OsType, SearchType, SyncType, MediaType, Mo
     EventType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
+from web.backend.user import User
 from web.backend.web_utils import WebUtils
 
 
@@ -208,7 +209,7 @@ class WebAction:
             "get_season_episodes": self.__get_season_episodes,
             "get_user_menus": self.get_user_menus,
             "get_top_menus": self.get_top_menus,
-            "auth_user_level": self.__auth_user_level,
+            "auth_user_level": self.auth_user_level,
             "update_downloader": self.__update_downloader,
             "del_downloader": self.__del_downloader,
             "check_downloader": self.__check_downloader,
@@ -4658,14 +4659,27 @@ class WebAction:
         }
 
     @staticmethod
-    def __auth_user_level(data):
+    def auth_user_level(data=None):
         """
         用户认证
         """
-        site = data.get("site")
-        params = data.get("params")
-        state, msg = current_user.check_user(site, params)
+        if data:
+            site = data.get("site")
+            params = data.get("params")
+        else:
+            UserSiteAuthParams = SystemConfig().get_system_config("UserSiteAuthParams")
+            if UserSiteAuthParams:
+                site = UserSiteAuthParams.get("site")
+                params = UserSiteAuthParams.get("params")
+            else:
+                return {"code": 1, "msg": "参数错误"}
+        state, msg = User().check_user(site, params)
         if state:
+            # 保存认证数据
+            SystemConfig().set_system_config(key="UserSiteAuthParams", value={
+                "site": site,
+                "params": params
+            })
             return {"code": 0, "msg": "认证成功"}
         return {"code": 1, "msg": f"{msg or '认证失败，请检查合作站点账号是否正常！'}"}
 
