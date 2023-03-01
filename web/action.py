@@ -4673,7 +4673,7 @@ class WebAction:
                 params = UserSiteAuthParams.get("params")
             else:
                 return {"code": 1, "msg": "参数错误"}
-        state, msg = User().check_user(site, params)
+        state, msg = User().userauth.check_user(site, params)
         if state:
             # 保存认证数据
             SystemConfig().set_system_config(key="UserSiteAuthParams", value={
