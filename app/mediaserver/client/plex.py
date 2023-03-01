@@ -193,6 +193,7 @@ class Plex(_IMediaClient):
                 "season_num": episode.seasonNumber,
                 "episode_num": episode.index
             })
+        return ret_tvs
 
     def get_no_exists_episodes(self, meta_info, season, total_num):
         """
