@@ -9,7 +9,7 @@ from app.media import Media
 from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaServerType, MovieTypes
+from app.utils.types import MediaServerType, MovieTypes, SystemConfigKey
 from app.utils.types import MediaType
 from config import Config
 
@@ -194,7 +194,7 @@ class MediaServer:
             self.progress.start("mediasync")
             self.progress.update(ptype="mediasync", text="请稍候...")
             # 获取需同步的媒体库
-            librarys = self.systemconfig.get_system_config("SyncLibrary") or []
+            librarys = self.systemconfig.get_system_config(SystemConfigKey.SyncLibrary) or []
             # 汇总统计
             medias_count = self.get_medias_count()
             total_media_count = medias_count.get("MovieCount") + medias_count.get("SeriesCount")
