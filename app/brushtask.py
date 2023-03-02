@@ -459,6 +459,7 @@ class BrushTask(object):
             media_info=meta_info,
             tag=tag,
             downloader_id=downloader_id,
+            download_setting="",
             download_limit=download_limit,
             upload_limit=upload_limit,
         )

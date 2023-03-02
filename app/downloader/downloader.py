@@ -92,7 +92,7 @@ class Downloader:
             }
         # 下载器ID-名称枚举类生成
         self._DownloaderEnum = Enum('DownloaderIdName',
-                                    {id: conf.get("name") for id, conf in self._downloader_confs.items()})
+                                    {did: conf.get("name") for did, conf in self._downloader_confs.items()})
         pt = Config().get_config('pt')
         if pt:
             self._download_order = pt.get("download_order")
@@ -260,7 +260,7 @@ class Downloader:
         :param is_paused: 是否暂停下载
         :param tag: 种子标签
         :param download_dir: 指定下载目录
-        :param download_setting: 下载设置id
+        :param download_setting: 下载设置id，为None则使用默认设置，为空字符串则不使用下载设置
         :param downloader_id: 指定下载器ID下载
         :param upload_limit: 上传速度限制
         :param download_limit: 下载速度限制
@@ -333,13 +333,21 @@ class Downloader:
             return None, None, retmsg
 
         # 下载设置
-        if not download_setting and media_info.site:
+        if download_setting is None and media_info.site:
+            # 站点的下载设置
             download_setting = self.sites.get_site_download_setting(media_info.site)
         if download_setting:
+            # 传入的下载设置
             download_attr = self.get_download_setting(download_setting) \
                             or self.get_download_setting(self.default_download_setting_id)
-        else:
+        elif download_setting is None:
+            # 默认下载设置
             download_attr = self.get_download_setting(self.default_download_setting_id)
+        else:
+            # 不使用下载设置
+            download_attr = {}
+
+        # 下载设置名称
         download_setting_name = download_attr.get('name')
 
         # 下载器实例
@@ -480,7 +488,10 @@ class Downloader:
                 # 发送下载消息
                 if in_from:
                     media_info.user_name = user_name
-                    self.message.send_download_message(in_from, media_info, download_setting_name, downloader_name)
+                    self.message.send_download_message(in_from=in_from,
+                                                       can_item=media_info,
+                                                       download_setting_name=download_setting_name,
+                                                       downloader_name=downloader_name)
                 return downloader_id, download_id, ""
             else:
                 __download_fail("请检查下载任务是否已存在")
