@@ -59,7 +59,7 @@ TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original%s'
 TMDB_IMAGE_FACE_URL = 'https://image.tmdb.org/t/p/h632%s'
 TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
-# 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
+# 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 电影默认命名格式
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year})-{part} - {videoFormat}'
