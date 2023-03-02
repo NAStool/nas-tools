@@ -50,7 +50,7 @@ class SyncTimer(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'cron',
-                                    'placeholder': '0 0 */2 * * ?',
+                                    'placeholder': '0 0 */2 * *',
                                 }
                             ]
                         }
