@@ -128,7 +128,7 @@ def login():
         SiteFavicons = Sites().get_site_favicon()
         Indexers = Indexer().get_indexers()
         SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
-        CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
+        CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
         CooperationSites = current_user.get_authsites()
         return render_template('navigation.html',
                                GoPage=GoPage,
@@ -215,7 +215,7 @@ def index():
 
     # 媒体库
     Librarys = MediaServer().get_libraries()
-    LibrarySyncConf = SystemConfig().get_system_config("SyncLibrary") or []
+    LibrarySyncConf = SystemConfig().get_system_config(SystemConfigKey.SyncLibrary) or []
 
     return render_template("index.html",
                            ServerSucess=ServerSucess,
@@ -345,8 +345,8 @@ def sites():
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
-    CookieCloudCfg = SystemConfig().get_system_config('CookieCloud')
-    CookieUserInfoCfg = SystemConfig().get_system_config('CookieUserInfo')
+    CookieCloudCfg = SystemConfig().get_system_config(SystemConfigKey.CookieCloud)
+    CookieUserInfoCfg = SystemConfig().get_system_config(SystemConfigKey.CookieUserInfo)
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
@@ -834,7 +834,7 @@ def basic():
     if proxy:
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
-    CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
+    CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,

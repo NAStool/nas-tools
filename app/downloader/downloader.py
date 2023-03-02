@@ -18,7 +18,7 @@ from app.plugins import EventManager
 from app.sites import Sites, SiteSubtitle
 from app.utils import Torrent, StringUtils, SystemUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, EventType
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, EventType, SystemConfigKey
 from config import Config, PT_TAG, RMT_MEDIAEXT, PT_TRANSFER_INTERVAL
 
 lock = Lock()
@@ -66,15 +66,8 @@ class Downloader:
         self.systemconfig = SystemConfig()
         self.eventmanager = EventManager()
         self.sitesubtitle = SiteSubtitle()
-        # 移出现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        # 清空已存在下载器实例
+        self.clients = {}
         # 下载器配置，生成实例
         self._downloader_confs = {}
         downloaders_conf = self.dbhelper.get_downloaders()
@@ -99,7 +92,7 @@ class Downloader:
             }
         # 下载器ID-名称枚举类生成
         self._DownloaderEnum = Enum('DownloaderIdName',
-                                    {id: conf.get("name") for id, conf in self._downloader_confs.items()})
+                                    {did: conf.get("name") for did, conf in self._downloader_confs.items()})
         pt = Config().get_config('pt')
         if pt:
             self._download_order = pt.get("download_order")
@@ -163,7 +156,7 @@ class Downloader:
         """
         获取默认下载器id
         """
-        default_downloader_id = SystemConfig().get_system_config("DefaultDownloader")
+        default_downloader_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloader)
         if not default_downloader_id or not self.get_downloader_conf(default_downloader_id):
             default_downloader_id = ""
         return default_downloader_id
@@ -174,7 +167,7 @@ class Downloader:
         获取默认下载设置
         :return: 默认下载设置id
         """
-        default_download_setting_id = SystemConfig().get_system_config("DefaultDownloadSetting") or "-1"
+        default_download_setting_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloadSetting) or "-1"
         if not self._download_settings.get(default_download_setting_id):
             default_download_setting_id = "-1"
         return default_download_setting_id
@@ -209,9 +202,18 @@ class Downloader:
         """
         转移任务调度
         """
+        # 移出现有任务
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+        # 启动转移任务
         if not self.monitor_downloader_ids:
             return
-        # 启动转移任务
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for downloader_id in self.monitor_downloader_ids:
             self._scheduler.add_job(func=self.transfer,
@@ -258,7 +260,7 @@ class Downloader:
         :param is_paused: 是否暂停下载
         :param tag: 种子标签
         :param download_dir: 指定下载目录
-        :param download_setting: 下载设置id
+        :param download_setting: 下载设置id，为None则使用默认设置，为空字符串则不使用下载设置
         :param downloader_id: 指定下载器ID下载
         :param upload_limit: 上传速度限制
         :param download_limit: 下载速度限制
@@ -331,13 +333,21 @@ class Downloader:
             return None, None, retmsg
 
         # 下载设置
-        if not download_setting and media_info.site:
+        if download_setting is None and media_info.site:
+            # 站点的下载设置
             download_setting = self.sites.get_site_download_setting(media_info.site)
         if download_setting:
+            # 传入的下载设置
             download_attr = self.get_download_setting(download_setting) \
                             or self.get_download_setting(self.default_download_setting_id)
-        else:
+        elif download_setting is None:
+            # 默认下载设置
             download_attr = self.get_download_setting(self.default_download_setting_id)
+        else:
+            # 不使用下载设置
+            download_attr = {}
+
+        # 下载设置名称
         download_setting_name = download_attr.get('name')
 
         # 下载器实例
@@ -478,7 +488,10 @@ class Downloader:
                 # 发送下载消息
                 if in_from:
                     media_info.user_name = user_name
-                    self.message.send_download_message(in_from, media_info, download_setting_name, downloader_name)
+                    self.message.send_download_message(in_from=in_from,
+                                                       can_item=media_info,
+                                                       download_setting_name=download_setting_name,
+                                                       downloader_name=downloader_name)
                 return downloader_id, download_id, ""
             else:
                 __download_fail("请检查下载任务是否已存在")

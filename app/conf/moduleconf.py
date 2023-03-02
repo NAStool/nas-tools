@@ -543,6 +543,21 @@ class ModuleConf(object):
                     "title": "密码",
                     "type": "password",
                     "placeholder": "password"
+                },
+                "torrent_management": {
+                    "id": "qbittorrent_torrent_management",
+                    "required": False,
+                    "title": "种子管理模式",
+                    "tooltip": """默认：Torrent管理模式应用Qbittorrent下载器-选项-下载-保存管理中设置；
+                                手动：Torrent管理模式为手动，下载目录由NAStool传递的下载目录决定；
+                                自动：Torrent管理模式为自动，下载目录由NAStool传递的分类及下载器中分类保存路径决定，需要在NAStool下载目录设置中配置分类标签""",
+                    "type": "select",
+                    "options": {
+                        "default": "默认",
+                        "manual": "手动",
+                        "auto": "自动"
+                    },
+                    "default": "manual"
                 }
             }
         },
