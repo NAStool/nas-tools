@@ -66,15 +66,8 @@ class Downloader:
         self.systemconfig = SystemConfig()
         self.eventmanager = EventManager()
         self.sitesubtitle = SiteSubtitle()
-        # 移出现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        # 清空已存在下载器实例
+        self.clients = {}
         # 下载器配置，生成实例
         self._downloader_confs = {}
         downloaders_conf = self.dbhelper.get_downloaders()
@@ -209,9 +202,18 @@ class Downloader:
         """
         转移任务调度
         """
+        # 移出现有任务
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+        # 启动转移任务
         if not self.monitor_downloader_ids:
             return
-        # 启动转移任务
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for downloader_id in self.monitor_downloader_ids:
             self._scheduler.add_job(func=self.transfer,
