@@ -260,7 +260,7 @@ class Downloader:
         :param is_paused: 是否暂停下载
         :param tag: 种子标签
         :param download_dir: 指定下载目录
-        :param download_setting: 下载设置id，为None则使用默认设置，为空字符串则不使用下载设置
+        :param download_setting: 下载设置id，为None则使用-1默认设置，为"-2"则不使用下载设置
         :param downloader_id: 指定下载器ID下载
         :param upload_limit: 上传速度限制
         :param download_limit: 下载速度限制
@@ -333,19 +333,19 @@ class Downloader:
             return None, None, retmsg
 
         # 下载设置
-        if download_setting is None and media_info.site:
+        if not download_setting and media_info.site:
             # 站点的下载设置
             download_setting = self.sites.get_site_download_setting(media_info.site)
-        if download_setting:
+        if download_setting == "-2":
+            # 不使用下载设置
+            download_attr = {}
+        elif download_setting:
             # 传入的下载设置
             download_attr = self.get_download_setting(download_setting) \
                             or self.get_download_setting(self.default_download_setting_id)
-        elif download_setting is None:
+        else:
             # 默认下载设置
             download_attr = self.get_download_setting(self.default_download_setting_id)
-        else:
-            # 不使用下载设置
-            download_attr = {}
 
         # 下载设置名称
         download_setting_name = download_attr.get('name')
@@ -1221,7 +1221,7 @@ class Downloader:
             self._download_settings["-1"]["downloader_type"] = preset_downloader_conf.get("type")
         if not sid:
             return self._download_settings
-        return self._download_settings.get(str(sid))
+        return self._download_settings.get(str(sid)) or {}
 
     def set_speed_limit(self, downloader_id=None, download_limit=None, upload_limit=None):
         """
