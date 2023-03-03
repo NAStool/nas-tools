@@ -40,13 +40,18 @@ export class PageDiscovery extends CustomElement {
         },
         {
           type: "TV",
+          title:"豆瓣热门剧集",
+          subtype :"dbht",
+        },
+        {
+          type: "TV",
           title:"豆瓣热门动漫",
           subtype :"dbdh",
         },
         {
           type: "TV",
-          title:"豆瓣热门剧集",
-          subtype :"dbht",
+          title:"豆瓣热门综艺",
+          subtype :"dbzy",
         },
         {
           type: "TV",
