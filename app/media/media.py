@@ -767,7 +767,8 @@ class Media:
                                 media_type=None,
                                 season=None,
                                 episode_format: EpisodeFormat = None,
-                                chinese=True):
+                                chinese=True,
+                                append_to_response=None):
         """
         根据文件清单，搜刮TMDB信息，用于文件名称的识别
         :param file_list: 文件清单，如果是列表也可以是单个文件，也可以是一个目录
@@ -776,6 +777,7 @@ class Media:
         :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
         :param episode_format: EpisodeFormat
         :param chinese: 原标题为英文时是否从别名中检索中文名称
+        :param append_to_response: 附加信息
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
         """
         # 存储文件路径与媒体的对应关系
@@ -866,7 +868,8 @@ class Media:
                         if file_media_info and not file_media_info.get("genres"):
                             file_media_info = self.get_tmdb_info(mtype=file_media_info.get("media_type"),
                                                                  tmdbid=file_media_info.get("id"),
-                                                                 chinese=chinese)
+                                                                 chinese=chinese,
+                                                                 append_to_response=append_to_response)
                         # 保存到缓存
                         if file_media_info is not None:
                             self.__insert_media_cache(media_key=media_key,
@@ -877,7 +880,8 @@ class Media:
                         if cache_info.get("id"):
                             file_media_info = self.get_tmdb_info(mtype=cache_info.get("type"),
                                                                  tmdbid=cache_info.get("id"),
-                                                                 chinese=chinese)
+                                                                 chinese=chinese,
+                                                                 append_to_response=append_to_response)
                         else:
                             # 缓存为未识别
                             file_media_info = None

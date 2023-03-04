@@ -112,7 +112,8 @@ class LibraryNfo(_IPluginModule):
                 for file in self.__get_library_files(path):
                     if not file:
                         continue
-                    medias = self._media.get_media_info_on_files([file])
+                    medias = self._media.get_media_info_on_files(file_list=[file],
+                                                                 append_to_response="all")
                     if not medias:
                         continue
                     media_info = None
