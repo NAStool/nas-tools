@@ -2259,7 +2259,7 @@ class WebAction:
                 # 豆瓣TOP250电影
                 res_list = DouBan().get_douban_top250_movie(CurrentPage)
             elif SubType == "dbzy":
-                # 豆瓣最新电视剧
+                # 豆瓣热门综艺
                 res_list = DouBan().get_douban_hot_show(CurrentPage)
             elif SubType == "dbct":
                 # 华语口碑剧集榜
