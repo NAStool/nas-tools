@@ -155,10 +155,10 @@ class Scraper:
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "tvshow.nfo"))
 
-    def gen_tv_season_nfo_file(self, tmdbinfo: dict, season, out_path):
+    def gen_tv_season_nfo_file(self, seasoninfo: dict, season, out_path):
         """
         生成电视剧季的NFO描述文件
-        :param tmdbinfo: TMDB季媒体信息
+        :param seasoninfo: TMDB季媒体信息
         :param season: 季号
         :param out_path: 电视剧季的目录
         """
@@ -169,23 +169,24 @@ class Scraper:
         DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # 简介
         xplot = DomUtils.add_node(doc, root, "plot")
-        xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
+        xplot.appendChild(doc.createCDATASection(seasoninfo.get("overview") or ""))
         xoutline = DomUtils.add_node(doc, root, "outline")
-        xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
+        xoutline.appendChild(doc.createCDATASection(seasoninfo.get("overview") or ""))
         # 标题
         DomUtils.add_node(doc, root, "title", "季 %s" % season)
         # 发行日期
-        DomUtils.add_node(doc, root, "premiered", tmdbinfo.get("air_date") or "")
-        DomUtils.add_node(doc, root, "releasedate", tmdbinfo.get("air_date") or "")
+        DomUtils.add_node(doc, root, "premiered", seasoninfo.get("air_date") or "")
+        DomUtils.add_node(doc, root, "releasedate", seasoninfo.get("air_date") or "")
         # 发行年份
-        DomUtils.add_node(doc, root, "year", tmdbinfo.get("air_date")[:4] if tmdbinfo.get("air_date") else "")
+        DomUtils.add_node(doc, root, "year", seasoninfo.get("air_date")[:4] if seasoninfo.get("air_date") else "")
         # seasonnumber
         DomUtils.add_node(doc, root, "seasonnumber", season)
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "season.nfo"))
 
     def gen_tv_episode_nfo_file(self,
-                                tmdbinfo: dict,
+                                tmdbid,
+                                seasoninfo: dict,
                                 scraper_tv_nfo,
                                 season: int,
                                 episode: int,
@@ -193,7 +194,8 @@ class Scraper:
                                 file_name):
         """
         生成电视剧集的NFO描述文件
-        :param tmdbinfo: TMDB元数据
+        :param tmdbid: TMDB ID
+        :param seasoninfo: TMDB元数据
         :param scraper_tv_nfo: 刮削配置
         :param season: 季号
         :param episode: 集号
@@ -204,7 +206,7 @@ class Scraper:
         log.info("【Scraper】正在生成剧集NFO文件：%s" % file_name)
         # 集的信息
         episode_detail = {}
-        for episode_info in tmdbinfo.get("episodes") or []:
+        for episode_info in seasoninfo.get("episodes") or []:
             if int(episode_info.get("episode_number")) == int(episode):
                 episode_detail = episode_info
         if not episode_detail:
@@ -215,11 +217,11 @@ class Scraper:
             # 添加时间
             DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
             # TMDBID
-            uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
+            uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbid or "")
             uniqueid.setAttribute("type", "tmdb")
             uniqueid.setAttribute("default", "true")
             # tmdbid
-            DomUtils.add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
+            DomUtils.add_node(doc, root, "tmdbid", tmdbid or "")
             # 标题
             DomUtils.add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
             # 简介
@@ -414,7 +416,9 @@ class Scraper:
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:
-                            self.gen_tv_season_nfo_file(seasoninfo, int(media.get_season_seq()), dir_path)
+                            self.gen_tv_season_nfo_file(seasoninfo=seasoninfo,
+                                                        season=int(media.get_season_seq()),
+                                                        out_path=dir_path)
                 # episode nfo
                 if scraper_tv_nfo.get("episode_basic") \
                         or scraper_tv_nfo.get("episode_credits"):
@@ -422,7 +426,8 @@ class Scraper:
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:
-                            self.gen_tv_episode_nfo_file(tmdbinfo=seasoninfo,
+                            self.gen_tv_episode_nfo_file(tmdbid=media.tmdb_id,
+                                                         seasoninfo=seasoninfo,
                                                          scraper_tv_nfo=scraper_tv_nfo,
                                                          season=int(media.get_season_seq()),
                                                          episode=int(media.get_episode_seq()),
