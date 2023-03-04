@@ -38,6 +38,7 @@ class LibraryNfo(_IPluginModule):
     _scraper_pic = {}
     # 限速开关
     _cron = None
+    _onlyonce = False
 
     @staticmethod
     def get_fields():
@@ -51,7 +52,7 @@ class LibraryNfo(_IPluginModule):
                         {
                             'title': '刮削周期',
                             'required': "required",
-                            'tooltip': '刮削时间根据媒体库中的文件数量及网络状况而定，耗时可能会非常长，建议合理设置刮削周期，留空则不启动',
+                            'tooltip': '需要在基础设置中配置好刮削内容；刮削时间根据媒体库中的文件数量及网络状况而定，耗时可能会非常长，建议合理设置刮削周期，留空则不启动',
                             'type': 'text',
                             'content': [
                                 {
@@ -60,7 +61,16 @@ class LibraryNfo(_IPluginModule):
                                 }
                             ]
                         }
-                    ]
+                    ],
+                    [
+                        {
+                            'title': '仅运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次（周期未设置也会运行），关闭后按照刮削周期运行',
+                            'type': 'switch',
+                            'id': 'onlyonce',
+                        }
+                    ],
                 ]
             }
         ]
@@ -71,6 +81,7 @@ class LibraryNfo(_IPluginModule):
 
         # 读取配置
         if config:
+            self._onlyonce = config.get("onlyonce")
             self._cron = config.get("cron")
 
         # 刮削配置
@@ -87,6 +98,10 @@ class LibraryNfo(_IPluginModule):
             self._scheduler.print_jobs()
             self._scheduler.start()
             log.info(f"媒体库刮削服务启动，周期：{self._cron}")
+
+        # 立即刮削一次
+        if self._onlyonce:
+            self.__libraryscraper()
 
     def get_state(self):
         return True if self._cron else False
