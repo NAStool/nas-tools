@@ -15,7 +15,7 @@ class SyncTimer(_IPluginModule):
     # 插件图标
     module_icon = "synctimer.png"
     # 主题色
-    module_color = "bg-black"
+    module_color = "bg-dark"
     # 插件版本
     module_version = "1.0"
     # 插件作者
