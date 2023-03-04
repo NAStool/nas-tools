@@ -52,7 +52,7 @@ class LibraryNfo(_IPluginModule):
                         {
                             'title': '刮削周期',
                             'required': "required",
-                            'tooltip': '需要在基础设置中配置好刮削内容；刮削时间根据媒体库中的文件数量及网络状况而定，耗时可能会非常长，建议合理设置刮削周期，留空则不启动',
+                            'tooltip': '需要在基础设置中配置好刮削内容；刮削时间根据媒体库中的文件数量及网络状况而定，耗时可能会非常长，建议合理设置刮削周期，留空则不启用',
                             'type': 'text',
                             'content': [
                                 {
@@ -66,7 +66,7 @@ class LibraryNfo(_IPluginModule):
                         {
                             'title': '仅运行一次',
                             'required': "",
-                            'tooltip': '打开后立即运行一次（周期未设置也会运行），关闭后按照刮削周期运行',
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定后即会运行，周期未设置也会运行），关闭后将按照刮削周期运行',
                             'type': 'switch',
                             'id': 'onlyonce',
                         }
