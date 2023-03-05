@@ -139,7 +139,17 @@ export class PluginModal extends CustomElement {
       let default_value = content[index]["default"];
       let text_options = html``;
       for (let option in options) {
-        text_options = html`${text_options}<option value="${option}" ${ default_value === option ? "selected" : "" }>${options[option]}</option>`
+        if (this.config[id]) {
+          if (this.config[id] === option) {
+            text_options = html`${text_options}<option value="${option}" selected>${options[option]}</option>`
+          } else {
+            text_options = html`${text_options}<option value="${option}">${options[option]}</option>`
+          }
+        } else if (default_value && default_value === option) {
+          text_options = html`${text_options}<option value="${option}" selected>${options[option]}</option>`
+        } else {
+          text_options = html`${text_options}<option value="${option}">${options[option]}</option>`
+        }
       }
       text_content = html`
         <div class="mb-1">
@@ -206,25 +216,26 @@ export class PluginModal extends CustomElement {
   }
 
   render() {
-    return html`<div class="modal modal-blur fade" id="modal-plugin-${this.id}" tabindex="-1" role="dialog" aria-hidden="true"
-                     data-bs-backdrop="static" data-bs-keyboard="false">
-                  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">${this.name}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body" style="overflow-y: auto">
-                      ${this.__render_fields()}
-                      </div>
-                      <div class="modal-footer">
-                        <a href="javascript:save_plugin_config('${this.id}', '${this.prefix}')" class="btn btn-primary">
-                          确定
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>`
+    return html`
+      <div class="modal modal-blur fade" id="modal-plugin-${this.id}" tabindex="-1" role="dialog" aria-hidden="true"
+           data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">${this.name}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto">
+            ${this.__render_fields()}
+            </div>
+            <div class="modal-footer">
+              <a href="javascript:save_plugin_config('${this.id}', '${this.prefix}')" class="btn btn-primary">
+                确定
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>`
   }
 
 }
