@@ -320,7 +320,12 @@ class MediaServer:
             return
         if channel != self.server.get_type():
             return
-        event_info = self.server.get_webhook_message(message)
+        event_info = None
+        try:
+            event_info = self.server.get_webhook_message(message)
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【MediaServer】webhook 消息解析异常")
         if event_info:
             # 获取消息图片
             image_url = None
