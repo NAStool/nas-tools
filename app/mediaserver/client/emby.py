@@ -533,28 +533,21 @@ class Emby(_IMediaClient):
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
-                eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
-                if message.get('Item', {}).get('Overview') and len(message.get('Item', {}).get('Overview')) > 100:
-                    eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
-                else:
-                    eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
-                if not eventItem['percentage']:
-                    eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
-                                              message.get('Item', {}).get('RunTimeTicks') * 100
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
                     message.get('Item', {}).get('Name'), "(" + str(message.get('Item', {}).get('ProductionYear')) + ")")
                 eventItem['item_path'] = message.get('Item', {}).get('Path')
                 eventItem['item_id'] = message.get('Item', {}).get('Id')
-                eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
-                if len(message.get('Item', {}).get('Overview')) > 100:
-                    eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
-                else:
-                    eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
-                if not eventItem['percentage']:
+
+            eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
+            if message.get('Item', {}).get('Overview') and len(message.get('Item', {}).get('Overview')) > 100:
+                eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
+            else:
+                eventItem['overview'] = message.get('Item', {}).get('Overview')
+            eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
+            if not eventItem['percentage']:
+                if message.get('PlaybackInfo', {}).get('PositionTicks'):
                     eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
                                               message.get('Item', {}).get('RunTimeTicks') * 100
         if message.get('Session'):
