@@ -99,9 +99,8 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         self.leeching = StringUtils.str_int(leeching_match.group(2)) if leeching_match and leeching_match.group(
             2).strip() else 0
         html = etree.HTML(html_text)
-        tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()') if html else None
-        if tmps:
-            self.bonus = StringUtils.str_float(str(tmps[-1]))
+        parsed, self.bonus = self.__parse_ucoin(html)
+        if parsed:
             return
         tmps = html.xpath('//a[contains(@href,"mybonus")]/text()') if html else None
         if tmps:
@@ -121,6 +120,32 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
+
+    @staticmethod
+    def __parse_ucoin(html):
+        """
+        解析ucoin, 统一转换为铜币
+        :param html:
+        :return:
+        """
+        if html:
+            gold, silver, copper = None, None, None
+
+            golds = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()')
+            if golds:
+                gold = StringUtils.str_float(str(golds[-1]))
+            silvers = html.xpath('//span[@class = "ucoin-symbol ucoin-silver"]//text()')
+            if silvers:
+                silver = StringUtils.str_float(str(silvers[-1]))
+            coppers = html.xpath('//span[@class = "ucoin-symbol ucoin-copper"]//text()')
+            if coppers:
+                copper = StringUtils.str_float(str(coppers[-1]))
+            if gold or silver or copper:
+                gold = gold if gold else 0
+                silver = silver if silver else 0
+                copper = copper if copper else 0
+                return True, gold * 100 * 100 + silver * 100 + copper
+        return False, 0.0
 
     def _parse_user_traffic_info(self, html_text):
         """
