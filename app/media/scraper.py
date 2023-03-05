@@ -5,7 +5,7 @@ from xml.dom import minidom
 import log
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
-from config import TMDB_IMAGE_W500_URL
+from config import TMDB_IMAGE_W500_URL, Config
 from app.utils import DomUtils, RequestUtils, ExceptionUtils
 from app.utils.types import MediaType
 from app.media import Media
@@ -13,19 +13,24 @@ from app.media import Media
 
 class Scraper:
     media = None
+    _scraper_flag = False
+    _scraper_nfo = {}
+    _scraper_pic = {}
 
     def __init__(self):
         self.media = Media()
         self.douban = DouBan()
+        self._scraper_flag = Config().get_config('media').get("nfo_poster")
+        self._scraper_nfo = Config().get_config('scraper_nfo')
+        self._scraper_pic = Config().get_config('scraper_pic')
 
     def __gen_common_nfo(self,
                          tmdbinfo: dict,
                          doubaninfo: dict,
-                         scraper_nfo: dict,
                          doc,
                          root,
                          chinese=False):
-        if scraper_nfo.get("basic"):
+        if self._scraper_nfo.get("basic"):
             # 添加时间
             DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
             # TMDB
@@ -53,7 +58,7 @@ class Scraper:
             xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
             xoutline = DomUtils.add_node(doc, root, "outline")
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
-        if scraper_nfo.get("credits"):
+        if self._scraper_nfo.get("credits"):
             # 导演
             directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo=tmdbinfo)
             if chinese:
@@ -71,7 +76,7 @@ class Scraper:
                 DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
                 DomUtils.add_node(doc, xactor, "thumb", actor.get('image'))
                 DomUtils.add_node(doc, xactor, "profile", actor.get('profile'))
-        if scraper_nfo.get("basic"):
+        if self._scraper_nfo.get("basic"):
             # 风格
             genres = tmdbinfo.get("genres") or []
             for genre in genres:
@@ -101,7 +106,6 @@ class Scraper:
         # 公共部分
         doc = self.__gen_common_nfo(tmdbinfo=tmdbinfo,
                                     doubaninfo=doubaninfo,
-                                    scraper_nfo=scraper_movie_nfo,
                                     doc=doc,
                                     root=root,
                                     chinese=scraper_movie_nfo.get("credits_chinese"))
@@ -137,7 +141,6 @@ class Scraper:
         # 公共部分
         doc = self.__gen_common_nfo(tmdbinfo=tmdbinfo,
                                     doubaninfo=doubaninfo,
-                                    scraper_nfo=scraper_tv_nfo,
                                     doc=doc,
                                     root=root,
                                     chinese=scraper_tv_nfo.get("credits_chinese"))
@@ -278,7 +281,7 @@ class Scraper:
                 with open(file=image_path,
                           mode="wb") as img:
                     img.write(r.content)
-                log.info(f"【Scraper】{itype}图片已保存：{out_path}")
+                log.info(f"【Scraper】{itype}图片已保存：{image_path}")
             else:
                 log.info(f"【Scraper】{itype}图片下载失败，请检查网络连通性")
         except Exception as err:
@@ -286,45 +289,51 @@ class Scraper:
 
     @staticmethod
     def __save_nfo(doc, out_file):
+        log.info("【Scraper】正在保存NFO文件：%s" % out_file)
         xml_str = doc.toprettyxml(indent="  ", encoding="utf-8")
         with open(out_file, "wb") as xml_file:
             xml_file.write(xml_str)
+        log.info("【Scraper】NFO文件已保存：%s" % out_file)
 
     def gen_scraper_files(self,
                           media,
-                          scraper_nfo,
-                          scraper_pic,
                           dir_path,
                           file_name,
                           file_ext,
+                          force=False,
                           force_nfo=False,
                           force_pic=False):
         """
         刮削元数据入口
         :param media: 已识别的媒体信息
-        :param scraper_nfo: NFO刮削配置
-        :param scraper_pic: 图片刮削配置
         :param dir_path: 文件路径
         :param file_name: 文件名，不含后缀
         :param file_ext: 文件后缀
+        :param force: 是否强制刮削
         :param force_nfo: 是否强制刮削NFO
         :param force_pic: 是否强制刮削图片
         """
-        if not scraper_nfo:
-            scraper_nfo = {}
-        if not scraper_pic:
-            scraper_pic = {}
+        if not force and not self._scraper_flag:
+            return
+        if not self._scraper_nfo and not self._scraper_pic:
+            return
+
+        if not self._scraper_nfo:
+            self._scraper_nfo = {}
+        if not self._scraper_pic:
+            self._scraper_pic = {}
+
         try:
             # 电影
             if media.type == MediaType.MOVIE:
-                scraper_movie_nfo = scraper_nfo.get("movie")
-                scraper_movie_pic = scraper_pic.get("movie")
+                scraper_movie_nfo = self._scraper_nfo.get("movie")
+                scraper_movie_pic = self._scraper_pic.get("movie")
                 #  movie nfo
                 if scraper_movie_nfo.get("basic") or scraper_movie_nfo.get("credits"):
                     # 已存在时不处理
-                    if not force_nfo \
-                            and not os.path.exists(os.path.join(dir_path, "movie.nfo")) \
-                            and not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                    if force_nfo \
+                            or (not os.path.exists(os.path.join(dir_path, "movie.nfo"))
+                                and not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name))):
                         # 查询Douban信息
                         if scraper_movie_nfo.get("credits") and scraper_movie_nfo.get("credits_chinese"):
                             doubaninfo = self.douban.get_douban_info(media)
@@ -373,11 +382,11 @@ class Scraper:
                         self.__save_image(thumb_image, dir_path, "thumb", force_pic)
             # 电视剧
             else:
-                scraper_tv_nfo = scraper_nfo.get("tv")
-                scraper_tv_pic = scraper_pic.get("tv")
+                scraper_tv_nfo = self._scraper_nfo.get("tv")
+                scraper_tv_pic = self._scraper_pic.get("tv")
                 # tv nfo
-                if not force_nfo \
-                        and not os.path.exists(os.path.join(os.path.dirname(dir_path), "tvshow.nfo")):
+                if force_nfo \
+                        or not os.path.exists(os.path.join(os.path.dirname(dir_path), "tvshow.nfo")):
                     if scraper_tv_nfo.get("basic") or scraper_tv_nfo.get("credits"):
                         # 查询Douban信息
                         if scraper_tv_nfo.get("credits") and scraper_tv_nfo.get("credits_chinese"):
@@ -423,8 +432,8 @@ class Scraper:
                         self.__save_image(thumb_image, os.path.dirname(dir_path), "thumb", force_pic)
                 # season nfo
                 if scraper_tv_nfo.get("season_basic"):
-                    if not force_nfo \
-                            and not os.path.exists(os.path.join(dir_path, "season.nfo")):
+                    if force_nfo \
+                            or not os.path.exists(os.path.join(dir_path, "season.nfo")):
                         # season nfo
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
@@ -435,8 +444,8 @@ class Scraper:
                 # episode nfo
                 if scraper_tv_nfo.get("episode_basic") \
                         or scraper_tv_nfo.get("episode_credits"):
-                    if not force_nfo \
-                            and not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                    if force_nfo \
+                            or not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:

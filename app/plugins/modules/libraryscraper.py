@@ -33,8 +33,6 @@ class LibraryScraper(_IPluginModule):
     _scheduler = None
     _media = None
     _scraper = None
-    _scraper_nfo = {}
-    _scraper_pic = {}
     # 限速开关
     _cron = None
     _onlyonce = False
@@ -101,10 +99,6 @@ class LibraryScraper(_IPluginModule):
             self._cron = config.get("cron")
             self._mode = config.get("mode")
 
-        # 刮削配置
-        self._scraper_nfo = Config().get_config('scraper_nfo')
-        self._scraper_pic = Config().get_config('scraper_pic')
-
         # 停止现有任务
         self.stop_service()
 
@@ -166,11 +160,10 @@ class LibraryScraper(_IPluginModule):
                         continue
                     log.info(f"【Plugin】开始刮削媒体库文件：{file}")
                     self._scraper.gen_scraper_files(media=media_info,
-                                                    scraper_nfo=self._scraper_nfo,
-                                                    scraper_pic=self._scraper_pic,
                                                     dir_path=os.path.dirname(file),
                                                     file_name=os.path.splitext(os.path.basename(file))[0],
                                                     file_ext=os.path.splitext(file)[-1],
+                                                    force=True,
                                                     force_nfo=force_nfo,
                                                     force_pic=force_pic)
                     log.info(f"【Plugin】{file} 刮削完成")
