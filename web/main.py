@@ -1283,9 +1283,9 @@ def telegram():
                     return '只有管理员才有权限执行此命令'
             else:
                 if not str(user_id) in interactive_client.get("client").get_users():
-                    message.send_channel_msg(channel=SearchType.TG,
-                                             title="你不在用户白名单中，无法使用此机器人",
-                                             user_id=user_id)
+                    Message().send_channel_msg(channel=SearchType.TG,
+                                               title="你不在用户白名单中，无法使用此机器人",
+                                               user_id=user_id)
                     return '你不在用户白名单中，无法使用此机器人'
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.TG,

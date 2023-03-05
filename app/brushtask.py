@@ -264,7 +264,7 @@ class BrushTask(object):
                 task_name = taskinfo.get("name")
                 downloader_id = taskinfo.get("downloader")
                 remove_rule = taskinfo.get("remove_rule")
-                sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
+                sendmessage = taskinfo.get("sendmessage")
 
                 # 当前任务种子详情
                 task_torrents = self.dbhelper.get_brushtask_torrents(taskid)

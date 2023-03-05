@@ -15,7 +15,7 @@ class SyncTimer(_IPluginModule):
     # 插件图标
     module_icon = "synctimer.png"
     # 主题色
-    module_color = ""
+    module_color = "bg-dark"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -75,7 +75,7 @@ class SyncTimer(_IPluginModule):
             self._scheduler.add_job(self.__timersync, CronTrigger.from_crontab(self._cron))
             self._scheduler.print_jobs()
             self._scheduler.start()
-            log.info("目录定时同步服务启动")
+            log.info(f"目录定时同步服务启动，周期：{self._cron}")
 
     def get_state(self):
         return True if self._cron else False
@@ -84,7 +84,9 @@ class SyncTimer(_IPluginModule):
         """
         开始同步
         """
+        log.info("【Plugin】开始定时同步 ...")
         self._sync.transfer_all_sync()
+        log.info("【Plugin】定时同步完成")
 
     def stop_service(self):
         """

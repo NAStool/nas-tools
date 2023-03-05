@@ -86,10 +86,10 @@ media:
   # 【洗版开关】：如开启则则新下载了更大的文件会覆盖媒体库目录中已有的文件
   filesize_cover: true
   # 【电影命名定义】：程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上
-  # 电影占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{effect}: 视频特效(DV,HDR等), {tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
+  # 电影占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{effect}: 视频特效(DV,HDR等), {tmdbid}：TMDB的ID, {imdbid}：IMDB的ID，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
   movie_name_format: "{title} ({year})/{title}-{part} ({year}) - {videoFormat}"
   # 【电视剧命名定义】：程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上
-  # 电视剧占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{effect}: 视频特效(DV,HDR等), {tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
+  # 电视剧占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{effect}: 视频特效(DV,HDR等), {tmdbid}：TMDB的ID，{imdbid}：IMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1，{releaseGroup}：制作组/字幕组等
   tv_name_format: "{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集"
   # 【刮削元数据及图片】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
   nfo_poster: false

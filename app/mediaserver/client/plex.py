@@ -295,8 +295,7 @@ class Plex(_IMediaClient):
                            "tmdbid": ids['tmdb_id'],
                            "imdbid": ids['imdb_id'],
                            "tvdbid": ids['tvdb_id'],
-                           "path": path,
-                           "json": str(item.__dict__)}
+                           "path": path}
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
         yield {}
