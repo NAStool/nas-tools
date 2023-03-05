@@ -371,15 +371,13 @@
       };
       chart_tv.setOption(option_chart_tv);
 
-      window_history();
-
     });
 
   }
 
   $(document).ready(function () {
     // 加载图表
-    init_index_charts();
+    setTimeout("init_index_charts()", 500);
     // 响应大小调整
     window.onresize = function () {
       chart_tv.resize();
