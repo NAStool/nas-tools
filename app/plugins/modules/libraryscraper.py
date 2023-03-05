@@ -1,5 +1,8 @@
 import os
+from datetime import datetime
+from threading import Event
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -37,6 +40,8 @@ class LibraryScraper(_IPluginModule):
     _cron = None
     _onlyonce = False
     _mode = None
+    # 退出事件
+    _event = Event()
 
     @staticmethod
     def get_fields():
@@ -80,7 +85,7 @@ class LibraryScraper(_IPluginModule):
                         {
                             'title': '立即运行一次',
                             'required': "",
-                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行',
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
                             'type': 'switch',
                             'id': 'onlyonce',
                         }
@@ -102,16 +107,22 @@ class LibraryScraper(_IPluginModule):
         # 停止现有任务
         self.stop_service()
 
-        # 启动定时任务
-        if self._cron:
+        # 启动定时任务 & 立即运行一次
+        if self._cron or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
-            self._scheduler.add_job(self.__libraryscraper, CronTrigger.from_crontab(self._cron))
+            if self._cron:
+                self._scheduler.add_job(self.__libraryscraper, CronTrigger.from_crontab(self._cron))
+            if self._onlyonce:
+                self._scheduler.add_job(self.__libraryscraper, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
             self._scheduler.print_jobs()
             self._scheduler.start()
-            log.info(f"媒体库刮削服务启动，周期：{self._cron}")
 
-        # 立即刮削一次
-        if self._onlyonce:
+            if self._onlyonce:
+                log.info(f"媒体库刮削服务启动，立即运行一次")
+            if self._cron:
+                log.info(f"媒体库刮削服务启动，周期：{self._cron}")
+
             # 关闭一次性开关
             self._onlyonce = False
             self.update_config({
@@ -119,7 +130,6 @@ class LibraryScraper(_IPluginModule):
                 "cron": self._cron,
                 "mode": self._mode
             })
-            self.__libraryscraper()
 
     def get_state(self):
         return True if self._cron else False
@@ -146,6 +156,9 @@ class LibraryScraper(_IPluginModule):
                     continue
                 # 每个媒体库下的所有文件
                 for file in self.__get_library_files(path):
+                    if self._event.is_set():
+                        log.info(f"【Plugin】媒体库刮削服务停止")
+                        return
                     if not file:
                         continue
                     medias = self._media.get_media_info_on_files(file_list=[file],
@@ -191,7 +204,9 @@ class LibraryScraper(_IPluginModule):
             if self._scheduler:
                 self._scheduler.remove_all_jobs()
                 if self._scheduler.running:
+                    self._event.set()
                     self._scheduler.shutdown()
+                    self._event.clear()
                 self._scheduler = None
         except Exception as e:
             print(str(e))
