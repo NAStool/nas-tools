@@ -4771,7 +4771,9 @@ class WebAction:
         """
         获取索引器统计数据
         """
+        dataset = [["indexer", "avg"]]
         result = self.dbhelper.get_indexer_statistics() or []
+        dataset.extend([[ret[0], ret[4]] for ret in result])
         return {
             "code": 0,
             "data": [{
@@ -4781,6 +4783,5 @@ class WebAction:
                 "success": ret[3],
                 "avg": ret[4],
             } for ret in result],
-            "labels": [ret[0] for ret in result],
-            "values": [ret[4] for ret in result]
+            "dataset": dataset
         }
