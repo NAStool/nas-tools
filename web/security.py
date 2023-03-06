@@ -1,8 +1,12 @@
+import base64
 import datetime
 import hashlib
 from functools import wraps
-from cryptography.fernet import Fernet
 
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from cryptography.fernet import Fernet
+from base64 import b64encode
 import jwt
 from flask import request
 
@@ -134,3 +138,39 @@ def hash_sha256(message):
     对字符串做hash运算
     """
     return hashlib.sha256(message.encode()).hexdigest()
+
+
+def aes_decrypt(data, key):
+    """
+    AES解密
+    """
+    if not data:
+        return ""
+    data = base64.b64decode(data)
+    iv = data[:16]
+    encrypted = data[16:]
+    # 使用AES-256-CBC解密
+    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv)
+    result = cipher.decrypt(encrypted)
+    # 去除填充
+    padding = result[-1]
+    if padding < 1 or padding > AES.block_size:
+        return ""
+    result = result[:-padding]
+    return result.decode('utf-8')
+
+
+def aes_encrypt(data, key):
+    """
+    AES加密
+    """
+    if not data:
+        return ""
+    # 使用AES-256-CBC加密
+    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC)
+    # 填充
+    padding = AES.block_size - len(data) % AES.block_size
+    data += chr(padding) * padding
+    result = cipher.encrypt(data.encode('utf-8'))
+    # 使用base64编码
+    return b64encode(cipher.iv + result).decode('utf-8')

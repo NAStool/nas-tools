@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from app.conf import SystemConfig
+
 
 class _IPluginModule(metaclass=ABCMeta):
     """
@@ -53,3 +55,10 @@ class _IPluginModule(metaclass=ABCMeta):
         停止插件
         """
         pass
+
+    def update_config(self, config: dict):
+        """
+        更新配置信息
+        :param config: 配置信息字典
+        """
+        return SystemConfig().set_system_config("plugin.%s" % self.__class__.__name__, config)

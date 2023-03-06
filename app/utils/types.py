@@ -128,6 +128,24 @@ class EventType(Enum):
     LibraryFileDeleted = "libraryfile.deleted"
 
 
+# 系统配置Key字典
+class SystemConfigKey(Enum):
+    # 同步媒体库范围
+    SyncLibrary = "SyncLibrary"
+    # 站点Cookie获取参数
+    CookieUserInfo = "CookieUserInfo"
+    # CookieCloud同步参数
+    CookieCloud = "CookieCloud"
+    # 自定义JS/CSS
+    CustomScript = "CustomScript"
+    # 用户认证参数
+    UserSiteAuthParams = "UserSiteAuthParams"
+    # 默认下载器
+    DefaultDownloader = "DefaultDownloader"
+    # 默认下载设置
+    DefaultDownloadSetting = "DefaultDownloadSetting"
+
+
 # 电影类型关键字
 MovieTypes = ['MOV', '电影', MediaType.MOVIE]
 # 电视剧类型关键字

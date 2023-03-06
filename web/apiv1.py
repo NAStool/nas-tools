@@ -2249,7 +2249,7 @@ class TorrentRemoverTaskUpdate(ClientResource):
     parser.add_argument('interval', type=int, help='运行间隔（分钟）', location='form', required=True)
     parser.add_argument('enabled', type=int, help='状态（0-停用/1-启用）', location='form', required=True)
     parser.add_argument('samedata', type=int, help='处理辅种（0-否/1-是）', location='form', required=True)
-    parser.add_argument('onlynastool', type=int, help='只管理NASTool添加的下载（0-否/1-是）', location='form',
+    parser.add_argument('onlynastool', type=int, help='只管理NAStool添加的下载（0-否/1-是）', location='form',
                         required=True)
     parser.add_argument('ratio', type=float, help='分享率', location='form')
     parser.add_argument('seeding_time', type=int, help='做种时间（小时）', location='form')

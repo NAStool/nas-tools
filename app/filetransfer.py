@@ -50,9 +50,6 @@ class FileTransfer:
     _tv_dir_rmt_format = ""
     _tv_season_rmt_format = ""
     _tv_file_rmt_format = ""
-    _scraper_flag = False
-    _scraper_nfo = {}
-    _scraper_pic = {}
     _ignored_paths = []
     _ignored_files = ''
 
@@ -69,9 +66,6 @@ class FileTransfer:
 
     def init_config(self):
         media = Config().get_config('media')
-        self._scraper_flag = media.get("nfo_poster")
-        self._scraper_nfo = Config().get_config('scraper_nfo')
-        self._scraper_pic = Config().get_config('scraper_pic')
         if media:
             # 电影目录
             self._movie_path = media.get('movie_path')
@@ -789,14 +783,10 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                if self._scraper_flag:
-                    # 生成刮削文件
-                    self.scraper.gen_scraper_files(media=media,
-                                                   scraper_nfo=self._scraper_nfo,
-                                                   scraper_pic=self._scraper_pic,
-                                                   dir_path=ret_dir_path,
-                                                   file_name=os.path.basename(ret_file_path),
-                                                   file_ext=file_ext)
+                self.scraper.gen_scraper_files(media=media,
+                                               dir_path=ret_dir_path,
+                                               file_name=os.path.basename(ret_file_path),
+                                               file_ext=file_ext)
                 # 更新进度
                 self.progress.update(ptype="filetransfer",
                                      value=round(total_count / len(Medias) * 100),
@@ -1148,6 +1138,7 @@ class FileTransfer:
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,
             "tmdbid": media.tmdb_id,
+            "imdbid": media.imdb_id,
             "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
             "episode_title": StringUtils.clear_file_name(episode_title),

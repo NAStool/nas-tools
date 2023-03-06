@@ -3,7 +3,7 @@ import os.path
 import time
 import json
 from enum import Enum
-from sqlalchemy import cast, func
+from sqlalchemy import cast, func, and_
 
 from app.db import MainDb, DbPersist
 from app.db.models import *
@@ -1631,13 +1631,23 @@ class DbHelper:
         """
         if hid:
             return self._db.query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.ID == int(hid)).all()
-        elif date:
+        sub_query = self._db.query(DOWNLOADHISTORY,
+                                   func.max(DOWNLOADHISTORY.DATE)
+                                   ).group_by(DOWNLOADHISTORY.TITLE).subquery()
+        if date:
             return self._db.query(DOWNLOADHISTORY).filter(
-                DOWNLOADHISTORY.DATE > date).order_by(DOWNLOADHISTORY.DATE.desc()).all()
+                DOWNLOADHISTORY.DATE > date).join(
+                sub_query,
+                and_(sub_query.c.ID == DOWNLOADHISTORY.ID)
+            ).order_by(DOWNLOADHISTORY.DATE.desc()).all()
         else:
             offset = (int(page) - 1) * int(num)
-            return self._db.query(DOWNLOADHISTORY).order_by(
-                DOWNLOADHISTORY.DATE.desc()).limit(num).offset(offset).all()
+            return self._db.query(DOWNLOADHISTORY).join(
+                sub_query,
+                and_(sub_query.c.ID == DOWNLOADHISTORY.ID)
+            ).order_by(
+                DOWNLOADHISTORY.DATE.desc()
+            ).limit(num).offset(offset).all()
 
     def get_download_history_by_title(self, title):
         """
@@ -2588,3 +2598,20 @@ class DbHelper:
         查询下载器
         """
         return self._db.query(DOWNLOADER).order_by(DOWNLOADER.TYPE.desc()).all()
+
+    @DbPersist(_db)
+    def insert_indexer_statistics(self,
+                                  indexer,
+                                  itype,
+                                  seconds,
+                                  result):
+        """
+        插入索引器统计
+        """
+        self._db.insert(INDEXERSTATISTICS(
+            INDEXER=indexer,
+            TYPE=itype,
+            SECONDS=seconds,
+            RESULT=result,
+            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))

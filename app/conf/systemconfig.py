@@ -2,11 +2,11 @@ import json
 
 from app.helper import DictHelper
 from app.utils.commons import singleton
+from app.utils.types import SystemConfigKey
 
 
 @singleton
 class SystemConfig:
-
     # 系统设置
     systemconfig = {}
 
@@ -33,10 +33,12 @@ class SystemConfig:
         else:
             return str(obj).startswith("{") or str(obj).startswith("[")
 
-    def set_system_config(self, key, value):
+    def set_system_config(self, key: [SystemConfigKey, str], value):
         """
         设置系统设置
         """
+        if isinstance(key, SystemConfigKey):
+            key = key.value
         # 更新内存
         self.systemconfig[key] = value
         # 写入数据库
@@ -47,10 +49,12 @@ class SystemConfig:
                 value = ''
         self.dicthelper.set("SystemConfig", key, value)
 
-    def get_system_config(self, key=None):
+    def get_system_config(self, key: [SystemConfigKey, str] = None):
         """
         获取系统设置
         """
         if not key:
             return self.systemconfig
+        if isinstance(key, SystemConfigKey):
+            key = key.value
         return self.systemconfig.get(key)

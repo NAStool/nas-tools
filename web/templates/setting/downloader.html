@@ -46,10 +46,10 @@
           <table class="table table-vcenter card-table table-hover table-striped">
             <thead>
             <tr>
-              <th class="w-3 text-nowrap"></th>
+              <th class="w-3 text-nowrap">默认</th>
               <th class="w-5 text-nowrap">类型</th>
               <th>名称</th>
-              <th>地址</th>
+              <th><span class="d-none d-md-inline-block">地址</span></th>
               <th class="w-5 text-nowrap">监控</th>
               <th class="w-5 text-nowrap">隔离</th>
               <th class="w-5 text-nowrap">转移方式</th>
@@ -62,7 +62,7 @@
               {% for Id, Attr in Downloaders.items() %}
                 <tr>
                   <td>
-                    <div class="ms-2">
+                    <div class="">
                       <a href="javascript:set_default_downloader('{{ Attr.id }}')" class="btn-action" title="设置默认">
                         {% if DefaultDownloader == Id %}
                           <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
@@ -76,11 +76,13 @@
                   <span class="avatar avatar-sm avatar-thumb avatar-rounded"
                         style="background-image: url({{ DownloaderConf[Attr.type].img_url }})"></span>
                   </td>
-                  <td>{{ Attr.name }}</td>
+                  <td><span class="text-nowrap">{{ Attr.name }}</span></td>
                   <td>
+                    <div class="d-none d-md-inline-block">
                     {% if Attr.config.get("host")  %}
                       {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
                     {% endif %}
+                    </div>
                   </td>
                   <td>
                     {% if DownloaderConf[Attr.type].monitor_enable %}
