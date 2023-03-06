@@ -90,7 +90,7 @@ class IndexerConf(object):
         # 解析器
         self.parser = parser if parser is not None else datas.get('parser')
         # 是否启用渲染
-        self.render = render if render is not None else datas.get("render")
+        self.render = render and datas.get("render")
         # 浏览
         self.browse = datas.get('browse', {})
         # 种子过滤
