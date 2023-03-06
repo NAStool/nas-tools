@@ -2598,3 +2598,20 @@ class DbHelper:
         查询下载器
         """
         return self._db.query(DOWNLOADER).order_by(DOWNLOADER.TYPE.desc()).all()
+
+    @DbPersist(_db)
+    def insert_indexer_statistics(self,
+                                  indexer,
+                                  itype,
+                                  seconds,
+                                  result):
+        """
+        插入索引器统计
+        """
+        self._db.insert(INDEXERSTATISTICS(
+            INDEXER=indexer,
+            TYPE=itype,
+            SECONDS=seconds,
+            RESULT=result,
+            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))

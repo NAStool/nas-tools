@@ -3,7 +3,7 @@ import datetime
 import time
 
 import log
-from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper
+from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper, DbHelper
 from app.indexer.client._base import _IIndexClient
 from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
@@ -27,6 +27,7 @@ class BuiltinIndexer(_IIndexClient):
     _client_config = {}
     progress = None
     sites = None
+    dbhelper = None
 
     def __init__(self, config=None):
         super().__init__()
@@ -36,6 +37,7 @@ class BuiltinIndexer(_IIndexClient):
     def init_config(self):
         self.sites = Sites()
         self.progress = ProgressHelper()
+        self.dbhelper = DbHelper()
 
     @classmethod
     def match(cls, ctype):
@@ -122,6 +124,7 @@ class BuiltinIndexer(_IIndexClient):
         if indexer.language == "en" and StringUtils.is_chinese(search_word):
             log.warn(f"【{self.client_name}】{indexer.name} 无法使用中文名搜索")
             return []
+        # 开始索引
         result_array = []
         try:
             if indexer.parser == "TNodeSpider":
@@ -140,12 +143,31 @@ class BuiltinIndexer(_IIndexClient):
                                                     mtype=match_media.type if match_media else None)
         except Exception as err:
             print(str(err))
+        # 索引花费的时间
+        seconds = (datetime.datetime.now() - start_time).seconds
+
         if len(result_array) == 0:
             log.warn(f"【{self.client_name}】{indexer.name} 未检索到数据")
+            # 更新进度
             self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")
+            # 索引统计
+            self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
+                                                    itype=self.client_id,
+                                                    seconds=seconds,
+                                                    result='N'
+                                                    )
             return []
         else:
             log.warn(f"【{self.client_name}】{indexer.name} 返回数据：{len(result_array)}")
+            # 更新进度
+            self.progress.update(ptype='search', text=f"{indexer.name} 返回 {len(result_array)} 条数据")
+            # 索引统计
+            self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
+                                                    itype=self.client_id,
+                                                    seconds=seconds,
+                                                    result='Y'
+                                                    )
+            # 过滤
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
                                               indexer=indexer,
