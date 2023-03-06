@@ -4781,7 +4781,7 @@ class WebAction:
                 "total": ret[1],
                 "fail": ret[2],
                 "success": ret[3],
-                "avg": ret[4],
+                "avg": round(ret[4], 1),
             } for ret in result],
             "dataset": dataset
         }

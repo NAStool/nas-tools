@@ -5,7 +5,6 @@ import time
 import log
 from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper, DbHelper
 from app.indexer.client._base import _IIndexClient
-from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
 from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
@@ -115,6 +114,7 @@ class BuiltinIndexer(_IIndexClient):
             _filter_args.update({"rule": indexer.rule})
         # 计算耗时
         start_time = datetime.datetime.now()
+
         log.info(f"【{self.client_name}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
         search_word = StringUtils.handler_special_chars(text=key_word,
@@ -128,45 +128,36 @@ class BuiltinIndexer(_IIndexClient):
         result_array = []
         try:
             if indexer.parser == "TNodeSpider":
-                result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
+                error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
             elif indexer.parser == "RenderSpider":
-                result_array = RenderSpider().search(keyword=search_word,
-                                                     indexer=indexer,
-                                                     mtype=match_media.type if match_media else None)
-            elif indexer.parser == "RarBg":
-                result_array = Rarbg().search(keyword=search_word,
-                                              indexer=indexer,
-                                              imdb_id=match_media.imdb_id if match_media else None)
+                error_flag, result_array = RenderSpider().search(keyword=search_word,
+                                                                 indexer=indexer,
+                                                                 mtype=match_media.type if match_media else None)
             else:
-                result_array = self.__spider_search(keyword=search_word,
-                                                    indexer=indexer,
-                                                    mtype=match_media.type if match_media else None)
+                error_flag, result_array = self.__spider_search(keyword=search_word,
+                                                                indexer=indexer,
+                                                                mtype=match_media.type if match_media else None)
         except Exception as err:
+            error_flag = True
             print(str(err))
-        # 索引花费的时间
-        seconds = (datetime.datetime.now() - start_time).seconds
 
+        # 索引花费的时间
+        seconds = round((datetime.datetime.now() - start_time).seconds, 1)
+        # 索引统计
+        self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
+                                                itype=self.client_id,
+                                                seconds=seconds,
+                                                result='N' if error_flag else 'Y')
+        # 返回结果
         if len(result_array) == 0:
             log.warn(f"【{self.client_name}】{indexer.name} 未检索到数据")
             # 更新进度
             self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")
-            # 索引统计
-            self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
-                                                    itype=self.client_id,
-                                                    seconds=seconds,
-                                                    result='N'
-                                                    )
             return []
         else:
             log.warn(f"【{self.client_name}】{indexer.name} 返回数据：{len(result_array)}")
             # 更新进度
             self.progress.update(ptype='search', text=f"{indexer.name} 返回 {len(result_array)} 条数据")
-            # 索引统计
-            self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
-                                                    itype=self.client_id,
-                                                    seconds=seconds,
-                                                    result='Y'
-                                                    )
             # 过滤
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
@@ -184,20 +175,41 @@ class BuiltinIndexer(_IIndexClient):
         indexer: IndexerConf = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
+
+        # 计算耗时
+        start_time = datetime.datetime.now()
+
         if indexer.parser == "RenderSpider":
-            return RenderSpider().search(keyword=keyword,
-                                         indexer=indexer,
-                                         page=page)
+            error_flag, result_array = RenderSpider().search(keyword=keyword,
+                                                             indexer=indexer,
+                                                             page=page)
         elif indexer.parser == "TNodeSpider":
-            return TNodeSpider(indexer=indexer).search(keyword=keyword, page=page)
-        return self.__spider_search(indexer=indexer,
-                                    page=page,
-                                    keyword=keyword)
+            error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=keyword,
+                                                                           page=page)
+        else:
+            error_flag, result_array = self.__spider_search(indexer=indexer,
+                                                            page=page,
+                                                            keyword=keyword)
+        # 索引花费的时间
+        seconds = round((datetime.datetime.now() - start_time).seconds, 1)
+
+        # 索引统计
+        self.dbhelper.insert_indexer_statistics(indexer=indexer.name,
+                                                itype=self.client_id,
+                                                seconds=seconds,
+                                                result='N' if error_flag else 'Y')
+        return result_array
 
     @staticmethod
     def __spider_search(indexer, keyword=None, page=None, mtype=None, timeout=30):
         """
         根据关键字搜索单个站点
+        :param: indexer: 站点配置
+        :param: keyword: 关键字
+        :param: page: 页码
+        :param: mtype: 媒体类型
+        :param: timeout: 超时时间
+        :return: 是否发生错误, 种子列表
         """
         spider = TorrentSpider()
         spider.setparam(indexer=indexer,
@@ -212,7 +224,11 @@ class BuiltinIndexer(_IIndexClient):
             time.sleep(1)
             if sleep_count > timeout:
                 break
-        # 返回数据
+        # 是否发生错误
+        result_flag = spider.is_error
+        # 种子列表
         result_array = spider.torrents_info_array.copy()
+        # 重置状态
         spider.torrents_info_array.clear()
-        return result_array
+
+        return result_flag, result_array
