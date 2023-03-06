@@ -65,7 +65,7 @@ class BuiltinIndexer(_IIndexClient):
             cookie = site.get("cookie")
             if not url or not cookie:
                 continue
-            render = False if not chrome_ok else None
+            render = False if not chrome_ok else site.get("chrome")
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=cookie,
                                                   ua=site.get("ua"),
