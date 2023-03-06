@@ -4773,7 +4773,7 @@ class WebAction:
         """
         dataset = [["indexer", "avg"]]
         result = self.dbhelper.get_indexer_statistics() or []
-        dataset.extend([[ret[0], ret[4]] for ret in result])
+        dataset.extend([[ret[0], round(ret[4], 1)] for ret in result])
         return {
             "code": 0,
             "data": [{
