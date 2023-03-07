@@ -127,11 +127,13 @@ class OpenSubtitles(_IPluginModule):
                         continue
                 # 季
                 if item_season \
-                        and str(subtitle.get('season').replace("Season", "").strip()) != str(item_season):
+                        and subtitle.get('season') \
+                        and int(subtitle.get('season').replace("Season", "").strip()) not in item_season:
                     continue
                 # 集
                 if item_episode \
-                        and str(subtitle.get('episode')) != str(item_episode):
+                        and subtitle.get('episode') \
+                        and int(subtitle.get('episode')) not in item_episode:
                     continue
                 # 字幕文件名
                 SubFileName = subtitle.get('description')
