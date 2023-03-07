@@ -812,9 +812,9 @@ def unidentification():
 @App.route('/mediafile', methods=['POST', 'GET'])
 @login_required
 def mediafile():
-    file_default_path = Config().get_config('media').get('file_default_path')
-    if file_default_path:
-        DirD = file_default_path
+    media_default_path = Config().get_config('media').get('media_default_path')
+    if media_default_path:
+        DirD = media_default_path
     else:
         download_dirs = Downloader().get_download_visit_dirs()
         if download_dirs:
@@ -1048,8 +1048,8 @@ def dirlist():
         in_dir = request.form.get('dir')
         ft = request.form.get("filter")
         if not in_dir:
-            file_default_path = Config().get_config('media').get('file_default_path')
-            in_dir = file_default_path if file_default_path else "/"
+            media_default_path = Config().get_config('media').get('media_default_path')
+            in_dir = media_default_path if media_default_path else "/"
         if in_dir == "/":
             if SystemUtils.get_system() == OsType.WINDOWS:
                 partitions = SystemUtils.get_windows_drives()
