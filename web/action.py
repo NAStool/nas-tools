@@ -216,6 +216,7 @@ class WebAction:
             "get_downloaders": self.__get_downloaders,
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
+            "media_path_scrap": self.__media_path_scrap
         }
 
     def action(self, cmd, data=None):
@@ -4012,6 +4013,17 @@ class WebAction:
             "bluray": False
         })
         return {"code": 0, "msg": "字幕下载任务已提交，正在后台运行。"}
+
+    @staticmethod
+    def __media_path_scrap(data):
+        """
+        刮削媒体文件夹或文件
+        """
+        # 触发字幕下载事件
+        EventManager().send_event(EventType.MediaScrapStart, {
+            "path": data.get("path")
+        })
+        return {"code": 0, "msg": "刮削任务已提交，正在后台运行。"}
 
     @staticmethod
     def __get_download_setting(data):

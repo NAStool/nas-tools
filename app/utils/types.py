@@ -126,6 +126,8 @@ class EventType(Enum):
     SourceFileDeleted = "sourcefile.deleted"
     # 媒件库文件被删除
     LibraryFileDeleted = "libraryfile.deleted"
+    # 刮削媒体信息
+    MediaScrapStart = "media.scrap.start"
 
 
 # 系统配置Key字典
