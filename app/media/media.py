@@ -79,7 +79,7 @@ class Media:
             self._search_tmdbweb = laboratory.get("search_tmdbweb")
 
     @staticmethod
-    def __compare_tmdb_names(file_name, tmdb_names):
+    def __compare_tmdb_names(file_name, tmdb_names, include=False):
         """
         比较文件名是否匹配，忽略大小写和特殊字符
         :param file_name: 识别的文件名或者种子名
@@ -94,6 +94,8 @@ class Media:
         for tmdb_name in tmdb_names:
             tmdb_name = StringUtils.handler_special_chars(tmdb_name).strip().upper()
             if file_name == tmdb_name:
+                return True
+            elif include and file_name in tmdb_name:
                 return True
         return False
 
@@ -253,7 +255,7 @@ class Media:
                             continue
                         index += 1
                         info, names = self.__search_tmdb_allnames(MediaType.MOVIE, movie.get("id"))
-                        if self.__compare_tmdb_names(file_media_name, names):
+                        if self.__compare_tmdb_names(file_media_name, names, True):
                             return info
                     else:
                         index += 1
