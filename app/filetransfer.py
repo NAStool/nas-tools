@@ -1124,11 +1124,11 @@ class FileTransfer:
         episode_title = self.media.get_episode_title(media)
         # 此处使用独立对象，避免影响语言
         en_title = Media().get_tmdb_en_title(media)
-        return {
+        media_format_dict = {
             "title": StringUtils.clear_file_name(media.title),
-            "en_title": StringUtils.clear_file_name(en_title),
-            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
-            "original_title": StringUtils.clear_file_name(media.original_title),
+            "en_title": StringUtils.clear_file_name(en_title, is_en=True),
+            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0], is_en=True),
+            "original_title": StringUtils.clear_file_name(media.original_title, is_en=True),
             "name": StringUtils.clear_file_name(media.get_name()),
             "year": media.year,
             "edition": media.get_edtion_string() or None,
@@ -1138,13 +1138,16 @@ class FileTransfer:
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,
             "tmdbid": media.tmdb_id,
-            "imdbid": media.imdb_id,
             "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
             "episode_title": StringUtils.clear_file_name(episode_title),
             "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
             "part": media.part
         }
+        for i in media_format_dict.keys():
+            if not media_format_dict[i]:
+                media_format_dict[i] = '\t'
+        return media_format_dict
 
     def get_moive_dest_path(self, media_info):
         """
@@ -1152,8 +1155,8 @@ class FileTransfer:
         :return: 电影目录、电影名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self._movie_dir_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self._movie_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*\t", "", self._movie_dir_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*\t", "", self._movie_file_rmt_format.format(**format_dict))
         return dir_name, file_name
 
     def get_tv_dest_path(self, media_info):
@@ -1162,9 +1165,9 @@ class FileTransfer:
         :return: 电视剧目录、季目录、集名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self._tv_dir_rmt_format.format(**format_dict))
-        season_name = re.sub(r"[-_\s.]*None", "", self._tv_season_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self._tv_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*\t", "", self._tv_dir_rmt_format.format(**format_dict))
+        season_name = re.sub(r"[-_\s.]*\t", "", self._tv_season_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*\t", "", self._tv_file_rmt_format.format(**format_dict))
         return dir_name, season_name, file_name
 
     def check_ignore(self, file_list):
