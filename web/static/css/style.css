@@ -158,3 +158,13 @@ body, .page {
 .select_logger h5{
     padding-right:5px
 }
+
+.table-modal-body {
+    max-height: 40rem;
+    min-height: 300px;
+    overflow-y: auto;
+}
+
+.table-page-body {
+    min-height: 300px;
+}
