@@ -407,7 +407,7 @@ class Scraper:
                 if scraper_tv_pic.get("background"):
                     background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
                     if background_image:
-                        self.__save_image(background_image, os.path.dirname(dir_path), "show", force_pic)
+                        self.__save_image(background_image, os.path.dirname(dir_path), "background", force_pic)
                 # logo
                 if scraper_tv_pic.get("logo"):
                     logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
