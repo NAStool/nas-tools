@@ -119,7 +119,7 @@ class MediaDb:
             item = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
                                                              MEDIASYNCITEMS.TITLE == title).first()
         if item:
-            if tmdbid and (not item.TMDBID or item.TMDBID == str(tmdbid)):
+            if tmdbid and (not item.TMDBID or item.TMDBID != str(tmdbid)):
                 return {}
         return item
 

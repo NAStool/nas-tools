@@ -29,8 +29,8 @@ class Scraper:
                          doubaninfo: dict,
                          doc,
                          root,
-                         chinese=False):
-        if self._scraper_nfo.get("basic"):
+                         scraper_nfo: dict):
+        if scraper_nfo.get("basic"):
             # 添加时间
             DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
             # TMDB
@@ -58,10 +58,10 @@ class Scraper:
             xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
             xoutline = DomUtils.add_node(doc, root, "outline")
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
-        if self._scraper_nfo.get("credits"):
+        if scraper_nfo.get("credits"):
             # 导演
             directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo=tmdbinfo)
-            if chinese:
+            if scraper_nfo.get("credits_chinese"):
                 directors, actors = self.__gen_people_chinese_info(directors, actors, doubaninfo)
             for director in directors:
                 xdirector = DomUtils.add_node(doc, root, "director", director.get("name") or "")
@@ -76,7 +76,7 @@ class Scraper:
                 DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
                 DomUtils.add_node(doc, xactor, "thumb", actor.get('image'))
                 DomUtils.add_node(doc, xactor, "profile", actor.get('profile'))
-        if self._scraper_nfo.get("basic"):
+        if scraper_nfo.get("basic"):
             # 风格
             genres = tmdbinfo.get("genres") or []
             for genre in genres:
@@ -108,7 +108,7 @@ class Scraper:
                                     doubaninfo=doubaninfo,
                                     doc=doc,
                                     root=root,
-                                    chinese=scraper_movie_nfo.get("credits_chinese"))
+                                    scraper_nfo=scraper_movie_nfo)
         # 基础部分
         if scraper_movie_nfo.get("basic"):
             # 标题
@@ -143,7 +143,7 @@ class Scraper:
                                     doubaninfo=doubaninfo,
                                     doc=doc,
                                     root=root,
-                                    chinese=scraper_tv_nfo.get("credits_chinese"))
+                                    scraper_nfo=scraper_tv_nfo)
         if scraper_tv_nfo.get("basic"):
             # 标题
             DomUtils.add_node(doc, root, "title", tmdbinfo.get("name") or "")
@@ -392,7 +392,10 @@ class Scraper:
                         else:
                             doubaninfo = None
                         # 根目录描述文件
-                        self.__gen_tv_nfo_file(media.tmdb_info, doubaninfo, scraper_tv_nfo, os.path.dirname(dir_path))
+                        self.__gen_tv_nfo_file(tmdbinfo=media.tmdb_info,
+                                               doubaninfo=doubaninfo,
+                                               scraper_tv_nfo=scraper_tv_nfo,
+                                               out_path=os.path.dirname(dir_path))
                 # poster
                 if scraper_tv_pic.get("poster"):
                     poster_image = media.get_poster_image(original=True)
@@ -407,7 +410,7 @@ class Scraper:
                 if scraper_tv_pic.get("background"):
                     background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
                     if background_image:
-                        self.__save_image(background_image, os.path.dirname(dir_path), "show", force_pic)
+                        self.__save_image(background_image, os.path.dirname(dir_path), "background", force_pic)
                 # logo
                 if scraper_tv_pic.get("logo"):
                     logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
