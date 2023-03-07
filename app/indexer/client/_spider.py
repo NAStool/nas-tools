@@ -191,7 +191,8 @@ class TorrentSpider(feapder.AirSpider):
                 # 查询参数
                 params = {
                     "search_mode": search_mode,
-                    "page": self.page or 0
+                    "page": self.page or 0,
+                    "notnewword": 1
                 }
                 # 额外参数
                 for key, value in self.search.get("params").items():
