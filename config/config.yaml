@@ -93,6 +93,8 @@ media:
   tv_name_format: "{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集"
   # 【刮削元数据及图片】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
   nfo_poster: false
+  # 文件管理、自定义识别等默认路径
+  media_default_path:
 
 # 配置Emby服务器信息
 emby:
