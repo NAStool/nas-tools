@@ -256,6 +256,15 @@
                   </select>
                 </div>
               </div>
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">文件管理默认路径 <span class="form-help"
+                                                               title="文件管理、自定义识别等默认路径"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.file_default_path or '' }}" class="form-control" id="media.file_default_path"
+                         placeholder="/" autocomplete="off">
+                </div>
+              </div>
             </div>
             <div class="row">
               <div class="col-lg">
