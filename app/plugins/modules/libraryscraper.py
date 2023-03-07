@@ -8,7 +8,10 @@ from apscheduler.triggers.cron import CronTrigger
 
 import log
 from app.media import Media, Scraper
+from app.media.meta import MetaInfo
 from app.plugins.modules._base import _IPluginModule
+from app.utils import NfoReader
+from app.utils.types import MediaType
 from config import Config, RMT_MEDIAEXT
 
 
@@ -161,17 +164,41 @@ class LibraryScraper(_IPluginModule):
                         return
                     if not file:
                         continue
-                    medias = self._media.get_media_info_on_files(file_list=[file],
-                                                                 append_to_response="all")
-                    if not medias:
-                        continue
-                    media_info = None
-                    for _, media in medias.items():
-                        media_info = media
-                        break
+                    log.info(f"【Plugin】开始刮削媒体库文件：{file}")
+                    # 识别媒体文件
+                    meta_info = MetaInfo(os.path.basename(file))
+                    # 优先读取本地文件
+                    tmdbid = None
+                    if meta_info.type == MediaType.MOVIE:
+                        # 电影
+                        movie_nfo = os.path.join(os.path.dirname(file), "movie.nfo")
+                        if os.path.exists(movie_nfo):
+                            tmdbid = self.__get_tmdbid_from_nfo(movie_nfo)
+                        file_nfo = os.path.join(os.path.splitext(file)[0] + ".nfo")
+                        if not tmdbid and os.path.exists(file_nfo):
+                            tmdbid = self.__get_tmdbid_from_nfo(file_nfo)
+                    else:
+                        # 电视剧
+                        tv_nfo = os.path.join(os.path.dirname(os.path.dirname(file)), "tvshow.nfo")
+                        if os.path.exists(tv_nfo):
+                            tmdbid = self.__get_tmdbid_from_nfo(tv_nfo)
+                    if tmdbid:
+                        log.info(f"【Plugin】读取到本地nfo文件的tmdbid：{tmdbid}")
+                        meta_info.set_tmdb_info(self._media.get_tmdb_info(mtype=meta_info.type,
+                                                                          tmdbid=tmdbid,
+                                                                          append_to_response='all'))
+                        media_info = meta_info
+                    else:
+                        medias = self._media.get_media_info_on_files(file_list=[file],
+                                                                     append_to_response="all")
+                        if not medias:
+                            continue
+                        media_info = None
+                        for _, media in medias.items():
+                            media_info = media
+                            break
                     if not media_info or not media_info.tmdb_info:
                         continue
-                    log.info(f"【Plugin】开始刮削媒体库文件：{file}")
                     self._scraper.gen_scraper_files(media=media_info,
                                                     dir_path=os.path.dirname(file),
                                                     file_name=os.path.splitext(os.path.basename(file))[0],
@@ -195,6 +222,31 @@ class LibraryScraper(_IPluginModule):
                     if os.path.splitext(file)[-1].lower() not in RMT_MEDIAEXT:
                         continue
                     yield cur_path
+
+    @staticmethod
+    def __get_tmdbid_from_nfo(file_path):
+        """
+        从nfo文件中获取信息
+        :param file_path:
+        :return: tmdbid
+        """
+        if not file_path:
+            return None
+        xpaths = [
+            "uniqueid[@type='Tmdb']",
+            "uniqueid[@type='tmdb']",
+            "uniqueid[@type='TMDB']",
+            "tmdbid"
+        ]
+        reader = NfoReader(file_path)
+        for xpath in xpaths:
+            try:
+                tmdbid = reader.get_element_value(xpath)
+                if tmdbid:
+                    return tmdbid
+            except Exception as err:
+                print(str(err))
+        return None
 
     def stop_service(self):
         """
