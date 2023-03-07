@@ -348,6 +348,14 @@ class ModuleConf(object):
                         "title": "令牌",
                         "tooltip": "在Chanify客户端频道中获取",
                         "type": "text"
+                    },
+                    "params": {
+                        "id": "chanify_params",
+                        "required": False,
+                        "title": "附加参数",
+                        "tooltip": "添加到Chanify通知中的附加参数，可用于自定义通知特性",
+                        "type": "text",
+                        "placeholder": "sound=0&interruption-level=active"
                     }
                 }
             },
