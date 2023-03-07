@@ -215,6 +215,8 @@ class WebAction:
             "check_downloader": self.__check_downloader,
             "get_downloaders": self.__get_downloaders,
             "test_downloader": self.__test_downloader,
+            "get_indexer_statistics": self.__get_indexer_statistics,
+            "media_path_scrap": self.__media_path_scrap
         }
 
     def action(self, cmd, data=None):
@@ -4013,6 +4015,17 @@ class WebAction:
         return {"code": 0, "msg": "字幕下载任务已提交，正在后台运行。"}
 
     @staticmethod
+    def __media_path_scrap(data):
+        """
+        刮削媒体文件夹或文件
+        """
+        # 触发字幕下载事件
+        EventManager().send_event(EventType.MediaScrapStart, {
+            "path": data.get("path")
+        })
+        return {"code": 0, "msg": "刮削任务已提交，正在后台运行。"}
+
+    @staticmethod
     def __get_download_setting(data):
         sid = data.get("sid")
         if sid:
@@ -4765,3 +4778,22 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
+
+    def __get_indexer_statistics(self, data=None):
+        """
+        获取索引器统计数据
+        """
+        dataset = [["indexer", "avg"]]
+        result = self.dbhelper.get_indexer_statistics() or []
+        dataset.extend([[ret[0], round(ret[4], 1)] for ret in result])
+        return {
+            "code": 0,
+            "data": [{
+                "name": ret[0],
+                "total": ret[1],
+                "fail": ret[2],
+                "success": ret[3],
+                "avg": round(ret[4], 1),
+            } for ret in result],
+            "dataset": dataset
+        }

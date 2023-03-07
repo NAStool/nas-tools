@@ -525,6 +525,20 @@ class TRANSFERHISTORY(Base):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
+class INDEXERSTATISTICS(Base):
+    __tablename__ = 'INDEXER_STATISTICS'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    INDEXER = Column(Text)
+    TYPE = Column(Text)
+    SECONDS = Column(Integer)
+    RESULT = Column(Text)
+    DATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
 class TRANSFERUNKNOWN(Base):
     __tablename__ = 'TRANSFER_UNKNOWN'
 

@@ -188,7 +188,6 @@ class Scraper:
         self.__save_nfo(doc, os.path.join(out_path, "season.nfo"))
 
     def __gen_tv_episode_nfo_file(self,
-                                  tmdbid,
                                   seasoninfo: dict,
                                   scraper_tv_nfo,
                                   season: int,
@@ -197,7 +196,6 @@ class Scraper:
                                   file_name):
         """
         生成电视剧集的NFO描述文件
-        :param tmdbid: TMDB ID
         :param seasoninfo: TMDB元数据
         :param scraper_tv_nfo: 刮削配置
         :param season: 季号
@@ -220,11 +218,11 @@ class Scraper:
             # 添加时间
             DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
             # TMDBID
-            uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbid or "")
+            uniqueid = DomUtils.add_node(doc, root, "uniqueid", episode_detail.get("id") or "")
             uniqueid.setAttribute("type", "tmdb")
             uniqueid.setAttribute("default", "true")
             # tmdbid
-            DomUtils.add_node(doc, root, "tmdbid", tmdbid or "")
+            DomUtils.add_node(doc, root, "tmdbid", episode_detail.get("id") or "")
             # 标题
             DomUtils.add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
             # 简介
@@ -449,8 +447,7 @@ class Scraper:
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:
-                            self.__gen_tv_episode_nfo_file(tmdbid=media.tmdb_id,
-                                                           seasoninfo=seasoninfo,
+                            self.__gen_tv_episode_nfo_file(seasoninfo=seasoninfo,
                                                            scraper_tv_nfo=scraper_tv_nfo,
                                                            season=int(media.get_season_seq()),
                                                            episode=int(media.get_episode_seq()),

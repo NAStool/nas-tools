@@ -48,6 +48,8 @@ class TorrentSpider(feapder.AirSpider):
     )
     # 是否检索完成标志
     is_complete = False
+    # 是否出现错误
+    is_error = False
     # 索引器ID
     indexerid = None
     # 索引器名称
@@ -84,7 +86,9 @@ class TorrentSpider(feapder.AirSpider):
     page = 0
     # 检索条数
     result_num = 100
+    # 单个种子信息
     torrents_info = {}
+    # 种子列表
     torrents_info_array = []
 
     def setparam(self, indexer,
@@ -624,6 +628,7 @@ class TorrentSpider(feapder.AirSpider):
             # 获取站点文本
             html_text = response.extract()
             if not html_text:
+                self.is_error = True
                 self.is_complete = True
                 return
             # 解析站点文本对象
@@ -653,6 +658,7 @@ class TorrentSpider(feapder.AirSpider):
                     break
 
         except Exception as err:
+            self.is_error = True
             ExceptionUtils.exception_traceback(err)
             log.warn("【Spider】错误：%s" % str(err))
         finally:

@@ -49,7 +49,7 @@ class TNodeSpider(object):
     def search(self, keyword, page=0):
         if not self._token:
             log.warn(f"【INDEXER】{self._name} 未获取到token，无法搜索")
-            return []
+            return True, []
         params = {
             "page": int(page) + 1,
             "size": self._size,
@@ -97,8 +97,8 @@ class TNodeSpider(object):
                 torrents.append(torrent)
         elif res is not None:
             log.warn(f"【INDEXER】{self._name} 搜索失败，错误码：{res.status_code}")
-            return []
+            return True, []
         else:
             log.warn(f"【INDEXER】{self._name} 搜索失败，无法连接 {self._domain}")
-            return []
-        return torrents
+            return True, []
+        return False, torrents

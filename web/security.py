@@ -1,6 +1,9 @@
 import base64
 import datetime
 import hashlib
+import hmac
+import json
+import os
 from functools import wraps
 
 from Crypto.Cipher import AES
@@ -174,3 +177,30 @@ def aes_encrypt(data, key):
     result = cipher.encrypt(data.encode('utf-8'))
     # 使用base64编码
     return b64encode(cipher.iv + result).decode('utf-8')
+
+
+def nexusphp_encrypt(data: dict, key):
+    """
+    NexusPHP加密
+    """
+    # 生成16字节长的随机字符串
+    iv = os.urandom(16)
+    # 对向量进行 Base64 编码
+    iv_base64 = base64.b64encode(iv)
+    # 加密数据
+    data_str = json.dumps(data)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher.encrypt(pad(data_str.encode(), AES.block_size))
+    ciphertext_base64 = base64.b64encode(ciphertext)
+    # 对向量的字符串表示进行签名
+    mac = hmac.new(key, msg=iv_base64 + ciphertext_base64, digestmod=hashlib.sha256).hexdigest()
+    # 构造 JSON 字符串
+    json_str = json.dumps({
+        'iv': iv_base64.decode(),
+        'value': ciphertext_base64.decode(),
+        'mac': mac,
+        'tag': ''
+    })
+
+    # 对 JSON 字符串进行 Base64 编码
+    return base64.b64encode(json_str.encode()).decode()
