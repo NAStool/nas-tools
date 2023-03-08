@@ -4805,12 +4805,11 @@ class WebAction:
         获取用户信息并发送消息
         """
         statistics = SiteUserInfo().get_site_user_statistics(encoding="RAW")
-        string_list = ["【{name}】{upload}↾ {download}⇂ 做种{seeding}体积{seeding_size}"
-                       .format(name=site.SITE,
-                               upload=StringUtils.str_filesize(site.UPLOAD),
-                               download=StringUtils.str_filesize(site.DOWNLOAD),
-                               seeding=site.SEEDING,
-                               seeding_size=StringUtils.str_filesize(site.SEEDING_SIZE)
-                               )
-                       for site in statistics]
+        string_list = [f"【{site.SITE}】\n"
+                       f"上传量：{StringUtils.str_filesize(site.UPLOAD)}\n"
+                       f"下载量：{StringUtils.str_filesize(site.DOWNLOAD)}\n"
+                       f"做种数：{site.SEEDING}\n"
+                       f"做种体积：{StringUtils.str_filesize(site.SEEDING_SIZE)}"
+                       f"\n{'————————————' if i != len(statistics) - 1 else ''}"
+                       for i, site in enumerate(statistics)]
         Message().send_user_statistics_message(string_list)
