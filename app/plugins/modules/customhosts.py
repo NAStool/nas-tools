@@ -42,15 +42,30 @@ class CustomHosts(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '',
+                            'title': '系统hosts',
                             'required': False,
-                            'tooltip': '',
+                            'tooltip': '默认读取系统原有hosts文件，修改会覆盖系统hosts文件。正确的hosts会被写入文件，错误的hosts会在下方展示，请修改后重新提交。',
                             'type': 'textarea',
                             'content':
                                 {
                                     'id': 'hosts',
-                                    'placeholder': '默认读取系统原有hosts文件，修改会覆盖系统hosts设置',
+                                    'placeholder': '默认读取系统原有hosts文件，修改会覆盖系统hosts文件',
                                     'rows': 20,
+                                }
+                        }
+                    ],
+                    [
+                        {
+                            'title': '错误hosts',
+                            'required': False,
+                            'tooltip': '错误的hosts配置会展示在此处，请修改上方hosts，重新提交。（错误的hosts不会写入系统hosts文件）',
+                            'type': 'textarea',
+                            'readonly': True,
+                            'content':
+                                {
+                                    'id': 'err_hosts',
+                                    'placeholder': '错误的hosts配置会展示在此处，请修改上方hosts，重新提交',
+                                    'rows': 3,
                                 }
                         }
                     ]
@@ -79,6 +94,8 @@ class CustomHosts(_IPluginModule):
                 flush_config = True
                 # 新的hosts
                 new_hosts = []
+                # 错误的hosts
+                err_hosts = []
                 for host in self._hosts:
                     if not host:
                         continue
@@ -90,6 +107,7 @@ class CustomHosts(_IPluginModule):
                         new_hosts.append(new_entry)
                     except Exception as err:
                         flush_config = False
+                        err_hosts.append(host)
                         log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
 
                 # 没有错误再写入hosts
@@ -100,6 +118,12 @@ class CustomHosts(_IPluginModule):
                     system_hosts.add(new_hosts)
                     system_hosts.write()
                     log.info("【Plugin】更新系统hosts文件成功")
+
+                # 更新配置
+                self.update_config({
+                    "hosts": config.get("hosts"),
+                    "err_hosts": err_hosts
+                })
         # 没有配置
         else:
             self._hosts = []
@@ -114,7 +138,7 @@ class CustomHosts(_IPluginModule):
             self.update_config({
                 "hosts": self._hosts
             })
-            log.info("【Plugin】数据库与hosts文件版本不一致，获取系统hosts更新入数据库")
+            log.info("【Plugin】hosts初始化成功")
 
     def get_state(self):
         return self._hosts
