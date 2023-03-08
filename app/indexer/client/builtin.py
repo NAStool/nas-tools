@@ -5,6 +5,7 @@ import time
 import log
 from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper, DbHelper
 from app.indexer.client._base import _IIndexClient
+from app.indexer.client._torrentleech import TorrentLeech
 from app.indexer.client._render_spider import RenderSpider
 from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
@@ -127,7 +128,10 @@ class BuiltinIndexer(_IIndexClient):
         # 开始索引
         result_array = []
         try:
-            if indexer.parser == "TNodeSpider":
+            if indexer.id == "torrentleech":
+                error_flag, result_array = TorrentLeech(indexer=indexer).search(keyword=search_word,
+                                                                                mtype=match_media.type if match_media else None)
+            elif indexer.parser == "TNodeSpider":
                 error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
             elif indexer.parser == "RenderSpider":
                 error_flag, result_array = RenderSpider().search(keyword=search_word,
@@ -179,7 +183,10 @@ class BuiltinIndexer(_IIndexClient):
         # 计算耗时
         start_time = datetime.datetime.now()
 
-        if indexer.parser == "RenderSpider":
+        if indexer.id == "torrentleech":
+            error_flag, result_array = TorrentLeech(indexer=indexer).search(keyword=keyword,
+                                                                            page=page)
+        elif indexer.parser == "RenderSpider":
             error_flag, result_array = RenderSpider().search(keyword=keyword,
                                                              indexer=indexer,
                                                              page=page)
