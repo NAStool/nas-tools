@@ -653,7 +653,7 @@
           <div class="col-lg-12" id="rename_episode_div">
             <div class="mb-3">
               <label class="form-label">集数定位 <span class="form-help"
-                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
+                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高(指定具体集数的场景)。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
                                                        data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
               <div class="row">
                 <div class="col-4">
@@ -2048,13 +2048,6 @@
       return;
     } else {
       $("#rename_episode_offset").removeClass("is-invalid");
-    }
-
-    if ((episode_details || episode_offset) && !episode_format) {
-      $("#rename_episode").addClass("is-invalid");
-      return;
-    } else {
-      $("#rename_episode").removeClass("is-invalid");
     }
 
     // 开始处理
