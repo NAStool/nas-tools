@@ -7,7 +7,7 @@ from app.message import Message
 from app.downloader import Downloader
 from app.media import Media
 from app.helper import ProgressHelper
-from app.utils.types import SearchType, EventType
+from app.utils.types import SearchType, EventType, ProgressKey
 
 
 class Searcher:
@@ -85,7 +85,7 @@ class Searcher:
         if not media_info:
             return None, {}, 0, 0
         # 进度计数重置
-        self.progress.start('search')
+        self.progress.start(ProgressKey.Search)
         # 查找的季
         if media_info.begin_season is None:
             search_season = None

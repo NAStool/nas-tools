@@ -9,7 +9,7 @@ from app.media import Media
 from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaServerType, MovieTypes, SystemConfigKey
+from app.utils.types import MediaServerType, MovieTypes, SystemConfigKey, ProgressKey
 from app.utils.types import MediaType
 from config import Config
 
@@ -191,8 +191,8 @@ class MediaServer:
         with lock:
             # 开始进度条
             log.info("【MediaServer】开始同步媒体库数据...")
-            self.progress.start("mediasync")
-            self.progress.update(ptype="mediasync", text="请稍候...")
+            self.progress.start(ProgressKey.MediaSync)
+            self.progress.update(ptype=ProgressKey.MediaSync, text="请稍候...")
             # 获取需同步的媒体库
             librarys = self.systemconfig.get_system_config(SystemConfigKey.SyncLibrary) or []
             # 汇总统计
@@ -207,7 +207,7 @@ class MediaServer:
                 if str(library.get("id")) not in librarys:
                     continue
                 # 获取媒体库所有项目
-                self.progress.update(ptype="mediasync",
+                self.progress.update(ptype=ProgressKey.MediaSync,
                                      text="正在获取 %s 数据..." % (library.get("name")))
                 for item in self.get_items(library.get("id")):
                     if not item:
@@ -221,7 +221,7 @@ class MediaServer:
                         tv_count += 1
                         # 查询剧集信息
                         seasoninfo = self.get_tv_episodes(item.get("id"))
-                    self.progress.update(ptype="mediasync",
+                    self.progress.update(ptype=ProgressKey.MediaSync,
                                          text="正在同步 %s，已完成：%s / %s ..." % (
                                              library.get("name"), total_count, total_media_count),
                                          value=round(100 * total_count / total_media_count, 1))
@@ -236,10 +236,10 @@ class MediaServer:
                                     movie_count=movie_count,
                                     tv_count=tv_count)
             # 结束进度条
-            self.progress.update(ptype="mediasync",
+            self.progress.update(ptype=ProgressKey.MediaSync,
                                  value=100,
                                  text="媒体库数据同步完成，同步数量：%s" % total_count)
-            self.progress.end("mediasync")
+            self.progress.end(ProgressKey.MediaSync)
             log.info("【MediaServer】媒体库数据同步完成，同步数量：%s" % total_count)
 
     def check_item_exists(self,

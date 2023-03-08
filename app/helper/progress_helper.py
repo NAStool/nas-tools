@@ -1,4 +1,7 @@
+from enum import Enum
+
 from app.utils.commons import singleton
+from app.utils.types import ProgressKey
 
 
 @singleton
@@ -11,23 +14,31 @@ class ProgressHelper(object):
     def init_config(self):
         pass
 
-    def reset(self, ptype="search"):
+    def __reset(self, ptype=ProgressKey.Search):
+        if isinstance(ptype, Enum):
+            ptype = ptype.value
         self._process_detail[ptype] = {
             "enable": False,
             "value": 0,
             "text": "请稍候..."
         }
 
-    def start(self, ptype="search"):
-        self.reset(ptype)
+    def start(self, ptype=ProgressKey.Search):
+        self.__reset(ptype)
+        if isinstance(ptype, Enum):
+            ptype = ptype.value
         self._process_detail[ptype]['enable'] = True
 
-    def end(self, ptype="search"):
+    def end(self, ptype=ProgressKey.Search):
+        if isinstance(ptype, Enum):
+            ptype = ptype.value
         if not self._process_detail.get(ptype):
             return
         self._process_detail[ptype]['enable'] = False
 
-    def update(self, value=None, text=None, ptype="search"):
+    def update(self, value=None, text=None, ptype=ProgressKey.Search):
+        if isinstance(ptype, Enum):
+            ptype = ptype.value
         if not self._process_detail.get(ptype, {}).get('enable'):
             return
         if value:
@@ -35,5 +46,7 @@ class ProgressHelper(object):
         if text:
             self._process_detail[ptype]['text'] = text
 
-    def get_process(self, ptype="search"):
+    def get_process(self, ptype=ProgressKey.Search):
+        if isinstance(ptype, Enum):
+            ptype = ptype.value
         return self._process_detail.get(ptype)

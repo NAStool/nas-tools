@@ -10,7 +10,7 @@ from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
 from app.sites import Sites
 from app.utils import StringUtils
-from app.utils.types import SearchType, IndexerType
+from app.utils.types import SearchType, IndexerType, ProgressKey
 from config import Config
 
 
@@ -152,12 +152,12 @@ class BuiltinIndexer(_IIndexClient):
         if len(result_array) == 0:
             log.warn(f"【{self.client_name}】{indexer.name} 未检索到数据")
             # 更新进度
-            self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")
+            self.progress.update(ptype=ProgressKey.Search, text=f"{indexer.name} 未检索到数据")
             return []
         else:
             log.warn(f"【{self.client_name}】{indexer.name} 返回数据：{len(result_array)}")
             # 更新进度
-            self.progress.update(ptype='search', text=f"{indexer.name} 返回 {len(result_array)} 条数据")
+            self.progress.update(ptype=ProgressKey.Search, text=f"{indexer.name} 返回 {len(result_array)} 条数据")
             # 过滤
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
