@@ -1210,7 +1210,7 @@ class DbHelper:
                               func.substr(TRANSFERHISTORY.DATE, 1, 10),
                               func.count('*')
                               ).filter(TRANSFERHISTORY.DATE > begin_date).group_by(
-            func.substr(TRANSFERHISTORY.DATE, 1, 10)
+            TRANSFERHISTORY.TYPE, func.substr(TRANSFERHISTORY.DATE, 1, 10)
         ).order_by(TRANSFERHISTORY.DATE).all()
 
     @DbPersist(_db)
