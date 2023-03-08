@@ -107,7 +107,7 @@ class CustomHosts(_IPluginModule):
                         new_hosts.append(new_entry)
                     except Exception as err:
                         flush_config = False
-                        err_hosts.append(host)
+                        err_hosts.append(host + "\n")
                         log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
 
                 # 没有错误再写入hosts
