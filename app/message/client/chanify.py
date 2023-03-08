@@ -9,6 +9,7 @@ class Chanify(_IMessageClient):
 
     _server = None
     _token = None
+    _params = None
     _client_config = {}
 
     def __init__(self, config):
@@ -19,6 +20,7 @@ class Chanify(_IMessageClient):
         if self._client_config:
             self._server = StringUtils.get_base_url(self._client_config.get('server'))
             self._token = self._client_config.get('token')
+            self._params = self._client_config.get('params')
 
     @classmethod
     def match(cls, ctype):
@@ -26,7 +28,7 @@ class Chanify(_IMessageClient):
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
-        发送Bark消息
+        发送Chanify消息
         :param title: 消息标题
         :param text: 消息内容
         :param image: 未使用
@@ -40,12 +42,11 @@ class Chanify(_IMessageClient):
             if not self._server or not self._token:
                 return False, "参数未配置"
             sc_url = "%s/v1/sender/%s" % (self._server, self._token)
+            params = parse.parse_qs(self._params or '')
+            data = {key: value[0] for key, value in params.items()}
+            data.update({'title': title, 'text': text})
             # 发送文本
-            data = parse.urlencode({
-                    'title': title,
-                    'text': text
-                 }).encode()
-            res = RequestUtils().post_res(sc_url, data=data)
+            res = RequestUtils().post_res(sc_url, data=parse.urlencode(data).encode())
             if res:
                 if res.status_code == 200:
                     return True, "发送成功"

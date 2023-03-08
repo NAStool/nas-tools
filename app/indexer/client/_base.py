@@ -6,7 +6,7 @@ from app.filter import Filter
 from app.helper import ProgressHelper
 from app.media import Media
 from app.media.meta import MetaInfo
-from app.utils.types import MediaType, SearchType
+from app.utils.types import MediaType, SearchType, ProgressKey
 
 
 class _IIndexClient(metaclass=ABCMeta):
@@ -230,6 +230,6 @@ class _IIndexClient(metaclass=ABCMeta):
         end_time = datetime.datetime.now()
         log.info(
             f"【{self.client_name}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
-        self.progress.update(ptype='search',
+        self.progress.update(ptype=ProgressKey.Search,
                              text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array

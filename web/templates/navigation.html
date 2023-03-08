@@ -296,7 +296,7 @@
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
       </div>
-      <div id="logging_table" class="table-responsive" style="overflow-y: auto; max-height: 60rem;">
+      <div id="logging_table" class="table-responsive table-modal-body">
       <table class="table table-vcenter card-table table-hover table-striped">
         <thead>
           <tr>
@@ -1811,7 +1811,7 @@
     if (on_folders === undefined) on_folders = true;
     if (on_files === undefined) on_files = true;
     if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
-    if (!root.trim()) root = "/";
+    if (!root.trim()) root = "";
     let p = $(el);
     // Skip is fileTree is already open
     if (p.next().hasClass('fileTree')) return null;

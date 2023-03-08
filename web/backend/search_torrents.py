@@ -11,7 +11,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import StringUtils, Torrent
-from app.utils.types import SearchType, IndexerType
+from app.utils.types import SearchType, IndexerType, ProgressKey
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -38,7 +38,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         mtype = media_type
     # 开始进度
     search_process = ProgressHelper()
-    search_process.start('search')
+    search_process.start(ProgressKey.Search)
     # 识别媒体
     media_info = None
     if ident_flag:
@@ -138,8 +138,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and len(media_list) == 0 \
             and second_search_name \
             and second_search_name != first_search_name:
-        search_process.start('search')
-        search_process.update(ptype='search',
+        search_process.start(ProgressKey.Search)
+        search_process.update(ptype=ProgressKey.Search,
                               text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
@@ -150,7 +150,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     dbhepler = DbHelper()
     dbhepler.delete_all_search_torrents()
     # 结束进度
-    search_process.end('search')
+    search_process.end(ProgressKey.Search)
     if len(media_list) == 0:
         log.info("【Web】%s 未检索到任何资源" % content)
         return 1, "%s 未检索到任何资源" % content

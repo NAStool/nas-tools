@@ -148,6 +148,18 @@ class SystemConfigKey(Enum):
     DefaultDownloadSetting = "DefaultDownloadSetting"
 
 
+# 处理进度Key字典
+class ProgressKey(Enum):
+    # 搜索
+    Search = "search"
+    # 转移
+    FileTransfer = "filetransfer"
+    # 媒体库同步
+    MediaSync = "mediasync"
+    # 站点Cookie获取
+    SiteCookie = "sitecookie"
+
+
 # 电影类型关键字
 MovieTypes = ['MOV', '电影', MediaType.MOVIE]
 # 电视剧类型关键字
