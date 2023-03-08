@@ -149,6 +149,12 @@ class RequestUtils:
 
     @staticmethod
     def cookie_parse(cookies_str, array=False):
+        """
+        解析cookie，转化为字典或者数组
+        :param cookies_str: cookie字符串
+        :param array: 是否转化为数组
+        :return: 字典或者数组
+        """
         if not cookies_str:
             return {}
         cookie_dict = {}
