@@ -2120,10 +2120,10 @@ class DbHelper:
         if not media_info:
             return False
         count = self._db.query(RSSHISTORY).filter(
-            TYPE="MOV" if media_info.type == MediaType.MOVIE else "TV",
-            NAME=media_info.title,
-            YEAR=media_info.year,
-            SEASON=media_info.get_season_string()).count()
+            RSSHISTORY.TYPE == "MOV" if media_info.type == MediaType.MOVIE else "TV",
+            RSSHISTORY.NAME == media_info.title,
+            RSSHISTORY.YEAR == media_info.year,
+            RSSHISTORY.SEASON == media_info.get_season_string()).count()
         if count > 0:
             return True
         else:
