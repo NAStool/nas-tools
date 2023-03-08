@@ -329,7 +329,8 @@ class WebAction:
             "/tbl": {"func": WebAction().truncate_blacklist, "desp": "清理转移缓存"},
             "/trh": {"func": WebAction().truncate_rsshistory, "desp": "清理RSS缓存"},
             "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
-            "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
+            "/udt": {"func": WebAction().update_system, "desp": "系统更新"},
+            "/sta": {"func": WebAction().user_statistics, "desp": "数据统计"}
         }
 
         # 触发事件
@@ -4797,3 +4798,19 @@ class WebAction:
             } for ret in result],
             "dataset": dataset
         }
+
+    @staticmethod
+    def user_statistics():
+        """
+        获取用户信息并发送消息
+        """
+        statistics = SiteUserInfo().get_site_user_statistics(encoding="RAW")
+        string_list = ["【{name}】{upload}↾ {download}⇂ 做种{seeding}体积{seeding_size}"
+                       .format(name=site.SITE,
+                               upload=StringUtils.str_filesize(site.UPLOAD),
+                               download=StringUtils.str_filesize(site.DOWNLOAD),
+                               seeding=site.SEEDING,
+                               seeding_size=StringUtils.str_filesize(site.SEEDING_SIZE)
+                               )
+                       for site in statistics]
+        Message().send_user_statistics_message(string_list)

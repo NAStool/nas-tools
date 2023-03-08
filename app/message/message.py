@@ -611,3 +611,22 @@ class Message(object):
         return [info.get("search_type")
                 for info in ModuleConf.MESSAGE_CONF.get('client').values()
                 if info.get('search_type')]
+
+    def send_user_statistics_message(self, msgs: list):
+        """
+        发送数据统计消息
+        """
+        if not msgs:
+            return
+        title = "数据统计"
+        text = "\n".join(msgs)
+        # 插入消息中心
+        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 发送消息
+        for client in self._active_clients:
+            if "custom_message" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text
+                )
