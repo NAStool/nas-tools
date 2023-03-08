@@ -1,3 +1,4 @@
+import json
 import os
 
 from python_hosts import Hosts, HostsEntry
@@ -64,49 +65,54 @@ class CustomHosts(_IPluginModule):
         else:
             hosts_path = '/etc/hosts'
 
-        flush_config = False
-
+        # 读取配置
         if config:
+            # 读取系统hosts
+            system_hosts = Hosts(path=hosts_path)
+
+            # 读取设置
             self._hosts = config.get("hosts")
-            # 读取hosts
-            hosts = Hosts(path=hosts_path)
-
-            # 清空hosts
-            hosts.entries = []
-
-            new_hosts = []
-            # 写入hosts
-            for host in str(config.get("hosts")).split("\n"):
-                if host:
+            if self._hosts:
+                if not isinstance(self._hosts, list):
+                    self._hosts = str(self._hosts).split('\n')
+                # 改写系统hosts开关
+                flush_config = True
+                # 新的hosts
+                new_hosts = []
+                for host in self._hosts:
+                    if not host:
+                        continue
                     host_arr = str(host).split()
                     try:
                         new_entry = HostsEntry(entry_type='ipv4' if IpUtils.is_ipv4(str(host_arr[0])) else 'ipv6',
-                                               address=host_arr[0], names=[host_arr[1]])
+                                               address=host_arr[0],
+                                               names=[host_arr[1]])
                         new_hosts.append(new_entry)
                     except Exception as err:
-                        flush_config = True
+                        flush_config = False
                         log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
 
-            # 没有错误再写入hosts
-            if not flush_config:
-                hosts.add(new_hosts)
-                hosts.write()
-                log.info("【Plugin】更新系统hosts文件成功")
-
-        if not config or flush_config:
-            _hosts = []
-            # 读取hosts
-            hosts = Hosts(path=hosts_path)
-            for entry in hosts.entries:
+                # 没有错误再写入hosts
+                if flush_config:
+                    # 清空系统hosts
+                    system_hosts.entries = []
+                    # 改写hosts
+                    system_hosts.add(new_hosts)
+                    system_hosts.write()
+                    log.info("【Plugin】更新系统hosts文件成功")
+        # 没有配置
+        else:
+            self._hosts = []
+            # 读取系统hosts
+            system_hosts = Hosts(path=hosts_path)
+            for entry in system_hosts.entries:
                 if not entry.is_real_entry():
                     continue
-                _hosts.append(str(entry.address) + " " + str(entry.names[0]) + "\n")
-
-            self._hosts = _hosts
+                self._hosts.append(str(entry.address) + " " + str(entry.names[0]) + "\n")
 
             # 更新配置
             self.update_config({
-                "hosts": _hosts
+                "hosts": self._hosts
             })
             log.info("【Plugin】数据库与hosts文件版本不一致，获取系统hosts更新入数据库")
 
