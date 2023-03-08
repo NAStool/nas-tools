@@ -1,10 +1,6 @@
-import json
-import os
-
 from python_hosts import Hosts, HostsEntry
 
 import log
-from app.helper import DbHelper
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils
 from app.utils.ip_utils import IpUtils
@@ -102,7 +98,7 @@ class CustomHosts(_IPluginModule):
                     "enable": self._enable
                 })
                 return
-            
+
             # 读取系统hosts
             system_hosts = Hosts(path=hosts_path)
 
