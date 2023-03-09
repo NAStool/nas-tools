@@ -90,14 +90,13 @@ class CustomHosts(_IPluginModule):
             if self._enable and self._hosts:
                 # 添加到系统
                 error_flag, error_hosts = self.__add_hosts_to_system(self._hosts)
-                if error_flag or error_hosts:
-                    self._enable = self._enable and not error_flag
-                    # 更新错误Hosts
-                    self.update_config({
-                        "hosts": [f"{host}\n" for host in self._hosts],
-                        "err_hosts": error_hosts,
-                        "enable": self._enable
-                    })
+                self._enable = self._enable and not error_flag
+                # 更新错误Hosts
+                self.update_config({
+                    "hosts": [f"{host}\n" for host in self._hosts],
+                    "err_hosts": error_hosts,
+                    "enable": self._enable
+                })
 
     @staticmethod
     def __read_system_hosts():
