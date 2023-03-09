@@ -51,7 +51,6 @@ class Media:
                     self.tmdb.domain = app.get("tmdb_domain")
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
-                self.tmdb.language = 'zh'
                 self.tmdb.proxies = Config().get_proxies()
                 self.tmdb.debug = True
                 self.search = Search()
@@ -156,8 +155,7 @@ class Media:
             return None
         if language:
             self.tmdb.language = language
-        else:
-            self.tmdb.language = 'zh-CN'
+
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
@@ -506,8 +504,7 @@ class Media:
             return None
         if language:
             self.tmdb.language = language
-        else:
-            self.tmdb.language = 'zh-CN'
+
         if mtype == MediaType.MOVIE:
             tmdb_info = self.__get_tmdb_movie_detail(tmdbid, append_to_response)
             if tmdb_info:
