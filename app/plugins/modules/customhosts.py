@@ -93,7 +93,7 @@ class CustomHosts(_IPluginModule):
                 self._enable = self._enable and not error_flag
                 # 更新错误Hosts
                 self.update_config({
-                    "hosts": [f"{host}\n" for host in self._hosts],
+                    "hosts": [] if not self._hosts or not self._hosts[0] else [f"{host}\n" for host in self._hosts],
                     "err_hosts": error_hosts,
                     "enable": self._enable
                 })
