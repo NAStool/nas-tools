@@ -20,21 +20,24 @@ class RequestUtils:
                  session=None,
                  timeout=None,
                  referer=None,
-                 content_type=None):
+                 content_type=None,
+                 accept_type=None):
         if not content_type:
             content_type = "application/x-www-form-urlencoded; charset=UTF-8"
         if headers:
             if isinstance(headers, str):
                 self._headers = {
                     "Content-Type": content_type,
-                    "User-Agent": f"{headers}"
+                    "User-Agent": f"{headers}",
+                    "Accept": accept_type
                 }
             else:
                 self._headers = headers
         else:
             self._headers = {
                 "Content-Type": content_type,
-                "User-Agent": Config().get_ua()
+                "User-Agent": Config().get_ua(),
+                "Accept": accept_type
             }
         if referer:
             self._headers.update({
