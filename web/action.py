@@ -1997,9 +1997,10 @@ class WebAction:
         名称识别测试
         """
         name = data.get("name")
+        subtitle = data.get("subtitle")
         if not name:
             return {"code": -1}
-        media_info = Media().get_media_info(title=name)
+        media_info = Media().get_media_info(title=name, subtitle=subtitle)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": self.mediainfo_dict(media_info)}

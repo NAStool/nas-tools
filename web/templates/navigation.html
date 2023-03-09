@@ -1879,11 +1879,11 @@
   }
 
   // 名称识别测试
-  function media_name_test(name, result_div, func) {
+  function media_name_test(name, result_div, func, subtitle) {
     if (!name) {
       return;
     }
-    ajax_post("name_test", {"name": name}, function (ret) {
+    ajax_post("name_test", {"name": name, "subtitle": subtitle || "" }, function (ret) {
       if (func) {
         func();
       }
