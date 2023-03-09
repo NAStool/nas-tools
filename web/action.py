@@ -4802,17 +4802,7 @@ class WebAction:
     @staticmethod
     def user_statistics():
         """
-        获取用户信息并发送消息
+        强制刷新站点数据,并发送站点统计的消息
         """
-        # 先强制刷新一下
+        # 强制刷新站点数据,并发送站点统计的消息
         SiteUserInfo().refresh_pt_date_now()
-        # 再获取数据
-        statistics = SiteUserInfo().get_site_user_statistics(encoding="RAW")
-        string_list = [f"【{site.SITE}】\n"
-                       f"上传量：{StringUtils.str_filesize(site.UPLOAD)}\n"
-                       f"下载量：{StringUtils.str_filesize(site.DOWNLOAD)}\n"
-                       f"做种数：{site.SEEDING}\n"
-                       f"做种体积：{StringUtils.str_filesize(site.SEEDING_SIZE)}"
-                       f"\n{'————————————' if i != len(statistics) - 1 else ''}"
-                       for i, site in enumerate(statistics)]
-        Message().send_user_statistics_message(string_list)
