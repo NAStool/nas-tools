@@ -436,6 +436,10 @@ class ModuleConf(object):
             "custom_message": {
                 "name": "自定义消息",
                 "fuc_name": "custom_message"
+            },
+            "ptrefresh_date_message": {
+                "name": "站点数据刷新",
+                "fuc_name": "ptrefresh_date_message"
             }
         }
     }

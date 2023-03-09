@@ -624,7 +624,7 @@ class Message(object):
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 发送消息
         for client in self._active_clients:
-            if "custom_message" in client.get("switchs"):
+            if "ptrefresh_date_message" in client.get("switchs"):
                 self.__sendmsg(
                     client=client,
                     title=title,
