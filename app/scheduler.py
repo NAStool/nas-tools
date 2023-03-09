@@ -52,10 +52,10 @@ class Scheduler:
             if ptsignin_cron:
                 self.start_job(SiteSignin().signin, "站点自动签到", ptsignin_cron)
 
-            # 站点数据刷新
+            # 数据统计
             ptrefresh_date_cron = str(self._pt.get('ptrefresh_date_cron'))
             if ptrefresh_date_cron:
-                self.start_job(SiteUserInfo().refresh_pt_date_now, "站点数据刷新", ptrefresh_date_cron)
+                self.start_job(SiteUserInfo().refresh_pt_date_now, "数据统计", ptrefresh_date_cron)
 
             # RSS下载器
             pt_check_interval = self._pt.get('pt_check_interval')
