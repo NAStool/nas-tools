@@ -48,7 +48,7 @@ class CustomHosts(_IPluginModule):
                                 {
                                     'id': 'hosts',
                                     'placeholder': '每行一个配置，格式为：ip host1 host2 ...',
-                                    'rows': 20,
+                                    'rows': 10,
                                 }
                         }
                     ],
