@@ -27,7 +27,7 @@ class CustomHosts(_IPluginModule):
     auth_level = 1
 
     # 私有属性
-    _hosts = None
+    _hosts = []
     _enable = False
 
     @staticmethod
@@ -40,14 +40,14 @@ class CustomHosts(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '系统hosts',
+                            'title': 'hosts',
                             'required': False,
-                            'tooltip': '默认读取系统原有hosts文件，修改会覆盖系统hosts文件。正确的hosts会被写入文件，错误的hosts会在下方展示，请修改后重新提交。',
+                            'tooltip': 'hosts配置，会追加到系统hosts文件中生效',
                             'type': 'textarea',
                             'content':
                                 {
                                     'id': 'hosts',
-                                    'placeholder': '默认读取系统原有hosts文件，修改会覆盖系统hosts文件',
+                                    'placeholder': '每行一个配置，格式为：ip host1 host2 ...',
                                     'rows': 20,
                                 }
                         }
@@ -56,13 +56,13 @@ class CustomHosts(_IPluginModule):
                         {
                             'title': '错误hosts',
                             'required': False,
-                            'tooltip': '错误的hosts配置会展示在此处，请修改上方hosts，重新提交。（错误的hosts不会写入系统hosts文件）',
+                            'tooltip': '错误的hosts配置会展示在此处，请修改上方hosts重新提交（错误的hosts不会写入系统hosts文件）',
                             'type': 'textarea',
                             'readonly': True,
                             'content':
                                 {
                                     'id': 'err_hosts',
-                                    'placeholder': '错误的hosts配置会展示在此处，请修改上方hosts，重新提交',
+                                    'placeholder': '',
                                     'rows': 2,
                                 }
                         }
@@ -71,7 +71,7 @@ class CustomHosts(_IPluginModule):
                         {
                             'title': '开启hosts同步',
                             'required': "",
-                            'tooltip': '获取系统hosts并更新',
+                            'tooltip': '将自定义hosts更新到系统中生效，如因权限问题等无法更新到系统时此开关将自动关闭，此时需查看日志',
                             'type': 'switch',
                             'id': 'enable',
                         }
@@ -81,98 +81,84 @@ class CustomHosts(_IPluginModule):
         ]
 
     def init_config(self, config=None):
+        # 读取配置
+        if config:
+            self._enable = config.get("enable")
+            self._hosts = config.get("hosts")
+            if isinstance(self._hosts, str):
+                self._hosts = str(self._hosts).split('\n')
+            if self._enable and self._hosts:
+                # 添加到系统
+                error_flag, error_hosts = self.__add_hosts_to_system(self._hosts)
+                if error_flag or error_hosts:
+                    self._enable = self._enable and not error_flag
+                    # 更新错误Hosts
+                    self.update_config({
+                        "hosts": [f"{host}\n" for host in self._hosts],
+                        "err_hosts": error_hosts,
+                        "enable": self._enable
+                    })
+
+    @staticmethod
+    def __read_system_hosts():
+        """
+        读取系统hosts对象
+        """
         # 获取本机hosts路径
         if SystemUtils.is_windows():
             hosts_path = r"c:\windows\system32\drivers\etc\hosts"
         else:
             hosts_path = '/etc/hosts'
-
-        # 读取配置
-        if config:
-            self._enable = config.get("enable")
-            if not self._enable:
-                # 更新配置
-                self.update_config({
-                    "hosts": '',
-                    "err_hosts": '',
-                    "enable": self._enable
-                })
-                return
-
-            # 读取系统hosts
-            system_hosts = Hosts(path=hosts_path)
-
-            # 读取设置
-            self._hosts = config.get("hosts")
-            if not self._hosts:
-                self.__sync_hosts_to_db(hosts_path)
-
-            if self._hosts:
-                if not isinstance(self._hosts, list):
-                    self._hosts = str(self._hosts).split('\n')
-                # 改写系统hosts开关
-                flush_config = True
-                # 新的hosts
-                new_hosts = []
-                # 错误的hosts
-                err_hosts = []
-                for host in self._hosts:
-                    if not host:
-                        continue
-                    host_arr = str(host).split()
-                    try:
-                        new_entry = HostsEntry(entry_type='ipv4' if IpUtils.is_ipv4(str(host_arr[0])) else 'ipv6',
-                                               address=host_arr[0],
-                                               names=[host_arr[1]])
-                        new_hosts.append(new_entry)
-                    except Exception as err:
-                        flush_config = False
-                        err_hosts.append(host + "\n")
-                        log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
-
-                # 没有错误再写入hosts
-                if flush_config:
-                    # 清空系统hosts
-                    system_hosts.entries = []
-                    # 改写hosts
-                    system_hosts.add(new_hosts)
-                    system_hosts.write()
-                    log.info("【Plugin】更新系统hosts文件成功")
-
-                # 更新配置
-                self.update_config({
-                    "hosts": config.get("hosts"),
-                    "err_hosts": err_hosts,
-                    "enable": self._enable
-                })
-        # 没有配置
-        else:
-            if not self._enable:
-                return
-            self.__sync_hosts_to_db(hosts_path)
-
-    def __sync_hosts_to_db(self, hosts_path):
-        """
-        同步hosts文件到数据库
-        """
-        self._hosts = []
         # 读取系统hosts
-        system_hosts = Hosts(path=hosts_path)
-        for entry in system_hosts.entries:
-            if not entry.is_real_entry():
-                continue
-            self._hosts.append(str(entry.address) + " " + str(entry.names[0]) + "\n")
+        return Hosts(path=hosts_path)
 
-        # 更新配置
-        self.update_config({
-            "hosts": self._hosts,
-            "err_hosts": '',
-            "enable": self._enable
-        })
-        log.info("【Plugin】hosts初始化成功")
+    def __add_hosts_to_system(self, hosts):
+        """
+        添加hosts到系统
+        """
+        # 系统hosts对象
+        system_hosts = self.__read_system_hosts()
+        # 过滤掉插件添加的hosts
+        orgin_entries = []
+        for entry in system_hosts.entries:
+            if entry.entry_type == "comment" and entry.comment == "# CustomHostsPlugin":
+                break
+            orgin_entries.append(entry)
+        system_hosts.entries = orgin_entries
+        # 新的有效hosts
+        new_entrys = []
+        # 新的错误的hosts
+        err_hosts = []
+        err_flag = False
+        for host in hosts:
+            if not host:
+                continue
+            host_arr = str(host).split()
+            try:
+                host_entry = HostsEntry(entry_type='ipv4' if IpUtils.is_ipv4(str(host_arr[0])) else 'ipv6',
+                                        address=host_arr[0],
+                                        names=host_arr[1:])
+                new_entrys.append(host_entry)
+            except Exception as err:
+                err_hosts.append(host + "\n")
+                log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
+
+        # 写入系统hosts
+        if new_entrys:
+            try:
+                # 添加分隔标识
+                system_hosts.add([HostsEntry(entry_type='comment', comment="# CustomHostsPlugin")])
+                # 添加新的Hosts
+                system_hosts.add(new_entrys)
+                system_hosts.write()
+                log.info("【Plugin】更新系统hosts文件成功")
+            except Exception as err:
+                err_flag = True
+                log.error(f"【Plugin】更新系统hosts文件失败：{str(err) or '请检查权限'}")
+        return err_flag, err_hosts
 
     def get_state(self):
-        return self._enable
+        return self._enable and self._hosts and self._hosts[0]
 
     def stop_service(self):
         """
