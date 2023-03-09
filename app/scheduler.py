@@ -16,7 +16,7 @@ from app.sync import Sync
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from config import METAINFO_SAVE_INTERVAL, \
-    SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
+    SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL, Config
 from web.backend.wallpaper import get_login_wallpaper
 
