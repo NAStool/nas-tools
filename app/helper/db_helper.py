@@ -2113,17 +2113,16 @@ class DbHelper:
         else:
             return False
 
-    def check_rss_history(self, media_info):
+    def check_rss_history(self, type_str, name, year, season):
         """
         检查RSS历史是否存在
         """
-        if not media_info:
-            return False
         count = self._db.query(RSSHISTORY).filter(
-            RSSHISTORY.TYPE == "MOV" if media_info.type == MediaType.MOVIE else "TV",
-            RSSHISTORY.NAME == media_info.title,
-            RSSHISTORY.YEAR == media_info.year,
-            RSSHISTORY.SEASON == media_info.get_season_string()).count()
+            RSSHISTORY.TYPE == type_str,
+            RSSHISTORY.NAME == name,
+            RSSHISTORY.YEAR == year,
+            RSSHISTORY.SEASON == season
+        ).count()
         if count > 0:
             return True
         else:
