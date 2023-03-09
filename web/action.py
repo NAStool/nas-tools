@@ -4804,6 +4804,9 @@ class WebAction:
         """
         获取用户信息并发送消息
         """
+        # 先强制刷新一下
+        SiteUserInfo().refresh_pt_date_now()
+        # 再获取数据
         statistics = SiteUserInfo().get_site_user_statistics(encoding="RAW")
         string_list = [f"【{site.SITE}】\n"
                        f"上传量：{StringUtils.str_filesize(site.UPLOAD)}\n"
