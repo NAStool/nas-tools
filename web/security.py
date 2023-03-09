@@ -179,7 +179,7 @@ def aes_encrypt(data, key):
     return b64encode(cipher.iv + result).decode('utf-8')
 
 
-def nexusphp_encrypt(data: dict, key):
+def nexusphp_encrypt(data_str: str, key):
     """
     NexusPHP加密
     """
@@ -188,7 +188,6 @@ def nexusphp_encrypt(data: dict, key):
     # 对向量进行 Base64 编码
     iv_base64 = base64.b64encode(iv)
     # 加密数据
-    data_str = json.dumps(data)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     ciphertext = cipher.encrypt(pad(data_str.encode(), AES.block_size))
     ciphertext_base64 = base64.b64encode(ciphertext)
