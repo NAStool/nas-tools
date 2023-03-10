@@ -1636,9 +1636,9 @@
     $("#modal-default-sites").modal("hide");
     ajax_post("set_default_rss_setting", data, function (ret) {
       if (ret.code === 0) {
-        show_success_modal("设置Rss默认配置成功！");
+        show_success_modal("设置订阅默认配置成功！");
       } else {
-        show_fail_modal(`设置Rss默认配置失败：${ret.msg}！`);
+        show_fail_modal(`设置订阅默认配置失败：${ret.msg}！`);
       }
     });
   }
