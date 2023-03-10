@@ -1586,8 +1586,18 @@
         $("#default_rss_pix").val(ret.data.filter_pix);
         $("#default_rss_team").val(ret.data.filter_team);
         $("#default_rss_rule").val(ret.data.filter_rule);
-        $("#default_over_edition").val(ret.data.over_edition);
-        $("#default_fuzzy_match").val(ret.data.fuzzy_match);
+        if (!ret.data.fuzzy_match) {
+          $("#default_fuzz_match").prop("checked", false);
+        }
+        else {
+          $("#default_fuzzy_match").prop("checked", true);
+        }
+        if (!ret.data.over_edition) {
+          $("#default_over_edition").prop("checked", false);
+        }
+        else {
+          $("#default_over_edition").prop("checked", true);
+        }
       } else {
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
@@ -1605,28 +1615,16 @@
 
   // 保存默认站点
   function save_default_sites() {
-    const mtype = $("#default_sites_rss_type").val();
-    const default_filter_restype = $("#default_rss_restype").val();
-    const default_filter_pix = $("#default_rss_pix").val();
-    const default_filter_team = $("#default_rss_team").val();
-    const default_filter_rule = $("#default_rss_rule").val();
-    const default_over_edition = $("#default_over_edition").val();
-    const default_fuzzy_match = $("#default_fuzzy_match").val();
+    params = input_select_GetVal("modal-default-sites")
     //订阅站点
     let default_rss_sites = select_GetSelectedVAL("default_rss_sites");
     //搜索站点
     let default_search_sites = select_GetSelectedVAL("default_search_sites");
 
     const data = {
-      "mtype": mtype,
+      "params": params,
       "rss_sites": default_rss_sites,
       "search_sites": default_search_sites,
-      "filter_restype": default_filter_restype,
-      "filter_team": default_filter_team,
-      "filter_pix": default_filter_pix,
-      "filter_rule": default_filter_rule,
-      "over_edition": default_over_edition,
-      "fuzzy_match": default_fuzzy_match
     };
 
     $("#modal-default-sites").modal("hide");

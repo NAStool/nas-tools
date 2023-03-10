@@ -4823,15 +4823,15 @@ class WebAction:
         """
         添加订阅|搜索默认站点
         """
-        mtype = data.get("mtype")
         rss_sites = data.get("rss_sites")
         search_sites = data.get("search_sites")
-        filter_restype = data.get("filter_restype")
-        filter_pix = data.get("filter_pix")
-        filter_team = data.get("filter_team")
-        filter_rule = data.get("filter_rule")
-        over_edition = data.get("over_edition")
-        fuzzy_match = data.get("fuzzy_match")
+        mtype = data.get("params", {}).get("default_sites_rss_type")
+        filter_restype = data.get("params", {}).get("default_rss_restype")
+        filter_pix = data.get("params", {}).get("default_rss_pix")
+        filter_team = data.get("params", {}).get("default_rss_team")
+        filter_rule = data.get("params", {}).get("default_rss_rule")
+        over_edition = data.get("params", {}).get("default_over_edition")
+        fuzzy_match = data.get("params", {}).get("default_fuzzy_match")
 
         # 保存默认站点
         SystemConfig().set_system_config(
