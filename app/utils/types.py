@@ -162,6 +162,11 @@ class ProgressKey(Enum):
     # 站点Cookie获取
     SiteCookie = "sitecookie"
 
+class RssType(Enum):
+    # 手动
+    Manual = "manual"
+    # 自动
+    Auto = "auto"
 
 # 电影类型关键字
 MovieTypes = ['MOV', '电影', MediaType.MOVIE]

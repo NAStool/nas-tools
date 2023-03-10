@@ -38,7 +38,7 @@ from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
     SystemUtils, ExceptionUtils
 from app.utils.types import RmtMode, OsType, SearchType, SyncType, MediaType, MovieTypes, TvTypes, \
-    EventType, SystemConfigKey
+    EventType, SystemConfigKey, RssType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.user import User
@@ -1361,7 +1361,7 @@ class WebAction:
         添加RSS订阅
         """
         # 判断是否是手动新增订阅 manual
-        rss_type = data.get("rss_type")
+        in_form = RssType(data.get("in_form")) if data.get("in_form") else RssType.Auto
         name = data.get("name")
         _subscribe = Subscribe()
         year = data.get("year")
@@ -1385,15 +1385,6 @@ class WebAction:
         mtype = MediaType.MOVIE if data.get(
             "type") in MovieTypes else MediaType.TV
 
-        if not rss_type:
-            # 探索订阅或交互订阅默认设置
-            default_setting = SystemConfig().get_system_config(
-                key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
-            rss_sites = rss_sites or default_setting.get('rss') if default_setting else []
-            search_sites = search_sites or default_setting.get('search') if default_setting else []
-            filter_restype = filter_restype or default_setting.get('filter_restype') if default_setting else []
-            filter_pix = filter_pix or default_setting.get('filter_pix') if default_setting else []
-            filter_rule = filter_rule or default_setting.get('filter_rule') if default_setting else []
         media_info = None
         if isinstance(season, list):
             code = 0
@@ -1401,6 +1392,7 @@ class WebAction:
             for sea in season:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
+                                                                     in_form=in_form,
                                                                      keyword=keyword,
                                                                      season=sea,
                                                                      fuzzy_match=fuzzy_match,
@@ -1421,6 +1413,7 @@ class WebAction:
             code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                  name=name,
                                                                  year=year,
+                                                                 in_form=in_form,
                                                                  keyword=keyword,
                                                                  season=season,
                                                                  fuzzy_match=fuzzy_match,
@@ -3163,6 +3156,7 @@ class WebAction:
             code, msg, _ = Subscribe().add_rss_subscribe(mtype=mtype,
                                                          name=rssinfo[0].NAME,
                                                          year=rssinfo[0].YEAR,
+                                                         in_form=RssType.Auto,
                                                          season=season,
                                                          mediaid=rssinfo[0].TMDBID,
                                                          total_ep=rssinfo[0].TOTAL,
@@ -4834,7 +4828,10 @@ class WebAction:
         search_sites = data.get("search_sites")
         filter_restype = data.get("filter_restype")
         filter_pix = data.get("filter_pix")
+        filter_team = data.get("filter_team")
         filter_rule = data.get("filter_rule")
+        over_edition = data.get("over_edition")
+        fuzzy_match = data.get("fuzzy_match")
 
         # 保存默认站点
         SystemConfig().set_system_config(
@@ -4844,7 +4841,10 @@ class WebAction:
                 "search": search_sites,
                 "filter_restype": filter_restype,
                 "filter_pix": filter_pix,
+                "filter_team": filter_team,
                 "filter_rule": filter_rule,
+                "over_edition": over_edition,
+                "fuzzy_match": fuzzy_match
             })
         return {"code": 0}
 

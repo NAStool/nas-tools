@@ -2,6 +2,7 @@ import json
 from threading import Lock
 
 import log
+from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, MetaHelper
@@ -13,7 +14,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.indexer import Indexer
 from app.utils import Torrent
-from app.utils.types import MediaType, SearchType, EventType
+from app.utils.types import MediaType, SearchType, EventType, SystemConfigKey, MovieTypes, RssType
 from web.backend.web_utils import WebUtils
 
 lock = Lock()
@@ -45,6 +46,7 @@ class Subscribe:
         self.eventmanager = EventManager()
 
     def add_rss_subscribe(self, mtype, name, year,
+                          in_form=None,
                           keyword=None,
                           season=None,
                           fuzzy_match=False,
@@ -93,14 +95,27 @@ class Subscribe:
         if not name:
             return -1, "标题或类型有误", None
         year = int(year) if str(year).isdigit() else ""
-        rss_sites = rss_sites or []
-        search_sites = search_sites or []
-        over_edition = 1 if over_edition else 0
-        filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
         total_ep = int(total_ep) if str(total_ep).isdigit() else None
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
         download_setting = int(download_setting) if str(download_setting).replace("-", "").isdigit() else ""
-        fuzzy_match = True if fuzzy_match else False
+        if in_form == RssType.Auto:
+            # 探索订阅或交互订阅默认设置
+            default_setting = SystemConfig().get_system_config(
+                key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
+            rss_sites = rss_sites or default_setting.get('rss') if default_setting else []
+            search_sites = search_sites or default_setting.get('search') if default_setting else []
+            filter_restype = default_setting.get('filter_restype') if default_setting else []
+            filter_pix = default_setting.get('filter_pix') if default_setting else []
+            filter_team = default_setting.get('filter_team') if default_setting else []
+            filter_rule = default_setting.get('filter_rule') if default_setting else []
+            over_edition = over_edition or default_setting.get('over_edition') if default_setting else []
+            fuzzy_match = fuzzy_match or default_setting.get('fuzzy_match') if default_setting else []
+        else:
+            rss_sites = rss_sites or []
+            search_sites = search_sites or []
+            over_edition = 1 if over_edition else 0
+            filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
+            fuzzy_match = True if fuzzy_match else False
         # 检索媒体信息
         if not fuzzy_match:
             # 根据TMDBID查询，从推荐加订阅的情况
@@ -261,6 +276,24 @@ class Subscribe:
             return code, "订阅已存在", media_info
         else:
             return code, "添加订阅失败", media_info
+
+    @staticmethod
+    def __rss_default_settings(media_info):
+        """
+        订阅默认设置
+        """
+        # 探索订阅或交互订阅默认设置
+        default_setting = SystemConfig().get_system_config(
+            key=SystemConfigKey.DefaultMovieRssSetting if media_info.type in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
+        media_info.rss_sites = media_info.rss_sites or default_setting.get('rss') if default_setting else []
+        media_info.search_sites = media_info.search_sites or default_setting.get('search') if default_setting else []
+        media_info.filter_restype = default_setting.get('filter_restype') if default_setting else []
+        media_info.filter_pix = default_setting.get('filter_pix') if default_setting else []
+        media_info.filter_team = default_setting.get('filter_team') if default_setting else []
+        media_info.filter_rule = default_setting.get('filter_rule') if default_setting else []
+        media_info.over_edition = media_info.over_edition or default_setting.get(
+            'over_edition') if default_setting else []
+        media_info.fuzzy_match = media_info.fuzzy_match or default_setting.get('fuzzy_match') if default_setting else []
 
     def finish_rss_subscribe(self, rssid, media):
         """

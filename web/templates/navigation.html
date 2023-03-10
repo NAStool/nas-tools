@@ -381,11 +381,41 @@
                   </div>
                   <div class="col-lg-3">
                     <div class="mb-3">
+                      <label class="form-label">制作组/字幕组</label>
+                      <input type="text" value="" id="default_rss_team" class="form-control" placeholder="支持正则表达式">
+                    </div>
+                  </div>
+                  <div class="col-lg-3">
+                    <div class="mb-3">
                       <label class="form-label">过滤规则 <span class="form-help"
                                                                title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
                                                                data-bs-toggle="tooltip">?</span></label>
                       <select class="form-select" id="default_rss_rule">
                       </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xl-4">
+                    <div class="mb-3">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="default_fuzzy_match"
+                               onclick="change_match_check(this)">
+                        <span class="form-check-label">模糊匹配 <span class="form-help"
+                                                                      title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配"
+                                                                      data-bs-toggle="tooltip">?</span></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-xl-4">
+                    <div class="mb-3">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="default_over_edition"
+                               onclick="change_over_edition_check(this)">
+                        <span class="form-check-label">洗版 <span class="form-help"
+                                                                  title="开启洗版后不会检查本地是否已存在，满足订阅条件即会下载；除非匹配了对应的过滤规则中最高优先级的那条规则否则不会删除订阅（未明确过滤规则时使用默认规则），同一优先级的资源只下载一次；多个资源下载后如命名一致，则只会保留文件体积较大的，如需都保留则需要在文件重命名规则中增加相关要素以做区分"
+                                                                  data-bs-toggle="tooltip">?</span></span>
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -1408,7 +1438,7 @@
       "current_ep": current_ep,
       "rssid": rssid,
       "keyword": keyword,
-      "rss_type": "manual"
+      "in_form": "manual"
     }, ...rss_setting};
     $("#modal-manual-rss").modal("hide");
     ajax_post("add_rss_media", data, function (ret) {
@@ -1554,7 +1584,10 @@
         }
         $("#default_rss_restype").val(ret.data.filter_restype);
         $("#default_rss_pix").val(ret.data.filter_pix);
+        $("#default_rss_team").val(ret.data.filter_team);
         $("#default_rss_rule").val(ret.data.filter_rule);
+        $("#default_over_edition").val(ret.data.over_edition);
+        $("#default_fuzzy_match").val(ret.data.fuzzy_match);
       } else {
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
@@ -1575,7 +1608,10 @@
     const mtype = $("#default_sites_rss_type").val();
     const default_filter_restype = $("#default_rss_restype").val();
     const default_filter_pix = $("#default_rss_pix").val();
+    const default_filter_team = $("#default_rss_team").val();
     const default_filter_rule = $("#default_rss_rule").val();
+    const default_over_edition = $("#default_over_edition").val();
+    const default_fuzzy_match = $("#default_fuzzy_match").val();
     //订阅站点
     let default_rss_sites = select_GetSelectedVAL("default_rss_sites");
     //搜索站点
@@ -1586,8 +1622,11 @@
       "rss_sites": default_rss_sites,
       "search_sites": default_search_sites,
       "filter_restype": default_filter_restype,
+      "filter_team": default_filter_team,
       "filter_pix": default_filter_pix,
       "filter_rule": default_filter_rule,
+      "over_edition": default_over_edition,
+      "fuzzy_match": default_fuzzy_match
     };
 
     $("#modal-default-sites").modal("hide");
@@ -1598,12 +1637,6 @@
         show_fail_modal(`设置默认站点失败：${ret.msg}！`);
       }
     });
-
-    $("#default_rss_restype").val('');
-    $("#default_rss_pix").val('');
-    $("#default_rss_rule").val('');
-    $("#default_rss_sites").val('');
-    $("#default_search_sites").val('');
   }
 
   // 显示编辑订阅
@@ -2653,16 +2686,6 @@
         $("#rename_season_div").show();
         $("#rename_episode_div").show();
       }
-    });
-
-    // 关闭默认订阅页面清空缓存
-    $("#default_sites_close_btn").unbind("click").click(function () {
-       // 清空日志
-      $("#default_rss_restype").val('');
-      $("#default_rss_pix").val('');
-      $("#default_rss_rule").val('');
-      $("#default_rss_sites").val('');
-      $("#default_search_sites").val('');
     });
 
     {% if "系统设置" in CurrentUser.pris %}
