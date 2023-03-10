@@ -562,7 +562,7 @@ def statistics():
     SiteRatios = []
     SiteErrs = {}
     # 站点上传下载
-    SiteData = SiteUserInfo().get_pt_date(specify_sites=refresh_site, force=refresh_force)
+    SiteData = SiteUserInfo().get_site_data(specify_sites=refresh_site, force=refresh_force)
     if isinstance(SiteData, dict):
         for name, data in SiteData.items():
             if not data:

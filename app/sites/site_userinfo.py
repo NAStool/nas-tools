@@ -215,7 +215,7 @@ class SiteUserInfo(object):
             self.message.send_site_message(
                 title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
-    def refresh_pt_date_now(self):
+    def refresh_site_data_now(self):
         """
         强制刷新站点数据
         """
@@ -231,7 +231,7 @@ class SiteUserInfo(object):
                        for i, site in enumerate(statistics)]
         self.message.send_user_statistics_message(string_list)
 
-    def get_pt_date(self, specify_sites=None, force=False):
+    def get_site_data(self, specify_sites=None, force=False):
         """
         获取站点上传下载量
         """
