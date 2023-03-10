@@ -217,8 +217,8 @@ class WebAction:
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
             "media_path_scrap": self.__media_path_scrap,
-            "add_default_sites": self.__add_default_sites,
-            "get_default_sites": self.__get_default_sites
+            "set_default_rss_setting": self.__set_default_rss_setting,
+            "default_rss_setting": self.__default_rss_setting
         }
 
     def action(self, cmd, data=None):
@@ -4819,7 +4819,7 @@ class WebAction:
         SiteUserInfo().refresh_site_data_now()
 
     @staticmethod
-    def __add_default_sites(data):
+    def __set_default_rss_setting(data):
         """
         添加订阅|搜索默认站点
         """
@@ -4849,7 +4849,7 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
-    def __get_default_sites(data):
+    def __default_rss_setting(data):
         """
         添加订阅|搜索默认站点
         """

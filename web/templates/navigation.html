@@ -349,7 +349,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" >订阅默认设置 <span class="form-help"
-                                                                  title="订阅默认设置，只适用于探索页面直接订阅和交互消息订阅场景"
+                                                                  title="订阅默认设置，只适用于探索页面直接订阅、交互消息订阅、豆瓣订阅、Jellyseerr等自动订阅场景"
                                                                   data-bs-toggle="tooltip">?</span></h5>
                 <input type="hidden" id="default_sites_rss_type">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
@@ -1570,8 +1570,8 @@
     refresh_filter_select("default_rss_rule", false);
 
     // 查询已保存配置
-    ajax_post("get_default_sites", {mtype:mtype}, function (ret) {
-      if (ret.code === 0) {
+    ajax_post("default_rss_setting", {mtype:mtype}, function (ret) {
+      if (ret.code === 0 && ret.data) {
         if (ret.data.rss.length === 0) {
           select_SelectALL(false, 'default_rss_sites');
         } else {
@@ -1599,6 +1599,12 @@
           $("#default_over_edition").prop("checked", true);
         }
       } else {
+        $("#default_rss_restype").val('');
+        $("#default_rss_pix").val('');
+        $("#default_rss_team").val('');
+        $("#default_rss_rule").val('');
+        $("#default_over_edition").prop("checked", false);
+        $("#default_fuzz_match").prop("checked", false);
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
       }
@@ -1628,11 +1634,11 @@
     };
 
     $("#modal-default-sites").modal("hide");
-    ajax_post("add_default_sites", data, function (ret) {
+    ajax_post("set_default_rss_setting", data, function (ret) {
       if (ret.code === 0) {
-        show_success_modal("设置默认站点成功！");
+        show_success_modal("设置Rss默认配置成功！");
       } else {
-        show_fail_modal(`设置默认站点失败：${ret.msg}！`);
+        show_fail_modal(`设置Rss默认配置失败：${ret.msg}！`);
       }
     });
   }
