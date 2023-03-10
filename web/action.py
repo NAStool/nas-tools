@@ -1384,11 +1384,11 @@ class WebAction:
             "type") in MovieTypes else MediaType.TV
 
         # 查询是否已设置默认订阅检索站点
-        default_sites = SystemConfig().get_system_config(
-            key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
-        if default_sites:
-            rss_sites = rss_sites or default_sites.get('rss') or []
-            search_sites = search_sites or default_sites.get('search') or []
+        if not rssid:
+            default_sites = SystemConfig().get_system_config(
+                key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
+            rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
+            search_sites = search_sites or default_sites.get('search') if default_sites else []
 
         media_info = None
         if isinstance(season, list):
