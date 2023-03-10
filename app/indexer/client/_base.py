@@ -10,7 +10,6 @@ from app.utils.types import MediaType, SearchType, ProgressKey
 
 
 class _IIndexClient(metaclass=ABCMeta):
-
     # 索引器ID
     client_id = ""
     # 索引器类型
@@ -99,13 +98,14 @@ class _IIndexClient(metaclass=ABCMeta):
             downloadvolumefactor = round(float(item.get('downloadvolumefactor')), 1) if item.get(
                 'downloadvolumefactor') is not None else 1.0
             imdbid = item.get("imdbid")
+            labels = item.get("labels")
             # 全匹配模式下，非公开站点，过滤掉做种数为0的
             if filter_args.get("seeders") and not indexer.public and str(seeders) == "0":
                 log.info(f"【{self.client_name}】{torrent_name} 做种数为0")
                 index_rule_fail += 1
                 continue
             # 识别种子名称
-            meta_info = MetaInfo(title=torrent_name, subtitle=description)
+            meta_info = MetaInfo(title=torrent_name, subtitle=f"{labels} {description}")
             if not meta_info.get_name():
                 log.info(f"【{self.client_name}】{torrent_name} 无法识别到名称")
                 index_match_fail += 1
@@ -114,7 +114,8 @@ class _IIndexClient(metaclass=ABCMeta):
             meta_info.set_torrent_info(size=size,
                                        imdbid=imdbid,
                                        upload_volume_factor=uploadvolumefactor,
-                                       download_volume_factor=downloadvolumefactor)
+                                       download_volume_factor=downloadvolumefactor,
+                                       labels=labels)
 
             # 先过滤掉可以明确的类型
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
@@ -123,10 +124,11 @@ class _IIndexClient(metaclass=ABCMeta):
                 index_rule_fail += 1
                 continue
             # 检查订阅过滤规则匹配
-            match_flag, res_order, match_msg = self.filter.check_torrent_filter(meta_info=meta_info,
-                                                                                filter_args=filter_args,
-                                                                                uploadvolumefactor=uploadvolumefactor,
-                                                                                downloadvolumefactor=downloadvolumefactor)
+            match_flag, res_order, match_msg = self.filter.check_torrent_filter(
+                meta_info=meta_info,
+                filter_args=filter_args,
+                uploadvolumefactor=uploadvolumefactor,
+                downloadvolumefactor=downloadvolumefactor)
             if not match_flag:
                 log.info(f"【{self.client_name}】{match_msg}")
                 index_rule_fail += 1

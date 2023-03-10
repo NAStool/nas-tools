@@ -567,6 +567,21 @@ class TorrentSpider(feapder.AirSpider):
                     if uploadvolumefactor:
                         self.torrents_info['uploadvolumefactor'] = int(uploadvolumefactor.group(1))
 
+    def Getlabels(self, torrent):
+        # labels
+        if 'labels' not in self.fields:
+            return
+        selector = self.fields.get('labels', {})
+        if not selector:
+            return
+        labels = torrent(selector.get("selector", ""))
+        if 'attribute' in selector:
+            items = [item.attr(selector.get('attribute')) for item in labels.items() if item]
+        else:
+            items = [item.text() for item in labels.items() if item and item.text()]
+        if items:
+            self.torrents_info['labels'] = " ".join(items)
+
     def Getinfo(self, torrent):
         """
         解析单条种子数据
@@ -586,6 +601,7 @@ class TorrentSpider(feapder.AirSpider):
             self.Getuploadvolumefactor(torrent)
             self.Getpubdate(torrent)
             self.Getelapsed_date(torrent)
+            self.Getlabels(torrent)
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             log.error("【Spider】%s 检索出现错误：%s" % (self.indexername, str(err)))

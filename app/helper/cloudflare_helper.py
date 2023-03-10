@@ -78,7 +78,6 @@ def _evil_logic(driver: WebDriver):
     driver.implicitly_wait(SHORT_TIMEOUT)
     # wait for the page
     html_element = driver.find_element(By.TAG_NAME, "html")
-    page_title = driver.title
 
     # find access denied titles
     if _any_match_titles(driver, ACCESS_DENIED_TITLES):
@@ -149,7 +148,7 @@ def click_verify(driver: WebDriver):
             actions.perform()
             log.debug("Cloudflare verify checkbox found and clicked")
     except Exception as e:
-        log.debug("Cloudflare verify checkbox not found on the page")
+        log.debug(f"Cloudflare verify checkbox not found on the page: {str(e)}")
         # print(e)
     finally:
         driver.switch_to.default_content()
@@ -167,7 +166,7 @@ def click_verify(driver: WebDriver):
             actions.perform()
             log.debug("The Cloudflare 'Verify you are human' button found and clicked")
     except Exception as e:
-        log.debug("The Cloudflare 'Verify you are human' button not found on the page")
+        log.debug(f"The Cloudflare 'Verify you are human' button not found on the page：{str(e)}")
         # print(e)
 
     time.sleep(2)

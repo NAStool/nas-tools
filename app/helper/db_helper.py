@@ -60,7 +60,8 @@ class DbHelper:
                     PAGEURL=media_item.page_url,
                     OTHERINFO=media_item.resource_team,
                     UPLOAD_VOLUME_FACTOR=media_item.upload_volume_factor,
-                    DOWNLOAD_VOLUME_FACTOR=media_item.download_volume_factor
+                    DOWNLOAD_VOLUME_FACTOR=media_item.download_volume_factor,
+                    NOTE=media_item.labels
                 ))
         self._db.insert(data_list)
 

@@ -104,10 +104,13 @@ class Filter:
         # 为-1时不使用过滤规则
         if rulegroup and int(rulegroup) == -1:
             return True, 0, "不过滤"
+        # 过滤使用的文本
+        title = meta_info.org_string
+        if meta_info.labels:
+            title = f"{title} {meta_info.labels}"
         if meta_info.subtitle:
-            title = "%s %s" % (meta_info.org_string, meta_info.subtitle)
-        else:
-            title = meta_info.org_string
+            title = f"{title} {meta_info.subtitle}"
+        # 过滤规则组
         if not rulegroup:
             rulegroup = self.get_rule_groups(default=True)
             if not rulegroup:

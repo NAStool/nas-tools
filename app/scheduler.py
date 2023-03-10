@@ -48,14 +48,14 @@ class Scheduler:
             return
         if self._pt:
             # 站点签到
-            ptsignin_cron = str(self._pt.get('ptsignin_cron'))
+            ptsignin_cron = self._pt.get('ptsignin_cron')
             if ptsignin_cron:
-                self.start_job(SiteSignin().signin, "站点自动签到", ptsignin_cron)
+                self.start_job(SiteSignin().signin, "站点自动签到", str(ptsignin_cron))
 
             # 数据统计
-            ptrefresh_date_cron = str(self._pt.get('ptrefresh_date_cron'))
+            ptrefresh_date_cron = self._pt.get('ptrefresh_date_cron')
             if ptrefresh_date_cron:
-                self.start_job(SiteUserInfo().refresh_pt_date_now, "数据统计", ptrefresh_date_cron)
+                self.start_job(SiteUserInfo().refresh_pt_date_now, "数据统计", str(ptrefresh_date_cron))
 
             # RSS下载器
             pt_check_interval = self._pt.get('pt_check_interval')

@@ -110,12 +110,17 @@
                           {{ SVG.text_recognition() }}
                         </a>
                       </div>
-                      <div class="text-muted">
+                      <div class="">
                         {% if Result.imdbid %}
                           <a href="https://www.imdb.com/title/{{ Result.imdbid }}/" target="_blank"><img
                                   src="../static/img/icon-imdb.png"></a>
                         {% endif %}
-                        {{ Result.description }}
+                        {% if Result.labels %}
+                          {% for label in Result.labels.split(' ') %}
+                            <span class="text-purple me-1" style="text-shadow: 1px 1px #ccc;">{{ label }}</span>
+                          {% endfor %}
+                        {% endif %}
+                        <span class="text-muted">{{ Result.description }}</span>
                       </div>
                       <custom-chips class="mt-1" id="testresults_{{ loop.index0 }}"></custom-chips>
                     </td>

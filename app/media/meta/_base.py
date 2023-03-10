@@ -124,6 +124,8 @@ class MetaBase(object):
     download_volume_factor = None
     # HR
     hit_and_run = None
+    # 种子标签
+    labels = None
     # 订阅ID
     rssid = None
     # 保存目录
@@ -540,7 +542,8 @@ class MetaBase(object):
                          rssid=None,
                          hit_and_run=None,
                          imdbid=None,
-                         over_edition=None):
+                         over_edition=None,
+                         labels=None):
         if site:
             self.site = site
         if site_order:
@@ -573,6 +576,8 @@ class MetaBase(object):
             self.imdb_id = imdbid
         if over_edition is not None:
             self.over_edition = over_edition
+        if labels is not None:
+            self.labels = labels
 
     # 整合下载参数
     def set_download_info(self, download_setting=None, save_path=None):
