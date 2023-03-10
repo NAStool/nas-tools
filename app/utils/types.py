@@ -146,9 +146,9 @@ class SystemConfigKey(Enum):
     DefaultDownloader = "DefaultDownloader"
     # 默认下载设置
     DefaultDownloadSetting = "DefaultDownloadSetting"
-    # 默认电影订阅检索站点
+    # 默认电影订阅设置
     DefaultMovieRssSetting = "DefaultMovieRssSetting"
-    # 默认电视剧订阅检索站点
+    # 默认电视剧订阅设置
     DefaultTVRssSetting = "DefaultTVRssSetting"
 
 # 处理进度Key字典
