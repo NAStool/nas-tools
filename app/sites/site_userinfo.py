@@ -18,7 +18,6 @@ lock = Lock()
 
 @singleton
 class SiteUserInfo(object):
-
     sites = None
     dbhelper = None
     message = None
@@ -62,7 +61,7 @@ class SiteUserInfo(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
-            if not chrome.visit(url=url, ua=ua, cookie=site_cookie):
+            if not chrome.visit(url=url, ua=ua, cookie=site_cookie, proxy=proxy):
                 log.error("【Sites】%s 无法打开网站" % site_name)
                 return None
             # 循环检测是否过cf

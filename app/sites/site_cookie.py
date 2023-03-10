@@ -52,7 +52,8 @@ class SiteCookie(object):
                              username,
                              password,
                              twostepcode=None,
-                             ocrflag=False):
+                             ocrflag=False,
+                             proxy=False):
         """
         获取站点cookie和ua
         :param url: 站点地址
@@ -60,6 +61,7 @@ class SiteCookie(object):
         :param password: 密码
         :param twostepcode: 两步验证
         :param ocrflag: 是否开启OCR识别
+        :param proxy: 是否使用内置代理
         :return: cookie、ua、message
         """
         if not url or not username or not password:
@@ -68,7 +70,7 @@ class SiteCookie(object):
         chrome = ChromeHelper()
         if not chrome.get_status():
             return None, None, "需要浏览器内核环境才能更新站点信息"
-        if not chrome.visit(url=url):
+        if not chrome.visit(url=url, proxy=proxy):
             return None, None, "Chrome模拟访问失败"
         # 循环检测是否过cf
         cloudflare = chrome.pass_cloudflare()
@@ -273,7 +275,8 @@ class SiteCookie(object):
                                                         username=username,
                                                         password=password,
                                                         twostepcode=twostepcode,
-                                                        ocrflag=ocrflag)
+                                                        ocrflag=ocrflag,
+                                                        proxy=site.get("proxy"))
             # 更新进度
             curr_num += 1
             if not cookie:

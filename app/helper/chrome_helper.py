@@ -1,14 +1,15 @@
 import json
 import os.path
 import tempfile
-import time
 from functools import reduce
 from threading import Lock
 
 import undetected_chromedriver as uc
 from webdriver_manager.chrome import ChromeDriverManager
 
+import app.helper.cloudflare_helper as CloudflareHelper
 from app.utils import SystemUtils, RequestUtils
+from config import Config
 
 lock = Lock()
 
@@ -20,6 +21,8 @@ class ChromeHelper(object):
 
     _chrome = None
     _headless = False
+
+    _proxy = None
 
     def __init__(self, headless=False):
 
@@ -73,6 +76,8 @@ class ChromeHelper(object):
         options.add_argument('--no-service-autorun')
         options.add_argument('--no-default-browser-check')
         options.add_argument('--password-store=basic')
+        if self._proxy:
+            options.add_argument('--proxy-server=%s' % Config().get_proxies().get("https"))
         if self._headless:
             options.add_argument('--headless')
         prefs = {
@@ -80,12 +85,14 @@ class ChromeHelper(object):
             "profile.managed_default_content_settings.images": 2 if self._headless else 1,
             "excludeSwitches": ["enable-automation"]
         }
+        options.add_argument('−−lang=zh-CN')
         options.add_experimental_option("prefs", prefs)
         chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
         chrome.set_page_load_timeout(30)
         return chrome
 
-    def visit(self, url, ua=None, cookie=None, timeout=30):
+    def visit(self, url, ua=None, cookie=None, timeout=30, proxy=None):
+        self._proxy = proxy
         if not self.browser:
             return False
         try:
@@ -126,14 +133,9 @@ class ChromeHelper(object):
             print(str(err))
             return False
 
-    def pass_cloudflare(self, waittime=10):
-        cloudflare = False
-        for i in range(0, waittime):
-            if self.get_title() != "Just a moment...":
-                cloudflare = True
-                break
-            time.sleep(1)
-        return cloudflare
+    def pass_cloudflare(self, wait_time=30):
+        challenge = CloudflareHelper.resolve_challenge(driver=self._chrome, timeout=wait_time)
+        return challenge
 
     def execute_script(self, script):
         if not self._chrome:
