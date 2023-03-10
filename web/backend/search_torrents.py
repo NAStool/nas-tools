@@ -429,6 +429,7 @@ def __search_media(in_from, media_info, user_id, user_name=None):
                     state='R',
                     user_name=user_name)
 
+
 def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     """
     开始添加订阅和发送消息

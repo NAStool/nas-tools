@@ -217,8 +217,7 @@ class WebAction:
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
             "media_path_scrap": self.__media_path_scrap,
-            "set_default_rss_setting": self.__set_default_rss_setting,
-            "default_rss_setting": self.__default_rss_setting
+            "get_default_rss_setting": self.get_default_rss_setting
         }
 
     def action(self, cmd, data=None):
@@ -1360,10 +1359,9 @@ class WebAction:
         """
         添加RSS订阅
         """
-        # 判断是否是手动新增订阅 manual
-        in_form = RssType(data.get("in_form")) if data.get("in_form") else RssType.Auto
-        name = data.get("name")
         _subscribe = Subscribe()
+        in_form = RssType.Manual if data.get("in_form") == "manual" else RssType.Auto
+        name = data.get("name")
         year = data.get("year")
         keyword = data.get("keyword")
         season = data.get("season")
@@ -4819,43 +4817,17 @@ class WebAction:
         SiteUserInfo().refresh_site_data_now()
 
     @staticmethod
-    def __set_default_rss_setting(data):
+    def get_default_rss_setting(data):
         """
-        添加订阅|搜索默认站点
+        获取默认订阅设置
         """
-        rss_sites = data.get("rss_sites")
-        search_sites = data.get("search_sites")
-        mtype = data.get("params", {}).get("default_sites_rss_type")
-        filter_restype = data.get("params", {}).get("default_rss_restype")
-        filter_pix = data.get("params", {}).get("default_rss_pix")
-        filter_team = data.get("params", {}).get("default_rss_team")
-        filter_rule = data.get("params", {}).get("default_rss_rule")
-        over_edition = data.get("params", {}).get("default_over_edition")
-        fuzzy_match = data.get("params", {}).get("default_fuzzy_match")
-
-        # 保存默认站点
-        SystemConfig().set_system_config(
-            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting,
-            value={
-                "rss": rss_sites,
-                "search": search_sites,
-                "filter_restype": filter_restype,
-                "filter_pix": filter_pix,
-                "filter_team": filter_team,
-                "filter_rule": filter_rule,
-                "over_edition": over_edition,
-                "fuzzy_match": fuzzy_match
-            })
-        return {"code": 0}
-
-    @staticmethod
-    def __default_rss_setting(data):
-        """
-        添加订阅|搜索默认站点
-        """
-        mtype = data.get("mtype")
-
-        # 保存默认站点
-        default_settings = SystemConfig().get_system_config(
-            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
-        return {"code": 0, "data": default_settings}
+        match data.get("mtype"):
+            case "TV":
+                default_rss_setting = Subscribe().default_rss_setting_tv
+            case "MOV":
+                default_rss_setting = Subscribe().default_rss_setting_mov
+            case _:
+                default_rss_setting = {}
+        if default_rss_setting:
+            return {"code": 0, "data": default_rss_setting}
+        return {"code": 1}
