@@ -343,6 +343,44 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-default-sites" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">默认站点</h5>
+                <input type="hidden" id="default_sites_rss_type">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="default_sites_close_btn"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row rss_sites_container" id="default_rss_sites_div">
+                    <div class="mb-3">
+                        <div class="btn-list">
+                            <label class="form-label">订阅站点</label>
+                            <a href="javascript:void(0)" class="ms-auto"
+                               onclick="select_btn_SelectALL(this, 'default_rss_sites')">全选</a>
+                        </div>
+                        <div class="form-selectgroup" id="default_rss_sites_group"></div>
+                    </div>
+                </div>
+                <div class="row rss_sites_container" id="default_rss_search_sites_div">
+                    <div class="mb-3">
+                        <div class="btn-list">
+                            <label class="form-label">搜索站点</label>
+                            <a href="javascript:void(0)" class="ms-auto"
+                               onclick="select_btn_SelectALL(this, 'default_search_sites')">全选</a>
+                        </div>
+                        <div class="form-selectgroup" id="default_rss_search_sites_group"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="save_default_sites()" id="default_sites_save_btn" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- 手动订阅 -->
 <div class="modal modal-blur fade" id="modal-manual-rss" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
@@ -1457,6 +1495,63 @@
     $("[name='rss_add_btn']").show();
     $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
+  }
+
+  // 显示默认站点页面
+  function show_default_site_modal(mtype) {
+    refresh_rsssites_select("default_rss_sites_group", "default_rss_sites", false);
+    refresh_searchsites_select("default_rss_search_sites_group", "default_search_sites", false);
+
+    // 查询已保存配置
+    ajax_post("get_default_sites", {mtype:mtype}, function (ret) {
+      if (ret.code === 0) {
+        if (ret.data.rss.length === 0) {
+          select_SelectALL(false, 'default_rss_sites');
+        } else {
+          select_SelectPart(ret.data.rss, 'default_rss_sites')
+        }
+        if (ret.data.search.length === 0) {
+          select_SelectALL(false, 'default_search_sites');
+        } else {
+          select_SelectPart(ret.data.search, 'default_search_sites')
+        }
+      } else {
+        select_SelectALL(false, "default_rss_sites");
+        select_SelectALL(false, "default_search_sites");
+      }
+    });
+
+    if (mtype === "TV") {
+      $("#default_sites_rss_type").val("TV");
+    } else if (mtype === "MOV") {
+      $("#default_sites_rss_type").val("MOV");
+    }
+
+    $("#modal-default-sites").modal('show');
+  }
+
+  // 保存默认站点
+  function save_default_sites() {
+    const mtype = $("#default_sites_rss_type").val();
+    //订阅站点
+    let default_rss_sites = select_GetSelectedVAL("default_rss_sites");
+    //搜索站点
+    let default_search_sites = select_GetSelectedVAL("default_search_sites");
+
+    const data = {
+      "mtype": mtype,
+      "rss_sites": default_rss_sites,
+      "search_sites": default_search_sites
+    };
+
+    $("#modal-default-sites").modal("hide");
+    ajax_post("add_default_sites", data, function (ret) {
+      if (ret.code === 0) {
+        show_success_modal("设置默认站点成功！");
+      } else {
+        show_fail_modal(`设置默认站点失败：${ret.msg}！`);
+      }
+    });
   }
 
   // 显示编辑订阅
