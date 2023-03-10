@@ -436,7 +436,7 @@ def __rss_default_settings(media_info):
     """
     # 探索订阅或交互订阅默认设置
     default_setting = SystemConfig().get_system_config(
-        key=SystemConfigKey.DefaultMovieRssSetting if media_info.type in MovieTypes else SystemConfigKey.DefaultTVRssSetting)
+        key=SystemConfigKey.DefaultMovieRssSetting if media_info.type in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
     media_info.rss_sites = media_info.rss_sites or default_setting.get('rss') if default_setting else []
     media_info.search_sites = media_info.search_sites or default_setting.get('search') if default_setting else []
     media_info.filter_restype = default_setting.get('filter_restype') if default_setting else []

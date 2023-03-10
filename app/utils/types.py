@@ -149,7 +149,7 @@ class SystemConfigKey(Enum):
     # 默认电影订阅设置
     DefaultMovieRssSetting = "DefaultMovieRssSetting"
     # 默认电视剧订阅设置
-    DefaultTVRssSetting = "DefaultTVRssSetting"
+    DefaultTvRssSetting = "DefaultTvRssSetting"
 
 # 处理进度Key字典
 class ProgressKey(Enum):

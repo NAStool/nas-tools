@@ -1386,7 +1386,7 @@ class WebAction:
         if not rssid:
             # 探索订阅或交互订阅默认设置
             default_setting = SystemConfig().get_system_config(
-                key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting)
+                key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
             rss_sites = rss_sites or default_setting.get('rss') if default_setting else []
             search_sites = search_sites or default_setting.get('search') if default_setting else []
             filter_restype = filter_restype or default_setting.get('filter_restype') if default_setting else []
@@ -1399,7 +1399,6 @@ class WebAction:
             for sea in season:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
-                                                                     year=year,
                                                                      keyword=keyword,
                                                                      season=sea,
                                                                      fuzzy_match=fuzzy_match,
@@ -4837,7 +4836,7 @@ class WebAction:
 
         # 保存默认站点
         SystemConfig().set_system_config(
-            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting,
+            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting,
             value={
                 "rss": rss_sites,
                 "search": search_sites,
@@ -4856,5 +4855,5 @@ class WebAction:
 
         # 保存默认站点
         default_settings = SystemConfig().get_system_config(
-            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting)
+            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
         return {"code": 0, "data": default_settings}
