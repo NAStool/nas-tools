@@ -116,8 +116,8 @@
                                   src="../static/img/icon-imdb.png"></a>
                         {% endif %}
                         {% if Result.labels %}
-                          {% for label in Result.labels.split(' ') %}
-                            <span class="text-purple me-1" style="text-shadow: 1px 1px #ccc;">{{ label }}</span>
+                          {% for label in Result.labels.split('|') %}
+                            <span class="badge badge-outline text-purple">{{ label }}</span>
                           {% endfor %}
                         {% endif %}
                         <span class="text-muted">{{ Result.description }}</span>

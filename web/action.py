@@ -3413,7 +3413,7 @@ class WebAction:
             SE_key = item.ES_STRING if item.ES_STRING and mtype != "MOV" else "MOV"
             media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 只需要部分种子标签
-            labels = [label for label in str(item.NOTE).split() if label in ["官方", "中字", "国语", "特效字幕"]]
+            labels = [label for label in str(item.NOTE).split("|") if label in ["官方", "中字", "国语", "特效字幕"]]
             # 种子信息
             torrent_item = {
                 "id": item.ID,

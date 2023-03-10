@@ -193,9 +193,9 @@
                                     </div>
                                     <div class="col">
                                       <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")'>{{ torrent.torrent_name }}</a>
-                                      <div class="d-flex align-items-center mb-1">
+                                      <div class="mb-1">
                                         {% for label in torrent.labels %}
-                                          <span class="badge badge-outline text-purple p-0 me-1">{{ label }}</span>
+                                          <span class="badge badge-outline text-purple">{{ label }}</span>
                                         {% endfor %}
                                         <span class="text-muted">{{ torrent.description or '' }}</span>
                                       </div>
