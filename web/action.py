@@ -216,7 +216,9 @@ class WebAction:
             "get_downloaders": self.__get_downloaders,
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
-            "media_path_scrap": self.__media_path_scrap
+            "media_path_scrap": self.__media_path_scrap,
+            "add_default_sites": self.__add_default_sites,
+            "get_default_sites": self.__get_default_sites
         }
 
     def action(self, cmd, data=None):
@@ -1380,6 +1382,14 @@ class WebAction:
         page = data.get("page")
         mtype = MediaType.MOVIE if data.get(
             "type") in MovieTypes else MediaType.TV
+
+        # 查询是否已设置默认订阅检索站点
+        if not rssid:
+            default_sites = SystemConfig().get_system_config(
+                key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
+            rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
+            search_sites = search_sites or default_sites.get('search') if default_sites else []
+
         media_info = None
         if isinstance(season, list):
             code = 0
@@ -4810,3 +4820,33 @@ class WebAction:
         """
         # 强制刷新站点数据,并发送站点统计的消息
         SiteUserInfo().refresh_pt_date_now()
+
+    @staticmethod
+    def __add_default_sites(data):
+        """
+        添加订阅|搜索默认站点
+        """
+        mtype = data.get("mtype")
+        rss_sites = data.get("rss_sites")
+        search_sites = data.get("search_sites")
+
+        # 保存默认站点
+        SystemConfig().set_system_config(
+            key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting,
+            value={
+                "rss": rss_sites,
+                "search": search_sites
+            })
+        return {"code": 0}
+
+    @staticmethod
+    def __get_default_sites(data):
+        """
+        添加订阅|搜索默认站点
+        """
+        mtype = data.get("mtype")
+
+        # 保存默认站点
+        default_sites = SystemConfig().get_system_config(
+            key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
+        return {"code": 0, "data": default_sites}

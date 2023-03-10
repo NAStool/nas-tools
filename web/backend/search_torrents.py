@@ -2,6 +2,7 @@ import os.path
 import re
 
 import log
+from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
 from app.indexer import Indexer
@@ -11,7 +12,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import StringUtils, Torrent
-from app.utils.types import SearchType, IndexerType, ProgressKey
+from app.utils.types import SearchType, IndexerType, ProgressKey, SystemConfigKey, MovieTypes
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -362,6 +363,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                    user_id=user_id,
                                    user_name=user_name)
                 else:
+                    default_sites = SystemConfig().get_system_config(
+                         key=SystemConfigKey.DefaultMovieSitesSetting if meta_info.type in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
+                    # 合并站点和下载设置信息，没从搜索词中提取出站点则读取默认配置
+                    meta_info.rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
+                    meta_info.search_sites = search_sites or default_sites.get('search') if default_sites else []
+              
                     # 添加订阅
                     __rss_media(in_from=in_from,
                                 media_info=media_info,
