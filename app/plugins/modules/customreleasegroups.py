@@ -70,7 +70,7 @@ class CustomReleaseGroups(_IPluginModule):
                 if custom_release_groups:
                     self._release_groups_matcher.update_custom(custom_release_groups)
                     self._custom_release_groups = custom_release_groups
-                    log.info("自定义制作组/字幕组已加载")
+                    log.info("【Plugin】自定义制作组/字幕组已加载")
 
     def get_state(self):
         return True if self._custom_release_groups else False

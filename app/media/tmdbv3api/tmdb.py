@@ -150,7 +150,7 @@ class TMDb(object):
         if self.api_key is None or self.api_key == "":
             raise TMDbException("No API key found.")
 
-        url = "%s%s?api_key=%s&%s&language=%s" % (
+        url = "%s%s?api_key=%s&include_adult=false&%s&language=%s" % (
             self.domain,
             action,
             self.api_key,

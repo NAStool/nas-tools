@@ -16,7 +16,7 @@ from app.sync import Sync
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from config import METAINFO_SAVE_INTERVAL, \
-    SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
+    SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL, Config
 from web.backend.wallpaper import get_login_wallpaper
 
@@ -50,53 +50,12 @@ class Scheduler:
             # 站点签到
             ptsignin_cron = str(self._pt.get('ptsignin_cron'))
             if ptsignin_cron:
-                if '-' in ptsignin_cron:
-                    try:
-                        time_range = ptsignin_cron.split("-")
-                        start_time_range_str = time_range[0]
-                        end_time_range_str = time_range[1]
-                        start_time_range_array = start_time_range_str.split(":")
-                        end_time_range_array = end_time_range_str.split(":")
-                        start_hour = int(start_time_range_array[0])
-                        start_minute = int(start_time_range_array[1])
-                        end_hour = int(end_time_range_array[0])
-                        end_minute = int(end_time_range_array[1])
+                self.start_job(SiteSignin().signin, "站点自动签到", ptsignin_cron)
 
-                        def start_random_job():
-                            task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
-                            self.start_data_site_signin_job(math.floor(task_time_count / 60), task_time_count % 60)
-
-                        self.SCHEDULER.add_job(start_random_job,
-                                               "cron",
-                                               hour=start_hour,
-                                               minute=start_minute)
-                        log.info("站点自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (
-                            str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
-                    except Exception as e:
-                        log.info("站点自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
-                elif ptsignin_cron.find(':') != -1:
-                    try:
-                        hour = int(ptsignin_cron.split(":")[0])
-                        minute = int(ptsignin_cron.split(":")[1])
-                    except Exception as e:
-                        log.info("站点自动签到时间 配置格式错误：%s" % str(e))
-                        hour = minute = 0
-                    self.SCHEDULER.add_job(SiteSignin().signin,
-                                           "cron",
-                                           hour=hour,
-                                           minute=minute)
-                    log.info("站点自动签到服务启动")
-                else:
-                    try:
-                        hours = float(ptsignin_cron)
-                    except Exception as e:
-                        log.info("站点自动签到时间 配置格式错误：%s" % str(e))
-                        hours = 0
-                    if hours:
-                        self.SCHEDULER.add_job(SiteSignin().signin,
-                                               "interval",
-                                               hours=hours)
-                        log.info("站点自动签到服务启动")
+            # 数据统计
+            ptrefresh_date_cron = str(self._pt.get('ptrefresh_date_cron'))
+            if ptrefresh_date_cron:
+                self.start_job(SiteUserInfo().refresh_pt_date_now, "数据统计", ptrefresh_date_cron)
 
             # RSS下载器
             pt_check_interval = self._pt.get('pt_check_interval')
@@ -175,12 +134,6 @@ class Scheduler:
         # RSS队列中检索
         self.SCHEDULER.add_job(Subscribe().subscribe_search, 'interval', seconds=RSS_CHECK_INTERVAL)
 
-        # 站点数据刷新
-        self.SCHEDULER.add_job(SiteUserInfo().refresh_pt_date_now,
-                               'interval',
-                               hours=REFRESH_PT_DATA_INTERVAL,
-                               next_run_time=datetime.datetime.now() + datetime.timedelta(minutes=1))
-
         # 豆瓣RSS转TMDB，定时更新TMDB数据
         self.SCHEDULER.add_job(Subscribe().refresh_rss_metainfo, 'interval', hours=RSS_REFRESH_TMDB_INTERVAL)
 
@@ -196,6 +149,65 @@ class Scheduler:
         self.SCHEDULER.print_jobs()
 
         self.SCHEDULER.start()
+
+    def start_job(self, func, func_desc, cron):
+        """
+        解析任务的定时规则,启动定时服务
+        :param func: 可调用的一个函数,在指定时间运行
+        :param func_desc: 函数的描述,在日志中提现
+        :param cron 时间表达式 三种配置方法：
+          1、配置间隔，单位小时，比如23.5；
+          2、配置固定时间，如08:00；
+          3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；
+        """
+        if cron:
+            if '-' in cron:
+                try:
+                    time_range = cron.split("-")
+                    start_time_range_str = time_range[0]
+                    end_time_range_str = time_range[1]
+                    start_time_range_array = start_time_range_str.split(":")
+                    end_time_range_array = end_time_range_str.split(":")
+                    start_hour = int(start_time_range_array[0])
+                    start_minute = int(start_time_range_array[1])
+                    end_hour = int(end_time_range_array[0])
+                    end_minute = int(end_time_range_array[1])
+
+                    def start_random_job():
+                        task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
+                        self.start_range_job(func, func_desc, math.floor(task_time_count / 60), task_time_count % 60)
+
+                    self.SCHEDULER.add_job(start_random_job,
+                                           "cron",
+                                           hour=start_hour,
+                                           minute=start_minute)
+                    log.info("%s服务时间范围随机模式启动，起始时间于%s:%s" % (
+                        func_desc, str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
+                except Exception as e:
+                    log.info("%s时间 时间范围随机模式 配置格式错误：%s %s" % (func_desc, cron, str(e)))
+            elif cron.find(':') != -1:
+                try:
+                    hour = int(cron.split(":")[0])
+                    minute = int(cron.split(":")[1])
+                except Exception as e:
+                    log.info("%s时间 配置格式错误：%s" % (func_desc, str(e)))
+                    hour = minute = 0
+                self.SCHEDULER.add_job(func,
+                                       "cron",
+                                       hour=hour,
+                                       minute=minute)
+                log.info("%s服务启动" % func_desc)
+            else:
+                try:
+                    hours = float(cron)
+                except Exception as e:
+                    log.info("%s时间 配置格式错误：%s" % (func_desc, str(e)))
+                    hours = 0
+                if hours:
+                    self.SCHEDULER.add_job(func,
+                                           "interval",
+                                           hours=hours)
+                    log.info("%s服务启动" % func_desc)
 
     def stop_service(self):
         """
@@ -216,21 +228,21 @@ class Scheduler:
         self.stop_service()
         self.start_service()
 
-    def start_data_site_signin_job(self, hour, minute):
+    def start_range_job(self, func, func_desc, hour, minute):
         year = datetime.datetime.now().year
         month = datetime.datetime.now().month
         day = datetime.datetime.now().day
         # 随机数从1秒开始，不在整点签到
         second = random.randint(1, 59)
-        log.info("站点自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
-            str(year), str(month), str(day), str(hour), str(minute), str(second)))
+        log.info("%s到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
+            func_desc, str(year), str(month), str(day), str(hour), str(minute), str(second)))
         if hour < 0 or hour > 24:
             hour = -1
         if minute < 0 or minute > 60:
             minute = -1
         if hour < 0 or minute < 0:
-            log.warn("站点自动签到时间 配置格式错误：不启动任务")
+            log.warn("%s时间 配置格式错误：不启动任务" % func_desc)
             return
-        self.SCHEDULER.add_job(SiteSignin().signin,
+        self.SCHEDULER.add_job(func,
                                "date",
                                run_date=datetime.datetime(year, month, day, hour, minute, second))

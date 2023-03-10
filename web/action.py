@@ -329,7 +329,8 @@ class WebAction:
             "/tbl": {"func": WebAction().truncate_blacklist, "desp": "清理转移缓存"},
             "/trh": {"func": WebAction().truncate_rsshistory, "desp": "清理RSS缓存"},
             "/utf": {"func": WebAction().unidentification, "desp": "重新识别"},
-            "/udt": {"func": WebAction().update_system, "desp": "系统更新"}
+            "/udt": {"func": WebAction().update_system, "desp": "系统更新"},
+            "/sta": {"func": WebAction().user_statistics, "desp": "数据统计"}
         }
 
         # 触发事件
@@ -1997,9 +1998,10 @@ class WebAction:
         名称识别测试
         """
         name = data.get("name")
+        subtitle = data.get("subtitle")
         if not name:
             return {"code": -1}
-        media_info = Media().get_media_info(title=name)
+        media_info = Media().get_media_info(title=name, subtitle=subtitle)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": self.mediainfo_dict(media_info)}
@@ -4797,3 +4799,11 @@ class WebAction:
             } for ret in result],
             "dataset": dataset
         }
+
+    @staticmethod
+    def user_statistics():
+        """
+        强制刷新站点数据,并发送站点统计的消息
+        """
+        # 强制刷新站点数据,并发送站点统计的消息
+        SiteUserInfo().refresh_pt_date_now()
