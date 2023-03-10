@@ -1383,13 +1383,15 @@ class WebAction:
         mtype = MediaType.MOVIE if data.get(
             "type") in MovieTypes else MediaType.TV
 
-        # 查询是否已设置默认订阅检索站点
         if not rssid:
-            default_sites = SystemConfig().get_system_config(
-                key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
-            rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
-            search_sites = search_sites or default_sites.get('search') if default_sites else []
-
+            # 探索订阅或交互订阅默认设置
+            default_setting = SystemConfig().get_system_config(
+                key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting)
+            rss_sites = rss_sites or default_setting.get('rss') if default_setting else []
+            search_sites = search_sites or default_setting.get('search') if default_setting else []
+            filter_restype = filter_restype or default_setting.get('filter_restype') if default_setting else []
+            filter_pix = filter_pix or default_setting.get('filter_pix') if default_setting else []
+            filter_rule = filter_rule or default_setting.get('filter_rule') if default_setting else []
         media_info = None
         if isinstance(season, list):
             code = 0
@@ -4829,13 +4831,19 @@ class WebAction:
         mtype = data.get("mtype")
         rss_sites = data.get("rss_sites")
         search_sites = data.get("search_sites")
+        filter_restype = data.get("filter_restype")
+        filter_pix = data.get("filter_pix")
+        filter_rule = data.get("filter_rule")
 
         # 保存默认站点
         SystemConfig().set_system_config(
-            key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting,
+            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting,
             value={
                 "rss": rss_sites,
-                "search": search_sites
+                "search": search_sites,
+                "filter_restype": filter_restype,
+                "filter_pix": filter_pix,
+                "filter_rule": filter_rule,
             })
         return {"code": 0}
 
@@ -4847,6 +4855,6 @@ class WebAction:
         mtype = data.get("mtype")
 
         # 保存默认站点
-        default_sites = SystemConfig().get_system_config(
-            key=SystemConfigKey.DefaultMovieSitesSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
-        return {"code": 0, "data": default_sites}
+        default_settings = SystemConfig().get_system_config(
+            key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTVRssSetting)
+        return {"code": 0, "data": default_settings}

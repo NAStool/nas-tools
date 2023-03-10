@@ -348,12 +348,47 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">默认站点</h5>
+                <h5 class="modal-title" >订阅默认设置 <span class="form-help"
+                                                                  title="订阅默认设置，只适用于探索页面直接订阅和交互消息订阅场景"
+                                                                  data-bs-toggle="tooltip">?</span></h5>
                 <input type="hidden" id="default_sites_rss_type">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                         id="default_sites_close_btn"></button>
             </div>
             <div class="modal-body">
+              <div class="row">
+                  <div class="col-lg-3">
+                    <div class="mb-3">
+                      <label class="form-label">质量</label>
+                      <select class="form-select" id="default_rss_restype">
+                        <option value="" selected>全部</option>
+                        {% for Restype in RestypeDict %}
+                          <option value="{{ Restype }}">{{ Restype }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-lg-3">
+                    <div class="mb-3">
+                      <label class="form-label">分辨率</label>
+                      <select class="form-select" id="default_rss_pix">
+                        <option value="" selected>全部</option>
+                        {% for Pix in PixDict %}
+                          <option value="{{ Pix }}">{{ Pix }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-lg-3">
+                    <div class="mb-3">
+                      <label class="form-label">过滤规则 <span class="form-help"
+                                                               title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                      <select class="form-select" id="default_rss_rule">
+                      </select>
+                    </div>
+                  </div>
+                </div>
                 <div class="row rss_sites_container" id="default_rss_sites_div">
                     <div class="mb-3">
                         <div class="btn-list">
@@ -1501,6 +1536,7 @@
   function show_default_site_modal(mtype) {
     refresh_rsssites_select("default_rss_sites_group", "default_rss_sites", false);
     refresh_searchsites_select("default_rss_search_sites_group", "default_search_sites", false);
+    refresh_filter_select("default_rss_rule", false);
 
     // 查询已保存配置
     ajax_post("get_default_sites", {mtype:mtype}, function (ret) {
@@ -1515,6 +1551,9 @@
         } else {
           select_SelectPart(ret.data.search, 'default_search_sites')
         }
+        $("#default_rss_restype").val(ret.data.filter_restype);
+        $("#default_rss_pix").val(ret.data.filter_pix);
+        $("#default_rss_rule").val(ret.data.filter_rule);
       } else {
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
@@ -1533,6 +1572,9 @@
   // 保存默认站点
   function save_default_sites() {
     const mtype = $("#default_sites_rss_type").val();
+    const default_filter_restype = $("#default_rss_restype").val();
+    const default_filter_pix = $("#default_rss_pix").val();
+    const default_filter_rule = $("#default_rss_rule").val();
     //订阅站点
     let default_rss_sites = select_GetSelectedVAL("default_rss_sites");
     //搜索站点
@@ -1541,7 +1583,10 @@
     const data = {
       "mtype": mtype,
       "rss_sites": default_rss_sites,
-      "search_sites": default_search_sites
+      "search_sites": default_search_sites,
+      "filter_restype": default_filter_restype,
+      "filter_pix": default_filter_pix,
+      "filter_rule": default_filter_rule,
     };
 
     $("#modal-default-sites").modal("hide");
@@ -1552,6 +1597,12 @@
         show_fail_modal(`设置默认站点失败：${ret.msg}！`);
       }
     });
+
+    $("#default_rss_restype").val('');
+    $("#default_rss_pix").val('');
+    $("#default_rss_rule").val('');
+    $("#default_rss_sites").val('');
+    $("#default_search_sites").val('');
   }
 
   // 显示编辑订阅
@@ -2601,6 +2652,16 @@
         $("#rename_season_div").show();
         $("#rename_episode_div").show();
       }
+    });
+
+    // 关闭默认订阅页面清空缓存
+    $("#default_sites_close_btn").unbind("click").click(function () {
+       // 清空日志
+      $("#default_rss_restype").val('');
+      $("#default_rss_pix").val('');
+      $("#default_rss_rule").val('');
+      $("#default_rss_sites").val('');
+      $("#default_search_sites").val('');
     });
 
     {% if "系统设置" in CurrentUser.pris %}
