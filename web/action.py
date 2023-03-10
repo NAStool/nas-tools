@@ -4820,7 +4820,7 @@ class WebAction:
         强制刷新站点数据,并发送站点统计的消息
         """
         # 强制刷新站点数据,并发送站点统计的消息
-        SiteUserInfo().refresh_pt_date_now()
+        SiteUserInfo().refresh_site_data_now()
 
     @staticmethod
     def __add_default_sites(data):
