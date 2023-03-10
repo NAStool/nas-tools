@@ -363,12 +363,6 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                    user_id=user_id,
                                    user_name=user_name)
                 else:
-                    default_sites = SystemConfig().get_system_config(
-                         key=SystemConfigKey.DefaultMovieSitesSetting if meta_info.type in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
-                    # 合并站点和下载设置信息，没从搜索词中提取出站点则读取默认配置
-                    meta_info.rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
-                    meta_info.search_sites = search_sites or default_sites.get('search') if default_sites else []
-              
                     # 添加订阅
                     __rss_media(in_from=in_from,
                                 media_info=media_info,
@@ -436,11 +430,25 @@ def __search_media(in_from, media_info, user_id, user_name=None):
                     state='R',
                     user_name=user_name)
 
+def __rss_default_settings(media_info):
+    """
+    订阅默认设置
+    """
+    # 探索订阅或交互订阅默认设置
+    default_setting = SystemConfig().get_system_config(
+        key=SystemConfigKey.DefaultMovieRssSetting if media_info.type in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
+    media_info.rss_sites = media_info.rss_sites or default_setting.get('rss') if default_setting else []
+    media_info.search_sites = media_info.search_sites or default_setting.get('search') if default_setting else []
+    media_info.filter_restype = default_setting.get('filter_restype') if default_setting else []
+    media_info.filter_pix = default_setting.get('filter_pix') if default_setting else []
+    media_info.filter_rule = default_setting.get('filter_rule') if default_setting else []
 
 def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     """
     开始添加订阅和发送消息
     """
+    # 探索订阅或交互订阅默认设置
+    __rss_default_settings(media_info)
     # 操作用户
     media_info.user_name = user_name
     # 添加订阅
@@ -451,6 +459,9 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                           season=media_info.begin_season,
                                                           mediaid=mediaid,
                                                           state=state,
+                                                          filter_pix=media_info.filter_pix,
+                                                          filter_restype=media_info.filter_restype,
+                                                          filter_rule=media_info.filter_rule,
                                                           rss_sites=media_info.rss_sites,
                                                           search_sites=media_info.search_sites,
                                                           in_from=in_from)
