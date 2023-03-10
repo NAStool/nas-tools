@@ -2,8 +2,10 @@ import datetime
 import math
 import random
 
+import pytz
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.util import undefined
 
 import log
 from app.doubansync import DoubanSync
@@ -55,7 +57,9 @@ class Scheduler:
             # 数据统计
             ptrefresh_date_cron = self._pt.get('ptrefresh_date_cron')
             if ptrefresh_date_cron:
-                self.start_job(SiteUserInfo().refresh_pt_date_now, "数据统计", str(ptrefresh_date_cron))
+                tz = pytz.timezone(Config().get_timezone())
+                self.start_job(SiteUserInfo().refresh_site_data_now, "数据统计", str(ptrefresh_date_cron),
+                               next_run_time=datetime.datetime.now(tz) + datetime.timedelta(minutes=1))
 
             # RSS下载器
             pt_check_interval = self._pt.get('pt_check_interval')
@@ -150,12 +154,13 @@ class Scheduler:
 
         self.SCHEDULER.start()
 
-    def start_job(self, func, func_desc, cron):
+    def start_job(self, func, func_desc, cron, next_run_time=undefined):
         """
         解析任务的定时规则,启动定时服务
         :param func: 可调用的一个函数,在指定时间运行
         :param func_desc: 函数的描述,在日志中提现
         :param cron 时间表达式 三种配置方法：
+        :param next_run_time: 下次运行时间
           1、配置间隔，单位小时，比如23.5；
           2、配置固定时间，如08:00；
           3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；
@@ -175,12 +180,14 @@ class Scheduler:
 
                     def start_random_job():
                         task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
-                        self.start_range_job(func, func_desc, math.floor(task_time_count / 60), task_time_count % 60)
+                        self.start_range_job(func, func_desc, math.floor(task_time_count / 60), task_time_count % 60,
+                                             next_run_time=next_run_time)
 
                     self.SCHEDULER.add_job(start_random_job,
                                            "cron",
                                            hour=start_hour,
-                                           minute=start_minute)
+                                           minute=start_minute,
+                                           next_run_time=next_run_time)
                     log.info("%s服务时间范围随机模式启动，起始时间于%s:%s" % (
                         func_desc, str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
                 except Exception as e:
@@ -195,7 +202,8 @@ class Scheduler:
                 self.SCHEDULER.add_job(func,
                                        "cron",
                                        hour=hour,
-                                       minute=minute)
+                                       minute=minute,
+                                       next_run_time=next_run_time)
                 log.info("%s服务启动" % func_desc)
             else:
                 try:
@@ -206,7 +214,8 @@ class Scheduler:
                 if hours:
                     self.SCHEDULER.add_job(func,
                                            "interval",
-                                           hours=hours)
+                                           hours=hours,
+                                           next_run_time=next_run_time)
                     log.info("%s服务启动" % func_desc)
 
     def stop_service(self):
@@ -228,7 +237,7 @@ class Scheduler:
         self.stop_service()
         self.start_service()
 
-    def start_range_job(self, func, func_desc, hour, minute):
+    def start_range_job(self, func, func_desc, hour, minute, next_run_time=undefined):
         year = datetime.datetime.now().year
         month = datetime.datetime.now().month
         day = datetime.datetime.now().day
@@ -245,4 +254,5 @@ class Scheduler:
             return
         self.SCHEDULER.add_job(func,
                                "date",
-                               run_date=datetime.datetime(year, month, day, hour, minute, second))
+                               run_date=datetime.datetime(year, month, day, hour, minute, second),
+                               next_run_time=next_run_time)
