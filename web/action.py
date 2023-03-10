@@ -1360,6 +1360,8 @@ class WebAction:
         """
         添加RSS订阅
         """
+        # 判断是否是手动新增订阅 manual
+        rss_type = data.get("rss_type")
         name = data.get("name")
         _subscribe = Subscribe()
         year = data.get("year")
@@ -1383,7 +1385,7 @@ class WebAction:
         mtype = MediaType.MOVIE if data.get(
             "type") in MovieTypes else MediaType.TV
 
-        if not rssid:
+        if not rss_type:
             # 探索订阅或交互订阅默认设置
             default_setting = SystemConfig().get_system_config(
                 key=SystemConfigKey.DefaultMovieRssSetting if mtype in MovieTypes else SystemConfigKey.DefaultTvRssSetting)
