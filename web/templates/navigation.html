@@ -1586,8 +1586,18 @@
         $("#default_rss_pix").val(ret.data.filter_pix);
         $("#default_rss_team").val(ret.data.filter_team);
         $("#default_rss_rule").val(ret.data.filter_rule);
-        $("#default_over_edition").val(ret.data.over_edition);
-        $("#default_fuzzy_match").val(ret.data.fuzzy_match);
+        if (!ret.data.fuzzy_match) {
+          $("#default_fuzz_match").prop("checked", false);
+        }
+        else {
+          $("#default_fuzzy_match").prop("checked", true);
+        }
+        if (!ret.data.over_edition) {
+          $("#default_over_edition").prop("checked", false);
+        }
+        else {
+          $("#default_over_edition").prop("checked", true);
+        }
       } else {
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
