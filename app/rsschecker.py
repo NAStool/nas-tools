@@ -17,7 +17,7 @@ from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, SearchType
+from app.utils.types import MediaType, SearchType, RssType
 from config import Config
 
 
@@ -340,6 +340,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
+                    in_form=RssType.Auto,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),
