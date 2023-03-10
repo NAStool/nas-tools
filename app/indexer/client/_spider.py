@@ -580,7 +580,7 @@ class TorrentSpider(feapder.AirSpider):
         else:
             items = [item.text() for item in labels.items() if item and item.text()]
         if items:
-            self.torrents_info['labels'] = " ".join(items)
+            self.torrents_info['labels'] = "|".join(items)
 
     def Getinfo(self, torrent):
         """
