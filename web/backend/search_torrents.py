@@ -329,11 +329,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             # 保存识别信息到临时结果中，由于消息长度限制只取前8条
             SEARCH_MEDIA_CACHE[user_id] = []
             for meta_info in medias[:8]:
-                default_sites = SystemConfig().get_system_config(
-                    key=SystemConfigKey.DefaultMovieSitesSetting if meta_info.type in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
-                # 合并站点和下载设置信息，没从搜索词中提取出站点则读取默认配置
-                meta_info.rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
-                meta_info.search_sites = search_sites or default_sites.get('search') if default_sites else []
+                meta_info.rss_sites = rss_sites
+                meta_info.search_sites = search_sites
                 meta_info.set_download_info(download_setting=download_setting)
                 SEARCH_MEDIA_CACHE[user_id].append(meta_info)
 
@@ -365,6 +362,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                    user_id=user_id,
                                    user_name=user_name)
                 else:
+                    default_sites = SystemConfig().get_system_config(
+                         key=SystemConfigKey.DefaultMovieSitesSetting if meta_info.type in MovieTypes else SystemConfigKey.DefaultTVSitesSetting)
+                    # 合并站点和下载设置信息，没从搜索词中提取出站点则读取默认配置
+                    meta_info.rss_sites = rss_sites or default_sites.get('rss') if default_sites else []
+                    meta_info.search_sites = search_sites or default_sites.get('search') if default_sites else []
+              
                     # 添加订阅
                     __rss_media(in_from=in_from,
                                 media_info=media_info,
