@@ -343,108 +343,98 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-default-sites" tabindex="-1" role="dialog" aria-hidden="true"
+<div class="modal modal-blur fade" id="modal-default-rss-setting" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" >订阅默认设置 <span class="form-help"
-                                                                  title="订阅默认设置，只适用于探索页面直接订阅、交互消息订阅、豆瓣订阅、Jellyseerr等自动订阅场景"
-                                                                  data-bs-toggle="tooltip">?</span></h5>
-                <input type="hidden" id="default_sites_rss_type">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                        id="default_sites_close_btn"></button>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" >订阅默认设置 <span class="form-help"
+                                                            title="订阅默认设置，只适用于探索页面、交互消息、豆瓣、Jellyseerr/Overseerr等自动订阅场景"
+                                                            data-bs-toggle="tooltip">?</span></h5>
+          <input type="hidden" id="default_rss_setting_mtype">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                  id="default_sites_close_btn"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">质量</label>
+              <select class="form-select" id="default_rss_setting_restype">
+                <option value="" selected>全部</option>
+                {% for Restype in RestypeDict %}
+                  <option value="{{ Restype }}">{{ Restype }}</option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="modal-body">
-              <div class="row">
-                  <div class="col-lg">
-                    <div class="mb-3">
-                      <label class="form-label">质量</label>
-                      <select class="form-select" id="default_rss_restype">
-                        <option value="" selected>全部</option>
-                        {% for Restype in RestypeDict %}
-                          <option value="{{ Restype }}">{{ Restype }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-lg">
-                    <div class="mb-3">
-                      <label class="form-label">分辨率</label>
-                      <select class="form-select" id="default_rss_pix">
-                        <option value="" selected>全部</option>
-                        {% for Pix in PixDict %}
-                          <option value="{{ Pix }}">{{ Pix }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-lg">
-                    <div class="mb-3">
-                      <label class="form-label">制作组/字幕组</label>
-                      <input type="text" value="" id="default_rss_team" class="form-control" placeholder="支持正则表达式">
-                    </div>
-                  </div>
-                  <div class="col-lg">
-                    <div class="mb-3">
-                      <label class="form-label">过滤规则 <span class="form-help"
-                                                               title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                      <select class="form-select" id="default_rss_rule">
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="default_fuzzy_match"
-                               onclick="change_match_check(this)">
-                        <span class="form-check-label">模糊匹配 <span class="form-help"
-                                                                      title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配"
-                                                                      data-bs-toggle="tooltip">?</span></span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-lg-3">
-                    <div class="mb-3">
-                      <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="default_over_edition"
-                               onclick="change_over_edition_check(this)">
-                        <span class="form-check-label">洗版 <span class="form-help"
-                                                                  title="开启洗版后不会检查本地是否已存在，满足订阅条件即会下载；除非匹配了对应的过滤规则中最高优先级的那条规则否则不会删除订阅（未明确过滤规则时使用默认规则），同一优先级的资源只下载一次；多个资源下载后如命名一致，则只会保留文件体积较大的，如需都保留则需要在文件重命名规则中增加相关要素以做区分"
-                                                                  data-bs-toggle="tooltip">?</span></span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="row rss_sites_container" id="default_rss_sites_div">
-                    <div class="mb-3">
-                        <div class="btn-list">
-                            <label class="form-label">订阅站点</label>
-                            <a href="javascript:void(0)" class="ms-auto"
-                               onclick="select_btn_SelectALL(this, 'default_rss_sites')">全选</a>
-                        </div>
-                        <div class="form-selectgroup" id="default_rss_sites_group"></div>
-                    </div>
-                </div>
-                <div class="row rss_sites_container" id="default_rss_search_sites_div">
-                    <div class="mb-3">
-                        <div class="btn-list">
-                            <label class="form-label">搜索站点</label>
-                            <a href="javascript:void(0)" class="ms-auto"
-                               onclick="select_btn_SelectALL(this, 'default_search_sites')">全选</a>
-                        </div>
-                        <div class="form-selectgroup" id="default_rss_search_sites_group"></div>
-                    </div>
-                </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">分辨率</label>
+              <select class="form-select" id="default_rss_setting_pix">
+                <option value="" selected>全部</option>
+                {% for Pix in PixDict %}
+                  <option value="{{ Pix }}">{{ Pix }}</option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="modal-footer">
-                <button onclick="save_default_sites()" id="default_sites_save_btn" class="btn btn-primary">确定</button>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">制作组/字幕组</label>
+              <input type="text" id="default_rss_setting_team" class="form-control" placeholder="支持正则表达式">
             </div>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">过滤规则 </label>
+              <select class="form-select" id="default_rss_setting_rule"></select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">下载设置</label>
+              <select class="form-select" id="default_rss_setting_download_setting"></select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">洗版 </label>
+              <select class="form-select" id="default_rss_setting_over_edition">
+                <option value="0" selected>否</option>
+                <option value="1">是</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row rss_sites_container" id="default_rss_setting_rss_sites_div">
+          <div class="mb-3">
+              <div class="btn-list">
+                  <label class="form-label">订阅站点</label>
+                  <a href="javascript:void(0)" class="ms-auto"
+                     onclick="select_btn_SelectALL(this, 'default_rss_sites')">全选</a>
+              </div>
+              <div class="form-selectgroup" id="default_rss_setting_rss_sites_group"></div>
+          </div>
+        </div>
+        <div class="row rss_sites_container" id="default_rss_setting_search_sites_div">
+          <div class="mb-3">
+              <div class="btn-list">
+                  <label class="form-label">搜索站点</label>
+                  <a href="javascript:void(0)" class="ms-auto"
+                     onclick="select_btn_SelectALL(this, 'default_search_sites')">全选</a>
+              </div>
+              <div class="form-selectgroup" id="default_rss_setting_search_sites_group"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="save_default_sites()" class="btn btn-primary">保存</button>
+      </div>
     </div>
+  </div>
 </div>
 <!-- 手动订阅 -->
 <div class="modal modal-blur fade" id="modal-manual-rss" tabindex="-1" role="dialog" aria-hidden="true"
@@ -1564,77 +1554,59 @@
   }
 
   // 显示默认站点页面
-  function show_default_site_modal(mtype) {
-    refresh_rsssites_select("default_rss_sites_group", "default_rss_sites", false);
-    refresh_searchsites_select("default_rss_search_sites_group", "default_search_sites", false);
-    refresh_filter_select("default_rss_rule", false);
+  function show_default_rss_setting_modal(mtype) {
+    refresh_rsssites_select("default_rss_setting_rss_sites_group", "default_rss_sites", false);
+    refresh_searchsites_select("default_rss_setting_search_sites_group", "default_search_sites", false);
+    refresh_filter_select("default_rss_setting_rule", false);
+    refresh_downloadsetting_select("default_rss_setting_download_setting", false)
 
     // 查询已保存配置
-    ajax_post("default_rss_setting", {mtype:mtype}, function (ret) {
+    ajax_post("get_default_rss_setting", {mtype:mtype}, function (ret) {
       if (ret.code === 0 && ret.data) {
-        if (ret.data.rss.length === 0) {
+        $("#default_rss_setting_restype").val(ret.data.restype);
+        $("#default_rss_setting_pix").val(ret.data.pix);
+        $("#default_rss_setting_team").val(ret.data.team);
+        $("#default_rss_setting_rule").val(ret.data.rule);
+        $("#default_rss_setting_download_setting").val(ret.data.download_setting);
+        $("#default_rss_setting_over_edition").val(ret.data.over_edition);
+        if (ret.data.rss_sites.length === 0) {
           select_SelectALL(false, 'default_rss_sites');
         } else {
           select_SelectPart(ret.data.rss, 'default_rss_sites')
         }
-        if (ret.data.search.length === 0) {
+        if (ret.data.search_sites.length === 0) {
           select_SelectALL(false, 'default_search_sites');
         } else {
           select_SelectPart(ret.data.search, 'default_search_sites')
         }
-        $("#default_rss_restype").val(ret.data.filter_restype);
-        $("#default_rss_pix").val(ret.data.filter_pix);
-        $("#default_rss_team").val(ret.data.filter_team);
-        $("#default_rss_rule").val(ret.data.filter_rule);
-        if (!ret.data.fuzzy_match) {
-          $("#default_fuzz_match").prop("checked", false);
-        }
-        else {
-          $("#default_fuzzy_match").prop("checked", true);
-        }
-        if (!ret.data.over_edition) {
-          $("#default_over_edition").prop("checked", false);
-        }
-        else {
-          $("#default_over_edition").prop("checked", true);
-        }
       } else {
-        $("#default_rss_restype").val('');
-        $("#default_rss_pix").val('');
-        $("#default_rss_team").val('');
-        $("#default_rss_rule").val('');
-        $("#default_over_edition").prop("checked", false);
-        $("#default_fuzz_match").prop("checked", false);
+        $("#default_rss_setting_restype").val('');
+        $("#default_rss_setting_pix").val('');
+        $("#default_rss_setting_team").val('');
+        $("#default_rss_setting_rule").val('');
+        $("#default_rss_setting_download_setting").val('');
+        $("#default_rss_setting_over_edition").val('0');
         select_SelectALL(false, "default_rss_sites");
         select_SelectALL(false, "default_search_sites");
       }
+      $("#default_rss_setting_mtype").val(mtype);
+      $("#modal-default-rss-setting").modal('show');
     });
-
-    if (mtype === "TV") {
-      $("#default_sites_rss_type").val("TV");
-    } else if (mtype === "MOV") {
-      $("#default_sites_rss_type").val("MOV");
-    }
-
-    $("#modal-default-sites").modal('show');
   }
 
   // 保存默认站点
   function save_default_sites() {
-    params = input_select_GetVal("modal-default-sites")
-    //订阅站点
-    let default_rss_sites = select_GetSelectedVAL("default_rss_sites");
-    //搜索站点
-    let default_search_sites = select_GetSelectedVAL("default_search_sites");
-
-    const data = {
-      "params": params,
-      "rss_sites": default_rss_sites,
-      "search_sites": default_search_sites,
+    const rss_sites = select_GetSelectedVAL("default_rss_sites");
+    const search_sites = select_GetSelectedVAL("default_search_sites");
+    const sites = {
+      rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
+      search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
     };
-
-    $("#modal-default-sites").modal("hide");
-    ajax_post("set_default_rss_setting", data, function (ret) {
+    const common = input_select_GetVal("modal-default-rss-setting", "default_rss_setting_");
+    const key = common.mtype === "MOV" ? "DefaultRssSettingMOV" : "DefaultRssSettingTV";
+    const value = {...common, ...sites};
+    $("#modal-default-rss-setting").modal("hide");
+    ajax_post("set_system_config", {key: key, value: value}, function (ret) {
       if (ret.code === 0) {
         show_success_modal("设置订阅默认配置成功！");
       } else {

@@ -340,7 +340,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
-                    in_form=RssType.Auto,
+                    in_form=RssType.Manual,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),
