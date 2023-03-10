@@ -2036,6 +2036,20 @@
     } else {
       $("#rename_min_filesize").removeClass("is-invalid");
     }
+    
+    if(episode_format && !tmdb){
+      $("#rename_tmdb").addClass("is-invalid");
+      return;
+    }else{
+      $("#rename_tmdb").removeClass("is-invalid");
+    }
+
+    if(episode_format && !season){
+      $("#rename_season").addClass("is-invalid");
+      return;
+    }else{
+      $("#rename_season").removeClass("is-invalid");
+    }
 
     if (episode_details && !/^\d{1,5}([,-]\d{1,5})?$/.test(episode_details)) {
       $("#rename_episode_details").addClass("is-invalid");
