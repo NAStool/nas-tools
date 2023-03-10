@@ -1,10 +1,16 @@
 html {
     --safe-area-inset-top: 0px;
     min-height: calc(100% + env(safe-area-inset-top)  + var(--safe-area-inset-top));
+    --tblr-border-radius: 1rem !important;
+    --tblr-border-radius-lg: 1rem !important;
 }
 
 body, .page {
     min-height: 100%;
+}
+
+.card-cover:first-child, .card-cover:first-child:before {
+    border-radius: var(--tblr-border-radius) var(--tblr-border-radius) 0 0 !important;
 }
 
 .theme-light .page {
