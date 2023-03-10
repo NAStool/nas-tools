@@ -329,6 +329,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             # 保存识别信息到临时结果中，由于消息长度限制只取前8条
             SEARCH_MEDIA_CACHE[user_id] = []
             for meta_info in medias[:8]:
+                # 合并站点和下载设置信息
                 meta_info.rss_sites = rss_sites
                 meta_info.search_sites = search_sites
                 meta_info.set_download_info(download_setting=download_setting)
