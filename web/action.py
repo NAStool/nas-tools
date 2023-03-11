@@ -1390,6 +1390,7 @@ class WebAction:
             for sea in season:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
+                                                                     year=year,
                                                                      in_form=in_form,
                                                                      keyword=keyword,
                                                                      season=sea,
