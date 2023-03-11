@@ -109,7 +109,7 @@ export class PageMediainfo extends CustomElement {
                 img-src=${this.media_info.image}>
               </custom-img>
               <div class="d-flex justify-content-center">
-                <div class="d-flex flex-column justify-content-end ms-4 me-4 mt-2">
+                <div class="d-flex flex-column justify-content-end div-media-detail-margin mt-2">
                   <div class="align-self-center align-self-md-start mb-1">
                   <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
                   <a href="${this.media_info.douban_link}" target="_blank" ?hidden=${!this.media_info.douban_id}><span class="badge badge-outline text-orange">${this.media_info.douban_id}</span></a>
