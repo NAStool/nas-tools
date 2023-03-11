@@ -1572,12 +1572,12 @@
         if (ret.data.rss_sites.length === 0) {
           select_SelectALL(false, 'default_rss_sites');
         } else {
-          select_SelectPart(ret.data.rss, 'default_rss_sites')
+          select_SelectPart(ret.data.rss_sites, 'default_rss_sites')
         }
         if (ret.data.search_sites.length === 0) {
           select_SelectALL(false, 'default_search_sites');
         } else {
-          select_SelectPart(ret.data.search, 'default_search_sites')
+          select_SelectPart(ret.data.search_sites, 'default_search_sites')
         }
       } else {
         $("#default_rss_setting_restype").val('');
