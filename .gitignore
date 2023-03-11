@@ -7,3 +7,4 @@
 /web/backend/user.py
 /build/**
 /venv/**
+/cloudflarespeedtest/**
