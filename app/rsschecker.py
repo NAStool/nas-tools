@@ -17,7 +17,7 @@ from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, StringUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, SearchType
+from app.utils.types import MediaType, SearchType, RssType
 from config import Config
 
 
@@ -298,7 +298,10 @@ class RssChecker(object):
                         log.info(f"【RssChecker】{match_msg}")
                         continue
                     # 检查是否已订阅过
-                    if self.dbhelper.check_rss_history(media_info):
+                    if self.dbhelper.check_rss_history(type_str="MOV" if media_info.type == MediaType.MOVIE else "TV",
+                                                       name=media_info.title,
+                                                       year=media_info.year,
+                                                       season=media_info.get_season_string()):
                         log.info(
                             f"【RssChecker】{media_info.title} ({media_info.year}) {media_info.get_season_string()} 已订阅过")
                         continue
@@ -337,6 +340,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
+                    in_form=RssType.Manual,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),

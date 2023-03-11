@@ -562,7 +562,7 @@ def statistics():
     SiteRatios = []
     SiteErrs = {}
     # 站点上传下载
-    SiteData = SiteUserInfo().get_pt_date(specify_sites=refresh_site, force=refresh_force)
+    SiteData = SiteUserInfo().get_site_data(specify_sites=refresh_site, force=refresh_force)
     if isinstance(SiteData, dict):
         for name, data in SiteData.items():
             if not data:
@@ -1531,6 +1531,7 @@ def subscribe():
         code, msg, _ = Subscribe().add_rss_subscribe(mtype=media_type,
                                                      name=meta_info.get_name(),
                                                      year=meta_info.year,
+                                                     in_form=RssType.Auto,
                                                      mediaid=tmdbId,
                                                      in_from=SearchType.API,
                                                      user_name=user_name)
@@ -1544,6 +1545,7 @@ def subscribe():
             code, msg, _ = Subscribe().add_rss_subscribe(mtype=media_type,
                                                          name=meta_info.get_name(),
                                                          year=meta_info.year,
+                                                         in_form=RssType.Auto,
                                                          mediaid=tmdbId,
                                                          season=season,
                                                          in_from=SearchType.API,

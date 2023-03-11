@@ -195,7 +195,7 @@ export class LayoutNavbar extends CustomElement {
         }
 
         .lit-navbar-accordion-item, .lit-navbar-accordion-item-active {
-          border-radius:0.75rem;
+          border-radius:1rem;
         }
 
         .theme-dark .lit-navbar-accordion-item:hover {

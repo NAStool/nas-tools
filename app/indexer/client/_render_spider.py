@@ -15,7 +15,6 @@ from config import Config
 
 
 class RenderSpider(object):
-
     torrentspider = None
     torrents_info_array = []
     result_num = 100
@@ -71,7 +70,8 @@ class RenderSpider(object):
             # 使用浏览器打开页面
             if not chrome.visit(url=search_url,
                                 cookie=indexer.cookie,
-                                ua=indexer.ua):
+                                ua=indexer.ua,
+                                proxy=indexer.proxy):
                 return True, []
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:
@@ -84,7 +84,7 @@ class RenderSpider(object):
                 # 等待可点击
                 submit_obj = WebDriverWait(driver=chrome.browser,
                                            timeout=10).until(es.element_to_be_clickable((By.XPATH,
-                                                                                        search_button)))
+                                                                                         search_button)))
                 if submit_obj:
                     # 输入用户名
                     chrome.browser.find_element(By.XPATH, search_input).send_keys(keyword)
@@ -101,7 +101,8 @@ class RenderSpider(object):
             # 使用浏览器获取HTML文本
             if not chrome.visit(url=search_url,
                                 cookie=indexer.cookie,
-                                ua=indexer.ua):
+                                ua=indexer.ua,
+                                proxy=indexer.proxy):
                 return True, []
             cloudflare = chrome.pass_cloudflare()
             if not cloudflare:

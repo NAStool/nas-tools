@@ -146,6 +146,10 @@ class SystemConfigKey(Enum):
     DefaultDownloader = "DefaultDownloader"
     # 默认下载设置
     DefaultDownloadSetting = "DefaultDownloadSetting"
+    # 默认电影订阅设置
+    DefaultRssSettingMOV = "DefaultRssSettingMOV"
+    # 默认电视剧订阅设置
+    DefaultRssSettingTV = "DefaultRssSettingTV"
 
 
 # 处理进度Key字典
@@ -158,6 +162,13 @@ class ProgressKey(Enum):
     MediaSync = "mediasync"
     # 站点Cookie获取
     SiteCookie = "sitecookie"
+
+
+class RssType(Enum):
+    # 手动
+    Manual = "manual"
+    # 自动
+    Auto = "auto"
 
 
 # 电影类型关键字

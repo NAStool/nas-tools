@@ -343,6 +343,99 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-default-rss-setting" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" >订阅默认设置 <span class="form-help"
+                                                            title="订阅默认设置，只适用于探索页面、交互消息、豆瓣、Jellyseerr/Overseerr等自动订阅场景"
+                                                            data-bs-toggle="tooltip">?</span></h5>
+          <input type="hidden" id="default_rss_setting_mtype">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                  id="default_sites_close_btn"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">质量</label>
+              <select class="form-select" id="default_rss_setting_restype">
+                <option value="" selected>全部</option>
+                {% for Restype in RestypeDict %}
+                  <option value="{{ Restype }}">{{ Restype }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">分辨率</label>
+              <select class="form-select" id="default_rss_setting_pix">
+                <option value="" selected>全部</option>
+                {% for Pix in PixDict %}
+                  <option value="{{ Pix }}">{{ Pix }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">制作组/字幕组</label>
+              <input type="text" id="default_rss_setting_team" class="form-control" placeholder="支持正则表达式">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">过滤规则 </label>
+              <select class="form-select" id="default_rss_setting_rule"></select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">下载设置</label>
+              <select class="form-select" id="default_rss_setting_download_setting"></select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">洗版 </label>
+              <select class="form-select" id="default_rss_setting_over_edition">
+                <option value="0" selected>否</option>
+                <option value="1">是</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row rss_sites_container" id="default_rss_setting_rss_sites_div">
+          <div class="mb-3">
+              <div class="btn-list">
+                  <label class="form-label">订阅站点</label>
+                  <a href="javascript:void(0)" class="ms-auto"
+                     onclick="select_btn_SelectALL(this, 'default_rss_sites')">全选</a>
+              </div>
+              <div class="form-selectgroup" id="default_rss_setting_rss_sites_group"></div>
+          </div>
+        </div>
+        <div class="row rss_sites_container" id="default_rss_setting_search_sites_div">
+          <div class="mb-3">
+              <div class="btn-list">
+                  <label class="form-label">搜索站点</label>
+                  <a href="javascript:void(0)" class="ms-auto"
+                     onclick="select_btn_SelectALL(this, 'default_search_sites')">全选</a>
+              </div>
+              <div class="form-selectgroup" id="default_rss_setting_search_sites_group"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="save_default_sites()" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- 手动订阅 -->
 <div class="modal modal-blur fade" id="modal-manual-rss" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
@@ -653,7 +746,7 @@
           <div class="col-lg-12" id="rename_episode_div">
             <div class="mb-3">
               <label class="form-label">集数定位 <span class="form-help"
-                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
+                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高(指定具体集数的场景)。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
                                                        data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
               <div class="row">
                 <div class="col-4">
@@ -1334,7 +1427,8 @@
       "total_ep": total_ep,
       "current_ep": current_ep,
       "rssid": rssid,
-      "keyword": keyword
+      "keyword": keyword,
+      "in_form": "manual"
     }, ...rss_setting};
     $("#modal-manual-rss").modal("hide");
     ajax_post("add_rss_media", data, function (ret) {
@@ -1457,6 +1551,68 @@
     $("[name='rss_add_btn']").show();
     $("#rss_delete_btn").hide();
     $("#modal-manual-rss").modal('show');
+  }
+
+  // 显示默认站点页面
+  function show_default_rss_setting_modal(mtype) {
+    refresh_rsssites_select("default_rss_setting_rss_sites_group", "default_rss_sites", false);
+    refresh_searchsites_select("default_rss_setting_search_sites_group", "default_search_sites", false);
+    refresh_filter_select("default_rss_setting_rule", false);
+    refresh_downloadsetting_select("default_rss_setting_download_setting", false)
+
+    // 查询已保存配置
+    ajax_post("get_default_rss_setting", {mtype:mtype}, function (ret) {
+      if (ret.code === 0 && ret.data) {
+        $("#default_rss_setting_restype").val(ret.data.restype);
+        $("#default_rss_setting_pix").val(ret.data.pix);
+        $("#default_rss_setting_team").val(ret.data.team);
+        $("#default_rss_setting_rule").val(ret.data.rule);
+        $("#default_rss_setting_download_setting").val(ret.data.download_setting);
+        $("#default_rss_setting_over_edition").val(ret.data.over_edition);
+        if (ret.data.rss_sites.length === 0) {
+          select_SelectALL(false, 'default_rss_sites');
+        } else {
+          select_SelectPart(ret.data.rss, 'default_rss_sites')
+        }
+        if (ret.data.search_sites.length === 0) {
+          select_SelectALL(false, 'default_search_sites');
+        } else {
+          select_SelectPart(ret.data.search, 'default_search_sites')
+        }
+      } else {
+        $("#default_rss_setting_restype").val('');
+        $("#default_rss_setting_pix").val('');
+        $("#default_rss_setting_team").val('');
+        $("#default_rss_setting_rule").val('');
+        $("#default_rss_setting_download_setting").val('');
+        $("#default_rss_setting_over_edition").val('0');
+        select_SelectALL(false, "default_rss_sites");
+        select_SelectALL(false, "default_search_sites");
+      }
+      $("#default_rss_setting_mtype").val(mtype);
+      $("#modal-default-rss-setting").modal('show');
+    });
+  }
+
+  // 保存默认站点
+  function save_default_sites() {
+    const rss_sites = select_GetSelectedVAL("default_rss_sites");
+    const search_sites = select_GetSelectedVAL("default_search_sites");
+    const sites = {
+      rss_sites: (rss_sites.length === RSS_SITES_LENGTH) ? [] : rss_sites,
+      search_sites: (search_sites.length === SEARCH_SITES_LENGTH) ? [] : search_sites
+    };
+    const common = input_select_GetVal("modal-default-rss-setting", "default_rss_setting_");
+    const key = common.mtype === "MOV" ? "DefaultRssSettingMOV" : "DefaultRssSettingTV";
+    const value = {...common, ...sites};
+    $("#modal-default-rss-setting").modal("hide");
+    ajax_post("set_system_config", {key: key, value: value}, function (ret) {
+      if (ret.code === 0) {
+        show_success_modal("设置订阅默认配置成功！");
+      } else {
+        show_fail_modal(`设置订阅默认配置失败：${ret.msg}！`);
+      }
+    });
   }
 
   // 显示编辑订阅
@@ -1818,7 +1974,7 @@
     // create a random id
     const r = Math.floor((Math.random() * 1000) + 1);
     // Add a new span and load fileTree
-    p.after("<div id='fileTree" + r + "' class='fileTree card shadow-sm' style='z-index: 99999'></div>");
+    p.after("<div id='fileTree" + r + "' class='fileTree card shadow-sm' style='z-index: 99999;'></div>");
     const ft = $('#fileTree' + r);
     ft.fileTree({
           script: 'dirlist',
@@ -1879,11 +2035,11 @@
   }
 
   // 名称识别测试
-  function media_name_test(name, result_div, func) {
+  function media_name_test(name, result_div, func, subtitle) {
     if (!name) {
       return;
     }
-    ajax_post("name_test", {"name": name}, function (ret) {
+    ajax_post("name_test", {"name": name, "subtitle": subtitle || "" }, function (ret) {
       if (func) {
         func();
       }
@@ -2048,13 +2204,6 @@
       return;
     } else {
       $("#rename_episode_offset").removeClass("is-invalid");
-    }
-
-    if ((episode_details || episode_offset) && !episode_format) {
-      $("#rename_episode").addClass("is-invalid");
-      return;
-    } else {
-      $("#rename_episode").removeClass("is-invalid");
     }
 
     // 开始处理

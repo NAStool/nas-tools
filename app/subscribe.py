@@ -1,7 +1,9 @@
 import json
 from threading import Lock
+from enum import Enum
 
 import log
+from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, MetaHelper
@@ -13,7 +15,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.indexer import Indexer
 from app.utils import Torrent
-from app.utils.types import MediaType, SearchType, EventType
+from app.utils.types import MediaType, SearchType, EventType, SystemConfigKey, RssType
 from web.backend.web_utils import WebUtils
 
 lock = Lock()
@@ -44,7 +46,16 @@ class Subscribe:
         self.filter = Filter()
         self.eventmanager = EventManager()
 
+    @property
+    def default_rss_setting_tv(self):
+        return SystemConfig().get_system_config(SystemConfigKey.DefaultRssSettingTV) or {}
+
+    @property
+    def default_rss_setting_mov(self):
+        return SystemConfig().get_system_config(SystemConfigKey.DefaultRssSettingMOV) or {}
+
     def add_rss_subscribe(self, mtype, name, year,
+                          in_form: Enum,
                           keyword=None,
                           season=None,
                           fuzzy_match=False,
@@ -69,6 +80,7 @@ class Subscribe:
         :param mtype: 类型，电影、电视剧、动漫
         :param name: 标题
         :param year: 年份，如要是剧集需要是首播年份
+        :param in_form: 订阅类型
         :param keyword: 自定义搜索词
         :param season: 第几季，数字
         :param fuzzy_match: 是否模糊匹配
@@ -101,6 +113,34 @@ class Subscribe:
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
         download_setting = int(download_setting) if str(download_setting).replace("-", "").isdigit() else ""
         fuzzy_match = True if fuzzy_match else False
+        if in_form == RssType.Auto:
+            default_rss_setting = self.default_rss_setting_tv if mtype == MediaType.TV else self.default_rss_setting_mov
+            if default_rss_setting:
+                default_restype = default_rss_setting.get('restype')
+                default_pix = default_rss_setting.get('pix')
+                default_team = default_rss_setting.get('team')
+                default_rule = default_rss_setting.get('rule')
+                default_download_setting = default_rss_setting.get('download_setting')
+                default_over_edition = default_rss_setting.get('over_edition')
+                default_rss_sites = default_rss_setting.get('rss_sites')
+                default_search_sites = default_rss_setting.get('search_sites')
+                if not filter_restype and default_restype:
+                    filter_restype = default_restype
+                if not filter_pix and default_pix:
+                    filter_pix = default_pix
+                if not filter_team and default_team:
+                    filter_team = default_team
+                if not filter_rule and default_rule:
+                    filter_rule = int(default_rule) if str(default_rule).isdigit() else None
+                if not over_edition and default_over_edition:
+                    over_edition = 1 if default_over_edition == "1" else 0
+                if not download_setting and default_download_setting:
+                    download_setting = int(default_download_setting) \
+                        if str(default_download_setting).replace("-", "").isdigit() else ""
+                if not rss_sites and default_rss_sites:
+                    rss_sites = default_rss_sites
+                if not search_sites and default_search_sites:
+                    search_sites = default_search_sites
         # 检索媒体信息
         if not fuzzy_match:
             # 根据TMDBID查询，从推荐加订阅的情况

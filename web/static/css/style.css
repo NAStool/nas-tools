@@ -1,6 +1,6 @@
 html {
     --safe-area-inset-top: 0px;
-    min-height: calc(100% + env(safe-area-inset-top)  + var(--safe-area-inset-top));
+    min-height: calc(100% + env(safe-area-inset-top)  + var(--safe-area-inset-top))
 }
 
 body, .page {

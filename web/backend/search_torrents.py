@@ -11,7 +11,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import StringUtils, Torrent
-from app.utils.types import SearchType, IndexerType, ProgressKey
+from app.utils.types import SearchType, IndexerType, ProgressKey, RssType
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -441,9 +441,13 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
                                                           name=media_info.title,
                                                           year=media_info.year,
+                                                          in_form=RssType.Auto,
                                                           season=media_info.begin_season,
                                                           mediaid=mediaid,
                                                           state=state,
+                                                          filter_pix=media_info.filter_pix,
+                                                          filter_restype=media_info.filter_restype,
+                                                          filter_rule=media_info.filter_rule,
                                                           rss_sites=media_info.rss_sites,
                                                           search_sites=media_info.search_sites,
                                                           in_from=in_from)

@@ -14,7 +14,6 @@ from config import Config
 
 @singleton
 class SiteConf:
-
     # 站点签到支持的识别XPATH
     _SITE_CHECKIN_XPATH = [
         '//a[@id="signed"]',
@@ -167,7 +166,7 @@ class SiteConf:
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
-            if chrome.visit(url=url, cookie=cookie, ua=ua):
+            if chrome.visit(url=url, cookie=cookie, ua=ua, proxy=proxy):
                 # 等待页面加载完成
                 time.sleep(10)
                 return chrome.get_html()
