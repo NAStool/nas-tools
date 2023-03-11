@@ -894,9 +894,10 @@ class Media:
                     if season and meta_info.type != MediaType.MOVIE:
                         meta_info.begin_season = int(season)
                     if episode_format:
-                        begin_ep, end_ep = episode_format.split_episode(file_name)
+                        begin_ep, end_ep, part = episode_format.split_episode(file_name)
                         if begin_ep is not None:
                             meta_info.begin_episode = begin_ep
+                            meta_info.part = part
                         if end_ep is not None:
                             meta_info.end_episode = end_ep
                     # 加入缓存
