@@ -431,7 +431,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button onclick="save_default_sites()" class="btn btn-primary">保存</button>
+        <button onclick="save_default_rss_setting()" class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>
@@ -1553,7 +1553,7 @@
     $("#modal-manual-rss").modal('show');
   }
 
-  // 显示默认站点页面
+  // 显示默认订阅设置页面
   function show_default_rss_setting_modal(mtype) {
     refresh_rsssites_select("default_rss_setting_rss_sites_group", "default_rss_sites", false);
     refresh_searchsites_select("default_rss_setting_search_sites_group", "default_search_sites", false);
@@ -1594,8 +1594,8 @@
     });
   }
 
-  // 保存默认站点
-  function save_default_sites() {
+  // 保存默认订阅设置
+  function save_default_rss_setting() {
     const rss_sites = select_GetSelectedVAL("default_rss_sites");
     const search_sites = select_GetSelectedVAL("default_search_sites");
     const sites = {
