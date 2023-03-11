@@ -110,7 +110,7 @@ body, .page {
     height:350px;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .lit-media-info-image {
         width:150px;
         height:225px;
@@ -167,4 +167,16 @@ body, .page {
 
 .table-page-body {
     min-height: 300px;
+}
+
+.div-media-detail-margin {
+    margin-left: 2rem!important;
+    margin-right: 2rem!important;
+}
+
+@media (max-width: 768px) {
+    .div-media-detail-margin {
+        margin-left: unset!important;
+        margin-right: unset!important;
+    }
 }
