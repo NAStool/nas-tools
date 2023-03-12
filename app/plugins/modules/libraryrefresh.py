@@ -74,7 +74,7 @@ class LibraryRefresh(_IPluginModule):
         media_info = event_data.get("media_info")
         title = media_info.get("title")
         year = media_info.get("year")
-        media_name = f"{title (year)}" if year else title
+        media_name = f"{title} ({year})" if year else title
         mediaserver_type = self.mediaserver.get_type().value
         log.info(f"【Plugin】媒体服务器 {mediaserver_type} 刷新媒体 {media_name}")
         self.mediaserver.refresh_library_by_items([{
