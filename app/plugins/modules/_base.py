@@ -56,9 +56,21 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         pass
 
-    def update_config(self, config: dict):
+    def update_config(self, config: dict, plugin_id=None):
         """
         更新配置信息
         :param config: 配置信息字典
+        :param plugin_id: 插件ID
         """
-        return SystemConfig().set_system_config("plugin.%s" % self.__class__.__name__, config)
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        return SystemConfig().set_system_config("plugin.%s" % plugin_id, config)
+
+    def get_config(self, plugin_id=None):
+        """
+        获取配置信息
+        :param plugin_id: 插件ID
+        """
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        return SystemConfig().get_system_config("plugin.%s" % plugin_id)

@@ -431,7 +431,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button onclick="save_default_sites()" class="btn btn-primary">保存</button>
+        <button onclick="save_default_rss_setting()" class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>
@@ -743,10 +743,26 @@
               <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
             </div>
           </div>
+          <div class="col-lg-12" id="rename_specify_episode_div">
+            <div class="mb-3">
+              <label class="form-label">集数指定 <span class="form-help"
+                                                       title="2个都不填，用默认识别 <br>1、指定具体集数 <br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '1-2'表示第1-2集(1,2合起来当作一集)，此选项优先级最高。<br>2、part: 需符合以下正则写法(PART[0-9ABCI]{0,2}|^CD[0-9]{0,2}|^DVD[0-9]{0,2}|^DISK[0-9]{0,2}|^DISC[0-9]{0,2})：例如Part1, PartC, PartIII, Cd1, Dvd2, Disk10, Disc12"
+                                                       data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
+              <div class="row">
+                <div class="col-4">
+                  <input type="text" id="rename_specify_episode" class="form-control" placeholder="指定集数">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_specify_part" class="form-control"
+                         placeholder="指定Part">
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="col-lg-12" id="rename_episode_div">
             <div class="mb-3">
-              <label class="form-label">集数定位 <span class="form-help"
-                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集[, 终止集]：裁定处理集数范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高(指定具体集数的场景)。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
+              <label class="form-label">高级集数定位 <span class="form-help"
+                                                       title="3个都不填，用默认识别<br>1、{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;'(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv'<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填'(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv' ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行。<br>2、起始集,终止集：裁定处理集数过滤范围，<br>&nbsp;&nbsp;&nbsp;&nbsp;例如'2,4' 只取第2集到第4集。<br>3、集数偏移：例如ep定位出集数是11, 实际是第1集, 此处填-10, 以应付多季合集的场景。"
                                                        data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
               <div class="row">
                 <div class="col-4">
@@ -754,7 +770,7 @@
                 </div>
                 <div class="col-4">
                   <input type="text" id="rename_episode_details" class="form-control"
-                         placeholder="起始集[,终止集]，如1或1,2">
+                         placeholder="起始集,终止集，如1,2">
                 </div>
                 <div class="col-4">
                   <input type="text" id="rename_episode_offset" class="form-control" placeholder="集数偏移，如-10">
@@ -1553,7 +1569,7 @@
     $("#modal-manual-rss").modal('show');
   }
 
-  // 显示默认站点页面
+  // 显示默认订阅设置页面
   function show_default_rss_setting_modal(mtype) {
     refresh_rsssites_select("default_rss_setting_rss_sites_group", "default_rss_sites", false);
     refresh_searchsites_select("default_rss_setting_search_sites_group", "default_search_sites", false);
@@ -1594,8 +1610,8 @@
     });
   }
 
-  // 保存默认站点
-  function save_default_sites() {
+  // 保存默认订阅设置
+  function save_default_rss_setting() {
     const rss_sites = select_GetSelectedVAL("default_rss_sites");
     const search_sites = select_GetSelectedVAL("default_search_sites");
     const sites = {
@@ -2098,24 +2114,29 @@
       $("#rename_type_mov").removeProp("checked");
       $("#rename_type_anime").removeProp("checked");
       $("#rename_season_div").show();
+      $("#rename_specify_episode_div").show();
       $("#rename_episode_div").show();
     } else if (media_type === "动漫") {
       $("#rename_type_anime").prop("checked", true);
       $("#rename_type_tv").removeProp("checked");
       $("#rename_type_mov").removeProp("checked");
       $("#rename_season_div").show();
+      $("#rename_specify_episode_div").show();
       $("#rename_episode_div").show();
     } else {
       $("#rename_type_mov").prop("checked", true);
       $("#rename_type_tv").removeProp("checked");
       $("#rename_type_anime").removeProp("checked");
       $("#rename_season_div").hide();
+      $("#rename_specify_episode_div").hide();
       $("#rename_episode_div").hide();
       $("#rename_season").val("");
     }
 
     // 清空输入框
     $("#rename_min_filesize").val("");
+    $("#rename_specify_episode").val("");
+    $("#rename_specify_part").val("");
     $("#rename_episode").val("");
     $("#rename_episode_details").val("");
     $("#rename_episode_offset").val("");
@@ -2139,6 +2160,10 @@
     });
   }
 
+  function spaceTrim(val){
+     return val.replace(/(^\s*)|(\s*$)/g, "");
+  }
+
   // 执行手动识别转移
   function manual_media_transfer() {
     let syncmod;
@@ -2155,6 +2180,8 @@
     }
     const tmdb = $("#rename_tmdb").val();
     const season = $("#rename_season").val();
+    const specify_episode = $("#rename_specify_episode").val();
+    const specify_episode_part = $("#rename_specify_part").val();
     const episode_format = $("#rename_episode").val();
     const episode_details = $("#rename_episode_details").val();
     const episode_offset = $("#rename_episode_offset").val();
@@ -2193,12 +2220,27 @@
       $("#rename_min_filesize").removeClass("is-invalid");
     }
 
-    if (episode_details && !/^\d{1,5}([,-]\d{1,5})?$/.test(episode_details)) {
+    if (specify_episode && !/^\d{1,5}(-\d{1,5})?$/.test(specify_episode)) {
+      $("#rename_specify_episode").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_specify_episode").removeClass("is-invalid");
+    }
+
+    if (specify_episode_part && !/^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$/i.test(specify_episode_part)) {
+      $("#rename_specify_part").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_specify_part").removeClass("is-invalid");
+    }
+
+    if (episode_details && !/^\d{1,5},\d{1,5}$/.test(episode_details)) {
       $("#rename_episode_details").addClass("is-invalid");
       return;
     } else {
       $("#rename_episode_details").removeClass("is-invalid");
     }
+
     if (episode_offset && !/^-?\d{1,5}$/.test(episode_offset)) {
       $("#rename_episode_offset").addClass("is-invalid");
       return;
@@ -2215,7 +2257,8 @@
       "tmdb": tmdb,
       "season": season,
       "episode_format": episode_format,
-      "episode_details": episode_details,
+      "episode_details": spaceTrim(specify_episode) === '' ? episode_details : specify_episode,
+      "episode_part": specify_episode_part,
       "episode_offset": episode_offset,
       "min_filesize": min_filesize,
       "unknown_id": unknown_id,
@@ -2656,10 +2699,12 @@
     $('input[type=radio][name=rename_type]').change(function () {
       if (this.value === 'MOV') {
         $("#rename_season_div").hide();
+        $("#rename_specify_episode_div").hide();
         $("#rename_episode_div").hide();
         $("#rename_season").val('');
       } else {
         $("#rename_season_div").show();
+        $("#rename_specify_episode_div").show();
         $("#rename_episode_div").show();
       }
     });
