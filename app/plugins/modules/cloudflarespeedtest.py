@@ -68,7 +68,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选ip',
                             'required': "required",
-                            'tooltip': '第一次使用，请先将 Hosts 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
+                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
                             'type': 'text',
                             'content': [
                                 {
@@ -174,9 +174,9 @@ class CloudflareSpeedTest(_IPluginModule):
 
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.__cloudflareSpeedTest(customHosts), CronTrigger.from_crontab(self._cron))
+                self._scheduler.add_job(self.__cloudflareSpeedTest, CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
-                self._scheduler.add_job(self.__cloudflareSpeedTest(customHosts), 'date',
+                self._scheduler.add_job(self.__cloudflareSpeedTest, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
             self._scheduler.print_jobs()
             self._scheduler.start()
@@ -190,10 +190,12 @@ class CloudflareSpeedTest(_IPluginModule):
             self._onlyonce = False
             self.__update_config()
 
-    def __cloudflareSpeedTest(self, customHosts):
+    def __cloudflareSpeedTest(self):
         """
         CloudflareSpeedTest优选
         """
+        customHosts = SystemConfig().get_system_config("plugin.CustomHosts")
+
         err_flag, release_version = self.__check_envirment()
         if err_flag and release_version:
             # 更新版本
@@ -228,7 +230,7 @@ class CloudflareSpeedTest(_IPluginModule):
                     # 处理ip
                     new_hosts = []
                     for host in hosts:
-                        if not host or host != '\n':
+                        if host and host != '\n':
                             host_arr = str(host).split()
                             if host_arr[0] == self._cf_ip:
                                 new_hosts.append(host.replace(self._cf_ip, best_ip))
