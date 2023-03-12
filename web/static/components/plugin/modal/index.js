@@ -94,21 +94,13 @@ export class PluginModal extends CustomElement {
       let placeholder = content[index]["placeholder"];
       let default_value = content[index]["default"];
       if (index === "0") {
-        if (hidden) {
-          text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off" hidden>`
-        } else {
-          text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">`
-        }
+        text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off" ?hidden=${hidden}>`
         text_content = html`<div class="mb-1">
                       <label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>
                       ${text}
                     </div>`
       } else {
-        if (hidden) {
-          text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off" hidden>`
-        } else {
-          text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">`
-        }
+        text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off" ?hidden=${hidden}>`
         text_content = html`${text_content}<div class="mb-3">
                       ${text}
                     </div>`

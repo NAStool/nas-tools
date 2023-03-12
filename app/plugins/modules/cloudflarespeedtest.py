@@ -5,25 +5,26 @@ from pathlib import Path
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from app.conf import SystemConfig
+from threading import Event
 
 import log
-from app.plugins import Event, EventManager
+from app.plugins import EventManager
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, RequestUtils
 from app.utils.types import EventType
 from config import Config
 from app.utils.ip_utils import IpUtils
 
+
 class CloudflareSpeedTest(_IPluginModule):
     # 插件名称
-    module_name = "CloudflareSpeedTest"
+    module_name = "Cloudflare IP优选"
     # 插件描述
-    module_desc = "🌩「自选优选 IP」测试 Cloudflare CDN 延迟和速度。"
+    module_desc = "🌩 测试 Cloudflare CDN 延迟和速度，自动优选IP。"
     # 插件图标
-    module_icon = "cloudflare.png"
+    module_icon = "cloudflare.jpg"
     # 主题色
-    module_color = "bg-white"
+    module_color = "bg-orange"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -147,7 +148,7 @@ class CloudflareSpeedTest(_IPluginModule):
             self._ipv6 = config.get("ipv6")
 
         # 自定义插件hosts配置
-        customHosts = SystemConfig().get_system_config("plugin.CustomHosts")
+        customHosts = self.get_config("CustomHosts")
         self._customhosts = customHosts and customHosts.get("enable")
 
         # 启动定时任务 & 立即运行一次
@@ -203,7 +204,8 @@ class CloudflareSpeedTest(_IPluginModule):
         if err_flag:
             log.info("【Plugin】正在进行CLoudflare CDN优选，请耐心等待")
             # 执行优选命令，-dd不测速
-            cf_command = f'./{self._cf_path}/{self._binary_name} -dd -o {self._result_file}' + (f' -f {self._cf_ipv4}' if self._ipv4 else '') + (f' -f {self._cf_ipv6}' if self._ipv6 else '')
+            cf_command = f'./{self._cf_path}/{self._binary_name} -dd -o {self._result_file}' + (
+                f' -f {self._cf_ipv4}' if self._ipv4 else '') + (f' -f {self._cf_ipv6}' if self._ipv6 else '')
             log.info(f'正在执行优选命令 {cf_command}')
             os.system(cf_command)
 
@@ -234,11 +236,11 @@ class CloudflareSpeedTest(_IPluginModule):
                                 new_hosts.append(host)
 
                     # 更新自定义Hosts
-                    SystemConfig().set_system_config("plugin.CustomHosts", {
+                    self.update_config({
                         "hosts": new_hosts,
                         "err_hosts": err_hosts,
                         "enable": enable
-                    })
+                    }, "CustomHosts")
 
                     # 更新优选ip
                     self._cf_ip = best_ip
@@ -246,7 +248,8 @@ class CloudflareSpeedTest(_IPluginModule):
                     log.info(f"【Plugin】CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
 
                     # 解发自定义hosts插件重载
-                    self.eventmanager.send_event(EventType.CustomHostsReload, SystemConfig().get_system_config("plugin.CustomHosts"))
+                    self.eventmanager.send_event(EventType.CustomHostsReload,
+                                                 self.get_config("CustomHosts"))
                     log.info("【Plugin】CustomHosts插件重载成功")
         else:
             log.error("【Plugin】获取到最优ip格式错误，请重试")
@@ -302,14 +305,16 @@ class CloudflareSpeedTest(_IPluginModule):
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_darwin_{arch}.zip'
             download_url = f'{self._release_prefix}/{release_version}/{cf_file_name}'
-            return self.__os_install(download_url, cf_file_name, release_version, f"ditto -V -x -k --sequesterRsrc {self._cf_path}/{cf_file_name} {self._cf_path}")
+            return self.__os_install(download_url, cf_file_name, release_version,
+                                     f"ditto -V -x -k --sequesterRsrc {self._cf_path}/{cf_file_name} {self._cf_path}")
         else:
             # docker
             uname = SystemUtils.execute('uname -m')
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_linux_{arch}.tar.gz'
             download_url = f'{self._release_prefix}/{release_version}/"{cf_file_name}"'
-            return self.__os_install(download_url, cf_file_name, release_version, f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
+            return self.__os_install(download_url, cf_file_name, release_version,
+                                     f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
 
     def __os_install(self, download_url, cf_file_name, release_version, unzip_command):
         """
@@ -317,7 +322,8 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         # 首次下载或下载新版压缩包
         proxies = Config().get_proxies()
-        os.system('wget -P ' + ('-e http_proxy = ' + proxies.get("http") if proxies and proxies.get("http") else '') + f' {self._cf_path} {download_url}')
+        os.system('wget -P ' + ('-e http_proxy = ' + proxies.get("http") if proxies and proxies.get(
+            "http") else '') + f' {self._cf_path} {download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
