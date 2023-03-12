@@ -648,15 +648,21 @@ class FileTransfer:
                     if file_exist_flag:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
-                            if media.size > os.path.getsize(ret_file_path) and self._filesize_cover or udf_flag:
+                            orgin_file_size = os.path.getsize(ret_file_path)
+                            if media.size > orgin_file_size and self._filesize_cover or udf_flag:
+                                # 原文件
+                                old_file = ret_file_path
+                                # 拆分后缀
                                 ret_file_path, ret_file_ext = os.path.splitext(ret_file_path)
+                                # 新文件
                                 new_file = "%s%s" % (ret_file_path, file_ext)
-                                old_file = "%s%s" % (ret_file_path, ret_file_ext)
-                                log.info("【Rmt】文件 %s 已存在，覆盖为 %s" % (old_file, new_file))
+                                # 覆盖
+                                log.info(f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=new_file,
                                                            rmt_mode=rmt_mode,
-                                                           over_flag=True, old_file=old_file)
+                                                           over_flag=True,
+                                                           old_file=old_file)
                                 if ret != 0:
                                     success_flag = False
                                     error_message = "文件转移失败，错误码 %s" % ret
