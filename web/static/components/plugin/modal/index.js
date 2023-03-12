@@ -85,20 +85,32 @@ export class PluginModal extends CustomElement {
     let title = field_content["title"];
     let required = field_content["required"];
     let tooltip = field_content["tooltip"];
+    let hidden = field_content["hidden"];
     let type = field_content["type"];
     let content = field_content["content"];
+    let text = html``;
     for (let index in content) {
       let id = content[index]["id"];
       let placeholder = content[index]["placeholder"];
       let default_value = content[index]["default"];
       if (index === "0") {
+        if (hidden) {
+          text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off" hidden>`
+        } else {
+          text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">`
+        }
         text_content = html`<div class="mb-1">
                       <label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>
-                      <input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">
+                      ${text}
                     </div>`
       } else {
+        if (hidden) {
+          text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off" hidden>`
+        } else {
+          text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">`
+        }
         text_content = html`${text_content}<div class="mb-3">
-                      <input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">
+                      ${text}
                     </div>`
       }
     }
