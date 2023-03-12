@@ -194,8 +194,7 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         CloudflareSpeedTest优选
         """
-        customHosts = SystemConfig().get_system_config("plugin.CustomHosts")
-
+        customHosts = self.get_config("CustomHosts")
         err_flag, release_version = self.__check_envirment()
         if err_flag and release_version:
             # 更新版本
