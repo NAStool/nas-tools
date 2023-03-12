@@ -422,7 +422,7 @@ class Emby(_IMediaClient):
                         max_equal_path_id = folder.get("Id")
                         equal_path_num += 1
                 except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
+                    print(str(err))
                     continue
             if max_equal_path_id:
                 return max_equal_path_id if equal_path_num == 1 else library.get("Id")

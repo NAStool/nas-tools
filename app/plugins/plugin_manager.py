@@ -1,4 +1,5 @@
 import os.path
+import traceback
 from threading import Thread
 
 import log
@@ -56,7 +57,7 @@ class PluginManager:
                         names = handler.__qualname__.split(".")
                         self.run_plugin(names[0], names[1], event)
                     except Exception as e:
-                        log.error(f"事件处理出错：{str(e)}")
+                        log.error(f"事件处理出错：{str(e)} - {traceback.format_exc()}")
 
     def start_service(self):
         """
@@ -108,7 +109,7 @@ class PluginManager:
         try:
             return getattr(self._running_plugins[pid], method)(*args, **kwargs)
         except Exception as err:
-            print(str(err))
+            print(str(err), traceback.format_exc())
 
     def reload_plugin(self, pid):
         """
