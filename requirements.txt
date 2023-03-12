@@ -79,7 +79,7 @@ regex==2022.9.13
 requests==2.28.1
 ruamel.yaml==0.17.21
 ruamel.yaml.clib==0.2.7
-selenium==4.8.2
+selenium==4.4.3
 six==1.16.0
 slack-sdk==3.19.5
 sniffio==1.2.0
@@ -95,7 +95,7 @@ trio-websocket==0.9.2
 typing_extensions==4.3.0
 tzdata==2022.2
 tzlocal==4.2
-undetected-chromedriver==3.4.6
+undetected-chromedriver==3.1.7
 urllib3==1.26.12
 w3lib==2.0.1
 watchdog==2.1.9
