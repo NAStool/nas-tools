@@ -689,6 +689,7 @@ class WebAction:
         season = data.get("season")
         episode_format = data.get("episode_format")
         episode_details = data.get("episode_details")
+        episode_part = data.get("episode_part")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
         if mtype in MovieTypes:
@@ -709,6 +710,7 @@ class WebAction:
                                                     media_type=media_type,
                                                     episode_format=episode_format,
                                                     episode_details=episode_details,
+                                                    episode_part=episode_part,
                                                     episode_offset=episode_offset,
                                                     need_fix_all=need_fix_all,
                                                     min_filesize=min_filesize,
@@ -736,6 +738,7 @@ class WebAction:
         season = data.get("season")
         episode_format = data.get("episode_format")
         episode_details = data.get("episode_details")
+        episode_part = data.get("episode_part")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
         if mtype in MovieTypes:
@@ -751,6 +754,7 @@ class WebAction:
                                                     media_type=media_type,
                                                     episode_format=episode_format,
                                                     episode_details=episode_details,
+                                                    episode_part=episode_part,
                                                     episode_offset=episode_offset,
                                                     min_filesize=min_filesize,
                                                     tmdbid=tmdbid,
@@ -767,6 +771,7 @@ class WebAction:
                           media_type=None,
                           episode_format=None,
                           episode_details=None,
+                          episode_part=None,
                           episode_offset=None,
                           min_filesize=None,
                           tmdbid=None,
@@ -797,6 +802,7 @@ class WebAction:
                                                                episode=(
                                                                    EpisodeFormat(episode_format,
                                                                                  episode_details,
+                                                                                 episode_part,
                                                                                  episode_offset),
                                                                    need_fix_all),
                                                                min_filesize=min_filesize,
@@ -811,6 +817,7 @@ class WebAction:
                                                                episode=(
                                                                    EpisodeFormat(episode_format,
                                                                                  episode_details,
+                                                                                 episode_part,
                                                                                  episode_offset),
                                                                    need_fix_all),
                                                                min_filesize=min_filesize,

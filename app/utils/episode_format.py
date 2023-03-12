@@ -6,10 +6,13 @@ from config import SPLIT_CHARS
 class EpisodeFormat(object):
     _key = ""
 
-    def __init__(self, eformat, details: str = None, offset=None, key="ep"):
+    def __init__(self, eformat, details: str = None, part: str = None, offset=None, key="ep"):
         self._format = eformat
         self._start_ep = None
         self._end_ep = None
+        self._part = None
+        if part:
+            self._part = part
         if details:
             if re.compile("\\d{1,4}-\\d{1,4}").match(details):
                 self._start_ep = details
@@ -37,6 +40,10 @@ class EpisodeFormat(object):
         return self._end_ep
 
     @property
+    def part(self):
+        return self._part
+
+    @property
     def offset(self):
         return self.__offset
 
@@ -58,13 +65,13 @@ class EpisodeFormat(object):
             if isinstance(self._start_ep, str):
                 s, e = self._start_ep.split("-")
                 if int(s) == int(e):
-                    return int(s) + self.__offset, None
-                return int(s) + self.__offset, int(e) + self.__offset
-            return self._start_ep + self.__offset, None
+                    return int(s) + self.__offset, None, self.part
+                return int(s) + self.__offset, int(e) + self.__offset, self.part
+            return self._start_ep + self.__offset, None, self.part
         if not self._format:
-            return None, None
+            return None, None, None
         s, e = self.__handle_single(file_name)
-        return s + self.__offset if s is not None else None, e + self.__offset if e is not None else None
+        return s + self.__offset if s is not None else None, e + self.__offset if e is not None else None, self.part
 
     def __handle_single(self, file: str):
         if not self._format:
