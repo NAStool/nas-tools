@@ -819,7 +819,7 @@ class Media:
                                                                      search_type=meta_info.type)
                         if not file_media_info and self._chatgpt_enable:
                             # 从ChatGPT查询
-                            file_media_info = self.__search_chatgpt(file_name=file_name,
+                            file_media_info = self.__search_chatgpt(file_name=file_path,
                                                                     mtype=meta_info.type)
                         if not file_media_info and self._search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
