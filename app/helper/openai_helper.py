@@ -38,4 +38,4 @@ class OpenAiHelper:
             return json.loads(result)
         except Exception as e:
             print(e)
-            return None
+            return {}
