@@ -43,6 +43,10 @@ class Media:
 
     def init_config(self):
         laboratory = Config().get_config('laboratory')
+        if laboratory:
+            self._search_keyword = laboratory.get("search_keyword")
+            self._chatgpt_enable = laboratory.get("chatgpt_enable")
+        # TMDB
         app = Config().get_config('app')
         if app.get('rmt_tmdbkey'):
             self.tmdb = TMDb()
@@ -66,6 +70,7 @@ class Media:
             self.genre = Genre()
         self.meta = MetaHelper()
         self.openai = OpenAiHelper()
+        # 匹配模式
         rmt_match_mode = app.get('rmt_match_mode', 'normal')
         if rmt_match_mode:
             rmt_match_mode = rmt_match_mode.upper()
@@ -75,10 +80,6 @@ class Media:
             self._rmt_match_mode = MatchMode.STRICT
         else:
             self._rmt_match_mode = MatchMode.NORMAL
-        laboratory = Config().get_config('laboratory')
-        if laboratory:
-            self._search_keyword = laboratory.get("search_keyword")
-            self._chatgpt_enable = laboratory.get("chatgpt_enable")
 
     @staticmethod
     def __compare_tmdb_names(file_name, tmdb_names):
@@ -424,15 +425,15 @@ class Media:
             return info
 
     @lru_cache(maxsize=128)
-    def __search_chatgpt(self, file_media_name, mtype: MediaType):
+    def __search_chatgpt(self, file_name, mtype: MediaType):
         """
         通过ChatGPT对话识别文件名和集数等信息，重新查询TMDB数据
-        :param file_media_name: 名称
+        :param file_name: 名称
         """
-        if not file_media_name:
+        if not file_name:
             return None
-        log.info("【Meta】正在通过ChatGPT识别文件名：%s" % file_media_name)
-        file_info = self.openai.get_media_name(file_media_name)
+        log.info("【Meta】正在通过ChatGPT识别文件名：%s" % file_name)
+        file_info = self.openai.get_media_name(file_name)
         if file_info is None:
             log.info("【Meta】ChatGPT识别出错，请检查是否设置OpenAI ApiKey！")
             return None
@@ -665,7 +666,7 @@ class Media:
                         # 非严格模式下去掉年份和类型再查一次
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
             if not file_media_info and self._chatgpt_enable:
-                file_media_info = self.__search_chatgpt(file_media_name=meta_info.get_name(),
+                file_media_info = self.__search_chatgpt(file_name=title,
                                                         mtype=meta_info.type)
             if not file_media_info and self._search_keyword:
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
@@ -818,7 +819,7 @@ class Media:
                                                                      search_type=meta_info.type)
                         if not file_media_info and self._chatgpt_enable:
                             # 从ChatGPT查询
-                            file_media_info = self.__search_chatgpt(file_media_name=meta_info.get_name(),
+                            file_media_info = self.__search_chatgpt(file_name=file_name,
                                                                     mtype=meta_info.type)
                         if not file_media_info and self._search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())

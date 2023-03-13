@@ -1,3 +1,5 @@
+import json
+
 import openai
 
 from app.utils.commons import singleton
@@ -33,9 +35,7 @@ class OpenAiHelper:
                     }
                 ])
             result = completion.choices[0].message.content
-            if not isinstance(result, dict):
-                return {}
-            return result
+            return json.loads(result)
         except Exception as e:
             print(e)
             return None
