@@ -11,7 +11,7 @@ class OpenAiHelper:
     _api_key = None
     _prompt = "I will give you a movie/tvshow file name.You need to return a Json." \
               "\nPay attention to the correct identification of the film name." \
-              "\n{\"title\":string,\"season\":number|null,\"episode\":number|null}"
+              "\n{\"title\":string,\"version\":string,\"part\":string,\"resolution\":string,\"season\":number|null,\"episode\":number|null}"
 
     def __init__(self):
         self._api_key = Config().get_config("openai").get("api_key")
