@@ -219,6 +219,11 @@ douban:
   # 【自动添加RSS开关】：站点检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
   auto_rss: true
 
+# 【openai】
+openai:
+  # 【openai api key】：openai的api key，可在openai官网申请
+  api_key:
+
 # 【配置安全】
 security:
   # 【媒体服务器webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
@@ -240,8 +245,8 @@ security:
 laboratory:
   # 【识别增强】关键字猜想
   search_keyword: false
-  # 【识别增强】通过TMDB WEB检索
-  search_tmdbweb: false
+  # 【识别增强】通过ChatGPT识别文件名
+  chatgpt_enable: false
   # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: true
   # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据
