@@ -424,7 +424,7 @@ class Media:
             log.info("【Meta】%s 在TMDB中未找到媒体信息!" % file_media_name)
             return info
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=512)
     def __search_chatgpt(self, file_name, mtype: MediaType):
         """
         通过ChatGPT对话识别文件名和集数等信息，重新查询TMDB数据
