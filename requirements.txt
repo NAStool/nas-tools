@@ -29,6 +29,7 @@ Flask-Login==0.6.2
 fast-bencode==1.1.3
 flask-compress==1.13
 flask-restx==1.0.6
+func_timeout==4.3.5
 greenlet==1.1.3.post0
 h11==0.12.0
 humanize==4.4.0
@@ -45,6 +46,7 @@ Mako==1.2.3
 MarkupSafe==2.1.1
 matplotlib-inline==0.1.6
 msgpack==1.0.4
+openai==0.27.2
 outcome==1.2.0
 parse==1.19.0
 parsel==1.6.0
@@ -68,6 +70,7 @@ pyrsistent==0.18.1
 PySocks==1.7.1
 python-dateutil==2.8.2
 python-dotenv==0.20.0
+python_hosts==1.0.3
 pytz==2022.2.1
 pytz-deprecation-shim==0.1.0.post0
 PyVirtualDisplay==3.0
@@ -103,5 +106,3 @@ websockets==10.3
 Werkzeug==2.2.3
 wsproto==1.2.0
 zhconv==1.4.3
-func_timeout==4.3.5
-python_hosts==1.0.3

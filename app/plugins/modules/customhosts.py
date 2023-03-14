@@ -90,12 +90,20 @@ class CustomHosts(_IPluginModule):
             if isinstance(self._hosts, str):
                 self._hosts = str(self._hosts).split('\n')
             if self._enable and self._hosts:
+                # 排除空的host
+                new_hosts = []
+                for host in self._hosts:
+                    if host and host != '\n':
+                        new_hosts.append(host.replace("\n", "") + "\n")
+                self._hosts = new_hosts
+
                 # 添加到系统
                 error_flag, error_hosts = self.__add_hosts_to_system(self._hosts)
                 self._enable = self._enable and not error_flag
+
                 # 更新错误Hosts
                 self.update_config({
-                    "hosts": [] if not self._hosts or not self._hosts[0] else [host.replace("\n", "") + "\n" for host in self._hosts],
+                    "hosts": self._hosts,
                     "err_hosts": error_hosts,
                     "enable": self._enable
                 })

@@ -264,6 +264,36 @@ class MetaBase(object):
         else:
             return [self.begin_season]
 
+    # 更新季
+    def set_season(self, sea):
+        if not sea:
+            return
+        if isinstance(sea, list):
+            if len(sea) == 1 and str(sea[0]).isdigit():
+                self.begin_season = int(sea[0])
+                self.end_season = None
+            elif len(sea) > 1 and str(sea[0]).isdigit() and str(sea[-1]).isdigit():
+                self.begin_season = int(sea[0])
+                self.end_season = int(sea[-1])
+        elif str(sea).isdigit():
+            self.begin_season = int(sea)
+            self.end_season = None
+
+    # 更新集
+    def set_episode(self, ep):
+        if not ep:
+            return
+        if isinstance(ep, list):
+            if len(ep) == 1 and str(ep[0]).isdigit():
+                self.begin_episode = int(ep[0])
+                self.end_episode = None
+            elif len(ep) > 1 and str(ep[0]).isdigit() and str(ep[-1]).isdigit():
+                self.begin_episode = int(ep[0])
+                self.end_episode = int(ep[-1])
+        elif str(ep).isdigit():
+            self.begin_episode = int(ep)
+            self.end_episode = None
+
     # 返回集字符串
     def get_episode_string(self):
         if self.begin_episode is not None:

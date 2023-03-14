@@ -232,9 +232,18 @@
                   </select>
                 </div>
               </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">OpenAI API Key <span class="form-help"
+                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名，需在实验室中打开ChatGPT增强识别开关"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
+                         id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
+                </div>
+              </div>
             </div>
             <div class="row">
-              <div class="col-lg-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">二级分类策略 <span class="form-help"
                                                                title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空"
@@ -243,7 +252,7 @@
                          placeholder="default-category" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">下载优先规则 <span class="form-help"
                                                                         title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先"
@@ -256,7 +265,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-lg-4">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">文件管理默认路径 <span class="form-help"
                                                                title="文件管理、自定义识别等默认路径"
@@ -265,8 +274,6 @@
                          placeholder="/" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">转移最小文件大小(MB) <span class="form-help"
@@ -276,7 +283,9 @@
                          id="media.min_filesize" placeholder="200" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+            </div>
+            <div class="row">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">文件路径转移忽略词 <span class="form-help"
                                                                    title="文件路径包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
@@ -285,7 +294,7 @@
                          id="media.ignored_paths" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">文件名转移忽略词 <span class="form-help"
                                                                  title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
@@ -376,7 +385,7 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-xl">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">站点签到时间 <span class="form-help"
                                                                title="站点自动签到时间，三种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；配置为空则不启用自动站点签到功能。对于有独立签到页面的站点，可以在站点维护中维护站点地址为签到页面地址实现签到；对于有签到功能但没有独立签到页面的站点，需要在站点维护中开启浏览仿真才能签到；对于没有签到功能的站点仅自动登录一次站点实现保号。"
@@ -385,7 +394,7 @@
                          id="pt.ptsignin_cron" placeholder="留空关闭自动签到" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">订阅RSS周期(秒) <span class="form-help"
                                                                   title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能；为了减小站点压力，最小周期不能小于300秒"
@@ -394,7 +403,7 @@
                          id="pt.pt_check_interval" placeholder="留空关闭RSS订阅" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">订阅搜索周期(小时) <span class="form-help"
                                                                    title="定时对电影/电视剧订阅进行站点存量资源检索下载，用于对RSS订阅进行查漏补缺。以小时为单位，最小间隔为6小时，设置小于6小时时将强制设定为6小时。该项会对站点造成压力，应尽量通过维护站点RSS实现订阅追新，如非必要请不要开启"
@@ -403,9 +412,7 @@
                          id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-xl">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">媒体库同步周期(小时) <span class="form-help"
                                                                        title="定时同步媒体服务器数据到本地，用于展示媒体是否存在，留空则不启用同步服务"
@@ -414,7 +421,9 @@
                          id="media.mediasync_interval" placeholder="留空关闭媒体库同步" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl">
+            </div>
+            <div class="row">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">站点数据刷新时间 <span class="form-help"
                                                                title="站点数据刷新时间，三种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；配置为空则不启用自动站点数据刷新功能。"
@@ -423,7 +432,6 @@
                          id="pt.ptrefresh_date_cron" placeholder="留空关闭自动刷新" autocomplete="off">
                 </div>
               </div>
-              <div class="col-xl"></div>
             </div>
             <div class="row">
               <div class="col-xl">
@@ -566,10 +574,10 @@
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.search_tmdbweb" {% if
-                      Config.laboratory and Config.laboratory.search_tmdbweb %}checked{% endif %}>
-                    <span class="form-check-label">增强识别 <span class="form-help"
-                                                                  title="开启后，通过TMDB的API无法识别到媒体信息时，会尝试通过themoviedb.org网站再次搜索匹配，仅个别极端情况下有效，会大大增加识别耗时，一般情况下不建议开启"
+                    <input class="form-check-input" type="checkbox" id="laboratory.chatgpt_enable" {% if
+                      Config.laboratory and Config.laboratory.chatgpt_enable %}checked{% endif %}>
+                    <span class="form-check-label">ChatGPT增强识别 <span class="form-help"
+                                                                  title="开启后，通过TMDB的API无法识别到媒体信息时，使用ChatGPT识别匹配，需要先填写OpenAI API Key"
                                                                   data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>

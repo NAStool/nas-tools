@@ -132,6 +132,25 @@ class SpeedLimiter(_IPluginModule):
                         },
                     ]
                 ]
+            },
+            {
+                'type': 'details',
+                'summary': '任务间隔',
+                'tooltip': '设置任务执行间隔,单位为秒，默认时间300秒',
+                'content': [
+                    [
+                        {
+                            'required': "",
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'interval',
+                                    'placeholder': '300'
+                                }
+                            ]
+                        }
+                    ]
+                ]
             }
         ]
 
@@ -176,6 +195,9 @@ class SpeedLimiter(_IPluginModule):
             # 不限速地址
             self._unlimited_ips["ipv4"] = config.get("ipv4") or "0.0.0.0/0"
             self._unlimited_ips["ipv6"] = config.get("ipv6") or "::/0"
+
+            # 任务时间间隔
+            self._interval = int(config.get("interval") or "300")
 
             # 下载器
             self._limited_downloader_ids = config.get("downloaders") or []
