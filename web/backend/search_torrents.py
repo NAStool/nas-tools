@@ -4,6 +4,7 @@ import re
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
+from app.helper.openai_helper import OpenAiHelper
 from app.indexer import Indexer
 from app.media import Media, DouBan
 from app.message import Message
@@ -228,13 +229,15 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                         media_info=media_info,
                         user_id=user_id,
                         user_name=user_name)
-    # 接收到文本，开始查询可能的媒体信息供选择
+    # 接收到文本
     else:
         if input_str.startswith("订阅"):
             SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         elif input_str.startswith("http"):
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
+        elif input_str.startwith("请问"):
+            SEARCH_MEDIA_TYPE[user_id] = "ASK"
         else:
             input_str = re.sub(r"(搜索|下载)[:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
@@ -271,7 +274,15 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                   torrent_file=filepath,
                                   in_from=in_from,
                                   user_name=user_name)
-
+        # 聊天
+        elif SEARCH_MEDIA_TYPE[user_id] == "ASK":
+            if not OpenAiHelper().get_state():
+                answer = "OpenAI功能未启用！"
+            else:
+                answer = OpenAiHelper().get_answer(input_str)
+            Message().send_channel_msg(channel=in_from,
+                                       title=answer,
+                                       user_id=user_id)
         # 搜索或订阅
         else:
             # 获取字符串中可能的RSS站点列表
