@@ -196,6 +196,9 @@ class Qbittorrent(_IDownloadClient):
             path = torrent.get("save_path")
             if not path:
                 continue
+            # 判断路径是否已经在下载目录中指定
+            if not self.is_download_dir(path, self.download_dir):
+                continue
             content_path = torrent.get("content_path")
             if content_path:
                 trans_name = content_path.replace(path, "")

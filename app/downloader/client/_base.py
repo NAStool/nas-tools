@@ -148,6 +148,16 @@ class _IDownloadClient(metaclass=ABCMeta):
                 return path.replace(save_path, container_path)
         return path
 
+    @staticmethod
+    def is_download_dir(path, download_dir):
+        """
+        检查下载器中获取的任务保存路径是否为下载目录或者下载目录的子路径
+        """
+        for directory in download_dir:
+            if os.path.commonpath([directory['save_path'], path]) == directory['save_path']:
+                return True
+        return False
+
     @abstractmethod
     def change_torrent(self, **kwargs):
         """
