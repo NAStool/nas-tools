@@ -236,7 +236,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         elif input_str.startswith("http"):
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
-        elif input_str.startwith("请问"):
+        elif input_str.startswith("请问"):
             SEARCH_MEDIA_TYPE[user_id] = "ASK"
         else:
             input_str = re.sub(r"(搜索|下载)[:：\s]*", "", input_str)
