@@ -48,7 +48,8 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         if not html:
             return
 
-        message_labels = html.xpath('//a[contains(@href, "messages.php")]/..')
+        message_labels = html.xpath('//a[@href="messages.php"]/..')
+        message_labels.extend(html.xpath('//a[contains(@href, "messages.php")]/..'))
         if message_labels:
             message_text = message_labels[0].xpath("string(.)")
 
@@ -93,14 +94,17 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
                                    re.IGNORECASE)
         self.download = StringUtils.num_filesize(download_match.group(1).strip()) if download_match else 0
         ratio_match = re.search(r"分享率[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
+        # 计算分享率
+        calc_ratio = 0.0 if self.download <= 0.0 else round(self.upload / self.download, 3)
+        # 优先使用页面上的分享率
         self.ratio = StringUtils.str_float(ratio_match.group(1)) if (
-                ratio_match and ratio_match.group(1).strip()) else 0.0
+                ratio_match and ratio_match.group(1).strip()) else calc_ratio
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
         self.leeching = StringUtils.str_int(leeching_match.group(2)) if leeching_match and leeching_match.group(
             2).strip() else 0
         html = etree.HTML(html_text)
-        parsed, self.bonus = self.__parse_ucoin(html)
-        if parsed:
+        has_ucoin, self.bonus = self.__parse_ucoin(html)
+        if has_ucoin:
             return
         tmps = html.xpath('//a[contains(@href,"mybonus")]/text()') if html else None
         if tmps:
@@ -114,10 +118,10 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
                 return
-            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text,
+            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+|\"[\d,.]+\")[<>()&\s]", html_text,
                                     flags=re.S)
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = StringUtils.str_float(bonus_match.group(1))
+                self.bonus = StringUtils.str_float(bonus_match.group(1).strip('"'))
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
