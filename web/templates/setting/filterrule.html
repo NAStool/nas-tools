@@ -77,7 +77,8 @@
                          href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')"
                          title="编辑规则">
                         <div class="card-body p-2">
-                          <h3 class="card-title">{{ Rule.name }}</h3>
+                          <span class="badge bg-purple badge-pill position-absolute" style="top: 10px; left:10px">{{ Rule.pri }}</span>
+                          <h3 class="card-title ps-4">{{ Rule.name }}</h3>
                           <div class="w-100">
                             {% if Rule.free_text %}
                               <span class="badge bg-info me-1 mb-1 text-wrap text-start"
