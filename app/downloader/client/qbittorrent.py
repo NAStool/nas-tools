@@ -182,7 +182,7 @@ class Qbittorrent(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    def get_transfer_task(self, tag):
+    def get_transfer_task(self, tag, match_path):
         """
         获取下载文件转移任务种子
         """
@@ -197,7 +197,7 @@ class Qbittorrent(_IDownloadClient):
             if not path:
                 continue
             # 判断路径是否已经在下载目录中指定
-            if not self.is_download_dir(path, self.download_dir):
+            if match_path and not self.is_download_dir(path, self.download_dir):
                 continue
             content_path = torrent.get("content_path")
             if content_path:

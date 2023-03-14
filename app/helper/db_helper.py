@@ -2527,6 +2527,7 @@ class DbHelper:
                           dtype,
                           transfer,
                           only_nastool,
+                          match_path,
                           rmt_mode,
                           config,
                           download_dir):
@@ -2541,6 +2542,7 @@ class DbHelper:
                     "TYPE": dtype,
                     "TRANSFER": int(transfer),
                     "ONLY_NASTOOL": int(only_nastool),
+                    "MATCH_PATH": int(match_path),
                     "RMT_MODE": rmt_mode,
                     "CONFIG": config,
                     "DOWNLOAD_DIR": download_dir
@@ -2553,6 +2555,7 @@ class DbHelper:
                 TYPE=dtype,
                 TRANSFER=int(transfer),
                 ONLY_NASTOOL=int(only_nastool),
+                MATCH_PATH=int(match_path),
                 RMT_MODE=rmt_mode,
                 CONFIG=config,
                 DOWNLOAD_DIR=download_dir
@@ -2568,7 +2571,7 @@ class DbHelper:
         self._db.query(DOWNLOADER).filter(DOWNLOADER.ID == int(did)).delete()
 
     @DbPersist(_db)
-    def check_downloader(self, did=None, transfer=None, only_nastool=None, enabled=None):
+    def check_downloader(self, did=None, transfer=None, only_nastool=None, enabled=None, match_path=None):
         """
         设置下载器状态
         """
@@ -2584,6 +2587,12 @@ class DbHelper:
             self._db.query(DOWNLOADER).filter(DOWNLOADER.ID == int(did)).update(
                 {
                     "ONLY_NASTOOL": int(only_nastool)
+                }
+            )
+        elif match_path is not None:
+            self._db.query(DOWNLOADER).filter(DOWNLOADER.ID == int(did)).update(
+                {
+                    "MATCH_PATH": int(match_path)
                 }
             )
         elif enabled is not None:

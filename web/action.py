@@ -4725,6 +4725,7 @@ class WebAction:
         enabled = data.get("enabled")
         transfer = data.get("transfer")
         only_nastool = data.get("only_nastool")
+        match_path = data.get("match_path")
         rmt_mode = data.get("rmt_mode")
         config = data.get("config")
         if not isinstance(config, str):
@@ -4738,6 +4739,7 @@ class WebAction:
                                         enabled=enabled,
                                         transfer=transfer,
                                         only_nastool=only_nastool,
+                                        match_path=match_path,
                                         rmt_mode=rmt_mode,
                                         config=config,
                                         download_dir=download_dir)
@@ -4762,17 +4764,20 @@ class WebAction:
             return {"code": 1}
         checked = data.get("checked")
         flag = data.get("flag")
-        enabled, transfer, only_nastool = None, None, None
+        enabled, transfer, only_nastool, match_path = None, None, None, None
         if flag == "enabled":
             enabled = 1 if checked else 0
         elif flag == "transfer":
             transfer = 1 if checked else 0
         elif flag == "only_nastool":
             only_nastool = 1 if checked else 0
+        elif flag == "match_path":
+            match_path = 1 if checked else 0
         self.dbhelper.check_downloader(did=did,
                                        enabled=enabled,
                                        transfer=transfer,
-                                       only_nastool=only_nastool)
+                                       only_nastool=only_nastool,
+                                       match_path=match_path)
         Downloader().init_config()
         return {"code": 0}
 

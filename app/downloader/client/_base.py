@@ -81,7 +81,7 @@ class _IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_transfer_task(self, tag):
+    def get_transfer_task(self, tag, match_path):
         """
         获取需要转移的种子列表
         """
