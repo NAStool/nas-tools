@@ -13,6 +13,10 @@ body, .page {
     overflow: hidden;
 }
 
+.modal-content, .modal-body {
+    overflow: hidden;
+}
+
 .card-cover:first-child, .card-cover:first-child:before {
     border-radius: 1rem 1rem 0 0;
 }
