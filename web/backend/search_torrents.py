@@ -182,6 +182,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
     if not input_str:
         log.info("【Searcher】检索关键字有误！")
         return
+    else:
+        input_str = str(input_str).strip()
     # 如果是数字，表示选择项
     if input_str.isdigit() and int(input_str) < 10:
         # 获取之前保存的可选项
@@ -281,7 +283,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
             else:
                 answer = OpenAiHelper().get_answer(input_str)
             Message().send_channel_msg(channel=in_from,
-                                       title=answer,
+                                       title=str(answer).strip(),
                                        user_id=user_id)
         # 搜索或订阅
         else:
