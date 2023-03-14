@@ -391,6 +391,9 @@
   function return_to_parentdir() {
     let dir = $("#mediafile_path").val();
     let parentdir = dir.substring(0, dir.lastIndexOf("/"));
+    if (!parentdir) {
+      parentdir = "/";
+    }
     $("#mediafile_path").val(parentdir);
     init_mediafile_tree();
   }
