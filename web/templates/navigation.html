@@ -475,6 +475,9 @@
               <label class="form-label required">季</label>
               <select class="form-select" id="rss_season">
                 <option value="" selected>请选择</option>
+                {% for i in range(1, 51) %}
+                  <option value="{{ i }}">第{{ i }}季</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -734,6 +737,9 @@
               <label class="form-label">季</label>
               <select class="form-select" id="rename_season">
                 <option value="" selected>请选择</option>
+                {% for i in range(0, 51) %}
+                  <option value="{{ i }}">第{{ i }}季</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -901,6 +907,9 @@
               <label class="form-label">季</label>
               <select class="form-select" id="advanced_search_season">
                 <option value="" selected>全部</option>
+                {% for i in range(1, 51) %}
+                  <option value="{{ i }}">第{{ i }}季</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -1468,13 +1477,6 @@
       }
     });
   }
-
-  //初始化下拉框
-  let rss_season_content = `<option value="">请选择</option>`;
-  for (let i = 0; i <= 50; i++) {
-    rss_season_content += `<option value="${i}">第${i}季</option>`;
-  }
-  $("#rss_season").empty().append(rss_season_content);
 
   // 选择模糊匹配
   function change_match_check(obj) {
@@ -2328,20 +2330,6 @@
     });
   }
 
-  //初始化季列表
-  function init_season_list() {
-    let rename_season_content = `<option value="" selected>请选择</option>`;
-    let search_season_content = `<option value="" selected>全部</option>`;
-    for (let i = 0; i <= 50; i++) {
-      rename_season_content += `<option value="${i}">第${i}季</option>`;
-      if (i > 0) {
-        search_season_content += `<option value="${i}">第${i}季</option>`;
-      }
-    }
-    $("#rename_season").empty().append(rename_season_content);
-    $("#advanced_search_season").empty().append(search_season_content);
-  }
-
 </script>
 
 <!-- 首页功能 -->
@@ -2687,9 +2675,6 @@
       e.preventDefault();
       e.stopPropagation();
     });
-
-    // 初始化季列表
-    init_season_list();
 
     // 初始化DropZone
     torrent_dropzone = new Dropzone("#torrent_files");
