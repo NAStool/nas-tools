@@ -441,3 +441,23 @@ class StringUtils:
         if not amount:
             return "0"
         return curr + format(amount, ",")
+
+    @staticmethod
+    def count_words(s):
+        """
+        计算字符串中包含的单词数量
+        :param s: 要计算的字符串
+        :return: 字符串中包含的单词数量
+        """
+        # 初始化单词数量
+        num_words = 0
+
+        # 匹配英文单词
+        if re.match(r'^[A-Za-z\s]+$', s):
+            # 如果是英文字符串，则按空格分隔单词，并计算单词数量
+            num_words = len(s.split())
+        else:
+            # 如果不是英文字符串，则计算字符数量
+            num_words = len(s)
+
+        return num_words

@@ -136,7 +136,7 @@ class SpeedLimiter(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '任务间隔',
-                'tooltip': '设置任务执行间隔,单位为秒，默认时间300秒',
+                'tooltip': '设置任务执行间隔,单位为秒，默认时间300秒；应优先通过配置Emby/Jellyfin/Plex的webhook发送播放事件给NAStool来触发自动限速，而非定时执行检查',
                 'content': [
                     [
                         {

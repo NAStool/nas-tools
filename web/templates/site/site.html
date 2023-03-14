@@ -148,6 +148,13 @@
               <label class="form-label">优先级 <span class="form-help" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高"
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_pri">
+                {% for i in range(1, 51) %}
+                  {% if i == 1 %}
+                    <option value="{{ i }}" selected>{{ i }}</option>
+                  {% else %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -660,11 +667,6 @@
       hide_ask_modal();
       del_site(siteid);
     });
-  }
-
-  // 优先级
-  for (let i = 1; i <= 50; i++) {
-    $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
   //显示测试站点
