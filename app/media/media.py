@@ -429,22 +429,30 @@ class Media:
         """
         通过ChatGPT对话识别文件名和集数等信息，重新查询TMDB数据
         :param file_name: 名称
+        :param mtype: 媒体类型
+        :return: 类型、季、集、TMDBINFO
         """
         if not file_name:
-            return None
+            return mtype, None, None, None
         log.info("【Meta】正在通过ChatGPT识别文件名：%s" % file_name)
         file_info = self.openai.get_media_name(file_name)
         if file_info is None:
             log.info("【Meta】ChatGPT识别出错，请检查是否设置OpenAI ApiKey！")
-            return None
+            return mtype, None, None, None
         if not file_info:
             log.info("【Meta】ChatGPT识别失败！")
-            return None
+            return mtype, None, None, None
         else:
             log.info("【Meta】ChatGPT识别结果：%s" % file_info)
-            return self.__search_tmdb(file_media_name=file_info.get("title"),
-                                      search_type=mtype,
-                                      first_media_year=file_info.get("year"))
+            if file_info.get("season") or file_info.get("episode"):
+                mtype = MediaType.TV
+            if mtype != MediaType.MOVIE or file_info.get("year"):
+                tmdb_info = self.__search_tmdb(file_media_name=file_info.get("title"),
+                                               search_type=mtype,
+                                               first_media_year=file_info.get("year"))
+            else:
+                tmdb_info = self.__search_multi_tmdb(file_media_name=file_info.get("title"))
+            return mtype, file_info.get("season"), file_info.get("episode"), tmdb_info
 
     def search_tmdb_person(self, name):
         """
@@ -666,8 +674,14 @@ class Media:
                         # 非严格模式下去掉年份和类型再查一次
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
             if not file_media_info and self._chatgpt_enable:
-                file_media_info = self.__search_chatgpt(file_name=title,
-                                                        mtype=meta_info.type)
+                mtype, seaons, episodes, file_media_info = self.__search_chatgpt(file_name=title,
+                                                                                 mtype=meta_info.type)
+                # 修正类型和集数
+                meta_info.type = mtype
+                if not meta_info.get_season_string():
+                    meta_info.set_season(seaons)
+                if not meta_info.get_episode_string():
+                    meta_info.set_episode(episodes)
             if not file_media_info and self._search_keyword:
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                 is_movie = False
@@ -819,8 +833,14 @@ class Media:
                                                                      search_type=meta_info.type)
                         if not file_media_info and self._chatgpt_enable:
                             # 从ChatGPT查询
-                            file_media_info = self.__search_chatgpt(file_name=file_path,
-                                                                    mtype=meta_info.type)
+                            mtype, seaons, episodes, file_media_info = self.__search_chatgpt(file_name=file_path,
+                                                                                             mtype=meta_info.type)
+                            # 修正类型和集数
+                            meta_info.type = mtype
+                            if not meta_info.get_season_string():
+                                meta_info.set_season(seaons)
+                            if not meta_info.get_episode_string():
+                                meta_info.set_episode(episodes)
                         if not file_media_info and self._search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                             is_movie = False
