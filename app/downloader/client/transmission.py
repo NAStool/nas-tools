@@ -247,7 +247,7 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    def get_transfer_task(self, tag, match_path):
+    def get_transfer_task(self, tag, match_path=None):
         """
         获取下载文件转移任务
         """
