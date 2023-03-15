@@ -55,7 +55,7 @@ class OpenAiHelper:
             result = completion.choices[0].message.content
             return json.loads(result)
         except Exception as e:
-            print(f"{result} - {str(e)}")
+            print(f"{str(e)}：{result}")
             return {}
 
     def get_answer(self, text):
