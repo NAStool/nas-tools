@@ -66,7 +66,7 @@ class CloudflareSpeedTest(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '优选ip',
+                            'title': '优选IP',
                             'required': "required",
                             'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
                             'type': 'text',
@@ -92,14 +92,14 @@ class CloudflareSpeedTest(_IPluginModule):
                     ],
                     [
                         {
-                            'title': 'ipv4',
+                            'title': 'IPv4',
                             'required': "",
                             'tooltip': '优选测速ipv4；v4和v6必须其一，都不选择则默认ipv4',
                             'type': 'switch',
                             'id': 'ipv4',
                         },
                         {
-                            'title': 'ipv6',
+                            'title': 'IPv6',
                             'required': "",
                             'tooltip': '优选测速ipv6；v4和v6必须其一，都不选择则默认ipv4。选择ipv6会大大加长测速时间。',
                             'type': 'switch',
