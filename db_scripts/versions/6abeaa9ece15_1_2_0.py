@@ -1,8 +1,8 @@
-"""1.1.0
+"""1.2.0
 
-Revision ID: 720a6289a697
+Revision ID: 6abeaa9ece15
 Revises: None
-Create Date: 2023-01-22 08:18:00.723780
+Create Date: 2023-03-15 10:07:19.965255
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '720a6289a697'
+revision = '6abeaa9ece15'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -140,6 +140,32 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('OVER_EDITION', sa.Integer, nullable=True))
             batch_op.add_column(sa.Column('SITES', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('FILTER_ARGS', sa.Text, nullable=True))
+    except Exception as e:
+        print(str(e))
+    # 1.1.1
+    try:
+        with op.batch_alter_table("DOWNLOAD_HISTORY") as batch_op:
+            batch_op.add_column(sa.Column('DOWNLOADER', sa.Text))
+            batch_op.add_column(sa.Column('DOWNLOAD_ID', sa.Text))
+    except Exception as e:
+        print(str(e))
+    try:
+        with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
+            batch_op.add_column(sa.Column('LABEL', sa.Text))
+    except Exception as e:
+        print(str(e))
+    try:
+        with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
+            batch_op.alter_column('DOWNLOAD_COUNT', type_=sa.Integer, existing_type=sa.Text)
+            batch_op.alter_column('REMOVE_COUNT', type_=sa.Integer, existing_type=sa.Text)
+            batch_op.alter_column('DOWNLOAD_SIZE', type_=sa.Integer, existing_type=sa.Text)
+            batch_op.alter_column('UPLOAD_SIZE', type_=sa.Integer, existing_type=sa.Text)
+    except Exception as e:
+        print(str(e))
+    # 1.1.2
+    try:
+        with op.batch_alter_table("DOWNLOADER") as batch_op:
+            batch_op.add_column(sa.Column('MATCH_PATH', sa.Integer))
     except Exception as e:
         print(str(e))
     # ### end Alembic commands ###
