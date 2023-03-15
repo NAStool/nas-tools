@@ -123,14 +123,18 @@ class Message(object):
                 url = self._domain
         else:
             url = ""
-        state, ret_msg = client.get('client').send_msg(title=title,
-                                                       text=text,
-                                                       image=image,
-                                                       url=url,
-                                                       user_id=user_id)
-        if not state:
-            log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
-        return state
+        # 消息内容分段
+        texts = StringUtils.split_text(text, 500)
+        for txt in texts:
+            state, ret_msg = client.get('client').send_msg(title=title,
+                                                           text=txt,
+                                                           image=image,
+                                                           url=url,
+                                                           user_id=user_id)
+            if not state:
+                log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
+                return state
+        return True
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
         """
@@ -618,7 +622,7 @@ class Message(object):
         """
         if not msgs:
             return
-        title = "数据统计"
+        title = "站点数据统计"
         text = "\n".join(msgs)
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
