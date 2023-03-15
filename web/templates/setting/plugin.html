@@ -54,7 +54,7 @@
   function save_config(id, prefix, func) {
     let params = input_select_GetVal(`modal-plugin-${id}`, prefix);
     let selectgroup_config = {};
-    $(`#modal-plugin-${id} div[class='form-selectgroup']`).each(function(){
+    $(`#modal-plugin-${id} div[class^='form-selectgroup']`).each(function(){
       let name = $(this).attr("id");
       selectgroup_config[name.replace(prefix, "")] = select_GetSelectedVAL(name);
     })
