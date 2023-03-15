@@ -160,6 +160,7 @@ class DOWNLOADER(Base):
     TYPE = Column(Text)
     TRANSFER = Column(Integer)
     ONLY_NASTOOL = Column(Integer)
+    MATCH_PATH = Column(Integer)
     RMT_MODE = Column(Text)
     CONFIG = Column(Text)
     DOWNLOAD_DIR = Column(Text)

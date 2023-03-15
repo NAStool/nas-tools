@@ -51,7 +51,8 @@
               <th>名称</th>
               <th><span class="d-none d-md-inline-block">地址</span></th>
               <th class="w-5 text-nowrap">监控</th>
-              <th class="w-5 text-nowrap">隔离</th>
+              <th class="w-5 text-nowrap">标签隔离</th>
+              <th class="w-5 text-nowrap">目录隔离</th>
               <th class="w-5 text-nowrap">转移方式</th>
               <th class="w-5 text-nowrap">状态</th>
               <th class="w-3"></th>
@@ -99,6 +100,15 @@
                         <input class="form-check-input" type="checkbox" {% if Attr.only_nastool == 1 %}
                                checked {% endif %}
                                onclick="check_downloader('only_nastool', '{{ Id }}', this.checked)">
+                      </label>
+                    {% endif %}
+                  </td>
+                 <td>
+                    {% if DownloaderConf[Attr.type].monitor_enable %}
+                      <label class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" {% if Attr.match_path == 1 %}
+                               checked {% endif %}
+                               onclick="check_downloader('match_path', '{{ Id }}', this.checked)">
                       </label>
                     {% endif %}
                   </td>
@@ -207,9 +217,19 @@
           </div>
           <div class="col-lg">
             <div class="mb-3">
-              <label class="form-label required">隔离 <span class="form-help" data-bs-toggle="tooltip"
+              <label class="form-label required">标签隔离 <span class="form-help" data-bs-toggle="tooltip"
                                                         data-bs-original-title="启用后只有含NASTOOL标签的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></label>
               <select class="form-select" id="downloader_only_nastool">
+                <option value="1">是</option>
+                <option value="0" selected>否</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label required">目录隔离 <span class="form-help" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="启用后只有在下载目录中的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></label>
+              <select class="form-select" id="downloader_match_path">
                 <option value="1">是</option>
                 <option value="0" selected>否</option>
               </select>
@@ -282,6 +302,7 @@
     show_downloader_type("{{ DownloaderConf.keys()|first }}");
     $("#downloader_transfer").val("0");
     $("#downloader_only_nastool").val("0");
+    $("#downloader_match_path").val("0");
     $("#downloader_rmt_mode").val("link");
     CURRENT_DIRDIV_LEVEL = 0;
     $("#div_downloader_downloaddir").empty();
@@ -324,6 +345,7 @@
         show_downloader_type(type);
         $("#downloader_transfer").val(detail.transfer);
         $("#downloader_only_nastool").val(detail.only_nastool);
+        $("#downloader_match_path").val(detail.match_path);
         $("#downloader_rmt_mode").val(detail.rmt_mode);
         $("#test_message_client_btn").text("测试").attr("disabled", false);
         let download_dirs = detail.download_dir
@@ -362,6 +384,7 @@
     let config = {};
     let transfer = 0;
     let only_nastool = 0;
+    let match_path = 0;
     let rmt_mode = "";
     switch (type) {
       {% for Id, Attr in DownloaderConf.items() %}
@@ -388,10 +411,12 @@
         {% if Attr.monitor_enable %}
           transfer = $("#downloader_transfer").val();
           only_nastool = $("#downloader_only_nastool").val();
+          match_path = $("#downloader_match_path").val();
           rmt_mode = $("#downloader_rmt_mode").val();
         {% else %}
           transfer = 0;
           only_nastool = 0;
+          match_path = 0;
           rmt_mode = "";
         {% endif %}
         break;
@@ -425,6 +450,7 @@
       enabled: $("#downloader_enabled").val(),
       transfer: transfer,
       only_nastool: only_nastool,
+      match_path: match_path,
       rmt_mode: rmt_mode,
       type: type,
       config: JSON.stringify(config),

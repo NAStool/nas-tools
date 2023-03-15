@@ -85,6 +85,7 @@ class Downloader:
                 "enabled":  enabled,
                 "transfer": downloader_conf.TRANSFER,
                 "only_nastool": downloader_conf.ONLY_NASTOOL,
+                "match_path": downloader_conf.MATCH_PATH,
                 "rmt_mode": rmt_mode,
                 "rmt_mode_name": rmt_mode_name,
                 "config": config,
@@ -514,6 +515,7 @@ class Downloader:
                 downloader_conf = self.get_downloader_conf(downloader_id)
                 name = downloader_conf.get("name")
                 only_nastool = downloader_conf.get("only_nastool")
+                match_path = downloader_conf.get("match_path")
                 rmt_mode = ModuleConf.RMT_MODES.get(downloader_conf.get("rmt_mode"))
                 if only_nastool:
                     tag = [PT_TAG]
@@ -523,7 +525,7 @@ class Downloader:
                 _client = self.__get_client(downloader_id)
                 if not _client:
                     continue
-                trans_tasks = _client.get_transfer_task(tag=tag)
+                trans_tasks = _client.get_transfer_task(tag=tag, match_path=match_path)
                 if trans_tasks:
                     log.info(f"【Downloader】下载器 {name} 开始转移下载文件...")
                 else:
