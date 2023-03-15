@@ -319,7 +319,7 @@
                 <label class="form-label">分享站点</label>
                 <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'statistic_sites')">全选</a>
               </div>
-              <div class="form-selectgroup">
+              <div class="form-selectgroup form-selectgroup-pills">
               {% for item in SiteUserStatistics %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="statistic_sites" value="{{ item.site }}" class="form-selectgroup-input">

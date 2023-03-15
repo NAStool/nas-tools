@@ -235,7 +235,7 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">OpenAI API Key <span class="form-help"
-                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名，需在实验室中打开ChatGPT增强识别开关"
+                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名（需要打开增强识别开关）及聊天交互等；填写此项代表启用ChatGPT，根据API使用情况OpenAI官方会收取相应的费用"
                                                                         data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
                          id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
@@ -1031,10 +1031,10 @@
       <div class="card-body">
         <div class="tab-content">
           <div class="tab-pane fade active show" id="tabs-user-css" role="tabpanel">
-            <div class="form-control" id="user_script_css" style="height: 20rem;">{{ CustomScriptCfg.css or '' }}</div>
+            <div class="form-control rounded-1" id="user_script_css" style="height: 20rem;">{{ CustomScriptCfg.css or '' }}</div>
           </div>
           <div class="tab-pane fade" id="tabs-user-script" role="tabpanel">
-            <div class="form-control" id="user_script_javascript" style="height: 20rem;">{{ CustomScriptCfg.javascript or '' }}</div>
+            <div class="form-control rounded-1" id="user_script_javascript" style="height: 20rem;">{{ CustomScriptCfg.javascript or '' }}</div>
           </div>
         </div>
       </div>

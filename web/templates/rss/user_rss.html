@@ -453,7 +453,7 @@
                   <label class="form-label">订阅站点</label>
                   <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_rss_sites')">全选</a>
                 </div>
-                <div class="form-selectgroup" id="userrss_rss_rss_sites_group"></div>
+                <div class="form-selectgroup form-selectgroup-pills" id="userrss_rss_rss_sites_group"></div>
               </div>
             </div>
             <div class="row rss_sites_container">
@@ -462,7 +462,7 @@
                   <label class="form-label">搜索站点</label>
                   <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_search_sites')">全选</a>
                 </div>
-                <div class="form-selectgroup" id="userrss_rss_search_sites_group"></div>
+                <div class="form-selectgroup form-selectgroup-pills" id="userrss_rss_search_sites_group"></div>
               </div>
             </div>
           </details>
@@ -473,7 +473,7 @@
             模板
           </summary>
           <div class="row mt-2">
-            <div class="form-selectgroup">
+            <div class="form-selectgroup form-selectgroup-pills">
               {% for Task in Tasks %}
               <label class="form-selectgroup-item">
                 <input type="button" class="form-selectgroup-input" onclick="apply_templated('{{ Task.id }}')">

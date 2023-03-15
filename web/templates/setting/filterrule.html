@@ -77,7 +77,8 @@
                          href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')"
                          title="编辑规则">
                         <div class="card-body p-2">
-                          <h3 class="card-title">{{ Rule.name }}</h3>
+                          <span class="badge bg-purple badge-pill position-absolute" style="top: 10px; left:10px">{{ Rule.pri }}</span>
+                          <h3 class="card-title ps-4">{{ Rule.name }}</h3>
                           <div class="w-100">
                             {% if Rule.free_text %}
                               <span class="badge bg-info me-1 mb-1 text-wrap text-start"
@@ -198,7 +199,7 @@
                 <summary class="summary">
                   模板-{{ Init_RuleGroup.name }}
                 </summary>
-                <div class="form-selectgroup">
+                <div class="form-selectgroup form-selectgroup-pills">
                   {% for Rule in Init_RuleGroup.rules %}
                     <label class="form-selectgroup-item">
                       <input type="button" value="{{ Rule | safe }}" class="form-selectgroup-input"
@@ -276,7 +277,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="form-selectgroup">
+        <div class="form-selectgroup form-selectgroup-pills">
           {% for Init_RuleGroup in Init_RuleGroups %}
             <label class="form-selectgroup-item">
               <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.id }}"
@@ -309,8 +310,7 @@
         <label class="form-label required">规则内容 <span class="form-help"
                                                           title="复制以下内容分享给他人，获得分享后使用规则导入功能导入分享规则"
                                                           data-bs-toggle="tooltip">?</span></label>
-        <pre id="share_filtergroup_code">
-          </pre>
+        <pre id="share_filtergroup_code" class="text-wrap text-break"></pre>
       </div>
       <div class="modal-footer">
         <a class="btn btn-primary ms-auto" data-bs-dismiss="modal">

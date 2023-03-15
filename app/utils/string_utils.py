@@ -461,3 +461,12 @@ class StringUtils:
             num_words = len(s)
 
         return num_words
+
+    @staticmethod
+    def split_text(text, max_length):
+        """
+        把文本拆分为固定长度的数组
+        """
+        if not text:
+            return ['']
+        return [text[i:i + max_length] for i in range(0, len(text), max_length)]

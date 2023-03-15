@@ -391,6 +391,9 @@
   function return_to_parentdir() {
     let dir = $("#mediafile_path").val();
     let parentdir = dir.substring(0, dir.lastIndexOf("/"));
+    if (!parentdir) {
+      parentdir = "/";
+    }
     $("#mediafile_path").val(parentdir);
     init_mediafile_tree();
   }
@@ -418,7 +421,7 @@
     <div class="row">
       <div class="col-auto pe-0">
         <div class="m-2">
-          <div class="avatar avatar-md">{FILEEXT}</div>
+          <div class="avatar avatar-md rounded-4">{FILEEXT}</div>
         </div>
       </div>
       <div class="col ps-0">

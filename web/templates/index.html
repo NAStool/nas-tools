@@ -117,8 +117,8 @@
               </div>
             </div>
             <div class="col-12">
-              <div class="card" style="height: 27rem">
-                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+              <div class="card">
+                <div class="card-body">
                   <div class="divide-y">
                     {% for Activity in Activitys %}
                       <div>
@@ -173,7 +173,7 @@
               媒体库列表
             </summary>
             <div class="row mt-2">
-              <div class="form-selectgroup">
+              <div class="form-selectgroup form-selectgroup-pills">
                 {% for Library in Librarys %}
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="sync_library" value="{{ Library.id }}" class="form-selectgroup-input"

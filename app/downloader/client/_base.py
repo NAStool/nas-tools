@@ -1,6 +1,8 @@
 import os.path
 from abc import ABCMeta, abstractmethod
 
+from app.utils import ExceptionUtils
+
 
 class _IDownloadClient(metaclass=ABCMeta):
 
@@ -81,7 +83,7 @@ class _IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_transfer_task(self, tag):
+    def get_transfer_task(self, tag, match_path=None):
         """
         获取需要转移的种子列表
         """
@@ -147,6 +149,20 @@ class _IDownloadClient(metaclass=ABCMeta):
             if path.startswith(save_path):
                 return path.replace(save_path, container_path)
         return path
+
+    @staticmethod
+    def is_download_dir(path, download_dir):
+        """
+        检查下载器中获取的任务保存路径是否为下载目录或者下载目录的子路径
+        """
+        try:
+            for directory in download_dir:
+                if os.path.commonpath([directory['save_path'], path]) == directory['save_path']:
+                    return True
+            return False
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return False
 
     @abstractmethod
     def change_torrent(self, **kwargs):

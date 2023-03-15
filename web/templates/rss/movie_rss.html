@@ -41,13 +41,13 @@
     <div class="container-xl">
       <div class="d-grid gap-3 grid-normal-card">
         {% for Id, Attr in Items.items() %}
-          <a class="card card-link-pop rounded-3 p-0"
+          <a class="card card-link-pop p-0"
              href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("MOV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "movie_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "MOV"){% endif %}'>
             <div class="text-center" style="overflow:hidden">
               <custom-img img-class="rounded-top w-100"
                           img-src="{{ Attr.image }}"
                           img-ratio="60%"
-                          img-style="border-top-left-radius:var(--tblr-border-radius-lg) !important; border-top-right-radius:var(--tblr-border-radius-lg) !important; object-fit:cover;"
+                          img-style="border-top-left-radius:var(--tblr-border-radius-xl) !important; border-top-right-radius:var(--tblr-border-radius-xl) !important; object-fit:cover;"
               ></custom-img>
             </div>
             <div class="card-body text-center">

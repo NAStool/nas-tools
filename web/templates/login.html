@@ -8,18 +8,36 @@
   <!-- CSS files -->
   <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   <link href="../static/css/style.css" rel="stylesheet"/>
+  <style>
+    .login_background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        background-image: url(data:image/jpg;base64,{{ LoginWallpaper|safe }});
+        background-size: cover;
+        background-position: center;
+        background-repeat: repeat;
+    }
+    .login_window {
+        background-color: rgba(255,255,255,0.5);
+        -webkit-backdrop-filter: blur(1rem);
+        backdrop-filter: blur(1rem)
+    }
+  </style>
 </head>
-<body class="d-flex flex-column"
-      style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
+<body class="d-flex flex-column login_background">
 <div class="page page-center">
   <div class="container-tight py-4">
-    <form class="card card-md" action="/" method="post" autocomplete="off"
-          style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
+    <form class="card card-md rounded-4 border-0 {% if LoginWallpaper %}login_window{% endif %}" action="/" method="post" autocomplete="off">
       <input type="hidden" name="next" value="{{ GoPage }}"/>
       <div class="card-body">
         <div class="text-center mb-4">
-          <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo/logo-blue.png" height="48"
-                                                                      alt=""></a>
+          <a href="/" class="navbar-brand navbar-brand-autodark">
+            <img src="../static/img/logo/logo-blue.png" height="48" alt="">
+          </a>
         </div>
         <label class="form-label">用户名</label>
         <div class="input-icon mb-3">

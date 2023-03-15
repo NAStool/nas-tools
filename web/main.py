@@ -120,6 +120,7 @@ def login():
         SystemFlag = SystemUtils.get_system()
         SyncMod = Config().get_config('pt').get('rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
+        DefaultPath = Config().get_config('media').get('media_default_path')
         if not SyncMod:
             SyncMod = "link"
         RmtModeDict = WebAction().get_rmt_modes()
@@ -144,7 +145,8 @@ def login():
                                Indexers=Indexers,
                                SearchSource=SearchSource,
                                CustomScriptCfg=CustomScriptCfg,
-                               CooperationSites=CooperationSites)
+                               CooperationSites=CooperationSites,
+                               DefaultPath=DefaultPath)
 
     def redirect_to_login(errmsg=''):
         """
@@ -1047,10 +1049,7 @@ def dirlist():
         r = ['<ul class="jqueryFileTree" style="display: none;">']
         in_dir = request.form.get('dir')
         ft = request.form.get("filter")
-        if not in_dir:
-            media_default_path = Config().get_config('media').get('media_default_path')
-            in_dir = media_default_path if media_default_path else "/"
-        if in_dir == "/":
+        if not in_dir or in_dir == "/":
             if SystemUtils.get_system() == OsType.WINDOWS:
                 partitions = SystemUtils.get_windows_drives()
                 if partitions:
