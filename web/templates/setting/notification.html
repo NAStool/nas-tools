@@ -81,6 +81,8 @@
                           bg-orange-lt
                           {% elif "torrent" in swid %}
                           bg-green-lt
+                          {% elif "ptrefresh" in swid %}
+                          bg-teal-lt
                           {% endif %}
                           me-1 mb-0">{{ Switchs[swid].name }}</span>
                       {% endfor %}
