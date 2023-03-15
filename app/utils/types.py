@@ -131,6 +131,7 @@ class EventType(Enum):
     # customHosts插件重载
     CustomHostsReload = "customhosts.reload"
 
+
 # 系统配置Key字典
 class SystemConfigKey(Enum):
     # 同步媒体库范围
