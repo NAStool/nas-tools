@@ -20,9 +20,7 @@ class OpenAiHelper:
             openai.api_key = self._api_key
         proxy_conf = Config().get_proxies()
         if proxy_conf and proxy_conf.get("https"):
-            openai.api_request_kwargs = {
-                "proxies": proxy_conf
-            }
+            openai.proxy = proxy_conf.get("https")
 
     def get_state(self):
         return True if self._api_key else False
