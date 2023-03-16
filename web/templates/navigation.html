@@ -331,7 +331,7 @@
         <div class="row">
           <div class="col">
             <div class="mb-3">
-              <div class="form-selectgroup form-selectgroup-pills" id="system_rss_seasons_group">
+              <div class="form-selectgroup" id="system_rss_seasons_group">
               </div>
             </div>
           </div>
@@ -416,7 +416,7 @@
                   <a href="javascript:void(0)" class="ms-auto"
                      onclick="select_btn_SelectALL(this, 'default_rss_sites')">全选</a>
               </div>
-              <div class="form-selectgroup form-selectgroup-pills" id="default_rss_setting_rss_sites_group"></div>
+              <div class="form-selectgroup" id="default_rss_setting_rss_sites_group"></div>
           </div>
         </div>
         <div class="row rss_sites_container" id="default_rss_setting_search_sites_div">
@@ -426,7 +426,7 @@
                   <a href="javascript:void(0)" class="ms-auto"
                      onclick="select_btn_SelectALL(this, 'default_search_sites')">全选</a>
               </div>
-              <div class="form-selectgroup form-selectgroup-pills" id="default_rss_setting_search_sites_group"></div>
+              <div class="form-selectgroup" id="default_rss_setting_search_sites_group"></div>
           </div>
         </div>
       </div>
@@ -582,7 +582,7 @@
               <label class="form-label">订阅站点</label>
               <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'rss_sites')">全选</a>
             </div>
-            <div class="form-selectgroup form-selectgroup-pills" id="rss_sites_group"></div>
+            <div class="form-selectgroup" id="rss_sites_group"></div>
           </div>
         </div>
         <div class="row rss_sites_container" id="rss_search_sites_div">
@@ -591,7 +591,7 @@
               <label class="form-label">搜索站点</label>
               <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'search_sites')">全选</a>
             </div>
-            <div class="form-selectgroup form-selectgroup-pills" id="rss_search_sites_group"></div>
+            <div class="form-selectgroup" id="rss_search_sites_group"></div>
           </div>
         </div>
       </div>
@@ -982,13 +982,13 @@
 </div>
 <!-- 用户认证 -->
 <div class="modal modal-blur fade" id="modal-user-auth" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable" role="document">
+  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">用户认证</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" style="min-height: 19rem">
+      <div class="modal-body">
         <div class="row">
           <div class="mb-3">
             <label class="form-label">合作站点</label>

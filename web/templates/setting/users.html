@@ -50,7 +50,7 @@
                   <tr>
                     <td>{{ User.name or '' }}</td>
                     <td>
-                      <div class="form-selectgroup form-selectgroup-pills">
+                      <div class="form-selectgroup">
                         {% for pri in User.pris %}
                           <span class="form-selectgroup-label form-selectgroup-item">{{ pri }}</span>
                         {% endfor %}
@@ -102,7 +102,7 @@
         <div class="row">
           <div class="mb-3">
             <label class="form-label required">权限</label>
-            <div class="form-selectgroup form-selectgroup-pills">
+            <div class="form-selectgroup">
               {% for Menu in TopMenus %}
               <label class="form-selectgroup-item">
                 <input type="checkbox" name="user_pris" value="{{ Menu }}" class="form-selectgroup-input">
