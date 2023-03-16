@@ -69,6 +69,7 @@ class Message(object):
                 continue
             client = {
                 "search_type": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "max_length": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('max_length'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
@@ -124,7 +125,12 @@ class Message(object):
         else:
             url = ""
         # 消息内容分段
-        texts = StringUtils.split_text(text, 600)
+        max_length = client.get("max_length")
+        if max_length:
+            texts = StringUtils.split_text(text, max_length)
+        else:
+            texts = [text]
+        # 循环发送
         for txt in texts:
             if not title:
                 title = txt

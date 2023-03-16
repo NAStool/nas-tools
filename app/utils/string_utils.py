@@ -465,8 +465,9 @@ class StringUtils:
     @staticmethod
     def split_text(text, max_length):
         """
-        把文本拆分为固定长度的数组
+        FIXME 把文本拆分为固定字节长度的数组，且要避免单词内拆分
         """
         if not text:
             return ['']
+
         return [text[i:i + max_length] for i in range(0, len(text), max_length)]

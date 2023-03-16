@@ -93,6 +93,7 @@ class ModuleConf(object):
                 "name": "微信",
                 "img_url": "../static/img/message/wechat.png",
                 "search_type": SearchType.WX,
+                "max_length": 2048,
                 "config": {
                     "corpid": {
                         "id": "wechat_corpid",
