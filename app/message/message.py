@@ -125,14 +125,16 @@ class Message(object):
             url = ""
         # 消息内容分段
         texts = StringUtils.split_text(text, 600)
-        first_flag = True
         for txt in texts:
-            state, ret_msg = client.get('client').send_msg(title=title if first_flag else "",
+            if not title:
+                title = txt
+                txt = ""
+            state, ret_msg = client.get('client').send_msg(title=title,
                                                            text=txt,
                                                            image=image,
                                                            url=url,
                                                            user_id=user_id)
-            first_flag = False
+            title = None
             if not state:
                 log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
                 return state
