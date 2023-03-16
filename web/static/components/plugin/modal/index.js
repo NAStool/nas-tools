@@ -213,7 +213,7 @@ export class PluginModal extends CustomElement {
     }
     return html`<div class="col-12 col-lg">
                   <div class="mb-1">
-                    <div class="form-selectgroup form-selectgroup-pills" id="${id}">
+                    <div class="form-selectgroup" id="${id}">
                       ${text_options}
                     </div>
                   </div>

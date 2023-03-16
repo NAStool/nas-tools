@@ -7,36 +7,6 @@ body, .page {
     min-height: 100%;
 }
 
-.page-body .card {
-    --tblr-card-border-radius: 1rem;
-    --tblr-card-inner-border-radius: 1rem;
-    overflow: hidden;
-}
-
-.grid-media-card .card {
-    overflow: visible;
-}
-
-.modal-content, .modal-body {
-    overflow: hidden;
-}
-
-.card-cover:first-child, .card-cover:first-child:before {
-    border-radius: 1rem 1rem 0 0;
-}
-
-.card-stamp {
-    border-top-right-radius: 1rem;
-}
-
-.form-control, .form-select, .input-group {
-    --tblr-border-radius: 1rem;
-}
-
-.form-selectgroup-item, .form-selectgroup-label {
-    border-radius: 1rem;
-}
-
 .theme-light .page {
     background-image: linear-gradient(180deg, rgba(123, 178, 233, 0.4) 0%, rgba(231, 235, 239, 1) calc(50vh));
 }

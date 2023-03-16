@@ -199,7 +199,7 @@
                 <summary class="summary">
                   模板-{{ Init_RuleGroup.name }}
                 </summary>
-                <div class="form-selectgroup form-selectgroup-pills">
+                <div class="form-selectgroup">
                   {% for Rule in Init_RuleGroup.rules %}
                     <label class="form-selectgroup-item">
                       <input type="button" value="{{ Rule | safe }}" class="form-selectgroup-input"
@@ -277,7 +277,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="form-selectgroup form-selectgroup-pills">
+        <div class="form-selectgroup">
           {% for Init_RuleGroup in Init_RuleGroups %}
             <label class="form-selectgroup-item">
               <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.id }}"

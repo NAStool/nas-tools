@@ -100,7 +100,7 @@
                                                                   data-bs-toggle="tooltip">?</span></label>
                 <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_private')">全选</a>
               </div>
-              <div class="form-selectgroup form-selectgroup-pills">
+              <div class="form-selectgroup">
                 {% if PrivateCount > 0 %}
                   {% for Indexer in Indexers %}
                     {% if not Indexer.public %}
@@ -127,7 +127,7 @@
                                                          data-bs-toggle="tooltip">?</span></label>
                 <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_public')">全选</a>
               </div>
-              <div class="form-selectgroup form-selectgroup-pills">
+              <div class="form-selectgroup">
               {% for Indexer in Indexers %}
                 {% if Indexer.public %}
                 <label class="form-selectgroup-item">
