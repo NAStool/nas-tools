@@ -240,7 +240,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         elif input_str.startswith("http"):
             # 下载链接
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
-        elif re.search(r"^请[问帮]|[?？]$", input_str, re.IGNORECASE) \
+        elif re.search(r"^请[问帮你]|[?？]$", input_str, re.IGNORECASE) \
                 or StringUtils.count_words(input_str) > 15:
             # 问答
             SEARCH_MEDIA_TYPE[user_id] = "ASK"
@@ -290,7 +290,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 answer = OpenAiHelper().get_answer(input_str)
             # 发送消息
             Message().send_channel_msg(channel=in_from,
-                                       title=str(answer).strip(),
+                                       title="",
+                                       text=str(answer).strip(),
                                        user_id=user_id)
         # 搜索或订阅
         else:

@@ -432,26 +432,37 @@ class Media:
         :param mtype: 媒体类型
         :return: 类型、季、集、TMDBINFO
         """
-        if not file_name:
+        def __failed():
             return mtype, None, None, None
+
+        if not file_name:
+            return __failed()
         log.info("【Meta】正在通过ChatGPT识别文件名：%s" % file_name)
         file_info = self.openai.get_media_name(file_name)
         if file_info is None:
             log.info("【Meta】ChatGPT识别出错，请检查是否设置OpenAI ApiKey！")
-            return mtype, None, None, None
+            return __failed()
         if not file_info:
             log.info("【Meta】ChatGPT识别失败！")
-            return mtype, None, None, None
+            return __failed()
         else:
             log.info("【Meta】ChatGPT识别结果：%s" % file_info)
             if file_info.get("season") or file_info.get("episode"):
                 mtype = MediaType.TV
+            # 处理标题和年份
+            file_title, file_year, season_number = None, None, None
+            if file_info.get("title"):
+                file_title = str(file_info.get("title")).split("/")[0].strip().replace(".", " ")
+            if file_info.get("year"):
+                file_year = str(file_info.get("year")).split("/")[0].strip()
+            if not file_title:
+                return __failed()
             if mtype != MediaType.MOVIE or file_info.get("year"):
-                tmdb_info = self.__search_tmdb(file_media_name=file_info.get("title"),
+                tmdb_info = self.__search_tmdb(file_media_name=file_title,
                                                search_type=mtype,
-                                               first_media_year=file_info.get("year"))
+                                               first_media_year=file_year)
             else:
-                tmdb_info = self.__search_multi_tmdb(file_media_name=file_info.get("title"))
+                tmdb_info = self.__search_multi_tmdb(file_media_name=file_title)
             return mtype, file_info.get("season"), file_info.get("episode"), tmdb_info
 
     def search_tmdb_person(self, name):
