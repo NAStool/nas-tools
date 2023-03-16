@@ -1111,7 +1111,7 @@ def wechat():
         if not sVerifyMsgSig and not sVerifyTimeStamp and not sVerifyNonce:
             return "NAStool微信交互服务正常！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项，打开微信交互开关。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
         sVerifyEchoStr = request.args.get("echostr")
-        log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
+        log.info("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
         if ret != 0:
             log.error("微信请求验证失败 VerifyURL ret: %s" % str(ret))
@@ -1120,7 +1120,7 @@ def wechat():
     else:
         try:
             sReqData = request.data
-            log.debug("收到微信消息：%s" % str(sReqData))
+            log.debug("收到微信请求：%s" % str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret = %s" % str(ret))
@@ -1178,6 +1178,7 @@ def wechat():
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
+                log.info(f"收到微信消息：user_name={user_id}, text={content}")
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
                                                in_from=SearchType.WX,
@@ -1276,10 +1277,10 @@ def telegram():
         message = msg_json.get("message", {})
         text = message.get("text")
         user_id = message.get("from", {}).get("id")
-        log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
         user_name = message.get("from", {}).get("username")
         if text:
+            log.info(f"收到Telegram消息：username={user_name}, text={text}")
             # 检查权限
             if text.startswith("/"):
                 if str(user_id) not in interactive_client.get("client").get_admin():
@@ -1293,6 +1294,7 @@ def telegram():
                                                title="你不在用户白名单中，无法使用此机器人",
                                                user_id=user_id)
                     return '你不在用户白名单中，无法使用此机器人'
+            # 处理消息
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.TG,
                                            user_id=user_id,
@@ -1326,10 +1328,10 @@ def synology():
             return 'token校验不通过'
         text = msg_data.get("text")
         user_id = int(msg_data.get("user_id"))
-        log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
         user_name = msg_data.get("username")
         if text:
+            log.info(f"收到Synology Chat消息：username={user_name}, text={text}")
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.SYNOLOGY,
                                            user_id=user_id,
@@ -1462,6 +1464,7 @@ def slack():
             username = msg_json.get("user", {}).get("username")
         else:
             return "Error"
+        log.info(f"收到Slack消息：username={username}, text={text}")
         WebAction().handle_message_job(msg=text,
                                        in_from=SearchType.SLACK,
                                        user_id=channel,
