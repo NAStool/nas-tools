@@ -7,6 +7,7 @@ import sqlite3
 import time
 import traceback
 import urllib
+import mimetypes
 import xml.dom.minidom
 from functools import wraps
 from math import floor
@@ -64,6 +65,11 @@ LoginManager.init_app(App)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
+
+
+# fix Windows registry stuff
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('text/css', '.css')
 
 
 @App.after_request
