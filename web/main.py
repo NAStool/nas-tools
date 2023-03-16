@@ -1178,7 +1178,7 @@ def wechat():
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
-                log.info(f"收到微信消息：user_name={user_id}, text={content}")
+                log.info(f"收到微信消息：username={user_id}, text={content}")
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
                                                in_from=SearchType.WX,
