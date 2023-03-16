@@ -2400,7 +2400,7 @@
           const level = log.level;
           let tcolor = '';
           let bgcolor = '';
-          let tstyle = '';
+          let tstyle = '-webkit-line-clamp:4; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;';
           if (level === "WARN") {
             tcolor = "text-warning";
             bgcolor = "bg-warning";
@@ -2414,18 +2414,18 @@
             tcolor = "text";
           }
           if (["Rmt", "Plugin"].includes(source) && text.includes(" 到 ")) {
-            tstyle = `white-space: pre;`
+            tstyle = `${tstyle} white-space: pre;`
             text = text.replace(/\s到\s/, "\n=> ")
           }
           if (text.includes("http") || text.includes("magnet")) {
-            tstyle = `word-break: break-all;`
+            tstyle = `${tstyle} word-break: break-all;`
             text = text.replace(/：((?:http|magnet).+?)(?:\s|$)/g, "：<a href='$1' target='_blank'>$1</a>")
           }
           tbody = `${tbody}
                     <tr>
                     <td style="${tdstyle}"><span class="${tcolor}">${time}</span></td>
                     <td style="${tdstyle}"><span class="badge ${bgcolor}">${source}</span></td>
-                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}">${text}</span></td>
+                    <td style="${tdstyle}"><span class="${tcolor}" style="${tstyle}" title="${text}">${text}</span></td>
                     </tr>`;
         }
         let logging_table_obj = $("#logging_table");
