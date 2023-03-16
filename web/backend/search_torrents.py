@@ -290,7 +290,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                 answer = OpenAiHelper().get_answer(input_str)
             # 发送消息
             Message().send_channel_msg(channel=in_from,
-                                       title=str(answer).strip(),
+                                       title="",
+                                       text=str(answer).strip(),
                                        user_id=user_id)
         # 搜索或订阅
         else:
