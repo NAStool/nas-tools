@@ -7,6 +7,7 @@ import sqlite3
 import time
 import traceback
 import urllib
+import mimetypes
 import xml.dom.minidom
 from functools import wraps
 from math import floor
@@ -66,6 +67,11 @@ LoginManager.init_app(App)
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
 
+# fix Windows registry stuff
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('text/css', '.css')
+
+
 @App.after_request
 def add_header(r):
     """
@@ -118,7 +124,7 @@ def login():
         """
         # 判断当前的运营环境
         SystemFlag = SystemUtils.get_system()
-        SyncMod = Config().get_config('pt').get('rmt_mode')
+        SyncMod = Config().get_config('media').get('default_rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         DefaultPath = Config().get_config('media').get('media_default_path')
         if not SyncMod:

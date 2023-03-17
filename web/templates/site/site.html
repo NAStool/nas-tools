@@ -289,9 +289,16 @@
           </div>
           <div class="col-lg-8">
             <div class="mb-3">
-              <label class="form-label">User-Agent <span class="form-help"
+            <label class="form-label">User-Agent <span class="form-help"
                   title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
+              <div class="input-group input-group-flat">
+                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
+                <span class="input-group-text">
+                  <a href="javascript:set_user_agent('site_ua')" class="link-secondary" title="从浏览器中获取 User-Agent" data-bs-toggle="tooltip">
+                    {{ SVG.arrow_bar_to_left() }}
+                  </a>
+                </span>
+              </div>
             </div>
           </div>
         </div>

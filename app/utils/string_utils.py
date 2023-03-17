@@ -445,7 +445,7 @@ class StringUtils:
     @staticmethod
     def count_words(s):
         """
-        计算字符串中包含的单词数量
+        计算字符串中包含的单词数量，只适用于简单的单行文本
         :param s: 要计算的字符串
         :return: 字符串中包含的单词数量
         """
@@ -453,7 +453,7 @@ class StringUtils:
         num_words = 0
 
         # 匹配英文单词
-        if re.match(r'^[A-Za-z\s]+$', s):
+        if re.match(r'^[A-Za-z0-9\s]+$', s):
             # 如果是英文字符串，则按空格分隔单词，并计算单词数量
             num_words = len(s.split())
         else:
@@ -465,8 +465,47 @@ class StringUtils:
     @staticmethod
     def split_text(text, max_length):
         """
-        把文本拆分为固定长度的数组
+        把文本拆分为固定字节长度的数组，优先按换行拆分，避免单词内拆分
         """
         if not text:
-            return ['']
-        return [text[i:i + max_length] for i in range(0, len(text), max_length)]
+            yield ''
+        # 分行
+        lines = re.split('\n', text)
+        buf = ''
+        for line in lines:
+            if len(line.encode('utf-8')) > max_length:
+                # 超长行继续拆分
+                blank = ""
+                if re.match(r'^[A-Za-z0-9.\s]+', line):
+                    # 英文行按空格拆分
+                    parts = line.split()
+                    blank = " "
+                else:
+                    # 中文行按字符拆分
+                    parts = line
+                part = ''
+                for p in parts:
+                    if len((part + p).encode('utf-8')) > max_length:
+                        # 超长则Yield
+                        yield (buf + part).strip()
+                        buf = ''
+                        part = f"{blank}{p}"
+                    else:
+                        part = f"{part}{blank}{p}"
+                if part:
+                    # 将最后的部分追加到buf
+                    buf += part
+            else:
+                if len((buf + "\n" + line).encode('utf-8')) > max_length:
+                    # buf超长则Yield
+                    yield buf.strip()
+                    buf = line
+                else:
+                    # 短行直接追加到buf
+                    if buf:
+                        buf = f"{buf}\n{line}"
+                    else:
+                        buf = line
+        if buf:
+            # 处理文本末尾剩余部分
+            yield buf.strip()

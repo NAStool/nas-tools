@@ -10,6 +10,7 @@ from config import Config
 class OpenAiHelper:
 
     _api_key = None
+    _api_url = None
 
     def __init__(self):
         self.init_config()
@@ -18,9 +19,13 @@ class OpenAiHelper:
         self._api_key = Config().get_config("openai").get("api_key")
         if self._api_key:
             openai.api_key = self._api_key
-        proxy_conf = Config().get_proxies()
-        if proxy_conf and proxy_conf.get("https"):
-            openai.proxy = proxy_conf.get("https")
+        self._api_url = Config().get_config("openai").get("api_url")
+        if self._api_url:
+            openai.api_base = self._api_url + "/v1"
+        else:
+            proxy_conf = Config().get_proxies()
+            if proxy_conf and proxy_conf.get("https"):
+                openai.proxy = proxy_conf.get("https")
 
     def get_state(self):
         return True if self._api_key else False

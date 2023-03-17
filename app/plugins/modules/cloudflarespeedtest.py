@@ -379,9 +379,11 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         获取CloudflareSpeedTest最新版本
         """
-        version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
+        version_res = RequestUtils().get_res(
             "https://api.github.com/repos/XIU2/CloudflareSpeedTest/releases/latest")
-
+        if not version_res:
+            version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
+                "https://api.github.com/repos/XIU2/CloudflareSpeedTest/releases/latest")
         if version_res:
             ver_json = version_res.json()
             version = f"{ver_json['tag_name']}"
