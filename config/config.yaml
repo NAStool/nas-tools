@@ -95,6 +95,8 @@ media:
   nfo_poster: false
   # 文件管理、自定义识别等默认路径
   media_default_path:
+  # 默认文件转移方式
+  default_rmt_mode: copy
 
 # 配置Emby服务器信息
 emby:

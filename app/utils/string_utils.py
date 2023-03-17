@@ -468,7 +468,7 @@ class StringUtils:
         把文本拆分为固定字节长度的数组，优先按换行拆分，避免单词内拆分
         """
         if not text:
-            return ['']
+            yield ''
         # 分行
         lines = re.split('\n', text)
         buf = ''

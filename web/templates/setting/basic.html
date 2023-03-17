@@ -241,17 +241,6 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">文件管理默认路径 <span class="form-help"
-                                                               title="文件管理、自定义识别等默认路径"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.media_default_path or '' }}" class="form-control" id="media.media_default_path"
-                         placeholder="/" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-lg">
-                <div class="mb-3">
                   <label class="form-label">二级分类策略 <span class="form-help"
                                                                title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空"
                                                                data-bs-toggle="tooltip">?</span></label>
@@ -259,6 +248,8 @@
                          placeholder="default-category" autocomplete="off">
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">下载优先规则 <span class="form-help"
@@ -272,6 +263,38 @@
                   </select>
                 </div>
               </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label required">默认文件转移方式 <span class="form-help"
+                                                                        title="手动识别等未指定转移方式的场景默认使用的转移方式"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <select id="media.default_rmt_mode" class="form-select">
+                    {% for mode in RmtModeDict %}
+                      <option value="{{ mode.value }}" {% if Config.media.default_rmt_mode==mode.value %}selected{% endif %}>{{ mode.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label required">转移最小文件大小(MB) <span class="form-help"
+                                                                                title="小于该大小的文件将会忽略，不进行转移重命名"
+                                                                                data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control"
+                         id="media.min_filesize" placeholder="200" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">文件管理默认路径 <span class="form-help"
+                                                               title="文件管理、自定义识别等默认路径"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.media_default_path or '' }}" class="form-control" id="media.media_default_path"
+                         placeholder="/" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">OpenAI API Url <span class="form-help"
@@ -292,16 +315,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-3">
-                <div class="mb-3">
-                  <label class="form-label required">转移最小文件大小(MB) <span class="form-help"
-                                                                                title="小于该大小的文件将会忽略，不进行转移重命名"
-                                                                                data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control"
-                         id="media.min_filesize" placeholder="200" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-lg-3">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">文件路径转移忽略词 <span class="form-help"
                                                                    title="文件路径包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
@@ -310,7 +324,7 @@
                          id="media.ignored_paths" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
                 </div>
               </div>
-              <div class="col-lg-3">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">文件名转移忽略词 <span class="form-help"
                                                                  title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义"
@@ -321,7 +335,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">电影重命名格式 <span class="form-help"
                                                                           title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符，转义为&#123;&#123;&#125;&#125;；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上。<br>电影占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{imdbid}：IMDB的ID<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"
@@ -333,9 +347,7 @@
                          autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col">
+              <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label required">电视剧重命名格式 <span class="form-help"
                                                                             title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符，转义为&#123;&#123;&#125;&#125;；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上。<br>电视剧占位符：<br>{title}：标题<br>{en_title}：英文标题<br>{original_title}：原语种标题<br>{original_name}：原文件名<br>{year}：年份<br>{edition}：版本(Bluray/WEB-DL等)<br>{videoFormat}：分辨率(1080p/4k等)<br>{videoCodec}：视频编码<br>{audioCodec}：音频编码及声道<br>{tmdbid}：TMDB的ID<br>{imdbid}：IMDB的ID<br>{season}：季数<br>{episode}：集数<br>{episode_title}：集标题<br>{season_episode}：剧集SxxExx<br>{part}：part1/disc1/dvd1<br>{releaseGroup}：制作组/字幕组<br>{name}：识别名称（文件名中识别出的名称，可用自定义识别词替换）<br><br>重命名使用Python的format格式化，可进行指定格式输出"

@@ -124,7 +124,7 @@ def login():
         """
         # 判断当前的运营环境
         SystemFlag = SystemUtils.get_system()
-        SyncMod = Config().get_config('pt').get('rmt_mode')
+        SyncMod = Config().get_config('media').get('default_rmt_mode')
         TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
         DefaultPath = Config().get_config('media').get('media_default_path')
         if not SyncMod:
