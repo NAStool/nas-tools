@@ -144,9 +144,9 @@ class DiskSpaceSaver(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '文件SHA1信息存储路径',
+                            'title': '文件SHA1信息存储路径(文件路径)',
                             'required': "required",
-                            'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径',
+                            'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径，如 E:/temp/result.json',
                             'type': 'text',
                             'content': [
 
@@ -174,9 +174,9 @@ class DiskSpaceSaver(_IPluginModule):
                     # 文件大小
                     [
                         {
-                            'title': '文件大小',
+                            'title': '文件大小(MB)',
                             'required': "required",
-                            'tooltip': '大于该大小的文件才会进行SHA1计算',
+                            'tooltip': '单位 MB, 大于该大小的文件才会进行SHA1计算',
                             'type': 'text',
                             'content':
                                 [{
@@ -187,7 +187,7 @@ class DiskSpaceSaver(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '',
+                            'title': '磁盘目录(目录下的文件应均属于同一个分区)',
                             'required': '',
                             'tooltip': '要进行SHA1计算的文件路径，每行一个路径，请确保路径正确 且路径下均属于同一个磁盘分区',
                             'type': 'textarea',
@@ -198,7 +198,16 @@ class DiskSpaceSaver(_IPluginModule):
                                     'rows': 5
                                 }
                         }
-                    ]
+                    ],
+                    [
+                        {
+                            'title': '现在运行一次',
+                            'required': "",
+                            'tooltip': '目前不支持定时, 只有勾选了才会运行一次',
+                            'type': 'switch',
+                            'id': 'run_now',
+                        }
+                    ],
                 ]
             }
         ]
@@ -215,6 +224,13 @@ class DiskSpaceSaver(_IPluginModule):
         # config.get('ext_list') 用 , 分割为 list 并去除重复值
         ext_list = list(set(config.get('ext_list').split(',')))
         result_path = config.get('result_path')
+
+        run_now = config.get('run_now')
+        if not run_now:
+            return
+
+        config['run_now'] = False
+        self.update_config(config)
 
         # 如果没有配置信息， 则不处理
         if not path_list or not file_size or not ext_list or not result_path:
