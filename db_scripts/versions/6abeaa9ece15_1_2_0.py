@@ -168,6 +168,11 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('MATCH_PATH', sa.Integer))
     except Exception as e:
         pass
+
+    try:
+        op.execute("UPDATE DOWNLOADER SET MATCH_PATH = 0 WHERE MATCH_PATH IS NULL")
+    except Exception as e:
+        pass
     # ### end Alembic commands ###
 
 
