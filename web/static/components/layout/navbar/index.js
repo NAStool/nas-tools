@@ -533,7 +533,6 @@ export class LayoutNavbar extends CustomElement {
     this._is_update = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
 
-    this.navbar_list
     // 加载菜单
     Golbal.get_cache_or_ajax("get_user_menus", "usermenus", {},
       (ret) => {
