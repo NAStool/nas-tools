@@ -95,6 +95,8 @@ media:
   nfo_poster: false
   # 文件管理、自定义识别等默认路径
   media_default_path:
+  # 默认文件转移方式
+  default_rmt_mode: copy
 
 # 配置Emby服务器信息
 emby:
@@ -223,6 +225,8 @@ douban:
 openai:
   # 【openai api key】：openai的api key，可在openai官网申请
   api_key:
+  # 【openai api url】：自定义openai请求地址
+  api_url:
 
 # 【配置安全】
 security:
