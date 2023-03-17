@@ -1,7 +1,7 @@
 FROM alpine
 RUN apk update  \
     && apk add --no-cache libffi-dev \
-    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NAStool/nas-tools/master/package_list.txt)) \
+    && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/caiyuantian/nas-tools/master/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
@@ -11,23 +11,23 @@ RUN apk update  \
     && chmod +x /usr/bin/mc \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
-    && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/caiyuantian/nas-tools/master/requirements.txt \
     && apk del libffi-dev \
     && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 ENV LANG="C.UTF-8" \
-    TZ="Asia/Shanghai" \
+    TZ="Australia/Sydney" \
     NASTOOL_CONFIG="/config/config.yaml" \
-    NASTOOL_AUTO_UPDATE=true \
-    NASTOOL_CN_UPDATE=true \
+    NASTOOL_AUTO_UPDATE=false \
+    NASTOOL_CN_UPDATE=false \
     NASTOOL_VERSION=master \
     PS1="\u@\h:\w \$ " \
-    REPO_URL="https://github.com/NAStool/nas-tools.git" \
+    REPO_URL="https://github.com/caiyuantian/nas-tools.git" \
     PYPI_MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple" \
     ALPINE_MIRROR="mirrors.ustc.edu.cn" \
-    PUID=0 \
-    PGID=0 \
-    UMASK=000 \
+    PUID=1000 \
+    PGID=1000 \
+    UMASK=022 \
     WORKDIR="/nas-tools"
 WORKDIR ${WORKDIR}
 RUN python_ver=$(python3 -V | awk '{print $2}') \
