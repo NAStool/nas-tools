@@ -7,7 +7,6 @@ import log
 from app.plugins.modules._base import _IPluginModule
 
 
-@staticmethod
 def get_sha1(file_path):
     """
     计算文件的 SHA1 值
@@ -22,10 +21,9 @@ def get_sha1(file_path):
     return sha1.hexdigest()
 
 
-@staticmethod
 def find_duplicates(folder_path, _ext_list, _file_size, last_result):
     """
-    查找重复的文件，返回一个字典，key 为文件的 SHA1 值，value 为文件路径的列表
+    查找重复的文件，返回字典，key 为文件的 SHA1 值，value 为文件路径的列表
     """
     duplicates = {}
     for dirpath, dirnames, filenames in os.walk(folder_path):
@@ -66,7 +64,6 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result):
     return duplicates
 
 
-@staticmethod
 def process_duplicates(duplicates):
     """
     处理重复的文件，保留一个文件，其他的用硬链接替换
@@ -89,7 +86,6 @@ def process_duplicates(duplicates):
                     continue
 
 
-@staticmethod
 def load_last_result(last_result_path):
     """
     加载上次处理的结果
@@ -101,7 +97,6 @@ def load_last_result(last_result_path):
         return {'file_info': [], 'inode_info': []}
 
 
-@staticmethod
 def save_last_result(last_result_path, last_result):
     """
     保存处理结果到文件
@@ -114,11 +109,11 @@ class DiskSpaceSaver(_IPluginModule):
     # 插件名称
     module_name = "磁盘空间释放"
     # 插件描述
-    module_desc = "计算文件SHA1，同磁盘下相同SHA1的文件只保留一个，其他的用硬链接替换"
+    module_desc = "计算文件SHA1，同磁盘下相同SHA1的文件只保留一个，其他的用硬链接替换。"
     # 插件图标
-    module_icon = "disk.png"
+    module_icon = "diskusage.jpg"
     # 主题色
-    module_color = "bg-purple"
+    module_color = "bg-yellow"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -149,7 +144,6 @@ class DiskSpaceSaver(_IPluginModule):
                             'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径，如 E:/temp/result.json',
                             'type': 'text',
                             'content': [
-
                                 {
                                     'id': 'result_path',
                                     'placeholder': '文件SHA1信息存储路径'
@@ -174,7 +168,7 @@ class DiskSpaceSaver(_IPluginModule):
                     # 文件大小
                     [
                         {
-                            'title': '文件大小(MB)',
+                            'title': '文件大小（MB）',
                             'required': "required",
                             'tooltip': '单位 MB, 大于该大小的文件才会进行SHA1计算',
                             'type': 'text',
@@ -267,7 +261,7 @@ class DiskSpaceSaver(_IPluginModule):
             log.info(f"【Plugin】磁盘空间释放 保存处理结果。")
 
     def get_state(self):
-        return True
+        return False
 
     def stop_service(self):
         """
