@@ -234,11 +234,11 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">OpenAI API Key <span class="form-help"
-                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名（需要打开增强识别开关）及聊天交互等；填写此项代表启用ChatGPT，根据API使用情况OpenAI官方会收取相应的费用"
-                                                                        data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
-                         id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
+                  <label class="form-label">文件管理默认路径 <span class="form-help"
+                                                               title="文件管理、自定义识别等默认路径"
+                                                               data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.media_default_path or '' }}" class="form-control" id="media.media_default_path"
+                         placeholder="/" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -267,14 +267,25 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">文件管理默认路径 <span class="form-help"
-                                                               title="文件管理、自定义识别等默认路径"
-                                                               data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.media_default_path or '' }}" class="form-control" id="media.media_default_path"
-                         placeholder="/" autocomplete="off">
+                  <label class="form-label">OpenAI API Url <span class="form-help"
+                                                                        title="自定义openai请求地址（请注意格式，请求地址需带有请求头且最后没有/号），不填默认使用https://api.openai.com"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_url or '' }}{% endif %}" class="form-control"
+                         id="openai.api_url" placeholder="https://api.openai.com" autocomplete="off">
                 </div>
               </div>
               <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">OpenAI API Key <span class="form-help"
+                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名（需要打开增强识别开关）及聊天交互等；填写此项代表启用ChatGPT，根据API使用情况OpenAI官方会收取相应的费用"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
+                         id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label required">转移最小文件大小(MB) <span class="form-help"
                                                                                 title="小于该大小的文件将会忽略，不进行转移重命名"
@@ -283,8 +294,6 @@
                          id="media.min_filesize" placeholder="200" autocomplete="off">
                 </div>
               </div>
-            </div>
-            <div class="row">
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">文件路径转移忽略词 <span class="form-help"
