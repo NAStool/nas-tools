@@ -150,9 +150,16 @@
                   <label class="form-label">User-Agent <span class="form-help"
                                                              title="如发现被豆瓣、PT站等封堵，请适当修改此项"
                                                              data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent"
-                         placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
-                         autocomplete="off">
+                  <div class="input-group input-group-flat">
+                    <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent"
+                           placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+                           autocomplete="off">
+                    <span class="input-group-text">
+                      <a href="javascript:set_user_agent('app\\.user_agent')" class="link-secondary" title="从浏览器中获取 User-Agent" data-bs-toggle="tooltip">
+                        {{ SVG.arrow_bar_to_left() }}
+                      </a>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1115,5 +1122,11 @@
       ffmpeg_container.addClass("d-none");
       ffmpeg_check.prop("checked", false);
     }
+  }
+  function set_user_agent(id) {
+      let userAgent = navigator.userAgent;
+      if (userAgent){
+          $("#"+id).val(userAgent);
+      }
   }
 </script>
