@@ -1504,27 +1504,32 @@ class DbHelper:
         else:
             return False
 
-    def get_site_statistics_recent_sites(self, days=7, end_day_str=None, strict_urls=None):
+    def get_site_statistics_recent_sites(self, days=7, end_day=None, strict_urls=None):
         """
         查询近期上传下载量
         :param days 需要前几天的数据,传入7实际上会返回6天的数据?
-        :param end_day_str 开始时间
+        :param end_day 开始时间
         :param strict_urls 需要的站点URL的列表
         传入 7,"2020-01-01" 表示需要从2020-01-01之前6天的数据
         """
         # 查询最大最小日期
         if strict_urls is None:
             strict_urls = []
-        e_date = datetime.datetime.now()
-        if end_day_str:
-            e_date = datetime.datetime.strptime(end_day_str, "%Y-%m-%d")
+        end = datetime.datetime.now()
+        if end_day:
+            try:
+                end = datetime.datetime.strptime(end_day, "%Y-%m-%d")
+            except Exception as e:
+                pass
 
         # 开始时间
-        b_date = (e_date - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+        b_date = (end - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+        # 结束时间
+        e_date = end.strftime("%Y-%m-%d")
         # 大于开始时间范围里的最大日期与最小日期
         date_ret = self._db.query(func.max(SITESTATISTICSHISTORY.DATE),
                                   func.MIN(SITESTATISTICSHISTORY.DATE)).filter(
-            SITESTATISTICSHISTORY.DATE > b_date).all()
+            SITESTATISTICSHISTORY.DATE > b_date, SITESTATISTICSHISTORY.DATE <= e_date).all()
         if date_ret and date_ret[0][0]:
             total_upload = 0
             total_download = 0

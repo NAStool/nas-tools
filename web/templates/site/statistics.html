@@ -106,9 +106,9 @@
             <div class="card-body">
               <div class="d-flex">
                 <h3 class="card-title">
-                  <a href="">{{ SVG.chevron_left() }}</a>
-                  <a id="chart-recent-upload-title">今日上传量</a>
-                  <a href="">{{ SVG.chevron_right() }}</a>
+                  <a href="javascript:switch_date(-1)">{{ SVG.chevron_left() }}</a>
+                  <a id="chart-recent-upload-title" style="width: 250px;display: inline-block;text-align: center;">今日上传量</a>
+                  <a href="javascript:switch_date(1)">{{ SVG.chevron_right() }}</a>
                 </h3>
               </div>
               <div id="chart-recent-upload"></div>
@@ -120,9 +120,9 @@
             <div class="card-body">
               <div class="d-flex">
                 <h3 class="card-title">
-                  <a href="">{{ SVG.chevron_left() }}</a>
-                  <a id="chart-recent-download-title">今日下载量</a>
-                  <a href="">{{ SVG.chevron_right() }}</a>
+                  <a href="javascript:switch_date(-1)">{{ SVG.chevron_left() }}</a>
+                  <a id="chart-recent-download-title" style="width: 250px;display: inline-block;text-align: center;">今日下载量</a>
+                  <a href="javascript:switch_date(1)">{{ SVG.chevron_right() }}</a>
                 </h3>
               </div>
               <div id="chart-recent-download"></div>
@@ -707,9 +707,19 @@
       chart_history.resize();
     };
 
+    function switch_date(date_offset){
+      const current = moment(current_date)
+      const next = current.add(date_offset, 'days')
+      if (next.isAfter(moment(), 'day')) {
+        return; // 如果加完日期大于今天，返回
+      }
+      show_site_history_day(next.format('YYYY-MM-DD'),1);
+    }
+
     // 获取某一日的数据
-    function show_site_history_day(obj, days) {
-      ajax_post("get_site_history", {"days": days}, function (ret) {
+    function show_site_history_day(end_day, days) {
+      current_date = end_day;
+      ajax_post("get_site_history", {"days": days,"end_day": end_day}, function (ret) {
             pie_dl.hideLoading();
             pie_ul.hideLoading();
             if (ret.code == 0) {
@@ -786,8 +796,12 @@
               up_all = numeral(up_all).format('0.0 ib')
               dl_all = numeral(dl_all).format('0.0 ib')
 
-              $('#chart-recent-upload-title').text("今日上传量 共" + up_all)
-              $('#chart-recent-download-title').text("今日下载量 共" + dl_all)
+              let dateStr = end_day;
+              if (moment().isSame(moment(end_day, 'YYYY-MM-DD'),'d')){
+                dateStr = "今日"
+              }
+              $('#chart-recent-upload-title').text(dateStr + "上传量 共" + up_all)
+              $('#chart-recent-download-title').text(dateStr + "下载量 共" + dl_all)
             } else {
               show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
             }
@@ -874,8 +888,10 @@
 
     // 当前一周数据
     $('#btn-history-one-week').trigger('click');
+
+    var current_date = ""
     // 饼图
-    show_site_history_day("",1);
+    show_site_history_day(moment().format('YYYY-MM-DD'),1);
 
     pie_dl.showLoading();
     pie_ul.showLoading();

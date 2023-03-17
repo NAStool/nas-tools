@@ -286,7 +286,7 @@ class SiteUserInfo(object):
             # 更新时间
             self._last_update_time = datetime.now()
 
-    def get_pt_site_statistics_history(self, days=7):
+    def get_pt_site_statistics_history(self, days=7, end_day=None):
         """
         获取站点上传下载量
         """
@@ -296,7 +296,7 @@ class SiteUserInfo(object):
             if site_url:
                 site_urls.append(site_url)
 
-        return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return self.dbhelper.get_site_statistics_recent_sites(days=days, end_day=end_day, strict_urls=site_urls)
 
     def get_site_user_statistics(self, sites=None, encoding="RAW"):
         """
