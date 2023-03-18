@@ -278,7 +278,7 @@ class CloudflareSpeedTest(_IPluginModule):
                 log.warn(f"【Plugin】获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
                 return True, None
             elif self._version:
-                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取上次运行版本版本{self._version}，继续运行")
+                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
                 install_flag = True
             else:
                 release_version = "v2.2.2"
