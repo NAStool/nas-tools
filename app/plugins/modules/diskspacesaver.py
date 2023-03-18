@@ -116,9 +116,21 @@ def process_duplicates(duplicates, dry_run=False):
                         if dry_run:
                             log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，dry_run中，不做处理'.format(files[0], file_path))
                             continue
-                        os.remove(file_path)
-                        os.link(files[0], file_path)
-                        log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，已用硬链接替换'.format(files[0], file_path))
+                        # 使用try catch
+                        try:
+                            # 先备份原文件
+                            os.rename(file_path, file_path + '.bak')
+                            # 用硬链接替换原文件
+                            os.link(files[0], file_path)
+                            # 删除备份文件
+                            os.remove(file_path + '.bak')
+                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，已用硬链接替换'.format(files[0],
+                                                                                                           file_path))
+                        except Exception:
+                            # 如果硬链接失败，则将备份文件改回原文件名
+                            os.rename(file_path + '.bak', file_path)
+                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，硬链接替换失败，已恢复原文件'.format(
+                                files[0], file_path))
                 else:
                     log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 不在同一个磁盘，无法用硬链接替换'.format(files[0], file_path))
                     continue
