@@ -267,6 +267,9 @@ class CloudflareSpeedTest(_IPluginModule):
         if not cf_path.exists():
             os.mkdir(self._cf_path)
 
+        # 是否安装标识
+        install_flag = False
+
         # 获取CloudflareSpeedTest最新版本
         release_version = self.__get_release_version()
         if not release_version:
@@ -274,20 +277,22 @@ class CloudflareSpeedTest(_IPluginModule):
             if Path(f'{self._cf_path}/{self._binary_name}').exists():
                 log.warn(f"【Plugin】获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
                 return True, None
+            elif self._version:
+                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
+                install_flag = True
             else:
-                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，无可用版本，停止运行")
-                return False, None
-
-        # 是否安装标识
-        install_flag = False
+                release_version = "v2.2.2"
+                self._version = release_version
+                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，继续运行")
+                install_flag = True
 
         # 有更新
-        if release_version and release_version != self._version:
+        if not install_flag and release_version != self._version:
             log.info(f"【Plugin】检测到CloudflareSpeedTest有版本[{release_version}]更新，开始安装")
             install_flag = True
 
         # 重装后数据库有版本数据，但是本地没有则重装
-        if release_version == self._version and not Path(f'{self._cf_path}/{self._binary_name}').exists():
+        if not install_flag and release_version == self._version and not Path(f'{self._cf_path}/{self._binary_name}').exists():
             log.warn(f"【Plugin】未检测到CloudflareSpeedTest本地版本，重新安装")
             install_flag = True
 
