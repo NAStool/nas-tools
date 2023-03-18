@@ -45,8 +45,10 @@
             {% endif %}
           </div>
           <a href="javascript:show_userrss_detail({{ Task.id }})" style="text-decoration-line: none; color: unset"
-             title="展开/折叠" data-bs-toggle="tooltip">
-            <div class="ms-3"><h3 class="card-title">{{ Task.name }}</h3></div>
+            title="展开/折叠" data-bs-toggle="tooltip">
+            <div class="ms-3">
+              <h3 class="card-title">{{ Task.name }}</h3>
+            </div>
           </a>
           <div class="ms-2 me-auto d-none d-sm-block">
             <a href="javascript:run_userrss_now('{{ Task.id }}')" class="btn-icon" title="立即运行任务"
@@ -79,20 +81,20 @@
             </button>
           </div>
           <div class="card-actions btn-actions ms-1 d-none d-sm-block">
-            <a href="javascript:show_userrss_detail({{ Task.id }})" class="btn-action"
-               title="展开/折叠" data-bs-toggle="tooltip">
+            <a href="javascript:show_userrss_detail({{ Task.id }})" class="btn-action" title="展开/折叠"
+              data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
-            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
-               title="预览报文" data-bs-toggle="tooltip">
+            <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action" title="预览报文"
+              data-bs-toggle="tooltip">
               {{ SVG.eye() }}
             </a>
-            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
-               title="编辑任务" data-bs-toggle="tooltip">
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务"
+              data-bs-toggle="tooltip">
               {{ SVG.edit() }}
             </a>
-            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action"
-               title="删除任务" data-bs-toggle="tooltip">
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务"
+              data-bs-toggle="tooltip">
               {{ SVG.x() }}
             </a>
           </div>
@@ -115,9 +117,9 @@
               </div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">刷新间隔</div>
+              <div class="datagrid-title">刷新周期</div>
               <div class="datagrid-content">
-                {{ Task.interval }} 分钟
+                {{ Task.interval }} {% if Task.interval.find(' ')==-1 %} 分钟 {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
@@ -233,8 +235,8 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
-                    data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">刷新周期 <span class="form-help"
+                    title="检查RSS更新的间隔时间，两种配置方法：1.直接填数字单位为分钟，如：30 ；2.支持cron表达式" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="userrss_interval" class="form-control" placeholder="30">
               </div>
             </div>
@@ -253,7 +255,8 @@
                     data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="userrss_parser">
                   {% for RssParser in RssParsers %}
-                  <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
+                  <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}
+                  </option>
                   {% endfor %}
                 </select>
               </div>
@@ -380,7 +383,7 @@
                   <select class="form-select" id="userrss_rss_restype">
                     <option value="" selected>全部</option>
                     {% for Restype in RestypeDict %}
-                      <option value="{{ Restype }}">{{ Restype }}</option>
+                    <option value="{{ Restype }}">{{ Restype }}</option>
                     {% endfor %}
                   </select>
                 </div>
@@ -391,7 +394,7 @@
                   <select class="form-select" id="userrss_rss_pix">
                     <option value="" selected>全部</option>
                     {% for Pix in PixDict %}
-                      <option value="{{ Pix }}">{{ Pix }}</option>
+                    <option value="{{ Pix }}">{{ Pix }}</option>
                     {% endfor %}
                   </select>
                 </div>
@@ -405,8 +408,8 @@
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">过滤规则 <span class="form-help"
-                                                           title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
-                                                           data-bs-toggle="tooltip">?</span></label>
+                      title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则"
+                      data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="userrss_rss_rule">
                     <option value="" selected>站点规则</option>
                     {% for Id, Attr in RuleGroups.items() %}
@@ -421,7 +424,7 @@
                 <div class="mb-3">
                   <label class="form-label">下载设置</label>
                   <select class="form-select" id="userrss_rss_download_setting"
-                          onchange="refresh_savepath_select('userrss_rss_save_path', true, $(this).val())">
+                    onchange="refresh_savepath_select('userrss_rss_save_path', true, $(this).val())">
                     <option value="" selected>站点设置</option>
                     {% for Id, Attr in DownloadSettings.items() %}
                     <option value="{{ Id }}">{{ Attr }}</option>
@@ -438,7 +441,8 @@
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
-                  <label class="form-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span>
+                  <label class="form-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载"
+                      data-bs-toggle="tooltip">?</span>
                   </label>
                   <select class="form-select" id="userrss_rss_over_edition">
                     <option value="0" selected>否</option>
@@ -451,7 +455,8 @@
               <div class="mb-3">
                 <div class="btn-list">
                   <label class="form-label">订阅站点</label>
-                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_rss_sites')">全选</a>
+                  <a href="javascript:void(0)" class="ms-auto"
+                    onclick="select_btn_SelectALL(this, 'userrss_rss_rss_sites')">全选</a>
                 </div>
                 <div class="form-selectgroup" id="userrss_rss_rss_sites_group"></div>
               </div>
@@ -460,7 +465,8 @@
               <div class="mb-3">
                 <div class="btn-list">
                   <label class="form-label">搜索站点</label>
-                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'userrss_rss_search_sites')">全选</a>
+                  <a href="javascript:void(0)" class="ms-auto"
+                    onclick="select_btn_SelectALL(this, 'userrss_rss_search_sites')">全选</a>
                 </div>
                 <div class="form-selectgroup" id="userrss_rss_search_sites_group"></div>
               </div>
@@ -498,44 +504,38 @@
       <div class="modal-header">
         <div class="ms-2">
           <h5 class="modal-title">订阅预览</h5>
-          <input type="hidden" id="article_check_id" value="" >
+          <input type="hidden" id="article_check_id" value="">
         </div>
         <div class="ms-5">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>      
+      </div>
       <div class="table-responsive table-modal-body">
         <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
       <div class="modal-footer">
         <span class="rss_articles_download_btn me-auto">
-          <a href="javascript:batch_articles_action('download')"
-            class="btn btn-primary d-none d-sm-inline-block ">
+          <a href="javascript:batch_articles_action('download')" class="btn btn-primary d-none d-sm-inline-block ">
             {{ SVG.download() }}
             批量下载
           </a>
-          <a href="javascript:batch_articles_action('download')"
-            class="btn btn-primary btn-icon d-sm-none">
+          <a href="javascript:batch_articles_action('download')" class="btn btn-primary btn-icon d-sm-none">
             {{ SVG.download() }}
           </a>
         </span>
-        <a href="javascript:batch_articles_action('set_finished')"
-          class="btn btn-green d-none d-sm-inline-block">
+        <a href="javascript:batch_articles_action('set_finished')" class="btn btn-green d-none d-sm-inline-block">
           {{ SVG.circle_check() }}
           已处理
         </a>
-        <a href="javascript:batch_articles_action('set_finished')"
-          class="btn btn-green btn-icon d-sm-none">
+        <a href="javascript:batch_articles_action('set_finished')" class="btn btn-green btn-icon d-sm-none">
           {{ SVG.circle_check() }}
         </a>
-        <a href="javascript:batch_articles_action('set_unfinish')"
-          class="btn btn-yellow d-none d-sm-inline-block">
+        <a href="javascript:batch_articles_action('set_unfinish')" class="btn btn-yellow d-none d-sm-inline-block">
           {{ SVG.circle_x() }}
           未处理
         </a>
-        <a href="javascript:batch_articles_action('set_unfinish')"
-          class="btn btn-yellow btn-icon d-sm-none">
+        <a href="javascript:batch_articles_action('set_unfinish')" class="btn btn-yellow btn-icon d-sm-none">
           {{ SVG.circle_x() }}
         </a>
       </div>
@@ -642,18 +642,18 @@
     $("#userrss_id").val(id);
     $("#userrss_modal_title").text("编辑订阅");
     ajax_post("get_userrss_task", { id: id }, function (ret) {
-    if (ret.code === 0) {
-      let detail = ret.detail;
-      recover_userrss_setting(detail.uses);
-      // 公共
-      $("#userrss_name").val(detail.name);
-      $("#userrss_interval").val(detail.interval);
-      $("#userrss_address").val(detail.address);
-      $("#userrss_parser").val(detail.parser);
-      $("#userrss_state").val(detail.state);
-      show_userrss_uses(detail.uses);
-      set_userrss_setting(detail)
-      $("#modal-userrss").modal('show');
+      if (ret.code === 0) {
+        let detail = ret.detail;
+        recover_userrss_setting(detail.uses);
+        // 公共
+        $("#userrss_name").val(detail.name);
+        $("#userrss_interval").val(detail.interval);
+        $("#userrss_address").val(detail.address);
+        $("#userrss_parser").val(detail.parser);
+        $("#userrss_state").val(detail.state);
+        show_userrss_uses(detail.uses);
+        set_userrss_setting(detail)
+        $("#modal-userrss").modal('show');
       }
     });
   }
@@ -671,13 +671,15 @@
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
     const userrss_common = input_select_GetVal('userrss_common_div', 'userrss_');
+
     if (!userrss_common.name) {
       $("#userrss_name").addClass("is-invalid");
       return;
     } else {
       $("#userrss_name").removeClass("is-invalid");
     }
-    if (!userrss_common.interval || isNaN(userrss_common.interval)) {
+    var reg = /(^\s+)|(\s+$)|\s+/g;
+    if (!userrss_common.interval || isNaN(userrss_common.interval) && userrss_common.interval.match(reg).length != 5) {
       $("#userrss_interval").addClass("is-invalid");
       return;
     } else {
@@ -710,7 +712,7 @@
     } else {
       return;
     }
-    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val()};
+    const params = { ...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val() };
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
@@ -783,13 +785,13 @@
           if (ret.uses === "D") {
             download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">{{ SVG.download() }}</a>`
           }
-          content_td= `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-1" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
+          content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}${recognization}<custom-chips class="mt-1" id='info_${i}'></custom-chips></td>><td>${finish_flag}<a id='flag_${i}'></a></td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }
         $("#table-rss-articles").append(content);
       } else {
-        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
         $("#table-rss-articles").append(content);
       }
       if (ret.uses !== "D") {
@@ -803,7 +805,7 @@
   }
 
   // 获取选中按钮
-  function get_article_checked(){
+  function get_article_checked() {
     let articles = [];
     let articles_id = select_GetSelectedVAL("rss_articles_item");
     for (let id of articles_id) {
@@ -845,11 +847,11 @@
     $("#modal-rss-articles").modal('hide');
     ajax_post("rss_articles_download", { "articles": articles, "taskid": id }, function (ret) {
       if (ret.code == 0) {
-        show_success_modal("添加下载成功！", function() {
+        show_success_modal("添加下载成功！", function () {
           show_rss_articles_modal(id);//
         });
       } else if (ret.code == 1) {
-        show_fail_modal(" 添加下载失败！", function() {
+        show_fail_modal(" 添加下载失败！", function () {
           show_rss_articles_modal(id);//
         });
       }
@@ -918,7 +920,7 @@
           content = `${content_th}${content_tb}`;
         };
       } else {
-        content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
       }
       $("#table-rss-history").empty().append(content);
       $("#modal-rss-history").modal('show');
