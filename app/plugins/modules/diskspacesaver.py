@@ -7,21 +7,38 @@ import log
 from app.plugins.modules._base import _IPluginModule
 
 
-def get_sha1(file_path):
+def get_sha1(file_path, buffer_size=128 * 1024, fast=False):
     """
-    计算文件的 SHA1 值
+    计算文件的 SHA1 值, fast 为 True 时读取文件前中后buffer_size大小的数据计算SHA1值
     """
-    sha1 = hashlib.sha1()
-    with open(file_path, 'rb') as f:
-        while True:
-            data = f.read(1024)
-            if not data:
-                break
-            sha1.update(data)
-    return sha1.hexdigest()
+    h = hashlib.sha1()
+    buffer = bytearray(buffer_size)
+    # using a memoryview so that we can slice the buffer without copying it
+    buffer_view = memoryview(buffer)
+    with open(file_path, 'rb', buffering=0) as f:
+        if fast:
+            # 获取文件大小
+            file_size = os.path.getsize(file_path)
+            # 读取文件前buffer_size大小的数据计算SHA1值
+            n = f.readinto(buffer)
+            h.update(buffer_view[:n])
+            # 读取文件中间buffer_size大小的数据计算SHA1值
+            if file_size > buffer_size * 2:
+                f.seek(file_size // 2)
+                n = f.readinto(buffer)
+                h.update(buffer_view[:n])
+                # 读取文件后buffer_size大小的数据计算SHA1值
+                f.seek(-buffer_size, os.SEEK_END)
+                n = f.readinto(buffer)
+                h.update(buffer_view[:n])
+        else:
+            # 读取文件所有数据计算SHA1值
+            for n in iter(lambda: f.readinto(buffer), 0):
+                h.update(buffer_view[:n])
+    return h.hexdigest()
 
 
-def find_duplicates(folder_path, _ext_list, _file_size, last_result):
+def find_duplicates(folder_path, _ext_list, _file_size, last_result, fast=False):
     """
     查找重复的文件，返回字典，key 为文件的 SHA1 值，value 为文件路径的列表
     """
@@ -51,7 +68,7 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result):
 
                 if sha1 is None:
                     log.info('【Plugin】磁盘空间释放 计算文件 {} 的 SHA1 值'.format(file_path))
-                    sha1 = get_sha1(file_path)
+                    sha1 = get_sha1(file_path, fast=fast)
                     file_info = {'filePath': file_path, 'fileSize': file_size, 'fileModifyTime': str(file_mtime),
                                  'fileSha1': sha1}
                     last_result['file_info'].append(file_info)
@@ -64,7 +81,7 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result):
     return duplicates
 
 
-def process_duplicates(duplicates):
+def process_duplicates(duplicates, dry_run=False):
     """
     处理重复的文件，保留一个文件，其他的用硬链接替换
     """
@@ -78,6 +95,9 @@ def process_duplicates(duplicates):
                     if stat_first.st_ino == stat_compare.st_ino:
                         log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是同一个文件，无需处理'.format(files[0], file_path))
                     else:
+                        if dry_run:
+                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，dry_run中，不做处理'.format(files[0], file_path))
+                            continue
                         os.remove(file_path)
                         os.link(files[0], file_path)
                         log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，已用硬链接替换'.format(files[0], file_path))
@@ -200,8 +220,22 @@ class DiskSpaceSaver(_IPluginModule):
                             'tooltip': '目前不支持定时, 只有勾选了才会运行一次',
                             'type': 'switch',
                             'id': 'run_now',
+                        },
+                        {
+                            'title': '仅查重',
+                            'required': "",
+                            'tooltip': '仅查重，不进行删除和硬链接替换',
+                            'type': 'switch',
+                            'id': 'dry_run',
+                        },
+                        {
+                            'title': '快速模式',
+                            'required': "",
+                            'tooltip': '快速模式，不计算文件整体SHA1，只计算文件头部/中间/尾部的SHA1，速度快，但有可能会误判，请谨慎使用',
+                            'type': 'switch',
+                            'id': 'fast',
                         }
-                    ],
+                    ]
                 ]
             }
         ]
@@ -218,6 +252,8 @@ class DiskSpaceSaver(_IPluginModule):
         # config.get('ext_list') 用 , 分割为 list 并去除重复值
         ext_list = list(set(config.get('ext_list').split(',')))
         result_path = config.get('result_path')
+        dry_run = config.get('dry_run', False)
+        fast = config.get('fast', False)
 
         run_now = config.get('run_now')
         if not run_now:
@@ -253,9 +289,9 @@ class DiskSpaceSaver(_IPluginModule):
 
             _last_result = load_last_result(result_path)
             log.info(f"【Plugin】磁盘空间释放 加载上次处理结果，共有 {len(_last_result['file_info'])} 个文件。")
-            _duplicates = find_duplicates(path, ext_list, int(file_size), _last_result)
+            _duplicates = find_duplicates(path, ext_list, int(file_size), _last_result, fast)
             log.info(f"【Plugin】磁盘空间释放 找到 {len(_duplicates)} 个重复文件。")
-            process_duplicates(_duplicates)
+            process_duplicates(_duplicates, dry_run)
             log.info(f"【Plugin】磁盘空间释放 处理完毕。")
             save_last_result(result_path, _last_result)
             log.info(f"【Plugin】磁盘空间释放 保存处理结果。")
