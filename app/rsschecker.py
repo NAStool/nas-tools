@@ -120,12 +120,30 @@ class RssChecker(object):
                                               })
         rss_flag = False
         for task in self._rss_tasks:
-            if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
-                rss_flag = True
-                self._scheduler.add_job(func=self.check_task_rss,
-                                        args=[task.get("id")],
-                                        trigger='interval',
-                                        seconds=int(task.get("interval")) * 60)
+            if task.get("state") == "Y" and task.get("interval"):
+                if str(task.get("interval")).isdigit():
+                    rss_flag = True
+                    self._scheduler.add_job(func=self.check_task_rss,
+                                            args=[task.get("id")],
+                                            trigger='interval',
+                                            seconds=int(task.get("interval")) * 60)
+                elif task.get("interval").strip().count(" ") == 5:
+                    try:
+                        cron = task.get("interval").strip()
+                        cron_argv = cron.split(" ")
+                        second, minute, hour, day, month, day_of_week = map(str, cron_argv)
+                        self._scheduler.add_job(func=self.check_task_rss,
+                                                args=[task.get("id")],
+                                                trigger="cron",
+                                                second=second,
+                                                hour=hour,
+                                                minute=minute,
+                                                day=day,
+                                                month=month,
+                                                day_of_week=day_of_week)
+                        rss_flag = True
+                    except Exception as e:
+                        log.info("%s 自定义订阅cron表达式 配置格式错误：%s %s" % (task.get("name"), cron, str(e)))
         if rss_flag:
             self._scheduler.print_jobs()
             self._scheduler.start()
