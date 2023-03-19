@@ -4098,6 +4098,8 @@ class WebAction:
         enabled = data.get("enabled")
         if cid:
             self.dbhelper.delete_message_client(cid=cid)
+        if int(interactive) == 1:
+            self.dbhelper.check_message_client(interactive=0, ctype=ctype)
         self.dbhelper.insert_message_client(name=name,
                                             ctype=ctype,
                                             config=config,
