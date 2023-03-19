@@ -330,9 +330,9 @@ class CloudflareSpeedTest(_IPluginModule):
         proxies = Config().get_proxies()
         https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
         if https_proxy:
-            os.system(f"wget -P {self._cf_path} -e 'https_proxy={https_proxy}' {download_url}")
+            os.system(f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
         else:
-            os.system(f"wget -P {self._cf_path} https://ghproxy.com/{download_url}")
+            os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
