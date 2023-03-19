@@ -328,8 +328,8 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         # 首次下载或下载新版压缩包
         proxies = Config().get_proxies()
-        os.system('wget -P ' + ('-e http_proxy = ' + proxies.get("http") if proxies and proxies.get(
-            "http") else '') + f' {self._cf_path} {download_url}')
+        os.system(f'wget -P {self._cf_path} ' + (f"-e http_proxy='{proxies.get('http')}'" if proxies and proxies.get(
+            "http") else '') + f' {download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
