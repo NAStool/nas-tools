@@ -49,7 +49,7 @@ class CloudflareSpeedTest(_IPluginModule):
     _cf_path = 'cloudflarespeedtest'
     _cf_ipv4 = 'cloudflarespeedtest/ip.txt'
     _cf_ipv6 = 'cloudflarespeedtest/ipv6.txt'
-    _release_prefix = 'https://github.com/XIU2/CloudflareSpeedTest/releases/download'
+    _release_prefix = 'https://ghproxy.com/https://github.com/XIU2/CloudflareSpeedTest/releases/download'
     _binary_name = 'CloudflareST'
     _result_file = 'cloudflarespeedtest/result_hosts.txt'
 
@@ -318,7 +318,7 @@ class CloudflareSpeedTest(_IPluginModule):
             uname = SystemUtils.execute('uname -m')
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_linux_{arch}.tar.gz'
-            download_url = f'{self._release_prefix}/{release_version}/"{cf_file_name}"'
+            download_url = f'{self._release_prefix}/{release_version}/{cf_file_name}'
             return self.__os_install(download_url, cf_file_name, release_version,
                                      f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
 
@@ -327,9 +327,7 @@ class CloudflareSpeedTest(_IPluginModule):
         macos docker安装cloudflare
         """
         # 首次下载或下载新版压缩包
-        proxies = Config().get_proxies()
-        os.system(f'wget -P {self._cf_path} ' + (f"-e http_proxy='{proxies.get('http')}'" if proxies and proxies.get(
-            "http") else '') + f' {download_url}')
+        os.system(f'wget -P {self._cf_path} {download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
