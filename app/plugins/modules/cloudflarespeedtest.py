@@ -318,7 +318,7 @@ class CloudflareSpeedTest(_IPluginModule):
             uname = SystemUtils.execute('uname -m')
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_linux_{arch}.tar.gz'
-            download_url = f'{self._release_prefix}/{release_version}/"{cf_file_name}"'
+            download_url = f'{self._release_prefix}/{release_version}/{cf_file_name}'
             return self.__os_install(download_url, cf_file_name, release_version,
                                      f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
 
@@ -328,8 +328,11 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         # 首次下载或下载新版压缩包
         proxies = Config().get_proxies()
-        os.system(f'wget -P {self._cf_path} ' + (f"-e http_proxy='{proxies.get('http')}'" if proxies and proxies.get(
-            "http") else '') + f' {download_url}')
+        https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
+        if https_proxy:
+            os.system(f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
+        else:
+            os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():
