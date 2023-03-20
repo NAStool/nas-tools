@@ -51,9 +51,9 @@ class LibraryScraper(_IPluginModule):
 
     @staticmethod
     def get_fields():
-        movie_path = Config().get_config('media').get('movie_path')
-        tv_path = Config().get_config('media').get('tv_path')
-        anime_path = Config().get_config('media').get('anime_path')
+        movie_path = Config().get_config('media').get('movie_path') or []
+        tv_path = Config().get_config('media').get('tv_path') or []
+        anime_path = Config().get_config('media').get('anime_path') or []
         path = {p: {'name': p} for p in (movie_path + tv_path + anime_path)}
         return [
             # 同一板块
@@ -119,7 +119,7 @@ class LibraryScraper(_IPluginModule):
             },
             {
                 'type': 'details',
-                'summary': '排除媒体库',
+                'summary': '排除路径',
                 'tooltip': '需要排除的媒体库路径，多个用英文逗号分割',
                 'content': [
                     [
