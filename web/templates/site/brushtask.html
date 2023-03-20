@@ -135,7 +135,13 @@
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">刷新间隔</div>
-                  <div class="datagrid-content">{{ Task.interval }} 分钟</div>
+                  <div class="datagrid-content">
+                  {% if Task.interval.isdigit() %}
+                    {{ Task.interval }} 分钟
+                  {% else %}
+                    {{ Task.interval }}
+                  {% endif %}
+                  </div>
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">下载器</div>
