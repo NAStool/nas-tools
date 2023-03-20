@@ -692,7 +692,7 @@
       $("#userrss_name").removeClass("is-invalid");
     }
     let reg = /(^\s+)|(\s+$)|\s+/g;
-    if (isNaN(userrss_common.interval) && userrss_common.interval.match(reg).length == 5){
+    if (isNaN(userrss_common.interval) && userrss_common.interval.match(reg).length == 4){
       $("#userrss_interval").removeClass("is-invalid");
     }
     else if (!userrss_common.interval || isNaN(userrss_common.interval)) {
