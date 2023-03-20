@@ -67,6 +67,7 @@ class BrushTask(object):
                 elif cron.count(" ") == 4:
                     try:
                         self._scheduler.add_job(func=self.check_task_rss,
+                                                args=[task.get("id")],
                                                 trigger=CronTrigger.from_crontab(cron))
                         task_flag = True
                     except Exception as err:
