@@ -124,6 +124,9 @@
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
                 <span class="badge bg-blue">{{ Task.uses_text }}</span>
+                {% if Task.proxy == "Y" %}
+                <span class="badge bg-green">代理</span>
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
@@ -240,7 +243,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
                     data-bs-toggle="tooltip">?</span></label>
@@ -255,6 +258,16 @@
                   {% for RssParser in RssParsers %}
                   <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
                   {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">使用代理服务器 <span class="form-help" title="开启后该自定义订阅将使用代理服务器，代理需在基础设置->系统->代理服务器中设置"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_note_proxy">
+                  <option value="Y">是</option>
+                  <option value="N" selected>否</option>
                 </select>
               </div>
             </div>
@@ -651,6 +664,7 @@
       $("#userrss_address").val(detail.address);
       $("#userrss_parser").val(detail.parser);
       $("#userrss_state").val(detail.state);
+      $("#userrss_note_proxy").val(detail.proxy);
       show_userrss_uses(detail.uses);
       set_userrss_setting(detail)
       $("#modal-userrss").modal('show');
@@ -714,7 +728,7 @@
     } else {
       return;
     }
-    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val()};
+    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val(), "note": {"proxy": $("#userrss_note_proxy").val()}};
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
