@@ -44,11 +44,17 @@ class LibraryScraper(_IPluginModule):
     _cron = None
     _onlyonce = False
     _mode = None
+    _scraper_path = None
+    _exclude_path = None
     # 退出事件
     _event = Event()
 
     @staticmethod
     def get_fields():
+        movie_path = Config().get_config('media').get('movie_path') or []
+        tv_path = Config().get_config('media').get('tv_path') or []
+        anime_path = Config().get_config('media').get('anime_path') or []
+        path = {p: {'name': p} for p in (movie_path + tv_path + anime_path)}
         return [
             # 同一板块
             {
@@ -95,6 +101,40 @@ class LibraryScraper(_IPluginModule):
                         }
                     ],
                 ]
+            },
+            {
+                'type': 'details',
+                'summary': '刮削媒体库',
+                'tooltip': '请选择需要刮削的媒体库',
+                'content': [
+                    # 同一行
+                    [
+                        {
+                            'id': 'scraper_path',
+                            'type': 'form-selectgroup',
+                            'content': path
+                        },
+                    ]
+                ]
+            },
+            {
+                'type': 'details',
+                'summary': '排除路径',
+                'tooltip': '需要排除的媒体库路径，多个用英文逗号分割',
+                'content': [
+                    [
+                        {
+                            'required': "",
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'exclude_path',
+                                    'placeholder': ''
+                                }
+                            ]
+                        }
+                    ]
+                ]
             }
         ]
 
@@ -107,6 +147,8 @@ class LibraryScraper(_IPluginModule):
             self._onlyonce = config.get("onlyonce")
             self._cron = config.get("cron")
             self._mode = config.get("mode")
+            self._scraper_path = config.get("scraper_path")
+            self._exclude_path = config.get("exclude_path")
 
         # 停止现有任务
         self.stop_service()
@@ -132,7 +174,9 @@ class LibraryScraper(_IPluginModule):
             self.update_config({
                 "onlyonce": False,
                 "cron": self._cron,
-                "mode": self._mode
+                "mode": self._mode,
+                "scraper_path": self._scraper_path,
+                "exclude_path": self._exclude_path
             })
 
     def get_state(self):
@@ -151,7 +195,7 @@ class LibraryScraper(_IPluginModule):
         path = event_info.get("path")
         self.__folder_scraper(path)
 
-    def __folder_scraper(self, path):
+    def __folder_scraper(self, path, exclude_path=None):
         """
         刮削指定文件夹或文件
         :param path:
@@ -161,7 +205,7 @@ class LibraryScraper(_IPluginModule):
         force_nfo = True if self._mode in ["force_nfo", "force_all"] else False
         force_pic = True if self._mode in ["force_all"] else False
         # 每个媒体库下的所有文件
-        for file in self.__get_library_files(path):
+        for file in self.__get_library_files(path, exclude_path):
             if self._event.is_set():
                 log.info(f"【Plugin】媒体库刮削服务停止")
                 return
@@ -215,38 +259,34 @@ class LibraryScraper(_IPluginModule):
         """
         开始刮削媒体库
         """
-        # 每个媒体库目录
-        movie_path = Config().get_config('media').get('movie_path')
-        tv_path = Config().get_config('media').get('tv_path')
-        anime_path = Config().get_config('media').get('anime_path')
-        # 所有类型
-        log.info(f"【Plugin】开始刮削媒体库：{movie_path} {tv_path} {anime_path} ...")
-        for library in [movie_path, tv_path, anime_path]:
-            if not library:
+        # 已选择的目录
+        log.info(f"【Plugin】开始刮削媒体库：{self._scraper_path} ...")
+        for path in self._scraper_path:
+            if not path:
                 continue
-            # 每个类型的所有媒体库路径
-            for path in library:
-                if not path:
-                    continue
-                # 刮削目录
-                self.__folder_scraper(path)
+            # 刮削目录
+            self.__folder_scraper(path, self._exclude_path)
         log.info(f"【Plugin】媒体库刮削完成")
 
     @staticmethod
-    def __get_library_files(in_path):
+    def __get_library_files(in_path, exclude_path=None):
         """
         获取媒体库文件列表
         """
-        if os.path.isdir(in_path):
-            for root, dirs, files in os.walk(in_path):
-                for file in files:
-                    cur_path = os.path.join(root, file)
-                    # 检查后缀
-                    if os.path.splitext(file)[-1].lower() not in RMT_MEDIAEXT:
-                        continue
-                    yield cur_path
-        else:
+        if not os.path.isdir(in_path):
             yield in_path
+            return
+
+        for root, dirs, files in os.walk(in_path):
+            if exclude_path and any(os.path.abspath(root).startswith(os.path.abspath(path))
+                                    for path in exclude_path.split(",")):
+                continue
+
+            for file in files:
+                cur_path = os.path.join(root, file)
+                # 检查后缀
+                if os.path.splitext(file)[-1].lower() in RMT_MEDIAEXT:
+                    yield cur_path
 
     @staticmethod
     def __get_tmdbid_from_nfo(file_path):
