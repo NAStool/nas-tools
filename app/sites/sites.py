@@ -136,6 +136,15 @@ class Sites:
             return {}
         return ret_sites
 
+    def get_sites_by_suffix(self, suffix):
+        """
+        根据url的后缀获取站点配置
+        """
+        for key in self._siteByUrls:
+            if key.endswith(suffix):
+                return self._siteByUrls[key]
+        return {}
+
     def get_site_dict(self,
                       rss=False,
                       brush=False,
