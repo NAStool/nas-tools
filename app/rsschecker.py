@@ -136,6 +136,7 @@ class RssChecker(object):
                     # cron表达式
                     try:
                         self._scheduler.add_job(func=self.check_task_rss,
+                                                args=[task.get("id")],
                                                 trigger=CronTrigger.from_crontab(cron))
                         rss_flag = True
                     except Exception as e:
