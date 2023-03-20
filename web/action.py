@@ -2637,6 +2637,7 @@ class WebAction:
             "state": data.get("state"),
             "save_path": data.get("save_path"),
             "download_setting": data.get("download_setting"),
+            "note": data.get("note"),
         }
         if uses == "D":
             params.update({
