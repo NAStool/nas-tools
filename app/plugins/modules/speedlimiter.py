@@ -1,3 +1,5 @@
+import time
+
 from app.downloader import Downloader
 from app.mediaserver import MediaServer
 from app.plugins import EventHandler
@@ -313,6 +315,9 @@ class SpeedLimiter(_IPluginModule):
 
         if _mediaserver_type != self._mediaserver.get_type():
             return
+        # plex的webhook时尝试sleep一段时间,以保证get_playing_sessions获取到正确的值
+        if not time_check and _mediaserver_type == MediaServerType.PLEX:
+            time.sleep(3)
         # 当前播放的会话
         playing_sessions = self._mediaserver.get_playing_sessions()
         # 本次是否限速
