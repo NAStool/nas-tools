@@ -248,9 +248,9 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">执行周期 <span class="form-help"
-                                                                      title="检查站点RSS更新的周期，为了减小站点压力，建议不小于5分钟，支持两种配置方式：1、间隔时间（分钟），如 10；2、5位cron表达式,如：*/10 * * *"
+                                                                      title="检查站点RSS更新的周期，为了减小站点压力，建议不小于5分钟，支持两种配置方式：1、间隔时间（分钟），如 10；2、5位cron表达式,如：*/30 * * * *（对应：分 时 日 月 星期）"
                                                                       data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="brushtask_interval" class="form-control" placeholder="10 或 */10 * * *">
+              <input type="text" id="brushtask_interval" class="form-control" placeholder="10 或 */10 * * * *">
             </div>
           </div>
         </div>
