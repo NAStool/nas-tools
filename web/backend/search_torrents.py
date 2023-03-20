@@ -240,9 +240,10 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         elif input_str.startswith("http"):
             # 下载链接
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
-        elif re.search(r"^请[问帮你]|[?？]$", input_str, re.IGNORECASE) \
-                or StringUtils.count_words(input_str) > 15:
-            # 问答
+        elif OpenAiHelper().get_state() \
+                and not input_str.startswith("搜索") \
+                and not input_str.startswith("下载"):
+            # 开启ChatGPT时，不以订阅、搜索、下载开头的均为聊天模式
             SEARCH_MEDIA_TYPE[user_id] = "ASK"
         else:
             # 搜索
@@ -284,10 +285,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         # 聊天
         elif SEARCH_MEDIA_TYPE[user_id] == "ASK":
             # 调用ChatGPT Api
-            if not OpenAiHelper().get_state():
-                answer = "OpenAI功能未启用！"
-            else:
-                answer = OpenAiHelper().get_answer(input_str)
+            answer = OpenAiHelper().get_answer(input_str)
             # 发送消息
             Message().send_channel_msg(channel=in_from,
                                        title="",
