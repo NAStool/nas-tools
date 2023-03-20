@@ -6,6 +6,7 @@ import os.path
 import re
 import shutil
 import signal
+from collections import defaultdict
 from urllib.parse import unquote
 
 import cn2an
@@ -4421,22 +4422,25 @@ class WebAction:
                                              password=password).download_data()
         if not contents:
             return {"code": 1, "msg": retmsg}
+        # 整理数据,使用domain域名的最后两级作为分组依据
+        domain_groups = defaultdict(list)
+        for site, cookies in contents.items():
+            for cookie in cookies:
+                domain_parts = cookie["domain"].split(".")[-2:]
+                domain_key = tuple(domain_parts)
+                domain_groups[domain_key].append(cookie)
         success_count = 0
-        for domain, content_list in contents.items():
-            if domain.startswith('.'):
-                domain = domain[1:]
-            cookie_str = ""
-            for content in content_list:
-                cookie_str += content.get("name") + \
-                              "=" + content.get("value") + ";"
+        for domain, content_list in domain_groups.items():
+            cookie_str = ";".join(
+                [f"{content['name']}={content['value']}" for content in content_list]
+            )
             if not cookie_str:
                 continue
-            site_info = Sites().get_sites(siteurl=domain)
-            if not site_info:
-                continue
-            self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
-                                                cookie=cookie_str)
-            success_count += 1
+            site_info = Sites().get_sites_by_suffix(".".join(domain))
+            if site_info:
+                self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
+                                                    cookie=cookie_str)
+                success_count += 1
         if success_count:
             # 重载站点信息
             Sites().init_config()
