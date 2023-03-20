@@ -68,7 +68,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选IP',
                             'required': "required",
-                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
+                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用',
                             'type': 'text',
                             'content': [
                                 {
@@ -80,7 +80,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选周期',
                             'required': "required",
-                            'tooltip': 'Cloudflare CDN优选周期。',
+                            'tooltip': 'Cloudflare CDN优选周期，支持5位cron表达式',
                             'type': 'text',
                             'content': [
                                 {
@@ -267,6 +267,9 @@ class CloudflareSpeedTest(_IPluginModule):
         if not cf_path.exists():
             os.mkdir(self._cf_path)
 
+        # 是否安装标识
+        install_flag = False
+
         # 获取CloudflareSpeedTest最新版本
         release_version = self.__get_release_version()
         if not release_version:
@@ -274,20 +277,22 @@ class CloudflareSpeedTest(_IPluginModule):
             if Path(f'{self._cf_path}/{self._binary_name}').exists():
                 log.warn(f"【Plugin】获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
                 return True, None
+            elif self._version:
+                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
+                install_flag = True
             else:
-                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，无可用版本，停止运行")
-                return False, None
-
-        # 是否安装标识
-        install_flag = False
+                release_version = "v2.2.2"
+                self._version = release_version
+                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，继续运行")
+                install_flag = True
 
         # 有更新
-        if release_version and release_version != self._version:
+        if not install_flag and release_version != self._version:
             log.info(f"【Plugin】检测到CloudflareSpeedTest有版本[{release_version}]更新，开始安装")
             install_flag = True
 
         # 重装后数据库有版本数据，但是本地没有则重装
-        if release_version == self._version and not Path(f'{self._cf_path}/{self._binary_name}').exists():
+        if not install_flag and release_version == self._version and not Path(f'{self._cf_path}/{self._binary_name}').exists():
             log.warn(f"【Plugin】未检测到CloudflareSpeedTest本地版本，重新安装")
             install_flag = True
 
@@ -313,7 +318,7 @@ class CloudflareSpeedTest(_IPluginModule):
             uname = SystemUtils.execute('uname -m')
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_linux_{arch}.tar.gz'
-            download_url = f'{self._release_prefix}/{release_version}/"{cf_file_name}"'
+            download_url = f'{self._release_prefix}/{release_version}/{cf_file_name}'
             return self.__os_install(download_url, cf_file_name, release_version,
                                      f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
 
@@ -323,8 +328,11 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         # 首次下载或下载新版压缩包
         proxies = Config().get_proxies()
-        os.system('wget -P ' + ('-e http_proxy = ' + proxies.get("http") if proxies and proxies.get(
-            "http") else '') + f' {self._cf_path} {download_url}')
+        https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
+        if https_proxy:
+            os.system(f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
+        else:
+            os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():

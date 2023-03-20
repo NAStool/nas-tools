@@ -115,9 +115,9 @@
               </div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">刷新间隔</div>
+              <div class="datagrid-title">刷新周期</div>
               <div class="datagrid-content">
-                {{ Task.interval }} 分钟
+                {{ Task.interval }} {% if Task.interval.find(' ')==-1 %} 分钟 {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
@@ -233,9 +233,9 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
+                <label class="form-label required">刷新周期<span class="form-help" title="检查RSS更新的间隔时间，两种配置方法：1.直接填数字单位为分钟，如：30 ；2.支持5位cron表达式，如：*/30 * * *"
                     data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_interval" class="form-control" placeholder="30">
+                <input type="text" id="userrss_interval" class="form-control" placeholder="30 或 */30 * * *">
               </div>
             </div>
           </div>
@@ -677,7 +677,11 @@
     } else {
       $("#userrss_name").removeClass("is-invalid");
     }
-    if (!userrss_common.interval || isNaN(userrss_common.interval)) {
+    let reg = /(^\s+)|(\s+$)|\s+/g;
+    if (isNaN(userrss_common.interval) && userrss_common.interval.match(reg).length == 5){
+      $("#userrss_interval").removeClass("is-invalid");
+    }
+    else if (!userrss_common.interval || isNaN(userrss_common.interval)) {
       $("#userrss_interval").addClass("is-invalid");
       return;
     } else {

@@ -135,7 +135,13 @@
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">刷新间隔</div>
-                  <div class="datagrid-content">{{ Task.interval }} 分钟</div>
+                  <div class="datagrid-content">
+                  {% if Task.interval.isdigit() %}
+                    {{ Task.interval }} 分钟
+                  {% else %}
+                    {{ Task.interval }}
+                  {% endif %}
+                  </div>
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">下载器</div>
@@ -241,10 +247,10 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">刷新间隔(分钟) <span class="form-help"
-                                                                      title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于5分钟"
+              <label class="form-label required">执行周期 <span class="form-help"
+                                                                      title="检查站点RSS更新的周期，为了减小站点压力，建议不小于5分钟，支持两种配置方式：1、间隔时间（分钟），如 10；2、5位cron表达式,如：*/10 * * *"
                                                                       data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="brushtask_interval" class="form-control" placeholder="10">
+              <input type="text" id="brushtask_interval" class="form-control" placeholder="10 或 */10 * * *">
             </div>
           </div>
         </div>
@@ -821,7 +827,7 @@
       $("#brushtask_site").removeClass("is-invalid");
     }
     let brushtask_interval = $("#brushtask_interval").val();
-    if (!brushtask_interval || isNaN(brushtask_interval)) {
+    if (!brushtask_interval) {
       $("#brushtask_interval").addClass("is-invalid");
       return;
     } else {

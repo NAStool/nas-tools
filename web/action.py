@@ -1367,7 +1367,7 @@ class WebAction:
         添加RSS订阅
         """
         _subscribe = Subscribe()
-        in_form = RssType.Manual if data.get("in_form") == "manual" else RssType.Auto
+        channel = RssType.Manual if data.get("in_form") == "manual" else RssType.Auto
         name = data.get("name")
         year = data.get("year")
         keyword = data.get("keyword")
@@ -1398,7 +1398,7 @@ class WebAction:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
                                                                      year=year,
-                                                                     in_form=in_form,
+                                                                     channel=channel,
                                                                      keyword=keyword,
                                                                      season=sea,
                                                                      fuzzy_match=fuzzy_match,
@@ -1419,7 +1419,7 @@ class WebAction:
             code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                  name=name,
                                                                  year=year,
-                                                                 in_form=in_form,
+                                                                 channel=channel,
                                                                  keyword=keyword,
                                                                  season=season,
                                                                  fuzzy_match=fuzzy_match,
@@ -2128,7 +2128,9 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(data["days"] + 1)
+        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(
+            data["days"] + 1, data.get("end_day", None)
+        )
 
         # 调整为dataset组织数据
         dataset = [["site", "upload", "download"]]
@@ -3162,7 +3164,7 @@ class WebAction:
             code, msg, _ = Subscribe().add_rss_subscribe(mtype=mtype,
                                                          name=rssinfo[0].NAME,
                                                          year=rssinfo[0].YEAR,
-                                                         in_form=RssType.Auto,
+                                                         channel=RssType.Auto,
                                                          season=season,
                                                          mediaid=rssinfo[0].TMDBID,
                                                          total_ep=rssinfo[0].TOTAL,
@@ -4098,6 +4100,8 @@ class WebAction:
         enabled = data.get("enabled")
         if cid:
             self.dbhelper.delete_message_client(cid=cid)
+        if int(interactive) == 1:
+            self.dbhelper.check_message_client(interactive=0, ctype=ctype)
         self.dbhelper.insert_message_client(name=name,
                                             ctype=ctype,
                                             config=config,

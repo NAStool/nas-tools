@@ -111,18 +111,18 @@ export class PageMediainfo extends CustomElement {
               <div class="d-flex justify-content-center">
                 <div class="d-flex flex-column justify-content-end div-media-detail-margin mt-2">
                   <div class="align-self-center align-self-md-start mb-1">
-                  <a href="${this.media_info.link}" target="_blank" ?hidden=${!this.media_info.tmdbid}><span class="badge badge-outline text-green">${this.media_info.tmdbid}</span></a>
-                  <a href="${this.media_info.douban_link}" target="_blank" ?hidden=${!this.media_info.douban_id}><span class="badge badge-outline text-orange">${this.media_info.douban_id}</span></a>
                   ${this.fav == "2" ? html`<strong class="badge badge-pill bg-green text-white">已下载</strong>` : nothing }
                   </div>  
-                  <h1 class="align-self-center align-self-md-start display-6">
+                  <h1 class="align-self-center align-self-md-start display-6 text-center">
                     <strong>${this.media_info.title ?? this._render_placeholder("200px")}</strong>
                     <strong class="h1" ?hidden=${!this.media_info.year}>(${this.media_info.year})</strong>
                   </h1>
-                  <div class="align-self-center align-self-md-start">
+                  <div class="align-self-center align-self-md-start text-center">
                     <span class="h3 ms-1" ?hidden=${!this.media_info.runtime}>${this.media_info.runtime}</span>
                     <span class="h3" ?hidden=${!this.media_info.genres}>| ${this.media_info.genres}</span>
-                    <span class="h3" ?hidden=${!this.seasons_data.length}>| ${this.seasons_data.length} 季</span>
+                    <span class="h3" ?hidden=${!this.seasons_data.length}>| 共 ${this.seasons_data.length} 季</span>
+                    <span class="h3" ?hidden=${!this.media_info.link}>| TMDB: <a href="${this.media_info.link}" target="_blank">${this.media_info.tmdbid}</a></span>
+                    <span class="h3" ?hidden=${!this.media_info.douban_link}>| 豆瓣: <a href="${this.media_info.douban_link}" target="_blank">${this.media_info.douban_id}</a>
                     ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("205px") : nothing }
                   </div>
                   <div class="align-self-center align-self-md-start mt-2">

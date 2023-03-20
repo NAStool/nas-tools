@@ -93,13 +93,12 @@ fi
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 # 创建目录、权限设置
-if [ "${NASTOOL_VERSION}" = "lite" ]; then
-    mkdir -p /.pm2
-    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /.pm2 /etc/hosts
-else
+chown -R "${PUID}":"${PGID}" $(ls -A | grep -vw -E '.git|.github')
+mkdir -p /.pm2
+chown -R "${PUID}":"${PGID}" /config /.pm2 /etc/hosts
+if [ "${NASTOOL_VERSION}" != "lite" ]; then
     mkdir -p /.local
-    mkdir -p /.pm2
-    chown -R "${PUID}":"${PGID}" "${WORKDIR}" /config /usr/lib/chromium /.local /.pm2 /etc/hosts
+    chown -R "${PUID}":"${PGID}" /usr/lib/chromium /.local
     export PATH=${PATH}:/usr/lib/chromium
 fi
 

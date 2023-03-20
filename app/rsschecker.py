@@ -4,6 +4,7 @@ import traceback
 import jsonpath
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from lxml import etree
 
 import log
@@ -120,12 +121,23 @@ class RssChecker(object):
                                               })
         rss_flag = False
         for task in self._rss_tasks:
-            if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
-                rss_flag = True
-                self._scheduler.add_job(func=self.check_task_rss,
-                                        args=[task.get("id")],
-                                        trigger='interval',
-                                        seconds=int(task.get("interval")) * 60)
+            if task.get("state") == "Y" and task.get("interval"):
+                cron = str(task.get("interval")).strip()
+                if cron.isdigit():
+                    # 分钟
+                    rss_flag = True
+                    self._scheduler.add_job(func=self.check_task_rss,
+                                            args=[task.get("id")],
+                                            trigger='interval',
+                                            seconds=int(cron) * 60)
+                elif cron.count(" ") == 4:
+                    # cron表达式
+                    try:
+                        self._scheduler.add_job(func=self.check_task_rss,
+                                                trigger=CronTrigger.from_crontab(cron))
+                        rss_flag = True
+                    except Exception as e:
+                        log.info("%s 自定义订阅cron表达式 配置格式错误：%s %s" % (task.get("name"), cron, str(e)))
         if rss_flag:
             self._scheduler.print_jobs()
             self._scheduler.start()
@@ -340,7 +352,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
-                    in_form=RssType.Manual,
+                    channel=RssType.Manual,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),
