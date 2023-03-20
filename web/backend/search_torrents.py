@@ -462,7 +462,7 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
                                                           name=media_info.title,
                                                           year=media_info.year,
-                                                          in_form=RssType.Auto,
+                                                          channel=RssType.Auto,
                                                           season=media_info.begin_season,
                                                           mediaid=mediaid,
                                                           state=state,

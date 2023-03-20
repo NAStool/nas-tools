@@ -68,7 +68,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选IP',
                             'required': "required",
-                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
+                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用',
                             'type': 'text',
                             'content': [
                                 {
@@ -80,7 +80,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选周期',
                             'required': "required",
-                            'tooltip': 'Cloudflare CDN优选周期。',
+                            'tooltip': 'Cloudflare CDN优选周期，支持5位cron表达式',
                             'type': 'text',
                             'content': [
                                 {

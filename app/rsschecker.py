@@ -4,6 +4,7 @@ import traceback
 import jsonpath
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from lxml import etree
 
 import log
@@ -121,26 +122,19 @@ class RssChecker(object):
         rss_flag = False
         for task in self._rss_tasks:
             if task.get("state") == "Y" and task.get("interval"):
-                if str(task.get("interval")).isdigit():
+                cron = str(task.get("interval")).strip()
+                if cron.isdigit():
+                    # 分钟
                     rss_flag = True
                     self._scheduler.add_job(func=self.check_task_rss,
                                             args=[task.get("id")],
                                             trigger='interval',
-                                            seconds=int(task.get("interval")) * 60)
-                elif task.get("interval").strip().count(" ") == 5:
+                                            seconds=int(cron) * 60)
+                elif cron.count(" ") == 4:
+                    # cron表达式
                     try:
-                        cron = task.get("interval").strip()
-                        cron_argv = cron.split(" ")
-                        second, minute, hour, day, month, day_of_week = map(str, cron_argv)
                         self._scheduler.add_job(func=self.check_task_rss,
-                                                args=[task.get("id")],
-                                                trigger="cron",
-                                                second=second,
-                                                hour=hour,
-                                                minute=minute,
-                                                day=day,
-                                                month=month,
-                                                day_of_week=day_of_week)
+                                                trigger=CronTrigger.from_crontab(cron))
                         rss_flag = True
                     except Exception as e:
                         log.info("%s 自定义订阅cron表达式 配置格式错误：%s %s" % (task.get("name"), cron, str(e)))
@@ -358,7 +352,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
-                    in_form=RssType.Manual,
+                    channel=RssType.Manual,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),

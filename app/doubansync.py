@@ -119,7 +119,7 @@ class DoubanSync:
                                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
-                                                                                in_form=RssType.Auto,
+                                                                                channel=RssType.Auto,
                                                                                 season=media.begin_season,
                                                                                 mediaid=f"DB:{media.douban_id}",
                                                                                 in_from=SearchType.DB)
@@ -140,7 +140,7 @@ class DoubanSync:
                                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
-                                                                                in_form=RssType.Auto,
+                                                                                channel=RssType.Auto,
                                                                                 season=media.begin_season,
                                                                                 mediaid=f"DB:{media.douban_id}",
                                                                                 state="R",

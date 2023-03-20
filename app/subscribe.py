@@ -1,19 +1,18 @@
 import json
 from threading import Lock
-from enum import Enum
 
 import log
 from app.conf import SystemConfig
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, MetaHelper
+from app.indexer import Indexer
 from app.media import Media, DouBan
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins import EventManager
 from app.searcher import Searcher
 from app.sites import Sites
-from app.indexer import Indexer
 from app.utils import Torrent
 from app.utils.types import MediaType, SearchType, EventType, SystemConfigKey, RssType
 from web.backend.web_utils import WebUtils
@@ -55,7 +54,7 @@ class Subscribe:
         return SystemConfig().get_system_config(SystemConfigKey.DefaultRssSettingMOV) or {}
 
     def add_rss_subscribe(self, mtype, name, year,
-                          in_form: Enum,
+                          channel=None,
                           keyword=None,
                           season=None,
                           fuzzy_match=False,
@@ -80,7 +79,7 @@ class Subscribe:
         :param mtype: 类型，电影、电视剧、动漫
         :param name: 标题
         :param year: 年份，如要是剧集需要是首播年份
-        :param in_form: 订阅类型
+        :param channel: 自动或手动
         :param keyword: 自定义搜索词
         :param season: 第几季，数字
         :param fuzzy_match: 是否模糊匹配
@@ -113,7 +112,7 @@ class Subscribe:
         current_ep = int(current_ep) if str(current_ep).isdigit() else None
         download_setting = int(download_setting) if str(download_setting).replace("-", "").isdigit() else ""
         fuzzy_match = True if fuzzy_match else False
-        if in_form == RssType.Auto:
+        if channel == RssType.Auto:
             default_rss_setting = self.default_rss_setting_tv if mtype == MediaType.TV else self.default_rss_setting_mov
             if default_rss_setting:
                 default_restype = default_rss_setting.get('restype')

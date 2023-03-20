@@ -5,6 +5,7 @@ from datetime import datetime
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 import log
 from app.downloader import Downloader
@@ -55,13 +56,22 @@ class BrushTask(object):
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for task in self._brush_tasks:
             if task.get("state") \
-                    and task.get("interval") \
-                    and str(task.get("interval")).isdigit():
-                task_flag = True
-                self._scheduler.add_job(func=self.check_task_rss,
-                                        args=[task.get("id")],
-                                        trigger='interval',
-                                        seconds=int(task.get("interval")) * 60)
+                    and task.get("interval"):
+                cron = str(task.get("interval")).strip()
+                if cron.isdigit():
+                    task_flag = True
+                    self._scheduler.add_job(func=self.check_task_rss,
+                                            args=[task.get("id")],
+                                            trigger='interval',
+                                            seconds=int(cron) * 60)
+                elif cron.count(" ") == 4:
+                    try:
+                        self._scheduler.add_job(func=self.check_task_rss,
+                                                trigger=CronTrigger.from_crontab(cron))
+                        task_flag = True
+                    except Exception as err:
+                        log.error(f"任务 {task.get('name')} 运行周期格式不正确：{str(err)}")
+
         # 启动删种任务
         if task_flag:
             self._scheduler.add_job(func=self.remove_tasks_torrents,
