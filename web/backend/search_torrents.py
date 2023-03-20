@@ -466,11 +466,9 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                           season=media_info.begin_season,
                                                           mediaid=mediaid,
                                                           state=state,
-                                                          filter_pix=media_info.filter_pix,
-                                                          filter_restype=media_info.filter_restype,
-                                                          filter_rule=media_info.filter_rule,
                                                           rss_sites=media_info.rss_sites,
                                                           search_sites=media_info.search_sites,
+                                                          download_setting=media_info.download_setting,
                                                           in_from=in_from)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
