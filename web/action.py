@@ -4432,11 +4432,11 @@ class WebAction:
                 domain_groups[domain_key].append(cookie)
         success_count = 0
         for domain, content_list in domain_groups.items():
+            if not content_list:
+                continue
             cookie_str = ";".join(
                 [f"{content['name']}={content['value']}" for content in content_list]
             )
-            if not cookie_str:
-                continue
             site_info = Sites().get_sites_by_suffix(".".join(domain))
             if site_info:
                 self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
