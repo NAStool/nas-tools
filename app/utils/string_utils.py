@@ -249,13 +249,10 @@ class StringUtils:
         return f"{scheme}://{netloc}"
 
     @staticmethod
-    def clear_file_name(name, is_en=False):
+    def clear_file_name(name):
         if not name:
             return None
-        if not is_en:
-            return re.sub(r"[*?\\/\"<>~]", "", name, flags=re.IGNORECASE).replace(":", "：")
-        else:
-            return re.sub(r"[*?\\/\"<>~]", "", name, flags=re.IGNORECASE)
+        return re.sub(r"[*?\\/\"<>~|]", "", name, flags=re.IGNORECASE).replace(":", "：")
 
     @staticmethod
     def get_keyword_from_string(content):
@@ -431,7 +428,10 @@ class StringUtils:
             return ""
         hours = minutes // 60
         minutes = minutes % 60
-        return "%s小时%s分" % (hours, minutes)
+        if hours:
+            return "%s小时%s分" % (hours, minutes)
+        else:
+            return "%s分钟" % minutes
 
     @staticmethod
     def str_amount(amount, curr="$"):
