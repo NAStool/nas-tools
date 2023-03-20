@@ -88,10 +88,12 @@ class RssChecker(object):
                     note = {}
             save_path = note.get("save_path") or ""
             recognization = note.get("recognization") or "Y"
+            proxy = note.get("proxy") or "N"
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
                 "address": task.ADDRESS,
+                "proxy": proxy,
                 "parser": task.PARSER,
                 "parser_name": parser.get("name") if parser else "",
                 "interval": task.INTERVAL,
@@ -407,7 +409,8 @@ class RssChecker(object):
             rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
         # 请求数据
         try:
-            ret = RequestUtils().get_res(rss_url)
+            ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") == "Y" else None
+                               ).get_res(rss_url)
             if not ret:
                 return []
             ret.encoding = ret.apparent_encoding
