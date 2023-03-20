@@ -1132,9 +1132,9 @@ class FileTransfer:
         en_title = Media().get_tmdb_en_title(media)
         media_format_dict = {
             "title": StringUtils.clear_file_name(media.title),
-            "en_title": StringUtils.clear_file_name(en_title, is_en=True),
-            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0], is_en=True),
-            "original_title": StringUtils.clear_file_name(media.original_title, is_en=True),
+            "en_title": StringUtils.clear_file_name(en_title),
+            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
+            "original_title": StringUtils.clear_file_name(media.original_title),
             "name": StringUtils.clear_file_name(media.get_name()),
             "year": media.year,
             "edition": media.get_edtion_string() or None,

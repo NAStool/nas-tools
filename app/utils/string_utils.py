@@ -249,13 +249,10 @@ class StringUtils:
         return f"{scheme}://{netloc}"
 
     @staticmethod
-    def clear_file_name(name, is_en=False):
+    def clear_file_name(name):
         if not name:
             return None
-        if not is_en:
-            return re.sub(r"[*?\\/\"<>~]", "", name, flags=re.IGNORECASE).replace(":", "：")
-        else:
-            return re.sub(r"[*?\\/\"<>~]", "", name, flags=re.IGNORECASE)
+        return re.sub(r"[*?\\/\"<>~|]", "", name, flags=re.IGNORECASE).replace(":", "：")
 
     @staticmethod
     def get_keyword_from_string(content):
