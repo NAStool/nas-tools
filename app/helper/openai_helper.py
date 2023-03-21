@@ -44,7 +44,7 @@ class OpenAiHelper:
                                "\n{\"title\":string,\"version\":string,\"part\":string,\"year\":string,\"resolution\":string,\"season\":number|null,\"episode\":number|null}"
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                session_id="filename",
+                user="filename",
                 messages=[
                     {
                         "role": "system",
@@ -73,7 +73,7 @@ class OpenAiHelper:
         try:
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                session_id=f"ask-{userid}",
+                user=f"ask-{userid}",
                 messages=[
                     {
                         "role": "system",
