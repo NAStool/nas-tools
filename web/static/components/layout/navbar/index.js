@@ -148,7 +148,6 @@ export class LayoutNavbar extends CustomElement {
 
         .lit-navbar-hide-scrollbar {
           overflow-y: scroll!important;
-          overscroll-behavior-y: contain!important;
           scrollbar-width: none!important;
           -ms-overflow-style: none!important;
         }

@@ -59,13 +59,15 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result, fast=False)
             if file_group_by_size.get(file_size) is None:
                 file_group_by_size[file_size] = []
 
-            file_group_by_size[file_size].append({'filePath': file_path,'fileExt':file_ext, 'fileSize': file_size, 'fileModifyTime': str(file_mtime)})
+            file_group_by_size[file_size].append(
+                {'filePath': file_path, 'fileExt': file_ext, 'fileSize': file_size, 'fileModifyTime': str(file_mtime)})
 
     # 循环 file_group_by_size
     for file_size, file_list in file_group_by_size.items():
         # 如果文件数量大于1，进行sha1计算
         if len(file_list) <= 1:
-            # 如果文件数量小于等于1，直接跳过
+            # 打印 file_list[0] 的日志
+            log.info(f'【Plugin】磁盘空间释放 {file_list[0]["filePath"]} 大小相同的文件数量为1，无需计算sha1')
             continue
         for file_info in file_list:
             file_path = file_info['filePath']
@@ -74,20 +76,21 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result, fast=False)
             sha1 = None
 
             # 查找是否存在相同路径的文件
-            for file_info in last_result['file_info']:
-                if file_path == file_info['filePath']:
+            for info in last_result['file_info']:
+                if file_path == info['filePath']:
                     # 如果文件大小和修改时间都一致，则直接使用之前计算的 sha1 值
-                    if file_size == file_info['fileSize'] and str(file_mtime) == file_info['fileModifyTime']:
+                    if file_size == info['fileSize'] and str(file_mtime) == info['fileModifyTime']:
                         log.info(
-                            '【Plugin】磁盘空间释放 文件 {} 的大小和修改时间与上次处理结果一致，直接使用上次处理结果'.format(
-                                file_path))
-                        sha1 = file_info['fileSha1']
+                            f'【Plugin】磁盘空间释放 文件 {file_path} 的大小和修改时间与上次处理结果一致，直接使用上次处理结果')
+                        sha1 = info['fileSha1']
                     break
 
             if sha1 is None:
-                log.info('【Plugin】磁盘空间释放 计算文件 {} 的 SHA1 值'.format(file_path))
+                log.info(f'【Plugin】磁盘空间释放 计算文件 {file_path} 的 SHA1 值')
                 sha1 = get_sha1(file_path, fast=fast)
-                file_info = {'filePath': file_path, 'fileSize': file_size, 'fileModifyTime': str(file_mtime),
+                file_info = {'filePath': file_path,
+                             'fileSize': file_size,
+                             'fileModifyTime': str(file_mtime),
                              'fileSha1': sha1}
                 last_result['file_info'].append(file_info)
 
@@ -110,10 +113,10 @@ def process_duplicates(duplicates, dry_run=False):
                 stat_compare = os.stat(file_path)
                 if stat_first.st_dev == stat_compare.st_dev:
                     if stat_first.st_ino == stat_compare.st_ino:
-                        log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是同一个文件，无需处理'.format(files[0], file_path))
+                        log.info(f'【Plugin】磁盘空间释放 文件 {files[0]} 和 {file_path} 是同一个文件，无需处理')
                     else:
                         if dry_run:
-                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，dry_run中，不做处理'.format(files[0], file_path))
+                            log.info(f'【Plugin】磁盘空间释放 文件 {files[0]} 和 {file_path} 是重复文件，dry_run中，不做处理')
                             continue
                         # 使用try catch
                         try:
@@ -123,15 +126,15 @@ def process_duplicates(duplicates, dry_run=False):
                             os.link(files[0], file_path)
                             # 删除备份文件
                             os.remove(file_path + '.bak')
-                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，已用硬链接替换'.format(files[0],
-                                                                                                           file_path))
-                        except Exception:
+                            log.info(f'【Plugin】磁盘空间释放 文件 {files[0]} 和 {file_path} 是重复文件，已用硬链接替换')
+                        except Exception as err:
+                            print(str(err))
                             # 如果硬链接失败，则将备份文件改回原文件名
                             os.rename(file_path + '.bak', file_path)
-                            log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 是重复文件，硬链接替换失败，已恢复原文件'.format(
-                                files[0], file_path))
+                            log.info(f'【Plugin】磁盘空间释放 文件 {files[0]} 和 {file_path} 是重复文件，'
+                                     '硬链接替换失败，已恢复原文件')
                 else:
-                    log.info('【Plugin】磁盘空间释放 文件 {} 和 {} 不在同一个磁盘，无法用硬链接替换'.format(files[0], file_path))
+                    log.info(f'【Plugin】磁盘空间释放 文件 {files[0]} 和 {file_path} 不在同一个磁盘，无法用硬链接替换')
                     continue
 
 

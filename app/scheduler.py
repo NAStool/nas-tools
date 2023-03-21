@@ -5,6 +5,7 @@ import random
 import pytz
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from apscheduler.util import undefined
 
 import log
@@ -161,12 +162,21 @@ class Scheduler:
         :param func_desc: 函数的描述,在日志中提现
         :param cron 时间表达式 三种配置方法：
         :param next_run_time: 下次运行时间
-          1、配置间隔，单位小时，比如23.5；
-          2、配置固定时间，如08:00；
-          3、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；
+          1、配置cron表达式，只支持5位的cron表达式
+          2、配置时间范围，如08:00-09:00，表示在该时间范围内随机执行一次；
+          3、配置固定时间，如08:00；
+          4、配置间隔，单位小时，比如23.5；
         """
         if cron:
-            if '-' in cron:
+            cron = cron.strip()
+            if cron.count(" ") == 4:
+                try:
+                    self.SCHEDULER.add_job(func=func,
+                                           trigger=CronTrigger.from_crontab(cron),
+                                           next_run_time=next_run_time)
+                except Exception as e:
+                    log.info("%s时间cron表达式配置格式错误：%s %s" % (func_desc, cron, str(e)))
+            elif '-' in cron:
                 try:
                     time_range = cron.split("-")
                     start_time_range_str = time_range[0]
@@ -180,7 +190,9 @@ class Scheduler:
 
                     def start_random_job():
                         task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
-                        self.start_range_job(func, func_desc, math.floor(task_time_count / 60), task_time_count % 60,
+                        self.start_range_job(func,
+                                             func_desc,
+                                             math.floor(task_time_count / 60), task_time_count % 60,
                                              next_run_time=next_run_time)
 
                     self.SCHEDULER.add_job(start_random_job,
@@ -237,7 +249,7 @@ class Scheduler:
         self.stop_service()
         self.start_service()
 
-    def start_range_job(self, func, func_desc, hour, minute, next_run_time=undefined):
+    def start_range_job(self, func, func_desc, hour, minute, next_run_time=None):
         year = datetime.datetime.now().year
         month = datetime.datetime.now().month
         day = datetime.datetime.now().day

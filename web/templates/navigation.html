@@ -37,6 +37,7 @@
   <script src="../static/js/FileSaver.min.js"></script>
   <script src="../static/js/nprogress.js"></script>
   <script src="../static/js/numeral.min.js"></script>
+  <script src="../static/js/moment.min.js"></script>
   <script src="../static/js/fullcalendar.min.js"></script>
   <script src="../static/js/locales/zh-cn.js"></script>
   <script src="../static/js/jquery.filetree.js"></script>
@@ -1877,6 +1878,8 @@
 
     if (!show_type) {
       $("#torrent_files").hide();
+    } else {
+      $("#torrent_files").show();
     }
 
     // 绑定下载按钮事件

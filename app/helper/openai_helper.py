@@ -8,7 +8,6 @@ from config import Config
 
 @singleton
 class OpenAiHelper:
-
     _api_key = None
     _api_url = None
 
@@ -72,10 +71,15 @@ class OpenAiHelper:
         try:
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[{
-                    "role": "user",
-                    "content": text
-                }])
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "请使用中文，并尽可能详尽地回答我。"
+                    },
+                    {
+                        "role": "user",
+                        "content": text
+                    }])
             return completion.choices[0].message.content
         except Exception as e:
             print(e)

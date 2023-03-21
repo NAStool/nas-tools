@@ -68,7 +68,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选IP',
                             'required': "required",
-                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用！',
+                            'tooltip': '第一次使用，请先将 自定义Hosts插件 中所有 Cloudflare CDN IP 统一改为一个 IP。后续会自动变更。需搭配[自定义Hosts]插件使用',
                             'type': 'text',
                             'content': [
                                 {
@@ -80,7 +80,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '优选周期',
                             'required': "required",
-                            'tooltip': 'Cloudflare CDN优选周期。',
+                            'tooltip': 'Cloudflare CDN优选周期，支持5位cron表达式',
                             'type': 'text',
                             'content': [
                                 {
@@ -318,7 +318,7 @@ class CloudflareSpeedTest(_IPluginModule):
             uname = SystemUtils.execute('uname -m')
             arch = 'amd64' if uname == 'x86_64' else 'arm64'
             cf_file_name = f'CloudflareST_linux_{arch}.tar.gz'
-            download_url = f'{self._release_prefix}/{release_version}/"{cf_file_name}"'
+            download_url = f'{self._release_prefix}/{release_version}/{cf_file_name}'
             return self.__os_install(download_url, cf_file_name, release_version,
                                      f"tar -zxf {self._cf_path}/{cf_file_name} -C {self._cf_path}")
 
@@ -328,8 +328,11 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         # 首次下载或下载新版压缩包
         proxies = Config().get_proxies()
-        os.system('wget -P ' + ('-e http_proxy = ' + proxies.get("http") if proxies and proxies.get(
-            "http") else '') + f' {self._cf_path} {download_url}')
+        https_proxy = proxies.get("https") if proxies and proxies.get("https") else None
+        if https_proxy:
+            os.system(f'wget -P {self._cf_path} --no-check-certificate -e use_proxy=yes -e https_proxy={https_proxy} {download_url}')
+        else:
+            os.system(f'wget -P {self._cf_path} https://ghproxy.com/{download_url}')
 
         # 判断是否下载好安装包
         if Path(f'{self._cf_path}/{cf_file_name}').exists():

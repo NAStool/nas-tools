@@ -4,6 +4,7 @@ import traceback
 import jsonpath
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from lxml import etree
 
 import log
@@ -87,10 +88,12 @@ class RssChecker(object):
                     note = {}
             save_path = note.get("save_path") or ""
             recognization = note.get("recognization") or "Y"
+            proxy = note.get("proxy") or "N"
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
                 "address": task.ADDRESS,
+                "proxy": proxy,
                 "parser": task.PARSER,
                 "parser_name": parser.get("name") if parser else "",
                 "interval": task.INTERVAL,
@@ -120,12 +123,24 @@ class RssChecker(object):
                                               })
         rss_flag = False
         for task in self._rss_tasks:
-            if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
-                rss_flag = True
-                self._scheduler.add_job(func=self.check_task_rss,
-                                        args=[task.get("id")],
-                                        trigger='interval',
-                                        seconds=int(task.get("interval")) * 60)
+            if task.get("state") == "Y" and task.get("interval"):
+                cron = str(task.get("interval")).strip()
+                if cron.isdigit():
+                    # 分钟
+                    rss_flag = True
+                    self._scheduler.add_job(func=self.check_task_rss,
+                                            args=[task.get("id")],
+                                            trigger='interval',
+                                            seconds=int(cron) * 60)
+                elif cron.count(" ") == 4:
+                    # cron表达式
+                    try:
+                        self._scheduler.add_job(func=self.check_task_rss,
+                                                args=[task.get("id")],
+                                                trigger=CronTrigger.from_crontab(cron))
+                        rss_flag = True
+                    except Exception as e:
+                        log.info("%s 自定义订阅cron表达式 配置格式错误：%s %s" % (task.get("name"), cron, str(e)))
         if rss_flag:
             self._scheduler.print_jobs()
             self._scheduler.start()
@@ -340,7 +355,7 @@ class RssChecker(object):
                     mtype=media.type,
                     name=media.get_name(),
                     year=media.year,
-                    in_form=RssType.Manual,
+                    channel=RssType.Manual,
                     season=media.begin_season,
                     rss_sites=taskinfo.get("sites", {}).get("rss_sites"),
                     search_sites=taskinfo.get("sites", {}).get("search_sites"),
@@ -395,7 +410,8 @@ class RssChecker(object):
             rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
         # 请求数据
         try:
-            ret = RequestUtils().get_res(rss_url)
+            ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") == "Y" else None
+                               ).get_res(rss_url)
             if not ret:
                 return []
             ret.encoding = ret.apparent_encoding

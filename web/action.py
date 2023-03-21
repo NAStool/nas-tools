@@ -6,6 +6,7 @@ import os.path
 import re
 import shutil
 import signal
+from collections import defaultdict
 from urllib.parse import unquote
 
 import cn2an
@@ -1367,7 +1368,7 @@ class WebAction:
         添加RSS订阅
         """
         _subscribe = Subscribe()
-        in_form = RssType.Manual if data.get("in_form") == "manual" else RssType.Auto
+        channel = RssType.Manual if data.get("in_form") == "manual" else RssType.Auto
         name = data.get("name")
         year = data.get("year")
         keyword = data.get("keyword")
@@ -1398,7 +1399,7 @@ class WebAction:
                 code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                      name=name,
                                                                      year=year,
-                                                                     in_form=in_form,
+                                                                     channel=channel,
                                                                      keyword=keyword,
                                                                      season=sea,
                                                                      fuzzy_match=fuzzy_match,
@@ -1419,7 +1420,7 @@ class WebAction:
             code, msg, media_info = _subscribe.add_rss_subscribe(mtype=mtype,
                                                                  name=name,
                                                                  year=year,
-                                                                 in_form=in_form,
+                                                                 channel=channel,
                                                                  keyword=keyword,
                                                                  season=season,
                                                                  fuzzy_match=fuzzy_match,
@@ -2128,7 +2129,9 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(data["days"] + 1)
+        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(
+            data["days"] + 1, data.get("end_day", None)
+        )
 
         # 调整为dataset组织数据
         dataset = [["site", "upload", "download"]]
@@ -2635,6 +2638,7 @@ class WebAction:
             "state": data.get("state"),
             "save_path": data.get("save_path"),
             "download_setting": data.get("download_setting"),
+            "note": data.get("note"),
         }
         if uses == "D":
             params.update({
@@ -3162,7 +3166,7 @@ class WebAction:
             code, msg, _ = Subscribe().add_rss_subscribe(mtype=mtype,
                                                          name=rssinfo[0].NAME,
                                                          year=rssinfo[0].YEAR,
-                                                         in_form=RssType.Auto,
+                                                         channel=RssType.Auto,
                                                          season=season,
                                                          mediaid=rssinfo[0].TMDBID,
                                                          total_ep=rssinfo[0].TOTAL,
@@ -4098,6 +4102,8 @@ class WebAction:
         enabled = data.get("enabled")
         if cid:
             self.dbhelper.delete_message_client(cid=cid)
+        if int(interactive) == 1:
+            self.dbhelper.check_message_client(interactive=0, ctype=ctype)
         self.dbhelper.insert_message_client(name=name,
                                             ctype=ctype,
                                             config=config,
@@ -4417,22 +4423,25 @@ class WebAction:
                                              password=password).download_data()
         if not contents:
             return {"code": 1, "msg": retmsg}
+        # 整理数据,使用domain域名的最后两级作为分组依据
+        domain_groups = defaultdict(list)
+        for site, cookies in contents.items():
+            for cookie in cookies:
+                domain_parts = cookie["domain"].split(".")[-2:]
+                domain_key = tuple(domain_parts)
+                domain_groups[domain_key].append(cookie)
         success_count = 0
-        for domain, content_list in contents.items():
-            if domain.startswith('.'):
-                domain = domain[1:]
-            cookie_str = ""
-            for content in content_list:
-                cookie_str += content.get("name") + \
-                              "=" + content.get("value") + ";"
-            if not cookie_str:
+        for domain, content_list in domain_groups.items():
+            if not content_list:
                 continue
-            site_info = Sites().get_sites(siteurl=domain)
-            if not site_info:
-                continue
-            self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
-                                                cookie=cookie_str)
-            success_count += 1
+            cookie_str = ";".join(
+                [f"{content['name']}={content['value']}" for content in content_list]
+            )
+            site_info = Sites().get_sites_by_suffix(".".join(domain))
+            if site_info:
+                self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
+                                                    cookie=cookie_str)
+                success_count += 1
         if success_count:
             # 重载站点信息
             Sites().init_config()
