@@ -286,6 +286,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
         elif SEARCH_MEDIA_TYPE[user_id] == "ASK":
             # 调用ChatGPT Api
             answer = OpenAiHelper().get_answer(input_str)
+            if not answer:
+                answer = "ChatGTP出错了，请检查OpenAI API Key是否正确，如需搜索电影/电视剧，请发送 搜索或下载 + 名称"
             # 发送消息
             Message().send_channel_msg(channel=in_from,
                                        title="",
