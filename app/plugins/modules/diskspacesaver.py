@@ -65,8 +65,7 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result, fast=False)
     for file_size, file_list in file_group_by_size.items():
         # 如果文件数量大于1，进行sha1计算
         if len(file_list) <= 1:
-            # 打印 file_list[0] 的日志
-            log.info('【Plugin】磁盘空间释放 {} 大小相同的文件数量为1，无需计算sha1'.format(file_list[0]['filePath']))
+            # 如果文件数量小于等于1，直接跳过
             continue
         for file_info in file_list:
             file_path = file_info['filePath']
