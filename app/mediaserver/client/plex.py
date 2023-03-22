@@ -234,7 +234,7 @@ class Plex(_IMediaClient):
             return None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
+            log.error(f"【{self.client_name}】获取剧集封面出错：" + str(e))
             return None
 
     def get_image_by_id(self, item_id, image_type):
@@ -254,10 +254,11 @@ class Plex(_IMediaClient):
             for image in images:
                 if hasattr(image, 'key') and image.key.startswith('http'):
                     return image.key
+            raise Exception("test")
             return None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
+            log.error(f"【{self.client_name}】获取封面出错：" + str(e))
             return None
 
     def refresh_root_library(self):
