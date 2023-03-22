@@ -15,7 +15,8 @@ from pathlib import Path
 from threading import Lock
 from urllib import parse
 
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
+    redirect
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
 
@@ -65,7 +66,6 @@ LoginManager.init_app(App)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
-
 
 # fix Windows registry stuff
 mimetypes.add_type('application/javascript', '.js')
@@ -122,37 +122,7 @@ def login():
         """
         跳转到导航页面
         """
-        # 判断当前的运营环境
-        SystemFlag = SystemUtils.get_system()
-        SyncMod = Config().get_config('media').get('default_rmt_mode')
-        TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
-        DefaultPath = Config().get_config('media').get('media_default_path')
-        if not SyncMod:
-            SyncMod = "link"
-        RmtModeDict = WebAction().get_rmt_modes()
-        RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
-        PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
-        SiteFavicons = Sites().get_site_favicon()
-        Indexers = Indexer().get_indexers()
-        SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
-        CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
-        CooperationSites = current_user.get_authsites()
-        return render_template('navigation.html',
-                               GoPage=GoPage,
-                               CurrentUser=current_user,
-                               SystemFlag=SystemFlag.value,
-                               TMDBFlag=TMDBFlag,
-                               AppVersion=WebUtils.get_current_version(),
-                               RestypeDict=RestypeDict,
-                               PixDict=PixDict,
-                               SyncMod=SyncMod,
-                               SiteFavicons=SiteFavicons,
-                               RmtModeDict=RmtModeDict,
-                               Indexers=Indexers,
-                               SearchSource=SearchSource,
-                               CustomScriptCfg=CustomScriptCfg,
-                               CooperationSites=CooperationSites,
-                               DefaultPath=DefaultPath)
+        return redirect('/web?next=' + GoPage)
 
     def redirect_to_login(errmsg=''):
         """
@@ -200,6 +170,44 @@ def login():
             return redirect_to_navigation()
         else:
             return redirect_to_login('用户名或密码错误')
+
+
+@App.route('/web', methods=['POST', 'GET'])
+@login_required
+def web():
+    # 跳转页面
+    GoPage = request.args.get("next") or ""
+    # 判断当前的运营环境
+    SystemFlag = SystemUtils.get_system()
+    SyncMod = Config().get_config('media').get('default_rmt_mode')
+    TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
+    DefaultPath = Config().get_config('media').get('media_default_path')
+    if not SyncMod:
+        SyncMod = "link"
+    RmtModeDict = WebAction().get_rmt_modes()
+    RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
+    PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
+    SiteFavicons = Sites().get_site_favicon()
+    Indexers = Indexer().get_indexers()
+    SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
+    CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
+    CooperationSites = current_user.get_authsites()
+    return render_template('navigation.html',
+                           GoPage=GoPage,
+                           CurrentUser=current_user,
+                           SystemFlag=SystemFlag.value,
+                           TMDBFlag=TMDBFlag,
+                           AppVersion=WebUtils.get_current_version(),
+                           RestypeDict=RestypeDict,
+                           PixDict=PixDict,
+                           SyncMod=SyncMod,
+                           SiteFavicons=SiteFavicons,
+                           RmtModeDict=RmtModeDict,
+                           Indexers=Indexers,
+                           SearchSource=SearchSource,
+                           CustomScriptCfg=CustomScriptCfg,
+                           CooperationSites=CooperationSites,
+                           DefaultPath=DefaultPath)
 
 
 # 开始

@@ -45,15 +45,13 @@ export class LayoutNavbar extends CustomElement {
       window_history_refresh();
     } else {
       // 打开地址链锚点页面
-      if (window.location.href.indexOf('#') > 0) {
-        let page = window.location.href.split('#')[1];
-        if (page) {
-          navmenu(page);
-        }
+      let page = this._get_page_from_url();
+      if (page) {
+        navmenu(page);
       } else {
         // 打开第一个页面
         const page = this.navbar_list[0].page ?? this.navbar_list[0].list[0].page
-        window.location.href = `${window.location.href.split('#')[0]}#${page}`;
+        this._add_page_to_url(page);
         navmenu(page);
       }
       // 默认展开探索
@@ -93,6 +91,22 @@ export class LayoutNavbar extends CustomElement {
         }
       }
     });
+  }
+
+  _get_page_from_url() {
+    const pages = window.location.href.split('#');
+    if (pages.length > 1) {
+      return pages[pages.length - 1]
+    }
+
+  }
+
+  _add_page_to_url(page){
+    if (window.location.href.indexOf("?") > 0) {
+      window.location.href = `${window.location.href.split('?')[0]}#${page}`;
+    }else {
+      window.location.href = `${window.location.href.split('#')[0]}#${page}`;
+    }
   }
 
   update_active(page) {
@@ -306,7 +320,7 @@ export class LayoutNavbar extends CustomElement {
       style="${child ? "font-size:1rem" : "font-size:1.1rem;"}"
       data-lit-page=${item.page}
       @click=${ () => { 
-        window.location.href = `${window.location.href.split('#')[0]}#${item.page}`;
+        this._add_page_to_url(item.page);
         navmenu(item.page);
       }}>
       <span class="nav-link-icon" ?hidden=${!child} style="color:var(--tblr-body-color);">
