@@ -997,7 +997,7 @@
   }
 
   // 批量启用停用
-  function fflag) {
+  function batch_check_action(flag) {
     let ids = select_GetSelectedVAL("userrss_task");
     ajax_post("check_userrss_task", { flag: flag, ids: ids }, function (ret) {
       if (ret.code == 0) {
