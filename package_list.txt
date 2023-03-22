@@ -19,3 +19,5 @@ dumb-init
 ffmpeg
 redis
 wget
+shadow
+sudo
