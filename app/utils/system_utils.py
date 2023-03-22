@@ -306,30 +306,18 @@ class SystemUtils:
         """
         获取指定路径的剩余空间（单位：GB）
         """
-        # Windows系统
-        if os.name == 'nt':
-            # 将路径中的正斜杠替换为反斜杠
-            path = path.replace('/', '\\')
-            free_size = psutil.disk_usage(path).free / 1024 / 1024 / 1024
-        # Linux或macOS系统
-        else:
-            free_size = psutil.disk_usage(path).free / 1000 / 1000 / 1000
-        return free_size
+        if not os.path.exists(path):
+            return 0.0
+        return psutil.disk_usage(path).free / 1024 / 1024 / 1024
 
     @staticmethod
     def get_total_space(path):
         """
         获取指定路径的总空间（单位：GB）
         """
-        # Windows系统
-        if os.name == 'nt':
-            # 将路径中的正斜杠替换为反斜杠
-            path = path.replace('/', '\\')
-            total_size = psutil.disk_usage(path).total / 1024 / 1024 / 1024
-        # Linux或macOS系统
-        else:
-            total_size = psutil.disk_usage(path).total / 1000 / 1000 / 1000
-        return total_size
+        if not os.path.exists(path):
+            return 0.0
+        return psutil.disk_usage(path).total / 1024 / 1024 / 1024
 
     @staticmethod
     def calculate_space_usage(dir_list):
