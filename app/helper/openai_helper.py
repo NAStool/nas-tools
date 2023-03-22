@@ -2,6 +2,7 @@ import json
 
 import openai
 
+from app.utils import OpenAISessionCache
 from app.utils.commons import singleton
 from config import Config
 
@@ -29,6 +30,58 @@ class OpenAiHelper:
     def get_state(self):
         return True if self._api_key else False
 
+    @staticmethod
+    def __save_session(session_id, message):
+        """
+        保存会话
+        :param session_id: 会话ID
+        :param message: 消息
+        :return:
+        """
+        seasion = OpenAISessionCache.get(session_id)
+        if seasion:
+            seasion.append({
+                "role": "assistant",
+                "content": message
+            })
+            OpenAISessionCache.set(session_id, seasion)
+
+    @staticmethod
+    def __get_session(session_id, message):
+        """
+        获取会话
+        :param session_id: 会话ID
+        :return: 会话上下文
+        """
+        seasion = OpenAISessionCache.get(session_id)
+        if seasion:
+            seasion.append({
+                "role": "user",
+                "content": message
+            })
+        else:
+            seasion = [
+                {
+                    "role": "system",
+                    "content": "请在接下来的对话中请使用中文回复，并且内容尽可能详细。"
+                },
+                {
+                    "role": "user",
+                    "content": message
+                }]
+            OpenAISessionCache.set(session_id, seasion)
+        return seasion
+
+    @staticmethod
+    def __clear_session(session_id):
+        """
+        清除会话
+        :param session_id: 会话ID
+        :return:
+        """
+        if OpenAISessionCache.get(session_id):
+            OpenAISessionCache.delete(session_id)
+
     def get_media_name(self, filename):
         """
         从文件名中提取媒体名称等要素
@@ -44,6 +97,7 @@ class OpenAiHelper:
                                "\n{\"title\":string,\"version\":string,\"part\":string,\"year\":string,\"resolution\":string,\"season\":number|null,\"episode\":number|null}"
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
+                user="NAStool",
                 messages=[
                     {
                         "role": "system",
@@ -60,27 +114,39 @@ class OpenAiHelper:
             print(f"{str(e)}：{result}")
             return {}
 
-    def get_answer(self, text):
+    def get_answer(self, text, userid):
         """
         获取答案
         :param text: 输入文本
+        :param userid: 用户ID
         :return:
         """
         if not self.get_state():
             return ""
         try:
+            if not userid:
+                return "用户信息错误"
+            else:
+                userid = str(userid)
+            if text == "#清除":
+                self.__clear_session(userid)
+                return "会话已清除"
+            # 获取历史上下文
+            messages = self.__get_session(userid, text)
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "请使用中文，并尽可能详尽地回答我。"
-                    },
-                    {
-                        "role": "user",
-                        "content": text
-                    }])
-            return completion.choices[0].message.content
+                user=userid,
+                messages=messages
+            )
+            result = completion.choices[0].message.content
+            if result:
+                self.__save_session(userid, text)
+            return result
+        except openai.error.RateLimitError as e:
+            return "提问太快啦，请休息一下再问我吧"
+        except openai.error.APIConnectionError as e:
+            return "ChatGPT网络连接失败！"
+        except openai.error.Timeout as e:
+            return "没有接收到ChatGPT的返回消息！"
         except Exception as e:
-            print(e)
-            return ""
+            return f"请求ChatGPT出现错误：{str(e)}"
