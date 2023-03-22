@@ -55,6 +55,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
 proces==0.1.2
 prompt-toolkit==3.0.31
+psutil==5.9.4
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycparser==2.21

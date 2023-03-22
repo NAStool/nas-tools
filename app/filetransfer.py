@@ -16,7 +16,7 @@ from app.media import Media, Category, Scraper
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins import EventManager
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils, NumberUtils
 from app.utils.types import MediaType, SyncType, RmtMode, EventType, ProgressKey
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
@@ -1081,8 +1081,7 @@ class FileTransfer:
         # 有输入大小的，匹配第1个满足空间存储要求的
         if size:
             for path in dest_paths:
-                disk_free_size = SystemUtils.get_free_space_gb(path)
-                if float(disk_free_size) > float(size / 1024 / 1024 / 1024):
+                if SystemUtils.get_free_space(path) > NumberUtils.get_size_gb(size):
                     return path
         # 默认返回第1个
         return dest_paths[0]

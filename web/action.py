@@ -3238,85 +3238,49 @@ class WebAction:
         查询媒体库存储空间
         """
         # 磁盘空间
+        UsedSapce = 0
         UsedPercent = 0
-        TotalSpaceList = []
         media = Config().get_config('media')
-        if media:
-            # 电影目录
-            movie_paths = media.get('movie_path')
-            if not isinstance(movie_paths, list):
-                movie_paths = [movie_paths]
-            movie_used, movie_total = 0, 0
-            for movie_path in movie_paths:
-                if not movie_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(movie_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    movie_used += used
-                    movie_total += total
-            # 电视目录
-            tv_paths = media.get('tv_path')
-            if not isinstance(tv_paths, list):
-                tv_paths = [tv_paths]
-            tv_used, tv_total = 0, 0
-            for tv_path in tv_paths:
-                if not tv_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(tv_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    tv_used += used
-                    tv_total += total
-            # 动漫目录
-            anime_paths = media.get('anime_path')
-            if not isinstance(anime_paths, list):
-                anime_paths = [anime_paths]
-            anime_used, anime_total = 0, 0
-            for anime_path in anime_paths:
-                if not anime_path:
-                    continue
-                used, total = SystemUtils.get_used_of_partition(anime_path)
-                if "%s-%s" % (used, total) not in TotalSpaceList:
-                    TotalSpaceList.append("%s-%s" % (used, total))
-                    anime_used += used
-                    anime_total += total
-            # 总空间
-            TotalSpaceAry = []
-            if movie_total not in TotalSpaceAry:
-                TotalSpaceAry.append(movie_total)
-            if tv_total not in TotalSpaceAry:
-                TotalSpaceAry.append(tv_total)
-            if anime_total not in TotalSpaceAry:
-                TotalSpaceAry.append(anime_total)
-            TotalSpace = sum(TotalSpaceAry)
+        # 电影目录
+        movie_paths = media.get('movie_path')
+        if not isinstance(movie_paths, list):
+            movie_paths = [movie_paths]
+        # 电视目录
+        tv_paths = media.get('tv_path')
+        if not isinstance(tv_paths, list):
+            tv_paths = [tv_paths]
+        # 动漫目录
+        anime_paths = media.get('anime_path')
+        if not isinstance(anime_paths, list):
+            anime_paths = [anime_paths]
+        # 总空间、剩余空间
+        TotalSpace, FreeSpace = SystemUtils.calculate_space_usage(movie_paths + tv_paths + anime_paths)
+        if TotalSpace:
             # 已使用空间
-            UsedSapceAry = []
-            if movie_used not in UsedSapceAry:
-                UsedSapceAry.append(movie_used)
-            if tv_used not in UsedSapceAry:
-                UsedSapceAry.append(tv_used)
-            if anime_used not in UsedSapceAry:
-                UsedSapceAry.append(anime_used)
-            UsedSapce = sum(UsedSapceAry)
-            # 电影电视使用百分比格式化
-            if TotalSpace:
-                UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
+            UsedSapce = TotalSpace - FreeSpace
+            # 百分比格式化
+            UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
             # 总剩余空间 格式化
-            FreeSpace = "{:,} TB".format(
-                round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024, 2))
+            if FreeSpace > 1024:
+                FreeSpace = "{:,} TB".format(round(FreeSpace / 1024, 2))
+            else:
+                FreeSpace = "{:,} GB".format(round(FreeSpace, 2))
             # 总使用空间 格式化
-            UsedSapce = "{:,} TB".format(
-                round(UsedSapce / 1024 / 1024 / 1024 / 1024, 2))
+            if UsedSapce > 1024:
+                UsedSapce = "{:,} TB".format(round(UsedSapce / 1024, 2))
+            else:
+                UsedSapce = "{:,} GB".format(round(UsedSapce, 2))
             # 总空间 格式化
-            TotalSpace = "{:,} TB".format(
-                round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
+            if TotalSpace > 1024:
+                TotalSpace = "{:,} TB".format(round(TotalSpace / 1024, 2))
+            else:
+                TotalSpace = "{:,} GB".format(round(TotalSpace, 2))
 
-            return {"code": 0,
-                    "UsedPercent": UsedPercent,
-                    "FreeSpace": FreeSpace,
-                    "UsedSapce": UsedSapce,
-                    "TotalSpace": TotalSpace}
+        return {"code": 0,
+                "UsedPercent": UsedPercent,
+                "FreeSpace": FreeSpace,
+                "UsedSapce": UsedSapce,
+                "TotalSpace": TotalSpace}
 
     def get_transfer_statistics(self, data=None):
         """
