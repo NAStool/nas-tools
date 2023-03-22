@@ -349,6 +349,8 @@ class SystemUtils:
         for dir_path in dir_list:
             if not dir_path:
                 continue
+            if not os.path.exists(dir_path):
+                continue
             # 获取目录所在磁盘
             if os.name == "nt":
                 disk = os.path.splitdrive(dir_path)[0]
