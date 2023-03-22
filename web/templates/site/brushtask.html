@@ -11,26 +11,26 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:update_brushtask_state_all('Y')" class="btn btn-primary d-none d-sm-inline-block">
-            {{ SVG.player_play() }}
-            全部启动
-          </a>
-          <a href="javascript:update_brushtask_state_all('Y')" class="btn btn-primary d-sm-none btn-icon">
-            {{ SVG.player_play() }}
-          </a>
-          <a href="javascript:update_brushtask_state_all('N')" class="btn btn-primary d-none d-sm-inline-block">
-            {{ SVG.player_stop() }}
-            全部停止
-          </a>
-          <a href="javascript:update_brushtask_state_all('N')" class="btn btn-primary d-sm-none btn-icon">
-            {{ SVG.player_stop() }}
-          </a>
           <a href="javascript:show_brushtask_modal()" class="btn btn-primary d-none d-sm-inline-block">
             {{ SVG.plus() }}
             新建任务
           </a>
           <a href="javascript:show_brushtask_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
+          </a>
+          <a href="javascript:update_brushtask_state('Y')" class="btn btn-success ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_play() }}
+            启动
+          </a>
+          <a href="javascript:update_brushtask_state('Y')" class="btn btn-success d-sm-none btn-icon">
+            {{ SVG.player_play() }}
+          </a>
+          <a href="javascript:update_brushtask_state('N')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_stop() }}
+            停止
+          </a>
+          <a href="javascript:update_brushtask_state('N')" class="btn btn-secondary d-sm-none btn-icon">
+            {{ SVG.player_stop() }}
           </a>
         </div>
       </div>
@@ -45,10 +45,13 @@
           <div class="card">
             <div class="card-header">
               <div>
+                <input class="form-check-input m-0 align-middle" name="burshtask" value="{{ Task.id }}" type="checkbox">
+              </div>
+              <div>
                 {% if Task.state %}
-                <span class="badge bg-green"></span>
+                <span class="badge bg-green ms-3"></span>
                 {% else %}
-                <span class="badge bg-red"></span>
+                <span class="badge bg-red ms-3"></span>
                 {% endif %}
               </div>
               <a href="javascript:void(0)" onclick="show_brushtask_detail('{{ Task.id }}')" style="text-decoration-line: none; color: unset"
@@ -768,8 +771,9 @@
   }
 
   // 批量暂停启动刷流任务
-  function update_brushtask_state_all(state){
-    ajax_post("update_brushtask_state_all", {'state': state}, function (ret){
+  function update_brushtask_state(state){
+    let ids = select_GetSelectedVAL("burshtask");
+    ajax_post("update_brushtask_state", {'state': state, ids:ids }, function (ret){
       window_history_refresh();
     });
   }

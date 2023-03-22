@@ -1753,15 +1753,22 @@ class DbHelper:
             return 0
 
     @DbPersist(_db)
-    def update_brushtask_state_all(self, state):
+    def update_brushtask_state(self, state, tid=None):
         """
         改变所有刷流任务的状态
         """
-        self._db.query(SITEBRUSHTASK).update(
-            {
-                "STATE": "Y" if state == "Y" else "N"
-            }
-        )
+        if tid:
+            self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(tid)).update(
+                {
+                    "STATE": "Y" if state == "Y" else "N"
+                }
+            )
+        else:
+            self._db.query(SITEBRUSHTASK).update(
+                {
+                    "STATE": "Y" if state == "Y" else "N"
+                }
+            )
 
     @DbPersist(_db)
     def add_brushtask_download_count(self, brush_id):
