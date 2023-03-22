@@ -37,7 +37,7 @@ from app.subscribe import Subscribe
 from app.sync import Sync
 from app.torrentremover import TorrentRemover
 from app.utils import StringUtils, EpisodeFormat, RequestUtils, PathUtils, \
-    SystemUtils, ExceptionUtils
+    SystemUtils, ExceptionUtils, Torrent
 from app.utils.types import RmtMode, OsType, SearchType, SyncType, MediaType, MovieTypes, TvTypes, \
     EventType, SystemConfigKey, RssType
 from config import RMT_MEDIAEXT, TMDB_IMAGE_W500_URL, RMT_SUBEXT, Config
@@ -579,20 +579,53 @@ class WebAction:
     @staticmethod
     def __download_torrent(data):
         """
-        从种子文件添加下载
+        从种子文件或者URL链接添加下载
+        files：文件地址的列表，urls：种子链接地址列表或者单个链接地址
         """
         dl_dir = data.get("dl_dir")
         dl_setting = data.get("dl_setting")
-        files = data.get("files")
-        if not files:
-            return {"code": -1, "msg": "没有种子文件"}
+        files = data.get("files") or []
+        urls = data.get("urls") or []
+        if not files and not urls:
+            return {"code": -1, "msg": "没有种子文件或者种子链接"}
+        # 下载种子
         for file_item in files:
             if not file_item:
                 continue
             file_name = file_item.get("upload", {}).get("filename")
             file_path = os.path.join(Config().get_temp_path(), file_name)
             media_info = Media().get_media_info(title=file_name)
-            media_info.site = "WEB"
+            if media_info:
+                media_info.site = "WEB"
+            # 添加下载
+            Downloader().download(media_info=media_info,
+                                  download_dir=dl_dir,
+                                  download_setting=dl_setting,
+                                  torrent_file=file_path,
+                                  in_from=SearchType.WEB,
+                                  user_name=current_user.username)
+        # 下载链接
+        if urls and not isinstance(urls, list):
+            urls = [urls]
+        for url in urls:
+            if not url:
+                continue
+            # 查询站点
+            site_info = Sites().get_sites(siteurl=url)
+            if not site_info:
+                return {"code": -1, "msg": "根据链接地址未匹配到站点"}
+            # 下载种子文件，并读取信息
+            file_path, _, _, _, retmsg = Torrent().get_torrent_info(
+                url=url,
+                cookie=site_info.get("cookie"),
+                ua=site_info.get("ua"),
+                proxy=site_info.get("proxy")
+            )
+            if not file_path:
+                return {"code": -1, "msg": f"下载种子文件失败： {retmsg}"}
+            media_info = Media().get_media_info(title=os.path.basename(file_path))
+            if media_info:
+                media_info.site = "WEB"
             # 添加下载
             Downloader().download(media_info=media_info,
                                   download_dir=dl_dir,
