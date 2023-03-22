@@ -89,6 +89,7 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
 # 创建目录、权限设置
 chown -R "${PUID}":"${PGID}" $(ls -A | grep -vw -E '.git|.github')
+find ${WORKDIR} -maxdepth 1 -not \( -path "${WORKDIR}/.git" -prune \) -not \( -path "${WORKDIR}/.github" -prune \) -exec chown -R "${PUID}":"${PGID}" {} \;
 mkdir -p /.pm2 /.local
 chown -R "${PUID}":"${PGID}" /config /.pm2 /etc/hosts /usr/lib/chromium /.local
 # 避免 issue #3816，减少 chown 操作
