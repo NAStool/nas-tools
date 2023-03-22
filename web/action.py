@@ -100,7 +100,7 @@ class WebAction:
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
-            "update_brushtask_state_all": self.__update_brushtask_state_all,
+            "update_brushtask_state": self.__update_brushtask_state,
             "name_test": self.__name_test,
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
@@ -2041,14 +2041,24 @@ class WebAction:
 
         return {"code": 0, "task": brushtask}
 
-    def __update_brushtask_state_all(self, data):
+    def __update_brushtask_state(self, data):
         """
         批量暂停/开始刷流任务
         """
-        state = data.get("state")
-        self.dbhelper.update_brushtask_state_all(state)
-        BrushTask().init_config()
-        return {"code": 0}
+        try:
+            state = data.get("state")
+            task_ids = data.get("ids")
+            if state is not None:
+                if task_ids:
+                    for tid in task_ids:
+                        self.dbhelper.update_brushtask_state(state=state, tid=tid)
+                else:
+                    self.dbhelper.update_brushtask_state(state=state)
+            BrushTask().init_config()
+            return {"code": 0, "msg": ""}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": "刷流任务设置失败"}
 
     def __name_test(self, data):
         """
@@ -2724,7 +2734,7 @@ class WebAction:
             return {"code": 0, "msg": ""}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            return {"code": 1, "msg": "识别词状态设置失败"}
+            return {"code": 1, "msg": "自定义订阅状态设置失败"}
 
     @staticmethod
     def __get_rssparser(data):
