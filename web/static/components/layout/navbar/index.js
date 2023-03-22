@@ -292,7 +292,7 @@ export class LayoutNavbar extends CustomElement {
   _render_page_item(item, child) {
     return html`
     <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${child ? "ps-3" : "lit-navbar-accordion-button"}" 
-      href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+      href="#${item.page}" data-bs-dismiss="offcanvas" aria-label="Close"
       style="${child ? "font-size:1rem" : "font-size:1.1rem;"}"
       data-lit-page=${item.page}
       @click=${ () => { navmenu(item.page) }}>
