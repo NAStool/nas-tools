@@ -829,6 +829,7 @@
             <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
           </div>
         </form>
+        <textarea class="form-control mt-2" id="torrent_urls" rows="8" placeholder="https://xxxx，换行添加多个链接" aria-label=""></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -1876,10 +1877,16 @@
       $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), false)")
     }
 
-    if (!show_type) {
+    $("#torrent_urls").val("");
+    if (show_type === 'torrent') {
+      $("#torrent_files").show();
+      $("#torrent_urls").hide();
+    } else if (show_type === 'url') {
+      $("#torrent_urls").show();
       $("#torrent_files").hide();
     } else {
-      $("#torrent_files").show();
+      $("#torrent_files").hide();
+      $("#torrent_urls").hide();
     }
 
     // 绑定下载按钮事件
