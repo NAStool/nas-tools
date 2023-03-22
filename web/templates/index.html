@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/oops.html' as OOPS %}
+<cmd-dialog></cmd-dialog>
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -383,4 +384,39 @@
     };
   });
 
+</script>
+<script type="module">
+  import 'https://esm.run/cmd-dialog';
+  const dialog = document.querySelector('cmd-dialog');
+  const body = {
+    headers: {
+      "accept": "text/html, */*; q=0.01",
+      "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+      "cache-control": "no-cache",
+      "pragma": "no-cache",
+      "proxy-connection": "keep-alive",
+      "x-requested-with": "XMLHttpRequest",
+      "Host": location.host,
+    },
+    "referrerPolicy": "no-referrer",
+    "body": null,
+    "method": "POST",
+    "mode": "cors",
+    "credentials": "include"
+  }
+  dialog.actions = [
+    {
+      title: '我的媒体库',
+      hotkey: 'cmd+e',
+      onAction() {
+        fetch("/index", body);
+      },
+    },
+    {
+      title: '服务',
+      onAction() {
+        fetch("/service", body);
+      },
+    },
+  ];
 </script>
