@@ -87,12 +87,12 @@ fi
 
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
+# /nas-tools/下除.git|.github之外 chown
+find ${WORKDIR} -maxdepth 1 -not \( -path "${WORKDIR}/.git" -prune \) -not \( -path "${WORKDIR}/.github" -prune \) -exec chown -R "${PUID}":"${PGID}" {} \;
 # 创建目录、权限设置
-chown -R "${PUID}":"${PGID}" $(ls -A | grep -vw -E '.git|.github')
 mkdir -p /.pm2 /.local
 chown -R "${PUID}":"${PGID}" /config /.pm2 /etc/hosts /usr/lib/chromium /.local
 # 避免 issue #3816，减少 chown 操作
-chown "${PUID}":"${PGID}" "${WORKDIR}"
 if [ "$(stat -c %u .git)":"$(stat -c %g .git)" != "${PUID}":"${PGID}" ]; then
   find .git ! -user "${PUID}" -a ! -group "${PGID}" -exec chown "${PUID}":"${PGID}" {} \;
   find .github ! -user "${PUID}" -a ! -group "${PGID}" -exec chown "${PUID}":"${PGID}" {} \;
