@@ -64,7 +64,7 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action ms-1" title="折叠">
+              <a href="javascript:;"onclick="$('#div_group{{ Group.id }}').slideToggle()" class="btn-action ms-1" title="折叠">
                 {{ SVG.menu_2() }}
               </a>
               <a href="javascript:show_add_custom_word_modal('{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
