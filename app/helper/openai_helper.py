@@ -124,6 +124,10 @@ class OpenAiHelper:
         if not self.get_state():
             return ""
         try:
+            if not userid:
+                return "用户信息错误"
+            else:
+                userid = str(userid)
             if text == "#清除":
                 self.__clear_session(userid)
                 return "会话已清除"
