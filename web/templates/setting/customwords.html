@@ -474,10 +474,7 @@
   <script type="text/javascript">
     // 批量启用/停用/导出
     function batch_check_action(flag) {
-      let ids_info = select_GetSelectedVAL("^custom_words")
-      if (ids_info.length == 0) {
-        return;
-      }
+      let ids_info = select_GetSelectedVAL("^custom_words");
       if (flag == "disable" || flag == "enable") {
         ajax_post("check_custom_words", { flag: flag, ids_info: ids_info }, function (ret) {
           if (ret.code == 0) {

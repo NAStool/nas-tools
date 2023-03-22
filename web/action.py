@@ -126,6 +126,7 @@ class WebAction:
             "get_userrss_task": self.__get_userrss_task,
             "delete_userrss_task": self.__delete_userrss_task,
             "update_userrss_task": self.__update_userrss_task,
+            "check_userrss_task": self.__check_userrss_task,
             "get_rssparser": self.__get_rssparser,
             "delete_rssparser": self.__delete_rssparser,
             "update_rssparser": self.__update_rssparser,
@@ -2705,6 +2706,26 @@ class WebAction:
         else:
             return {"code": 1}
 
+    def __check_userrss_task(self, data):
+        """
+        检测自定义订阅
+        """
+        try:
+            flag_dict = {"enable": "Y", "disable": "N"}
+            taskids = data.get("ids")
+            state = flag_dict.get(data.get("flag"))
+            if state is not None:
+                if taskids:
+                    for taskid in taskids:
+                        self.dbhelper.check_userrss_task(tid=taskid, state=state)
+                else:
+                    self.dbhelper.check_userrss_task(state=state)
+                RssChecker().init_config()
+            return {"code": 0, "msg": ""}
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return {"code": 1, "msg": "识别词状态设置失败"}
+
     @staticmethod
     def __get_rssparser(data):
         """
@@ -3015,9 +3036,12 @@ class WebAction:
             flag_dict = {"enable": 1, "disable": 0}
             ids_info = data.get("ids_info")
             enabled = flag_dict.get(data.get("flag"))
-            ids = [id_info.split("_")[1] for id_info in ids_info]
-            for wid in ids:
-                self.dbhelper.check_custom_word(wid=wid, enabled=enabled)
+            if not ids_info:
+                self.dbhelper.check_custom_word(enabled=enabled)
+            else:
+                ids = [id_info.split("_")[1] for id_info in ids_info]
+                for wid in ids:
+                    self.dbhelper.check_custom_word(wid=wid, enabled=enabled)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -3027,46 +3051,54 @@ class WebAction:
     def __export_custom_words(self, data):
         try:
             note = data.get("note")
-            ids_info = data.get("ids_info").split("@")
+            ids_info = data.get("ids_info")
             group_ids = []
             word_ids = []
-            for id_info in ids_info:
-                wid = id_info.split("_")
-                group_ids.append(wid[0])
-                word_ids.append(wid[1])
+            group_infos = []
+            word_infos = []
+            if ids_info:
+                ids_info = ids_info.split("@")
+                for id_info in ids_info:
+                    wid = id_info.split("_")
+                    group_ids.append(wid[0])
+                    word_ids.append(wid[1])
+                for group_id in group_ids:
+                    if group_id != "-1":
+                        group_info = self.dbhelper.get_custom_word_groups(gid=group_id)
+                        if group_info:
+                            group_infos.append(group_info[0])
+                for word_id in word_ids:
+                    word_info = self.dbhelper.get_custom_words(wid=word_id)
+                    if word_info:
+                        word_infos.append(word_info[0])
+            else:
+                group_infos = self.dbhelper.get_custom_word_groups()
+                word_infos = self.dbhelper.get_custom_words()
             export_dict = {}
-            for group_id in group_ids:
-                if group_id == "-1":
-                    export_dict["-1"] = {"id": -1,
-                                         "title": "通用",
-                                         "type": 1,
-                                         "words": {}, }
-                else:
-                    group_info = self.dbhelper.get_custom_word_groups(
-                        gid=group_id)
-                    if group_info:
-                        group_info = group_info[0]
-                        export_dict[str(group_info.ID)] = {"id": group_info.ID,
-                                                           "title": group_info.TITLE,
-                                                           "year": group_info.YEAR,
-                                                           "type": group_info.TYPE,
-                                                           "tmdbid": group_info.TMDBID,
-                                                           "season_count": group_info.SEASON_COUNT,
-                                                           "words": {}, }
-            for word_id in word_ids:
-                word_info = self.dbhelper.get_custom_words(wid=word_id)
-                if word_info:
-                    word_info = word_info[0]
-                    export_dict[str(word_info.GROUP_ID)]["words"][str(word_info.ID)] = {"id": word_info.ID,
-                                                                                        "replaced": word_info.REPLACED,
-                                                                                        "replace": word_info.REPLACE,
-                                                                                        "front": word_info.FRONT,
-                                                                                        "back": word_info.BACK,
-                                                                                        "offset": word_info.OFFSET,
-                                                                                        "type": word_info.TYPE,
-                                                                                        "season": word_info.SEASON,
-                                                                                        "regex": word_info.REGEX,
-                                                                                        "help": word_info.HELP, }
+            if not group_ids or "-1" in group_ids:
+                export_dict["-1"] = {"id": -1,
+                                     "title": "通用",
+                                     "type": 1,
+                                     "words": {}, }
+            for group_info in group_infos:
+                export_dict[str(group_info.ID)] = {"id": group_info.ID,
+                                                   "title": group_info.TITLE,
+                                                   "year": group_info.YEAR,
+                                                   "type": group_info.TYPE,
+                                                   "tmdbid": group_info.TMDBID,
+                                                   "season_count": group_info.SEASON_COUNT,
+                                                   "words": {}, }
+            for word_info in word_infos:
+                export_dict[str(word_info.GROUP_ID)]["words"][str(word_info.ID)] = {"id": word_info.ID,
+                                                                                    "replaced": word_info.REPLACED,
+                                                                                    "replace": word_info.REPLACE,
+                                                                                    "front": word_info.FRONT,
+                                                                                    "back": word_info.BACK,
+                                                                                    "offset": word_info.OFFSET,
+                                                                                    "type": word_info.TYPE,
+                                                                                    "season": word_info.SEASON,
+                                                                                    "regex": word_info.REGEX,
+                                                                                    "help": word_info.HELP, }
             export_string = json.dumps(export_dict) + "@@@@@@" + str(note)
             string = base64.b64encode(
                 export_string.encode("utf-8")).decode('utf-8')
