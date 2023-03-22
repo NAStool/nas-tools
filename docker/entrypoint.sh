@@ -87,16 +87,15 @@ fi
 
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 
+# 更改 nt userid 和 groupid
+groupmod -o -g "$PGID" nt
+usermod -o -u "$PUID" nt
+
 # /nas-tools/下除.git|.github之外 chown
-find ${WORKDIR} -maxdepth 1 -not \( -path "${WORKDIR}/.git" -prune \) -not \( -path "${WORKDIR}/.github" -prune \) -exec chown -R "${PUID}":"${PGID}" {} \;
+find ${WORKDIR} -maxdepth 1 -not \( -path "${WORKDIR}/.git" -prune \) -not \( -path "${WORKDIR}/.github" -prune \) -exec chown -R nt:nt {} \;
 # 创建目录、权限设置
 mkdir -p /.pm2 /.local
-chown -R "${PUID}":"${PGID}" /config /.pm2 /etc/hosts /usr/lib/chromium /.local
-# 避免 issue #3816，减少 chown 操作
-if [ "$(stat -c %u .git)":"$(stat -c %g .git)" != "${PUID}":"${PGID}" ]; then
-  find .git ! -user "${PUID}" -a ! -group "${PGID}" -exec chown "${PUID}":"${PGID}" {} \;
-  find .github ! -user "${PUID}" -a ! -group "${PGID}" -exec chown "${PUID}":"${PGID}" {} \;
-fi
+chown -R nt:nt /config /.pm2 /etc/hosts /usr/lib/chromium /.local
 export PATH=${PATH}:/usr/lib/chromium
 
 # 掩码设置
@@ -109,4 +108,4 @@ if [ -n "$(which redis-server)" ]; then
 fi
 
 # 启动主程序
-exec su-exec "${PUID}":"${PGID}" "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
+exec su-exec nt:nt "$(which dumb-init)" "$(which pm2-runtime)" start run.py -n NAStool --interpreter python3
