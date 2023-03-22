@@ -180,3 +180,8 @@ body, .page {
         margin-right: unset!important;
     }
 }
+#chart-recent-upload-title,#chart-recent-download-title{
+    width: 250px;
+    display: inline-block;
+    text-align: center;
+}
