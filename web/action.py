@@ -100,6 +100,7 @@ class WebAction:
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
+            "update_brushtask_state_all": self.__update_brushtask_state_all,
             "name_test": self.__name_test,
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
@@ -2005,6 +2006,15 @@ class WebAction:
             return {"code": 1, "task": {}}
 
         return {"code": 0, "task": brushtask}
+
+    def __update_brushtask_state_all(self, data):
+        """
+        批量暂停/开始刷流任务
+        """
+        state = data.get("state")
+        self.dbhelper.update_brushtask_state_all(state)
+        BrushTask().init_config()
+        return {"code": 0}
 
     def __name_test(self, data):
         """
