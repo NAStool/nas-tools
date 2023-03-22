@@ -107,6 +107,20 @@ class MediaServer:
             return
         return self.server.refresh_root_library()
 
+    def get_episode_image_by_id(self, item_id, season_id, episode_id):
+        """
+         根据itemid、season_id、episode_id从Emby查询图片地址
+         :param item_id: 在Emby中的ID
+         :param season_id: 季
+         :param episode_id: 集
+         :return: 图片对应在TMDB中的URL
+         """
+        if not self.server:
+            return None
+        if not item_id or not season_id or not episode_id:
+            return None
+        return self.server.get_episode_image_by_id(item_id, season_id, episode_id)
+
     def get_image_by_id(self, item_id, image_type):
         """
         根据ItemId从媒体服务器查询图片地址
@@ -330,11 +344,18 @@ class MediaServer:
             # 获取消息图片
             image_url = None
             if event_info.get("item_type") == "TV":
-                item_info = self.get_iteminfo(event_info.get('item_id'))
-                if item_info:
-                    image_url = self.media.get_episode_images(tv_id=item_info.get('ProviderIds', {}).get('Tmdb'),
-                                                              season_id=event_info.get('season_id'),
-                                                              episode_id=event_info.get('episode_id'))
+                if self._server_type == "plex":
+                    # Plex:根据返回的tmdb_id、season_id、episode_id去调用tmdb获取
+                    item_info = self.get_iteminfo(event_info.get('item_id'))
+                    if item_info:
+                        image_url = self.media.get_episode_images(tv_id=item_info.get('ProviderIds', {}).get('Tmdb'),
+                                                                  season_id=event_info.get('season_id'),
+                                                                  episode_id=event_info.get('episode_id'))
+                else:
+                    # Emby,Jellyfin:根据返回的item_id、season_id、episode_id去调用媒体服务器获取
+                    image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
+                                                             season_id=event_info.get('season_id'),
+                                                             episode_id=event_info.get('episode_id'))
             else:
                 if self._server_type == "plex":
                     # Plex:根据返回的tmdb_id去调用tmdb获取
