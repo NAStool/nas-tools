@@ -3514,20 +3514,14 @@ class WebAction:
                         and filter_season not in torrent_filter.get("season"):
                     torrent_filter["season"].append(filter_season)
             else:
-                exist_flag = False
-                # 是否已存在
+                fav, rssid = 0, None
+                # 存在标志
                 if item.TMDBID:
-                    try:
-                        exist_flag = MediaServer().check_item_exists(
-                            mtype=mtype,
-                            title=item.TITLE,
-                            year=item.YEAR,
-                            tmdbid=item.TMDBID,
-                            season=int(filter_season.replace("S", "")) if filter_season else None
-                        )
-                    # One Piece S01-S21 E01-E1028 1999 1080p WEB-DL H.264 -@OPFansMaplesnow
-                    except Exception as e:
-                        print(str(e))
+                    fav, rssid = self.get_media_exists_flag(
+                        mtype=mtype,
+                        title=item.TITLE,
+                        year=item.YEAR,
+                        mediaid=item.TMDBID)
 
                 SearchResults[title_string] = {
                     "key": item.ID,
@@ -3541,7 +3535,8 @@ class WebAction:
                     "backdrop": item.IMAGE,
                     "poster": item.POSTER,
                     "overview": item.OVERVIEW,
-                    "exist": exist_flag,
+                    "fav": fav,
+                    "rssid": rssid,
                     "torrent_dict": {
                         SE_key: {
                             group_key: {

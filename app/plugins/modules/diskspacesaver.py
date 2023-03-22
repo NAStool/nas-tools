@@ -67,7 +67,7 @@ def find_duplicates(folder_path, _ext_list, _file_size, last_result, fast=False)
         # 如果文件数量大于1，进行sha1计算
         if len(file_list) <= 1:
             # 没有大小一样的 不需要处理
-            # log.info(f'【Plugin】磁盘空间释放 {file_list[0]["filePath"]} 大小相同的文件数量为1，无需计算sha1')
+            log.debug(f'【Plugin】磁盘空间释放 {file_list[0]["filePath"]} 大小相同的文件数量为1，无需计算sha1')
             continue
         for file_info in file_list:
             file_path = file_info['filePath']
@@ -193,7 +193,7 @@ class DiskSpaceSaver(_IPluginModule):
                         {
                             'title': '文件SHA1信息存储路径(文件路径)',
                             'required': "required",
-                            'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径，如 E:/temp/result.json',
+                            'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径，如 /config/result.json',
                             'type': 'text',
                             'content': [
                                 {
@@ -208,7 +208,7 @@ class DiskSpaceSaver(_IPluginModule):
                         {
                             'title': '文件后缀',
                             'required': "required",
-                            'tooltip': '只识别这些后缀的文件，多个后缀用英文逗号隔开',
+                            'tooltip': '只识别这些后缀的文件，多个后缀用英文逗号隔开，如：.mkv,.mp4',
                             'type': 'text',
                             'content':
                                 [{
@@ -240,14 +240,14 @@ class DiskSpaceSaver(_IPluginModule):
                             'content':
                                 {
                                     'id': 'path_list',
-                                    'placeholder': '文件路径',
+                                    'placeholder': '每行一个路径',
                                     'rows': 5
                                 }
                         }
                     ],
                     [
                         {
-                            'title': '现在运行一次',
+                            'title': '立即运行一次',
                             'required': "",
                             'tooltip': '目前不支持定时, 只有勾选了才会运行一次',
                             'type': 'switch',
