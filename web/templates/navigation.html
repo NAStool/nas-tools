@@ -2660,6 +2660,14 @@
     $(`#user_auth_${siteid}_params`).show();
   }
 
+  // 读取浏览器UA
+  function set_user_agent(id) {
+    let userAgent = navigator.userAgent;
+    if (userAgent){
+        $("#"+id).val(userAgent);
+    }
+  }
+
 </script>
 
 <!-- 事件  -->
