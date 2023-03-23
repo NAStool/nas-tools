@@ -2745,6 +2745,7 @@
         {
           id: '{{ Menu.page }}',
           title: '{{ Menu.name }}',
+          img: `{{ Menu.icon|safe }}`,
           onAction() {
             navmenu('{{ Menu.page }}');
           },
@@ -2755,6 +2756,7 @@
             {
               id: '{{ SubMenu.page }}',
               title: '{{ SubMenu.name }}',
+              img: `{{ SubMenu.icon|safe }}`,
               onAction() {
                 navmenu('{{ SubMenu.page }}')
               },
