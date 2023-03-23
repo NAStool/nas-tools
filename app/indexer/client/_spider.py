@@ -205,7 +205,7 @@ class TorrentSpider(feapder.AirSpider):
                     elif self.mtype:
                         cats = self.category.get("tv") or []
                     else:
-                        cats = self.category.get("movie") or [] + self.category.get("tv") or []
+                        cats = (self.category.get("movie") or []) + (self.category.get("tv") or [])
                     for cat in cats:
                         if self.category.get("field"):
                             value = params.get(self.category.get("field"), "")
