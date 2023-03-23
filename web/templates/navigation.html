@@ -63,7 +63,7 @@
     {{ OOPS.loading() }}
   </div>
 </div>
-<cmd-dialog></cmd-dialog>
+<cmd-dialog theme="light"></cmd-dialog>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
@@ -2731,6 +2731,10 @@
 <script type="module">
   import 'https://esm.run/cmd-dialog';
   const dialog = document.querySelector('cmd-dialog');
+  const theme = localStorage.getItem("tablerTheme");
+  if (theme) {
+    dialog.theme = theme;
+  }
   dialog.actions = [
     {% for Menu in Menus %}
       {% if Menu.page %}
