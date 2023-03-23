@@ -63,7 +63,11 @@
     {{ OOPS.loading() }}
   </div>
 </div>
-<cmd-dialog theme="light"></cmd-dialog>
+<cmd-dialog theme="light" placeholder="搜索...">
+  <div slot="footer">
+    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
+  </div>
+</cmd-dialog>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
