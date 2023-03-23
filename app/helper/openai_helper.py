@@ -175,7 +175,7 @@ class OpenAiHelper:
                         "content": user_prompt
                     }
                 ])
-            result = completion.choices[0].message.content
+            result = completion.choices[0].message.content.strip()
             return True, result
         except Exception as e:
             print(f"{str(e)}：{result}")
