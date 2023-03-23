@@ -1135,10 +1135,14 @@
       ffmpeg_check.prop("checked", false);
     }
   }
+
+
+  // 读取浏览器UA
   function set_user_agent(id) {
-      let userAgent = navigator.userAgent;
-      if (userAgent){
-          $("#"+id).val(userAgent);
-      }
+    let userAgent = navigator.userAgent;
+    if (userAgent){
+        $("#"+id).val(userAgent);
+    }
   }
+
 </script>
