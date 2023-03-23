@@ -2735,6 +2735,7 @@
     {% for Menu in Menus %}
       {% if Menu.page %}
         {
+          id: '{{ Menu.page }}',
           title: '{{ Menu.name }}',
           onAction() {
             navmenu('{{ Menu.page }}');
@@ -2744,7 +2745,8 @@
         {% for SubMenu in Menu.list %}
           {% if SubMenu.page %}
             {
-              title: '{{ Menu.name }} -> {{ SubMenu.name }}',
+              id: '{{ SubMenu.page }}',
+              title: '{{ SubMenu.name }}',
               onAction() {
                 navmenu('{{ SubMenu.page }}')
               },
