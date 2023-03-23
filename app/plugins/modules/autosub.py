@@ -119,7 +119,7 @@ class AutoSub(_IPluginModule):
                         {
                             'title': '翻译为中文',
                             'required': "",
-                            'tooltip': '打开后将自动翻译非中文字幕，生成双语字幕，关闭后只生成英文字幕,需要配置OpenAI API Key',
+                            'tooltip': '打开后将自动翻译非中文字幕，生成双语字幕，关闭后只生成英文字幕，需要配置OpenAI API Key',
                             'type': 'switch',
                             'id': 'translate_zh',
                         }

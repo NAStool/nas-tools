@@ -91,11 +91,9 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 groupmod -o -g "$PGID" nt
 usermod -o -u "$PUID" nt
 
-# /nas-tools/下除.git|.github之外 chown
-find ${WORKDIR} -maxdepth 1 -not \( -path "${WORKDIR}/.git" -prune \) -not \( -path "${WORKDIR}/.github" -prune \) -exec chown -R nt:nt {} \;
 # 创建目录、权限设置
 mkdir -p /.pm2 /.local
-chown -R nt:nt /config /.pm2 /etc/hosts /usr/lib/chromium /.local
+chown -R nt:nt "${WORKDIR}" /config /.pm2 /.local /usr/lib/chromium /etc/hosts
 export PATH=${PATH}:/usr/lib/chromium
 
 # 掩码设置
