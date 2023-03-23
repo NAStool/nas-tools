@@ -1227,6 +1227,8 @@ class WebAction:
             os.system("sudo git submodule update --init --recursive")
             # 安装依赖
             os.system('sudo pip install -r /nas-tools/requirements.txt')
+            # 修复权限
+            os.system('sudo chown -R nt:nt /nas-tools')
             # 重启
             self.restart_server()
         return {"code": 0}
