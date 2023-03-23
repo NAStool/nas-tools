@@ -192,6 +192,7 @@ def web():
     SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
     CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
     CooperationSites = current_user.get_authsites()
+    Menus = current_user.get_usermenus()
     return render_template('navigation.html',
                            GoPage=GoPage,
                            CurrentUser=current_user,
@@ -207,7 +208,8 @@ def web():
                            SearchSource=SearchSource,
                            CustomScriptCfg=CustomScriptCfg,
                            CooperationSites=CooperationSites,
-                           DefaultPath=DefaultPath)
+                           DefaultPath=DefaultPath,
+                           Menus=Menus)
 
 
 # 开始
