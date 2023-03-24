@@ -41,9 +41,9 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="d-grid gap-3 grid-info-card">
+      <div class="d-grid gap-3 grid-info-card align-items-start">
         {% for RuleGroup in RuleGroups %}
-          <div class="card">
+          <div class="card align-self-start">
             <div class="card-header">
               <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
               <div class="card-actions btn-actions">
@@ -71,8 +71,8 @@
                 </a>
               </div>
             </div>
-            <div class="card-body p-2">
-              <div class="row row-cards" id="div_group{{ RuleGroup.id }}">
+            <div class="card-body p-2" id="div_group{{ RuleGroup.id }}">
+              <div class="row row-cards">
                 {% if RuleGroup.rules %}
                   {% for Rule in RuleGroup.rules %}
                     <div class="col-12">
