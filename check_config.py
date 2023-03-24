@@ -13,7 +13,6 @@ from app.utils import ConfigLoadCache
 from app.utils import ExceptionUtils
 from app.utils.commons import INSTANCES
 from config import Config
-from web.action import WebAction
 
 _observer = Observer(timeout=10)
 
@@ -239,8 +238,6 @@ class ConfigMonitor(FileSystemEventHandler):
             for instance in INSTANCES.values():
                 if hasattr(instance, "init_config"):
                     instance.init_config()
-            # 重置服务
-            WebAction().restart_service()
 
 
 def start_config_monitor():
