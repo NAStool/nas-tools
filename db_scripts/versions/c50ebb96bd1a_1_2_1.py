@@ -1,8 +1,8 @@
-"""1.2.0
+"""1.2.1
 
-Revision ID: 6abeaa9ece15
+Revision ID: c50ebb96bd1a
 Revises: None
-Create Date: 2023-03-15 10:07:19.965255
+Create Date: 2023-03-24 09:02:00.664752
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6abeaa9ece15'
+revision = 'c50ebb96bd1a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -166,6 +166,12 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("DOWNLOADER") as batch_op:
             batch_op.add_column(sa.Column('MATCH_PATH', sa.Integer))
+    except Exception as e:
+        pass
+    # 1.2.1
+    try:
+        with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
+            batch_op.add_column('SITE_BRUSH_TASK', sa.Column('RSSURL', sa.Text(), nullable=True))
     except Exception as e:
         pass
     # ### end Alembic commands ###

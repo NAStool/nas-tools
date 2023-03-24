@@ -112,7 +112,8 @@ class BrushTask(object):
                 "rss_rule": eval(task.RSS_RULE),
                 "remove_rule": eval(task.REMOVE_RULE),
                 "seed_size": task.SEED_SIZE,
-                "rss_url": site_info.get("rssurl"),
+                "rss_url": task.RSSURL if task.RSSURL else site_info.get("rssurl"),
+                "rss_url_show": task.RSSURL,
                 "cookie": site_info.get("cookie"),
                 "ua": site_info.get("ua"),
                 "download_count": task.DOWNLOAD_COUNT,
@@ -176,7 +177,7 @@ class BrushTask(object):
                                            dlcount=rss_rule.get("dlcount")):
             return
 
-        rss_result = Rss.parse_rssxml(rss_url)
+        rss_result = Rss.parse_rssxml(rss_url, proxy=site_proxy)
         if len(rss_result) == 0:
             log.warn("【Brush】%s RSS未下载到数据" % site_name)
             return
