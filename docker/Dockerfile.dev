@@ -27,11 +27,12 @@ ENV LANG="C.UTF-8" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
-    WORKDIR="/nas-tools"
+    WORKDIR="/nas-tools" \
+    NT_HOME="/nt"
 WORKDIR ${WORKDIR}
-RUN addgroup -S nt -g 911 \
-    && adduser -S nt -G nt -h /config -u 911 \
-    && usermod -s /bin/bash nt \
+RUN mkdir ${NT_HOME} \
+    && addgroup -S nt -g 911 \
+    && adduser -S nt -G nt -h ${NT_HOME} -s /bin/bash -u 911 \
     && python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=5242880' >> /etc/sysctl.conf \
