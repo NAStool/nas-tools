@@ -1,4 +1,4 @@
-name: NAStool Docker
+name: NAStool Dev
 on:
   workflow_dispatch:
   push:
