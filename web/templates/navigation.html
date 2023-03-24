@@ -63,6 +63,11 @@
     {{ OOPS.loading() }}
   </div>
 </div>
+<cmd-dialog theme="light" placeholder="搜索...">
+  <div slot="footer">
+    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
+  </div>
+</cmd-dialog>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
@@ -829,6 +834,7 @@
             <span class="dropzone-msg-desc">点击或者拖动种子文件到此处</span>
           </div>
         </form>
+        <textarea class="form-control mt-2" id="torrent_urls" rows="8" placeholder="https://xxxx，换行添加多个链接" aria-label=""></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
@@ -1876,10 +1882,16 @@
       $("#search_download_setting").attr("onchange", "refresh_savepath_select('search_download_dir', true, $(this).val(), false)")
     }
 
-    if (!show_type) {
+    $("#torrent_urls").val("");
+    if (show_type === 'torrent') {
+      $("#torrent_files").show();
+      $("#torrent_urls").hide();
+    } else if (show_type === 'url') {
+      $("#torrent_urls").show();
       $("#torrent_files").hide();
     } else {
-      $("#torrent_files").show();
+      $("#torrent_files").hide();
+      $("#torrent_urls").hide();
     }
 
     // 绑定下载按钮事件
@@ -2648,6 +2660,14 @@
     $(`#user_auth_${siteid}_params`).show();
   }
 
+  // 读取浏览器UA
+  function set_user_agent(id) {
+    let userAgent = navigator.userAgent;
+    if (userAgent){
+        $("#"+id).val(userAgent);
+    }
+  }
+
 </script>
 
 <!-- 事件  -->
@@ -2718,6 +2738,43 @@
 
 <!-- 动态载入自定义组件 -->
 <script src="../static/components/index.js"></script>
+
+<!-- KBar -->
+<script type="module">
+  import 'https://esm.run/cmd-dialog';
+  const dialog = document.querySelector('cmd-dialog');
+  const theme = localStorage.getItem("tablerTheme");
+  if (theme) {
+    dialog.theme = theme;
+  }
+  dialog.actions = [
+    {% for Menu in Menus %}
+      {% if Menu.page %}
+        {
+          id: '{{ Menu.page }}',
+          title: '{{ Menu.name }}',
+          img: `{{ Menu.icon|safe }}`,
+          onAction() {
+            navmenu('{{ Menu.page }}');
+          },
+        },
+      {% elif Menu.list %}
+        {% for SubMenu in Menu.list %}
+          {% if SubMenu.page %}
+            {
+              id: '{{ SubMenu.page }}',
+              title: '{{ SubMenu.name }}',
+              img: `{{ SubMenu.icon|safe }}`,
+              onAction() {
+                navmenu('{{ SubMenu.page }}')
+              },
+            },
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  ];
+</script>
 
 <!-- 用户自定义CSS -->
 <style>

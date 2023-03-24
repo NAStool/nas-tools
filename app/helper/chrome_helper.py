@@ -77,7 +77,10 @@ class ChromeHelper(object):
         options.add_argument('--no-default-browser-check')
         options.add_argument('--password-store=basic')
         if self._proxy:
-            options.add_argument('--proxy-server=%s' % Config().get_proxies().get("https") or '')
+            proxy = Config().get_proxies().get("https")
+            if proxy:
+                proxy = proxy.split('/')[-1]
+            options.add_argument('--proxy-server=%s' % proxy or '')
         if self._headless:
             options.add_argument('--headless')
         prefs = {

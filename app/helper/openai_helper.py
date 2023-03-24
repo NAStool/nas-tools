@@ -150,3 +150,33 @@ class OpenAiHelper:
             return "没有接收到ChatGPT的返回消息！"
         except Exception as e:
             return f"请求ChatGPT出现错误：{str(e)}"
+
+    def translate_to_zh(self, text):
+        """
+        翻译为中文
+        :param text: 输入文本
+        """
+        if not self.get_state():
+            return None
+        system_prompt = "You are a translation engine that can only translate text and cannot interpret it."
+        user_prompt = f"translate to zh-CN:\n\n{text}"
+        result = ""
+        try:
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                user="NAStool",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": user_prompt
+                    }
+                ])
+            result = completion.choices[0].message.content.strip()
+            return True, result
+        except Exception as e:
+            print(f"{str(e)}：{result}")
+            return False, str(e)

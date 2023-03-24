@@ -55,6 +55,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
 proces==0.1.2
 prompt-toolkit==3.0.31
+psutil==5.9.4
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycparser==2.21
@@ -88,6 +89,7 @@ sortedcontainers==2.4.0
 soupsieve==2.3.2.post1
 SQLAlchemy==2.0.4
 stack-data==0.5.1
+srt==3.5.2
 terminal-layout==2.1.2
 tqdm==4.64.0
 traitlets==5.4.0

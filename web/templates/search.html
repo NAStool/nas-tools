@@ -27,9 +27,8 @@
                 筛选
               </a>
             </div>
-            <!-- 是否存在 -->
-            {% if Item.exist %}
-            <div class="badge badge-pill bg-green" style="position:absolute;top:20px;right:50px;padding:0;">
+            {% if Item.fav == "2" %}
+            <div class="badge badge-pill bg-green d-md-none" style="position:absolute;top:20px;right:50px;padding:0;">
               {{ SVG.check() }}
             </div>
             {% endif %}
@@ -38,10 +37,18 @@
                 <div class="col-2 ps-3 d-none d-md-block" id="search_results_filter_{{ Item.key }}">
                   <!-- 图片 -->
                   {% if Item.poster %}
-                  <custom-img img-src="{{ Item.poster }}"
-                              img-class="rounded-4 object-cover shadow-sm"
-                              img-ratio="150%"
-                  ></custom-img>
+                    <normal-card
+                        card-tmdbId="{{ Item.tmdbid }}"
+                        card-mediatype="{{ Item.type }}"
+                        card-showSub="1"
+                        card-image="{{ Item.poster }}"
+                        card-fav="{{ Item.fav }}"
+                        card-vote="{{ Item.vote }}"
+                        card-year="{{ Item.year }}"
+                        card-title="{{ Item.title }}"
+                        card-overview="{{ Item.overview }}"
+                        card-restype="{{ Item.type }}"
+                      ></normal-card>
                   {% endif %}
                   <!-- 过滤条件 -->
                   {% if Item.filter.season %}
@@ -104,7 +111,7 @@
                     </div>
                   </div>
                   <!-- 媒体属性 -->
-                  <div class="row mt-2">
+                  <div class="row mt-2 d-md-none">
                     <div class="col-md">
                       {% if Item.tmdbid and Item.tmdbid!= '0' %}
                       <div class="list-inline list-inline-dots mb-0 text-muted">

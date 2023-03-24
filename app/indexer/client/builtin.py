@@ -130,13 +130,15 @@ class BuiltinIndexer(_IIndexClient):
             if indexer.parser == "TNodeSpider":
                 error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
             elif indexer.parser == "RenderSpider":
-                error_flag, result_array = RenderSpider().search(keyword=search_word,
-                                                                 indexer=indexer,
-                                                                 mtype=match_media.type if match_media else None)
+                error_flag, result_array = RenderSpider().search(
+                    keyword=search_word,
+                    indexer=indexer,
+                    mtype=match_media.type if match_media and match_media.tmdb_info else None)
             else:
-                error_flag, result_array = self.__spider_search(keyword=search_word,
-                                                                indexer=indexer,
-                                                                mtype=match_media.type if match_media else None)
+                error_flag, result_array = self.__spider_search(
+                    keyword=search_word,
+                    indexer=indexer,
+                    mtype=match_media.type if match_media and match_media.tmdb_info else None)
         except Exception as err:
             error_flag = True
             print(str(err))

@@ -10,10 +10,9 @@ from threading import Event
 import log
 from app.plugins import EventManager
 from app.plugins.modules._base import _IPluginModule
-from app.utils import SystemUtils, RequestUtils
+from app.utils import SystemUtils, RequestUtils, IpUtils
 from app.utils.types import EventType
 from config import Config
-from app.utils.ip_utils import IpUtils
 
 
 class CloudflareSpeedTest(_IPluginModule):

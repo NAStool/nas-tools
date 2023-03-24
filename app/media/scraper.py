@@ -524,35 +524,36 @@ class Scraper:
         匹配豆瓣演职人员中文名
         """
         if doubaninfo:
-            directors_douban = doubaninfo.get("directors") or []
-            actors_douban = doubaninfo.get("actors") or []
-            # douban英文名姓和名分开匹配，（豆瓣中名前姓后，TMDB中不确定）
-            for director_douban in directors_douban:
-                if director_douban["latin_name"]:
-                    director_douban["latin_name"] = director_douban.get("latin_name", "").lower().split(" ")
-                else:
-                    director_douban["latin_name"] = director_douban.get("name", "").lower().split(" ")
-            for actor_douban in actors_douban:
-                if actor_douban["latin_name"]:
-                    actor_douban["latin_name"] = actor_douban.get("latin_name", "").lower().split(" ")
-                else:
-                    actor_douban["latin_name"] = actor_douban.get("name", "").lower().split(" ")
             # 导演
             if directors:
+                douban_directors = doubaninfo.get("directors") or []
+                # douban英文名姓和名分开匹配，（豆瓣中名前姓后，TMDB中不确定）
+                for director in douban_directors:
+                    if director.get("latin_name"):
+                        director["names"] = director.get("latin_name", "").lower().split(" ")
+                    else:
+                        director["names"] = director.get("name", "").lower().split(" ")
                 for director in directors:
-                    director_douban = self.__match_people_in_douban(director, directors_douban)
-                    if director_douban:
-                        director["name"] = director_douban.get("name")
+                    douban_director = self.__match_people_in_douban(director, douban_directors)
+                    if douban_director:
+                        director["name"] = douban_director.get("name")
                     else:
                         log.info("【Scraper】豆瓣该影片或剧集无导演 %s 信息" % director.get("name"))
             # 演员
             if actors:
+                douban_actors = doubaninfo.get("actors") or []
+                # douban英文名姓和名分开匹配，（豆瓣中名前姓后，TMDB中不确定）
+                for actor in douban_actors:
+                    if actor.get("latin_name"):
+                        actor["names"] = actor.get("latin_name", "").lower().split(" ")
+                    else:
+                        actor["names"] = actor.get("name", "").lower().split(" ")
                 for actor in actors:
-                    actor_douban = self.__match_people_in_douban(actor, actors_douban)
-                    if actor_douban:
-                        actor["name"] = actor_douban.get("name")
-                        if actor_douban.get("character") != "演员":
-                            actor["character"] = actor_douban.get("character")[2:]
+                    douban_actor = self.__match_people_in_douban(actor, douban_actors)
+                    if douban_actor:
+                        actor["name"] = douban_actor.get("name")
+                        if douban_actor.get("character") != "演员":
+                            actor["character"] = douban_actor.get("character")[2:]
                     else:
                         log.info("【Scraper】豆瓣该影片或剧集无演员 %s 信息" % actor.get("name"))
         else:
@@ -569,7 +570,7 @@ class Scraper:
             for people_douban in peoples_douban:
                 latin_match_res = True
                 #  姓和名分开匹配
-                for latin_name in people_douban.get("latin_name"):
+                for latin_name in people_douban.get("names"):
                     latin_match_res = latin_match_res and (latin_name in people_aka_name.lower())
                 if latin_match_res or (people_douban.get("name") == people_aka_name):
                     return people_douban

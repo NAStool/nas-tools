@@ -4,6 +4,8 @@ import platform
 import shutil
 import subprocess
 
+import psutil
+
 from app.utils.path_utils import PathUtils
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import OsType
@@ -23,22 +25,6 @@ class SystemUtils:
             return None
 
     @staticmethod
-    def get_used_of_partition(path):
-        """
-        获取系统存储空间占用信息
-        """
-        if not path:
-            return 0, 0
-        if not os.path.exists(path):
-            return 0, 0
-        try:
-            total_b, used_b, free_b = shutil.disk_usage(path)
-            return used_b, total_b
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-            return 0, 0
-
-    @staticmethod
     def get_system():
         """
         获取操作系统类型
@@ -53,14 +39,6 @@ class SystemUtils:
             return OsType.MACOS
         else:
             return OsType.LINUX
-
-    @staticmethod
-    def get_free_space_gb(folder):
-        """
-        计算目录剩余空间大小
-        """
-        total_b, used_b, free_b = shutil.disk_usage(folder)
-        return free_b / 1024 / 1024 / 1024
 
     @staticmethod
     def get_local_time(utc_time_str):
@@ -322,3 +300,53 @@ class SystemUtils:
                         })
 
         return ret_files
+
+    @staticmethod
+    def get_free_space(path):
+        """
+        获取指定路径的剩余空间（单位：GB）
+        """
+        if not os.path.exists(path):
+            return 0.0
+        return psutil.disk_usage(path).free / 1024 / 1024 / 1024
+
+    @staticmethod
+    def get_total_space(path):
+        """
+        获取指定路径的总空间（单位：GB）
+        """
+        if not os.path.exists(path):
+            return 0.0
+        return psutil.disk_usage(path).total / 1024 / 1024 / 1024
+
+    @staticmethod
+    def calculate_space_usage(dir_list):
+        """
+        计算多个目录的总可用空间/剩余空间（单位：GB），并去除重复磁盘
+        """
+        if not dir_list:
+            return 0.0
+        if not isinstance(dir_list, list):
+            dir_list = [dir_list]
+        # 存储不重复的磁盘
+        disk_set = set()
+        # 存储总剩余空间
+        total_free_space = 0.0
+        # 存储总空间
+        total_space = 0.0
+        for dir_path in dir_list:
+            if not dir_path:
+                continue
+            if not os.path.exists(dir_path):
+                continue
+            # 获取目录所在磁盘
+            if os.name == "nt":
+                disk = os.path.splitdrive(dir_path)[0]
+            else:
+                disk = os.stat(dir_path).st_dev
+            # 如果磁盘未出现过，则计算其剩余空间并加入总剩余空间中
+            if disk not in disk_set:
+                disk_set.add(disk)
+                total_space += SystemUtils.get_total_space(dir_path)
+                total_free_space += SystemUtils.get_free_space(dir_path)
+        return total_space, total_free_space

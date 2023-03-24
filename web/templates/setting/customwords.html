@@ -64,7 +64,7 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action ms-1" title="折叠">
+              <a href="javascript:void(0)" onclick="show_customwords_detail('{{ Group.id }}')" class="btn-action ms-1" title="折叠">
                 {{ SVG.menu_2() }}
               </a>
               <a href="javascript:show_add_custom_word_modal('{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
@@ -474,10 +474,7 @@
   <script type="text/javascript">
     // 批量启用/停用/导出
     function batch_check_action(flag) {
-      let ids_info = select_GetSelectedVAL("^custom_words")
-      if (ids_info.length == 0) {
-        return;
-      }
+      let ids_info = select_GetSelectedVAL("^custom_words");
       if (flag == "disable" || flag == "enable") {
         ajax_post("check_custom_words", { flag: flag, ids_info: ids_info }, function (ret) {
           if (ret.code == 0) {
@@ -911,5 +908,8 @@
         $("#type_replaced_offset").prop("checked", true);
       }
     }
-
+    // 展开/收起
+    function show_customwords_detail(id){
+      $(`#div_group${id}`).slideToggle()
+    }
   </script>

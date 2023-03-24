@@ -205,7 +205,7 @@ class TorrentSpider(feapder.AirSpider):
                     elif self.mtype:
                         cats = self.category.get("tv") or []
                     else:
-                        cats = self.category.get("movie") or [] + self.category.get("tv") or []
+                        cats = (self.category.get("movie") or []) + (self.category.get("tv") or [])
                     for cat in cats:
                         if self.category.get("field"):
                             value = params.get(self.category.get("field"), "")
@@ -295,10 +295,12 @@ class TorrentSpider(feapder.AirSpider):
                     for v in removelist:
                         title_default_item.remove(v)
                 if 'attribute' in title_default_selector:
-                    render_dict.update(
-                        {'title_default': title_default_item.attr(title_default_selector.get('attribute'))})
+                    title_default = [item.attr(title_default_selector.get('attribute'))
+                                     for item in title_default_item.items() if item]
                 else:
-                    render_dict.update({'title_default': title_default_item.text()})
+                    title_default = [item.text() for item in title_default_item.items() if item]
+                if title_default:
+                    render_dict.update({'title_default': title_default[0]})
             if "title_optional" in self.fields:
                 title_optional_selector = self.fields.get('title_optional', {})
                 title_optional_item = torrent(title_optional_selector.get('selector', '')).clone()
@@ -307,10 +309,12 @@ class TorrentSpider(feapder.AirSpider):
                     for v in removelist:
                         title_optional_item.remove(v)
                 if 'attribute' in title_optional_selector:
-                    render_dict.update(
-                        {'title_optional': title_optional_item.attr(title_optional_selector.get('attribute'))})
+                    title_optional = [item.attr(title_optional_selector.get('attribute'))
+                                      for item in title_optional_item.items() if item]
                 else:
-                    render_dict.update({'title_optional': title_optional_item.text()})
+                    title_optional = [item.text() for item in title_optional_item.items() if item]
+                if title_optional:
+                    render_dict.update({'title_optional': title_optional[0]})
             self.torrents_info['title'] = Template(selector.get('text')).render(fields=render_dict)
         if 'filters' in selector:
             self.torrents_info['title'] = self.__filter_text(self.torrents_info.get('title'),
@@ -352,7 +356,9 @@ class TorrentSpider(feapder.AirSpider):
                     removelist = tags_selector.get('remove', '').split(', ')
                     for v in removelist:
                         tags_item.remove(v)
-                render_dict.update({'tags': tags_item.text()})
+                tags = [item.text() for item in tags_item.items() if item]
+                if tags:
+                    render_dict.update({'tags': tags[0]})
             if "subject" in self.fields:
                 subject_selector = self.fields.get('subject', {})
                 subject_item = torrent(subject_selector.get('selector', '')).clone()
@@ -360,15 +366,23 @@ class TorrentSpider(feapder.AirSpider):
                     removelist = subject_selector.get('remove', '').split(', ')
                     for v in removelist:
                         subject_item.remove(v)
-                render_dict.update({'subject': subject_item.text()})
+                subject = [item.text() for item in subject_item.items() if item]
+                if subject:
+                    render_dict.update({'subject': subject[0]})
             if "description_free_forever" in self.fields:
-                render_dict.update({"description_free_forever": torrent(self.fields.get("description_free_forever",
-                                                                                        {}).get("selector",
-                                                                                                '')).text()})
+                description_free_forever_item = torrent(self.fields.get("description_free_forever",
+                                                                        {}).get("selector",
+                                                                                ''))
+                description_free_forever = [item.text() for item in description_free_forever_item.items() if item]
+                if description_free_forever:
+                    render_dict.update({"description_free_forever": description_free_forever[0]})
             if "description_normal" in self.fields:
-                render_dict.update({"description_normal": torrent(self.fields.get("description_normal",
-                                                                                  {}).get("selector",
-                                                                                          '')).text()})
+                description_normal_item = torrent(self.fields.get("description_normal",
+                                                                  {}).get("selector",
+                                                                          ''))
+                description_normal = [item.text() for item in description_normal_item.items() if item]
+                if description_normal:
+                    render_dict.update({"description_normal": description_normal[0]})
             self.torrents_info['description'] = Template(selector.get('text')).render(fields=render_dict)
         if 'filters' in selector:
             self.torrents_info['description'] = self.__filter_text(self.torrents_info.get('description'),
@@ -651,22 +665,6 @@ class TorrentSpider(feapder.AirSpider):
             html_doc = PyQuery(html_text)
             # 种子筛选器
             torrents_selector = self.list.get('selector', '')
-            str_list = list(torrents_selector)
-            # 兼容选择器中has()函数 部分情况下无双引号会报错
-            has_index = torrents_selector.find('has')
-            if has_index != -1 and torrents_selector.find('"') == -1:
-                flag = 0
-                str_list.insert(has_index + 4, '"')
-                for i in range(len(str_list)):
-                    if i > has_index + 2:
-                        n = str_list[i]
-                        if n == '(':
-                            flag = flag + 1
-                        if n == ')':
-                            flag = flag - 1
-                        if flag == 0:
-                            str_list.insert(i, '"')
-                torrents_selector = "".join(str_list)
             # 遍历种子html列表
             for torn in html_doc(torrents_selector):
                 self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
@@ -676,6 +674,6 @@ class TorrentSpider(feapder.AirSpider):
         except Exception as err:
             self.is_error = True
             ExceptionUtils.exception_traceback(err)
-            log.warn("【Spider】错误：%s" % str(err))
+            log.warn(f"【Spider】错误：{self.indexername} {str(err)}")
         finally:
             self.is_complete = True

@@ -1753,6 +1753,24 @@ class DbHelper:
             return 0
 
     @DbPersist(_db)
+    def update_brushtask_state(self, state, tid=None):
+        """
+        改变所有刷流任务的状态
+        """
+        if tid:
+            self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(tid)).update(
+                {
+                    "STATE": "Y" if state == "Y" else "N"
+                }
+            )
+        else:
+            self._db.query(SITEBRUSHTASK).update(
+                {
+                    "STATE": "Y" if state == "Y" else "N"
+                }
+            )
+
+    @DbPersist(_db)
     def add_brushtask_download_count(self, brush_id):
         """
         增加刷流下载数
@@ -2025,6 +2043,23 @@ class DbHelper:
             ))
 
     @DbPersist(_db)
+    def check_userrss_task(self, tid=None, state=None):
+        if state is None:
+            return
+        if tid:
+            self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
+                {
+                    "STATE": state
+                }
+            )
+        else:
+            self._db.query(CONFIGUSERRSS).update(
+                {
+                    "STATE": state
+                }
+            )
+
+    @DbPersist(_db)
     def insert_userrss_mediainfos(self, tid=None, mediainfo=None):
         if not tid or not mediainfo:
             return
@@ -2207,15 +2242,24 @@ class DbHelper:
         self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).delete()
 
     @DbPersist(_db)
-    def check_custom_word(self, wid, enabled):
+    def check_custom_word(self, wid=None, enabled=None):
         """
         设置自定义识别词状态
         """
-        self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).update(
-            {
-                "ENABLED": int(enabled)
-            }
-        )
+        if enabled is None:
+            return
+        if wid:
+            self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )
+        else:
+            self._db.query(CUSTOMWORDS).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )
 
     def get_custom_words(self, wid=None, gid=None, enabled=None, wtype=None, regex=None):
         """
@@ -2232,7 +2276,7 @@ class DbHelper:
                                                       CUSTOMWORDS.TYPE == int(wtype),
                                                       CUSTOMWORDS.REGEX == int(regex)) \
                 .order_by(CUSTOMWORDS.GROUP_ID).all()
-        return self._db.query(CUSTOMWORDS).all().order_by(CUSTOMWORDS.GROUP_ID)
+        return self._db.query(CUSTOMWORDS).order_by(CUSTOMWORDS.GROUP_ID).all()
 
     def is_custom_words_existed(self, replaced=None, front=None, back=None):
         """

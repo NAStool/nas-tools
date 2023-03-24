@@ -335,7 +335,7 @@ class RssChecker(object):
         # 添加下载
         if rss_download_torrents:
             for media in rss_download_torrents:
-                dl_type, ret, ret_msg = self.downloader.download(
+                downloader_id, ret, ret_msg = self.downloader.download(
                     media_info=media,
                     download_dir=taskinfo.get("save_path"),
                     download_setting=taskinfo.get("download_setting"),
@@ -344,7 +344,8 @@ class RssChecker(object):
                     # 下载类型的 这里下载成功了 插入数据库
                     self.dbhelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
-                    self.dbhelper.insert_userrss_task_history(taskid, media.org_string, dl_type.value)
+                    downloader_name = self.downloader.get_downloader_conf(downloader_id).get("name")
+                    self.dbhelper.insert_userrss_task_history(taskid, media.org_string, downloader_name)
                 else:
                     log.error("【RssChecker】添加下载任务 %s 失败：%s" % (
                         media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))

@@ -236,9 +236,9 @@ class Qbittorrent(_IDownloadClient):
         qb_state = config.get("qb_state")
         qb_category = config.get("qb_category")
         for torrent in torrents:
-            # 获取种子的做种时间
-            torrent_seeding_time = torrent.get("seeding_time")
-
+            date_done = torrent.completion_on if torrent.completion_on > 0 else torrent.added_on
+            date_now = int(time.mktime(datetime.now().timetuple()))
+            torrent_seeding_time = date_now - date_done if date_done else 0
             torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
             if ratio and torrent.ratio <= ratio:
                 continue
@@ -256,10 +256,11 @@ class Qbittorrent(_IDownloadClient):
                 continue
             if qb_category and torrent.category not in qb_category:
                 continue
+            site = parse.urlparse(torrent.tracker).netloc.split(".") if torrent.tracker else [""]
             remove_torrents.append({
                 "id": torrent.hash,
                 "name": torrent.name,
-                "site": parse.urlparse(torrent.tracker).netloc.split(".")[-2] if torrent.tracker else "",
+                "site": site[-2] if len(site) >= 2 else site[0],
                 "size": torrent.size
             })
             remove_torrents_ids.append(torrent.hash)

@@ -1,3 +1,5 @@
+import subprocess
+
 from app.utils import SystemUtils
 
 
@@ -15,5 +17,20 @@ class FfmpegHelper:
                                                                                                  image_path=image_path)
         result = SystemUtils.execute(cmd)
         if result:
+            return True
+        return False
+
+    @staticmethod
+    def extract_wav_from_video(video_path, audio_path):
+        """
+        使用ffmpeg从视频文件中提取16000hz, 16-bit的wav格式音频
+        """
+        if not video_path or not audio_path:
+            return False
+
+        command = ['ffmpeg', "-hide_banner", "-loglevel", "warning", '-y', '-i', video_path, '-acodec', 'pcm_s16le',
+                   '-ac', '1', '-ar', '16000', audio_path]
+        ret = subprocess.run(command).returncode
+        if ret == 0:
             return True
         return False

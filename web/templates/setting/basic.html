@@ -468,7 +468,7 @@
                     <input class="form-check-input" type="checkbox" id="pt.search_auto"
                            {% if Config.pt.search_auto %}checked{% endif %}>
                     <span class="form-check-label">远程搜索自动择优下载 <span class="form-help"
-                                                                              title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择"
+                                                                              title="启用后在微信、Telegram等发送名称后会按配置的下载优先规则及过滤规则自动择优下载，否则需要点击链接跳转后手工选择；注意关闭后需要先维护好 '外网访问地址'，否则无法点击跳转。"
                                                                               data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
@@ -1135,10 +1135,5 @@
       ffmpeg_check.prop("checked", false);
     }
   }
-  function set_user_agent(id) {
-      let userAgent = navigator.userAgent;
-      if (userAgent){
-          $("#"+id).val(userAgent);
-      }
-  }
+
 </script>
