@@ -302,6 +302,14 @@
               </select>
             </div>
           </div>
+          <div class="col-lg-8">
+            <div class="mb-3">
+              <label class="form-label">RSS地址 <span class="form-help"
+                                                           title="刷流优先使用此处填入的站点RSS，若为空则使用站点配置RSS地址"
+                                                           data-bs-toggle="tooltip">?</span></label>
+              <input type="text" id="brushtask_rssurl" class="form-control" placeholder="站点RSS订阅URL，若为空则使用站点配置RSS地址">
+            </div>
+          </div>
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">标签 <span class="form-help"
@@ -687,6 +695,7 @@
         $("#brushtask_site").val(ret.task.site_id);
         brushtask_site_change(ret.task.site_id, ret.task.free, ret.task.rss_rule.hr);
         $("#brushtask_interval").val(ret.task.interval);
+        $("#brushtask_rssurl").val(ret.task.rss_url_show);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
         if (ret.task.state) {
@@ -870,6 +879,7 @@
       $("#brushtask_totalsize").addClass("is-invalid");
       return;
     }
+    let brushtask_rssurl = $("#brushtask_rssurl").val();
     let brushtask_label = $("#brushtask_label").val();
     let brushtask_state = $("#brushtask_state").val();
     let brushtask_transfer = $("#brushtask_transfer").prop('checked');
@@ -1037,6 +1047,7 @@
       brushtask_name: brushtask_name,
       brushtask_site: brushtask_site,
       brushtask_interval: brushtask_interval,
+      brushtask_rssurl: brushtask_rssurl,
       brushtask_downloader: brushtask_downloader,
       brushtask_totalsize: brushtask_totalsize,
       brushtask_label: brushtask_label,

@@ -1956,6 +1956,7 @@ class WebAction:
         brushtask_downloader = data.get("brushtask_downloader")
         brushtask_totalsize = data.get("brushtask_totalsize")
         brushtask_state = data.get("brushtask_state")
+        brushtask_rssurl = data.get("brushtask_rssurl")
         brushtask_label = data.get("brushtask_label")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_sendmessage = 'Y' if data.get(
@@ -2003,6 +2004,7 @@ class WebAction:
             "name": brushtask_name,
             "site": brushtask_site,
             "free": brushtask_free,
+            "rssurl": brushtask_rssurl,
             "interval": brushtask_interval,
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,

@@ -378,6 +378,7 @@ class SITEBRUSHTASK(Base):
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     NAME = Column(Text, index=True)
     SITE = Column(Text)
+    RSSURL = Column(Text)
     FREELEECH = Column(Text)
     RSS_RULE = Column(Text)
     REMOVE_RULE = Column(Text)
