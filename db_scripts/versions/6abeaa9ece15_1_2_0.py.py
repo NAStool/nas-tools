@@ -1,9 +1,7 @@
 """1.2.0
-
 Revision ID: 6abeaa9ece15
 Revises: None
 Create Date: 2023-03-15 10:07:19.965255
-
 """
 from alembic import op
 import sqlalchemy as sa
@@ -168,7 +166,6 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('MATCH_PATH', sa.Integer))
     except Exception as e:
         pass
-    # ### end Alembic commands ###
 
 
 def downgrade() -> None:
