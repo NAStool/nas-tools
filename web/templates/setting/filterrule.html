@@ -47,6 +47,9 @@
             <div class="card-header">
               <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
               <div class="card-actions btn-actions">
+                <a href="javascript:void(0)" onclick="show_filterrule_detail('{{ RuleGroup.id }}')" class="btn-action ms-1" title="折叠">
+                  {{ SVG.menu_2() }}
+                </a>
                 <a href="javascript:share_filtergroup('{{ RuleGroup.id }}')" class="btn-action" title="分享规则组">
                   {{ SVG.share() }}
                 </a>
@@ -69,7 +72,7 @@
               </div>
             </div>
             <div class="card-body p-2">
-              <div class="row row-cards">
+              <div class="row row-cards" id="div_group{{ RuleGroup.id }}">
                 {% if RuleGroup.rules %}
                   {% for Rule in RuleGroup.rules %}
                     <div class="col-12">
@@ -543,5 +546,8 @@
       }
     });
   }
-
+  //展开/折叠
+  function show_filterrule_detail(id){
+      $(`#div_group${id}`).slideToggle()
+  }
 </script>
