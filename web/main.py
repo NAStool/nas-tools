@@ -1623,6 +1623,8 @@ def ical():
     for item in RssItems:
         event = Event()
         event.name = f'{item.get("type")}：{item.get("title")}'
+        if not item.get("start"):
+            continue
         event.begin = f'{item.get("start")} 00:00:00'
         event.end = f'{item.get("start")} 23:59:59'
         event.location = 'NAStool'
