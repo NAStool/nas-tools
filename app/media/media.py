@@ -1137,7 +1137,7 @@ class Media:
             log.info("【Meta】正在查询TMDB电影：%s ..." % tmdbid)
             tmdbinfo = self.movie.details(tmdbid, append_to_response)
             if tmdbinfo:
-                log.info("【Meta】查询结果：%s" % tmdbinfo.get("title"))
+                log.info(f"【Meta】{tmdbid}查询结果：{tmdbinfo.get('title')}")
             return tmdbinfo or {}
         except Exception as e:
             print(str(e))
@@ -1314,7 +1314,7 @@ class Media:
             log.info("【Meta】正在查询TMDB电视剧：%s ..." % tmdbid)
             tmdbinfo = self.tv.details(tmdbid, append_to_response)
             if tmdbinfo:
-                log.info("【Meta】查询结果：%s" % tmdbinfo.get("name"))
+                log.info(f"【Meta】{tmdbid}查询结果：{tmdbinfo.get('name')}")
             return tmdbinfo or {}
         except Exception as e:
             print(str(e))
