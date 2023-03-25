@@ -1,7 +1,6 @@
 import os.path
 from functools import lru_cache
 
-import log
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import RequestUtils
@@ -202,7 +201,7 @@ class ChineseSubFinder(_IPluginModule):
     @lru_cache(maxsize=128)
     def __request_csf(self, req_url, file_path, item_type, item_bluray):
         # 一个名称只建一个任务
-        log.info("【Plugin】通知ChineseSubFinder下载字幕: %s" % file_path)
+        self.info("通知ChineseSubFinder下载字幕: %s" % file_path)
         params = {
             "video_type": item_type,
             "physical_video_file_full_path": file_path,
@@ -215,7 +214,7 @@ class ChineseSubFinder(_IPluginModule):
                 "Authorization": "Bearer %s" % self._api_key
             }).post(req_url, json=params)
             if not res or res.status_code != 200:
-                log.error("【Plugin】调用ChineseSubFinder API失败！")
+                self.error("调用ChineseSubFinder API失败！")
             else:
                 # 如果文件目录没有识别的nfo元数据， 此接口会返回控制符，推测是ChineseSubFinder的原因
                 # emby refresh元数据时异步的
@@ -223,10 +222,10 @@ class ChineseSubFinder(_IPluginModule):
                     job_id = res.json().get("job_id")
                     message = res.json().get("message")
                     if not job_id:
-                        log.warn("【Plugin】ChineseSubFinder下载字幕出错：%s" % message)
+                        self.warn("ChineseSubFinder下载字幕出错：%s" % message)
                     else:
-                        log.info("【Plugin】ChineseSubFinder任务添加成功：%s" % job_id)
+                        self.info("ChineseSubFinder任务添加成功：%s" % job_id)
                 else:
-                    log.error("【Plugin】%s 目录缺失nfo元数据" % file_path)
+                    self.error("%s 目录缺失nfo元数据" % file_path)
         except Exception as e:
-            log.error("【Plugin】连接ChineseSubFinder出错：" + str(e))
+            self.error("连接ChineseSubFinder出错：" + str(e))

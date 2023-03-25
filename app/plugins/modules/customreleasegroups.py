@@ -1,8 +1,5 @@
-from app.plugins.modules._base import _IPluginModule
 from app.media.meta.release_groups import ReleaseGroupsMatcher
-from config import Config
-
-import log
+from app.plugins.modules._base import _IPluginModule
 
 
 class CustomReleaseGroups(_IPluginModule):
@@ -70,7 +67,7 @@ class CustomReleaseGroups(_IPluginModule):
                 if custom_release_groups:
                     self._release_groups_matcher.update_custom(custom_release_groups)
                     self._custom_release_groups = custom_release_groups
-                    log.info("【Plugin】自定义制作组/字幕组已加载")
+                    self.info("自定义制作组/字幕组已加载")
 
     def get_state(self):
         return True if self._custom_release_groups else False

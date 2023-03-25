@@ -1,6 +1,5 @@
 from python_hosts import Hosts, HostsEntry
 
-import log
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, IpUtils
@@ -156,7 +155,7 @@ class CustomHosts(_IPluginModule):
                 new_entrys.append(host_entry)
             except Exception as err:
                 err_hosts.append(host + "\n")
-                log.error(f"【Plugin】{host} 格式转换错误：{str(err)}")
+                self.error(f"{host} 格式转换错误：{str(err)}")
 
         # 写入系统hosts
         if new_entrys:
@@ -166,10 +165,10 @@ class CustomHosts(_IPluginModule):
                 # 添加新的Hosts
                 system_hosts.add(new_entrys)
                 system_hosts.write()
-                log.info("【Plugin】更新系统hosts文件成功")
+                self.info("更新系统hosts文件成功")
             except Exception as err:
                 err_flag = True
-                log.error(f"【Plugin】更新系统hosts文件失败：{str(err) or '请检查权限'}")
+                self.error(f"更新系统hosts文件失败：{str(err) or '请检查权限'}")
         return err_flag, err_hosts
 
     def get_state(self):

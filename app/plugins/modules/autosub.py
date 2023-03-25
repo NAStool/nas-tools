@@ -8,7 +8,6 @@ import traceback
 import iso639
 import srt
 
-import log
 from app.helper import FfmpegHelper
 from app.helper.openai_helper import OpenAiHelper
 from app.plugins.modules._base import _IPluginModule
@@ -186,29 +185,29 @@ class AutoSub(_IPluginModule):
 
         # 如果没有配置信息， 则不处理
         if not path_list or not self.file_size or not self.whisper_main or not self.whisper_model:
-            log.info(f"【Plugin】自动字幕生成 配置信息不完整，不进行处理")
+            self.warn(f"配置信息不完整，不进行处理")
             return
 
         if not os.path.exists(self.whisper_main):
-            log.info(f"【Plugin】自动字幕生成 whisper.cpp主程序不存在，不进行处理")
+            self.warn(f"whisper.cpp主程序不存在，不进行处理")
             return
 
         if not os.path.exists(self.whisper_model):
-            log.info(f"【Plugin】自动字幕生成 whisper.cpp模型文件不存在，不进行处理")
+            self.warn(f"whisper.cpp模型文件不存在，不进行处理")
             return
 
         # 校验扩展参数是否包含异常字符
         if self.additional_args and re.search(r'[\s;|&]', self.additional_args):
-            log.info(f"【Plugin】自动字幕生成 扩展参数包含异常字符，不进行处理")
+            self.warn(f"扩展参数包含异常字符，不进行处理")
             return
 
         # 校验文件大小是否为数字
         if not self.file_size.isdigit():
-            log.info(f"【Plugin】自动字幕生成 文件大小不是数字，不进行处理")
+            self.warn(f"文件大小不是数字，不进行处理")
             return
 
         if self._running:
-            log.info(f"【Plugin】自动字幕生成 上一次任务还未完成，不进行处理")
+            self.warn(f"上一次任务还未完成，不进行处理")
             return
 
         # 依次处理每个目录
@@ -216,29 +215,29 @@ class AutoSub(_IPluginModule):
             self._running = True
             self.success_count = self.skip_count = self.fail_count = self.process_count = 0
             for path in path_list:
-                log.info(f"【Plugin】自动字幕生成 开始处理目录：{path}")
+                self.info(f"开始处理目录：{path} ...")
                 # 如果目录不存在， 则不处理
                 if not os.path.exists(path):
-                    log.info(f"【Plugin】自动字幕生成 目录不存在，不进行处理")
+                    self.warn(f"目录不存在，不进行处理")
                     continue
 
                 # 如果目录不是文件夹， 则不处理
                 if not os.path.isdir(path):
-                    log.info(f"【Plugin】自动字幕生成 目录不是文件夹，不进行处理")
+                    self.warn(f"目录不是文件夹，不进行处理")
                     continue
 
                 # 如果目录不是绝对路径， 则不处理
                 if not os.path.isabs(path):
-                    log.info(f"【Plugin】自动字幕生成 目录不是绝对路径，不进行处理")
+                    self.warn(f"目录不是绝对路径，不进行处理")
                     continue
 
                 # 处理目录
                 self.__process_folder_subtitle(path)
         except Exception as e:
-            log.info(f"【Plugin】自动字幕生成 处理异常: {e}")
+            self.error(f"处理异常: {e}")
         finally:
-            log.info(f"【Plugin】自动字幕生成 处理完成: "
-                     f"成功{self.success_count} / 跳过{self.skip_count} / 失败{self.fail_count} / 共{self.process_count}")
+            self.info(f"处理完成: "
+                      f"成功{self.success_count} / 跳过{self.skip_count} / 失败{self.fail_count} / 共{self.process_count}")
             self._running = False
 
     def __process_folder_subtitle(self, path):
@@ -259,12 +258,12 @@ class AutoSub(_IPluginModule):
             try:
                 # 判断目的字幕（和内嵌）是否已存在
                 if self.__target_subtitle_exists(video_file):
-                    log.info(f"【Plugin】自动字幕生成 字幕文件已经存在，不进行处理")
+                    self.warn(f"字幕文件已经存在，不进行处理")
                     self.skip_count += 1
                     continue
                 file_name, file_ext = os.path.splitext(video_file)
 
-                log.info(f"【Plugin】自动字幕生成 开始处理文件：{video_file}")
+                self.info(f"开始处理文件：{video_file} ...")
                 # 生成字幕
                 ret, lang = self.__generate_subtitle(video_file, file_name, self.translate_only)
                 if not ret:
@@ -276,13 +275,13 @@ class AutoSub(_IPluginModule):
 
                 if self.translate_zh:
                     # 翻译字幕
-                    log.info(f"【Plugin】自动字幕生成 开始翻译字幕")
+                    self.info(f"开始翻译字幕 ...")
                     self.__translate_zh_subtitle(f"{file_name}.{lang}.srt", f"{file_name}.zh.srt")
-                    log.info(f"【Plugin】自动字幕生成 翻译字幕完成：{file_name}.zh.srt")
+                    self.info(f"翻译字幕完成：{file_name}.zh.srt")
 
                 self.success_count += 1
             except Exception as e:
-                log.error(f"【Plugin】自动字幕生成 处理异常：{e}")
+                self.error(f"处理异常：{e}")
                 # 打印调用栈
                 traceback.print_exc()
                 self.fail_count += 1
@@ -299,19 +298,19 @@ class AutoSub(_IPluginModule):
         if not ret:
             return False, None
         if not iso639.find(audio_lang) or not iso639.to_iso639_1(audio_lang):
-            log.info(f"【Plugin】自动字幕生成 未知语言音轨")
+            self.info(f"未知语言音轨")
             audio_lang = 'auto'
         else:
             # 外挂字幕文件存在， 则不处理
             exist, lang = self.__external_subtitle_exists(video_file, audio_lang)
             if exist:
-                log.info(f"【Plugin】自动字幕生成 外挂字幕文件已经存在，使用已有字幕文件，字幕语言 {lang}")
+                self.info(f"外挂字幕文件已经存在，使用已有字幕文件，字幕语言 {lang}")
                 return True, iso639.to_iso639_1(audio_lang)
             # 获取视频文件字幕信息
             ret, subtitle_index, subtitle_lang = self.__get_video_prefer_subtitle(video_file, audio_lang)
             if ret and audio_lang == subtitle_lang:
                 # 如果音轨和字幕语言一致， 则直接提取字幕
-                log.info(f"【Plugin】自动字幕生成 提取内嵌字幕")
+                self.info(f"开始提取内嵌字幕 ...")
                 audio_lang = iso639.to_iso639_1(audio_lang)
                 FfmpegHelper().extract_subtitle_from_video(video_file,
                                                            f"{subtitle_file}.{audio_lang}.srt", subtitle_index)
@@ -319,7 +318,7 @@ class AutoSub(_IPluginModule):
             audio_lang = iso639.to_iso639_1(audio_lang)
 
         if only_extract:
-            log.info(f"【Plugin】自动字幕生成 未开启语音识别，且无已有字幕文件，跳过后续处理")
+            self.info(f"未开启语音识别，且无已有字幕文件，跳过后续处理")
             return False, None
 
         # 清理异常退出的临时文件
@@ -330,14 +329,14 @@ class AutoSub(_IPluginModule):
 
         with tempfile.NamedTemporaryFile(prefix='autosub-', suffix='.wav', delete=True) as audio_file:
             # 提取音频
-            log.info(f"【Plugin】自动字幕生成 提取音频：{audio_file.name}")
+            self.info(f"提取音频：{audio_file.name} ...")
             FfmpegHelper().extract_wav_from_video(video_file, audio_file.name, audio_index)
-            log.info(f"【Plugin】自动字幕生成 提取音频完成：{audio_file.name}")
+            self.info(f"提取音频完成：{audio_file.name}")
 
             # 生成字幕
             command = [self.whisper_main] + self.additional_args.split()
             command += ['-l', audio_lang, '-m', self.whisper_model, '-osrt', '-of', audio_file.name, audio_file.name]
-            log.info(f"【Plugin】自动字幕生成 开始生成字幕, lang {audio_lang}")
+            self.info(f"开始生成字幕, lang {audio_lang} ...")
             ret = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             if ret.returncode == 0:
                 # 从output中获取语言 "whisper_full_with_state: auto-detected language: en (p = 0.973642)"
@@ -347,15 +346,15 @@ class AutoSub(_IPluginModule):
                     lang = lang.group(1)
                 else:
                     lang = "en"
-                log.info(f"【Plugin】自动字幕生成 生成字幕成功，原始语言：{lang}")
+                self.info(f"生成字幕成功，原始语言：{lang}")
                 # 复制字幕文件
                 SystemUtils.copy(f"{audio_file.name}.srt", f"{subtitle_file}.{lang}.srt")
-                log.info(f"【Plugin】自动字幕生成 复制字幕文件：{subtitle_file}.{lang}.srt")
+                self.info(f"复制字幕文件：{subtitle_file}.{lang}.srt")
                 # 删除临时文件
                 os.remove(f"{audio_file.name}.srt")
                 return True, lang
             else:
-                log.info(f"【Plugin】自动字幕生成 生成字幕失败")
+                self.error(f"生成字幕失败")
                 return False, None
 
     @staticmethod
@@ -400,8 +399,7 @@ class AutoSub(_IPluginModule):
         with open(file_path, 'w', encoding="utf8") as f:
             f.write(srt.compose(srt_data))
 
-    @staticmethod
-    def __get_video_prefer_audio(video_file, prefer_lang=None):
+    def __get_video_prefer_audio(self, video_file, prefer_lang=None):
         """
         获取视频的首选音轨，如果有多音轨， 优先指定语言音轨，否则获取默认音轨
         :param video_file:
@@ -410,7 +408,7 @@ class AutoSub(_IPluginModule):
         # 获取视频元数据，判断多音轨，及其音轨语言
         video_meta = FfmpegHelper().get_video_metadata(video_file)
         if not video_meta:
-            log.info(f"【Plugin】自动字幕生成 获取视频元数据失败")
+            self.error(f"获取视频元数据失败")
             return False, None, None
 
         if type(prefer_lang) == str and prefer_lang:
@@ -436,14 +434,13 @@ class AutoSub(_IPluginModule):
 
         # 如果没有音轨， 则不处理
         if audio_index is None:
-            log.info(f"【Plugin】自动字幕生成 没有音轨，不进行处理")
+            self.warn(f"没有音轨，不进行处理")
             return False, None, None
 
-        log.info(f"【Plugin】自动字幕生成 选中音轨信息：{audio_index}, {audio_lang}")
+        self.info(f"选中音轨信息：{audio_index}, {audio_lang}")
         return True, audio_index, audio_lang
 
-    @staticmethod
-    def __get_video_prefer_subtitle(video_file, prefer_lang=None):
+    def __get_video_prefer_subtitle(self, video_file, prefer_lang=None):
         """
         获取视频的首选字幕，如果有多字幕， 优先指定语言字幕， 否则获取默认字幕
         :param video_file:
@@ -452,7 +449,7 @@ class AutoSub(_IPluginModule):
         # 获取视频元数据，获取内嵌字幕，及其字幕语言
         video_meta = FfmpegHelper().get_video_metadata(video_file)
         if not video_meta:
-            log.info(f"【Plugin】自动字幕生成 获取视频元数据失败")
+            self.error(f"获取视频元数据失败")
             return False, None, None
 
         if type(prefer_lang) == str and prefer_lang:
@@ -482,10 +479,10 @@ class AutoSub(_IPluginModule):
 
         # 如果没有字幕， 则不处理
         if subtitle_index is None:
-            log.debug(f"【Plugin】自动字幕生成 没有内嵌字幕")
+            self.debug(f"没有内嵌字幕")
             return False, None, None
 
-        log.debug(f"【Plugin】自动字幕生成 命中内嵌字幕信息：{subtitle_index}, {subtitle_lang}")
+        self.debug(f"命中内嵌字幕信息：{subtitle_index}, {subtitle_lang}")
         return True, subtitle_index, subtitle_lang
 
     def __translate_zh_subtitle(self, source_subtitle, dest_subtitle):
@@ -511,7 +508,7 @@ class AutoSub(_IPluginModule):
             ret, result = OpenAiHelper().translate_to_zh(item.content)
             if not ret:
                 if "Rate limit reached" in result:
-                    log.info(f"【Plugin】自动字幕生成 OpenAI Api Rate limit reached, sleep 60s")
+                    self.info(f"OpenAI Api Rate limit reached, sleep 60s ...")
                     time.sleep(60)
                     # 重试
                     ret, result = OpenAiHelper().translate_to_zh(item.content)
@@ -525,7 +522,8 @@ class AutoSub(_IPluginModule):
         # 保存字幕文件
         self.__save_srt(dest_subtitle, srt_data)
 
-    def __external_subtitle_exists(self, video_file, prefer_langs=None):
+    @staticmethod
+    def __external_subtitle_exists(video_file, prefer_langs=None):
         """
         外部字幕文件是否存在
         :param video_file:

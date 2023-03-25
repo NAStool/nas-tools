@@ -1,6 +1,5 @@
 import os
 
-import log
 from app.downloader import Downloader
 from app.helper import DbHelper
 from app.plugins import EventHandler
@@ -101,6 +100,6 @@ class TorrentRemover(_IPluginModule):
                     delete_flag = True
                     break
             if delete_flag:
-                log.info(f"【Plugin】删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
+                self.info(f"删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
                 DownloaderHandler.delete_torrents(downloader_id=info.DOWNLOADER,
                                                   ids=info.DOWNLOAD_ID)

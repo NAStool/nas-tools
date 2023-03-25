@@ -1,13 +1,12 @@
 import os
 from datetime import datetime
 from pathlib import Path
+from threading import Event
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from threading import Event
 
-import log
 from app.plugins import EventManager
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, RequestUtils, IpUtils
@@ -154,13 +153,13 @@ class CloudflareSpeedTest(_IPluginModule):
         if self._cron or self._onlyonce:
             # 获取自定义Hosts插件，若无设置则停止
             if self._cf_ip and not customHosts or not customHosts.get("hosts"):
-                log.error(f"【Plugin】Cloudflare CDN优选依赖于自定义Hosts，请先维护hosts")
+                self.error(f"Cloudflare CDN优选依赖于自定义Hosts，请先维护hosts")
                 self._onlyonce = False
                 self.__update_config()
                 return
 
             if not self._cf_ip:
-                log.error("【Plugin】CloudflareSpeedTest加载成功，首次运行，需要配置优选ip")
+                self.error("CloudflareSpeedTest加载成功，首次运行，需要配置优选ip")
                 self._onlyonce = False
                 self.__update_config()
                 return
@@ -169,7 +168,7 @@ class CloudflareSpeedTest(_IPluginModule):
             if not self._ipv4 and not self._ipv6:
                 self._ipv4 = True
                 self.__update_config()
-                log.warn(f"【Plugin】Cloudflare CDN优选未指定ip类型，默认ipv4")
+                self.warn(f"Cloudflare CDN优选未指定ip类型，默认ipv4")
 
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
@@ -181,9 +180,9 @@ class CloudflareSpeedTest(_IPluginModule):
             self._scheduler.start()
 
             if self._onlyonce:
-                log.info(f"【Plugin】Cloudflare CDN优选服务启动，立即运行一次")
+                self.info(f"Cloudflare CDN优选服务启动，立即运行一次")
             if self._cron:
-                log.info(f"【Plugin】Cloudflare CDN优选服务启动，周期：{self._cron}")
+                self.info(f"Cloudflare CDN优选服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
             self._onlyonce = False
@@ -202,21 +201,21 @@ class CloudflareSpeedTest(_IPluginModule):
 
         # 开始优选
         if err_flag:
-            log.info("【Plugin】正在进行CLoudflare CDN优选，请耐心等待")
+            self.info("正在进行CLoudflare CDN优选，请耐心等待")
             # 执行优选命令，-dd不测速
             cf_command = f'./{self._cf_path}/{self._binary_name} -dd -o {self._result_file}' + (
                 f' -f {self._cf_ipv4}' if self._ipv4 else '') + (f' -f {self._cf_ipv6}' if self._ipv6 else '')
-            log.info(f'正在执行优选命令 {cf_command}')
+            self.info(f'正在执行优选命令 {cf_command}')
             os.system(cf_command)
 
             # 获取优选后最优ip
             best_ip = SystemUtils.execute("sed -n '2,1p' " + self._result_file + " | awk -F, '{print $1}'")
-            log.info(f"\n【Plugin】获取到最优ip==>[{best_ip}]")
+            self.info(f"\n获取到最优ip==>[{best_ip}]")
 
             # 替换自定义Hosts插件数据库hosts
             if IpUtils.is_ipv4(best_ip) or IpUtils.is_ipv6(best_ip):
                 if best_ip == self._cf_ip:
-                    log.info(f"【Plugin】CloudflareSpeedTest CDN优选ip未变，不做处理")
+                    self.info(f"CloudflareSpeedTest CDN优选ip未变，不做处理")
                 else:
                     # 替换优选ip
                     hosts = customHosts.get("hosts")
@@ -245,14 +244,14 @@ class CloudflareSpeedTest(_IPluginModule):
                     # 更新优选ip
                     self._cf_ip = best_ip
                     self.__update_config()
-                    log.info(f"【Plugin】CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
+                    self.info(f"CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
 
                     # 解发自定义hosts插件重载
                     self.eventmanager.send_event(EventType.CustomHostsReload,
                                                  self.get_config("CustomHosts"))
-                    log.info("【Plugin】CustomHosts插件重载成功")
+                    self.info("CustomHosts插件重载成功")
         else:
-            log.error("【Plugin】获取到最优ip格式错误，请重试")
+            self.error("获取到最优ip格式错误，请重试")
             self._onlyonce = False
             self.__update_config()
             self.stop_service()
@@ -274,35 +273,35 @@ class CloudflareSpeedTest(_IPluginModule):
         if not release_version:
             # 如果升级失败但是有可执行文件CloudflareST，则可继续运行，反之停止
             if Path(f'{self._cf_path}/{self._binary_name}').exists():
-                log.warn(f"【Plugin】获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
+                self.warn(f"获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
                 return True, None
             elif self._version:
-                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
+                self.error(f"获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
                 install_flag = True
             else:
                 release_version = "v2.2.2"
                 self._version = release_version
-                log.error(f"【Plugin】获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，继续运行")
+                self.error(f"获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，继续运行")
                 install_flag = True
 
         # 有更新
         if not install_flag and release_version != self._version:
-            log.info(f"【Plugin】检测到CloudflareSpeedTest有版本[{release_version}]更新，开始安装")
+            self.info(f"检测到CloudflareSpeedTest有版本[{release_version}]更新，开始安装")
             install_flag = True
 
         # 重装后数据库有版本数据，但是本地没有则重装
         if not install_flag and release_version == self._version and not Path(f'{self._cf_path}/{self._binary_name}').exists():
-            log.warn(f"【Plugin】未检测到CloudflareSpeedTest本地版本，重新安装")
+            self.warn(f"未检测到CloudflareSpeedTest本地版本，重新安装")
             install_flag = True
 
         if not install_flag:
-            log.info(f"【Plugin】CloudflareSpeedTest无新版本，存在可执行版本，继续运行")
+            self.info(f"CloudflareSpeedTest无新版本，存在可执行版本，继续运行")
             return True, None
 
         # 检查环境、安装
         if SystemUtils.is_windows():
             # todo
-            log.error(f"【Plugin】CloudflareSpeedTest暂不支持windows平台")
+            self.error(f"CloudflareSpeedTest暂不支持windows平台")
             return False, None
         elif SystemUtils.is_macos():
             # mac
@@ -343,28 +342,28 @@ class CloudflareSpeedTest(_IPluginModule):
                 # 删除压缩包
                 os.system(f'rm -rf {self._cf_path}/{cf_file_name}')
                 if Path(f'{self._cf_path}/{self._binary_name}').exists():
-                    log.info(f"【Plugin】CloudflareSpeedTest安装成功，当前版本：{release_version}")
+                    self.info(f"CloudflareSpeedTest安装成功，当前版本：{release_version}")
                     return True, release_version
                 else:
-                    log.error(f"【Plugin】CloudflareSpeedTest安装失败，请检查")
+                    self.error(f"CloudflareSpeedTest安装失败，请检查")
                     os.removedirs(self._cf_path)
                     return False, None
             except Exception as err:
                 # 如果升级失败但是有可执行文件CloudflareST，则可继续运行，反之停止
                 if Path(f'{self._cf_path}/{self._binary_name}').exists():
-                    log.error(f"【Plugin】CloudflareSpeedTest安装失败：{str(err)}，继续使用现版本运行")
+                    self.error(f"CloudflareSpeedTest安装失败：{str(err)}，继续使用现版本运行")
                     return True, None
                 else:
-                    log.error(f"【Plugin】CloudflareSpeedTest安装失败：{str(err)}，无可用版本，停止运行")
+                    self.error(f"CloudflareSpeedTest安装失败：{str(err)}，无可用版本，停止运行")
                     os.removedirs(self._cf_path)
                     return False, None
         else:
             # 如果升级失败但是有可执行文件CloudflareST，则可继续运行，反之停止
             if Path(f'{self._cf_path}/{self._binary_name}').exists():
-                log.warn(f"【Plugin】CloudflareSpeedTest安装失败，存在可执行版本，继续运行")
+                self.warn(f"CloudflareSpeedTest安装失败，存在可执行版本，继续运行")
                 return True, None
             else:
-                log.error(f"【Plugin】CloudflareSpeedTest安装失败，无可用版本，停止运行")
+                self.error(f"CloudflareSpeedTest安装失败，无可用版本，停止运行")
                 os.removedirs(self._cf_path)
                 return False, None
 
