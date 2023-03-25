@@ -123,7 +123,10 @@ def login():
         """
         跳转到导航页面
         """
-        return redirect('/web?next=' + GoPage)
+        if GoPage and GoPage != 'web':
+            return redirect('/web?next=' + GoPage)
+        else:
+            return redirect('/web')
 
     def redirect_to_login(errmsg=''):
         """
