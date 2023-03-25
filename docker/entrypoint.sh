@@ -95,6 +95,9 @@ usermod -o -u "$PUID" nt
 chown -R nt:nt "${WORKDIR}" "${NT_HOME}" /config /usr/lib/chromium /etc/hosts
 export PATH=${PATH}:/usr/lib/chromium
 
+# 执行扩展脚本
+$*
+
 # 掩码设置
 umask "${UMASK}"
 
