@@ -1855,17 +1855,19 @@ class WebAction:
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}
             else:
-                return [{
+                return {
                     "code": 0,
-                    "type": "电视剧",
-                    "title": title,
-                    "start": release_date,
-                    "id": tid,
-                    "year": release_date[0:4] if release_date else "",
-                    "poster": poster_path,
-                    "vote_average": vote_average,
-                    "rssid": rssid
-                }]
+                    "events": [{
+                        "type": "电视剧",
+                        "title": title,
+                        "start": release_date,
+                        "id": tid,
+                        "year": release_date[0:4] if release_date else "",
+                        "poster": poster_path,
+                        "vote_average": vote_average,
+                        "rssid": rssid
+                    }]
+                }
         else:
             if tid:
                 tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
@@ -4961,9 +4963,10 @@ class WebAction:
         # 电视剧订阅
         RssTvItems = self.get_tv_rss_items().get("result")
         for tv in RssTvItems:
-            infos = self.__tv_calendar_data(tv)
-            for info in infos:
-                if info.get("id"):
-                    Events.append(info)
+            infos = self.__tv_calendar_data(tv).get("events")
+            if infos and isinstance(infos, list):
+                for info in infos:
+                    if info.get("id"):
+                        Events.append(info)
 
         return {"code": 0, "result": Events}
