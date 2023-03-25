@@ -220,7 +220,10 @@ class WebAction:
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
             "media_path_scrap": self.__media_path_scrap,
-            "get_default_rss_setting": self.get_default_rss_setting
+            "get_default_rss_setting": self.get_default_rss_setting,
+            "get_movie_rss_items": self.get_movie_rss_items,
+            "get_tv_rss_items": self.get_tv_rss_items,
+            "get_ical_events": self.get_ical_events,
         }
 
     def action(self, cmd, data=None):
@@ -1852,7 +1855,9 @@ class WebAction:
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}
             else:
-                return {"code": 0,
+                return {
+                    "code": 0,
+                    "events": [{
                         "type": "电视剧",
                         "title": title,
                         "start": release_date,
@@ -1861,7 +1866,8 @@ class WebAction:
                         "poster": poster_path,
                         "vote_average": vote_average,
                         "rssid": rssid
-                        }
+                    }]
+                }
         else:
             if tid:
                 tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
@@ -4901,3 +4907,66 @@ class WebAction:
         if default_rss_setting:
             return {"code": 0, "data": default_rss_setting}
         return {"code": 1}
+
+    @staticmethod
+    def get_movie_rss_items(data=None):
+        """
+        获取所有电影订阅项目
+        """
+        RssMovieItems = [
+            {
+                "id": movie.get("tmdbid"),
+                "rssid": movie.get("id")
+            } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
+        ]
+        return {"code": 0, "result": RssMovieItems}
+
+    @staticmethod
+    def get_tv_rss_items(data=None):
+        """
+        获取所有电视剧订阅项目
+        """
+        # 电视剧订阅
+        RssTvItems = [
+            {
+                "id": tv.get("tmdbid"),
+                "rssid": tv.get("id"),
+                "season": int(str(tv.get('season')).replace("S", "")),
+                "name": tv.get("name"),
+            } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
+        ]
+        # 自定义订阅
+        RssTvItems += RssChecker().get_userrss_mediainfos()
+        # 电视剧订阅去重
+        Uniques = set()
+        UniqueTvItems = []
+        for item in RssTvItems:
+            unique = f"{item.get('id')}_{item.get('season')}"
+            if unique not in Uniques:
+                Uniques.add(unique)
+                UniqueTvItems.append(item)
+        return {"code": 0, "result": UniqueTvItems}
+
+    def get_ical_events(self, data=None):
+        """
+        获取ical日历事件
+        """
+        Events = []
+        MediaHandler = Media()
+        # 电影订阅
+        RssMovieItems = self.get_movie_rss_items().get("result")
+        for movie in RssMovieItems:
+            info = self.__movie_calendar_data(movie)
+            if info.get("id"):
+                Events.append(info)
+
+        # 电视剧订阅
+        RssTvItems = self.get_tv_rss_items().get("result")
+        for tv in RssTvItems:
+            infos = self.__tv_calendar_data(tv).get("events")
+            if infos and isinstance(infos, list):
+                for info in infos:
+                    if info.get("id"):
+                        Events.append(info)
+
+        return {"code": 0, "result": Events}
