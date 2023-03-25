@@ -1625,8 +1625,8 @@ def ical():
         event.name = f'{item.get("type")}：{item.get("title")}'
         if not item.get("start"):
             continue
-        event.begin = f'{item.get("start")} 00:00:00'
-        event.end = f'{item.get("start")} 23:59:59'
+        event.begin = datetime.datetime.strptime(item.get("start"), '%Y-%m-%d')
+        event.duration = datetime.timedelta(days=1)
         event.location = 'NAStool'
         ICal.events.add(event)
     response = Response(ICal.serialize_iter(), mimetype='text/calendar')
