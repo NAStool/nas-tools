@@ -9,6 +9,7 @@ from app.plugins.modules._base import _IPluginModule
 from app.utils import PathUtils, ExceptionUtils
 from app.utils.types import EventType
 from config import RMT_MEDIAEXT
+from web.action import WebAction
 
 
 class MediaSyncDel(_IPluginModule):
@@ -169,37 +170,7 @@ class MediaSyncDel(_IPluginModule):
 
             # 是否删除源文件
             if self._del_dest:
-                filedir = os.path.normpath(source_path).replace("\\", "/")
-                file = os.path.join(filedir, source_filename)
-                try:
-                    if not os.path.exists(file):
-                        log.error(f"【Plugin】媒体库同步删除源文件 {file} 失败，文件不存在")
-                    os.remove(file)
-                    nfoname = f"{os.path.splitext(source_filename)[0]}.nfo"
-                    nfofile = os.path.join(filedir, nfoname)
-                    if os.path.exists(nfofile):
-                        os.remove(nfofile)
-                    # 检查空目录并删除
-                    if re.findall(r"^S\d{2}|^Season", os.path.basename(filedir), re.I):
-                        # 当前是季文件夹，判断并删除
-                        seaon_dir = filedir
-                        if seaon_dir.count('/') > 1 and not PathUtils.get_dir_files(seaon_dir, exts=RMT_MEDIAEXT):
-                            shutil.rmtree(seaon_dir)
-                        # 媒体文件夹
-                        media_dir = os.path.dirname(seaon_dir)
-                    else:
-                        media_dir = filedir
-                    # 检查并删除媒体文件夹，非根目录且目录大于二级，且没有媒体文件时才会删除
-                    if media_dir != '/' \
-                            and media_dir.count('/') > 1 \
-                            and not re.search(r'[a-zA-Z]:/$', media_dir) \
-                            and not PathUtils.get_dir_files(media_dir, exts=RMT_MEDIAEXT):
-                        shutil.rmtree(media_dir)
-                    log.info(f"【Plugin】媒体库同步删除源文件 {file} 成功")
-                except Exception as e:
-                    ExceptionUtils.exception_traceback(e)
-                    log.error(f"【Plugin】媒体库同步删除源文件 {file} 失败")
-
+                WebAction.delete_media_file(source_path, source_filename)
     def get_state(self):
         return self._enable
 
