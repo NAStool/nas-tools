@@ -37,6 +37,7 @@ ics==0.7.2
 idna==3.3
 influxdb==5.3.1
 itsdangerous==2.1.2
+iso639==0.1.4
 jedi==0.18.1
 Jinja2==3.1.2
 jsonpath==0.82
