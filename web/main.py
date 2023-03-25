@@ -1440,9 +1440,9 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            channel = msg_json.get("client")
+            channel = msg_json.get("user")
             text = msg_json.get("text")
-            username = ""
+            username = msg_json.get("user")
         elif msg_json.get("type") == "block_actions":
             channel = msg_json.get("client", {}).get("id")
             text = msg_json.get("actions")[0].get("value")
