@@ -301,6 +301,23 @@ class DbHelper:
         """
         return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).first()
 
+    def get_transfer_info_by(self, tmdbid, season=None, season_episode=None):
+        """
+        据tmdbid、season、season_episode查询转移记录
+        """
+        # 电视剧所有季集｜电影
+        if tmdbid and not season and not season_episode:
+            return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TMDBID == int(tmdbid)).all()
+        # 电视剧某季
+        if tmdbid and season:
+            season = f"%{season}%"
+            return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TMDBID == int(tmdbid),
+                                                          TRANSFERHISTORY.SEASON_EPISODE.like(season)).all()
+        # 电视剧某季某集
+        if tmdbid and season_episode:
+            return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TMDBID == int(tmdbid),
+                                                          TRANSFERHISTORY.SEASON_EPISODE == season_episode).all()
+
     def is_transfer_history_exists_by_source_full_path(self, source_full_path):
         """
         据源文件的全路径查询识别转移记录
