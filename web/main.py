@@ -1,5 +1,6 @@
 import base64
 import datetime
+import mimetypes
 import os.path
 import re
 import shutil
@@ -7,7 +8,6 @@ import sqlite3
 import time
 import traceback
 import urllib
-import mimetypes
 import xml.dom.minidom
 from functools import wraps
 from math import floor
@@ -16,9 +16,10 @@ from threading import Lock
 from urllib import parse
 
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
-    redirect
+    redirect, Response
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
+from ics import Calendar, Event
 
 import log
 from app.brushtask import BrushTask
@@ -324,35 +325,13 @@ def rss_history():
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
     # 电影订阅
-    RssMovieItems = [
-        {
-            "tmdbid": movie.get("tmdbid"),
-            "rssid": movie.get("id")
-        } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
-    ]
+    RssMovieItems = WebAction().get_movie_rss_items().get("result")
     # 电视剧订阅
-    RssTvItems = [
-        {
-            "id": tv.get("tmdbid"),
-            "rssid": tv.get("id"),
-            "season": int(str(tv.get('season')).replace("S", "")),
-            "name": tv.get("name"),
-        } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
-    ]
-    # 自定义订阅
-    RssTvItems += RssChecker().get_userrss_mediainfos()
-    # 电视剧订阅去重
-    Uniques = set()
-    UniqueTvItems = []
-    for item in RssTvItems:
-        unique = f"{item.get('id')}_{item.get('season')}"
-        if unique not in Uniques:
-            Uniques.add(unique)
-            UniqueTvItems.append(item)
+    RssTvItems = WebAction().get_tv_rss_items().get("result")
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
-                           RssTvItems=UniqueTvItems)
+                           RssTvItems=RssTvItems)
 
 
 # 站点维护页面
@@ -1635,6 +1614,23 @@ def upload():
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
         return {"code": 1, "msg": str(e), "filepath": ""}
+
+
+@App.route('/ical')
+def ical():
+    ICal = Calendar()
+    RssItems = WebAction().get_ical_events().get("result")
+    for item in RssItems:
+        event = Event()
+        event.name = f'{item.get("type")}：{item.get("title")}'
+        if not item.get("start"):
+            continue
+        event.begin = datetime.datetime.strptime(item.get("start"), '%Y-%m-%d')
+        event.duration = datetime.timedelta(hours=1)
+        ICal.events.add(event)
+    response = Response(ICal.serialize_iter(), mimetype='text/calendar')
+    response.headers['Content-Disposition'] = 'attachment; filename=nastool.ics'
+    return response
 
 
 # base64模板过滤器
