@@ -30,7 +30,7 @@ class MediaSyncDel(_IPluginModule):
     # 私有属性
     dbhelper = None
     _enable = False
-    _del_dest = False
+    _del_source = False
     _exclude_path = None
 
     @staticmethod
@@ -45,7 +45,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '开启Emby同步删除',
                             'required': "",
-                            'tooltip': 'Emby删除媒体后同步删除历史记录，需按照wiki配置Emby Scripter-X插件及脚本后才能正常使用。',
+                            'tooltip': 'Emby删除媒体后同步删除历史记录，需按照wiki配置Emby Scripter-X插件后才能正常使用。',
                             'type': 'switch',
                             'id': 'enable',
                         },
@@ -54,7 +54,7 @@ class MediaSyncDel(_IPluginModule):
                             'required': "",
                             'tooltip': '开启后，删除历史记录的同时会同步删除源文件。',
                             'type': 'switch',
-                            'id': 'del_dest',
+                            'id': 'del_source',
                         }
                     ],
                 ]
@@ -85,7 +85,7 @@ class MediaSyncDel(_IPluginModule):
         # 读取配置
         if config:
             self._enable = config.get("enable")
-            self._del_dest = config.get("del_dest")
+            self._del_source = config.get("del_source")
             self._exclude_path = config.get("exclude_path")
 
     @EventHandler.register(EventType.EmbyWebhook)
@@ -156,7 +156,7 @@ class MediaSyncDel(_IPluginModule):
         logids = [history.ID for history in transfer_history]
         WebAction().delete_history({
             "logids": logids,
-            "flag": "del_source" if self._del_dest else ""
+            "flag": "del_source" if self._del_source else ""
         })
 
     def get_state(self):
