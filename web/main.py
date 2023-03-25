@@ -1627,7 +1627,6 @@ def ical():
             continue
         event.begin = datetime.datetime.strptime(item.get("start"), '%Y-%m-%d')
         event.duration = datetime.timedelta(days=1)
-        event.location = 'NAStool'
         ICal.events.add(event)
     response = Response(ICal.serialize_iter(), mimetype='text/calendar')
     response.headers['Content-Disposition'] = 'attachment; filename=nastool.ics'
