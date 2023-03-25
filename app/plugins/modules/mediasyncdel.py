@@ -149,23 +149,15 @@ class MediaSyncDel(_IPluginModule):
         else:
             return
 
-        # 遍历历史记录删除
-        for history in transfer_history:
-            title = history.TITLE
-            if title not in media_name:
-                continue
-            source_path = history.SOURCE_PATH
-            source_filename = history.SOURCE_FILENAME
+        if not transfer_history:
+            return
 
-            # 删除记录
-            self.dbhelper.delete_transfer_log_by_id(history.ID)
-            # 删除该识别记录对应的转移记录
-            self.dbhelper.delete_transfer_blacklist("%s/%s" % (source_path, source_filename))
-            self.info(f"媒体 {media_name} 路径 {media_path} 已删除")
-
-            # 是否删除源文件
-            if self._del_dest:
-                WebAction.delete_media_file(source_path, source_filename)
+        # 开始删除
+        logids = [history.ID for history in transfer_history]
+        WebAction().delete_history({
+            "logids": logids,
+            "flag": "del_source" if self._del_dest else ""
+        })
 
     def get_state(self):
         return self._enable

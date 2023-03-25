@@ -65,7 +65,7 @@ class WebAction:
             "del_unknown_path": self.__del_unknown_path,
             "rename": self.__rename,
             "rename_udf": self.__rename_udf,
-            "delete_history": self.__delete_history,
+            "delete_history": self.delete_history,
             "logging": self.__logging,
             "version": self.__version,
             "update_site": self.__update_site,
@@ -863,11 +863,11 @@ class WebAction:
                                                                udf_flag=True)
         return succ_flag, ret_msg
 
-    def __delete_history(self, data):
+    def delete_history(self, data):
         """
         删除识别记录及文件
         """
-        logids = data.get('logids')
+        logids = data.get('logids') or []
         flag = data.get('flag')
         for logid in logids:
             # 读取历史记录
@@ -895,9 +895,9 @@ class WebAction:
                     # 删除源文件
                     del_flag, del_msg = self.delete_media_file(source_path, source_filename)
                     if not del_flag:
-                        log.error(f"【Web】{del_msg}")
+                        log.error(del_msg)
                     else:
-                        log.info(f"【Web】{del_msg}")
+                        log.info(del_msg)
                         # 触发源文件删除事件
                         EventManager().send_event(EventType.SourceFileDeleted, {
                             "media_info": media_info,
@@ -909,9 +909,9 @@ class WebAction:
                     if dest_path and dest_filename:
                         del_flag, del_msg = self.delete_media_file(dest_path, dest_filename)
                         if not del_flag:
-                            log.error(f"【Web】{del_msg}")
+                            log.error(del_msg)
                         else:
-                            log.info(f"【Web】{del_msg}")
+                            log.info(del_msg)
                             # 触发媒体库文件删除事件
                             EventManager().send_event(EventType.LibraryFileDeleted, {
                                 "media_info": media_info,
@@ -4063,9 +4063,9 @@ class WebAction:
                 del_flag, del_msg = self.delete_media_file(filedir=os.path.dirname(file),
                                                            filename=os.path.basename(file))
                 if not del_flag:
-                    log.error(f"【Web】{del_msg}")
+                    log.error(del_msg)
                 else:
-                    log.info(f"【Web】{del_msg}")
+                    log.info(del_msg)
         return {"code": 0}
 
     @staticmethod
@@ -4952,7 +4952,6 @@ class WebAction:
         获取ical日历事件
         """
         Events = []
-        MediaHandler = Media()
         # 电影订阅
         RssMovieItems = self.get_movie_rss_items().get("result")
         for movie in RssMovieItems:
