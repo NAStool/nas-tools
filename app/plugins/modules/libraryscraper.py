@@ -21,9 +21,9 @@ class LibraryScraper(_IPluginModule):
     # 插件描述
     module_desc = "定时对媒体库进行刮削，补齐缺失元数据和图片。"
     # 插件图标
-    module_icon = "nfo.png"
+    module_icon = "scraper.png"
     # 主题色
-    module_color = ""
+    module_color = "bg-orange"
     # 插件版本
     module_version = "1.0"
     # 插件作者

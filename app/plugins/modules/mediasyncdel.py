@@ -13,9 +13,9 @@ class MediaSyncDel(_IPluginModule):
     # 插件描述
     module_desc = "Emby删除媒体后同步删除历史记录或源文件。"
     # 插件图标
-    module_icon = "mediasyncdel.png"
+    module_icon = "emby.png"
     # 主题色
-    module_color = "bg-danger"
+    module_color = "bg-red"
     # 插件版本
     module_version = "1.0"
     # 插件作者
