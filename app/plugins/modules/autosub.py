@@ -330,6 +330,12 @@ class AutoSub(_IPluginModule):
         if not iso639.find(audio_lang) or not iso639.to_iso639_1(audio_lang):
             self.info(f"未知语言音轨")
             audio_lang = 'auto'
+
+            self.info(f"默认英语判断是否存在已有外挂字幕文件 ...")
+            exist, lang = self.__external_subtitle_exists(video_file, ['en', 'eng'])
+            if exist:
+                self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
+                return True, iso639.to_iso639_1('eng')
         else:
             # 外挂字幕文件存在， 则不处理
             exist, lang = self.__external_subtitle_exists(video_file, [audio_lang, iso639.to_iso639_1(audio_lang)])
@@ -348,11 +354,6 @@ class AutoSub(_IPluginModule):
             audio_lang = iso639.to_iso639_1(audio_lang)
 
         if only_extract:
-            self.info(f"使用英语判断是否存在已有外挂字幕文件 ...")
-            exist, lang = self.__external_subtitle_exists(video_file, ['en', 'eng'])
-            if exist:
-                self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
-                return True, iso639.to_iso639_1('eng')
             self.info(f"未开启语音识别，且无已有字幕文件，跳过后续处理")
             return False, None
 
@@ -608,7 +609,7 @@ class AutoSub(_IPluginModule):
 
             if not ret or not result:
                 continue
-            item.content += '\n' + result
+            item.content = result + '\n' + item.content
 
         # 保存字幕文件
         self.__save_srt(dest_subtitle, srt_data)
