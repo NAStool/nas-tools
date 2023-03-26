@@ -45,7 +45,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '开启Emby同步删除',
                             'required': "",
-                            'tooltip': 'Emby删除媒体后同步删除历史记录，需按照wiki配置Emby Scripter-X插件后才能正常使用。',
+                            'tooltip': 'Emby删除媒体后同步删除历史记录，需按照wiki（https://github.com/thsrite/emby_sync_del_nt）配置Emby Scripter-X插件后才能正常使用。',
                             'type': 'switch',
                             'id': 'enable',
                         },
