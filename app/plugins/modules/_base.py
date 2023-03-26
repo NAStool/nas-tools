@@ -81,25 +81,25 @@ class _IPluginModule(metaclass=ABCMeta):
         记录INFO日志
         :param msg: 日志信息
         """
-        log.info(msg, f"【Plugin】{self.module_name} - {msg}")
+        log.info(f"【Plugin】{self.module_name} - {msg}")
 
     def warn(self, msg):
         """
         记录插件WARN日志
         :param msg: 日志信息
         """
-        log.warn(msg, f"【Plugin】{self.module_name} - {msg}")
+        log.warn(f"【Plugin】{self.module_name} - {msg}")
 
     def error(self, msg):
         """
         记录插件ERROR日志
         :param msg: 日志信息
         """
-        log.error(msg, f"【Plugin】{self.module_name} - {msg}")
+        log.error(f"【Plugin】{self.module_name} - {msg}")
 
     def debug(self, msg):
         """
         记录插件Debug日志
         :param msg: 日志信息
         """
-        log.debug(msg, f"【Plugin】{self.module_name} - {msg}")
+        log.debug(f"【Plugin】{self.module_name} - {msg}")
