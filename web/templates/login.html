@@ -45,7 +45,7 @@
               {{ SVG.user() }}
             </span>
           <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
-                 placeholder="用户名" value="" autocomplete="off">
+                 placeholder="admin" value="" autocomplete="off">
         </div>
         <label class="form-label">密码</label>
         <div class="input-icon">
@@ -53,7 +53,7 @@
               {{ SVG.keyboard() }}
             </span>
           <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
-                 placeholder="密码" autocomplete="off">
+                 placeholder="password" autocomplete="off">
         </div>
         <div class="invalid-feedback mb-3" id="login_retmsg" style="display:block">{{ err_msg }}</div>
         <div class="mb-3">
