@@ -118,10 +118,10 @@ class MediaSyncDel(_IPluginModule):
             episode_num = f'0{episode_num}'
 
         if not media_type:
-            self.error("媒体库同步删除失败，未获取到媒体类型")
+            self.error(f"{media_name} 同步删除失败，未获取到媒体类型")
             return
         if not tmdb_id:
-            self.error("媒体库同步删除失败，未获取到TMDB ID")
+            self.error(f"{media_name} 同步删除失败，未获取到TMDB ID")
             return
 
         if self._exclude_path and media_path and any(
@@ -139,10 +139,16 @@ class MediaSyncDel(_IPluginModule):
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
+            if not season_num:
+                self.error(f"{media_name} 季同步删除失败，未获取到季")
+                return
             self.info(f"媒体库准备同步删除剧集 {media_name} S{season_num} {tmdb_id}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
+            if not season_num or not episode_num:
+                self.error(f"{media_name} 集同步删除失败，未获取到集")
+                return
             self.info(f"媒体库准备同步删除剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
                                                                   season_episode=f'S{season_num} E{episode_num}')
