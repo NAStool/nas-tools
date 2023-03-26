@@ -62,7 +62,7 @@ class MediaSyncDel(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '排除路径',
-                'tooltip': '需要排除的Emby媒体库路径，多个用英文逗号分割（例如没经过nastool刮削的或者云盘）。',
+                'tooltip': '需要排除的Emby媒体库路径，多个用英文逗号分割（例如没经过NAStool刮削的或者云盘）。',
                 'content': [
                     [
                         {
