@@ -1,3 +1,4 @@
+import copy
 import os
 import re
 import subprocess
@@ -38,6 +39,9 @@ class AutoSub(_IPluginModule):
 
     # 私有属性
     _running = False
+    # 语句结束符
+    _end_token = ['.', '!', '?', '。', '！', '？', '。"', '！"', '？"', '."', '!"', '?"']
+    _noisy_token = [('(', ')'), ('[', ']'), ('{', '}'), ('<', '>'), ('【', '】'), ('♪', '♪'), ('♫', '♫'), ('♪♪', '♪♪')]
 
     def __init__(self):
         self.additional_args = '-t 4 -p 1'
@@ -290,7 +294,7 @@ class AutoSub(_IPluginModule):
                 if self.translate_zh:
                     # 翻译字幕
                     self.info(f"开始翻译字幕 ...")
-                    self.__translate_zh_subtitle(f"{file_name}.{lang}.srt", f"{file_name}.zh.srt")
+                    self.__translate_zh_subtitle(f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
                     self.info(f"翻译字幕完成：{file_name}.zh.srt")
 
                 end_time = time.time()
@@ -326,6 +330,12 @@ class AutoSub(_IPluginModule):
         if not iso639.find(audio_lang) or not iso639.to_iso639_1(audio_lang):
             self.info(f"未知语言音轨")
             audio_lang = 'auto'
+
+            self.info(f"默认英语判断是否存在已有外挂字幕文件 ...")
+            exist, lang = self.__external_subtitle_exists(video_file, ['en', 'eng'])
+            if exist:
+                self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
+                return True, iso639.to_iso639_1('eng')
         else:
             # 外挂字幕文件存在， 则不处理
             exist, lang = self.__external_subtitle_exists(video_file, [audio_lang, iso639.to_iso639_1(audio_lang)])
@@ -513,6 +523,60 @@ class AutoSub(_IPluginModule):
         self.debug(f"命中内嵌字幕信息：{subtitle_index}, {subtitle_lang}")
         return True, subtitle_index, subtitle_lang
 
+    def __is_noisy_subtitle(self, content):
+        """
+        判断是否为背景音等字幕
+        :param content:
+        :return:
+        """
+        for token in self._noisy_token:
+            if content.startswith(token[0]) and content.endswith(token[1]):
+                return True
+        return False
+
+    def __merge_srt(self, subtitle_data):
+        """
+        合并整句字幕
+        :param subtitle_data:
+        :return:
+        """
+        subtitle_data = copy.deepcopy(subtitle_data)
+        # 合并字幕
+        merged_subtitle = []
+        sentence_end = True
+
+        self.info(f"开始合并字幕语句 ...")
+        for index, item in enumerate(subtitle_data):
+            # 当前字幕先将多行合并为一行，再去除首尾空格
+            content = item.content.replace('\n', ' ').strip()
+            if content == '':
+                continue
+            item.content = content
+
+            # 背景音等字幕，跳过
+            if self.__is_noisy_subtitle(content):
+                merged_subtitle.append(item)
+                sentence_end = True
+                continue
+
+            if not merged_subtitle or sentence_end:
+                merged_subtitle.append(item)
+            elif not sentence_end:
+                merged_subtitle[-1].content = f"{merged_subtitle[-1].content} {content}"
+                merged_subtitle[-1].end = item.end
+
+            # 如果当前字幕内容以标志符结尾，则设置语句已经终结
+            if content.endswith(tuple(self._end_token)):
+                sentence_end = True
+            # 如果上句字幕超过一定长度，则设置语句已经终结
+            elif len(merged_subtitle[-1].content) > 350:
+                sentence_end = True
+            else:
+                sentence_end = False
+
+        self.info(f"合并字幕语句完成，合并前字幕数量：{len(subtitle_data)}, 合并后字幕数量：{len(merged_subtitle)}")
+        return merged_subtitle
+
     def __translate_zh_subtitle(self, source_subtitle, dest_subtitle):
         """
         调用OpenAI 翻译字幕
@@ -522,15 +586,15 @@ class AutoSub(_IPluginModule):
         """
         # 读取字幕文件
         srt_data = self.__load_srt(source_subtitle)
+        # 合并字幕语句
+        srt_data = self.__merge_srt(srt_data)
         for item in srt_data:
             # 跳过空行和无意义的字幕
-            if not item.content and not item.content.strip():
+            if not item.content:
                 continue
-            content = item.content.strip()
-            if content.startswith('[') and content.endswith(']'):
+            if self.__is_noisy_subtitle(item.content):
                 continue
-            if content.startswith('(') and content.endswith(')'):
-                continue
+
             # 调用OpenAI翻译
             # 免费OpenAI Api Limit: 20 / minute
             ret, result = OpenAiHelper().translate_to_zh(item.content)
@@ -545,7 +609,7 @@ class AutoSub(_IPluginModule):
 
             if not ret or not result:
                 continue
-            item.content += '\n' + result
+            item.content = result + '\n' + item.content
 
         # 保存字幕文件
         self.__save_srt(dest_subtitle, srt_data)
