@@ -153,6 +153,8 @@ class SiteConf:
                     for m in peer_count_str:
                         if m.isdigit():
                             peer_count_digit_str = peer_count_digit_str + m
+                        if m == " ":
+                            break
                     ret_attr["peer_count"] = int(peer_count_digit_str) if len(peer_count_digit_str) > 0 else 0
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
