@@ -201,8 +201,6 @@ pt:
   download_order: site
   # 【搜索结果数量限制】：每个站点返回搜索结果的最大数量
   site_search_result_num: 100
-  # 【站点数据发送类型】：全量all：pt站总数据；增量inc：当天新增的上传下载量
-  ptrefresh_type: all
 
 # 【配置豆瓣账号信息】：配置后会自动同步豆瓣收藏，豆瓣标记想看内容后，后台自动下载
 douban:
