@@ -294,12 +294,12 @@ class AutoSub(_IPluginModule):
 
                 if self.translate_zh:
                     # 翻译字幕
-                    self.info(f"开始翻译字幕 ...")
-                    self.__translate_zh_subtitle(f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
+                    self.info(f"开始翻译字幕为中文 ...")
+                    self.__translate_zh_subtitle(lang, f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
                     self.info(f"翻译字幕完成：{file_name}.zh.srt")
 
                 end_time = time.time()
-                message = f"媒体: {file_name} 处理完成\n 字幕原始语言: {lang}\n "
+                message = f" 媒体: {file_name}\n 处理完成\n 字幕原始语言: {lang}\n "
                 if self.translate_zh:
                     message += f"字幕翻译语言: zh\n "
                 message += f"耗时：{round(end_time - start_time, 2)}秒"
@@ -310,7 +310,7 @@ class AutoSub(_IPluginModule):
             except Exception as e:
                 self.error(f"自动字幕生成 处理异常：{e}")
                 end_time = time.time()
-                message = f"媒体: {file_name} 处理失败\n 耗时：{round(end_time - start_time, 2)}秒"
+                message = f" 媒体: {file_name}\n 处理失败\n 耗时：{round(end_time - start_time, 2)}秒"
                 if self.send_notify:
                     Message().send_custom_message(title="自动字幕生成", text=message)
                 # 打印调用栈
@@ -597,7 +597,7 @@ class AutoSub(_IPluginModule):
 
         return result
 
-    def __translate_zh_subtitle(self, source_subtitle, dest_subtitle):
+    def __translate_zh_subtitle(self, source_lang, source_subtitle, dest_subtitle):
         """
         调用OpenAI 翻译字幕
         :param source_subtitle:
@@ -606,8 +606,9 @@ class AutoSub(_IPluginModule):
         """
         # 读取字幕文件
         srt_data = self.__load_srt(source_subtitle)
-        # 合并字幕语句
-        srt_data = self.__merge_srt(srt_data)
+        # 合并字幕语句，目前带标点带英文效果较好，非英文或者无标点的需要NLP处理
+        if source_lang in ['en', 'eng']:
+            srt_data = self.__merge_srt(srt_data)
         batch = []
         max_batch_tokens = 1000
         for srt_item in srt_data:
