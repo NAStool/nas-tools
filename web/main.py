@@ -1,5 +1,6 @@
 import base64
 import datetime
+import mimetypes
 import os.path
 import re
 import shutil
@@ -14,9 +15,11 @@ from pathlib import Path
 from threading import Lock
 from urllib import parse
 
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
+    redirect, Response
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
+from ics import Calendar, Event
 
 import log
 from app.brushtask import BrushTask
@@ -64,6 +67,10 @@ LoginManager.init_app(App)
 
 # API注册
 App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
+
+# fix Windows registry stuff
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('text/css', '.css')
 
 
 @App.after_request
@@ -116,35 +123,10 @@ def login():
         """
         跳转到导航页面
         """
-        # 判断当前的运营环境
-        SystemFlag = SystemUtils.get_system()
-        SyncMod = Config().get_config('pt').get('rmt_mode')
-        TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
-        if not SyncMod:
-            SyncMod = "link"
-        RmtModeDict = WebAction().get_rmt_modes()
-        RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
-        PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
-        SiteFavicons = Sites().get_site_favicon()
-        Indexers = Indexer().get_indexers()
-        SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
-        CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
-        CooperationSites = current_user.get_authsites()
-        return render_template('navigation.html',
-                               GoPage=GoPage,
-                               CurrentUser=current_user,
-                               SystemFlag=SystemFlag.value,
-                               TMDBFlag=TMDBFlag,
-                               AppVersion=WebUtils.get_current_version(),
-                               RestypeDict=RestypeDict,
-                               PixDict=PixDict,
-                               SyncMod=SyncMod,
-                               SiteFavicons=SiteFavicons,
-                               RmtModeDict=RmtModeDict,
-                               Indexers=Indexers,
-                               SearchSource=SearchSource,
-                               CustomScriptCfg=CustomScriptCfg,
-                               CooperationSites=CooperationSites)
+        if GoPage and GoPage != 'web':
+            return redirect('/web?next=' + GoPage)
+        else:
+            return redirect('/web')
 
     def redirect_to_login(errmsg=''):
         """
@@ -194,6 +176,46 @@ def login():
             return redirect_to_login('用户名或密码错误')
 
 
+@App.route('/web', methods=['POST', 'GET'])
+@login_required
+def web():
+    # 跳转页面
+    GoPage = request.args.get("next") or ""
+    # 判断当前的运营环境
+    SystemFlag = SystemUtils.get_system()
+    SyncMod = Config().get_config('media').get('default_rmt_mode')
+    TMDBFlag = 1 if Config().get_config('app').get('rmt_tmdbkey') else 0
+    DefaultPath = Config().get_config('media').get('media_default_path')
+    if not SyncMod:
+        SyncMod = "link"
+    RmtModeDict = WebAction().get_rmt_modes()
+    RestypeDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("restype")
+    PixDict = ModuleConf.TORRENT_SEARCH_PARAMS.get("pix")
+    SiteFavicons = Sites().get_site_favicon()
+    Indexers = Indexer().get_indexers()
+    SearchSource = "douban" if Config().get_config("laboratory").get("use_douban_titles") else "tmdb"
+    CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
+    CooperationSites = current_user.get_authsites()
+    Menus = current_user.get_usermenus()
+    return render_template('navigation.html',
+                           GoPage=GoPage,
+                           CurrentUser=current_user,
+                           SystemFlag=SystemFlag.value,
+                           TMDBFlag=TMDBFlag,
+                           AppVersion=WebUtils.get_current_version(),
+                           RestypeDict=RestypeDict,
+                           PixDict=PixDict,
+                           SyncMod=SyncMod,
+                           SiteFavicons=SiteFavicons,
+                           RmtModeDict=RmtModeDict,
+                           Indexers=Indexers,
+                           SearchSource=SearchSource,
+                           CustomScriptCfg=CustomScriptCfg,
+                           CooperationSites=CooperationSites,
+                           DefaultPath=DefaultPath,
+                           Menus=Menus)
+
+
 # 开始
 @App.route('/index', methods=['POST', 'GET'])
 @login_required
@@ -215,7 +237,7 @@ def index():
 
     # 媒体库
     Librarys = MediaServer().get_libraries()
-    LibrarySyncConf = SystemConfig().get_system_config("SyncLibrary") or []
+    LibrarySyncConf = SystemConfig().get_system_config(SystemConfigKey.SyncLibrary) or []
 
     return render_template("index.html",
                            ServerSucess=ServerSucess,
@@ -306,35 +328,13 @@ def rss_history():
 def rss_calendar():
     Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
     # 电影订阅
-    RssMovieItems = [
-        {
-            "tmdbid": movie.get("tmdbid"),
-            "rssid": movie.get("id")
-        } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
-    ]
+    RssMovieItems = WebAction().get_movie_rss_items().get("result")
     # 电视剧订阅
-    RssTvItems = [
-        {
-            "id": tv.get("tmdbid"),
-            "rssid": tv.get("id"),
-            "season": int(str(tv.get('season')).replace("S", "")),
-            "name": tv.get("name"),
-        } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
-    ]
-    # 自定义订阅
-    RssTvItems += RssChecker().get_userrss_mediainfos()
-    # 电视剧订阅去重
-    Uniques = set()
-    UniqueTvItems = []
-    for item in RssTvItems:
-        unique = f"{item.get('id')}_{item.get('season')}"
-        if unique not in Uniques:
-            Uniques.add(unique)
-            UniqueTvItems.append(item)
+    RssTvItems = WebAction().get_tv_rss_items().get("result")
     return render_template("rss/rss_calendar.html",
                            Today=Today,
                            RssMovieItems=RssMovieItems,
-                           RssTvItems=UniqueTvItems)
+                           RssTvItems=RssTvItems)
 
 
 # 站点维护页面
@@ -345,8 +345,8 @@ def sites():
     RuleGroups = {str(group["id"]): group["name"] for group in Filter().get_rule_groups()}
     DownloadSettings = {did: attr["name"] for did, attr in Downloader().get_download_setting().items()}
     ChromeOk = ChromeHelper().get_status()
-    CookieCloudCfg = SystemConfig().get_system_config('CookieCloud')
-    CookieUserInfoCfg = SystemConfig().get_system_config('CookieUserInfo')
+    CookieCloudCfg = SystemConfig().get_system_config(SystemConfigKey.CookieCloud)
+    CookieUserInfoCfg = SystemConfig().get_system_config(SystemConfigKey.CookieUserInfo)
     return render_template("site/site.html",
                            Sites=CfgSites,
                            RuleGroups=RuleGroups,
@@ -562,7 +562,7 @@ def statistics():
     SiteRatios = []
     SiteErrs = {}
     # 站点上传下载
-    SiteData = SiteUserInfo().get_pt_date(specify_sites=refresh_site, force=refresh_force)
+    SiteData = SiteUserInfo().get_site_data(specify_sites=refresh_site, force=refresh_force)
     if isinstance(SiteData, dict):
         for name, data in SiteData.items():
             if not data:
@@ -591,15 +591,13 @@ def statistics():
                 SiteRatios.append(round(float(ratio), 1))
 
     # 近期上传下载各站点汇总
-    CurrentUpload, CurrentDownload, _, _, _ = SiteUserInfo().get_pt_site_statistics_history(
-        days=2)
+    # CurrentUpload, CurrentDownload, _, _, _ = SiteUserInfo().get_pt_site_statistics_history(
+    #    days=2)
 
     # 站点用户数据
     SiteUserStatistics = WebAction().get_site_user_statistics({"encoding": "DICT"}).get("data")
 
     return render_template("site/statistics.html",
-                           CurrentDownload=CurrentDownload,
-                           CurrentUpload=CurrentUpload,
                            TotalDownload=TotalDownload,
                            TotalUpload=TotalUpload,
                            TotalSeedingSize=TotalSeedingSize,
@@ -812,15 +810,19 @@ def unidentification():
 @App.route('/mediafile', methods=['POST', 'GET'])
 @login_required
 def mediafile():
-    download_dirs = Downloader().get_download_visit_dirs()
-    if download_dirs:
-        try:
-            DirD = os.path.commonpath(download_dirs).replace("\\", "/")
-        except Exception as err:
-            print(str(err))
-            DirD = "/"
+    media_default_path = Config().get_config('media').get('media_default_path')
+    if media_default_path:
+        DirD = media_default_path
     else:
-        DirD = "/"
+        download_dirs = Downloader().get_download_visit_dirs()
+        if download_dirs:
+            try:
+                DirD = os.path.commonpath(download_dirs).replace("\\", "/")
+            except Exception as err:
+                print(str(err))
+                DirD = "/"
+        else:
+            DirD = "/"
     DirR = request.args.get("dir")
     return render_template("rename/mediafile.html",
                            Dir=DirR or DirD)
@@ -834,7 +836,7 @@ def basic():
     if proxy:
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
-    CustomScriptCfg = SystemConfig().get_system_config("CustomScript")
+    CustomScriptCfg = SystemConfig().get_system_config(SystemConfigKey.CustomScript)
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,
@@ -1105,7 +1107,7 @@ def wechat():
         if not sVerifyMsgSig and not sVerifyTimeStamp and not sVerifyNonce:
             return "NAStool微信交互服务正常！<br>微信回调配置步聚：<br>1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入设置->消息通知->微信对应项，打开微信交互开关。<br>2、保存并重启本工具，保存并重启本工具，保存并重启本工具。<br>3、在微信企业应用接收消息设置页面输入此地址：http(s)://IP:PORT/wechat（IP、PORT替换为本工具的外网访问地址及端口，需要有公网IP并做好端口转发，最好有域名）。"
         sVerifyEchoStr = request.args.get("echostr")
-        log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
+        log.info("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
         ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
         if ret != 0:
             log.error("微信请求验证失败 VerifyURL ret: %s" % str(ret))
@@ -1114,7 +1116,7 @@ def wechat():
     else:
         try:
             sReqData = request.data
-            log.debug("收到微信消息：%s" % str(sReqData))
+            log.debug("收到微信请求：%s" % str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret = %s" % str(ret))
@@ -1172,6 +1174,7 @@ def wechat():
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
+                log.info(f"收到微信消息：username={user_id}, text={content}")
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
                                                in_from=SearchType.WX,
@@ -1270,10 +1273,10 @@ def telegram():
         message = msg_json.get("message", {})
         text = message.get("text")
         user_id = message.get("from", {}).get("id")
-        log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
         user_name = message.get("from", {}).get("username")
         if text:
+            log.info(f"收到Telegram消息：username={user_name}, text={text}")
             # 检查权限
             if text.startswith("/"):
                 if str(user_id) not in interactive_client.get("client").get_admin():
@@ -1283,10 +1286,11 @@ def telegram():
                     return '只有管理员才有权限执行此命令'
             else:
                 if not str(user_id) in interactive_client.get("client").get_users():
-                    message.send_channel_msg(channel=SearchType.TG,
-                                             title="你不在用户白名单中，无法使用此机器人",
-                                             user_id=user_id)
+                    Message().send_channel_msg(channel=SearchType.TG,
+                                               title="你不在用户白名单中，无法使用此机器人",
+                                               user_id=user_id)
                     return '你不在用户白名单中，无法使用此机器人'
+            # 处理消息
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.TG,
                                            user_id=user_id,
@@ -1320,10 +1324,10 @@ def synology():
             return 'token校验不通过'
         text = msg_data.get("text")
         user_id = int(msg_data.get("user_id"))
-        log.info("收到Synology Chat消息：from=%s, text=%s" % (user_id, text))
         # 获取用户名
         user_name = msg_data.get("username")
         if text:
+            log.info(f"收到Synology Chat消息：username={user_name}, text={text}")
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.SYNOLOGY,
                                            user_id=user_id,
@@ -1439,9 +1443,9 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            channel = msg_json.get("client")
+            channel = msg_json.get("user")
             text = msg_json.get("text")
-            username = ""
+            username = msg_json.get("user")
         elif msg_json.get("type") == "block_actions":
             channel = msg_json.get("client", {}).get("id")
             text = msg_json.get("actions")[0].get("value")
@@ -1456,6 +1460,7 @@ def slack():
             username = msg_json.get("user", {}).get("username")
         else:
             return "Error"
+        log.info(f"收到Slack消息：username={username}, text={text}")
         WebAction().handle_message_job(msg=text,
                                        in_from=SearchType.SLACK,
                                        user_id=channel,
@@ -1524,6 +1529,7 @@ def subscribe():
         code, msg, _ = Subscribe().add_rss_subscribe(mtype=media_type,
                                                      name=meta_info.get_name(),
                                                      year=meta_info.year,
+                                                     channel=RssType.Auto,
                                                      mediaid=tmdbId,
                                                      in_from=SearchType.API,
                                                      user_name=user_name)
@@ -1537,6 +1543,7 @@ def subscribe():
             code, msg, _ = Subscribe().add_rss_subscribe(mtype=media_type,
                                                          name=meta_info.get_name(),
                                                          year=meta_info.year,
+                                                         channel=RssType.Auto,
                                                          mediaid=tmdbId,
                                                          season=season,
                                                          in_from=SearchType.API,
@@ -1610,6 +1617,23 @@ def upload():
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
         return {"code": 1, "msg": str(e), "filepath": ""}
+
+
+@App.route('/ical')
+def ical():
+    ICal = Calendar()
+    RssItems = WebAction().get_ical_events().get("result")
+    for item in RssItems:
+        event = Event()
+        event.name = f'{item.get("type")}：{item.get("title")}'
+        if not item.get("start"):
+            continue
+        event.begin = datetime.datetime.strptime(item.get("start"), '%Y-%m-%d')
+        event.duration = datetime.timedelta(hours=1)
+        ICal.events.add(event)
+    response = Response(ICal.serialize_iter(), mimetype='text/calendar')
+    response.headers['Content-Disposition'] = 'attachment; filename=nastool.ics'
+    return response
 
 
 # base64模板过滤器

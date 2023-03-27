@@ -4,6 +4,7 @@ import re
 import log
 from app.downloader import Downloader
 from app.helper import DbHelper, ProgressHelper
+from app.helper.openai_helper import OpenAiHelper
 from app.indexer import Indexer
 from app.media import Media, DouBan
 from app.message import Message
@@ -11,7 +12,7 @@ from app.searcher import Searcher
 from app.sites import Sites
 from app.subscribe import Subscribe
 from app.utils import StringUtils, Torrent
-from app.utils.types import SearchType, IndexerType
+from app.utils.types import SearchType, IndexerType, ProgressKey, RssType
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -38,7 +39,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         mtype = media_type
     # 开始进度
     search_process = ProgressHelper()
-    search_process.start('search')
+    search_process.start(ProgressKey.Search)
     # 识别媒体
     media_info = None
     if ident_flag:
@@ -138,8 +139,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and len(media_list) == 0 \
             and second_search_name \
             and second_search_name != first_search_name:
-        search_process.start('search')
-        search_process.update(ptype='search',
+        search_process.start(ProgressKey.Search)
+        search_process.update(ptype=ProgressKey.Search,
                               text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
@@ -150,7 +151,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     dbhepler = DbHelper()
     dbhepler.delete_all_search_torrents()
     # 结束进度
-    search_process.end('search')
+    search_process.end(ProgressKey.Search)
     if len(media_list) == 0:
         log.info("【Web】%s 未检索到任何资源" % content)
         return 1, "%s 未检索到任何资源" % content
@@ -181,6 +182,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
     if not input_str:
         log.info("【Searcher】检索关键字有误！")
         return
+    else:
+        input_str = str(input_str).strip()
     # 如果是数字，表示选择项
     if input_str.isdigit() and int(input_str) < 10:
         # 获取之前保存的可选项
@@ -228,14 +231,22 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                         media_info=media_info,
                         user_id=user_id,
                         user_name=user_name)
-    # 接收到文本，开始查询可能的媒体信息供选择
+    # 接收到文本
     else:
         if input_str.startswith("订阅"):
+            # 订阅
             SEARCH_MEDIA_TYPE[user_id] = "SUBSCRIBE"
             input_str = re.sub(r"订阅[:：\s]*", "", input_str)
         elif input_str.startswith("http"):
+            # 下载链接
             SEARCH_MEDIA_TYPE[user_id] = "DOWNLOAD"
+        elif OpenAiHelper().get_state() \
+                and not input_str.startswith("搜索") \
+                and not input_str.startswith("下载"):
+            # 开启ChatGPT时，不以订阅、搜索、下载开头的均为聊天模式
+            SEARCH_MEDIA_TYPE[user_id] = "ASK"
         else:
+            # 搜索
             input_str = re.sub(r"(搜索|下载)[:：\s]*", "", input_str)
             SEARCH_MEDIA_TYPE[user_id] = "SEARCH"
 
@@ -271,7 +282,18 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
                                   torrent_file=filepath,
                                   in_from=in_from,
                                   user_name=user_name)
-
+        # 聊天
+        elif SEARCH_MEDIA_TYPE[user_id] == "ASK":
+            # 调用ChatGPT Api
+            answer = OpenAiHelper().get_answer(text=input_str,
+                                               userid=user_id)
+            if not answer:
+                answer = "ChatGTP出错了，请检查OpenAI API Key是否正确，如需搜索电影/电视剧，请发送 搜索或下载 + 名称"
+            # 发送消息
+            Message().send_channel_msg(channel=in_from,
+                                       title="",
+                                       text=str(answer).strip(),
+                                       user_id=user_id)
         # 搜索或订阅
         else:
             # 获取字符串中可能的RSS站点列表
@@ -441,11 +463,13 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
                                                           name=media_info.title,
                                                           year=media_info.year,
+                                                          channel=RssType.Auto,
                                                           season=media_info.begin_season,
                                                           mediaid=mediaid,
                                                           state=state,
                                                           rss_sites=media_info.rss_sites,
                                                           search_sites=media_info.search_sites,
+                                                          download_setting=media_info.download_setting,
                                                           in_from=in_from)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))

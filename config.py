@@ -14,7 +14,8 @@ RMT_FAVTYPE = '精选'
 RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso',
                 '.rmvb', '.avi', '.mov', '.mpeg',
                 '.mpg', '.wmv', '.3gp', '.asf',
-                '.m4v', '.flv', '.m2ts', '.strm']
+                '.m4v', '.flv', '.m2ts', '.strm',
+                '.tp']
 # 支持的字幕文件后缀格式
 RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 电视剧动漫的分类genre_ids
@@ -31,8 +32,6 @@ METAINFO_SAVE_INTERVAL = 600
 SYNC_TRANSFER_INTERVAL = 60
 # RSS队列中处理时间间隔
 RSS_CHECK_INTERVAL = 300
-# 站点流量数据刷新时间间隔（小时）
-REFRESH_PT_DATA_INTERVAL = 6
 # 刷新订阅TMDB数据的时间间隔（小时）
 RSS_REFRESH_TMDB_INTERVAL = 6
 # 刷流删除的检查时间间隔
@@ -59,7 +58,7 @@ TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original%s'
 TMDB_IMAGE_FACE_URL = 'https://image.tmdb.org/t/p/h632%s'
 TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
-# 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
+# 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 电影默认命名格式
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year})-{part} - {videoFormat}'

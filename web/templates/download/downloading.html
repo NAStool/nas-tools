@@ -11,16 +11,23 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <button type="button" class="btn btn-primary d-none d-sm-inline-block"
-              onclick="show_torrent_download_modal()">
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-none d-sm-inline-block dropdown-toggle">
             {{ SVG.plus() }}
             新增下载
           </button>
           <button data-bs-toggle="dropdown" type="button"
-              onclick="show_torrent_download_modal()"
               class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </button>
+          <div class="dropdown-menu dropdown-menu-end">
+            <button class="dropdown-item" onclick="show_torrent_download_modal('torrent')">
+              种子文件
+            </button>
+            <button class="dropdown-item" onclick="show_torrent_download_modal('url')">
+              种子链接
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -162,14 +169,16 @@
   }
 
   //显示新增下载界面
-  function show_torrent_download_modal() {
+  function show_torrent_download_modal(type) {
     show_download_modal('', '', '', function(){
-      if (!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0]) {
+      let urls = $("#torrent_urls").val();
+      if ((!torrent_dropzone || !torrent_dropzone.files || !torrent_dropzone.files[0]) && !urls) {
         return;
       }
       $("#search_download_btn").text("处理中...").attr("disabled", true);
       const params = {
         "files": torrent_dropzone.files,
+        "urls": urls.split("\n"),
         "dl_dir": $("#search_download_dir").val(),
         "dl_setting": $("#search_download_setting").val()
       }
@@ -178,6 +187,7 @@
         $("#modal-search-download").modal('hide');
         if (ret.code == 0) {
           torrent_dropzone.removeAllFiles();
+          $("#torrent_urls").val("");
           window_history_refresh();
         } else {
           show_fail_modal(`添加下载失败：${ret.msg}`, function() {
@@ -185,7 +195,7 @@
           });
         }
       });
-    }, true);
+    }, type);
   }
 
   //事件

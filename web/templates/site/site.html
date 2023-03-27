@@ -148,6 +148,13 @@
               <label class="form-label">优先级 <span class="form-help" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高"
                   data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_pri">
+                {% for i in range(1, 51) %}
+                  {% if i == 1 %}
+                    <option value="{{ i }}" selected>{{ i }}</option>
+                  {% else %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -282,9 +289,16 @@
           </div>
           <div class="col-lg-8">
             <div class="mb-3">
-              <label class="form-label">User-Agent <span class="form-help"
+            <label class="form-label">User-Agent <span class="form-help"
                   title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
+              <div class="input-group input-group-flat">
+                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
+                <span class="input-group-text">
+                  <a href="javascript:set_user_agent('site_ua')" class="link-secondary" title="从浏览器中获取 User-Agent" data-bs-toggle="tooltip">
+                    {{ SVG.arrow_bar_to_left() }}
+                  </a>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -308,7 +322,7 @@
         <h5 class="modal-title">站点连通性测试</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="table-responsive" style="min-height: 300px">
+      <div class="table-responsive table-modal-body">
         <table class="table table-vcenter card-table table-hover table-striped">
           <thead>
             <tr>
@@ -511,6 +525,7 @@
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
         $("#site_ua").val(ret.site.ua);
+        $("#site_download_setting").val(ret.site.download_setting);
         if (ret.site.parse) {
           $("#site_parse").val("Y");
         } else {
@@ -660,11 +675,6 @@
       hide_ask_modal();
       del_site(siteid);
     });
-  }
-
-  // 优先级
-  for (let i = 1; i <= 50; i++) {
-    $("#site_pri").append('<option value="' + i + '">' + i + '</option>');
   }
 
   //显示测试站点

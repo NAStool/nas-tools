@@ -5,20 +5,21 @@ from app.utils.types import *
 class ModuleConf(object):
     # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
     # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-    # 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/rst 豆瓣想看；/utf 重新识别；
-    # /ssa 订阅搜索；/tbl 清理转移缓存；/trh 清理RSS缓存；/rss RSS下载；/udt 系统更新
+    # 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/db 豆瓣同步；/utf 重新识别；
+    # /ssa 订阅搜索；/tbl 清理转移缓存；/trh 清理RSS缓存；/rss RSS下载；/udt 系统更新；/sta 数据统计
     WECHAT_MENU = {
-        '_0_0': '/ptt',
-        '_0_1': '/ptr',
-        '_0_2': '/rss',
-        '_0_3': '/ssa',
-        '_1_0': '/rst',
-        '_1_1': '/db',
-        '_1_2': '/utf',
-        '_2_0': '/pts',
-        '_2_1': '/udt',
-        '_2_2': '/tbl',
-        '_2_3': '/trh'
+        '_0_0': '/ptt',  # 下载->下载文件转移
+        '_0_1': '/ptr',  # 下载->删种
+        '_0_2': '/rss',  # 下载->RSS下载
+        '_0_3': '/ssa',  # 下载->订阅搜索
+        '_1_0': '/rst',  # 同步->目录同步
+        '_1_1': '/db',   # 同步->豆瓣同步
+        '_1_2': '/utf',  # 同步->重新识别
+        '_2_0': '/pts',  # 管理->站点签到
+        '_2_1': '/udt',  # 管理->系统更新
+        '_2_2': '/tbl',  # 管理->清理转移缓存
+        '_2_3': '/trh',  # 管理->清理RSS缓存
+        '_2_4': '/sta'   # 管理->数据统计
     }
 
     # 全量转移模式
@@ -92,6 +93,7 @@ class ModuleConf(object):
                 "name": "微信",
                 "img_url": "../static/img/message/wechat.png",
                 "search_type": SearchType.WX,
+                "max_length": 2048,
                 "config": {
                     "corpid": {
                         "id": "wechat_corpid",
@@ -348,6 +350,14 @@ class ModuleConf(object):
                         "title": "令牌",
                         "tooltip": "在Chanify客户端频道中获取",
                         "type": "text"
+                    },
+                    "params": {
+                        "id": "chanify_params",
+                        "required": False,
+                        "title": "附加参数",
+                        "tooltip": "添加到Chanify通知中的附加参数，可用于自定义通知特性",
+                        "type": "text",
+                        "placeholder": "sound=0&interruption-level=active"
                     }
                 }
             },
@@ -427,6 +437,10 @@ class ModuleConf(object):
             "custom_message": {
                 "name": "自定义消息",
                 "fuc_name": "custom_message"
+            },
+            "ptrefresh_date_message": {
+                "name": "数据统计",
+                "fuc_name": "ptrefresh_date_message"
             }
         }
     }
@@ -518,8 +532,8 @@ class ModuleConf(object):
                 "host": {
                     "id": "qbittorrent_host",
                     "required": True,
-                    "title": "IP地址",
-                    "tooltip": "配置IP地址，如为https则需要增加https://前缀",
+                    "title": "地址",
+                    "tooltip": "配置IP地址或域名，如为https则需要增加https://前缀",
                     "type": "text",
                     "placeholder": "127.0.0.1"
                 },
@@ -543,6 +557,21 @@ class ModuleConf(object):
                     "title": "密码",
                     "type": "password",
                     "placeholder": "password"
+                },
+                "torrent_management": {
+                    "id": "qbittorrent_torrent_management",
+                    "required": False,
+                    "title": "种子管理模式",
+                    "tooltip": """默认：Torrent管理模式应用Qbittorrent下载器-选项-下载-保存管理中设置；
+                                手动：Torrent管理模式为手动，下载目录由NAStool传递的下载目录决定；
+                                自动：Torrent管理模式为自动，下载目录由NAStool传递的分类及下载器中分类保存路径决定，需要在NAStool下载目录设置中配置分类标签""",
+                    "type": "select",
+                    "options": {
+                        "default": "默认",
+                        "manual": "手动",
+                        "auto": "自动"
+                    },
+                    "default": "manual"
                 }
             }
         },
@@ -555,8 +584,8 @@ class ModuleConf(object):
                 "host": {
                     "id": "transmission_host",
                     "required": True,
-                    "title": "IP地址",
-                    "tooltip": "配置IP地址，如为https则需要增加https://前缀",
+                    "title": "地址",
+                    "tooltip": "配置IP地址或域名，如为https则需要增加https://前缀",
                     "type": "text",
                     "placeholder": "127.0.0.1"
                 },
@@ -653,7 +682,7 @@ class ModuleConf(object):
                     "id": "plex.token",
                     "required": False,
                     "title": "X-Plex-Token",
-                    "tooltip": "Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快",
+                    "tooltip": "Plex网页Url中的X-Plex-Token，通过浏览器F12->网络从请求URL中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快",
                     "type": "text",
                     "placeholder": "X-Plex-Token与其它认证信息二选一"
                 },

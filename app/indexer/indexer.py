@@ -6,7 +6,7 @@ from app.helper import ProgressHelper, SubmoduleHelper
 from app.indexer.client import BuiltinIndexer
 from app.utils import ExceptionUtils, StringUtils
 from app.utils.commons import singleton
-from app.utils.types import SearchType, IndexerType
+from app.utils.types import SearchType, IndexerType, ProgressKey
 from config import Config
 
 
@@ -138,10 +138,12 @@ class Indexer(object):
         start_time = datetime.datetime.now()
         if filter_args and filter_args.get("site"):
             log.info(f"【{self._client_type.value}】开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
-            self.progress.update(ptype='search', text="开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
+            self.progress.update(ptype=ProgressKey.Search,
+                                 text="开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
         else:
             log.info(f"【{self._client_type.value}】开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
-            self.progress.update(ptype='search', text="开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
+            self.progress.update(ptype=ProgressKey.Search,
+                                 text="开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
         # 多线程
         executor = ThreadPoolExecutor(max_workers=len(indexers))
         all_task = []
@@ -160,14 +162,16 @@ class Indexer(object):
         for future in as_completed(all_task):
             result = future.result()
             finish_count += 1
-            self.progress.update(ptype='search', value=round(100 * (finish_count / len(all_task))))
+            self.progress.update(ptype=ProgressKey.Search,
+                                 value=round(100 * (finish_count / len(all_task))))
             if result:
                 ret_array = ret_array + result
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(f"【{self._client_type.value}】所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
                  % (len(ret_array), (end_time - start_time).seconds))
-        self.progress.update(ptype='search', text="所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
-                                                  % (len(ret_array), (end_time - start_time).seconds),
+        self.progress.update(ptype=ProgressKey.Search,
+                             text="所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
+                                  % (len(ret_array), (end_time - start_time).seconds),
                              value=100)
         return ret_array

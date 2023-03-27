@@ -13,7 +13,6 @@ from app.utils import ConfigLoadCache
 from app.utils import ExceptionUtils
 from app.utils.commons import INSTANCES
 from config import Config
-from web.action import WebAction
 
 _observer = Observer(timeout=10)
 
@@ -203,6 +202,14 @@ def update_config():
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
 
+    # 站点数据刷新时间默认配置
+    try:
+        if "ptrefresh_date_cron" not in _config['pt']:
+            _config['pt']['ptrefresh_date_cron'] = '6'
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
     # 重写配置文件
     if overwrite_cofig:
         Config().save_config(_config)
@@ -231,8 +238,6 @@ class ConfigMonitor(FileSystemEventHandler):
             for instance in INSTANCES.values():
                 if hasattr(instance, "init_config"):
                     instance.init_config()
-            # 重置服务
-            WebAction().restart_service()
 
 
 def start_config_monitor():

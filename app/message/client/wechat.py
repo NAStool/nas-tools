@@ -80,12 +80,13 @@ class WeChat(_IMessageClient):
                 return None
         return self._access_token
 
-    def __send_message(self, title, text, user_id=None):
+    def __send_message(self, title, text, user_id=None, url=None):
         """
         发送文本消息
         :param title: 消息标题
         :param text: 消息内容
         :param user_id: 消息发送对象的ID，为空则发给所有人
+        :param url: 点击消息跳转URL
         :return: 发送状态，错误信息
         """
         if not self.__get_access_token():
@@ -95,6 +96,8 @@ class WeChat(_IMessageClient):
             conent = "%s\n%s" % (title, text.replace("\n\n", "\n"))
         else:
             conent = title
+        if url:
+            conent = f"{conent}\n\n<a href='{url}'>查看详情</a>"
         if not user_id:
             user_id = "@all"
         req_json = {
@@ -159,7 +162,7 @@ class WeChat(_IMessageClient):
         if image:
             ret_code, ret_msg = self.__send_image_message(title, text, image, url, user_id)
         else:
-            ret_code, ret_msg = self.__send_message(title, text, user_id)
+            ret_code, ret_msg = self.__send_message(title, text, user_id, url)
         return ret_code, ret_msg
 
     def send_list_msg(self, medias: list, user_id="", title="", **kwargs):

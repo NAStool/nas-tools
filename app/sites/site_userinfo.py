@@ -9,7 +9,7 @@ import log
 from app.helper import ChromeHelper, SubmoduleHelper, DbHelper
 from app.message import Message
 from app.sites.sites import Sites
-from app.utils import RequestUtils, ExceptionUtils
+from app.utils import RequestUtils, ExceptionUtils, StringUtils
 from app.utils.commons import singleton
 from config import Config
 
@@ -18,7 +18,6 @@ lock = Lock()
 
 @singleton
 class SiteUserInfo(object):
-
     sites = None
     dbhelper = None
     message = None
@@ -62,7 +61,7 @@ class SiteUserInfo(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
-            if not chrome.visit(url=url, ua=ua, cookie=site_cookie):
+            if not chrome.visit(url=url, ua=ua, cookie=site_cookie, proxy=proxy):
                 log.error("【Sites】%s 无法打开网站" % site_name)
                 return None
             # 循环检测是否过cf
@@ -216,13 +215,23 @@ class SiteUserInfo(object):
             self.message.send_site_message(
                 title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
-    def refresh_pt_date_now(self):
+    def refresh_site_data_now(self):
         """
         强制刷新站点数据
         """
         self.__refresh_all_site_data(force=True)
+        # 刷完发送消息
+        statistics = self.get_site_user_statistics(encoding="RAW")
+        string_list = [f"【{site.SITE}】\n"
+                       f"上传量：{StringUtils.str_filesize(site.UPLOAD)}\n"
+                       f"下载量：{StringUtils.str_filesize(site.DOWNLOAD)}\n"
+                       f"做种数：{site.SEEDING}\n"
+                       f"做种体积：{StringUtils.str_filesize(site.SEEDING_SIZE)}"
+                       f"\n{'————————————' if i != len(statistics) - 1 else ''}"
+                       for i, site in enumerate(statistics)]
+        self.message.send_user_statistics_message(string_list)
 
-    def get_pt_date(self, specify_sites=None, force=False):
+    def get_site_data(self, specify_sites=None, force=False):
         """
         获取站点上传下载量
         """
@@ -277,7 +286,7 @@ class SiteUserInfo(object):
             # 更新时间
             self._last_update_time = datetime.now()
 
-    def get_pt_site_statistics_history(self, days=7):
+    def get_pt_site_statistics_history(self, days=7, end_day=None):
         """
         获取站点上传下载量
         """
@@ -287,7 +296,7 @@ class SiteUserInfo(object):
             if site_url:
                 site_urls.append(site_url)
 
-        return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return self.dbhelper.get_site_statistics_recent_sites(days=days, end_day=end_day, strict_urls=site_urls)
 
     def get_site_user_statistics(self, sites=None, encoding="RAW"):
         """

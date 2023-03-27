@@ -5,7 +5,6 @@ from urllib.parse import quote
 
 from pyquery import PyQuery
 
-import log
 from app.helper import SiteHelper
 from app.helper.chrome_helper import ChromeHelper
 from app.plugins import EventHandler
@@ -23,7 +22,7 @@ class OpenSubtitles(_IPluginModule):
     # 插件图标
     module_icon = "opensubtitles.png"
     # 主题色
-    module_color = ""
+    module_color = "bg-black"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -95,7 +94,7 @@ class OpenSubtitles(_IPluginModule):
         # 媒体信息
         item_media = item.get("media_info")
         if item_media.get("type") != MediaType.MOVIE.value and not item_media.get("imdb_id"):
-            log.warn("【Plugin】电视剧类型需要imdbid才能检索字幕！")
+            self.warn("电视剧类型需要imdbid才能检索字幕！")
             return
         # 查询名称
         item_name = item_media.get("en_name") or item_media.get("cn_name")
@@ -112,12 +111,12 @@ class OpenSubtitles(_IPluginModule):
         # 后缀
         item_file_ext = item.get("file_ext")
 
-        log.info("【Plugin】开始从Opensubtitle.org检索字幕: %s，imdbid=%s" % (item_name, imdb_id))
+        self.info("开始从Opensubtitle.org检索字幕: %s，imdbid=%s" % (item_name, imdb_id))
         subtitles = self.search_subtitles(imdb_id=imdb_id, name=item_name, year=item_year)
         if not subtitles:
-            log.warn("【Plugin】%s 未检索到字幕" % item_name)
+            self.warn("%s 未检索到字幕" % item_name)
         else:
-            log.info("【Plugin】opensubtitles.org返回数据：%s" % len(subtitles))
+            self.info("opensubtitles.org返回数据：%s" % len(subtitles))
             # 成功数
             subtitle_count = 0
             for subtitle in subtitles:
@@ -127,11 +126,13 @@ class OpenSubtitles(_IPluginModule):
                         continue
                 # 季
                 if item_season \
-                        and str(subtitle.get('season').replace("Season", "").strip()) != str(item_season):
+                        and subtitle.get('season') \
+                        and int(subtitle.get('season').replace("Season", "").strip()) not in item_season:
                     continue
                 # 集
                 if item_episode \
-                        and str(subtitle.get('episode')) != str(item_episode):
+                        and subtitle.get('episode') \
+                        and int(subtitle.get('episode')) not in item_episode:
                     continue
                 # 字幕文件名
                 SubFileName = subtitle.get('description')
@@ -139,7 +140,7 @@ class OpenSubtitles(_IPluginModule):
                 Download_Link = subtitle.get('link')
                 # 下载后的字幕文件路径
                 Media_File = "%s.chi.zh-cn%s" % (item_file, item_file_ext)
-                log.info("【Plugin】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
+                self.info("正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
                 ret = RequestUtils(cookies=self._cookie,
                                    headers=self._ua).get_res(Download_Link)
@@ -164,7 +165,7 @@ class OpenSubtitles(_IPluginModule):
                     except Exception as err:
                         ExceptionUtils.exception_traceback(err)
                 else:
-                    log.error("【Plugin】下载字幕文件失败：%s" % Download_Link)
+                    self.error("下载字幕文件失败：%s" % Download_Link)
                     continue
                 # 最多下载3个字幕
                 subtitle_count += 1
@@ -172,12 +173,12 @@ class OpenSubtitles(_IPluginModule):
                     break
             if not subtitle_count:
                 if item_episode:
-                    log.info("【Plugin】%s 第%s季 第%s集 未找到符合条件的字幕" % (
+                    self.info("%s 第%s季 第%s集 未找到符合条件的字幕" % (
                         item_name, item_season, item_episode))
                 else:
-                    log.info("【Plugin】%s 未找到符合条件的字幕" % item_name)
+                    self.info("%s 未找到符合条件的字幕" % item_name)
             else:
-                log.info("【Plugin】%s 共下载了 %s 个字幕" % (item_name, subtitle_count))
+                self.info("%s 共下载了 %s 个字幕" % (item_name, subtitle_count))
 
     def search_subtitles(self, imdb_id, name, year):
         if imdb_id:
@@ -205,11 +206,9 @@ class OpenSubtitles(_IPluginModule):
         """
         chrome = ChromeHelper()
         if not chrome.get_status():
-            log.error("【Plugin】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
             return []
         # 访问页面
         if not chrome.visit(url):
-            log.error("【Plugin】无法连接opensubtitles.org！")
             return []
         # 源码
         html_text = chrome.get_html()

@@ -16,8 +16,8 @@ from app.media import Media, Category, Scraper
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins import EventManager
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils
-from app.utils.types import MediaType, SyncType, RmtMode, EventType
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils, NumberUtils
+from app.utils.types import MediaType, SyncType, RmtMode, EventType, ProgressKey
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
 
@@ -50,9 +50,6 @@ class FileTransfer:
     _tv_dir_rmt_format = ""
     _tv_season_rmt_format = ""
     _tv_file_rmt_format = ""
-    _scraper_flag = False
-    _scraper_nfo = {}
-    _scraper_pic = {}
     _ignored_paths = []
     _ignored_files = ''
 
@@ -69,9 +66,6 @@ class FileTransfer:
 
     def init_config(self):
         media = Config().get_config('media')
-        self._scraper_flag = media.get("nfo_poster")
-        self._scraper_nfo = Config().get_config('scraper_nfo')
-        self._scraper_pic = Config().get_config('scraper_pic')
         if media:
             # 电影目录
             self._movie_path = media.get('movie_path')
@@ -456,18 +450,18 @@ class FileTransfer:
 
         def __finish_transfer(status, message):
             if status:
-                self.progress.update(ptype="filetransfer",
+                self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=100,
                                      text=f"{in_path} 转移成功！")
             else:
-                self.progress.update(ptype="filetransfer",
+                self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=100,
                                      text=f"{in_path} 转移失败：{message}！")
-            self.progress.end('filetransfer')
+            self.progress.end(ProgressKey.FileTransfer)
             return status, message
 
         # 开始进度
-        self.progress.start('filetransfer')
+        self.progress.start(ProgressKey.FileTransfer)
 
         episode = (None, False) if not episode else episode
         if not in_path:
@@ -553,7 +547,7 @@ class FileTransfer:
             return __finish_transfer(False, "检索媒体信息出错")
 
         # 更新进度
-        self.progress.update(ptype="filetransfer", text=f"共 {len(Medias)} 个文件需要处理...")
+        self.progress.update(ptype=ProgressKey.FileTransfer, text=f"共 {len(Medias)} 个文件需要处理...")
 
         # 统计总的文件数、失败文件数、需要提醒的失败数
         failed_count = 0
@@ -576,7 +570,7 @@ class FileTransfer:
                 # 文件名
                 file_name = os.path.basename(file_item)
                 # 更新进度
-                self.progress.update(ptype="filetransfer",
+                self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=round(total_count/len(Medias) * 100) - (0.5/len(Medias) * 100),
                                      text="正在处理：%s ..." % file_name)
 
@@ -590,7 +584,7 @@ class FileTransfer:
                     log.warn("【Rmt】%s 无法识别媒体信息！" % file_name)
                     success_flag = False
                     error_message = "无法识别媒体信息"
-                    self.progress.update(ptype="filetransfer", text=error_message)
+                    self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                     if udf_flag:
                         return __finish_transfer(success_flag, error_message)
                     # 记录未识别
@@ -654,19 +648,25 @@ class FileTransfer:
                     if file_exist_flag:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
-                            if media.size > os.path.getsize(ret_file_path) and self._filesize_cover or udf_flag:
+                            orgin_file_size = os.path.getsize(ret_file_path)
+                            if media.size > orgin_file_size and self._filesize_cover or udf_flag:
+                                # 原文件
+                                old_file = ret_file_path
+                                # 拆分后缀
                                 ret_file_path, ret_file_ext = os.path.splitext(ret_file_path)
+                                # 新文件
                                 new_file = "%s%s" % (ret_file_path, file_ext)
-                                old_file = "%s%s" % (ret_file_path, ret_file_ext)
-                                log.info("【Rmt】文件 %s 已存在，覆盖为 %s" % (old_file, new_file))
+                                # 覆盖
+                                log.info(f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=new_file,
                                                            rmt_mode=rmt_mode,
-                                                           over_flag=True, old_file=old_file)
+                                                           over_flag=True,
+                                                           old_file=old_file)
                                 if ret != 0:
                                     success_flag = False
                                     error_message = "文件转移失败，错误码 %s" % ret
-                                    self.progress.update(ptype="filetransfer", text=error_message)
+                                    self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                                     if udf_flag:
                                         return __finish_transfer(success_flag, error_message)
                                     failed_count += 1
@@ -689,7 +689,7 @@ class FileTransfer:
                         log.error("【Rmt】拼装目录路径错误，无法从文件名中识别出季集信息：%s" % file_item)
                         success_flag = False
                         error_message = "识别失败，无法从文件名中识别出季集信息"
-                        self.progress.update(ptype="filetransfer", text=error_message)
+                        self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                         if udf_flag:
                             return __finish_transfer(success_flag, error_message)
                         # 记录未识别
@@ -711,7 +711,7 @@ class FileTransfer:
                     if ret != 0:
                         success_flag = False
                         error_message = "蓝光目录转移失败，错误码：%s" % ret
-                        self.progress.update(ptype="filetransfer", text=error_message)
+                        self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                         if udf_flag:
                             return __finish_transfer(success_flag, error_message)
                         failed_count += 1
@@ -726,7 +726,7 @@ class FileTransfer:
                             log.error("【Rmt】拼装文件路径错误，无法从文件名中识别出集数：%s" % file_item)
                             success_flag = False
                             error_message = "识别失败，无法从文件名中识别出集数"
-                            self.progress.update(ptype="filetransfer", text=error_message)
+                            self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                             if udf_flag:
                                 return __finish_transfer(success_flag, error_message)
                             # 记录未识别
@@ -746,7 +746,7 @@ class FileTransfer:
                         if ret != 0:
                             success_flag = False
                             error_message = "文件转移失败，错误码 %s" % ret
-                            self.progress.update(ptype="filetransfer", text=error_message)
+                            self.progress.update(ptype=ProgressKey.FileTransfer, text=error_message)
                             if udf_flag:
                                 return __finish_transfer(success_flag, error_message)
                             failed_count += 1
@@ -789,16 +789,12 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                if self._scraper_flag:
-                    # 生成刮削文件
-                    self.scraper.gen_scraper_files(media=media,
-                                                   scraper_nfo=self._scraper_nfo,
-                                                   scraper_pic=self._scraper_pic,
-                                                   dir_path=ret_dir_path,
-                                                   file_name=os.path.basename(ret_file_path),
-                                                   file_ext=file_ext)
+                self.scraper.gen_scraper_files(media=media,
+                                               dir_path=ret_dir_path,
+                                               file_name=os.path.basename(ret_file_path),
+                                               file_ext=file_ext)
                 # 更新进度
-                self.progress.update(ptype="filetransfer",
+                self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=round(total_count / len(Medias) * 100),
                                      text="%s 转移完成" % file_name)
 
@@ -1085,8 +1081,7 @@ class FileTransfer:
         # 有输入大小的，匹配第1个满足空间存储要求的
         if size:
             for path in dest_paths:
-                disk_free_size = SystemUtils.get_free_space_gb(path)
-                if float(disk_free_size) > float(size / 1024 / 1024 / 1024):
+                if SystemUtils.get_free_space(path) > NumberUtils.get_size_gb(size):
                     return path
         # 默认返回第1个
         return dest_paths[0]
@@ -1134,7 +1129,7 @@ class FileTransfer:
         episode_title = self.media.get_episode_title(media)
         # 此处使用独立对象，避免影响语言
         en_title = Media().get_tmdb_en_title(media)
-        return {
+        media_format_dict = {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(en_title),
             "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
@@ -1148,12 +1143,17 @@ class FileTransfer:
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,
             "tmdbid": media.tmdb_id,
+            "imdbid": media.imdb_id,
             "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
             "episode_title": StringUtils.clear_file_name(episode_title),
             "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
             "part": media.part
         }
+        for i in media_format_dict.keys():
+            if not media_format_dict[i]:
+                media_format_dict[i] = '\t'
+        return media_format_dict
 
     def get_moive_dest_path(self, media_info):
         """
@@ -1161,8 +1161,8 @@ class FileTransfer:
         :return: 电影目录、电影名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self._movie_dir_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self._movie_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*\t", "", self._movie_dir_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*\t", "", self._movie_file_rmt_format.format(**format_dict))
         return dir_name, file_name
 
     def get_tv_dest_path(self, media_info):
@@ -1171,9 +1171,9 @@ class FileTransfer:
         :return: 电视剧目录、季目录、集名称
         """
         format_dict = self.get_format_dict(media_info)
-        dir_name = re.sub(r"[-_\s.]*None", "", self._tv_dir_rmt_format.format(**format_dict))
-        season_name = re.sub(r"[-_\s.]*None", "", self._tv_season_rmt_format.format(**format_dict))
-        file_name = re.sub(r"[-_\s.]*None", "", self._tv_file_rmt_format.format(**format_dict))
+        dir_name = re.sub(r"[-_\s.]*\t", "", self._tv_dir_rmt_format.format(**format_dict))
+        season_name = re.sub(r"[-_\s.]*\t", "", self._tv_season_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*\t", "", self._tv_file_rmt_format.format(**format_dict))
         return dir_name, season_name, file_name
 
     def check_ignore(self, file_list):

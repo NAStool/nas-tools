@@ -22,7 +22,7 @@ class TMDb(object):
     TMDB_CACHE_ENABLED = "TMDB_CACHE_ENABLED"
     TMDB_PROXIES = "TMDB_PROXIES"
     TMDB_DOMAIN = "TMDB_DOMAIN"
-    REQUEST_CACHE_MAXSIZE = 256
+    REQUEST_CACHE_MAXSIZE = 512
 
     def __init__(self, obj_cached=True, session=None):
         self._session = requests.Session() if session is None else session
@@ -150,7 +150,7 @@ class TMDb(object):
         if self.api_key is None or self.api_key == "":
             raise TMDbException("No API key found.")
 
-        url = "%s%s?api_key=%s&%s&language=%s" % (
+        url = "%s%s?api_key=%s&include_adult=false&%s&language=%s" % (
             self.domain,
             action,
             self.api_key,

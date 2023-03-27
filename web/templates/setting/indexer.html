@@ -1,4 +1,5 @@
 {% import 'macro/form.html' as FORM %}
+{% import 'macro/svg.html' as SVG %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -7,6 +8,17 @@
         <h2 class="page-title">
           索引器
         </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_indexer_statistics_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            {{ SVG.pie() }}
+            统计信息
+          </a>
+          <a href="javascript:show_indexer_statistics_modal()" class="btn btn-primary d-sm-none btn-icon" title="下载目录">
+            {{ SVG.pie() }}
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -138,6 +150,55 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-indexer-statistics" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="card modal-content" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+      <div class="card-header" style="border-top-left-radius:var(--tblr-modal-inner-border-radius) !important; border-top-right-radius:var(--tblr-modal-inner-border-radius) !important">
+        <ul class="nav nav-fill card-header-tabs nav-tabs rounded-3" data-bs-toggle="tabs"
+            role="tablist">
+          <li class="nav-item" role="presentation">
+            <a href="#tabs-indexer-chart" class="nav-link active" style="justify-content: center" data-bs-toggle="tab"
+               aria-selected="true" role="tab">
+              图表
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a href="#tabs-indexer-list" class="nav-link" style="justify-content: center" data-bs-toggle="tab"
+               aria-selected="false" role="tab" tabindex="-1">
+              详情
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body p-0 mb-3">
+        <div class="tab-content">
+          <div class="tab-pane fade active show" id="tabs-indexer-chart" role="tabpanel">
+            <div id="indexer_chart_content"></div>
+          </div>
+          <div class="tab-pane fade" id="tabs-indexer-list" role="tabpanel">
+            <div id="table-indexer-list" class="table-responsive table-modal-body">
+              <table class="table table-vcenter card-table table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th class="flex-fill"><button class="table-sort" data-sort="sort-name">索引</button></th>
+                    <th><button class="table-sort" data-sort="sort-total">请求数</button></th>
+                    <th><button class="table-sort" data-sort="sort-fail">失败数</button></th>
+                    <th><button class="table-sort" data-sort="sort-avg">平均耗时（秒）</button></th>
+                  </tr>
+                </thead>
+                <tbody id="indexer_list_content" class="table-tbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 当前处理的类型
   var currType = "";
@@ -184,5 +245,99 @@
       });
     }, true);
   }
+
+  // 显示索引统计
+  function show_indexer_statistics_modal(){
+    $("#modal-indexer-statistics").modal("show");
+  }
+
+</script>
+
+<script type="text/javascript">
+
+  var indexer_chat = undefined;
+
+  function init_indexer_chart() {
+
+    // 请求数据
+    ajax_post("get_indexer_statistics", {}, function(ret){
+
+      // 饼图
+      if (typeof (indexer_chat) != 'undefined')
+        indexer_chat.dispose();
+
+      indexer_chat = echarts.init($('#indexer_chart_content')[0], null, {
+        height: 300
+      });
+
+      let options = {
+        tooltip: {
+          trigger: 'item', valueFormatter: value => value + " 秒"
+        },
+        dataset: {
+          source: ret.dataset.filter(item => {
+            return (item[1] > 0 || item[1] === 'avg')
+          })
+        },
+        series: [
+          {
+            type: 'pie',
+            encode: {
+              itemName: 'indexer',
+              value: 'avg'
+            },
+            label: {
+              formatter: function (params) {
+                return params.name + ': ' + params.value[params.encode.value[0]] + " 秒";
+              }
+            }, emptyCircleStyle: {
+              color: 'transparent',
+              borderColor: '#ddd',
+              borderWidth: 1
+            }
+          }
+        ]
+      };
+      indexer_chat.setOption(options);
+
+      // 列表
+      let html = "";
+      for (let item of ret.data) {
+        html = `${html}
+                <tr>
+                  <td class="sort-name" data-name="${item.name}">${item.name}</td>
+                  <td class="sort-total" data-total="${item.total}">${item.total}</td>
+                  <td class="sort-fail" data-fail="${item.fail}">${item.fail}</td>
+                  <td class="sort-avg" data-avg="${item.avg}">${item.avg}</td>
+                </tr>
+                `
+      }
+      if (html) {
+        $("#indexer_list_content").html(html);
+      } else {
+        $("#indexer_list_content").html(`<tr><td colspan="4"></td></tr>`);
+      }
+
+      let tableDataList = new List('table-indexer-list', {
+        sortClass: 'table-sort',
+        listClass: 'table-tbody',
+        valueNames: ['sort-name', 'sort-total', 'sort-fail', 'sort-avg',
+          {attr: 'data-name', name: 'sort-name'},
+          {attr: 'data-total', name: 'sort-total'},
+          {attr: 'data-fail', name: 'sort-fail'},
+          {attr: 'data-avg', name: 'sort-avg'}
+        ]
+      });
+
+    });
+
+  }
+
+  $(document).ready(function () {
+    // 加载图表
+    $('#modal-indexer-statistics').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+      init_indexer_chart();
+    });
+  });
 
 </script>

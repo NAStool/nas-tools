@@ -105,7 +105,11 @@
           <div class="card">
             <div class="card-body">
               <div class="d-flex">
-                <h3 class="card-title">今日上传量 共{{ CurrentUpload | filesizeformat(true) }}</h3>
+                <h3 class="card-title d-flex align-items-center">
+                  <button class="btn btn-link btn-icon" onclick="switch_date(-1)">{{ SVG.chevron_left() }}</button>
+                  <span id="chart-recent-upload-title">今日上传量</span>
+                  <button class="btn btn-link btn-icon" onclick="switch_date(1)">{{ SVG.chevron_right() }}</button>
+                </h3>
               </div>
               <div id="chart-recent-upload"></div>
             </div>
@@ -115,7 +119,11 @@
           <div class="card">
             <div class="card-body">
               <div class="d-flex">
-                <h3 class="card-title">今日下载量 共{{ CurrentDownload | filesizeformat(true) }}</h3>
+                <h3 class="card-title d-flex align-items-center">
+                  <button class="btn btn-link btn-icon" onclick="switch_date(-1)">{{ SVG.chevron_left() }}</button>
+                  <span id="chart-recent-download-title">今日下载量</span>
+                  <button class="btn btn-link btn-icon" onclick="switch_date(1)">{{ SVG.chevron_right() }}</button>
+                </h3>
               </div>
               <div id="chart-recent-download"></div>
             </div>
@@ -167,7 +175,7 @@
                 </a>
               </div>
             </div>
-            <div id="table-site-user-data" class="table-responsive" style="min-height: 300px">
+            <div id="table-site-user-data" class="table-responsive table-page-body">
               <table class="table table-vcenter card-table table-hover table-striped">
                 <thead>
                 <tr>
@@ -699,6 +707,108 @@
       chart_history.resize();
     };
 
+    function switch_date(date_offset){
+      const current = moment(current_date)
+      const next = current.add(date_offset, 'days')
+      if (next.isAfter(moment(), 'day')) {
+        return; // 如果加完日期大于今天，返回
+      }
+      show_site_history_day(next.format('YYYY-MM-DD'),1);
+    }
+
+    // 获取某一日的数据
+    function show_site_history_day(end_day, days) {
+      current_date = end_day;
+      ajax_post("get_site_history", {"days": days,"end_day": end_day}, function (ret) {
+            pie_dl.hideLoading();
+            pie_ul.hideLoading();
+            if (ret.code == 0) {
+              let option_ul = {
+                tooltip: {
+                  trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+                },
+                dataset: {
+                  source: ret.dataset.filter(item => {
+                    return (item[1] > 0 || item[1] === 'upload')
+                  })
+                },
+                series: [
+                  {
+                    type: 'pie',
+                    encode: {
+                      itemName: 'site',
+                      value: 'upload'
+                    },
+                    label: {
+                      formatter: function (params) {
+                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                        return params.name + ': ' + value;
+                      }
+                    },
+                    emptyCircleStyle: {
+                      color: 'transparent',
+                      borderColor: '#ddd',
+                      borderWidth: 1
+                    }
+                  },
+                ]
+              };
+              pie_ul.setOption(option_ul)
+              let option_dl = {
+                tooltip: {
+                  trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
+                },
+                dataset: {
+                  source: ret.dataset.filter(item => {
+                    return (item[2] > 0 || item[2] === 'download')
+                  })
+                },
+                series: [
+                  {
+                    type: 'pie',
+                    encode: {
+                      itemName: 'site',
+                      value: 'download'
+                    },
+                    label: {
+                      formatter: function (params) {
+                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                        return params.name + ': ' + value;
+                      }
+                    }, emptyCircleStyle: {
+                      color: 'transparent',
+                      borderColor: '#ddd',
+                      borderWidth: 1
+                    }
+                  }
+                ]
+              };
+              pie_dl.setOption(option_dl)
+              let up_all = 0;
+              let dl_all = 0;
+              let len = ret.dataset.length;
+              for (let i = 1; i < len; i++) {
+                up_all += ret.dataset[i][1];
+              }
+              for (let i = 1; i < len; i++) {
+                dl_all += ret.dataset[i][2];
+              }
+              up_all = numeral(up_all).format('0.0 ib')
+              dl_all = numeral(dl_all).format('0.0 ib')
+
+              let dateStr = end_day;
+              if (moment().isSame(moment(end_day, 'YYYY-MM-DD'),'d')){
+                dateStr = "今日"
+              }
+              $('#chart-recent-upload-title').text(dateStr + "上传量 共" + up_all)
+              $('#chart-recent-download-title').text(dateStr + "下载量 共" + dl_all)
+            } else {
+              show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
+            }
+          }
+      );
+    }
+
     function show_site_history(obj, days) {
       $('.btn-site-history').removeClass('active');
       $(obj).addClass('active');
@@ -779,78 +889,13 @@
     // 当前一周数据
     $('#btn-history-one-week').trigger('click');
 
+    var current_date = ""
+    // 饼图
+    show_site_history_day(moment().format('YYYY-MM-DD'),1);
+
     pie_dl.showLoading();
     pie_ul.showLoading();
-    ajax_post("get_site_history", {"days": 1}, function (ret) {
-          pie_dl.hideLoading();
-          pie_ul.hideLoading();
-          if (ret.code == 0) {
-            let option_ul = {
-              tooltip: {
-                trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
-              },
-              dataset: {
-                source: ret.dataset.filter(item => {
-                  return (item[1] > 0 || item[1] === 'upload')
-                })
-              },
-              series: [
-                {
-                  type: 'pie',
-                  encode: {
-                    itemName: 'site',
-                    value: 'upload'
-                  },
-                  label: {
-                    formatter: function (params) {
-                      value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
-                      return params.name + ': ' + value;
-                    }
-                  },
-                  emptyCircleStyle: {
-                    color: 'transparent',
-                    borderColor: '#ddd',
-                    borderWidth: 1
-                  }
-                },
-              ]
-            };
-            pie_ul.setOption(option_ul)
-            let option_dl = {
-              tooltip: {
-                trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
-              },
-              dataset: {
-                source: ret.dataset.filter(item => {
-                  return (item[2] > 0 || item[2] === 'download')
-                })
-              },
-              series: [
-                {
-                  type: 'pie',
-                  encode: {
-                    itemName: 'site',
-                    value: 'download'
-                  },
-                  label: {
-                    formatter: function (params) {
-                      value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
-                      return params.name + ': ' + value;
-                    }
-                  }, emptyCircleStyle: {
-                    color: 'transparent',
-                    borderColor: '#ddd',
-                    borderWidth: 1
-                  }
-                }
-              ]
-            };
-            pie_dl.setOption(option_dl)
-          } else {
-            show_fail_modal(`历史数据 查询失败：${ret.msg}！`);
-          }
-        }
-    );
+
 
     tableDataList = new List('table-site-user-data', {
       sortClass: 'table-sort',

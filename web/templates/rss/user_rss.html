@@ -18,6 +18,20 @@
           <a href="javascript:show_userrss_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </a>
+          <a href="javascript:batch_check_action('enable')" class="btn btn-success ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_play() }}
+            启用
+          </a>
+          <a href="javascript:batch_check_action('enable')" class="btn btn-success d-sm-none btn-icon">
+            {{ SVG.player_play() }}
+          </a>
+          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_stop() }}
+            停用
+          </a>
+          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary d-sm-none btn-icon">
+            {{ SVG.player_stop() }}
+          </a>
           <a href="javascript:navmenu('rss_parser')" class="btn d-none d-sm-inline-block">
             {{ SVG.cpu() }}
             RSS解析器
@@ -38,13 +52,16 @@
       <div class="card">
         <div class="card-header">
           <div>
+            <input class="form-check-input m-0 align-middle" name="userrss_task" value="{{ Task.id }}" type="checkbox">
+          </div>
+          <div>
             {% if Task.state == 'Y' %}
-            <span class="badge bg-green"></span>
+            <span class="badge bg-green ms-3"></span>
             {% else %}
-            <span class="badge bg-red"></span>
+            <span class="badge bg-red ms-3"></span>
             {% endif %}
           </div>
-          <a href="javascript:show_userrss_detail({{ Task.id }})" style="text-decoration-line: none; color: unset"
+          <a href="javascript:void(0)" onclick="show_userrss_detail({{ Task.id }})" style="text-decoration-line: none; color: unset"
              title="展开/折叠" data-bs-toggle="tooltip">
             <div class="ms-3"><h3 class="card-title">{{ Task.name }}</h3></div>
           </a>
@@ -79,7 +96,7 @@
             </button>
           </div>
           <div class="card-actions btn-actions ms-1 d-none d-sm-block">
-            <a href="javascript:show_userrss_detail({{ Task.id }})" class="btn-action"
+            <a href="javascript:void(0)" onclick="show_userrss_detail({{ Task.id }})" class="btn-action"
                title="展开/折叠" data-bs-toggle="tooltip">
               {{ SVG.menu_2() }}
             </a>
@@ -115,15 +132,18 @@
               </div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">刷新间隔</div>
+              <div class="datagrid-title">刷新周期</div>
               <div class="datagrid-content">
-                {{ Task.interval }} 分钟
+                {{ Task.interval }} {% if Task.interval.find(' ')==-1 %} 分钟 {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
                 <span class="badge bg-blue">{{ Task.uses_text }}</span>
+                {% if Task.proxy == "Y" %}
+                <span class="badge bg-green">代理</span>
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item" style="display: {% if Task.uses != 'D' %}none{% else %}block{% endif %};">
@@ -233,14 +253,14 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间"
+                <label class="form-label required">刷新周期<span class="form-help" title="检查RSS更新的间隔时间，两种配置方法：1.直接填数字单位为分钟，如：30 ；2.支持5位cron表达式，如：*/30 * * * *（对应：分 时 日 月 星期）"
                     data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_interval" class="form-control" placeholder="30">
+                <input type="text" id="userrss_interval" class="form-control" placeholder="30 或 */30 * * * *">
               </div>
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
                     data-bs-toggle="tooltip">?</span></label>
@@ -255,6 +275,16 @@
                   {% for RssParser in RssParsers %}
                   <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
                   {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">使用代理服务器 <span class="form-help" title="开启后该自定义订阅将使用代理服务器，代理需在基础设置->系统->代理服务器中设置"
+                    data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="userrss_note_proxy">
+                  <option value="Y">是</option>
+                  <option value="N" selected>否</option>
                 </select>
               </div>
             </div>
@@ -417,7 +447,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-4">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">下载设置</label>
                   <select class="form-select" id="userrss_rss_download_setting"
@@ -436,7 +466,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-lg-2">
+              <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span>
                   </label>
@@ -504,7 +534,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>      
-      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+      <div class="table-responsive table-modal-body">
         <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
@@ -549,7 +579,7 @@
         <h5 class="modal-title">订阅下载历史</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+      <div class="table-responsive table-modal-body">
         <table id="table-rss-history" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
@@ -651,6 +681,7 @@
       $("#userrss_address").val(detail.address);
       $("#userrss_parser").val(detail.parser);
       $("#userrss_state").val(detail.state);
+      $("#userrss_note_proxy").val(detail.proxy);
       show_userrss_uses(detail.uses);
       set_userrss_setting(detail)
       $("#modal-userrss").modal('show');
@@ -677,7 +708,11 @@
     } else {
       $("#userrss_name").removeClass("is-invalid");
     }
-    if (!userrss_common.interval || isNaN(userrss_common.interval)) {
+    let reg = /(^\s+)|(\s+$)|\s+/g;
+    if (isNaN(userrss_common.interval) && userrss_common.interval.match(reg).length == 4){
+      $("#userrss_interval").removeClass("is-invalid");
+    }
+    else if (!userrss_common.interval || isNaN(userrss_common.interval)) {
       $("#userrss_interval").addClass("is-invalid");
       return;
     } else {
@@ -710,7 +745,7 @@
     } else {
       return;
     }
-    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val()};
+    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val(), "note": {"proxy": $("#userrss_note_proxy").val()}};
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
@@ -959,5 +994,17 @@
       $("#userrss_rss_div").show();
       $("#use_R").prop("checked", true);
     }
+  }
+
+  // 批量启用停用
+  function batch_check_action(flag) {
+    let ids = select_GetSelectedVAL("userrss_task");
+    ajax_post("check_userrss_task", { flag: flag, ids: ids }, function (ret) {
+      if (ret.code == 0) {
+        window_history_refresh();
+      } else {
+        show_fail_modal(ret.msg);
+      }
+    });
   }
 </script>

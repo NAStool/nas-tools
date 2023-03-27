@@ -1,4 +1,3 @@
-import log
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import RequestUtils
@@ -112,8 +111,8 @@ class Webhook(_IPluginModule):
             ret = RequestUtils().get_res(self._webhook_url, params=event_info)
 
         if ret:
-            log.info(f"【Plugin】Webhook发送成功：{self._webhook_url}")
+            self.info(f"发送成功：{self._webhook_url}")
         elif ret is not None:
-            log.error(f"【Plugin】Webhook发送失败，状态码：{ret.status_code}，返回信息：{ret.text} {ret.reason}")
+            self.error(f"发送失败，状态码：{ret.status_code}，返回信息：{ret.text} {ret.reason}")
         else:
-            log.error(f"【Plugin】Webhook发送失败，未获取到返回信息")
+            self.error(f"发送失败，未获取到返回信息")

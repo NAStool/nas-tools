@@ -92,60 +92,60 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-12">
-          <div class="row row-cards">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-body">
-                  <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
-                  <div class="progress progress-separated mb-3">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
-                  </div>
-                  <div class="row">
-                    <div class="col-auto d-flex align-items-center pe-2">
-                      <span class="legend me-2 bg-primary"></span>
-                      <span>已使用</span>
-                      <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
-                    </div>
-                    <div class="col-auto d-flex align-items-center ps-2">
-                      <span class="legend me-2"></span>
-                      <span>空闲</span>
-                      <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
-                    </div>
-                  </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
+              <div class="progress progress-separated mb-3">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
+              </div>
+              <div class="row">
+                <div class="col-auto d-flex align-items-center pe-2">
+                  <span class="legend me-2 bg-primary"></span>
+                  <span>已使用</span>
+                  <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
+                </div>
+                <div class="col-auto d-flex align-items-center ps-2">
+                  <span class="legend me-2"></span>
+                  <span>空闲</span>
+                  <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
                 </div>
               </div>
             </div>
-            <div class="col-12">
-              <div class="card" style="height: 27rem">
-                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
-                  <div class="divide-y">
-                    {% for Activity in Activitys %}
-                      <div>
-                        <div class="row">
-                          <div class="col-auto">
-                        <span class="avatar">
-                          {% if Activity.type == "LG" %}
-                            {{ SVG.user() }}
-                          {% else %}
-                            {{ SVG.player_play() }}
-                          {% endif %}
-                        </span>
-                          </div>
-                          <div class="col">
-                            <div class="text-truncate">
-                              {{ Activity.event }}
-                            </div>
-                            <div class="text-muted">{{ Activity.date }}</div>
-                          </div>
-                          <div class="col-auto align-self-center">
-                            <div class="bg-primary"></div>
-                          </div>
-                        </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="card overflow-hidden">
+            <div class="card-body card-body-scrollable card-body-scrollable-shadow" style="height: calc(100vh - 28rem)">
+              <div class="divide-y">
+                {% for Activity in Activitys %}
+                  <div>
+                    <div class="row">
+                      <div class="col-auto">
+                    <span class="avatar">
+                      {% if Activity.type == "LG" %}
+                        {{ SVG.user() }}
+                      {% else %}
+                        {{ SVG.player_play() }}
+                      {% endif %}
+                    </span>
                       </div>
-                    {% endfor %}
+                      <div class="col">
+                        <div class="text-truncate">
+                          {{ Activity.event }}
+                        </div>
+                        <div class="text-muted">{{ Activity.date }}</div>
+                      </div>
+                      <div class="col-auto align-self-center">
+                        <div class="bg-primary"></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -370,14 +370,12 @@
         }]
       };
       chart_tv.setOption(option_chart_tv);
-
     });
-
   }
 
   $(document).ready(function () {
     // 加载图表
-    init_index_charts();
+    setTimeout("init_index_charts()", 500);
     // 响应大小调整
     window.onresize = function () {
       chart_tv.resize();

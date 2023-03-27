@@ -64,7 +64,7 @@
               <h3 class="card-title"><strong>{{ Group.name }}</strong></h3>
             </a>
             <div class="card-actions btn-actions">
-              <a href="javascript:$('#div_group{{ Group.id }}').slideToggle()" class="btn-action ms-1" title="折叠">
+              <a href="javascript:void(0)" onclick="show_customwords_detail('{{ Group.id }}')" class="btn-action ms-1" title="折叠">
                 {{ SVG.menu_2() }}
               </a>
               <a href="javascript:show_add_custom_word_modal('{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
@@ -310,6 +310,10 @@
             <div class="mb-3">
               <label class="form-label">季</label>
               <select class="form-select" id="custom_word_season">
+                <option value="-1" selected>全部</option>
+                {% for i in range(0, 51) %}
+                  <option value="{{ i }}">第{{ i }}季</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -403,7 +407,7 @@
               <div class="mb-3">
                 <label class="form-label required">分享代码 <span class="form-help"
                     title="复制以下内容分享给他人，获得分享后使用导入功能导入自定义识别词" data-bs-toggle="tooltip">?</span></label>
-                <pre class="text-wrap" id="export_code">
+                <pre class="text-wrap text-break" id="export_code">
                 </pre>
               </div>
             </div>
@@ -455,7 +459,7 @@
             <div class="col-lg-12">
               <div class="mb-3">
                 <label class="form-label required">应用说明</label>
-                <pre id="import_note"></pre>
+                <pre id="import_note" class="text-wrap text-break"></pre>
               </div>
             </div>
           </div>
@@ -470,10 +474,7 @@
   <script type="text/javascript">
     // 批量启用/停用/导出
     function batch_check_action(flag) {
-      let ids_info = select_GetSelectedVAL("^custom_words")
-      if (ids_info.length == 0) {
-        return;
-      }
+      let ids_info = select_GetSelectedVAL("^custom_words");
       if (flag == "disable" || flag == "enable") {
         ajax_post("check_custom_words", { flag: flag, ids_info: ids_info }, function (ret) {
           if (ret.code == 0) {
@@ -853,10 +854,6 @@
         //初始化下拉框
         $("#season_div").show();
         $("#help_div").attr('class', 'col-lg-6');
-        $("#custom_word_season").empty().append('<option value="-1" selected>全部</option>');
-        for (let i = 0; i <= seasons; i++) {
-          $("#custom_word_season").append(`<option value="${i}">第${i}季</option>`);
-        }
       }
     }
 
@@ -911,5 +908,8 @@
         $("#type_replaced_offset").prop("checked", true);
       }
     }
-
+    // 展开/收起
+    function show_customwords_detail(id){
+      $(`#div_group${id}`).slideToggle()
+    }
   </script>

@@ -2,7 +2,7 @@ import cn2an
 
 from app.media import Media, Bangumi, DouBan
 from app.media.meta import MetaInfo
-from app.utils import StringUtils, ExceptionUtils, SystemUtils, RequestUtils
+from app.utils import StringUtils, ExceptionUtils, SystemUtils, RequestUtils, IpUtils
 from app.utils.types import MediaType
 from config import Config
 from version import APP_VERSION
@@ -15,6 +15,8 @@ class WebUtils:
         """
         根据IP址查询真实地址
         """
+        if not IpUtils.is_ipv4(ip):
+            return ""
         url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
               '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
               'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
@@ -182,4 +184,3 @@ class WebUtils:
                 else:
                     EndPage = total_page
         return range(StartPage, EndPage + 1)
-

@@ -18,6 +18,20 @@
           <a href="javascript:show_brushtask_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </a>
+          <a href="javascript:update_brushtask_state('Y')" class="btn btn-success ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_play() }}
+            启动
+          </a>
+          <a href="javascript:update_brushtask_state('Y')" class="btn btn-success d-sm-none btn-icon">
+            {{ SVG.player_play() }}
+          </a>
+          <a href="javascript:update_brushtask_state('N')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
+            {{ SVG.player_stop() }}
+            停止
+          </a>
+          <a href="javascript:update_brushtask_state('N')" class="btn btn-secondary d-sm-none btn-icon">
+            {{ SVG.player_stop() }}
+          </a>
         </div>
       </div>
     </div>
@@ -31,13 +45,16 @@
           <div class="card">
             <div class="card-header">
               <div>
+                <input class="form-check-input m-0 align-middle" name="burshtask" value="{{ Task.id }}" type="checkbox">
+              </div>
+              <div>
                 {% if Task.state %}
-                <span class="badge bg-green"></span>
+                <span class="badge bg-green ms-3"></span>
                 {% else %}
-                <span class="badge bg-red"></span>
+                <span class="badge bg-red ms-3"></span>
                 {% endif %}
               </div>
-              <a href="javascript:show_brushtask_detail('{{ Task.id }}')" style="text-decoration-line: none; color: unset"
+              <a href="javascript:void(0)" onclick="show_brushtask_detail('{{ Task.id }}')" style="text-decoration-line: none; color: unset"
                  title="展开/折叠" data-bs-toggle="tooltip">
                 <div class="ms-3">
                   <h3 class="card-title">{{ Task.name }}</h3>
@@ -69,7 +86,7 @@
                 </button>
               </div>
               <div class="card-actions btn-actions d-none d-sm-block">
-                <a href="javascript:show_brushtask_detail('{{ Task.id }}')" class="btn-action"
+                <a href="javascript:void(0)" onclick="show_brushtask_detail('{{ Task.id }}')" class="btn-action"
                    title="展开/折叠" data-bs-toggle="tooltip">
                   {{ SVG.menu_2() }}
                 </a>
@@ -135,7 +152,13 @@
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">刷新间隔</div>
-                  <div class="datagrid-content">{{ Task.interval }} 分钟</div>
+                  <div class="datagrid-content">
+                  {% if Task.interval.isdigit() %}
+                    {{ Task.interval }} 分钟
+                  {% else %}
+                    {{ Task.interval }}
+                  {% endif %}
+                  </div>
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">下载器</div>
@@ -241,10 +264,10 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">刷新间隔(分钟) <span class="form-help"
-                                                                      title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于5分钟"
+              <label class="form-label required">执行周期 <span class="form-help"
+                                                                      title="检查站点RSS更新的周期，为了减小站点压力，建议不小于5分钟，支持两种配置方式：1、间隔时间（分钟），如 10；2、5位cron表达式,如：*/30 * * * *（对应：分 时 日 月 星期）"
                                                                       data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="brushtask_interval" class="form-control" placeholder="10">
+              <input type="text" id="brushtask_interval" class="form-control" placeholder="10 或 */10 * * * *">
             </div>
           </div>
         </div>
@@ -252,7 +275,7 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">下载器 <span class="form-help"
-                                                              title="选择刷流任务使用的下载器，在自定义下载器中添加，如需识别转移到媒体库，需与正在使用的下载器相同"
+                                                              title="选择刷流任务使用的下载器，在设置-下载器中添加，如需识别转移到媒体库，所选下载器也需启用监控功能"
                                                               data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="brushtask_downloader">
                 <option value="" selected>请选择</option>
@@ -277,6 +300,14 @@
                 <option value="Y">正常</option>
                 <option value="N">暂停</option>
               </select>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="mb-3">
+              <label class="form-label">RSS地址 <span class="form-help"
+                                                           title="刷流优先使用此处填入的站点RSS，若为空则使用站点配置RSS地址"
+                                                           data-bs-toggle="tooltip">?</span></label>
+              <input type="text" id="brushtask_rssurl" class="form-control" placeholder="站点RSS订阅URL，若为空则使用站点配置RSS地址">
             </div>
           </div>
           <div class="col-lg-4">
@@ -490,7 +521,7 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">分享率 <span class="form-help" title="分享率超过设定值时会删除下载任务"
+              <label class="form-label">分享率 <span class="form-help" title="分享率超过设定值时会删除下载任务（分享率为上传量与种子大小的比值）"
                                                      data-bs-toggle="tooltip">?</span></label>
               <div class="input-group">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
@@ -626,7 +657,7 @@
         <h5 class="modal-title">刷流种子明细</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+      <div class="table-responsive table-modal-body">
         <table id="table-brushtask-torrents" class="table table-vcenter card-table table-hover table-striped">
         </table>
       </div>
@@ -664,6 +695,7 @@
         $("#brushtask_site").val(ret.task.site_id);
         brushtask_site_change(ret.task.site_id, ret.task.free, ret.task.rss_rule.hr);
         $("#brushtask_interval").val(ret.task.interval);
+        $("#brushtask_rssurl").val(ret.task.rss_url_show);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
         if (ret.task.state) {
@@ -747,6 +779,14 @@
     });
   }
 
+  // 批量暂停启动刷流任务
+  function update_brushtask_state(state){
+    let ids = select_GetSelectedVAL("burshtask");
+    ajax_post("update_brushtask_state", {'state': state, ids:ids }, function (ret){
+      window_history_refresh();
+    });
+  }
+
   // 显示删除刷流任务
   function del_brushtask_modal(brushid, name) {
     show_confirm_modal("删除刷流任务 " + name + " ？", function () {
@@ -821,7 +861,7 @@
       $("#brushtask_site").removeClass("is-invalid");
     }
     let brushtask_interval = $("#brushtask_interval").val();
-    if (!brushtask_interval || isNaN(brushtask_interval)) {
+    if (!brushtask_interval) {
       $("#brushtask_interval").addClass("is-invalid");
       return;
     } else {
@@ -839,6 +879,7 @@
       $("#brushtask_totalsize").addClass("is-invalid");
       return;
     }
+    let brushtask_rssurl = $("#brushtask_rssurl").val();
     let brushtask_label = $("#brushtask_label").val();
     let brushtask_state = $("#brushtask_state").val();
     let brushtask_transfer = $("#brushtask_transfer").prop('checked');
@@ -1006,6 +1047,7 @@
       brushtask_name: brushtask_name,
       brushtask_site: brushtask_site,
       brushtask_interval: brushtask_interval,
+      brushtask_rssurl: brushtask_rssurl,
       brushtask_downloader: brushtask_downloader,
       brushtask_totalsize: brushtask_totalsize,
       brushtask_label: brushtask_label,

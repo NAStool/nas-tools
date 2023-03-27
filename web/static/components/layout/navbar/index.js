@@ -19,7 +19,7 @@ export class LayoutNavbar extends CustomElement {
     super();
     this.navbar_list = [];
     this.layout_gopage = "";
-    this.layout_appversion = "v2.8.3 e950041";
+    this.layout_appversion = "v3.0.0";
     this._active_name = "";
     this._update_appversion = "";
     this._update_url = "https://github.com/NAStool/nas-tools";
@@ -44,8 +44,16 @@ export class LayoutNavbar extends CustomElement {
     } else if (window.history.state?.page) {
       window_history_refresh();
     } else {
-      // 打开第一个页面
-      navmenu(this.navbar_list[0].page ?? this.navbar_list[0].list[0].page);
+      // 打开地址链锚点页面
+      let page = this._get_page_from_url();
+      if (page) {
+        navmenu(page);
+      } else {
+        // 打开第一个页面
+        const page = this.navbar_list[0].page ?? this.navbar_list[0].list[0].page
+        this._add_page_to_url(page);
+        navmenu(page);
+      }
       // 默认展开探索
       setTimeout(() => { this.show_collapse("ranking") }, 200);
     }
@@ -83,6 +91,22 @@ export class LayoutNavbar extends CustomElement {
         }
       }
     });
+  }
+
+  _get_page_from_url() {
+    const pages = window.location.href.split('#');
+    if (pages.length > 1) {
+      return pages[pages.length - 1]
+    }
+
+  }
+
+  _add_page_to_url(page){
+    if (window.location.href.indexOf("?") > 0) {
+      window.location.href = `${window.location.href.split('?')[0]}#${page}`;
+    }else {
+      window.location.href = `${window.location.href.split('#')[0]}#${page}`;
+    }
   }
 
   update_active(page) {
@@ -148,7 +172,6 @@ export class LayoutNavbar extends CustomElement {
 
         .lit-navbar-hide-scrollbar {
           overflow-y: scroll!important;
-          overscroll-behavior-y: contain!important;
           scrollbar-width: none!important;
           -ms-overflow-style: none!important;
         }
@@ -195,7 +218,7 @@ export class LayoutNavbar extends CustomElement {
         }
 
         .lit-navbar-accordion-item, .lit-navbar-accordion-item-active {
-          border-radius:0.75rem;
+          border-radius:0.5rem;
         }
 
         .theme-dark .lit-navbar-accordion-item:hover {
@@ -293,10 +316,13 @@ export class LayoutNavbar extends CustomElement {
   _render_page_item(item, child) {
     return html`
     <a class="nav-link lit-navbar-accordion-item${this._active_name === item.page ? "-active" : ""} my-1 p-2 ${child ? "ps-3" : "lit-navbar-accordion-button"}" 
-      href="javascript:void(0)" data-bs-dismiss="offcanvas" aria-label="Close"
+      href="#${item.page}" data-bs-dismiss="offcanvas" aria-label="Close"
       style="${child ? "font-size:1rem" : "font-size:1.1rem;"}"
       data-lit-page=${item.page}
-      @click=${ () => { navmenu(item.page) }}>
+      @click=${ () => { 
+        this._add_page_to_url(item.page);
+        navmenu(item.page);
+      }}>
       <span class="nav-link-icon" ?hidden=${!child} style="color:var(--tblr-body-color);">
         ${item.icon ? unsafeHTML(item.icon) : nothing}
       </span>

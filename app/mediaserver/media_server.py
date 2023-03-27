@@ -9,7 +9,7 @@ from app.media import Media
 from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaServerType, MovieTypes
+from app.utils.types import MediaServerType, MovieTypes, SystemConfigKey, ProgressKey
 from app.utils.types import MediaType
 from config import Config
 
@@ -107,6 +107,20 @@ class MediaServer:
             return
         return self.server.refresh_root_library()
 
+    def get_episode_image_by_id(self, item_id, season_id, episode_id):
+        """
+         根据itemid、season_id、episode_id从Emby查询图片地址
+         :param item_id: 在Emby中的ID
+         :param season_id: 季
+         :param episode_id: 集
+         :return: 图片对应在TMDB中的URL
+         """
+        if not self.server:
+            return None
+        if not item_id or not season_id or not episode_id:
+            return None
+        return self.server.get_episode_image_by_id(item_id, season_id, episode_id)
+
     def get_image_by_id(self, item_id, image_type):
         """
         根据ItemId从媒体服务器查询图片地址
@@ -191,10 +205,10 @@ class MediaServer:
         with lock:
             # 开始进度条
             log.info("【MediaServer】开始同步媒体库数据...")
-            self.progress.start("mediasync")
-            self.progress.update(ptype="mediasync", text="请稍候...")
+            self.progress.start(ProgressKey.MediaSync)
+            self.progress.update(ptype=ProgressKey.MediaSync, text="请稍候...")
             # 获取需同步的媒体库
-            librarys = self.systemconfig.get_system_config("SyncLibrary") or []
+            librarys = self.systemconfig.get_system_config(SystemConfigKey.SyncLibrary) or []
             # 汇总统计
             medias_count = self.get_medias_count()
             total_media_count = medias_count.get("MovieCount") + medias_count.get("SeriesCount")
@@ -204,10 +218,10 @@ class MediaServer:
             # 清空登记薄
             self.mediadb.empty()
             for library in self.get_libraries():
-                if library.get("id") not in librarys:
+                if str(library.get("id")) not in librarys:
                     continue
                 # 获取媒体库所有项目
-                self.progress.update(ptype="mediasync",
+                self.progress.update(ptype=ProgressKey.MediaSync,
                                      text="正在获取 %s 数据..." % (library.get("name")))
                 for item in self.get_items(library.get("id")):
                     if not item:
@@ -221,7 +235,7 @@ class MediaServer:
                         tv_count += 1
                         # 查询剧集信息
                         seasoninfo = self.get_tv_episodes(item.get("id"))
-                    self.progress.update(ptype="mediasync",
+                    self.progress.update(ptype=ProgressKey.MediaSync,
                                          text="正在同步 %s，已完成：%s / %s ..." % (
                                              library.get("name"), total_count, total_media_count),
                                          value=round(100 * total_count / total_media_count, 1))
@@ -236,10 +250,10 @@ class MediaServer:
                                     movie_count=movie_count,
                                     tv_count=tv_count)
             # 结束进度条
-            self.progress.update(ptype="mediasync",
+            self.progress.update(ptype=ProgressKey.MediaSync,
                                  value=100,
                                  text="媒体库数据同步完成，同步数量：%s" % total_count)
-            self.progress.end("mediasync")
+            self.progress.end(ProgressKey.MediaSync)
             log.info("【MediaServer】媒体库数据同步完成，同步数量：%s" % total_count)
 
     def check_item_exists(self,
@@ -320,25 +334,24 @@ class MediaServer:
             return
         if channel != self.server.get_type():
             return
-        event_info = self.server.get_webhook_message(message)
+        event_info = None
+        try:
+            event_info = self.server.get_webhook_message(message)
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【MediaServer】webhook 消息解析异常")
         if event_info:
             # 获取消息图片
             image_url = None
             if event_info.get("item_type") == "TV":
-                item_info = self.get_iteminfo(event_info.get('item_id'))
-                if item_info:
-                    image_url = self.media.get_episode_images(tv_id=item_info.get('ProviderIds', {}).get('Tmdb'),
-                                                              season_id=event_info.get('season_id'),
-                                                              episode_id=event_info.get('episode_id'))
+                # 根据返回的item_id、season_id、episode_id去调用媒体服务器获取
+                image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
+                                                         season_id=event_info.get('season_id'),
+                                                         episode_id=event_info.get('episode_id'))
             else:
-                if self._server_type == "plex":
-                    # Plex:根据返回的tmdb_id去调用tmdb获取
-                    image_url = self.media.get_tmdb_backdrop(mtype=MediaType.MOVIE,
-                                                             tmdbid=event_info.get('tmdb_id'))
-                else:
-                    # Emby,Jellyfin:根据返回的item_id去调用媒体服务器获取
-                    image_url = self.get_image_by_id(item_id=event_info.get('item_id'),
-                                                     image_type="Backdrop")
+                # 根据返回的item_id去调用媒体服务器获取
+                image_url = self.get_image_by_id(item_id=event_info.get('item_id'),
+                                                 image_type="Backdrop")
             self.message.send_mediaserver_message(event_info=event_info,
                                                   channel=channel.value,
                                                   image_url=image_url)

@@ -47,7 +47,7 @@
               </div>
             </div>
           </div>
-          <div class="table-responsive">
+          <div class="table-responsive table-page-body">
             <table id="site-resources-table" class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
@@ -105,17 +105,22 @@
                           {% endif %}
                         {% endif %}
                         <a class="ms-2 mb-1" title="名称测试"
-                           href='javascript:nametest("{{ loop.index0 }}", "{{ Result.title }}")'
+                           href='javascript:nametest("{{ loop.index0 }}")'
                            data-bs-toggle="tooltip">
                           {{ SVG.text_recognition() }}
                         </a>
                       </div>
-                      <div class="text-muted">
+                      <div class="">
                         {% if Result.imdbid %}
                           <a href="https://www.imdb.com/title/{{ Result.imdbid }}/" target="_blank"><img
                                   src="../static/img/icon-imdb.png"></a>
                         {% endif %}
-                        {{ Result.description }}
+                        {% if Result.labels %}
+                          {% for label in Result.labels.split('|') %}
+                            <span class="badge badge-outline text-purple">{{ label }}</span>
+                          {% endfor %}
+                        {% endif %}
+                        <span class="text-muted">{{ Result.description }}</span>
                       </div>
                       <custom-chips class="mt-1" id="testresults_{{ loop.index0 }}"></custom-chips>
                     </td>
@@ -275,9 +280,10 @@
   }
 
   //名称测试
-  function nametest(id, title) {
-    media_name_test(title, `testresults_${id}`, function () {
-    });
+  function nametest(id) {
+    let title = $(`#title_${id}`).val();
+    let subtitle = $(`#description_${id}`).val();
+    media_name_test(title, `testresults_${id}`, function () {}, subtitle);
   }
 
   // 搜索按钮

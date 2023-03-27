@@ -160,6 +160,7 @@ class DOWNLOADER(Base):
     TYPE = Column(Text)
     TRANSFER = Column(Integer)
     ONLY_NASTOOL = Column(Integer)
+    MATCH_PATH = Column(Integer)
     RMT_MODE = Column(Text)
     CONFIG = Column(Text)
     DOWNLOAD_DIR = Column(Text)
@@ -377,6 +378,7 @@ class SITEBRUSHTASK(Base):
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     NAME = Column(Text, index=True)
     SITE = Column(Text)
+    RSSURL = Column(Text)
     FREELEECH = Column(Text)
     RSS_RULE = Column(Text)
     REMOVE_RULE = Column(Text)
@@ -519,6 +521,20 @@ class TRANSFERHISTORY(Base):
     DEST = Column(Text)
     DEST_PATH = Column(Text)
     DEST_FILENAME = Column(Text)
+    DATE = Column(Text)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class INDEXERSTATISTICS(Base):
+    __tablename__ = 'INDEXER_STATISTICS'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    INDEXER = Column(Text)
+    TYPE = Column(Text)
+    SECONDS = Column(Integer)
+    RESULT = Column(Text)
     DATE = Column(Text)
 
     def as_dict(self):

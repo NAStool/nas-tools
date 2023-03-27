@@ -70,6 +70,7 @@ class EventManager:
             return
         event = Event(etype.value)
         event.event_data = data or {}
+        log.debug(f"发送事件：{etype.value} - {event.event_data}")
         self._eventQueue.put(event)
 
     def register(self, etype: [EventType, list]):

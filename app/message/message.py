@@ -69,6 +69,7 @@ class Message(object):
                 continue
             client = {
                 "search_type": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('search_type'),
+                "max_length": ModuleConf.MESSAGE_CONF.get('client').get(client_config.TYPE, {}).get('max_length'),
                 "client": self.__build_class(ctype=client_config.TYPE, conf=config)
             }
             client.update(client_conf)
@@ -120,17 +121,30 @@ class Message(object):
                 if not url.startswith("http"):
                     url = "%s?next=%s" % (self._domain, url)
             else:
-                url = self._domain
+                url = ""
         else:
             url = ""
-        state, ret_msg = client.get('client').send_msg(title=title,
-                                                       text=text,
-                                                       image=image,
-                                                       url=url,
-                                                       user_id=user_id)
-        if not state:
-            log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
-        return state
+        # 消息内容分段
+        max_length = client.get("max_length")
+        if max_length:
+            texts = StringUtils.split_text(text, max_length)
+        else:
+            texts = [text]
+        # 循环发送
+        for txt in texts:
+            if not title:
+                title = txt
+                txt = ""
+            state, ret_msg = client.get('client').send_msg(title=title,
+                                                           text=txt,
+                                                           image=image,
+                                                           url=url,
+                                                           user_id=user_id)
+            title = None
+            if not state:
+                log.error(f"【Message】{cname} 消息发送失败：%s" % ret_msg)
+                return state
+        return True
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
         """
@@ -611,3 +625,22 @@ class Message(object):
         return [info.get("search_type")
                 for info in ModuleConf.MESSAGE_CONF.get('client').values()
                 if info.get('search_type')]
+
+    def send_user_statistics_message(self, msgs: list):
+        """
+        发送数据统计消息
+        """
+        if not msgs:
+            return
+        title = "站点数据统计"
+        text = "\n".join(msgs)
+        # 插入消息中心
+        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
+        # 发送消息
+        for client in self._active_clients:
+            if "ptrefresh_date_message" in client.get("switchs"):
+                self.__sendmsg(
+                    client=client,
+                    title=title,
+                    text=text
+                )

@@ -300,6 +300,33 @@ class Emby(_IMediaClient):
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 
+    def get_episode_image_by_id(self, item_id, season_id, episode_id):
+        """
+        根据itemid、season_id、episode_id从Emby查询图片地址
+        :param item_id: 在Emby中的ID
+        :param season_id: 季
+        :param episode_id: 集
+        :return: 图片对应在TMDB中的URL
+        """
+        if not self._host or not self._apikey:
+            return None
+        # 查询所有剧集
+        req_url = "%semby/Shows/%s/Episodes?Season=%s&IsMissing=false&api_key=%s" % (
+            self._host, item_id, season_id, self._apikey)
+        try:
+            res_json = RequestUtils().get_res(req_url)
+            if res_json:
+                res_items = res_json.json().get("Items")
+                for res_item in res_items:
+                    # 查询当前剧集的itemid
+                    if res_item.get("IndexNumber") == episode_id:
+                        # 查询当前剧集的图片
+                        return self.get_image_by_id(res_item.get("Id"), "Primary")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
+            return None
+
     def get_image_by_id(self, item_id, image_type):
         """
         根据ItemId从Emby查询图片地址
@@ -422,7 +449,7 @@ class Emby(_IMediaClient):
                         max_equal_path_id = folder.get("Id")
                         equal_path_num += 1
                 except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
+                    print(str(err))
                     continue
             if max_equal_path_id:
                 return max_equal_path_id if equal_path_num == 1 else library.get("Id")
@@ -533,28 +560,21 @@ class Emby(_IMediaClient):
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
-                eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
-                if message.get('Item', {}).get('Overview') and len(message.get('Item', {}).get('Overview')) > 100:
-                    eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
-                else:
-                    eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
-                if not eventItem['percentage']:
-                    eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
-                                              message.get('Item', {}).get('RunTimeTicks') * 100
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (
                     message.get('Item', {}).get('Name'), "(" + str(message.get('Item', {}).get('ProductionYear')) + ")")
                 eventItem['item_path'] = message.get('Item', {}).get('Path')
                 eventItem['item_id'] = message.get('Item', {}).get('Id')
-                eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
-                if len(message.get('Item', {}).get('Overview')) > 100:
-                    eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
-                else:
-                    eventItem['overview'] = message.get('Item', {}).get('Overview')
-                eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
-                if not eventItem['percentage']:
+
+            eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
+            if message.get('Item', {}).get('Overview') and len(message.get('Item', {}).get('Overview')) > 100:
+                eventItem['overview'] = str(message.get('Item', {}).get('Overview'))[:100] + "..."
+            else:
+                eventItem['overview'] = message.get('Item', {}).get('Overview')
+            eventItem['percentage'] = message.get('TranscodingInfo', {}).get('CompletionPercentage')
+            if not eventItem['percentage']:
+                if message.get('PlaybackInfo', {}).get('PositionTicks'):
                     eventItem['percentage'] = message.get('PlaybackInfo', {}).get('PositionTicks') / \
                                               message.get('Item', {}).get('RunTimeTicks') * 100
         if message.get('Session'):

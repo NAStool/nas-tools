@@ -136,6 +136,15 @@ class Sites:
             return {}
         return ret_sites
 
+    def get_sites_by_suffix(self, suffix):
+        """
+        根据url的后缀获取站点配置
+        """
+        for key in self._siteByUrls:
+            if key.endswith(suffix):
+                return self._siteByUrls[key]
+        return {}
+
     def get_site_dict(self,
                       rss=False,
                       brush=False,
@@ -212,7 +221,7 @@ class Sites:
         if site_info.get("chrome") and chrome.get_status():
             # 计时
             start_time = datetime.now()
-            if not chrome.visit(url=site_url, ua=ua, cookie=site_cookie):
+            if not chrome.visit(url=site_url, ua=ua, cookie=site_cookie, proxy=site_info.get("proxy")):
                 return False, "Chrome模拟访问失败", 0
             # 循环检测是否过cf
             cloudflare = chrome.pass_cloudflare()

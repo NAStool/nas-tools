@@ -30,10 +30,20 @@ class MainDb:
     def session(self):
         return _Session()
 
-    @staticmethod
-    def init_db():
+    def init_db(self):
         with lock:
             Base.metadata.create_all(_Engine)
+            self.init_db_version()
+
+    def init_db_version(self):
+        """
+        初始化数据库版本
+        """
+        try:
+            self.excute("delete from alembic_version where 1")
+            self.commit()
+        except Exception as err:
+            print(str(err))
 
     def init_data(self):
         """

@@ -85,20 +85,24 @@ export class PluginModal extends CustomElement {
     let title = field_content["title"];
     let required = field_content["required"];
     let tooltip = field_content["tooltip"];
+    let hidden = field_content["hidden"];
     let type = field_content["type"];
     let content = field_content["content"];
+    let text = html``;
     for (let index in content) {
       let id = content[index]["id"];
       let placeholder = content[index]["placeholder"];
       let default_value = content[index]["default"];
       if (index === "0") {
+        text = html`<input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off" ?hidden=${hidden}>`
         text_content = html`<div class="mb-1">
                       <label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>
-                      <input type="${type}" value="${this.config[id] || default_value || ''}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autocomplete="off">
+                      ${text}
                     </div>`
       } else {
+        text = html`<input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off" ?hidden=${hidden}>`
         text_content = html`${text_content}<div class="mb-3">
-                      <input type="text" value="${this.config[id] || default_value || ""}" class="form-control" id="${this.prefix}${id}" placeholder="${placeholder}" autoComplete="off">
+                      ${text}
                     </div>`
       }
     }
@@ -139,7 +143,17 @@ export class PluginModal extends CustomElement {
       let default_value = content[index]["default"];
       let text_options = html``;
       for (let option in options) {
-        text_options = html`${text_options}<option value="${option}" ${ default_value === option ? "selected" : "" }>${options[option]}</option>`
+        if (this.config[id]) {
+          if (this.config[id] === option) {
+            text_options = html`${text_options}<option value="${option}" selected>${options[option]}</option>`
+          } else {
+            text_options = html`${text_options}<option value="${option}">${options[option]}</option>`
+          }
+        } else if (default_value && default_value === option) {
+          text_options = html`${text_options}<option value="${option}" selected>${options[option]}</option>`
+        } else {
+          text_options = html`${text_options}<option value="${option}">${options[option]}</option>`
+        }
       }
       text_content = html`
         <div class="mb-1">
@@ -157,17 +171,24 @@ export class PluginModal extends CustomElement {
     let required = field_content["required"];
     let tooltip = field_content["tooltip"];
     let content = field_content["content"];
+    let readonly = field_content["readonly"];
     let id = content["id"];
     let placeholder = content["placeholder"];
     let rows = content["rows"] || 5;
     let label = html``;
+    let textarea = html``;
     if (title) {
       label = html`<label class="form-label ${required}">${title} ${this.__render_note(tooltip)}</label>`
+    }
+    if (readonly) {
+      textarea = html`<textarea class="form-control" id="${this.prefix}${id}" rows="${rows}" placeholder="${placeholder}" readonly>${this.config[id] || ""}</textarea>`
+    } else {
+      textarea = html`<textarea class="form-control" id="${this.prefix}${id}" rows="${rows}" placeholder="${placeholder}">${this.config[id] || ""}</textarea>`
     }
     return html`<div class="col-12 col-lg">
                   <div class="mb-1">
                     ${label}
-                    <textarea class="form-control" id="${this.prefix}${id}" rows="${rows}" placeholder="${placeholder}">${this.config[id] || ""}</textarea>
+                    ${textarea}
                   </div>
                 </div>`
   }
@@ -206,25 +227,26 @@ export class PluginModal extends CustomElement {
   }
 
   render() {
-    return html`<div class="modal modal-blur fade" id="modal-plugin-${this.id}" tabindex="-1" role="dialog" aria-hidden="true"
-                     data-bs-backdrop="static" data-bs-keyboard="false">
-                  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">${this.name}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body" style="overflow-y: auto">
-                      ${this.__render_fields()}
-                      </div>
-                      <div class="modal-footer">
-                        <a href="javascript:save_plugin_config('${this.id}', '${this.prefix}')" class="btn btn-primary">
-                          确定
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>`
+    return html`
+      <div class="modal modal-blur fade" id="modal-plugin-${this.id}" tabindex="-1" role="dialog" aria-hidden="true"
+           data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">${this.name}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto">
+            ${this.__render_fields()}
+            </div>
+            <div class="modal-footer">
+              <a href="javascript:save_plugin_config('${this.id}', '${this.prefix}')" class="btn btn-primary">
+                确定
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>`
   }
 
 }

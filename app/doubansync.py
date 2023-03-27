@@ -11,7 +11,7 @@ from app.media.meta import MetaInfo
 from app.searcher import Searcher
 from app.subscribe import Subscribe
 from app.utils import ExceptionUtils
-from app.utils.types import SearchType, MediaType
+from app.utils.types import SearchType, MediaType, RssType
 from config import Config
 
 lock = Lock()
@@ -119,6 +119,7 @@ class DoubanSync:
                                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
+                                                                                channel=RssType.Auto,
                                                                                 season=media.begin_season,
                                                                                 mediaid=f"DB:{media.douban_id}",
                                                                                 in_from=SearchType.DB)
@@ -139,6 +140,7 @@ class DoubanSync:
                                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
+                                                                                channel=RssType.Auto,
                                                                                 season=media.begin_season,
                                                                                 mediaid=f"DB:{media.douban_id}",
                                                                                 state="R",

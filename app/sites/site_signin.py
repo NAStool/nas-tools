@@ -93,7 +93,7 @@ class SiteSignin(object):
                 # 首页
                 log.info("【Sites】开始站点仿真签到：%s" % site)
                 home_url = StringUtils.get_base_url(site_url)
-                if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie):
+                if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie, proxy=site_info.get("proxy")):
                     log.warn("【Sites】%s 无法打开网站" % site)
                     return f"【{site}】无法打开网站！"
                 # 循环检测是否过cf
