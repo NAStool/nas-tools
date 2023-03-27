@@ -526,26 +526,31 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="ms-2">
-          <h5 class="modal-title">订阅预览</h5>
-          <input type="hidden" id="article_check_id" value="" >
-        </div>
-        <div class="ms-5">
-          <div class="col">
-            <select id="filter-status" class="form-select" onchange="filterReport()">
-              <option value="">全部</option>
-              <option value="已处理">已处理</option>
-              <option value="未处理">未处理</option>
-            </select>
-          </div>
-        </div>
-        <div class="col">
-          <input type="text" id="filter-title" class="form-control" onkeyup="filterReport()">
+        <div class="ms-2 d-flex align-items-center">
+          <h5 class="modal-title me-2">订阅预览</h5>
+          <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#search-bar" aria-expanded="false" aria-controls="search-bar">
+            {{ SVG.search() }}
+          </button>
+          <input type="hidden" id="article_check_id" value="">
         </div>
         <div class="ms-5">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>      
+      </div>
+      <div class="collapse" id="search-bar">
+        <div class="modal-body">
+          <form>
+            <div class="input-group mb-3">
+              <select id="filter-status" class="form-select" onchange="filterReport()">
+                <option value="">全部</option>
+                <option value="已处理">已处理</option>
+                <option value="未处理">未处理</option>
+              </select>
+              <input type="text" id="filter-title" class="form-control" placeholder="搜索" style="width: 75%;" onkeyup="filterReport()">
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="table-responsive table-modal-body">
         <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
         </table>
