@@ -4675,7 +4675,7 @@ class WebAction:
         :param: title 媒体标题
         :param: year 媒体年份
         :param: mediaid TMDBID/DB:豆瓣ID/BG:Bangumi的ID
-        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID, 如果已下载,还会有对应的没图库的播放地址链接
+        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID, 如果已下载,还会有对应的媒体库的播放地址链接
         """
         if str(mediaid).isdigit():
             tmdbid = mediaid
