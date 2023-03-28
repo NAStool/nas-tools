@@ -68,7 +68,8 @@ class AutoSub(_IPluginModule):
                         {
                             'title': 'whisper.cpp路径',
                             'required': "required",
-                            'tooltip': '填写whisper.cpp主程序路径，如/config/plugin/autosub/main',
+                            'tooltip': '填写whisper.cpp主程序路径，如/config/plugin/autosub/main \n'
+                                       '推荐教程 https://ddsrem.com/autosub',
                             'type': 'text',
                             'content': [
                                 {
@@ -83,7 +84,7 @@ class AutoSub(_IPluginModule):
                         {
                             'title': 'whisper.cpp模型路径',
                             'required': "required",
-                            'tooltip': '填写whisper.cpp模型路径，如/config/plugin/autosub/models/ggml-base.en.bin，'
+                            'tooltip': '填写whisper.cpp模型路径，如/config/plugin/autosub/models/ggml-base.en.bin\n'
                                        '可从https://github.com/ggerganov/whisper.cpp/tree/master/models处下载',
                             'type': 'text',
                             'content':
@@ -213,7 +214,7 @@ class AutoSub(_IPluginModule):
             return
 
         # 校验扩展参数是否包含异常字符
-        if self.additional_args and re.search(r'[\s;|&]', self.additional_args):
+        if self.additional_args and re.search(r'[;|&]', self.additional_args):
             self.warn(f"扩展参数包含异常字符，不进行处理")
             return
 
@@ -293,12 +294,12 @@ class AutoSub(_IPluginModule):
 
                 if self.translate_zh:
                     # 翻译字幕
-                    self.info(f"开始翻译字幕 ...")
-                    self.__translate_zh_subtitle(f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
+                    self.info(f"开始翻译字幕为中文 ...")
+                    self.__translate_zh_subtitle(lang, f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
                     self.info(f"翻译字幕完成：{file_name}.zh.srt")
 
                 end_time = time.time()
-                message = f"媒体: {file_name} 处理完成\n 字幕原始语言: {lang}\n "
+                message = f" 媒体: {file_name}\n 处理完成\n 字幕原始语言: {lang}\n "
                 if self.translate_zh:
                     message += f"字幕翻译语言: zh\n "
                 message += f"耗时：{round(end_time - start_time, 2)}秒"
@@ -309,7 +310,7 @@ class AutoSub(_IPluginModule):
             except Exception as e:
                 self.error(f"自动字幕生成 处理异常：{e}")
                 end_time = time.time()
-                message = f"媒体: {file_name} 处理失败\n 耗时：{round(end_time - start_time, 2)}秒"
+                message = f" 媒体: {file_name}\n 处理失败\n 耗时：{round(end_time - start_time, 2)}秒"
                 if self.send_notify:
                     Message().send_custom_message(title="自动字幕生成", text=message)
                 # 打印调用栈
@@ -577,7 +578,26 @@ class AutoSub(_IPluginModule):
         self.info(f"合并字幕语句完成，合并前字幕数量：{len(subtitle_data)}, 合并后字幕数量：{len(merged_subtitle)}")
         return merged_subtitle
 
-    def __translate_zh_subtitle(self, source_subtitle, dest_subtitle):
+    def __do_translate_with_retry(self, text, retry=3):
+        # 调用OpenAI翻译
+        # 免费OpenAI Api Limit: 20 / minute
+        ret, result = OpenAiHelper().translate_to_zh(text)
+        for i in range(retry):
+            if ret and result:
+                break
+            if "Rate limit reached" in result:
+                self.info(f"OpenAI Api Rate limit reached, sleep 60s ...")
+                time.sleep(60)
+            else:
+                self.warn(f"翻译失败，重试第{i + 1}次")
+            ret, result = OpenAiHelper().translate_to_zh(text)
+
+        if not ret or not result:
+            return None
+
+        return result
+
+    def __translate_zh_subtitle(self, source_lang, source_subtitle, dest_subtitle):
         """
         调用OpenAI 翻译字幕
         :param source_subtitle:
@@ -586,30 +606,49 @@ class AutoSub(_IPluginModule):
         """
         # 读取字幕文件
         srt_data = self.__load_srt(source_subtitle)
-        # 合并字幕语句
-        srt_data = self.__merge_srt(srt_data)
-        for item in srt_data:
+        # 合并字幕语句，目前带标点带英文效果较好，非英文或者无标点的需要NLP处理
+        if source_lang in ['en', 'eng']:
+            srt_data = self.__merge_srt(srt_data)
+        batch = []
+        max_batch_tokens = 1000
+        for srt_item in srt_data:
             # 跳过空行和无意义的字幕
-            if not item.content:
+            if not srt_item.content:
                 continue
-            if self.__is_noisy_subtitle(item.content):
+            if self.__is_noisy_subtitle(srt_item.content):
                 continue
 
-            # 调用OpenAI翻译
-            # 免费OpenAI Api Limit: 20 / minute
-            ret, result = OpenAiHelper().translate_to_zh(item.content)
-            if not ret:
-                if "Rate limit reached" in result:
-                    self.info(f"OpenAI Api Rate limit reached, sleep 60s ...")
-                    time.sleep(60)
-                    # 重试
-                    ret, result = OpenAiHelper().translate_to_zh(item.content)
-                else:
-                    continue
-
-            if not ret or not result:
+            # 批量翻译，减少调用次数
+            batch.append(srt_item)
+            # 当前批次字符数
+            batch_tokens = sum([len(x.content) for x in batch])
+            # 如果当前批次字符数小于最大批次字符数，且不是最后一条字幕，则继续
+            if batch_tokens < max_batch_tokens and srt_item != srt_data[-1]:
                 continue
-            item.content = result + '\n' + item.content
+
+            batch_content = '\n'.join([x.content for x in batch])
+            result = self.__do_translate_with_retry(batch_content)
+            # 如果翻译失败，则跳过
+            if not result:
+                batch = []
+                continue
+
+            translated = result.split('\n')
+            if len(translated) != len(batch):
+                self.info(
+                    f"翻译结果数量不匹配，翻译结果数量：{len(translated)}, 需要翻译数量：{len(batch)}, 退化为单条翻译 ...")
+                # 如果翻译结果数量不匹配，则退化为单条翻译
+                for index, item in enumerate(batch):
+                    result = self.__do_translate_with_retry(item.content)
+                    if not result:
+                        continue
+                    item.content = result + '\n' + item.content
+            else:
+                self.debug(f"翻译结果数量匹配，翻译结果数量：{len(translated)}")
+                for index, item in enumerate(batch):
+                    item.content = translated[index].strip() + '\n' + item.content
+
+            batch = []
 
         # 保存字幕文件
         self.__save_srt(dest_subtitle, srt_data)
