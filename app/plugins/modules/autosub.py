@@ -147,9 +147,9 @@ class AutoSub(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '完成时通知',
+                            'title': '运行时通知',
                             'required': "",
-                            'tooltip': '打开后将在单个字幕生成完成后发送通知, 需要开启自定义消息推送通知',
+                            'tooltip': '打开后将在单个字幕生成开始和完成后发送通知, 需要开启自定义消息推送通知',
                             'type': 'switch',
                             'id': 'send_notify',
                         }
@@ -284,17 +284,29 @@ class AutoSub(_IPluginModule):
                     self.skip_count += 1
                     continue
                 # 生成字幕
+                if self.send_notify:
+                    Message().send_custom_message(title="自动字幕生成",
+                                                  text=f" 媒体: {file_name}\n 开始处理文件 ... ")
                 ret, lang = self.__generate_subtitle(video_file, file_path, self.translate_only)
                 if not ret:
+                    message = f" 媒体: {file_name}\n "
                     if self.translate_only:
+                        message += "内嵌&外挂字幕不存在，不进行翻译"
                         self.skip_count += 1
                     else:
+                        message += "生成字幕失败，跳过后续处理"
                         self.fail_count += 1
+
+                    if self.send_notify:
+                        Message().send_custom_message(title="自动字幕生成", text=message)
                     continue
 
                 if self.translate_zh:
                     # 翻译字幕
                     self.info(f"开始翻译字幕为中文 ...")
+                    if self.send_notify:
+                        Message().send_custom_message(title="自动字幕生成",
+                                                      text=f" 媒体: {file_name}\n 开始翻译字幕为中文 ... ")
                     self.__translate_zh_subtitle(lang, f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
                     self.info(f"翻译字幕完成：{file_name}.zh.srt")
 
