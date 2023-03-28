@@ -240,11 +240,11 @@ export class LayoutNavbar extends CustomElement {
       <div class="container-fluid">
         <div class="offcanvas offcanvas-start d-flex lit-navbar-canvas shadow" tabindex="-1" id="litLayoutNavbar">
           <div class="d-flex flex-row flex-grow-1 lit-navbar-hide-scrollbar">
-            <div class="d-flex flex-column flex-grow-1">
+            <div class="d-flex flex-column flex-grow-1 vh-100">
               <h1 class="mt-3" style="text-align:center;">
                 <img src="../static/img/logo/logo-blue.png" alt="NAStool" class="lit-navbar-logo">
               </h1>
-              <div class="accordion px-2 py-2 flex-grow-1">
+              <div class="accordion px-2 py-2 flex-grow-1 scroll-y">
                 ${this.navbar_list.map((item, index) => ( html`
                   ${item.list?.length > 0
                   ? html`
