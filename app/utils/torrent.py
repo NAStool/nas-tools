@@ -3,7 +3,7 @@ import os.path
 import re
 from urllib.parse import unquote
 
-from bencode import bdecode
+# from bencode import bdecode
 
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType

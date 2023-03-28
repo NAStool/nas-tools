@@ -19,7 +19,6 @@ server_lock = threading.Lock()
 
 @singleton
 class MediaServer:
-
     _mediaserver_schemas = []
 
     _server_type = None
@@ -187,6 +186,15 @@ class MediaServer:
             return []
         return self.server.get_items(parent)
 
+    def get_items_url(self, item_id):
+        """
+        获取媒体库中的所有媒体
+        :param item_id: 媒体的id
+        """
+        if not self.server:
+            return None
+        return self.server.get_items_url(item_id)
+
     def get_tv_episodes(self, item_id):
         """
         获取电视剧的所有集数信息
@@ -255,6 +263,28 @@ class MediaServer:
                                  text="媒体库数据同步完成，同步数量：%s" % total_count)
             self.progress.end(ProgressKey.MediaSync)
             log.info("【MediaServer】媒体库数据同步完成，同步数量：%s" % total_count)
+
+    def get_item_url(self,
+                     title=None,
+                     year=None,
+                     tmdbid=None):
+        """
+        判断媒体库中是否存在此数据,如果存在,返回
+        :param title: 标题
+        :param year: 年份
+        :param tmdbid: TMDB ID
+        """
+        media = self.mediadb.query(server_type=self._server_type,
+                                   title=title,
+                                   year=year,
+                                   tmdbid=tmdbid)
+        url = None
+        exists = False
+        if media:
+            exists = True
+        if exists:
+            url = self.get_items_url(media.ITEM_ID)
+        return exists, url
 
     def check_item_exists(self,
                           mtype,
