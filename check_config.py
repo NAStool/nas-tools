@@ -9,8 +9,7 @@ from werkzeug.security import generate_password_hash
 import log
 from app.helper import DbHelper
 from app.plugins import PluginManager
-from app.utils import ConfigLoadCache
-from app.utils import ExceptionUtils
+from app.utils import ConfigLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
 from config import Config
 
@@ -80,6 +79,11 @@ def update_config():
     if login_password and not login_password.startswith("[hash]"):
         _config['app']['login_password'] = "[hash]%s" % generate_password_hash(
             login_password)
+        overwrite_cofig = True
+
+    # API密钥初始化
+    if not _config.get("security", {}).get("api_key"):
+        _config['security']['api_key'] = StringUtils.generate_random_str()
         overwrite_cofig = True
 
     # 字幕兼容旧配置
