@@ -1,6 +1,5 @@
 import os
 
-import log
 from app.downloader import Downloader
 from app.helper import DbHelper
 from app.plugins import EventHandler
@@ -11,9 +10,9 @@ from config import Config
 
 class TorrentRemover(_IPluginModule):
     # 插件名称
-    module_name = "下载任务联动删除"
+    module_name = "下载任务清理"
     # 插件描述
-    module_desc = "下载文件被删除时，联动删除下载器中的下载任务。"
+    module_desc = "历史记录中源文件被删除时，同步删除下载器中的下载任务。"
     # 插件图标
     module_icon = "torrentremover.png"
     # 主题色
@@ -101,6 +100,6 @@ class TorrentRemover(_IPluginModule):
                     delete_flag = True
                     break
             if delete_flag:
-                log.info(f"【Plugin】删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
+                self.info(f"删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
                 DownloaderHandler.delete_torrents(downloader_id=info.DOWNLOADER,
                                                   ids=info.DOWNLOAD_ID)

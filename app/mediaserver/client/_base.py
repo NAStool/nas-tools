@@ -128,6 +128,14 @@ class _IMediaClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_play_url(self, item_id):
+        """
+        获取媒体库中的所有媒体
+        :param item_id: 媒体的的ID
+        """
+        pass
+
+    @abstractmethod
     def get_playing_sessions(self):
         """
         获取正在播放的会话

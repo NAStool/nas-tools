@@ -189,6 +189,8 @@ class SiteCookie(object):
                         pass
                 # 提交登录
                 submit_obj.click()
+                # 等待页面刷新完毕
+                WebDriverWait(driver=chrome.browser, timeout=5).until(es.staleness_of(submit_obj))
             else:
                 return None, None, "未找到登录按钮"
         except Exception as e:

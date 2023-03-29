@@ -221,14 +221,27 @@ class SiteUserInfo(object):
         """
         self.__refresh_all_site_data(force=True)
         # 刷完发送消息
-        statistics = self.get_site_user_statistics(encoding="RAW")
-        string_list = [f"【{site.SITE}】\n"
-                       f"上传量：{StringUtils.str_filesize(site.UPLOAD)}\n"
-                       f"下载量：{StringUtils.str_filesize(site.DOWNLOAD)}\n"
-                       f"做种数：{site.SEEDING}\n"
-                       f"做种体积：{StringUtils.str_filesize(site.SEEDING_SIZE)}"
-                       f"\n{'————————————' if i != len(statistics) - 1 else ''}"
-                       for i, site in enumerate(statistics)]
+        string_list = []
+
+        # 增量数据
+        incUploads = 0
+        incDownloads = 0
+        _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(2)
+
+        for site, upload, download in zip(site, upload, download):
+            if upload > 0 or download > 0:
+                incUploads += int(upload)
+                incDownloads += int(download)
+                string_list.append(f"【{site}】\n"
+                                   f"上传量：{StringUtils.str_filesize(upload)}\n"
+                                   f"下载量：{StringUtils.str_filesize(download)}\n"
+                                   f"\n————————————")
+
+        string_list.insert(0, f"【今日新增数据】\n"
+                              f"总上传：{StringUtils.str_filesize(incUploads)}\n"
+                              f"总下载：{StringUtils.str_filesize(incDownloads)}\n"
+                              f"\n————————————")
+
         self.message.send_user_statistics_message(string_list)
 
     def get_site_data(self, specify_sites=None, force=False):

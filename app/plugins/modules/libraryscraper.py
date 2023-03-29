@@ -6,7 +6,6 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-import log
 from app.media import Media, Scraper
 from app.media.meta import MetaInfo
 from app.plugins import EventHandler
@@ -22,9 +21,9 @@ class LibraryScraper(_IPluginModule):
     # 插件描述
     module_desc = "定时对媒体库进行刮削，补齐缺失元数据和图片。"
     # 插件图标
-    module_icon = "nfo.png"
+    module_icon = "scraper.png"
     # 主题色
-    module_color = ""
+    module_color = "bg-orange"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -165,9 +164,9 @@ class LibraryScraper(_IPluginModule):
             self._scheduler.start()
 
             if self._onlyonce:
-                log.info(f"媒体库刮削服务启动，立即运行一次")
+                self.info(f"媒体库刮削服务启动，立即运行一次")
             if self._cron:
-                log.info(f"媒体库刮削服务启动，周期：{self._cron}")
+                self.info(f"媒体库刮削服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
             self._onlyonce = False
@@ -207,11 +206,11 @@ class LibraryScraper(_IPluginModule):
         # 每个媒体库下的所有文件
         for file in self.__get_library_files(path, exclude_path):
             if self._event.is_set():
-                log.info(f"【Plugin】媒体库刮削服务停止")
+                self.info(f"媒体库刮削服务停止")
                 return
             if not file:
                 continue
-            log.info(f"【Plugin】开始刮削媒体库文件：{file}")
+            self.info(f"开始刮削媒体库文件：{file} ...")
             # 识别媒体文件
             meta_info = MetaInfo(os.path.basename(file))
             # 优先读取本地文件
@@ -230,7 +229,7 @@ class LibraryScraper(_IPluginModule):
                 if os.path.exists(tv_nfo):
                     tmdbid = self.__get_tmdbid_from_nfo(tv_nfo)
             if tmdbid:
-                log.info(f"【Plugin】读取到本地nfo文件的tmdbid：{tmdbid}")
+                self.info(f"读取到本地nfo文件的tmdbid：{tmdbid}")
                 meta_info.set_tmdb_info(self._media.get_tmdb_info(mtype=meta_info.type,
                                                                   tmdbid=tmdbid,
                                                                   append_to_response='all'))
@@ -253,20 +252,20 @@ class LibraryScraper(_IPluginModule):
                                             force=True,
                                             force_nfo=force_nfo,
                                             force_pic=force_pic)
-            log.info(f"【Plugin】{file} 刮削完成")
+            self.info(f"{file} 刮削完成")
 
     def __libraryscraper(self):
         """
         开始刮削媒体库
         """
         # 已选择的目录
-        log.info(f"【Plugin】开始刮削媒体库：{self._scraper_path} ...")
+        self.info(f"开始刮削媒体库：{self._scraper_path} ...")
         for path in self._scraper_path:
             if not path:
                 continue
             # 刮削目录
             self.__folder_scraper(path, self._exclude_path)
-        log.info(f"【Plugin】媒体库刮削完成")
+        self.info(f"媒体库刮削完成")
 
     @staticmethod
     def __get_library_files(in_path, exclude_path=None):

@@ -73,16 +73,16 @@
           </div>
           <div class="card-actions btn-actions d-none d-sm-block">
             <a href="javascript:void(0)" onclick="show_download_setting_detail('{{ Attr.id }}')" class="btn-action ms-1"
-               title="展开/折叠" data-bs-toggle="tooltip">
+               title="展开/折叠">
               {{ SVG.menu_2() }}
             </a>
             {% if Attr.id > 0 %}
             <a href="javascript:show_edit_download_setting_modal('{{ Attr.id }}')" class="btn-action ms-1"
-               title="编辑设置" data-bs-toggle="tooltip">
+               title="编辑设置">
               {{ SVG.edit() }}
             </a>
             <a href="javascript:delete_download_setting('{{ Attr.id }}', '{{ Attr.name }}')" class="btn-action ms-1"
-               title="删除设置" data-bs-toggle="tooltip">
+               title="删除设置">
               {{ SVG.x() }}
             </a>
             {% endif %}

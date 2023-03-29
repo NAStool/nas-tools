@@ -19,6 +19,7 @@ class Emby(_IMediaClient):
 
     # 私有属性
     _client_config = {}
+    _serverid = None
     _apikey = None
     _host = None
     _user = None
@@ -43,6 +44,7 @@ class Emby(_IMediaClient):
             if self._host and self._apikey:
                 self._libraries = self.__get_emby_librarys()
                 self._user = self.get_admin_user()
+                self._serverid = self.get_server_id()
 
     @classmethod
     def match(cls, ctype):
@@ -95,6 +97,24 @@ class Emby(_IMediaClient):
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Users出错：" + str(e))
+        return None
+
+    def get_server_id(self):
+        """
+        获得服务器信息
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = "%sSystem/Info?api_key=%s" % (self._host, self._apikey)
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                return res.json().get("Id")
+            else:
+                log.error(f"【{self.client_name}】System/Info 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接System/Info出错：" + str(e))
         return None
 
     def get_user_count(self):
@@ -487,6 +507,13 @@ class Emby(_IMediaClient):
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return {}
+
+    def get_play_url(self, item_id):
+        """
+        拼装媒体播放链接
+        :param item_id: 媒体的的ID
+        """
+        return f"{self._host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
 
     def get_items(self, parent):
         """

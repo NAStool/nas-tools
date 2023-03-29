@@ -120,7 +120,8 @@ class _IIndexClient(metaclass=ABCMeta):
             # 先过滤掉可以明确的类型
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(
-                    f"【{self.client_name}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
+                    f"【{self.client_name}】{torrent_name} 是 {meta_info.type.value}，"
+                    f"不匹配类型：{filter_args.get('type').value}")
                 index_rule_fail += 1
                 continue
             # 检查订阅过滤规则匹配
@@ -166,7 +167,9 @@ class _IIndexClient(metaclass=ABCMeta):
                         # TMDBID是否匹配
                         if str(media_info.tmdb_id) != str(match_media.tmdb_id):
                             log.info(
-                                f"【{self.client_name}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} 不匹配")
+                                f"【{self.client_name}】{torrent_name} 识别为 "
+                                f"{media_info.type.value}/{media_info.get_title_string()}/{media_info.tmdb_id} "
+                                f"与 {match_media.type.value}/{match_media.get_title_string()}/{match_media.tmdb_id} 不匹配")
                             index_match_fail += 1
                             continue
                         # 合并媒体数据
@@ -176,7 +179,8 @@ class _IIndexClient(metaclass=ABCMeta):
                     if (filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE) \
                             or (filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV):
                         log.info(
-                            f"【{self.client_name}】{torrent_name} 是 {media_info.type.value}，不是 {filter_args.get('type').value}")
+                            f"【{self.client_name}】{torrent_name} 是 {media_info.type.value}/"
+                            f"{media_info.tmdb_id}，不是 {filter_args.get('type').value}")
                         index_rule_fail += 1
                         continue
                 # 洗版
@@ -184,14 +188,16 @@ class _IIndexClient(metaclass=ABCMeta):
                     # 季集不完整的资源不要
                     if media_info.type != MediaType.MOVIE \
                             and media_info.get_episode_list():
-                        log.info(f"【{self.client_name}】{media_info.get_title_string()}{media_info.get_season_string()} "
+                        log.info(f"【{self.client_name}】"
+                                 f"{media_info.get_title_string()}{media_info.get_season_string()} "
                                  f"正在洗版，过滤掉季集不完整的资源：{torrent_name} {description}")
                         continue
                     # 检查优先级是否更好
                     if match_media.res_order \
                             and int(res_order) <= int(match_media.res_order):
                         log.info(
-                            f"【{self.client_name}】{media_info.get_title_string()}{media_info.get_season_string()} "
+                            f"【{self.client_name}】"
+                            f"{media_info.get_title_string()}{media_info.get_season_string()} "
                             f"正在洗版，已洗版优先级：{100 - int(match_media.res_order)}，"
                             f"当前资源优先级：{100 - int(res_order)}，"
                             f"跳过低优先级或同优先级资源：{torrent_name}"
@@ -203,13 +209,15 @@ class _IIndexClient(metaclass=ABCMeta):
                                                     filter_args.get("episode"),
                                                     filter_args.get("year")):
                 log.info(
-                    f"【{self.client_name}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
+                    f"【{self.client_name}】{torrent_name} 识别为 {media_info.type.value}/"
+                    f"{media_info.get_title_string()}/{media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1
                 continue
 
             # 匹配到了
             log.info(
-                f"【{self.client_name}】{torrent_name} {description} 识别为 {media_info.get_title_string()} {media_info.get_season_episode_string()} 匹配成功")
+                f"【{self.client_name}】{torrent_name} {description} 识别为 {media_info.get_title_string()} "
+                f"{media_info.get_season_episode_string()} 匹配成功")
             media_info.set_torrent_info(site=indexer.name,
                                         site_order=order_seq,
                                         enclosure=enclosure,
@@ -231,7 +239,17 @@ class _IIndexClient(metaclass=ABCMeta):
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(
-            f"【{self.client_name}】{indexer.name} {len(result_array)} 条数据中，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+            f"【{self.client_name}】{indexer.name} {len(result_array)} 条数据中，"
+            f"过滤 {index_rule_fail}，"
+            f"不匹配 {index_match_fail}，"
+            f"错误 {index_error}，"
+            f"有效 {index_sucess}，"
+            f"耗时 {(end_time - start_time).seconds} 秒")
         self.progress.update(ptype=ProgressKey.Search,
-                             text=f"{indexer.name} {len(result_array)} 条数据中，过滤 {index_rule_fail}，不匹配 {index_match_fail}，错误 {index_error}，有效 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+                             text=f"{indexer.name} {len(result_array)} 条数据中，"
+                                  f"过滤 {index_rule_fail}，"
+                                  f"不匹配 {index_match_fail}，"
+                                  f"错误 {index_error}，"
+                                  f"有效 {index_sucess}，"
+                                  f"耗时 {(end_time - start_time).seconds} 秒")
         return ret_array

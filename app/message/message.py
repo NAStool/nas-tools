@@ -121,7 +121,7 @@ class Message(object):
                 if not url.startswith("http"):
                     url = "%s?next=%s" % (self._domain, url)
             else:
-                url = self._domain
+                url = ""
         else:
             url = ""
         # 消息内容分段

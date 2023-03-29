@@ -26,6 +26,7 @@ export class PageMediainfo extends CustomElement {
     this.recommend_media = [];
     this.seasons_data = [];
     this.fav = undefined;
+    this.item_url = undefined;
   }
 
   firstUpdated() {
@@ -36,6 +37,7 @@ export class PageMediainfo extends CustomElement {
           this.media_info = ret.data;
           this.tmdbid = ret.data.tmdbid;
           this.fav = ret.data.fav;
+          this.item_url = ret.data.item_url
           this.seasons_data = ret.data.seasons;
           // 类似
           Golbal.get_cache_or_ajax("get_recommend", "sim", { "type": this.media_type, "subtype": "sim", "tmdbid": ret.data.tmdbid, "page": 1},
@@ -138,18 +140,24 @@ export class PageMediainfo extends CustomElement {
                       </span>
                       ${this.fav == "1"
                       ? html`
-                        <span class="btn btn-pill btn-pinterest"
+                        <span class="btn btn-pill btn-pinterest me-1"
                           @click=${this._loveClick}>
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                           删除订阅
                         </span>`
                       : html`
-                        <span class="btn btn-pill btn-purple"
+                        <span class="btn btn-pill btn-purple me-1"
                           @click=${this._loveClick}>
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
                           添加订阅
                         </span>`
-                      }`
+                      }
+                      ${this.item_url ? html`
+                      <span class="btn btn-pill btn-green me-1" @click=${this._openItemUrl}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv-old" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path><path d="M16 3l-4 4l-4 -4"></path><path d="M15 7v13"></path><path d="M18 15v.01"></path><path d="M18 12v.01"></path></svg>
+                        在线观看
+                      </span>
+                      ` : nothing }`
                     : html`
                       <span class="me-1">${this._render_placeholder("100px", "30px")}</span>
                       <span class="me-1">${this._render_placeholder("100px", "30px")}</span>
@@ -315,8 +323,9 @@ export class PageMediainfo extends CustomElement {
         this._update_fav_data();
       });
   }
-
-
+  _openItemUrl(){
+    window.open(this.item_url, '_blank');
+  }
 }
 
 

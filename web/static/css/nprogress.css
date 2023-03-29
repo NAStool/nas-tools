@@ -18,7 +18,7 @@
   display: block;
   position: absolute;
   right: 0;
-  width: 100px;
+  width: 5px;
   height: 100%;
   box-shadow: 0 0 10px var(--tblr-primary), 0 0 5px var(--tblr-primary);
   opacity: 1.0;

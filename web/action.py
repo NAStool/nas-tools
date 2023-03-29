@@ -65,7 +65,7 @@ class WebAction:
             "del_unknown_path": self.__del_unknown_path,
             "rename": self.__rename,
             "rename_udf": self.__rename_udf,
-            "delete_history": self.__delete_history,
+            "delete_history": self.delete_history,
             "logging": self.__logging,
             "version": self.__version,
             "update_site": self.__update_site,
@@ -220,7 +220,10 @@ class WebAction:
             "test_downloader": self.__test_downloader,
             "get_indexer_statistics": self.__get_indexer_statistics,
             "media_path_scrap": self.__media_path_scrap,
-            "get_default_rss_setting": self.get_default_rss_setting
+            "get_default_rss_setting": self.get_default_rss_setting,
+            "get_movie_rss_items": self.get_movie_rss_items,
+            "get_tv_rss_items": self.get_tv_rss_items,
+            "get_ical_events": self.get_ical_events,
         }
 
     def action(self, cmd, data=None):
@@ -311,7 +314,7 @@ class WebAction:
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         elif SystemUtils.is_synology():
             os.system(
-                "sudo ps -ef | grep -v grep | grep 'python run.py'|awk '{print $2}'|xargs kill -9")
+                "ps -ef | grep -v grep | grep 'python run.py'|awk '{print $2}'|xargs kill -9")
         else:
             os.system("pm2 restart NAStool")
 
@@ -860,11 +863,11 @@ class WebAction:
                                                                udf_flag=True)
         return succ_flag, ret_msg
 
-    def __delete_history(self, data):
+    def delete_history(self, data):
         """
         删除识别记录及文件
         """
-        logids = data.get('logids')
+        logids = data.get('logids') or []
         flag = data.get('flag')
         for logid in logids:
             # 读取历史记录
@@ -892,9 +895,9 @@ class WebAction:
                     # 删除源文件
                     del_flag, del_msg = self.delete_media_file(source_path, source_filename)
                     if not del_flag:
-                        log.error(f"【Web】{del_msg}")
+                        log.error(del_msg)
                     else:
-                        log.info(f"【Web】{del_msg}")
+                        log.info(del_msg)
                         # 触发源文件删除事件
                         EventManager().send_event(EventType.SourceFileDeleted, {
                             "media_info": media_info,
@@ -906,9 +909,9 @@ class WebAction:
                     if dest_path and dest_filename:
                         del_flag, del_msg = self.delete_media_file(dest_path, dest_filename)
                         if not del_flag:
-                            log.error(f"【Web】{del_msg}")
+                            log.error(del_msg)
                         else:
-                            log.info(f"【Web】{del_msg}")
+                            log.info(del_msg)
                             # 触发媒体库文件删除事件
                             EventManager().send_event(EventType.LibraryFileDeleted, {
                                 "media_info": media_info,
@@ -1852,7 +1855,9 @@ class WebAction:
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}
             else:
-                return {"code": 0,
+                return {
+                    "code": 0,
+                    "events": [{
                         "type": "电视剧",
                         "title": title,
                         "start": release_date,
@@ -1861,7 +1866,8 @@ class WebAction:
                         "poster": poster_path,
                         "vote_average": vote_average,
                         "rssid": rssid
-                        }
+                    }]
+                }
         else:
             if tid:
                 tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
@@ -2410,10 +2416,10 @@ class WebAction:
 
         # 补充存在与订阅状态
         for res in res_list:
-            fav, rssid = self.get_media_exists_flag(mtype=res.get("type"),
-                                                    title=res.get("title"),
-                                                    year=res.get("year"),
-                                                    mediaid=res.get("id"))
+            fav, rssid, item_url = self.get_media_exists_info(mtype=res.get("type"),
+                                                              title=res.get("title"),
+                                                              year=res.get("year"),
+                                                              mediaid=res.get("id"))
             res.update({
                 'fav': fav,
                 'rssid': rssid
@@ -3483,7 +3489,8 @@ class WebAction:
             SE_key = item.ES_STRING if item.ES_STRING and mtype != "MOV" else "MOV"
             media_type = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(mtype)
             # 只需要部分种子标签
-            labels = [label for label in str(item.NOTE).split("|") if label in ["官方", "中字", "国语", "特效字幕"]]
+            labels = [label for label in str(item.NOTE).split("|")
+                      if label in ["官方", "官组", "中字", "国语", "特效", "特效字幕"]]
             # 种子信息
             torrent_item = {
                 "id": item.ID,
@@ -3570,7 +3577,7 @@ class WebAction:
                 fav, rssid = 0, None
                 # 存在标志
                 if item.TMDBID:
-                    fav, rssid = self.get_media_exists_flag(
+                    fav, rssid, item_url = self.get_media_exists_info(
                         mtype=mtype,
                         title=item.TITLE,
                         year=item.YEAR,
@@ -4057,9 +4064,9 @@ class WebAction:
                 del_flag, del_msg = self.delete_media_file(filedir=os.path.dirname(file),
                                                            filename=os.path.basename(file))
                 if not del_flag:
-                    log.error(f"【Web】{del_msg}")
+                    log.error(del_msg)
                 else:
-                    log.info(f"【Web】{del_msg}")
+                    log.info(del_msg)
         return {"code": 0}
 
     @staticmethod
@@ -4515,10 +4522,10 @@ class WebAction:
                 "msg": "无法查询到TMDB信息"
             }
         # 查询存在及订阅状态
-        fav, rssid = self.get_media_exists_flag(mtype=mtype,
-                                                title=media_info.title,
-                                                year=media_info.year,
-                                                mediaid=media_info.tmdb_id)
+        fav, rssid, item_url = self.get_media_exists_info(mtype=mtype,
+                                                          title=media_info.title,
+                                                          year=media_info.year,
+                                                          mediaid=media_info.tmdb_id)
         MediaHandler = Media()
         MediaServerHandler = MediaServer()
         # 查询季
@@ -4527,12 +4534,12 @@ class WebAction:
         if seasons:
             for season in seasons:
                 season.update({
-                    "state": MediaServerHandler.check_item_exists(
+                    "state": True if MediaServerHandler.check_item_exists(
                         mtype=mtype,
                         title=media_info.title,
                         year=media_info.year,
                         tmdbid=media_info.tmdb_id,
-                        season=season.get("season_number"))
+                        season=season.get("season_number")) else False
                 })
         return {
             "code": 0,
@@ -4553,6 +4560,7 @@ class WebAction:
                 "link": media_info.get_detail_url(),
                 "douban_link": media_info.get_douban_detail_url(),
                 "fav": fav,
+                "item_url": item_url,
                 "rssid": rssid,
                 "seasons": seasons
             }
@@ -4660,14 +4668,14 @@ class WebAction:
         PluginManager().reload_plugin(plugin_id)
         return {"code": 0, "msg": "保存成功"}
 
-    def get_media_exists_flag(self, mtype, title, year, mediaid):
+    def get_media_exists_info(self, mtype, title, year, mediaid):
         """
         获取媒体存在标记：是否存在、是否订阅
         :param: mtype 媒体类型
         :param: title 媒体标题
         :param: year 媒体年份
         :param: mediaid TMDBID/DB:豆瓣ID/BG:Bangumi的ID
-        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID
+        :return: 1-已订阅/2-已下载/0-不存在未订阅, RSSID, 如果已下载,还会有对应的媒体库的播放地址链接
         """
         if str(mediaid).isdigit():
             tmdbid = mediaid
@@ -4685,16 +4693,21 @@ class WebAction:
             else:
                 season = None
             rssid = self.dbhelper.get_rss_tv_id(title=title, year=year, season=season, tmdbid=tmdbid)
+        item_url = None
         if rssid:
             # 已订阅
             fav = "1"
-        elif MediaServer().check_item_exists(mtype=mtype, title=title, year=year, tmdbid=tmdbid):
-            # 已下载
-            fav = "2"
         else:
-            # 未订阅、未下载
-            fav = "0"
-        return fav, rssid
+            # 检查媒体服务器是否存在
+            item_id = MediaServer().check_item_exists(mtype=mtype, title=title, year=year, tmdbid=tmdbid)
+            if item_id:
+                # 已下载
+                fav = "2"
+                item_url = MediaServer().get_play_url(item_id=item_id)
+            else:
+                # 未订阅、未下载
+                fav = "0"
+        return fav, rssid, item_url
 
     @staticmethod
     def __get_season_episodes(data=None):
@@ -4712,13 +4725,13 @@ class WebAction:
         MediaServerHandler = MediaServer()
         for episode in episodes:
             episode.update({
-                "state": MediaServerHandler.check_item_exists(
+                "state": True if MediaServerHandler.check_item_exists(
                     mtype=MediaType.TV,
                     title=title,
                     year=year,
                     tmdbid=tmdbid,
                     season=season,
-                    episode=episode.get("episode_number"))
+                    episode=episode.get("episode_number")) else False
             })
         return {
             "code": 0,
@@ -4901,3 +4914,65 @@ class WebAction:
         if default_rss_setting:
             return {"code": 0, "data": default_rss_setting}
         return {"code": 1}
+
+    @staticmethod
+    def get_movie_rss_items(data=None):
+        """
+        获取所有电影订阅项目
+        """
+        RssMovieItems = [
+            {
+                "id": movie.get("tmdbid"),
+                "rssid": movie.get("id")
+            } for movie in Subscribe().get_subscribe_movies().values() if movie.get("tmdbid")
+        ]
+        return {"code": 0, "result": RssMovieItems}
+
+    @staticmethod
+    def get_tv_rss_items(data=None):
+        """
+        获取所有电视剧订阅项目
+        """
+        # 电视剧订阅
+        RssTvItems = [
+            {
+                "id": tv.get("tmdbid"),
+                "rssid": tv.get("id"),
+                "season": int(str(tv.get('season')).replace("S", "")),
+                "name": tv.get("name"),
+            } for tv in Subscribe().get_subscribe_tvs().values() if tv.get('season') and tv.get("tmdbid")
+        ]
+        # 自定义订阅
+        RssTvItems += RssChecker().get_userrss_mediainfos()
+        # 电视剧订阅去重
+        Uniques = set()
+        UniqueTvItems = []
+        for item in RssTvItems:
+            unique = f"{item.get('id')}_{item.get('season')}"
+            if unique not in Uniques:
+                Uniques.add(unique)
+                UniqueTvItems.append(item)
+        return {"code": 0, "result": UniqueTvItems}
+
+    def get_ical_events(self, data=None):
+        """
+        获取ical日历事件
+        """
+        Events = []
+        # 电影订阅
+        RssMovieItems = self.get_movie_rss_items().get("result")
+        for movie in RssMovieItems:
+            info = self.__movie_calendar_data(movie)
+            if info.get("id"):
+                Events.append(info)
+
+        # 电视剧订阅
+        RssTvItems = self.get_tv_rss_items().get("result")
+        for tv in RssTvItems:
+            infos = self.__tv_calendar_data(tv).get("events")
+            if infos and isinstance(infos, list):
+                for info in infos:
+                    if info.get("id"):
+                        Events.append(info)
+
+        return {"code": 0, "result": Events}

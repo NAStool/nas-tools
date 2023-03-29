@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+import log
 from app.conf import SystemConfig
 
 
@@ -74,3 +75,31 @@ class _IPluginModule(metaclass=ABCMeta):
         if not plugin_id:
             plugin_id = self.__class__.__name__
         return SystemConfig().get_system_config("plugin.%s" % plugin_id)
+
+    def info(self, msg):
+        """
+        记录INFO日志
+        :param msg: 日志信息
+        """
+        log.info(f"【Plugin】{self.module_name} - {msg}")
+
+    def warn(self, msg):
+        """
+        记录插件WARN日志
+        :param msg: 日志信息
+        """
+        log.warn(f"【Plugin】{self.module_name} - {msg}")
+
+    def error(self, msg):
+        """
+        记录插件ERROR日志
+        :param msg: 日志信息
+        """
+        log.error(f"【Plugin】{self.module_name} - {msg}")
+
+    def debug(self, msg):
+        """
+        记录插件Debug日志
+        :param msg: 日志信息
+        """
+        log.debug(f"【Plugin】{self.module_name} - {msg}")

@@ -300,7 +300,10 @@ class BrushTask(object):
                     continue
                 # 被手动从下载器删除的种子列表
                 remove_torrent_ids = list(
-                    set(torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
+                    set(torrent_ids).difference(
+                        set([(torrent.get("hash")
+                              if downloader_type == 'qbittorrent'
+                              else str(torrent.id)) for torrent in torrents])))
                 # 完成的种子
                 for torrent in torrents:
                     torrent_info = self.__get_torrent_dict(downloader_type=downloader_type,
@@ -339,7 +342,10 @@ class BrushTask(object):
                     continue
                 # 更新手动从下载器删除的种子列表
                 remove_torrent_ids = list(
-                    set(remove_torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
+                    set(remove_torrent_ids).difference(
+                        set([(torrent.get("hash")
+                              if downloader_type == 'qbittorrent'
+                              else str(torrent.id)) for torrent in torrents])))
                 # 下载中的种子
                 for torrent in torrents:
                     torrent_info = self.__get_torrent_dict(downloader_type=downloader_type,

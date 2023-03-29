@@ -165,6 +165,10 @@ class OpenAiHelper:
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 user="NAStool",
+                temperature=0,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0,
                 messages=[
                     {
                         "role": "system",
