@@ -281,7 +281,7 @@ class Jellyfin(_IMediaClient):
                 exists_episodes = []
                 for res_item in res_items:
                     exists_episodes.append({
-                        "season_num": res_item.get("season_num") or 0,
+                        "season_num": res_item.get("ParentIndexNumber") or 0,
                         "episode_num": res_item.get("IndexNumber") or 0
                     })
                 return exists_episodes
