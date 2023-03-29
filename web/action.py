@@ -2416,7 +2416,7 @@ class WebAction:
 
         # 补充存在与订阅状态
         for res in res_list:
-            fav, rssid, item_url = self.get_media_exists_flag(mtype=res.get("type"),
+            fav, rssid, item_url = self.get_media_exists_info(mtype=res.get("type"),
                                                               title=res.get("title"),
                                                               year=res.get("year"),
                                                               mediaid=res.get("id"))
@@ -3577,7 +3577,7 @@ class WebAction:
                 fav, rssid = 0, None
                 # 存在标志
                 if item.TMDBID:
-                    fav, rssid, item_url = self.get_media_exists_flag(
+                    fav, rssid, item_url = self.get_media_exists_info(
                         mtype=mtype,
                         title=item.TITLE,
                         year=item.YEAR,
@@ -4522,7 +4522,7 @@ class WebAction:
                 "msg": "无法查询到TMDB信息"
             }
         # 查询存在及订阅状态
-        fav, rssid, item_url = self.get_media_exists_flag(mtype=mtype,
+        fav, rssid, item_url = self.get_media_exists_info(mtype=mtype,
                                                           title=media_info.title,
                                                           year=media_info.year,
                                                           mediaid=media_info.tmdb_id)
@@ -4534,12 +4534,12 @@ class WebAction:
         if seasons:
             for season in seasons:
                 season.update({
-                    "state": MediaServerHandler.check_item_exists(
+                    "state": True if MediaServerHandler.check_item_exists(
                         mtype=mtype,
                         title=media_info.title,
                         year=media_info.year,
                         tmdbid=media_info.tmdb_id,
-                        season=season.get("season_number"))
+                        season=season.get("season_number")) else False
                 })
         return {
             "code": 0,
@@ -4668,7 +4668,7 @@ class WebAction:
         PluginManager().reload_plugin(plugin_id)
         return {"code": 0, "msg": "保存成功"}
 
-    def get_media_exists_flag(self, mtype, title, year, mediaid):
+    def get_media_exists_info(self, mtype, title, year, mediaid):
         """
         获取媒体存在标记：是否存在、是否订阅
         :param: mtype 媒体类型
@@ -4698,11 +4698,12 @@ class WebAction:
             # 已订阅
             fav = "1"
         else:
-            exists, url = MediaServer().get_item_url(title=title, year=year, tmdbid=tmdbid)
-            if exists:
+            # 检查媒体服务器是否存在
+            item_id = MediaServer().check_item_exists(mtype=mtype, title=title, year=year, tmdbid=tmdbid)
+            if item_id:
                 # 已下载
                 fav = "2"
-                item_url = url
+                item_url = MediaServer().get_play_url(item_id=item_id)
             else:
                 # 未订阅、未下载
                 fav = "0"
@@ -4724,13 +4725,13 @@ class WebAction:
         MediaServerHandler = MediaServer()
         for episode in episodes:
             episode.update({
-                "state": MediaServerHandler.check_item_exists(
+                "state": True if MediaServerHandler.check_item_exists(
                     mtype=MediaType.TV,
                     title=title,
                     year=year,
                     tmdbid=tmdbid,
                     season=season,
-                    episode=episode.get("episode_number"))
+                    episode=episode.get("episode_number")) else False
             })
         return {
             "code": 0,

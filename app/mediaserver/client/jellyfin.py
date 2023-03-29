@@ -442,7 +442,7 @@ class Jellyfin(_IMediaClient):
             log.error(f"【{self.client_name}】连接Users/Items出错：" + str(e))
         yield {}
 
-    def get_items_url(self, item_id):
+    def get_play_url(self, item_id):
         """
         获取媒体库中的所有媒体
         :param item_id: 媒体的的ID

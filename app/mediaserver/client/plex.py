@@ -254,12 +254,10 @@ class Plex(_IMediaClient):
             for image in images:
                 if hasattr(image, 'key') and image.key.startswith('http'):
                     return image.key
-            raise Exception("test")
-            return None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】获取封面出错：" + str(e))
-            return None
+        return None
 
     def refresh_root_library(self):
         """
@@ -307,13 +305,12 @@ class Plex(_IMediaClient):
             ExceptionUtils.exception_traceback(err)
             return {}
 
-    def get_items_url(self, item_id):
+    def get_play_url(self, item_id):
         """
         获取媒体库中的所有媒体
         :param item_id: 媒体的的ID
         """
-        base = 'https://app.plex.tv/desktop/'
-        return f'{base}#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
+        return f'https://app.plex.tv/desktop/#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
 
     def get_items(self, parent):
         """

@@ -10,7 +10,6 @@ from app.message import Message
 from app.utils import ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaServerType, MovieTypes, SystemConfigKey, ProgressKey
-from app.utils.types import MediaType
 from config import Config
 
 lock = threading.Lock()
@@ -186,14 +185,14 @@ class MediaServer:
             return []
         return self.server.get_items(parent)
 
-    def get_items_url(self, item_id):
+    def get_play_url(self, item_id):
         """
         获取媒体库中的所有媒体
         :param item_id: 媒体的id
         """
         if not self.server:
             return None
-        return self.server.get_items_url(item_id)
+        return self.server.get_play_url(item_id)
 
     def get_tv_episodes(self, item_id):
         """
@@ -264,28 +263,6 @@ class MediaServer:
             self.progress.end(ProgressKey.MediaSync)
             log.info("【MediaServer】媒体库数据同步完成，同步数量：%s" % total_count)
 
-    def get_item_url(self,
-                     title=None,
-                     year=None,
-                     tmdbid=None):
-        """
-        判断媒体库中是否存在此数据,如果存在,返回
-        :param title: 标题
-        :param year: 年份
-        :param tmdbid: TMDB ID
-        """
-        media = self.mediadb.query(server_type=self._server_type,
-                                   title=title,
-                                   year=year,
-                                   tmdbid=tmdbid)
-        url = None
-        exists = False
-        if media:
-            exists = True
-        if exists:
-            url = self.get_items_url(media.ITEM_ID)
-        return exists, url
-
     def check_item_exists(self,
                           mtype,
                           title=None,
@@ -301,13 +278,14 @@ class MediaServer:
         :param tmdbid: TMDB ID
         :param season: 季号
         :param episode: 集号
+        :return: 媒体服务器中的ITEMID
         """
         media = self.mediadb.query(server_type=self._server_type,
                                    title=title,
                                    year=year,
                                    tmdbid=tmdbid)
         if not media:
-            return False
+            return None
 
         # 剧集没有季时默认为第1季
         if mtype not in MovieTypes:
@@ -319,12 +297,12 @@ class MediaServer:
             for seasoninfo in seasoninfos:
                 if seasoninfo.get("season_num") == int(season):
                     if not episode:
-                        return True
+                        return media.ITEM_ID
                     elif seasoninfo.get("episode_num") == int(episode):
-                        return True
-            return False
+                        return media.ITEM_ID
+            return None
         else:
-            return True
+            return media.ITEM_ID
 
     def get_mediasync_status(self):
         """
@@ -372,7 +350,6 @@ class MediaServer:
             log.error(f"【MediaServer】webhook 消息解析异常")
         if event_info:
             # 获取消息图片
-            image_url = None
             if event_info.get("item_type") == "TV":
                 # 根据返回的item_id、season_id、episode_id去调用媒体服务器获取
                 image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
