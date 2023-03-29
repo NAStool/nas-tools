@@ -237,7 +237,7 @@ class SiteUserInfo(object):
                                    f"下载量：{StringUtils.str_filesize(download)}\n"
                                    f"\n————————————")
 
-        string_list.insert(0, f"【今日新增数据】\n"
+        string_list.insert(0, f"【今日汇总】\n"
                               f"总上传：{StringUtils.str_filesize(incUploads)}\n"
                               f"总下载：{StringUtils.str_filesize(incDownloads)}\n"
                               f"\n————————————")

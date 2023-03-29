@@ -51,7 +51,7 @@ export class AccordionSeasons extends CustomElement {
                   ${seasons.air_date ? html`<h3 class="ms-2 mt-2"> - ${seasons.air_date.split("-")[0]}</h3>` : nothing}
                   <div class="d-flex flex-grow-1 justify-content-between">
                     ${seasons.episode_count ? html`<div><strong class="badge badge-pill mx-3">共${seasons.episode_count}集</strong></div>` : nothing}
-                    ${seasons.state ? html`<div><strong class="badge badge-pill bg-green text-white mx-3">已下载</strong></div>`: nothing}
+                    ${seasons.state ? html`<div><strong class="badge badge-pill bg-green text-white mx-3">已入库</strong></div>`: nothing}
                   </div>
                 </button>
               </div>
