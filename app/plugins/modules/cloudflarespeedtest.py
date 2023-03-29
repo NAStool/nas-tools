@@ -44,6 +44,8 @@ class CloudflareSpeedTest(_IPluginModule):
     _ipv4 = False
     _ipv6 = False
     _version = None
+    _additional_args = None
+    _re_install = False
     _cf_path = 'cloudflarespeedtest'
     _cf_ipv4 = 'cloudflarespeedtest/ip.txt'
     _cf_ipv6 = 'cloudflarespeedtest/ipv6.txt'
@@ -113,6 +115,32 @@ class CloudflareSpeedTest(_IPluginModule):
                             'id': 'onlyonce',
                         },
                         {
+                            'title': '重装后运行',
+                            'required': "",
+                            'tooltip': '开启后，每次会重新下载CloudflareSpeedTest，网络不好慎选',
+                            'type': 'switch',
+                            'id': 're_install',
+                        }
+                    ]
+                ]
+            },
+            {
+                'type': 'details',
+                'summary': '高级参数',
+                'tooltip': 'CloudflareSpeedTest的高级参数，请勿随意修改（请勿新增-f -o参数）',
+                'content': [
+                    [
+                        {
+                            'required': "",
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'additional_args',
+                                    'placeholder': '-dd'
+                                }
+                            ]
+                        },
+                        {
                             'title': '',
                             'required': "",
                             'tooltip': '',
@@ -144,6 +172,8 @@ class CloudflareSpeedTest(_IPluginModule):
             self._version = config.get("version")
             self._ipv4 = config.get("ipv4")
             self._ipv6 = config.get("ipv6")
+            self._re_install = config.get("re_install")
+            self._additional_args = config.get("additional_args")
 
         # 自定义插件hosts配置
         customHosts = self.get_config("CustomHosts")
@@ -203,7 +233,7 @@ class CloudflareSpeedTest(_IPluginModule):
         if err_flag:
             self.info("正在进行CLoudflare CDN优选，请耐心等待")
             # 执行优选命令，-dd不测速
-            cf_command = f'./{self._cf_path}/{self._binary_name} -dd -o {self._result_file}' + (
+            cf_command = f'./{self._cf_path}/{self._binary_name} {self._additional_args} -o {self._result_file}' + (
                 f' -f {self._cf_ipv4}' if self._ipv4 else '') + (f' -f {self._cf_ipv6}' if self._ipv6 else '')
             self.info(f'正在执行优选命令 {cf_command}')
             os.system(cf_command)
@@ -260,13 +290,19 @@ class CloudflareSpeedTest(_IPluginModule):
         """
         环境检查
         """
+        # 是否安装标识
+        install_flag = False
+
+        # 是否重新安装
+        if self._re_install:
+            install_flag = True
+            os.system(f'rm -rf {self._cf_path}')
+            self.info(f'删除CloudflareSpeedTest目录 {self._cf_path}，开始重新安装')
+
         # 判断目录是否存在
         cf_path = Path(self._cf_path)
         if not cf_path.exists():
             os.mkdir(self._cf_path)
-
-        # 是否安装标识
-        install_flag = False
 
         # 获取CloudflareSpeedTest最新版本
         release_version = self.__get_release_version()
@@ -276,12 +312,12 @@ class CloudflareSpeedTest(_IPluginModule):
                 self.warn(f"获取CloudflareSpeedTest版本失败，存在可执行版本，继续运行")
                 return True, None
             elif self._version:
-                self.error(f"获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，继续运行")
+                self.error(f"获取CloudflareSpeedTest版本失败，获取上次运行版本{self._version}，开始安装")
                 install_flag = True
             else:
                 release_version = "v2.2.2"
                 self._version = release_version
-                self.error(f"获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，继续运行")
+                self.error(f"获取CloudflareSpeedTest版本失败，获取默认版本{release_version}，开始安装")
                 install_flag = True
 
         # 有更新
@@ -378,6 +414,8 @@ class CloudflareSpeedTest(_IPluginModule):
             "version": self._version,
             "ipv4": self._ipv4,
             "ipv6": self._ipv6,
+            "re_install": self._re_install,
+            "additional_args": self._additional_args
         })
 
     @staticmethod
