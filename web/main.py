@@ -1443,19 +1443,19 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            channel = msg_json.get("user")
+            userid = msg_json.get("user")
             text = msg_json.get("text")
             username = msg_json.get("user")
         elif msg_json.get("type") == "block_actions":
-            channel = msg_json.get("client", {}).get("id")
+            userid = msg_json.get("user", {}).get("id")
             text = msg_json.get("actions")[0].get("value")
             username = msg_json.get("user", {}).get("name")
         elif msg_json.get("type") == "event_callback":
-            channel = msg_json.get("event", {}).get("client")
+            userid = msg_json.get("user", {}).get("id")
             text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
             username = ""
         elif msg_json.get("type") == "shortcut":
-            channel = ""
+            userid = msg_json.get("user", {}).get("id")
             text = msg_json.get("callback_id")
             username = msg_json.get("user", {}).get("username")
         else:
@@ -1463,7 +1463,7 @@ def slack():
         log.info(f"收到Slack消息：username={username}, text={text}")
         WebAction().handle_message_job(msg=text,
                                        in_from=SearchType.SLACK,
-                                       user_id=channel,
+                                       user_id=userid,
                                        user_name=username)
     return "Ok"
 

@@ -127,10 +127,10 @@ export class PageMediainfo extends CustomElement {
                     <span class="h3" ?hidden=${!this.media_info.douban_link}>| 豆瓣: <a href="${this.media_info.douban_link}" target="_blank">${this.media_info.douban_id}</a>
                     ${Object.keys(this.media_info).length === 0 ? this._render_placeholder("205px") : nothing }
                   </div>
-                  <div class="align-self-center align-self-md-start mt-2">
+                  <div class="align-self-center align-self-md-start text-center mt-1">
                     ${Object.keys(this.media_info).length !== 0
                     ? html`
-                      <span class="btn btn-primary btn-pill me-1"
+                      <span class="btn btn-primary btn-pill mt-1"
                         @click=${(e) => {
                           e.stopPropagation();
                           media_search(this.tmdbid + "", this.media_info.title, this.media_type);
@@ -140,20 +140,20 @@ export class PageMediainfo extends CustomElement {
                       </span>
                       ${this.fav == "1"
                       ? html`
-                        <span class="btn btn-pill btn-pinterest me-1"
+                        <span class="btn btn-pill btn-pinterest mt-1"
                           @click=${this._loveClick}>
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                           删除订阅
                         </span>`
                       : html`
-                        <span class="btn btn-pill btn-purple me-1"
+                        <span class="btn btn-pill btn-purple mt-1"
                           @click=${this._loveClick}>
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
                           添加订阅
                         </span>`
                       }
                       ${this.item_url ? html`
-                      <span class="btn btn-pill btn-green me-1" @click=${this._openItemUrl}>
+                      <span class="btn btn-pill btn-green mt-1" @click=${this._openItemUrl}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv-old" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path><path d="M16 3l-4 4l-4 -4"></path><path d="M15 7v13"></path><path d="M18 15v.01"></path><path d="M18 12v.01"></path></svg>
                         在线观看
                       </span>
