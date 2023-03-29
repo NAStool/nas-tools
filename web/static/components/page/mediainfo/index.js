@@ -130,7 +130,7 @@ export class PageMediainfo extends CustomElement {
                   <div class="align-self-center align-self-md-start text-center mt-1">
                     ${Object.keys(this.media_info).length !== 0
                     ? html`
-                      <span class="btn btn-primary btn-pill me-1"
+                      <span class="btn btn-primary btn-pill mt-1"
                         @click=${(e) => {
                           e.stopPropagation();
                           media_search(this.tmdbid + "", this.media_info.title, this.media_type);
