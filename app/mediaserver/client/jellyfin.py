@@ -467,7 +467,7 @@ class Jellyfin(_IMediaClient):
         获取媒体库中的所有媒体
         :param item_id: 媒体的的ID
         """
-        return f"{self._host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
+        return f"{self._host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
 
     def get_playing_sessions(self):
         """
