@@ -168,8 +168,8 @@ class _IIndexClient(metaclass=ABCMeta):
                         if str(media_info.tmdb_id) != str(match_media.tmdb_id):
                             log.info(
                                 f"【{self.client_name}】{torrent_name} 识别为 "
-                                f"{media_info.type.value} {media_info.get_title_string()} "
-                                f"TMDB：{media_info.tmdb_id} 与搜索TMDB：{match_media.tmdb_id} 不匹配")
+                                f"{media_info.type.value}/{media_info.get_title_string()}/{media_info.tmdb_id} "
+                                f"与 {match_media.type.value}/{match_media.get_title_string()}/{match_media.tmdb_id} 不匹配")
                             index_match_fail += 1
                             continue
                         # 合并媒体数据
@@ -179,8 +179,8 @@ class _IIndexClient(metaclass=ABCMeta):
                     if (filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE) \
                             or (filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV):
                         log.info(
-                            f"【{self.client_name}】{torrent_name} 是 {media_info.type.value} "
-                            f"TMDB：{media_info.tmdb_id}，不是 {filter_args.get('type').value}")
+                            f"【{self.client_name}】{torrent_name} 是 {media_info.type.value}/"
+                            f"{media_info.tmdb_id}，不是 {filter_args.get('type').value}")
                         index_rule_fail += 1
                         continue
                 # 洗版
@@ -209,8 +209,8 @@ class _IIndexClient(metaclass=ABCMeta):
                                                     filter_args.get("episode"),
                                                     filter_args.get("year")):
                 log.info(
-                    f"【{self.client_name}】{torrent_name} 识别为 {media_info.type.value} "
-                    f"{media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
+                    f"【{self.client_name}】{torrent_name} 识别为 {media_info.type.value}/"
+                    f"{media_info.get_title_string()}/{media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1
                 continue
 

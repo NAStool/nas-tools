@@ -307,7 +307,7 @@ class Plex(_IMediaClient):
 
     def get_play_url(self, item_id):
         """
-        获取媒体库中的所有媒体
+        拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
         return f'https://app.plex.tv/desktop/#!/server/{self._plex.machineIdentifier}/details?key={item_id}'

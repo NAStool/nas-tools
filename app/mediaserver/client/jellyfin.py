@@ -464,7 +464,7 @@ class Jellyfin(_IMediaClient):
 
     def get_play_url(self, item_id):
         """
-        获取媒体库中的所有媒体
+        拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
         return f"{self._host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
