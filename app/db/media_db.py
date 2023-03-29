@@ -70,6 +70,8 @@ class MediaDb:
             if server_type and library:
                 self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
                                                           MEDIASYNCITEMS.LIBRARY == library).delete()
+            elif server_type:
+                self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).delete()
             else:
                 self.session.query(MEDIASYNCITEMS).delete()
             self.session.commit()

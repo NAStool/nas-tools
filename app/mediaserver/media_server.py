@@ -223,7 +223,7 @@ class MediaServer:
             movie_count = 0
             tv_count = 0
             # 清空登记薄
-            self.mediadb.empty()
+            self.mediadb.empty(server_type=self._server_type)
             for library in self.get_libraries():
                 if str(library.get("id")) not in librarys:
                     continue
