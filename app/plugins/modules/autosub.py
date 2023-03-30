@@ -336,34 +336,48 @@ class AutoSub(_IPluginModule):
         :param subtitle_file: 字幕文件, 不包含后缀
         :return: 生成成功返回True，字幕语言，否则返回False, None
         """
-        # 获取视频文件音轨信息
-        ret, audio_index, audio_lang = self.__get_video_prefer_audio(video_file)
+        # 获取文件元数据
+        video_meta = FfmpegHelper().get_video_metadata(video_file)
+        if not video_meta:
+            self.error(f"获取视频文件元数据失败，跳过后续处理")
+            return False, None
+
+        # 获取视频文件音轨和语言信息
+        ret, audio_index, audio_lang = self.__get_video_prefer_audio(video_meta)
         if not ret:
             return False, None
+
         if not iso639.find(audio_lang) or not iso639.to_iso639_1(audio_lang):
             self.info(f"未知语言音轨")
             audio_lang = 'auto'
 
-            self.info(f"默认英语判断是否存在已有外挂字幕文件 ...")
-            exist, lang = self.__external_subtitle_exists(video_file, ['en', 'eng'])
-            if exist:
-                self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
-                return True, iso639.to_iso639_1('eng')
-        else:
-            # 外挂字幕文件存在， 则不处理
-            exist, lang = self.__external_subtitle_exists(video_file, [audio_lang, iso639.to_iso639_1(audio_lang)])
-            if exist:
-                self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
-                return True, iso639.to_iso639_1(audio_lang)
-            # 获取视频文件字幕信息
-            ret, subtitle_index, subtitle_lang = self.__get_video_prefer_subtitle(video_file, audio_lang)
-            if ret and audio_lang == subtitle_lang:
+        expert_subtitle_langs = ['en', 'eng'] if audio_lang == 'auto' else [audio_lang, iso639.to_iso639_1(audio_lang)]
+        self.info(f"使用 {expert_subtitle_langs} 匹配已有外挂字幕文件 ...")
+
+        exist, lang = self.__external_subtitle_exists(video_file, expert_subtitle_langs)
+        if exist:
+            self.info(f"外挂字幕文件已经存在，字幕语言 {lang}")
+            return True, iso639.to_iso639_1(lang)
+
+        self.info(f"外挂字幕文件不存在，使用 {expert_subtitle_langs} 匹配内嵌字幕文件 ...")
+        # 获取视频文件字幕信息
+        ret, subtitle_index, \
+            subtitle_lang, subtitle_count = self.__get_video_prefer_subtitle(video_meta, expert_subtitle_langs)
+        if ret and (audio_lang == subtitle_lang or subtitle_count == 1):
+            if audio_lang == subtitle_lang:
                 # 如果音轨和字幕语言一致， 则直接提取字幕
-                self.info(f"开始提取内嵌字幕 ...")
-                audio_lang = iso639.to_iso639_1(audio_lang)
-                FfmpegHelper().extract_subtitle_from_video(video_file,
-                                                           f"{subtitle_file}.{audio_lang}.srt", subtitle_index)
-                return True, audio_lang
+                self.info(f"内嵌音轨和字幕语言一致，直接提取字幕 ...")
+            elif subtitle_count == 1:
+                # 如果音轨和字幕语言不一致，但只有一个字幕， 则直接提取字幕
+                self.info(f"内嵌音轨和字幕语言不一致，但只有一个字幕，直接提取字幕 ...")
+
+            audio_lang = iso639.to_iso639_1(subtitle_lang) \
+                if (iso639.find(subtitle_lang) and iso639.to_iso639_1(subtitle_lang)) else 'und'
+            FfmpegHelper().extract_subtitle_from_video(video_file, f"{subtitle_file}.{audio_lang}.srt", subtitle_index)
+            self.info(f"提取字幕完成：{subtitle_file}.{audio_lang}.srt")
+            return True, audio_lang
+
+        if audio_lang != 'auto':
             audio_lang = iso639.to_iso639_1(audio_lang)
 
         if only_extract:
@@ -450,18 +464,12 @@ class AutoSub(_IPluginModule):
         with open(file_path, 'w', encoding="utf8") as f:
             f.write(srt.compose(srt_data))
 
-    def __get_video_prefer_audio(self, video_file, prefer_lang=None):
+    def __get_video_prefer_audio(self, video_meta, prefer_lang=None):
         """
         获取视频的首选音轨，如果有多音轨， 优先指定语言音轨，否则获取默认音轨
         :param video_file:
         :return:
         """
-        # 获取视频元数据，判断多音轨，及其音轨语言
-        video_meta = FfmpegHelper().get_video_metadata(video_file)
-        if not video_meta:
-            self.error(f"获取视频元数据失败")
-            return False, None, None
-
         if type(prefer_lang) == str and prefer_lang:
             prefer_lang = [prefer_lang]
 
@@ -491,24 +499,19 @@ class AutoSub(_IPluginModule):
         self.info(f"选中音轨信息：{audio_index}, {audio_lang}")
         return True, audio_index, audio_lang
 
-    def __get_video_prefer_subtitle(self, video_file, prefer_lang=None):
+    def __get_video_prefer_subtitle(self, video_meta, prefer_lang=None):
         """
         获取视频的首选字幕，如果有多字幕， 优先指定语言字幕， 否则获取默认字幕
-        :param video_file:
+        :param video_meta:
         :return:
         """
-        # 获取视频元数据，获取内嵌字幕，及其字幕语言
-        video_meta = FfmpegHelper().get_video_metadata(video_file)
-        if not video_meta:
-            self.error(f"获取视频元数据失败")
-            return False, None, None
-
         if type(prefer_lang) == str and prefer_lang:
             prefer_lang = [prefer_lang]
 
         # 获取首选字幕
         subtitle_lang = None
         subtitle_index = None
+        subtitle_count = 0
         subtitle_stream = filter(lambda x: x.get('codec_type') == 'subtitle', video_meta.get('streams', []))
         for index, stream in enumerate(subtitle_stream):
             # 如果是强制字幕，则跳过
@@ -526,15 +529,16 @@ class AutoSub(_IPluginModule):
             if prefer_lang and stream.get('tags', {}).get('language') in prefer_lang:
                 subtitle_index = index
                 subtitle_lang = stream.get('tags', {}).get('language')
-                break
+
+            subtitle_count += 1
 
         # 如果没有字幕， 则不处理
         if subtitle_index is None:
             self.debug(f"没有内嵌字幕")
-            return False, None, None
+            return False, None, None, None
 
         self.debug(f"命中内嵌字幕信息：{subtitle_index}, {subtitle_lang}")
-        return True, subtitle_index, subtitle_lang
+        return True, subtitle_index, subtitle_lang, subtitle_count
 
     def __is_noisy_subtitle(self, content):
         """
@@ -700,7 +704,10 @@ class AutoSub(_IPluginModule):
         if exist:
             return True
 
-        ret, subtitle_index, subtitle_lang = self.__get_video_prefer_subtitle(video_file, prefer_lang=prefer_langs)
+        video_meta = FfmpegHelper().get_video_metadata(video_file)
+        if not video_meta:
+            return False
+        ret, subtitle_index, subtitle_lang, _ = self.__get_video_prefer_subtitle(video_meta, prefer_lang=prefer_langs)
         if ret and subtitle_lang in prefer_langs:
             return True
 
