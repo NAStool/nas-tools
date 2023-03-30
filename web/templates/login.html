@@ -16,7 +16,7 @@
         right: 0;
         bottom: 0;
         overflow: hidden;
-        background-image: url(data:image/jpg;base64,{{ LoginWallpaper|safe }});
+        background-image: url(data:image/jpg;base64,{{ image_code|safe }});
         background-size: cover;
         background-position: center;
         background-repeat: repeat;
@@ -26,12 +26,32 @@
         -webkit-backdrop-filter: blur(1rem);
         backdrop-filter: blur(1rem)
     }
+    .image-desc {
+      background-color: rgba(255,255,255,0.15);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px;
+      z-index: 10;
+    }
+    .image-link,.image-link:hover {
+      text-decoration: none;
+      color: #000000;
+    }
   </style>
 </head>
 <body class="d-flex flex-column login_background">
+{% if image_code and img_title %}
+<div class="image-desc card card-md border-0">
+  <a class="image-link" href="{{ img_link }}" target="_blank">
+    {{ SVG.link() }}
+    {{ img_title }}
+  </a>
+</div>
+{% endif %}
 <div class="page page-center">
   <div class="container-tight py-4">
-    <form class="card card-md border-0 {% if LoginWallpaper %}login_window{% endif %}" action="/" method="post" autocomplete="off">
+    <form class="card card-md border-0 {% if image_code %}login_window{% endif %}" action="/" method="post" autocomplete="off">
       <input type="hidden" name="next" value="{{ GoPage }}"/>
       <div class="card-body">
         <div class="text-center mb-4">
