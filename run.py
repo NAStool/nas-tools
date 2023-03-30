@@ -33,7 +33,7 @@ from web.action import WebAction
 from web.main import App
 from app.db import init_db, update_db, init_data
 from app.helper import init_chrome
-from check_config import update_config, check_config,  start_config_monitor, stop_config_monitor
+from initializer import update_config, check_config,  start_config_monitor, stop_config_monitor
 from version import APP_VERSION
 
 
