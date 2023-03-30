@@ -344,7 +344,7 @@ class Subscribe:
                                              tmdbid=rss[0].TMDBID,
                                              image=media.get_poster_image(),
                                              desc=media.overview,
-                                             total=total if total else rss[0].TOTAL,
+                                             total=total,
                                              start=rss[0].CURRENT_EP)
             # 删除订阅
             self.dbhelper.delete_rss_tv(rssid=rssid)
