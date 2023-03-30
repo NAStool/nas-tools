@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import log
 from functools import wraps, partial
 
 from Crypto.Cipher import AES
@@ -35,12 +36,14 @@ def require_auth(func=None, force=True):
             auth = str(auth).split()[-1]
             if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
+        log.debug(f"【Security】{func.__name__} 认证检查")
         # 允许使用在api后面拼接 ?apikey=xxx 的方式进行验证
         # 从query中获取apikey
         auth = request.args.get("apikey")
         if auth:
             if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
+        log.warn(f"【Security】{func.__name__} 认证未通过，请检查API Key")
         return {
             "code": 401,
             "success": False,
