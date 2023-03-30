@@ -170,6 +170,13 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         if not html:
             return None
 
+        # 首页存在扩展链接，使用扩展链接
+        seeding_url_text = html.xpath('//a[contains(@href,"torrents.php") '
+                                      'and contains(@href,"seeding")]/@href')
+        if multi_page is False and seeding_url_text and seeding_url_text[0].strip():
+            self._torrent_seeding_page = seeding_url_text[0].strip()
+            return self._torrent_seeding_page
+
         size_col = 3
         seeders_col = 4
         # 搜索size列
@@ -287,12 +294,6 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
                                       'and contains(@href,"seeding")]/@href')
         if seeding_url_text:
             self._torrent_seeding_page = seeding_url_text[0].strip()
-        else:
-            seeding_url_text = html.xpath('//a[contains(@href,"torrents.php") '
-                                          'and contains(@href,"seeding")]/@href')
-            if seeding_url_text:
-                self._torrent_seeding_page = seeding_url_text[0].strip()
-
         # 从JS调用种获取用户ID
         seeding_url_text = html.xpath('//a[contains(@href, "javascript: getusertorrentlistajax") '
                                       'and contains(@href,"seeding")]/@href')
