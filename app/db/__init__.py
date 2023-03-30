@@ -31,14 +31,14 @@ def update_db():
     """
     更新数据库
     """
-    db_location = os.path.join(Config().get_config_path(), 'user.db')
-    script_location = os.path.join(Config().get_root_path(), 'db_scripts')
+    db_location = os.path.normpath(os.path.join(Config().get_config_path(), 'user.db'))
+    script_location = os.path.normpath(os.path.join(Config().get_root_path(), 'db_scripts'))
     log.console('开始更新数据库...')
     try:
         alembic_cfg = AlembicConfig()
         alembic_cfg.set_main_option('script_location', script_location)
         alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
         alembic_upgrade(alembic_cfg, 'head')
+        log.console('数据库更新完成')
     except Exception as e:
-        pass
-    log.console('数据库更新完成')
+        log.console(f'数据库更新失败：{e}')
