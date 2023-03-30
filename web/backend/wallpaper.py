@@ -15,14 +15,14 @@ def get_login_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now()
     wallpaper = Config().get_config('app').get('wallpaper')
     tmdbkey = Config().get_config('app').get('rmt_tmdbkey')
     if (not wallpaper or wallpaper == "themoviedb") and tmdbkey:
-        img_url = __get_themoviedb_wallpaper()
+        img_url, img_title, img_link = __get_themoviedb_wallpaper()
     else:
-        img_url = __get_bing_wallpaper(today)
+        img_url, img_title, img_link = __get_bing_wallpaper(today)
     if img_url:
         res = RequestUtils().get_res(img_url)
         if res and res.status_code == 200:
-            return base64.b64encode(res.content).decode()
-    return ""
+            return base64.b64encode(res.content).decode(), img_title, img_link
+    return "", "", ""
 
 
 def __get_themoviedb_wallpaper():
@@ -45,5 +45,8 @@ def __get_bing_wallpaper(today):
     if resp and resp.status_code == 200:
         if resp.json():
             for image in resp.json().get('images') or []:
-                return f"https://cn.bing.com{image.get('url')}"
-    return ""
+                img_url = f"https://cn.bing.com{image.get('url')}" if 'url' in image else ''
+                img_title = image.get('title', '')
+                img_link = image.get('copyrightlink', '')
+                return img_url, img_title, img_link
+    return '', '', ''
