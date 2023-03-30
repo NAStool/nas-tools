@@ -22,6 +22,7 @@ class Emby(_IMediaClient):
     _serverid = None
     _apikey = None
     _host = None
+    _play_host = None
     _user = None
     _libraries = []
 
@@ -40,6 +41,14 @@ class Emby(_IMediaClient):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
+            self._play_host = self._client_config.get('play_host')
+            if not self._play_host:
+                self._play_host = self._host
+            else:
+                if not self._play_host.startswith('http'):
+                    self._play_host = "http://" + self._play_host
+                if not self._play_host.endswith('/'):
+                    self._play_host = self._play_host + "/"
             self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
                 self._libraries = self.__get_emby_librarys()
@@ -513,7 +522,7 @@ class Emby(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f"{self._host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
+        return f"{self._play_host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
 
     def get_items(self, parent):
         """
