@@ -113,7 +113,7 @@ export class PageMediainfo extends CustomElement {
               <div class="d-flex justify-content-center">
                 <div class="d-flex flex-column justify-content-end div-media-detail-margin mt-2">
                   <div class="align-self-center align-self-md-start mb-1">
-                  ${this.fav == "2" ? html`<strong class="badge badge-pill bg-green text-white">已下载</strong>` : nothing }
+                  ${this.fav == "2" ? html`<strong class="badge badge-pill bg-green text-white">已入库</strong>` : nothing }
                   </div>  
                   <h1 class="align-self-center align-self-md-start display-6 text-center">
                     <strong>${this.media_info.title ?? this._render_placeholder("200px")}</strong>
