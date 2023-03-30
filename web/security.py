@@ -29,6 +29,13 @@ def require_auth(func):
             auth = str(auth).split()[-1]
             if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
+        """
+        允许使用在api后面拼接 ?apikey=xxx 的方式进行验证
+        """
+        auth = request.args.get("apikey")
+        if auth:
+            if auth == Config().get_config("security").get("api_key"):
+                return func(*args, **kwargs)
         return {
             "code": 401,
             "success": False,
