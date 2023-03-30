@@ -2114,12 +2114,15 @@ class Media:
         try:
             medias = self.discover.discover_movies(params={"sort_by": "popularity.desc"})
             if medias:
-                backdrops = [media.get("backdrop_path") for media in medias if media.get("backdrop_path")]
-                # 随机一张
-                return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
+                # 随机一个电影
+                media = random.choice(medias)
+                img_url = TMDB_IMAGE_ORIGINAL_URL % media.get("backdrop_path") if 'backdrop_path' in media else ''
+                img_title = media.get('title', '')
+                img_link = f"https://www.themoviedb.org/movie/{media.get('id')}" if 'id' in media else ''
+                return img_url, img_title, img_link
         except Exception as err:
             print(str(err))
-        return ""
+        return '', '', ''
 
     def save_rename_cache(self, file_name, cache_info):
         """

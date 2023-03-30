@@ -134,9 +134,11 @@ def login():
         """
         跳转到登录页面
         """
+        image_code, img_title, img_link = get_login_wallpaper()
+        print(image_code, img_title, img_link)
         return render_template('login.html',
                                GoPage=GoPage,
-                               LoginWallpaper=get_login_wallpaper(),
+                               LoginWallpaper=image_code,
                                err_msg=errmsg)
 
     # 登录认证
