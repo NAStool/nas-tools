@@ -27,7 +27,7 @@ def require_auth(func=None, force=True):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not must_apikey and \
+        if not force and \
                 not Config().get_config("security").get("check_apikey"):
             return func(*args, **kwargs)
         auth = request.headers.get("Authorization")
