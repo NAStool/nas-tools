@@ -31,8 +31,8 @@ def update_db():
     """
     更新数据库
     """
-    db_location = os.path.join(Config().get_config_path(), 'user.db')
-    script_location = os.path.join(Config().get_root_path(), 'db_scripts')
+    db_location = os.path.normpath(os.path.join(Config().get_config_path(), 'user.db'))
+    script_location = os.path.normpath(os.path.join(Config().get_root_path(), 'db_scripts'))
     log.console('开始更新数据库...')
     try:
         alembic_cfg = AlembicConfig()
