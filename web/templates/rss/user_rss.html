@@ -97,19 +97,19 @@
           </div>
           <div class="card-actions btn-actions ms-1 d-none d-sm-block">
             <a href="javascript:void(0)" onclick="show_userrss_detail({{ Task.id }})" class="btn-action"
-               title="展开/折叠" data-bs-toggle="tooltip">
+               title="展开/折叠">
               {{ SVG.menu_2() }}
             </a>
             <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
-               title="预览报文" data-bs-toggle="tooltip">
+               title="预览报文">
               {{ SVG.eye() }}
             </a>
             <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
-               title="编辑任务" data-bs-toggle="tooltip">
+               title="编辑任务">
               {{ SVG.edit() }}
             </a>
             <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action"
-               title="删除任务" data-bs-toggle="tooltip">
+               title="删除任务">
               {{ SVG.x() }}
             </a>
           </div>
