@@ -55,7 +55,7 @@ class EventManager:
         """
         try:
             handlerList = self._handlers[etype.value]
-            if handler in handlerList:
+            if handler in handlerList[:]:
                 handlerList.remove(handler)
             if not handlerList:
                 del self._handlers[etype.value]
