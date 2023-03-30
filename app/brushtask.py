@@ -406,9 +406,8 @@ class BrushTask(object):
                                 delete_ids.remove(torrent_id)
                     if delete_ids:
                         # 更新种子状态为已删除
-                        for update_torrent in update_torrents[:]:
-                            if update_torrent[2] not in delete_ids and update_torrent in update_torrents:
-                                update_torrents.remove(update_torrent)
+                        update_torrents = [update_torrent for update_torrent in update_torrents
+                                           if update_torrent[2] in delete_ids]
                         self.dbhelper.update_brushtask_torrent_state(update_torrents)
                         log.info("【Brush】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
                     else:
