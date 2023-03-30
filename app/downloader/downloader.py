@@ -550,6 +550,28 @@ class Downloader:
                                                         tags=task.get("tags"))
                 log.info(f"【Downloader】下载器 {name} 下载文件转移结束")
 
+    def get_torrents(self, downloader_id=None, ids=None, tag=None):
+        """
+        获取种子信息
+        :param downloader_id: 下载器ID
+        :param ids: 种子ID
+        :param tag: 种子标签
+        :return: 种子信息列表
+        """
+        if not downloader_id:
+            downloader_id = self.default_downloader_id
+        _client = self.__get_client(downloader_id)
+        if not _client:
+            return None
+        try:
+            torrents, error_flag = _client.get_torrents(tag=tag, ids=ids)
+            if error_flag:
+                return None
+            return torrents
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return None
+
     def get_remove_torrents(self, downloader_id=None, config=None):
         """
         查询符合删种策略的种子信息

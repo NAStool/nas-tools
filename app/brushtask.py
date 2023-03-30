@@ -384,16 +384,34 @@ class BrushTask(object):
                     for remove_torrent_id in remove_torrent_ids:
                         self.dbhelper.delete_brushtask_torrent(taskid, remove_torrent_id)
 
-                # 更新种子状态为已删除
-                self.dbhelper.update_brushtask_torrent_state(update_torrents)
                 # 删除下载器种子
                 if delete_ids:
                     self.downloader.delete_torrents(downloader_id=downloader_id,
                                                     ids=delete_ids,
                                                     delete_file=True)
-                    log.info("【Brush】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
-                else:
-                    log.info("【Brush】任务 %s 本次检查未删除下载任务" % task_name)
+                    # 检验下载器中种子是否已经删除
+                    time.sleep(5)
+                    torrents = self.downloader.get_torrents(downloader_id=downloader_id, ids=delete_ids)
+                    if torrents is None:
+                        delete_ids = []
+                        update_torrents = []
+                    else:
+                        for torrent in torrents:
+                            torrent_info = self.__get_torrent_dict(downloader_type=downloader_type,
+                                                                   torrent=torrent)
+                            # ID
+                            torrent_id = torrent_info.get("id")
+                            # 依然存在下载器的种子移出删除列表
+                            if torrent_id in delete_ids:
+                                delete_ids.remove(torrent_id)
+                    if delete_ids:
+                        # 更新种子状态为已删除
+                        update_torrents = [update_torrent for update_torrent in update_torrents
+                                           if update_torrent[2] in delete_ids]
+                        self.dbhelper.update_brushtask_torrent_state(update_torrents)
+                        log.info("【Brush】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
+                    else:
+                        log.info("【Brush】任务 %s 本次检查未删除下载任务" % task_name)
                 # 更新上传下载量和删除种子数
                 self.dbhelper.add_brushtask_upload_count(brush_id=taskid,
                                                          upload_size=total_uploaded,

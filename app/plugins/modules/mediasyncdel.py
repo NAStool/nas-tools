@@ -125,31 +125,37 @@ class MediaSyncDel(_IPluginModule):
             return
 
         if self._exclude_path and media_path and any(
-                os.path.abspath(media_path).startswith(os.path.abspath(path)) for path in self._exclude_path.split(",")):
+                os.path.abspath(media_path).startswith(os.path.abspath(path)) for path in
+                self._exclude_path.split(",")):
             self.info(f"媒体路径 {media_path} 已被排除，暂不处理")
             return
 
         # 删除电影
+        msg = None
         if media_type == "Movie":
-            self.info(f"媒体库准备同步删除电影 {media_name} {tmdb_id}")
+            msg = f'电影 {media_name} {tmdb_id}'
+            self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
             # 删除电视剧
         elif media_type == "Series":
-            self.info(f"媒体库准备同步删除剧集 {media_name} {tmdb_id}")
+            msg = f'剧集 {media_name} {tmdb_id}'
+            self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
             if not season_num:
-                self.error(f"{media_name} 季同步删除失败，未获取到季")
+                self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
-            self.info(f"媒体库准备同步删除剧集 {media_name} S{season_num} {tmdb_id}")
+            msg = f'剧集 {media_name} S{season_num} {tmdb_id}'
+            self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
             if not season_num or not episode_num:
-                self.error(f"{media_name} 集同步删除失败，未获取到集")
+                self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
-            self.info(f"媒体库准备同步删除剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}")
+            msg = f'剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}'
+            self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
                                                                   season_episode=f'S{season_num} E{episode_num}')
         else:
@@ -160,10 +166,12 @@ class MediaSyncDel(_IPluginModule):
 
         # 开始删除
         logids = [history.ID for history in transfer_history]
+        self.info(f"获取到删除媒体数量 {len(logids)}")
         WebAction().delete_history({
             "logids": logids,
             "flag": "del_source" if self._del_source else ""
         })
+        self.info(f"同步删除 {msg} 完成！")
 
     def get_state(self):
         return self._enable

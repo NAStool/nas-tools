@@ -20,6 +20,7 @@ from flask import Flask, request, json, render_template, make_response, session,
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
 from ics import Calendar, Event
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import log
 from app.brushtask import BrushTask
@@ -53,6 +54,7 @@ ConfigLock = Lock()
 
 # Flask App
 App = Flask(__name__)
+App.wsgi_app = ProxyFix(App.wsgi_app)
 App.config['JSON_AS_ASCII'] = False
 App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
