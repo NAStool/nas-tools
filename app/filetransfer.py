@@ -571,7 +571,7 @@ class FileTransfer:
                 file_name = os.path.basename(file_item)
                 # 更新进度
                 self.progress.update(ptype=ProgressKey.FileTransfer,
-                                     value=round(total_count/len(Medias) * 100) - (0.5/len(Medias) * 100),
+                                     value=round(total_count / len(Medias) * 100) - (0.5 / len(Medias) * 100),
                                      text="正在处理：%s ..." % file_name)
 
                 # 数据库记录的路径
@@ -628,7 +628,8 @@ class FileTransfer:
                     return __finish_transfer(False, "目录不存在：%s" % dist_path)
 
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
-                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
+                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self \
+                    .__is_media_exists(dist_path, media, bluray_disk_dir is not None)
                 # 新文件后缀
                 file_ext = os.path.splitext(file_item)[-1]
                 new_file = ret_file_path
@@ -657,7 +658,8 @@ class FileTransfer:
                                 # 新文件
                                 new_file = "%s%s" % (ret_file_path, file_ext)
                                 # 覆盖
-                                log.info(f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
+                                log.info(
+                                    f"【Rmt】文件 {old_file} 已存在，原文件大小：{orgin_file_size}，新文件大小：{media.size}，覆盖为 {new_file} ...")
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=new_file,
                                                            rmt_mode=rmt_mode,
@@ -883,11 +885,13 @@ class FileTransfer:
 
     def __is_media_exists(self,
                           media_dest,
-                          media):
+                          media,
+                          is_bluray_disk_dir=False):
         """
         判断媒体文件是否忆存在
         :param media_dest: 媒体文件所在目录
         :param media: 已识别的媒体信息
+        :param is_bluray_disk_dir: 是否是原盘文件夹
         :return: 目录是否存在，目录路径，文件是否存在，文件路径
         """
         # 返回变量
@@ -899,6 +903,9 @@ class FileTransfer:
         if media.type == MediaType.MOVIE:
             # 目录名称
             dir_name, file_name = self.get_moive_dest_path(media)
+            # 如果是原盘文件夹
+            if is_bluray_disk_dir:
+                file_name = dir_name
             # 默认目录路径
             file_path = os.path.join(media_dest, dir_name)
             # 开启分类时目录路径
