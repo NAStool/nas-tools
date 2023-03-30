@@ -104,6 +104,8 @@ emby:
   host: http://127.0.0.1:8096
   # 【Emby ApiKey】：在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称
   api_key:
+  # 【Emby媒体播放地址和端口】：播放设备的访问地址，注意区分http和https，http时可以不加http://，https时必须加https://
+  play_host: http://127.0.0.1:8096
 
 # 配置Jellyfin服务器信息
 jellyfin:
@@ -111,6 +113,8 @@ jellyfin:
   host: http://127.0.0.1:8096
   # 【Jellyfin ApiKey】：在Jellyfin设置->高级->API密钥处生成
   api_key:
+  # 【Jellyfin媒体播放地址和端口】：播放设备的访问地址，注意区分http和https，http时可以不加http://，https时必须加https://
+  play_host: http://127.0.0.1:8096
 
 # 配置Plex服务器信息
 plex:
