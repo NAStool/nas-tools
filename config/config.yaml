@@ -244,6 +244,8 @@ security:
     ipv6: ::/0
   # 【API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证以及非客户端类的API调用
   api_key:
+  # 【是否验证apikey】：新安装时默认开启，开启时需要在回调地址中传递api密钥进行验证。
+  check_apikey: True
 
 # 【实验室】
 laboratory:

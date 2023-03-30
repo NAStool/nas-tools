@@ -567,6 +567,20 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col-xl">
+                  <div class="mb-3">
+                      <label class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="security.check_apikey"
+                                {% if Config.security.check_apikey %}checked{% endif %}>
+                          <span class="form-check-label">验证API密钥
+                              <span class="form-help" title="启用后，需要在原来的NasTools API地址后面拼接 ?apikey=xxx ，xxx 为API密钥；例如Emby回调接口由原来的 http://nastools:3000/emby 改为 http://nastools:3000/emby?apikey=xxx。受影响的接口有：plex、jellyfin、emby、telegram、synology、slack"
+                                    data-bs-toggle="tooltip">?</span>
+                          </span>
+                      </label>
+                  </div>
+              </div>
+            </div>
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
