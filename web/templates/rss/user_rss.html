@@ -49,6 +49,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       {% for Task in Tasks %}
+      <span id="refreshkey_{{ Task.id }}" style="display:none;"></span>
       <div class="card">
         <div class="card-header">
           <div>
@@ -189,10 +190,10 @@
               <div class="datagrid-content">
                 {% if Task.uses == 'D' %}
                 <a id="rss_history_btn" href="javascript:show_rss_history_modal('{{ Task.id }}')" class="btn-link">
-                  {{ Task.counter or 0 }}
+                  <span id="processed-count_{{ Task.id }}">{{ Task.counter or 0 }}</span>
                 </a>
                 {% else %}
-                {{ Task.counter or 0 }}
+                <span id="processed-count_{{ Task.id }}">{{ Task.counter or 0 }}</span>
                 {% endif %}
               </div>
             </div>
@@ -1041,5 +1042,20 @@
         tableRows[i].style.display = "none";
       }
     }
+  }
+ 
+  //页面加载后轮询
+  var counter = 1;
+  var interval = setInterval(function() {
+    if(document.getElementById(`refreshkey_${counter}`)) updateProcessedCount(counter);
+    else clearInterval(interval);
+    counter++;
+  }, 100);
+
+  //更新已处理数量
+  function updateProcessedCount(id) {
+    ajax_post("list_rss_history", { "id": id }, function (ret) {
+      if(ret.code == 0) document.getElementById(`processed-count_${id}`).innerText = ret.count;
+    })
   }
 </script>
