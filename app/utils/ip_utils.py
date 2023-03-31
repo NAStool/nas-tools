@@ -65,7 +65,7 @@ class IpUtils:
         # 获取域名对应的 IP 地址
         try:
             ip = socket.gethostbyname(domain)
-        except:
+        except socket.error:
             return False
 
         # 判断 IP 地址是否属于内网 IP 地址范围
