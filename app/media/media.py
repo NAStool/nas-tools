@@ -955,7 +955,7 @@ class Media:
         ret_infos = []
         for info in infos:
             if chinese:
-                name = self.get_tmdbperson_chinese_name(person_info=info) or info.get("name")
+                name = self.get_tmdbperson_chinese_name(person_id=info.get("id")) or info.get("name")
             else:
                 name = info.get("name")
             tmdbid = info.get("id")
