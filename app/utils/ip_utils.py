@@ -1,8 +1,7 @@
-import re
 import socket
-from IPy import IP
-import ipaddress
 from urllib.parse import urlparse
+
+from IPy import IP
 
 
 class IpUtils:

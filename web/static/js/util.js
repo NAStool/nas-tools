@@ -345,17 +345,21 @@ function browserNotification(title, text) {
     if (!("Notification" in window)) {
       return;
     }
-    // 请求浏览器权限显示通知
-    Notification.requestPermission().then(function (permission) {
-      if (permission === "granted") {
-        // 创建通知对象
-        let notification = new Notification(title, {
-            body: text,
-            icon: "../static/img/logo/logo.png"
+    // 请求用户授权显示通知
+    let notification;
+    let options = {
+        body: text,
+        icon: "../static/img/logo/logo.png"
+    };
+    if (Notification.permission === "default") {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === "granted") {
+                // 显示通知
+                notification = new Notification(title, options);
+            }
         });
-        // 点击通知时触发的回调函数
-        notification.onclick = function () {
-        };
-      }
-    });
+    } else if (Notification.permission === "granted") {
+        // 显示通知
+        notification = new Notification(title, options);
+    }
 }
