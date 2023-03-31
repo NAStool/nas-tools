@@ -96,6 +96,18 @@ class Media:
         else:
             self._rmt_match_mode = MatchMode.NORMAL
 
+    def __set_language(self, language):
+        """
+        设置语言
+        :param language: zh/en
+        """
+        if not self.tmdb:
+            return
+        if language:
+            self.tmdb.language = language
+        else:
+            self.tmdb.language = self._default_language
+
     @staticmethod
     def __compare_tmdb_names(file_name, tmdb_names):
         """
@@ -156,8 +168,7 @@ class Media:
                       search_type,
                       first_media_year=None,
                       media_year=None,
-                      season_number=None,
-                      language=None):
+                      season_number=None):
         """
         检索tmdb中的媒体信息，匹配返回一条尽可能正确的信息
         :param file_media_name: 剑索的名称
@@ -165,17 +176,12 @@ class Media:
         :param first_media_year: 年份，如要是季集需要是首播年份(first_air_date)
         :param media_year: 当前季集年份
         :param season_number: 季集，整数
-        :param language: 语言，默认是zh
         :return: TMDB的INFO，同时会将search_type赋值到media_type中
         """
         if not self.search:
             return None
         if not file_media_name:
             return None
-        if language:
-            self.tmdb.language = language
-        else:
-            self.tmdb.language = self._default_language
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
@@ -511,10 +517,8 @@ class Media:
         if not self.tmdb:
             log.error("【Meta】TMDB API Key 未设置！")
             return None
-        if language:
-            self.tmdb.language = language
-        else:
-            self.tmdb.language = self._default_language
+        # 设置语言
+        self.__set_language(language)
         if mtype == MediaType.MOVIE:
             tmdb_info = self.__get_tmdb_movie_detail(tmdbid, append_to_response)
             if tmdb_info:
@@ -550,7 +554,7 @@ class Media:
                     tmdb_info['name'] = cn_title
         return tmdb_info
 
-    def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, page=1):
+    def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, language=None, page=1):
         """
         查询名称中有关键字的所有的TMDB信息并返回
         """
@@ -559,6 +563,8 @@ class Media:
             return []
         if not title:
             return []
+        # 设置语言
+        self.__set_language(language)
         if not mtype and not year:
             results = self.__search_multi_tmdbinfos(title)
         else:
@@ -645,6 +651,7 @@ class Media:
                        mtype=None,
                        strict=None,
                        cache=True,
+                       language=None,
                        chinese=True,
                        append_to_response=None):
         """
@@ -654,6 +661,7 @@ class Media:
         :param mtype: 类型：电影、电视剧、动漫
         :param strict: 是否严格模式，为true时，不会再去掉年份再查一次
         :param cache: 是否使用缓存，默认TRUE
+        :param language: 语言
         :param chinese: 原标题为英文时是否从别名中检索中文名称
         :param append_to_response: 额外查询的信息
         :return: 带有TMDB信息的MetaInfo对象
@@ -663,6 +671,8 @@ class Media:
             return None
         if not title:
             return None
+        # 设置语言
+        self.__set_language(language)
         # 识别
         meta_info = MetaInfo(title, subtitle=subtitle)
         if not meta_info.get_name() or not meta_info.type:
@@ -782,6 +792,7 @@ class Media:
                                 media_type=None,
                                 season=None,
                                 episode_format: EpisodeFormat = None,
+                                language=None,
                                 chinese=True,
                                 append_to_response=None):
         """
@@ -791,6 +802,7 @@ class Media:
         :param media_type: 媒体类型：电影、电视剧、动漫，如有传入以该类型赋于所有文件，否则按名称从TMDB检索并识别
         :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
         :param episode_format: EpisodeFormat
+        :param language: 语言
         :param chinese: 原标题为英文时是否从别名中检索中文名称
         :param append_to_response: 附加信息
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
@@ -799,6 +811,9 @@ class Media:
         if not self.tmdb:
             log.error("【Meta】TMDB API Key 未设置！")
             return {}
+        # 设置语言
+        self.__set_language(language)
+        # 返回结果
         return_media_infos = {}
         # 不是list的转为list
         if not isinstance(file_list, list):
@@ -931,8 +946,7 @@ class Media:
         # 循环结束
         return return_media_infos
 
-    @staticmethod
-    def __dict_tmdbpersons(infos):
+    def __dict_tmdbpersons(self, infos, chinese=True):
         """
         TMDB人员信息转为字典
         """
@@ -941,7 +955,7 @@ class Media:
         ret_infos = []
         for info in infos:
             tmdbid = info.get("id")
-            name = info.get("name")
+            name = info.get("name") if not chinese else self.get_tmdbperson_chinese_name(person_info=info)
             image = TMDB_IMAGE_FACE_URL % info.get("profile_path") if info.get("profile_path") else ""
             ret_infos.append({
                 "id": tmdbid,
@@ -1842,12 +1856,14 @@ class Media:
             return en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
         return None
 
-    def get_episode_title(self, media_info):
+    def get_episode_title(self, media_info, language=None):
         """
         获取剧集的标题
         """
         if media_info.type == MediaType.MOVIE:
             return None
+        # 设置语言
+        self.__set_language(language)
         if media_info.tmdb_id:
             if not media_info.begin_episode:
                 return None
@@ -2085,16 +2101,25 @@ class Media:
                     return title
         return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
 
-    def get_tmdbperson_chinese_name(self, person_id):
+    def get_tmdbperson_chinese_name(self, person_id=None, person_info=None):
         """
         查询TMDB人物中文名称
         """
         if not self.person:
             return ""
-        alter_names = []
+        if not person_info and not person_id:
+            return ""
+        # 返回中文名
         name = ""
+        # 所有别名
+        alter_names = []
         try:
-            aka_names = self.person.details(person_id).get("also_known_as", []) or []
+            if not person_info:
+                person_info = self.person.details(person_id)
+            if person_info:
+                aka_names = person_info.get("also_known_as", []) or []
+            else:
+                return ""
         except Exception as err:
             print(str(err))
             return ""

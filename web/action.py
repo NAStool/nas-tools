@@ -1744,7 +1744,6 @@ class WebAction:
         lst_time = system_msg.get("lst_time")
         ret_messages = []
         for message in list(reversed(messages)):
-            level = "bg-red" if message.get("level") == "ERROR" else ""
             content = re.sub(r"#+", "<br>",
                              re.sub(r"<[^>]+>", "",
                                     re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
