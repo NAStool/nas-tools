@@ -963,6 +963,7 @@ class Media:
             ret_infos.append({
                 "id": tmdbid,
                 "name": name,
+                "role": info.get("name") if info.get("name") != name else "",
                 "image": image
             })
         return ret_infos
