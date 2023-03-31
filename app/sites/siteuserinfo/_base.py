@@ -152,27 +152,20 @@ class _ISiteUserInfo(metaclass=ABCMeta):
             self.message_unread_contents.append((head, date, content))
 
     def _parse_seeding_pages(self):
-        seeding_pages = []
         if self._torrent_seeding_page:
-            if isinstance(self._torrent_seeding_page, list):
-                seeding_pages.extend(self._torrent_seeding_page)
-            else:
-                seeding_pages.append(self._torrent_seeding_page)
+            # 第一页
+            next_page = self._parse_user_torrent_seeding_info(
+                self._get_page_content(urljoin(self._base_url, self._torrent_seeding_page),
+                                       self._torrent_seeding_params,
+                                       self._torrent_seeding_headers))
 
-            for seeding_page in seeding_pages:
-                # 第一页
+            # 其他页处理
+            while next_page:
                 next_page = self._parse_user_torrent_seeding_info(
-                    self._get_page_content(urljoin(self._base_url, seeding_page),
+                    self._get_page_content(urljoin(urljoin(self._base_url, self._torrent_seeding_page), next_page),
                                            self._torrent_seeding_params,
-                                           self._torrent_seeding_headers))
-
-                # 其他页处理
-                while next_page:
-                    next_page = self._parse_user_torrent_seeding_info(
-                        self._get_page_content(urljoin(urljoin(self._base_url, seeding_page), next_page),
-                                               self._torrent_seeding_params,
-                                               self._torrent_seeding_headers),
-                        multi_page=True)
+                                           self._torrent_seeding_headers),
+                    multi_page=True)
 
     @staticmethod
     def _prepare_html_text(html_text):
