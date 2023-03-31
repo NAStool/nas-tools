@@ -332,7 +332,6 @@ function hasScrollbar() {
   return (document.body.scrollHeight - (window.innerHeight || document.documentElement.clientHeight)) > 2;
 }
 
-
 // 向浏览器发送通知
 function browserNotification(title, text) {
   // 检查浏览器是否支持 Notification API

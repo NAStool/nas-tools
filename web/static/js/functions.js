@@ -1095,7 +1095,7 @@ function refresh_searchsites_select(obj_id, item_name, aync = true) {
   }, aync);
 }
 
-
+// 刷新搜索站点下拉框
 function refresh_site_options(obj_id, show_all = false) {
   ajax_post("get_indexers", {check: true, basic: true}, function (ret) {
     if (ret.code === 0) {
