@@ -325,7 +325,7 @@ function compareVersion(version1, version2) {
 
 
 // 计算滚动条相对于页面底部的距离比例
-function getScrollRate(){
+function getScrollRate() {
     const winH = window.innerHeight; //页面可视区域高度
     const pageH = $("#page_content").height(); //页面总高度
     const scrollT = document.body.scrollTop || window.pageYOffset; //滚动条top
@@ -336,4 +336,26 @@ function getScrollRate(){
 function hasScrollbar() {
     // 判断是否大于2是因为我观察到部分情况下body可滚动的高度会比可视区域大1
     return (document.body.scrollHeight - (window.innerHeight || document.documentElement.clientHeight)) > 2;
+}
+
+
+// 向浏览器发送通知
+function browserNotification(title, text) {
+    // 检查浏览器是否支持 Notification API
+    if (!("Notification" in window)) {
+      return;
+    }
+    // 请求浏览器权限显示通知
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        // 创建通知对象
+        let notification = new Notification(title, {
+          body: text,
+        });
+        // 点击通知时触发的回调函数
+        notification.onclick = function () {
+          this.close()
+        };
+      }
+    });
 }

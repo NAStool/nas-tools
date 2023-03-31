@@ -1742,27 +1742,19 @@ class WebAction:
         system_msg = self.get_system_message(lst_time=lst_time)
         messages = system_msg.get("message")
         lst_time = system_msg.get("lst_time")
-        message_html = []
+        ret_messages = []
         for message in list(reversed(messages)):
             level = "bg-red" if message.get("level") == "ERROR" else ""
             content = re.sub(r"#+", "<br>",
                              re.sub(r"<[^>]+>", "",
                                     re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
-            message_html.append(f"""
-            <div class="list-group-item">
-              <div class="row align-items-center">
-                <div class="col-auto">
-                  <span class="status-dot {level} d-block"></span>
-                </div>
-                <div class="col text-truncate">
-                  <span class="text-wrap">{message.get("title")}</span>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{content}</div>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message.get("time")}</div>
-                </div>
-              </div>
-            </div>
-            """)
-        return {"code": 0, "message": message_html, "lst_time": lst_time}
+            ret_messages.append({
+                "level": "bg-red" if message.get("level") == "ERROR" else "",
+                "title": message.get("title"),
+                "content": content,
+                "time": message.get("time")
+            })
+        return {"code": 0, "message": ret_messages, "lst_time": lst_time}
 
     @staticmethod
     def __delete_tmdb_cache(data):

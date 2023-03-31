@@ -2523,8 +2523,23 @@
       if (ret.code === 0) {
         let lst_time = ret.lst_time;
         const msgs = ret.message;
-        for (let i = 0; i < msgs.length; i++) {
-          $("#system-messages").prepend(msgs[i]);
+        for (let msg of msgs) {
+          let html_text = `${html_text}<div class="list-group-item">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="status-dot ${msg.level} d-block"></span>
+                </div>
+                <div class="col text-truncate">
+                  <span class="text-wrap">${msg.title}</span>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.content}</div>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">${msg.time}</div>
+                </div>
+              </div>
+            </div>`;
+          $("#system-messages").prepend(html_text);
+          if (time_str) {
+            browserNotification(ret.title, ret.message);
+          }
         }
         setTimeout("refresh_message('" + lst_time + "')", 10000);
       }
