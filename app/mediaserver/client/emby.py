@@ -4,7 +4,7 @@ import re
 import log
 from config import Config
 from app.mediaserver.client._base import _IMediaClient
-from app.utils import RequestUtils, SystemUtils, ExceptionUtils
+from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
 from app.utils.types import MediaType, MediaServerType
 
 
@@ -350,7 +350,13 @@ class Emby(_IMediaClient):
                     # 查询当前剧集的itemid
                     if res_item.get("IndexNumber") == episode_id:
                         # 查询当前剧集的图片
-                        return self.get_image_by_id(res_item.get("Id"), "Primary")
+                        img_url = self.get_image_by_id(res_item.get("Id"), "Primary")
+                        # 没查到tmdb图片则判断播放地址是不是外网，使用emby刮削的图片（直接挂载网盘场景）
+                        if not img_url and not IpUtils.is_internal(self._play_host) \
+                                and res_item.get('ImageTags', {}).get('Primary'):
+                            return "%semby/Items/%s/Images/Primary?maxHeight=225&maxWidth=400&tag=%s&quality=90" % (
+                                self._play_host, res_item.get("Id"), res_item.get('ImageTags', {}).get('Primary'))
+                        return img_url
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
