@@ -118,7 +118,8 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1))
                 return
-            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+|\"[\d,.]+\")[<>()&\s]", html_text,
+            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+|\"[\d,.]+\")[<>()&\s]",
+                                    html_text,
                                     flags=re.S)
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = StringUtils.str_float(bonus_match.group(1).strip('"'))
@@ -200,7 +201,9 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
         # 如果 table class="torrents"，则增加table[@class="torrents"]
         table_class = '//table[@class="torrents"]' if html.xpath('//table[@class="torrents"]') else ''
         seeding_sizes = html.xpath(f'{table_class}//tr[position()>1]/td[{size_col}]')
-        seeding_seeders = html.xpath(f'{table_class}//tr[position()>1]/td[{seeders_col}]//text()')
+        seeding_seeders = html.xpath(f'{table_class}//tr[position()>1]/td[{seeders_col}]/b/a/text()')
+        if not seeding_seeders:
+            seeding_seeders = html.xpath(f'{table_class}//tr[position()>1]/td[{seeders_col}]//text()')
         if seeding_sizes and seeding_seeders:
             page_seeding = len(seeding_sizes)
 
