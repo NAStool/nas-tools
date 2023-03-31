@@ -1631,6 +1631,7 @@ def upload():
 
 
 @App.route('/ical')
+@require_auth(force=False)
 def ical():
     ICal = Calendar()
     RssItems = WebAction().get_ical_events().get("result")

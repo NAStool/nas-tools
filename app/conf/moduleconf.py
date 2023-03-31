@@ -642,7 +642,7 @@ class ModuleConf(object):
                     "id": "emby.play_host",
                     "required": False,
                     "title": "媒体播放地址",
-                    "tooltip": "配置播放设备的访问地址，如为https则需要增加https://前缀",
+                    "tooltip": "配置播放设备的访问地址，用于媒体详情页跳转播放页面；如为https则需要增加https://前缀，留空则默认与服务器地址一致",
                     "type": "text",
                     "placeholder": "http://127.0.0.1:8096"
                 }
@@ -674,7 +674,7 @@ class ModuleConf(object):
                     "id": "jellyfin.play_host",
                     "required": False,
                     "title": "媒体播放地址",
-                    "tooltip": "配置播放设备的访问地址，如为https则需要增加https://前缀",
+                    "tooltip": "配置播放设备的访问地址，用于媒体详情页跳转播放页面；如为https则需要增加https://前缀，留空则默认与服务器地址一致",
                     "type": "text",
                     "placeholder": "http://127.0.0.1:8096"
                 }

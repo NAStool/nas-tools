@@ -27,22 +27,23 @@
         backdrop-filter: blur(1rem)
     }
     .image-desc {
-      background-color: rgba(255,255,255,0.15);
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 5px;
-      z-index: 10;
+        background-color: rgba(34,34,34,.9);
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 5px;
+        z-index: 10;
+        cursor: pointer;
     }
     .image-link,.image-link:hover {
-      text-decoration: none;
-      color: #000000;
+        text-decoration: none;
+        color: #fff;
     }
   </style>
 </head>
 <body class="d-flex flex-column login_background">
 {% if image_code and img_title %}
-<div class="image-desc card card-md border-0">
+<div class="image-desc card card-md border-0 rounded-3">
   <a class="image-link" href="{{ img_link }}" target="_blank">
     {{ SVG.link() }}
     {{ img_title }}
