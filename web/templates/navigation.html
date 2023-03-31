@@ -2538,7 +2538,7 @@
             </div>`;
           $("#system-messages").prepend(html_text);
           if (time_str) {
-            browserNotification(ret.title, ret.message);
+            browserNotification(msg.title, msg.content);
           }
         }
         setTimeout("refresh_message('" + lst_time + "')", 10000);

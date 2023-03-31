@@ -350,11 +350,11 @@ function browserNotification(title, text) {
       if (permission === "granted") {
         // 创建通知对象
         let notification = new Notification(title, {
-          body: text,
+            body: text,
+            icon: "../static/img/logo/logo.png"
         });
         // 点击通知时触发的回调函数
         notification.onclick = function () {
-          this.close()
         };
       }
     });
