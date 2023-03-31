@@ -37,28 +37,41 @@ class Media:
     _rmt_match_mode = None
     _search_keyword = None
     _chatgpt_enable = None
+    _default_language = None
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        laboratory = Config().get_config('laboratory')
-        if laboratory:
-            self._search_keyword = laboratory.get("search_keyword")
-            self._chatgpt_enable = laboratory.get("chatgpt_enable")
-        # TMDB
         app = Config().get_config('app')
+        media = Config().get_config('media')
+        laboratory = Config().get_config('laboratory')
+        # 辅助查询
+        self._search_keyword = laboratory.get("search_keyword")
+        # ChatGPT辅助
+        self._chatgpt_enable = laboratory.get("chatgpt_enable")
+        # 默认语言
+        self._default_language = media.get("tmdb_language", "zh") or "zh"
+        # TMDB
         if app.get('rmt_tmdbkey'):
+            # TMDB主体
             self.tmdb = TMDb()
+            # 域名
             if laboratory.get('tmdb_proxy'):
                 self.tmdb.domain = DEFAULT_TMDB_PROXY
             else:
                 self.tmdb.domain = app.get("tmdb_domain")
+            # 开启缓存
             self.tmdb.cache = True
+            # APIKEY
             self.tmdb.api_key = app.get('rmt_tmdbkey')
-            self.tmdb.language = 'zh'
+            # 语种
+            self.tmdb.language = self._default_language
+            # 代理
             self.tmdb.proxies = Config().get_proxies()
-            self.tmdb.debug = True
+            # 调试模式
+            self.tmdb.debug = False
+            # 查询对象
             self.search = Search()
             self.movie = Movie()
             self.tv = TV()
@@ -68,7 +81,9 @@ class Media:
             self.trending = Trending()
             self.discover = Discover()
             self.genre = Genre()
+        # 元数据缓存
         self.meta = MetaHelper()
+        # ChatGPT
         self.openai = OpenAiHelper()
         # 匹配模式
         rmt_match_mode = app.get('rmt_match_mode', 'normal')
@@ -150,7 +165,7 @@ class Media:
         :param first_media_year: 年份，如要是季集需要是首播年份(first_air_date)
         :param media_year: 当前季集年份
         :param season_number: 季集，整数
-        :param language: 语言，默认是zh-CN
+        :param language: 语言，默认是zh
         :return: TMDB的INFO，同时会将search_type赋值到media_type中
         """
         if not self.search:
@@ -160,7 +175,7 @@ class Media:
         if language:
             self.tmdb.language = language
         else:
-            self.tmdb.language = 'zh-CN'
+            self.tmdb.language = self._default_language
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
@@ -499,7 +514,7 @@ class Media:
         if language:
             self.tmdb.language = language
         else:
-            self.tmdb.language = 'zh-CN'
+            self.tmdb.language = self._default_language
         if mtype == MediaType.MOVIE:
             tmdb_info = self.__get_tmdb_movie_detail(tmdbid, append_to_response)
             if tmdb_info:
@@ -522,9 +537,11 @@ class Media:
         更新TMDB信息中的中文名称
         """
         # 查找中文名
-        org_title = tmdb_info.get("title") if tmdb_info.get("media_type") == MediaType.MOVIE else tmdb_info.get(
-            "name")
-        if not StringUtils.is_chinese(org_title) and self.tmdb.language == 'zh-CN':
+        org_title = tmdb_info.get("title") \
+            if tmdb_info.get("media_type") == MediaType.MOVIE \
+            else tmdb_info.get("name")
+        if not StringUtils.is_chinese(org_title) \
+                and self._default_language == 'zh':
             cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
             if cn_title and cn_title != org_title:
                 if tmdb_info.get("media_type") == MediaType.MOVIE:
@@ -1820,7 +1837,7 @@ class Media:
         """
         en_info = self.get_tmdb_info(mtype=media_info.type,
                                      tmdbid=media_info.tmdb_id,
-                                     language="en-US")
+                                     language="en")
         if en_info:
             return en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
         return None

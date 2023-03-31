@@ -97,6 +97,8 @@ media:
   media_default_path:
   # 默认文件转移方式
   default_rmt_mode: copy
+  # 默认TMDB信息语种
+  tmdb_language: zh
 
 # 配置Emby服务器信息
 emby:
