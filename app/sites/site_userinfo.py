@@ -261,7 +261,8 @@ class SiteUserInfo(object):
         with lock:
 
             if not force \
-                    and not specify_sites:
+                    and not specify_sites \
+                    and self._last_update_time:
                 return
 
             if specify_sites \
