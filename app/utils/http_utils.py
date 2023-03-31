@@ -98,7 +98,7 @@ class RequestUtils:
         except requests.exceptions.RequestException:
             return None
 
-    def get_res(self, url, params=None, allow_redirects=True):
+    def get_res(self, url, params=None, allow_redirects=True, raise_exception=False):
         try:
             if self._session:
                 return self._session.get(url,
@@ -119,6 +119,8 @@ class RequestUtils:
                                     timeout=self._timeout,
                                     allow_redirects=allow_redirects)
         except requests.exceptions.RequestException:
+            if raise_exception:
+                raise requests.exceptions.RequestException
             return None
 
     def post_res(self, url, data=None, params=None, allow_redirects=True, files=None, json=None):
