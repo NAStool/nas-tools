@@ -1,7 +1,7 @@
 import re
 import cn2an
 from app.media.fanart import Fanart
-from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
+from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, Config
 from app.media.category import Category
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
@@ -550,10 +550,10 @@ class MetaBase(object):
                 self.category = self.category_handler.get_tv_category(info)
             else:
                 self.category = self.category_handler.get_anime_category(info)
-        self.poster_path = TMDB_IMAGE_W500_URL % info.get('poster_path') if info.get(
-            'poster_path') else ""
-        self.backdrop_path = TMDB_IMAGE_W500_URL % info.get('backdrop_path') if info.get(
-            'backdrop_path') else ""
+        self.poster_path = Config().get_tmdbimage_url(info.get('poster_path')) \
+            if info.get('poster_path') else ""
+        self.backdrop_path = Config().get_tmdbimage_url(info.get('backdrop_path')) \
+            if info.get('backdrop_path') else ""
 
     # 整合种了信息
     def set_torrent_info(self,

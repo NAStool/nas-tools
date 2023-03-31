@@ -8,7 +8,7 @@ import log
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
 from app.utils.commons import retry
-from config import TMDB_IMAGE_W500_URL, Config
+from config import Config
 from app.utils import DomUtils, RequestUtils, ExceptionUtils
 from app.utils.types import MediaType
 from app.media import Media
@@ -477,7 +477,7 @@ class Scraper:
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:
-                            self.__save_image(TMDB_IMAGE_W500_URL % seasoninfo.get("poster_path"),
+                            self.__save_image(Config().get_tmdbimage_url(seasoninfo.get("poster_path")),
                                               os.path.dirname(dir_path),
                                               season_poster,
                                               force_pic)

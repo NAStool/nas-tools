@@ -56,14 +56,7 @@ class TMDb(object):
 
     @domain.setter
     def domain(self, domain):
-        if domain:
-            if not str(domain).startswith('http'):
-                domain = "https://%s" % domain
-            if not str(domain).endswith('/3'):
-                domain = "%s/3" % domain
-            os.environ[self.TMDB_DOMAIN] = str(domain)
-        else:
-            os.environ[self.TMDB_DOMAIN] = ''
+        os.environ[self.TMDB_DOMAIN] = str(domain or '')
 
     @property
     def proxies(self):

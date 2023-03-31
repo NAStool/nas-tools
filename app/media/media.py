@@ -16,8 +16,7 @@ from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find, TMDbExcep
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, cacheman
 from app.utils.types import MediaType, MatchMode
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, DEFAULT_TMDB_PROXY, \
-    TMDB_IMAGE_FACE_URL, TMDB_PEOPLE_PROFILE_URL, TMDB_IMAGE_W500_URL
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_PEOPLE_PROFILE_URL
 
 
 class Media:
@@ -57,10 +56,7 @@ class Media:
             # TMDB主体
             self.tmdb = TMDb()
             # 域名
-            if laboratory.get('tmdb_proxy'):
-                self.tmdb.domain = DEFAULT_TMDB_PROXY
-            else:
-                self.tmdb.domain = app.get("tmdb_domain")
+            self.tmdb.domain = Config().get_tmdbapi_url()
             # 开启缓存
             self.tmdb.cache = True
             # APIKEY
@@ -959,7 +955,8 @@ class Media:
             else:
                 name = info.get("name")
             tmdbid = info.get("id")
-            image = TMDB_IMAGE_FACE_URL % info.get("profile_path") if info.get("profile_path") else ""
+            image = Config().get_tmdbimage_url(info.get("profile_path"), prefix="h632") \
+                if info.get("profile_path") else ""
             ret_infos.append({
                 "id": tmdbid,
                 "name": name,
@@ -979,7 +976,7 @@ class Media:
         for info in infos:
             tmdbid = info.get("id")
             vote = round(float(info.get("vote_average")), 1) if info.get("vote_average") else 0,
-            image = TMDB_IMAGE_W500_URL % info.get("poster_path")
+            image = Config().get_tmdbimage_url(info.get("poster_path"))
             overview = info.get("overview")
             if mtype:
                 media_type = mtype.value
@@ -1485,7 +1482,7 @@ class Media:
                 "id": info.get("id"),
                 "name": info.get("name"),
                 "overview": info.get("overview"),
-                "poster_path": TMDB_IMAGE_W500_URL % info.get("poster_path") if info.get("poster_path") else "",
+                "poster_path": Config().get_tmdbimage_url(info.get("poster_path")) if info.get("poster_path") else "",
                 "season_number": info.get("season_number")
             })
         ret_info.reverse()
@@ -1534,7 +1531,7 @@ class Media:
                 "runtime": info.get("runtime"),
                 "season_number": info.get("season_number"),
                 "show_id": info.get("show_id"),
-                "still_path": TMDB_IMAGE_W500_URL % info.get("still_path") if info.get("still_path") else "",
+                "still_path": Config().get_tmdbimage_url(info.get("still_path")) if info.get("still_path") else "",
                 "vote_average": info.get("vote_average")
             })
         ret_info.reverse()
@@ -1604,7 +1601,8 @@ class Media:
         """
         if not tmdbinfo:
             return []
-        prefix_url = TMDB_IMAGE_ORIGINAL_URL if original else TMDB_IMAGE_W500_URL
+        prefix_url = Config().get_tmdbimage_url(r"%s", prefix="original") \
+            if original else Config().get_tmdbimage_url(r"%s")
         backdrops = tmdbinfo.get("images", {}).get("backdrops") or []
         result = [prefix_url % backdrop.get("file_path") for backdrop in backdrops]
         result.append(prefix_url % tmdbinfo.get("backdrop_path"))
@@ -1640,7 +1638,7 @@ class Media:
             "name": crew.get("name"),
             "original_name": crew.get("original_name"),
             "popularity": crew.get("popularity"),
-            "image": TMDB_IMAGE_FACE_URL % crew.get("profile_path"),
+            "image": Config().get_tmdbimage_url(crew.get("profile_path"), prefix="h632"),
             "credit_id": crew.get("credit_id"),
             "department": crew.get("department"),
             "job": crew.get("job"),
@@ -1659,7 +1657,7 @@ class Media:
             "name": cast.get("name"),
             "original_name": cast.get("original_name"),
             "popularity": cast.get("popularity"),
-            "image": TMDB_IMAGE_FACE_URL % cast.get("profile_path"),
+            "image": Config().get_tmdbimage_url(cast.get("profile_path"), prefix="h632"),
             "cast_id": cast.get("cast_id"),
             "role": cast.get("character"),
             "credit_id": cast.get("credit_id"),
@@ -2162,9 +2160,10 @@ class Media:
             if medias:
                 # 随机一个电影
                 media = random.choice(medias)
-                img_url = TMDB_IMAGE_ORIGINAL_URL % media.get("backdrop_path") if 'backdrop_path' in media else ''
+                img_url = Config().get_tmdbimage_url(media.get("backdrop_path"), prefix="original") \
+                    if media.get("backdrop_path") else ''
                 img_title = media.get('title', '')
-                img_link = f"https://www.themoviedb.org/movie/{media.get('id')}" if 'id' in media else ''
+                img_link = f"https://www.themoviedb.org/movie/{media.get('id')}" if media.get('id') else ''
                 return img_url, img_title, img_link
         except Exception as err:
             print(str(err))
@@ -2232,9 +2231,9 @@ class Media:
         res = self.episode.images(tv_id, season_id, episode_id)
         if res:
             if orginal:
-                return TMDB_IMAGE_ORIGINAL_URL % res[-1].get("file_path")
+                return Config().get_tmdbimage_url(res[-1].get("file_path"), prefix="original")
             else:
-                return TMDB_IMAGE_W500_URL % res[-1].get("file_path")
+                return Config().get_tmdbimage_url(res[-1].get("file_path"))
         else:
             return ""
 
