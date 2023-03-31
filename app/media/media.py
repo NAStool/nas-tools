@@ -954,8 +954,11 @@ class Media:
             return []
         ret_infos = []
         for info in infos:
+            if chinese:
+                name = self.get_tmdbperson_chinese_name(person_info=info) or info.get("name")
+            else:
+                name = info.get("name")
             tmdbid = info.get("id")
-            name = info.get("name") if not chinese else self.get_tmdbperson_chinese_name(person_info=info)
             image = TMDB_IMAGE_FACE_URL % info.get("profile_path") if info.get("profile_path") else ""
             ret_infos.append({
                 "id": tmdbid,
