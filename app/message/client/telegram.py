@@ -27,11 +27,13 @@ class Telegram(_IMessageClient):
     _client_config = {}
     _interactive = False
     _enabled = True
+    _api_key = None
 
     def __init__(self, config):
         self._client_config = config
         self._interactive = config.get("interactive")
         self._domain = Config().get_domain()
+        self._api_key = Config().get_config("security").get("api_key")
         if self._domain and self._domain.endswith("/"):
             self._domain = self._domain[:-1]
         self.init_config()
@@ -51,7 +53,7 @@ class Telegram(_IMessageClient):
             if self._telegram_token and self._telegram_chat_id:
                 if self._webhook:
                     if self._domain:
-                        self._webhook_url = "%s/telegram" % self._domain
+                        self._webhook_url = "%s/telegram?apikey=%s" % (self._domain, self._api_key)
                         self.__set_bot_webhook()
                     if self._message_proxy_event:
                         self._message_proxy_event.set()
@@ -300,7 +302,7 @@ class Telegram(_IMessageClient):
             _config = Config()
             web_port = _config.get_config("app").get("web_port")
             sc_url = "https://api.telegram.org/bot%s/getUpdates?" % self._telegram_token
-            ds_url = "http://127.0.0.1:%s/telegram" % web_port
+            ds_url = "http://127.0.0.1:%s/telegram?apikey=%s" % (web_port, self._api_key)
             if not self._enabled:
                 log.info("Telegram消息接收服务已停止")
                 break

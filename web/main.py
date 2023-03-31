@@ -1194,6 +1194,7 @@ def wechat():
 
 # Plex Webhook
 @App.route('/plex', methods=['POST'])
+@require_auth(force=False)
 def plex_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
@@ -1210,6 +1211,7 @@ def plex_webhook():
 
 # Jellyfin Webhook
 @App.route('/jellyfin', methods=['POST'])
+@require_auth(force=False)
 def jellyfin_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
@@ -1224,8 +1226,9 @@ def jellyfin_webhook():
     return 'Ok'
 
 
-@App.route('/emby', methods=['POST'])
 # Emby Webhook
+@App.route('/emby', methods=['POST'])
+@require_auth(force=False)
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
@@ -1241,7 +1244,8 @@ def emby_webhook():
 
 
 # Telegram消息响应
-@App.route('/telegram', methods=['POST', 'GET'])
+@App.route('/telegram', methods=['POST'])
+@require_auth(force=False)
 def telegram():
     """
     {
@@ -1304,7 +1308,8 @@ def telegram():
 
 
 # Synology Chat消息响应
-@App.route('/synology', methods=['POST', 'GET'])
+@App.route('/synology', methods=['POST'])
+@require_auth(force=False)
 def synology():
     """
     token: bot token
@@ -1342,6 +1347,7 @@ def synology():
 
 # Slack消息响应
 @App.route('/slack', methods=['POST'])
+@require_auth(force=False)
 def slack():
     """
     # 消息
@@ -1474,7 +1480,7 @@ def slack():
 
 
 # Jellyseerr Overseerr订阅接口
-@App.route('/subscribe', methods=['POST', 'GET'])
+@App.route('/subscribe', methods=['POST'])
 @require_auth
 def subscribe():
     """

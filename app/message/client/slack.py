@@ -32,7 +32,9 @@ class Slack(_IMessageClient):
         self.init_config()
 
     def init_config(self):
-        self._ds_url = "http://127.0.0.1:%s/slack" % self._config.get_config("app").get("web_port")
+        _web_port = self._config.get_config("app").get("web_port")
+        _api_key = self._config.get_config("security").get("api_key")
+        self._ds_url = "http://127.0.0.1:%s/slack?apikey=%s" % (_web_port, _api_key)
         if self._client_config:
             try:
                 slack_app = App(token=self._client_config.get("bot_token"))
