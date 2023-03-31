@@ -49,7 +49,6 @@
   <div class="container-xl">
     <div class="row row-cards">
       {% for Task in Tasks %}
-      <span id="refreshkey_{{ Task.id }}" style="display:none;"></span>
       <div class="card">
         <div class="card-header">
           <div>
@@ -190,10 +189,10 @@
               <div class="datagrid-content">
                 {% if Task.uses == 'D' %}
                 <a id="rss_history_btn" href="javascript:show_rss_history_modal('{{ Task.id }}')" class="btn-link">
-                  <span id="processed-count_{{ Task.id }}">{{ Task.counter or 0 }}</span>
+                  {{ Task.counter or 0 }}
                 </a>
                 {% else %}
-                <span id="processed-count_{{ Task.id }}">{{ Task.counter or 0 }}</span>
+                {{ Task.counter or 0 }}
                 {% endif %}
               </div>
             </div>
@@ -542,12 +541,12 @@
         <div class="modal-body">
           <form>
             <div class="input-group mb-3">
-              <select id="filter-status" class="form-select" onchange="filterReport()">
+              <select id="filter-status" class="form-select" onchange="filterReport()" style="width: 20%;">
                 <option value="">全部</option>
                 <option value="已处理">已处理</option>
                 <option value="未处理">未处理</option>
               </select>
-              <input type="text" id="filter-title" class="form-control" placeholder="搜索" style="width: 75%;" onkeyup="filterReport()">
+              <input type="text" id="filter-title" class="form-control" placeholder="搜索" style="width: 80%;" onkeyup="filterReport()">
             </div>
           </form>
         </div>
@@ -1028,34 +1027,18 @@
 
   //筛选
   function filterReport() {
-    let userSelect = document.getElementById("filter-status");
-    let filterStatus = userSelect.options[userSelect.selectedIndex].value;
-    let filterTitle = document.getElementById("filter-title").value.toLowerCase();
-    let tableRows = document.getElementsByTagName("tr");
+    let filterStatus = $("#filter-status").val();
+    let filterTitle = $("#filter-title").val().toLowerCase();
+    let tableRows = $("tr");
     for (let i = 1; i < tableRows.length; i++) {
-      let reportData = tableRows[i].getElementsByTagName("td");
-      let title = reportData[1].textContent.toLowerCase();
-      let status = reportData[2].textContent;
+      let reportData = $(tableRows[i]).find("td");
+      let title = $(reportData[1]).text().toLowerCase();
+      let status = $(reportData[2]).text();
       if ((filterStatus == "" || status == filterStatus) && (title.includes(filterTitle))) {
-        tableRows[i].style.display = "";
+        $(tableRows[i]).show();
       } else {
-        tableRows[i].style.display = "none";
+        $(tableRows[i]).hide();
       }
     }
-  }
- 
-  //页面加载后轮询
-  var counter = 1;
-  var interval = setInterval(function() {
-    if(document.getElementById(`refreshkey_${counter}`)) updateProcessedCount(counter);
-    else clearInterval(interval);
-    counter++;
-  }, 100);
-
-  //更新已处理数量
-  function updateProcessedCount(id) {
-    ajax_post("list_rss_history", { "id": id }, function (ret) {
-      if(ret.code == 0) document.getElementById(`processed-count_${id}`).innerText = ret.count;
-    })
   }
 </script>
