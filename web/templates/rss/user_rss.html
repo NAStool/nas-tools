@@ -528,8 +528,8 @@
       <div class="modal-header">
         <div class="ms-2 d-flex align-items-center">
           <h5 class="modal-title me-2">订阅预览</h5>
-          <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#search-bar" aria-expanded="false" aria-controls="search-bar">
-            {{ SVG.search() }}
+          <button class="btn-action" data-bs-toggle="collapse" data-bs-target="#search-bar" aria-expanded="false" aria-controls="search-bar">
+            {{ SVG.list_search() }}
           </button>
           <input type="hidden" id="article_check_id" value="">
         </div>
@@ -538,17 +538,13 @@
         </div>
       </div>
       <div class="collapse" id="search-bar">
-        <div class="modal-body">
-          <form>
-            <div class="input-group mb-3">
-              <select id="filter-status" class="form-select" onchange="filterReport()" style="width: 20%;">
-                <option value="">全部</option>
-                <option value="已处理">已处理</option>
-                <option value="未处理">未处理</option>
-              </select>
-              <input type="text" id="filter-title" class="form-control" placeholder="搜索" style="width: 80%;" onkeyup="filterReport()">
-            </div>
-          </form>
+        <div class="input-group p-1">
+          <select id="filter-status" class="form-select w-25" onchange="filterReport()">
+            <option value="">全部</option>
+            <option value="已处理">已处理</option>
+            <option value="未处理">未处理</option>
+          </select>
+          <input type="text" id="filter-title" class="form-control w-75" placeholder="搜索" onkeyup="filterReport()">
         </div>
       </div>
       <div class="table-responsive table-modal-body">
