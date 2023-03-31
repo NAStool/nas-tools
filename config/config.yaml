@@ -57,10 +57,6 @@ app:
 
 # 【配置媒体库信息】
 media:
-  # 【媒体库管理软件】：emby、jellyfin、plex，需要在emby或jellyfin或plex区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
-  media_server: emby
-  # 【媒体库数据同步周期】：定时同步媒体服务器数据到本地，单位小时
-  mediasync_interval: 12
   # 【媒体库电影文件存放目录】：支持配置多个目录，不同的硬盘需映射为不同的根目录，以更于程序区分
   movie_path:
   # 【媒体库电视剧文件存放目录】：支持配置多个目录，不同的硬盘需映射为不同的根目录，以更于程序区分
@@ -77,6 +73,10 @@ media:
   # 默认策略default-category分类设置可参考"default-category.yaml"，分类参见README.MD说明
   # 如不需要启动分类，则该项配置为空
   category: "default-category"
+  # 【媒体库管理软件】：emby、jellyfin、plex，需要在emby或jellyfin或plex区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
+  media_server: emby
+  # 【媒体库数据同步周期】：定时同步媒体服务器数据到本地，单位小时
+  mediasync_interval: 12
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 150
   # 【文件名转移忽略词】：文件名包含忽略词，忽略转移
