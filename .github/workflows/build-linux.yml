@@ -38,9 +38,9 @@ jobs:
         cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/web/
         cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/config/
         cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/db_scripts/
-        cd /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/pyinstaller/hooks
-        ls -all
         cd /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages
+        ls -all
+        cd /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/pyinstaller
         ls -all
         cd /home/runner/work/nas-tools-public/nas-tools-public/nas-tools/windows
         pyinstaller nas-tools.spec
