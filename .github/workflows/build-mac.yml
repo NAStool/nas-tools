@@ -27,7 +27,7 @@ jobs:
           CURRENT_DIR=$(pwd)
           echo ("NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml") >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG
-        shell: pwsh
+        shell: bash
       - name: package through pyinstaller
         run: |
           cd nas-tools
