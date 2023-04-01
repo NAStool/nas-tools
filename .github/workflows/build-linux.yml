@@ -29,6 +29,10 @@ jobs:
       shell: pwsh
     - name: package through pyinstaller
       run: |
+        cd /opt/hostedtoolcache/Python/3.10.10/x64/lib
+        ls -all
+        cd /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/pyinstaller/hooks
+        ls -all
         cd nas-tools
         cp ./windows/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/pyinstaller/hooks
         cp ./windows/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/pyinstaller/hooks
