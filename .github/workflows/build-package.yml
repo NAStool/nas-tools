@@ -1,0 +1,183 @@
+name: NAStool Package
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+    paths:
+      - version.py
+      - .github/workflows/build-package.yml
+      - requirements.txt
+
+jobs:
+  Windows-build:
+    runs-on: windows-latest
+    steps:
+    - name: init Python 3.10.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10'
+    - name: install dependent packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel numpy==1.23.5 pyparsing==3.0.9 wxpython==4.2.0 pyinstaller==5.7.0
+        git clone --depth=1 -b master https://github.com/NAStool/nas-tools --recurse-submodule
+        cd nas-tools
+        pip install -r requirements.txt
+        echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+        echo $env:NASTOOL_CONFIG
+      shell: pwsh
+    - name: package through pyinstaller
+      run: |
+        cd nas-tools
+        copy .\package\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.10\x64\Scripts
+        copy .\package\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\package\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\package\rely\hook-iso639.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
+        copy .\third_party.txt .\package
+        copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.10\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
+        xcopy .\web c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\web\ /e
+        xcopy .\config c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\config\ /e
+        xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\db_scripts\ /e
+        cd package
+        pyinstaller nas-tools.spec
+      shell: pwsh
+    - name: upload windows file
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: D:/a/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.exe
+
+  Linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: init Python 3.10.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.10'
+      - name: install dependent packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel pyinstaller==5.7.0
+          git clone --depth=1 -b dev https://github.com/NAStool/nas-tools --recurse-submodule
+          cd nas-tools
+          pip install -r requirements.txt
+          echo ("NASTOOL_CONFIG=/home/runner/work/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
+          echo $env:NASTOOL_CONFIG
+        shell: pwsh
+      - name: package through pyinstaller
+        run: |
+          cd nas-tools
+          cp ./package/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-iso639.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./third_party.txt ./package/
+          cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
+          cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/web/
+          cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/config/
+          cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/db_scripts/
+          cd package
+          ls -all
+          pyinstaller nas-tools.spec
+          ls -all
+          mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
+        shell: pwsh
+      - name: upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-x86_64-glibc2.35
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
+
+  Mac-build:
+    runs-on: macos-latest
+    steps:
+      - name: init Python 3.10.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.10'
+      - name: install dependent packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel numpy==1.23.5 pyparsing==3.0.9 pyinstaller==5.7.0
+          git clone --depth=1 -b master https://github.com/NAStool/nas-tools --recurse-submodule
+          cd nas-tools
+          pip install -r requirements.txt
+          CURRENT_DIR=$(pwd)
+          echo "NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml" >> $GITHUB_ENV
+          echo $env:NASTOOL_CONFIG
+        shell: bash
+      - name: package through pyinstaller
+        run: |
+          cd nas-tools
+          cp ./package/rely/hook-cn2an.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-zhconv.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./package/rely/hook-iso639.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
+          cp ./third_party.txt ./package/
+          cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
+          cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
+          cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
+          cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
+          cd package
+          pyinstaller nas-tools.spec
+          ls -all
+          mv nas-tools/package/dist/nas-tools nas-tools/package/dist/nas-tools.mac
+        shell: bash
+      - name: upload mac file
+        uses: actions/upload-artifact@v3
+        with:
+          name: nas-tools
+          path: nas-tools/package/dist/nas-tools
+
+  Create-release_Send-message:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: [Windows-build, Linux-build, Mac-build]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release version
+      id: release_version
+      run: |
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+        echo "app_version=$app_version" >> $GITHUB_ENV
+    - name: download exe and rename
+      uses: actions/download-artifact@v3
+    - name: get release_informations
+      shell: bash
+      run: |
+        pwd
+        ls -all
+        mkdir releases
+        cd package
+        mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+        mv nas-tools.linux /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_v${{ env.app_version }}
+        mv nas-tools.mac /home/runner/work/nas-tools/nas-tools/releases/nastool_mac_v${{ env.app_version }}
+        pwd
+        ls -all
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        prerelease: false
+    - name: Upload release asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: |
+            /home/runner/work/nas-tools/nas-tools/releases/
+
+    - name: Send telegram message (release informations)
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+            ${{ github.event.commits[0].message }}
