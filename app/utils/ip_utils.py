@@ -74,4 +74,7 @@ class IpUtils:
         """
         判断是不是内网ip
         """
-        return ipaddress.ip_address(ip_str.strip()).is_private
+        try:
+            return ipaddress.ip_address(ip_str.strip()).is_private
+        except socket.error:
+            return False
