@@ -10,7 +10,7 @@ su-exec
 zip
 curl
 bash
-fuse
+fuse3
 xvfb
 inotify-tools
 chromium-chromedriver
