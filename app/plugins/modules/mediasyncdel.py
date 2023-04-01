@@ -1,9 +1,10 @@
 import os
 
 from app.helper import DbHelper
+from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.utils.types import EventType
+from app.utils.types import EventType, MediaServerType
 from web.action import WebAction
 
 
@@ -32,6 +33,7 @@ class MediaSyncDel(_IPluginModule):
     _enable = False
     _del_source = False
     _exclude_path = None
+    _send_notify = False
 
     @staticmethod
     def get_fields():
@@ -55,6 +57,13 @@ class MediaSyncDel(_IPluginModule):
                             'tooltip': '开启后，删除历史记录的同时会同步删除源文件。',
                             'type': 'switch',
                             'id': 'del_source',
+                        },
+                        {
+                            'title': '运行时通知',
+                            'required': "",
+                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开媒体服务通知）',
+                            'type': 'switch',
+                            'id': 'send_notify',
                         }
                     ],
                 ]
@@ -87,12 +96,14 @@ class MediaSyncDel(_IPluginModule):
             self._enable = config.get("enable")
             self._del_source = config.get("del_source")
             self._exclude_path = config.get("exclude_path")
+            self._send_notify = config.get("send_notify")
 
     @EventHandler.register(EventType.EmbyWebhook)
     def sync_del(self, event):
         """
         emby删除媒体库同步删除历史记录
         """
+        global image_url
         if not self._enable:
             return
         event_data = event.event_data
@@ -108,6 +119,8 @@ class MediaSyncDel(_IPluginModule):
         media_path = event_data.get("media_path")
         # tmdb_id
         tmdb_id = event_data.get("tmdb_id")
+        # item_id
+        item_id = event_data.get("item_id")
         # 季数
         season_num = event_data.get("season_num")
         if season_num and int(season_num) < 10:
@@ -130,19 +143,27 @@ class MediaSyncDel(_IPluginModule):
             self.info(f"媒体路径 {media_path} 已被排除，暂不处理")
             return
 
+        # 消息推送消息体
+        event_info = {'event': 'media.del'}
+
         # 删除电影
-        msg = None
         if media_type == "Movie":
+            event_info['item_type'] = 'MOV'
+            event_info['item_name'] = media_name
             msg = f'电影 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
             # 删除电视剧
         elif media_type == "Series":
+            event_info['item_type'] = 'TV'
+            event_info['item_name'] = media_name
             msg = f'剧集 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
+            event_info['item_type'] = 'TV'
+            event_info['item_name'] = f'{media_name} S{season_num}'
             if not season_num:
                 self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
@@ -151,6 +172,8 @@ class MediaSyncDel(_IPluginModule):
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
+            event_info['item_type'] = 'TV'
+            event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
             if not season_num or not episode_num:
                 self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
@@ -171,6 +194,13 @@ class MediaSyncDel(_IPluginModule):
             "logids": logids,
             "flag": "del_source" if self._del_source else ""
         })
+
+        # 发送消息
+        if self._send_notify:
+            # 发送通知
+            Message().send_mediaserver_message(event_info=event_info,
+                                               channel=MediaServerType.EMBY.value,
+                                               image_url='https://user-images.githubusercontent.com/54088512/229291640-6dded359-07ee-480d-b089-41501c1bec4c.png')
         self.info(f"同步删除 {msg} 完成！")
 
     def get_state(self):
