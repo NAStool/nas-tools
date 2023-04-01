@@ -90,7 +90,7 @@ jobs:
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
-          name: linux-x86_64-glibc2.35
+          name: linux
           path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
 
   Mac-build:
@@ -133,8 +133,8 @@ jobs:
       - name: upload mac file
         uses: actions/upload-artifact@v3
         with:
-          name: nas-tools
-          path: nas-tools/package/dist/nas-tools
+          name: macos
+          path: /Users/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.mac
 
   Create-release_Send-message:
     permissions: write-all
