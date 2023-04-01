@@ -128,7 +128,7 @@ jobs:
           pyinstaller nas-tools.spec
           mv ./dist/nas-tools ./dist/nas-tools.mac
           pwd
-          ls -all .dist/
+          ls -all ./dist/
         shell: bash
       - name: upload mac file
         uses: actions/upload-artifact@v3
