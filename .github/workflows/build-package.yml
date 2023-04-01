@@ -155,10 +155,9 @@ jobs:
         pwd
         ls -all
         mkdir releases
-        cd package
-        mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
-        mv nas-tools.linux /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_v${{ env.app_version }}
-        mv nas-tools.mac /home/runner/work/nas-tools/nas-tools/releases/nastool_mac_v${{ env.app_version }}
+        mv ./windows/nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+        mv ./linux/nas-tools.linux /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_v${{ env.app_version }}
+        mv ./macos/nas-tools.mac /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
         pwd
         ls -all
     - name: Create release
