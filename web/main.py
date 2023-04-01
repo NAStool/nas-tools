@@ -14,6 +14,7 @@ from math import floor
 from pathlib import Path
 from threading import Lock
 from urllib import parse
+from urllib.parse import unquote
 
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
     redirect, Response
@@ -1048,7 +1049,7 @@ def dirlist():
     r = ['<ul class="jqueryFileTree" style="display: none;">']
     try:
         r = ['<ul class="jqueryFileTree" style="display: none;">']
-        in_dir = request.form.get('dir')
+        in_dir = unquote(request.form.get('dir'))
         ft = request.form.get("filter")
         if not in_dir or in_dir == "/":
             if SystemUtils.get_system() == OsType.WINDOWS:
