@@ -45,5 +45,5 @@ jobs:
     - name: upload linux file
       uses: actions/upload-artifact@v3
       with:
-        name: nas-tools
+        name: linux-x86_64-glibc2.35
         path: /home/runner/work/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools
