@@ -96,6 +96,4 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         format: markdown
         message: |
-            *v${{ env.app_version }}*
-
             ${{ github.event.commits[0].message }}

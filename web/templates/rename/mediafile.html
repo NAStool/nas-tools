@@ -354,14 +354,17 @@
     if (!path) {
       return;
     }
-    ajax_post("media_path_scrap", {path: path}, function (ret) {
-      if (ret.code == 0) {
-        show_success_modal(ret.msg, function () {
-          refresh_files();
-        });
-      } else {
-        show_fail_modal(`${ret.msg}！`);
-      }
+    show_ask_modal("刮削将会覆盖已存在的nfo及图片文件，是否确认刮削当前目录下的所有文件？", function () {
+      hide_ask_modal();
+      ajax_post("media_path_scrap", {path: path}, function (ret) {
+        if (ret.code === 0) {
+          show_success_modal(ret.msg, function () {
+            refresh_files();
+          });
+        } else {
+          show_fail_modal(`${ret.msg}！`);
+        }
+      });
     });
   }
 

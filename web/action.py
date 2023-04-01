@@ -4087,7 +4087,8 @@ class WebAction:
         """
         # 触发字幕下载事件
         EventManager().send_event(EventType.MediaScrapStart, {
-            "path": data.get("path")
+            "path": data.get("path"),
+            "force": True
         })
         return {"code": 0, "msg": "刮削任务已提交，正在后台运行。"}
 
