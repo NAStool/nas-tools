@@ -39,6 +39,7 @@ jobs:
         cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/config/
         cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/db_scripts/
         cd windows
+        ls -all
         pyinstaller nas-tools-linux.spec
       shell: pwsh
     - name: upload linux file
