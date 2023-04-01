@@ -126,9 +126,9 @@ jobs:
           cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
           cd package
           pyinstaller nas-tools.spec
-          mv nas-tools/package/dist/nas-tools nas-tools/package/dist/nas-tools.mac
+          mv ./dist/nas-tools ./dist/nas-tools.mac
           pwd
-          ls -all nas-tools/package/dist
+          ls -all .dist/
         shell: bash
       - name: upload mac file
         uses: actions/upload-artifact@v3
