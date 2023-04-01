@@ -30,14 +30,14 @@ jobs:
     - name: package through pyinstaller
       run: |
         cd nas-tools
-        cp ./windows/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
-        cp ./windows/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
-        cp ./windows/rely/hook-iso639.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
-        cp ./third_party.txt ./windows
-        cp ./windows/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/setuptools/_vendor/pyparsing/diagram
-        cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/web
-        cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/config
-        cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/db_scripts
+        sudo sudo cp ./windows/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
+        sudo cp ./windows/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
+        sudo cp ./windows/rely/hook-iso639.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/pyinstaller/hooks
+        sudo cp ./third_party.txt ./windows
+        sudo cp ./windows/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/setuptools/_vendor/pyparsing/diagram
+        sudo cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/web
+        sudo cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/config
+        sudo cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/site-packages/db_scripts
         cd windows
         pyinstaller nas-tools.spec
       shell: pwsh
