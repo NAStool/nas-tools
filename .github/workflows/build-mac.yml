@@ -25,7 +25,7 @@ jobs:
           cd nas-tools
           pip install -r requirements.txt
           CURRENT_DIR=$(pwd)
-          echo ("NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml") >> $env:GITHUB_ENV
+          echo "NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml" >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG
         shell: bash
       - name: package through pyinstaller
