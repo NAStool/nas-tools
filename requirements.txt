@@ -33,7 +33,6 @@ func_timeout==4.3.5
 greenlet==1.1.3.post0
 h11==0.12.0
 humanize==4.4.0
-IPy==1.1
 ics==0.7.2
 idna==3.3
 influxdb==5.3.1

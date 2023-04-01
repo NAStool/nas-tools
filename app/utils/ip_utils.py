@@ -1,7 +1,6 @@
+import ipaddress
 import socket
 from urllib.parse import urlparse
-
-from IPy import IP
 
 
 class IpUtils:
@@ -75,5 +74,4 @@ class IpUtils:
         """
         判断是不是内网ip
         """
-        ip = IP(ip_str)
-        return ip.iptype() != 'PUBLIC'
+        return ipaddress.ip_address(ip_str.strip()).is_private
