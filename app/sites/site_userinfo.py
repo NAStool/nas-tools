@@ -262,8 +262,7 @@ class SiteUserInfo(object):
 
             if not force \
                     and not specify_sites \
-                    and self._last_update_time \
-                    and (datetime.now() - self._last_update_time).seconds < 6 * 3600:
+                    and self._last_update_time:
                 return
 
             if specify_sites \

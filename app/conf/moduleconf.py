@@ -637,6 +637,14 @@ class ModuleConf(object):
                     "tooltip": "在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称",
                     "type": "text",
                     "placeholder": ""
+                },
+                "play_host": {
+                    "id": "emby.play_host",
+                    "required": False,
+                    "title": "媒体播放地址",
+                    "tooltip": "配置播放设备的访问地址，用于媒体详情页跳转播放页面；如为https则需要增加https://前缀，留空则默认与服务器地址一致",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
                 }
             }
         },
@@ -661,6 +669,14 @@ class ModuleConf(object):
                     "tooltip": "在Jellyfin设置->高级->API密钥处生成",
                     "type": "text",
                     "placeholder": ""
+                },
+                "play_host": {
+                    "id": "jellyfin.play_host",
+                    "required": False,
+                    "title": "媒体播放地址",
+                    "tooltip": "配置播放设备的访问地址，用于媒体详情页跳转播放页面；如为https则需要增加https://前缀，留空则默认与服务器地址一致",
+                    "type": "text",
+                    "placeholder": "http://127.0.0.1:8096"
                 }
             }
         },

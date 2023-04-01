@@ -122,8 +122,8 @@ class Searcher:
                 if media_info.original_language == "en":
                     search_en_name = media_info.original_title
                 else:
-                    # 此处使用独立对象，避免影响TMDB语言
-                    en_title = Media().get_tmdb_en_title(media_info)
+                    # 获取英文标题
+                    en_title = self.media.get_tmdb_en_title(media_info)
                     if en_title:
                         search_en_name = en_title
             # 两次搜索名称

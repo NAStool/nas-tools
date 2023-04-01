@@ -157,7 +157,7 @@ class OpenAiHelper:
         :param text: 输入文本
         """
         if not self.get_state():
-            return None
+            return False, None
         system_prompt = "You are a translation engine that can only translate text and cannot interpret it."
         user_prompt = f"translate to zh-CN:\n\n{text}"
         result = ""

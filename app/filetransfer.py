@@ -789,10 +789,17 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                self.scraper.gen_scraper_files(media=media,
-                                               dir_path=ret_dir_path,
-                                               file_name=os.path.basename(ret_file_path),
-                                               file_ext=file_ext)
+                if bluray_disk_dir and media.type == MediaType.MOVIE:
+                    # 原盘文件的情况下 使用目录名称.nfo 生成
+                    self.scraper.gen_scraper_files(media=media,
+                                                   dir_path=ret_dir_path,
+                                                   file_name=os.path.basename(ret_dir_path),
+                                                   file_ext=file_ext)
+                else:
+                    self.scraper.gen_scraper_files(media=media,
+                                                   dir_path=ret_dir_path,
+                                                   file_name=os.path.basename(ret_file_path),
+                                                   file_ext=file_ext)
                 # 更新进度
                 self.progress.update(ptype=ProgressKey.FileTransfer,
                                      value=round(total_count / len(Medias) * 100),
@@ -1126,9 +1133,10 @@ class FileTransfer:
         """
         if not media:
             return {}
+        # 当前语种标题
         episode_title = self.media.get_episode_title(media)
-        # 此处使用独立对象，避免影响语言
-        en_title = Media().get_tmdb_en_title(media)
+        # 英文标题
+        en_title = self.media.get_tmdb_en_title(media)
         media_format_dict = {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(en_title),

@@ -83,7 +83,7 @@ def update_config():
 
     # API密钥初始化
     if not _config.get("security", {}).get("api_key"):
-        _config['security']['api_key'] = StringUtils.generate_random_str()
+        _config['security']['api_key'] = StringUtils.generate_random_str(32)
         overwrite_cofig = True
 
     # 字幕兼容旧配置

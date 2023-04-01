@@ -252,6 +252,46 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
+                  <label class="form-label">TMDB语言 <span class="form-help"
+                                                                        title="选择TMDB语言，将会影响媒体信息展示、文件整理及刮削等所有涉及使用TMDB数据的内容语言"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="media.tmdb_language">
+                    <option value="zh" {% if not Config.media.tmdb_language or Config.media.tmdb_language == 'zh' %}selected{% endif %}>中文</option>
+                    <option value="en" {% if Config.media.tmdb_language == 'en' %}selected{% endif %}>English</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">TMDB图片代理 <span class="form-help"
+                                                                        title="加速TMDB图片下载，留空使用TMDB官方地址"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.app %}{{ Config.app.tmdb_image_url or '' }}{% endif %}" class="form-control"
+                         id="app.tmdb_image_url" placeholder="https://image.tmdb.org" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">OpenAI API Url <span class="form-help"
+                                                                        title="自定义openai请求地址（请注意格式，请求地址需带有请求头且最后没有/号），不填默认使用https://api.openai.com"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_url or '' }}{% endif %}" class="form-control"
+                         id="openai.api_url" placeholder="https://api.openai.com" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">OpenAI API Key <span class="form-help"
+                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名（需要打开增强识别开关）及聊天交互等；填写此项代表启用ChatGPT，根据API使用情况OpenAI官方会收取相应的费用"
+                                                                        data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
+                         id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg">
+                <div class="mb-3">
                   <label class="form-label required">下载优先规则 <span class="form-help"
                                                                         title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先"
                                                                         data-bs-toggle="tooltip">?</span></label>
@@ -291,26 +331,6 @@
                                                                data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.media_default_path or '' }}" class="form-control" id="media.media_default_path"
                          placeholder="/" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-lg">
-                <div class="mb-3">
-                  <label class="form-label">OpenAI API Url <span class="form-help"
-                                                                        title="自定义openai请求地址（请注意格式，请求地址需带有请求头且最后没有/号），不填默认使用https://api.openai.com"
-                                                                        data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_url or '' }}{% endif %}" class="form-control"
-                         id="openai.api_url" placeholder="https://api.openai.com" autocomplete="off">
-                </div>
-              </div>
-              <div class="col-lg">
-                <div class="mb-3">
-                  <label class="form-label">OpenAI API Key <span class="form-help"
-                                                                        title="在platform.openai.com网站申请API Key，用于使用ChatGPT辅助识别文件名（需要打开增强识别开关）及聊天交互等；填写此项代表启用ChatGPT，根据API使用情况OpenAI官方会收取相应的费用"
-                                                                        data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{% if Config.openai %}{{ Config.openai.api_key or '' }}{% endif %}" class="form-control"
-                         id="openai.api_key" placeholder="sk-xxx" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -565,6 +585,20 @@
                   <input type="text" id="security.api_key" class="form-control"
                          value="{% if Config.security %}{{ Config.security.api_key }}{% endif %}">
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl">
+                  <div class="mb-3">
+                      <label class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="security.check_apikey"
+                                {% if Config.security.check_apikey %}checked{% endif %}>
+                          <span class="form-check-label">验证外部请求的API密钥
+                              <span class="form-help" title="启用后，需要在原来的NAStool API地址后面拼接 ?apikey=xxx ，xxx 为API密钥；例如Emby回调接口由原来的 http://nastool:3000/emby 改为 http://nastool:3000/emby?apikey=xxx。受影响的接口有：plex、jellyfin、emby、telegram、synology、slack、ical"
+                                    data-bs-toggle="tooltip">?</span>
+                          </span>
+                      </label>
+                  </div>
               </div>
             </div>
           </div>

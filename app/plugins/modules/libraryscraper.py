@@ -192,17 +192,22 @@ class LibraryScraper(_IPluginModule):
         if not event_info:
             return
         path = event_info.get("path")
-        self.__folder_scraper(path)
+        force = event_info.get("force")
+        self.__folder_scraper(path, force=force)
 
-    def __folder_scraper(self, path, exclude_path=None):
+    def __folder_scraper(self, path, exclude_path=None, force=None):
         """
         刮削指定文件夹或文件
-        :param path:
+        :param path: 文件夹或文件路径
+        :param force: 是否强制刮削
         :return:
         """
         # 模式
-        force_nfo = True if self._mode in ["force_nfo", "force_all"] else False
-        force_pic = True if self._mode in ["force_all"] else False
+        if force is not None:
+            force_nfo = force_pic = force
+        else:
+            force_nfo = True if self._mode in ["force_nfo", "force_all"] else False
+            force_pic = True if self._mode in ["force_all"] else False
         # 每个媒体库下的所有文件
         for file in self.__get_library_files(path, exclude_path):
             if self._event.is_set():
@@ -228,7 +233,7 @@ class LibraryScraper(_IPluginModule):
                 tv_nfo = os.path.join(os.path.dirname(os.path.dirname(file)), "tvshow.nfo")
                 if os.path.exists(tv_nfo):
                     tmdbid = self.__get_tmdbid_from_nfo(tv_nfo)
-            if tmdbid:
+            if tmdbid and not force_nfo:
                 self.info(f"读取到本地nfo文件的tmdbid：{tmdbid}")
                 meta_info.set_tmdb_info(self._media.get_tmdb_info(mtype=meta_info.type,
                                                                   tmdbid=tmdbid,

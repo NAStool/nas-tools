@@ -4,7 +4,8 @@ import hashlib
 import hmac
 import json
 import os
-from functools import wraps
+import log
+from functools import wraps, partial
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -17,18 +18,33 @@ from app.utils import TokenCache
 from config import Config
 
 
-def require_auth(func):
+def require_auth(func=None, force=True):
     """
     API安全认证
+    force 是否强制检查apikey，为False时，会检查 check_apikey 配置值
     """
+    if func is None:
+        return partial(require_auth, force=force)
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if not force and \
+                not Config().get_config("security").get("check_apikey"):
+            return func(*args, **kwargs)
+        log.debug(f"【Security】{func.__name__} 认证检查")
+        # 允许在请求头Authorization中添加apikey
         auth = request.headers.get("Authorization")
         if auth:
             auth = str(auth).split()[-1]
             if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
+        # 允许使用在api后面拼接 ?apikey=xxx 的方式进行验证
+        # 从query中获取apikey
+        auth = request.args.get("apikey")
+        if auth:
+            if auth == Config().get_config("security").get("api_key"):
+                return func(*args, **kwargs)
+        log.warn(f"【Security】{func.__name__} 认证未通过，请检查API Key")
         return {
             "code": 401,
             "success": False,

@@ -4,7 +4,7 @@ import log
 from config import Config
 from app.mediaserver.client._base import _IMediaClient
 from app.utils.types import MediaServerType
-from app.utils import RequestUtils, SystemUtils, ExceptionUtils
+from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
 
 
 class Jellyfin(_IMediaClient):
@@ -20,6 +20,7 @@ class Jellyfin(_IMediaClient):
     _serverid = None
     _apikey = None
     _host = None
+    _play_host = None
     _user = None
     _libraries = []
 
@@ -38,6 +39,14 @@ class Jellyfin(_IMediaClient):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
+            self._play_host = self._client_config.get('play_host')
+            if not self._play_host:
+                self._play_host = self._host
+            else:
+                if not self._play_host.startswith('http'):
+                    self._play_host = "http://" + self._play_host
+                if not self._play_host.endswith('/'):
+                    self._play_host = self._play_host + "/"
             self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
                 self._user = self.get_admin_user()
@@ -335,7 +344,13 @@ class Jellyfin(_IMediaClient):
                     # 查询当前剧集的itemid
                     if res_item.get("IndexNumber") == episode_id:
                         # 查询当前剧集的图片
-                        return self.get_image_by_id(res_item.get("Id"), "Primary")
+                        img_url = self.get_image_by_id(res_item.get("Id"), "Primary")
+                        # 没查到tmdb图片则判断播放地址是不是外网，使用jellyfin刮削的图片（直接挂载网盘场景）
+                        if not img_url and not IpUtils.is_internal(self._play_host) \
+                                and res_item.get('ImageTags', {}).get('Primary'):
+                            return "%sItems/%s/Images/Primary?maxHeight=225&maxWidth=400&tag=%s&quality=90" % (
+                                self._play_host, res_item.get("Id"), res_item.get('ImageTags', {}).get('Primary'))
+                        return img_url
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
@@ -467,7 +482,7 @@ class Jellyfin(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f"{self._host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
+        return f"{self._play_host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
 
     def get_playing_sessions(self):
         """

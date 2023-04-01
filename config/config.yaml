@@ -30,19 +30,21 @@ app:
   # 【WEB管理界面使用的HTTPS的证书和KEY的路径】，留空则不启用HTTPS
   ssl_cert:
   ssl_key:
-  # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
-  # 以下地址需要网络能够正常访问：api.themoviedb.org、webservice.fanart.tv
-  rmt_tmdbkey:
-  # 【使用TMDB服务器域名】：api.themoviedb.org、api.tmdb.org，如api.themoviedb.org无法访问可偿试使用api.tmdb.org
-  tmdb_domain: api.tmdb.org
-  # 【TMDB匹配模式】：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
-  # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
-  rmt_match_mode: normal
   # 【设置代理】，themoviedb、fanart、telegram等将使用代理访问，http和https均需配置，可以是http也可以是socks5、socks5h(remote DNS) ，但需要带http或socks5前缀，两项可以配置为一样，留空则不启用
   # 示例：'http://127.0.0.1:7890' 'socks5://127.0.0.1:8018' 'socks5h://127.0.0.1:8018'
   proxies:
     http:
     https:
+  # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
+  # 以下地址需要网络能够正常访问：api.themoviedb.org、webservice.fanart.tv
+  rmt_tmdbkey:
+  # 【使用TMDB服务器域名】：api.themoviedb.org、api.tmdb.org，如api.themoviedb.org无法访问可偿试使用api.tmdb.org
+  tmdb_domain: api.tmdb.org
+  # 【TMDB图片代理地址】：加速图片下载，留空使用TMDB官方地址
+  tmdb_image_url: https://image.tmdb.org
+  # 【TMDB匹配模式】：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
+  # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
+  rmt_match_mode: normal
   # 【本系统的WEB的外网地址】：需要是外网IP或者域名，需要包含端口，用于微信/Telegram信息点击跳转，如不需要可配空
   # 示例：http://IP:3000
   domain: ""
@@ -57,10 +59,6 @@ app:
 
 # 【配置媒体库信息】
 media:
-  # 【媒体库管理软件】：emby、jellyfin、plex，需要在emby或jellyfin或plex区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
-  media_server: emby
-  # 【媒体库数据同步周期】：定时同步媒体服务器数据到本地，单位小时
-  mediasync_interval: 12
   # 【媒体库电影文件存放目录】：支持配置多个目录，不同的硬盘需映射为不同的根目录，以更于程序区分
   movie_path:
   # 【媒体库电视剧文件存放目录】：支持配置多个目录，不同的硬盘需映射为不同的根目录，以更于程序区分
@@ -77,6 +75,10 @@ media:
   # 默认策略default-category分类设置可参考"default-category.yaml"，分类参见README.MD说明
   # 如不需要启动分类，则该项配置为空
   category: "default-category"
+  # 【媒体库管理软件】：emby、jellyfin、plex，需要在emby或jellyfin或plex区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
+  media_server: emby
+  # 【媒体库数据同步周期】：定时同步媒体服务器数据到本地，单位小时
+  mediasync_interval: 12
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 150
   # 【文件名转移忽略词】：文件名包含忽略词，忽略转移
@@ -97,6 +99,8 @@ media:
   media_default_path:
   # 默认文件转移方式
   default_rmt_mode: copy
+  # 默认TMDB信息语种
+  tmdb_language: zh
 
 # 配置Emby服务器信息
 emby:
@@ -104,6 +108,8 @@ emby:
   host: http://127.0.0.1:8096
   # 【Emby ApiKey】：在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称
   api_key:
+  # 【Emby媒体播放地址和端口】：播放设备的访问地址，注意区分http和https，http时可以不加http://，https时必须加https://
+  play_host: http://127.0.0.1:8096
 
 # 配置Jellyfin服务器信息
 jellyfin:
@@ -111,6 +117,8 @@ jellyfin:
   host: http://127.0.0.1:8096
   # 【Jellyfin ApiKey】：在Jellyfin设置->高级->API密钥处生成
   api_key:
+  # 【Jellyfin媒体播放地址和端口】：播放设备的访问地址，注意区分http和https，http时可以不加http://，https时必须加https://
+  play_host: http://127.0.0.1:8096
 
 # 配置Plex服务器信息
 plex:
@@ -244,6 +252,8 @@ security:
     ipv6: ::/0
   # 【API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证以及非客户端类的API调用
   api_key:
+  # 【是否验证apikey】：开启时需要在回调地址中传递api密钥进行验证，以增强安全性
+  check_apikey: false
 
 # 【实验室】
 laboratory:

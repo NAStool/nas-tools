@@ -30,7 +30,7 @@ class TMDb(object):
         self._reset = None
         self.obj_cached = obj_cached
         if os.environ.get(self.TMDB_LANGUAGE) is None:
-            os.environ[self.TMDB_LANGUAGE] = "zh-CN"
+            os.environ[self.TMDB_LANGUAGE] = "zh"
         if not os.environ.get(self.TMDB_DOMAIN):
             os.environ[self.TMDB_DOMAIN] = "https://api.themoviedb.org/3"
 
@@ -56,14 +56,7 @@ class TMDb(object):
 
     @domain.setter
     def domain(self, domain):
-        if domain:
-            if not str(domain).startswith('http'):
-                domain = "https://%s" % domain
-            if not str(domain).endswith('/3'):
-                domain = "%s/3" % domain
-            os.environ[self.TMDB_DOMAIN] = str(domain)
-        else:
-            os.environ[self.TMDB_DOMAIN] = ''
+        os.environ[self.TMDB_DOMAIN] = str(domain or '')
 
     @property
     def proxies(self):

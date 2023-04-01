@@ -50,13 +50,13 @@ DEFAULT_WECHAT_PROXY = 'https://wechat.nastool.cn'
 # 默认OCR识别服务地址
 DEFAULT_OCR_SERVER = 'https://nastool.cn'
 # 默认TMDB代理服务地址
-DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn'
+DEFAULT_TMDB_PROXY = 'https://tmdb.nastool.cn/3'
 # 默认CookieCloud服务地址
 DEFAULT_COOKIECLOUD_SERVER = 'http://nastool.cn:8088'
+# TMDB API地址
+TMDB_API_DOMAIN = 'api.themoviedb.org'
 # TMDB图片地址
-TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
-TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original%s'
-TMDB_IMAGE_FACE_URL = 'https://image.tmdb.org/t/p/h632%s'
+TMDB_IMAGE_DOMAIN = 'image.tmdb.org'
 TMDB_PEOPLE_PROFILE_URL = 'https://www.themoviedb.org/person/%s'
 # 添加下载时增加的标签，开始只监控NAStool添加的下载时有效
 PT_TAG = "NASTOOL"
@@ -199,3 +199,16 @@ class Config(object):
         global RMT_FAVTYPE
         if favtype:
             RMT_FAVTYPE = favtype
+
+    def get_tmdbapi_url(self):
+        if self.get_config('laboratory').get("tmdb_proxy"):
+            return DEFAULT_TMDB_PROXY
+        return f"https://{self.get_config('app').get('tmdb_domain') or TMDB_API_DOMAIN}/3"
+
+    def get_tmdbimage_url(self, path, prefix="w500"):
+        if not path:
+            return ""
+        tmdb_image_url = self.get_config("app").get("tmdb_image_url")
+        if tmdb_image_url:
+            return tmdb_image_url + f"/t/p/{prefix}{path}"
+        return f"https://{TMDB_IMAGE_DOMAIN}/t/p/{prefix}{path}"

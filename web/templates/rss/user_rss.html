@@ -97,19 +97,19 @@
           </div>
           <div class="card-actions btn-actions ms-1 d-none d-sm-block">
             <a href="javascript:void(0)" onclick="show_userrss_detail({{ Task.id }})" class="btn-action"
-               title="展开/折叠" data-bs-toggle="tooltip">
+               title="展开/折叠">
               {{ SVG.menu_2() }}
             </a>
             <a href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action"
-               title="预览报文" data-bs-toggle="tooltip">
+               title="预览报文">
               {{ SVG.eye() }}
             </a>
             <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action"
-               title="编辑任务" data-bs-toggle="tooltip">
+               title="编辑任务">
               {{ SVG.edit() }}
             </a>
             <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action"
-               title="删除任务" data-bs-toggle="tooltip">
+               title="删除任务">
               {{ SVG.x() }}
             </a>
           </div>
@@ -526,14 +526,27 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="ms-2">
-          <h5 class="modal-title">订阅预览</h5>
-          <input type="hidden" id="article_check_id" value="" >
+        <div class="ms-2 d-flex align-items-center">
+          <h5 class="modal-title me-2">订阅预览</h5>
+          <button class="btn-action" data-bs-toggle="collapse" data-bs-target="#search-bar" aria-expanded="false" aria-controls="search-bar">
+            {{ SVG.list_search() }}
+          </button>
+          <input type="hidden" id="article_check_id" value="">
         </div>
         <div class="ms-5">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>      
+      </div>
+      <div class="collapse" id="search-bar">
+        <div class="input-group p-1">
+          <select id="filter-status" class="form-select w-25" onchange="filterReport()">
+            <option value="">全部</option>
+            <option value="已处理">已处理</option>
+            <option value="未处理">未处理</option>
+          </select>
+          <input type="text" id="filter-title" class="form-control w-75" placeholder="搜索" onkeyup="filterReport()">
+        </div>
+      </div>
       <div class="table-responsive table-modal-body">
         <table id="table-rss-articles" class="table table-vcenter card-table table-hover table-striped">
         </table>
@@ -1006,5 +1019,22 @@
         show_fail_modal(ret.msg);
       }
     });
+  }
+
+  //筛选
+  function filterReport() {
+    let filterStatus = $("#filter-status").val();
+    let filterTitle = $("#filter-title").val().toLowerCase();
+    let tableRows = $("tr");
+    for (let i = 1; i < tableRows.length; i++) {
+      let reportData = $(tableRows[i]).find("td");
+      let title = $(reportData[1]).text().toLowerCase();
+      let status = $(reportData[2]).text();
+      if ((filterStatus == "" || status == filterStatus) && (title.includes(filterTitle))) {
+        $(tableRows[i]).show();
+      } else {
+        $(tableRows[i]).hide();
+      }
+    }
   }
 </script>

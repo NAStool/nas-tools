@@ -2,10 +2,13 @@ import os.path
 import time
 from xml.dom import minidom
 
+from requests.exceptions import RequestException
+
 import log
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
-from config import TMDB_IMAGE_W500_URL, Config
+from app.utils.commons import retry
+from config import Config
 from app.utils import DomUtils, RequestUtils, ExceptionUtils
 from app.utils.types import MediaType
 from app.media import Media
@@ -260,6 +263,7 @@ class Scraper:
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
     @staticmethod
+    @retry(RequestException, logger=log)
     def __save_image(url, out_path, itype='', force=False):
         """
         下载poster.jpg并保存
@@ -274,7 +278,7 @@ class Scraper:
             return
         try:
             log.info(f"【Scraper】正在下载{itype}图片：{url} ...")
-            r = RequestUtils().get_res(url)
+            r = RequestUtils().get_res(url=url, raise_exception=True)
             if r:
                 with open(file=image_path,
                           mode="wb") as img:
@@ -282,6 +286,8 @@ class Scraper:
                 log.info(f"【Scraper】{itype}图片已保存：{image_path}")
             else:
                 log.info(f"【Scraper】{itype}图片下载失败，请检查网络连通性")
+        except RequestException:
+            raise RequestException
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
@@ -471,7 +477,8 @@ class Scraper:
                         seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
                                                                           season=int(media.get_season_seq()))
                         if seasoninfo:
-                            self.__save_image(TMDB_IMAGE_W500_URL % seasoninfo.get("poster_path"),
+                            self.__save_image(Config().get_tmdbimage_url(seasoninfo.get("poster_path"),
+                                                                         prefix="original"),
                                               os.path.dirname(dir_path),
                                               season_poster,
                                               force_pic)
