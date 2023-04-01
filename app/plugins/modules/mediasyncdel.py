@@ -103,7 +103,6 @@ class MediaSyncDel(_IPluginModule):
         """
         emby删除媒体库同步删除历史记录
         """
-        global image_url
         if not self._enable:
             return
         event_data = event.event_data
@@ -119,8 +118,7 @@ class MediaSyncDel(_IPluginModule):
         media_path = event_data.get("media_path")
         # tmdb_id
         tmdb_id = event_data.get("tmdb_id")
-        # item_id
-        item_id = event_data.get("item_id")
+
         # 季数
         season_num = event_data.get("season_num")
         if season_num and int(season_num) < 10:
