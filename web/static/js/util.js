@@ -1,6 +1,11 @@
 // 进度条配置
 NProgress.configure({showSpinner: false});
 
+// replaceAll浏览器兼容
+String.prototype.replaceAll = function (s1, s2) {
+  return this.replace(new RegExp(s1, "gm"), s2)
+}
+
 // Ajax主方法
 function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
   if (show_progress) {
@@ -117,11 +122,6 @@ function cancel_cursor_busy() {
 // 是否触摸屏设备
 function is_touch_device() {
   return 'ontouchstart' in window;
-}
-
-// replaceAll浏览器兼容
-String.prototype.replaceAll = function (s1, s2) {
-  return this.replace(new RegExp(s1, "gm"), s2)
 }
 
 function select_name(name) {
@@ -338,10 +338,13 @@ function browserNotification(title, text) {
   if (!("Notification" in window)) {
     return;
   }
+  if (!title || !text) {
+    return;
+  }
   // 请求用户授权显示通知
   let notification;
   let options = {
-    body: text,
+    body: text.replace(/<br>/g, "\n"),
     icon: "../static/img/logo/logo.png"
   };
   if (Notification.permission === "default") {

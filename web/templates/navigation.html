@@ -29,21 +29,26 @@
 </head>
 <body class="layout-fluid">
 <div class="page">
-  <script src="../static/js/modules/echarts.min.js"></script>
+  <!-- jquery -->
   <script src="../static/js/jquery-3.3.1.min.js"></script>
   <script src="../static/js/tabler/demo-theme.min.js"></script>
-  <script src="../static/js/ace/ace.js"></script>
+  <!-- 第三方组件 -->
+  <script src="../static/js/modules/echarts.min.js"></script>
+  <script src="../static/js/modules/nprogress.js"></script>
   <script src="../static/js/modules/dom-to-image.min.js"></script>
   <script src="../static/js/modules/FileSaver.min.js"></script>
-  <script src="../static/js/modules/nprogress.js"></script>
   <script src="../static/js/modules/numeral.min.js"></script>
   <script src="../static/js/modules/moment.min.js"></script>
+  <script src="../static/js/modules/jquery.filetree.js"></script>
+  <script src="../static/js/ace/ace.js"></script>
   <script src="../static/js/fullcalendar/fullcalendar.min.js"></script>
   <script src="../static/js/fullcalendar/locales/zh-cn.js"></script>
-  <script src="../static/js/modules/jquery.filetree.js"></script>
+  <!-- lit -->
   <script type="module" src="../static/components/lit-index.js"></script>
+  <!-- cmd-dialog -->
+  <script type="module" src="https://esm.run/cmd-dialog" async></script>
   <!-- 解决密码填充问题 -->
-  <span hidden><input type="text"><input type="password"></span>
+  <span hidden><input type="text" aria-label=""><input type="password" aria-label=""></span>
   <layout-navbar id="navbar-menu" hidden
     layout-userlevel="{{ CurrentUser.level }}"
     layout-useradmin="{{ CurrentUser.admin }}"
@@ -63,11 +68,6 @@
     {{ OOPS.loading() }}
   </div>
 </div>
-<cmd-dialog theme="light" placeholder="搜索...">
-  <div slot="footer">
-    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
-  </div>
-</cmd-dialog>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
@@ -1025,14 +1025,22 @@
     </div>
   </div>
 </div>
+<cmd-dialog theme="light" placeholder="搜索...">
+  <div slot="footer">
+    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
+  </div>
+</cmd-dialog>
+<!-- 载入tabler组件 -->
 <script src="../static/js/tabler/tabler.min.js"></script>
 <script src="../static/js/tabler/libs/dropzone-min.js"></script>
 <script src="../static/js/tabler/libs/list.min.js"></script>
 <script src="../static/js/tabler/libs/tom-select.base.min.js"></script>
 <script src="../static/js/tabler/demo.min.js"></script>
+<!-- 载入业务脚本 -->
 <script src="../static/js/util.js"></script>
 <script src="../static/js/functions.js"></script>
-
+<!-- 载入自定义组件 -->
+<script src="../static/components/index.js"></script>
 <!-- 首页事件  -->
 <script type="text/javascript">
 
@@ -1085,12 +1093,8 @@
   });
 </script>
 
-<!-- 动态载入自定义组件 -->
-<script src="../static/components/index.js"></script>
-
 <!-- KBar -->
-<script type="module">
-  import 'https://esm.run/cmd-dialog';
+<script type="text/javascript">
   const dialog = document.querySelector('cmd-dialog');
   const theme = localStorage.getItem("tablerTheme");
   if (theme) {
