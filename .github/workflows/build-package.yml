@@ -30,6 +30,7 @@ jobs:
     - name: package through pyinstaller
       run: |
         cd nas-tools
+        ls -all
         copy .\package\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.10\x64\Scripts
         copy .\package\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
         copy .\package\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\pyinstaller\hooks
@@ -41,6 +42,7 @@ jobs:
         xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\db_scripts\ /e
         cd package
         pyinstaller nas-tools.spec
+        ls -all  D:/a/nas-tools/nas-tools/nas-tools/package/dist
       shell: pwsh
     - name: upload windows file
       uses: actions/upload-artifact@v3
@@ -68,6 +70,7 @@ jobs:
       - name: package through pyinstaller
         run: |
           cd nas-tools
+          ls -all
           cp ./package/rely/hook-cn2an.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
           cp ./package/rely/hook-zhconv.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
           cp ./package/rely/hook-iso639.py /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/PyInstaller/hooks/
@@ -79,8 +82,8 @@ jobs:
           cd package
           ls -all
           pyinstaller nas-tools.spec
-          ls -all
           mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
+          ls -all /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist
         shell: pwsh
       - name: upload linux file
         uses: actions/upload-artifact@v3
@@ -109,6 +112,7 @@ jobs:
       - name: package through pyinstaller
         run: |
           cd nas-tools
+          ls -all
           cp ./package/rely/hook-cn2an.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
           cp ./package/rely/hook-zhconv.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
           cp ./package/rely/hook-iso639.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
@@ -119,8 +123,8 @@ jobs:
           cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
           cd package
           pyinstaller nas-tools.spec
-          ls -all
           mv nas-tools/package/dist/nas-tools nas-tools/package/dist/nas-tools.mac
+          ls -all nas-tools/package/dist
         shell: bash
       - name: upload mac file
         uses: actions/upload-artifact@v3
