@@ -76,5 +76,6 @@ class IpUtils:
         """
         try:
             return ipaddress.ip_address(ip_str.strip()).is_private
-        except socket.error:
+        except Exception as e:
+            print(e)
             return False
