@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel pyinstaller==5.7.0
-        git clone --depth=1 -b dev https://github.com/Shurelol/nas-tools --recurse-submodule
+        git clone --depth=1 -b dev https://github.com/NAStool/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
         echo ("NASTOOL_CONFIG=/home/runner/work/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
