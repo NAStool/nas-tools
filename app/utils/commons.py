@@ -44,7 +44,7 @@ def retry(ExceptionToCheck, tries=3, delay=3, backoff=2, logger=None):
                 try:
                     return f(*args, **kwargs)
                 except ExceptionToCheck as e:
-                    msg = f"{str(e)}, Retrying in {mdelay} seconds..."
+                    msg = f"{str(e)}, {mdelay} 秒后重试 ..."
                     if logger:
                         logger.warn(msg)
                     else:
