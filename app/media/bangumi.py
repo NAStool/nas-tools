@@ -52,7 +52,7 @@ class Bangumi(object):
         """
         bid = item.get("id")
         detail = item.get("url")
-        title = item.get("name_cn", item.get("name"))
+        title = item.get("name_cn") or item.get("name")
         air_date = item.get("air_date")
         rating = item.get("rating")
         if rating:
