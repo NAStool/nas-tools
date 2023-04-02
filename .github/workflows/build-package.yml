@@ -50,7 +50,7 @@ jobs:
         name: windows
         path: D:/a/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.exe
 
-  Linux-build:
+  Linux-build-amd64:
     runs-on: ubuntu-latest
     steps:
       - name: init Python 3.10.10
@@ -84,14 +84,89 @@ jobs:
           pwd
           ls -all
           pyinstaller nas-tools.spec
-          mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
+          mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.amd64
           ls -all /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist
         shell: pwsh
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
-          name: linux
-          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux
+          name: linux-amd64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.amd64
+
+  Linux-build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@master
+      -
+        name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: package through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/arm64 --file ./package/Dockerfile --build-arg branch=dev --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.arm64
+        shell: pwsh
+      - name: upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-arm64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.arm64
+
+  Linux-build-amd64-musl:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@master
+      -
+        name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: package through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/amd64 --file ./package/alpine.Dockerfile --build-arg branch=dev --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.amd64
+        shell: pwsh
+      - name: upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-musl-amd64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.amd64
+
+  Linux-build-arm64-musl:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@master
+      -
+        name: Set Up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set Up Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: package through pyinstaller
+        run: |
+          mkdir rootfs
+          docker buildx build --platform linux/arm64 --file ./package/alpine.Dockerfile --build-arg branch=dev --output type=local,dest=./rootfs .
+          mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
+          cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
+        shell: pwsh
+      - name: upload linux file
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-musl-arm64
+          path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
 
   Mac-build:
     runs-on: macos-latest
