@@ -1228,13 +1228,16 @@ def jellyfin_webhook():
 
 
 # Emby Webhook
-@App.route('/emby', methods=['POST'])
+@App.route('/emby', methods=['GET', 'POST'])
 @require_auth(force=False)
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
         return '不允许的IP地址请求'
-    request_json = json.loads(request.form.get('data', {}))
+    if request.method == 'POST':
+        request_json = json.loads(request.form.get('data', {}))
+    else:
+        request_json = dict(request.args)
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     # 发送消息
     ThreadHelper().start_thread(MediaServer().webhook_message_handler,
