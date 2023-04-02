@@ -208,7 +208,7 @@ class WeChat(_IMessageClient):
         try:
             res = RequestUtils(headers=headers).post(message_url,
                                                      data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
-            if res:
+            if res and res.status_code == 200:
                 ret_json = res.json()
                 if ret_json.get('errcode') == 0:
                     return True, ret_json.get('errmsg')
@@ -216,8 +216,10 @@ class WeChat(_IMessageClient):
                     if ret_json.get('errcode') == 42001:
                         self.__get_access_token(force=True)
                     return False, ret_json.get('errmsg')
+            elif res is not None:
+                return False, f"错误码：{res.status_code}，错误原因：{res.reason}"
             else:
-                return False, None
+                return False, "未获取到返回信息"
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False, str(err)
