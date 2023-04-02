@@ -121,11 +121,11 @@ class MediaSyncDel(_IPluginModule):
         tmdb_id = event_data.get("tmdb_id")
         # 季数
         season_num = event_data.get("season_num")
-        if season_num and int(season_num) < 10:
+        if season_num and isinstance(season_num, int) and int(season_num) < 10:
             season_num = f'0{season_num}'
         # 集数
         episode_num = event_data.get("episode_num")
-        if episode_num and int(episode_num) < 10:
+        if episode_num and isinstance(episode_num, int) and int(episode_num) < 10:
             episode_num = f'0{episode_num}'
 
         if not media_type:
