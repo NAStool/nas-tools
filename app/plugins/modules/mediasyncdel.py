@@ -131,7 +131,7 @@ class MediaSyncDel(_IPluginModule):
         if not media_type:
             self.error(f"{media_name} 同步删除失败，未获取到媒体类型")
             return
-        if not tmdb_id:
+        if not tmdb_id or not isinstance(tmdb_id, int):
             self.error(f"{media_name} 同步删除失败，未获取到TMDB ID")
             return
 
