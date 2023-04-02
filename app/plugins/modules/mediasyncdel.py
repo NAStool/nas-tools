@@ -55,7 +55,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '删除源文件',
                             'required': "",
-                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。',
+                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。同时开启下载任务清理插件，可联动删除下载任务。',
                             'type': 'switch',
                             'id': 'del_source',
                         },
