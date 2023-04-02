@@ -1,10 +1,11 @@
 import os
 
 from app.helper import DbHelper
+from app.media import Media
 from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.utils.types import EventType, MediaServerType
+from app.utils.types import EventType, MediaServerType, MediaType
 from web.action import WebAction
 
 
@@ -118,7 +119,6 @@ class MediaSyncDel(_IPluginModule):
         media_path = event_data.get("media_path")
         # tmdb_id
         tmdb_id = event_data.get("tmdb_id")
-
         # 季数
         season_num = event_data.get("season_num")
         if season_num and int(season_num) < 10:
@@ -142,39 +142,35 @@ class MediaSyncDel(_IPluginModule):
             return
 
         # 消息推送消息体
-        event_info = {'event': 'media.del'}
+        event_info = {'event': 'media.del', 'item_type': 'MOV' if media_type == "Movie" else 'TV'}
 
         # 删除电影
         if media_type == "Movie":
-            event_info['item_type'] = 'MOV'
             event_info['item_name'] = media_name
             msg = f'电影 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
-            # 删除电视剧
+        # 删除电视剧
         elif media_type == "Series":
-            event_info['item_type'] = 'TV'
             event_info['item_name'] = media_name
             msg = f'剧集 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
-            event_info['item_type'] = 'TV'
-            event_info['item_name'] = f'{media_name} S{season_num}'
             if not season_num:
                 self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
+            event_info['item_name'] = f'{media_name} S{season_num}'
             msg = f'剧集 {media_name} S{season_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
-            event_info['item_type'] = 'TV'
-            event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
             if not season_num or not episode_num:
                 self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
+            event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
             msg = f'剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
@@ -195,10 +191,20 @@ class MediaSyncDel(_IPluginModule):
 
         # 发送消息
         if self._send_notify:
+            if media_type == "Episode":
+                # 根据tmdbid获取图片
+                image_url = Media().get_episode_images(tv_id=tmdb_id,
+                                                       season_id=season_num,
+                                                       episode_id=episode_num,
+                                                       orginal=True)
+            else:
+                # 根据tmdbid获取图片
+                image_url = Media().get_tmdb_backdrop(mtype=MediaType.MOVIE if media_type == "Movie" else MediaType.TV,
+                                                      tmdbid=tmdb_id)
             # 发送通知
             Message().send_mediaserver_message(event_info=event_info,
                                                channel=MediaServerType.EMBY.value,
-                                               image_url='https://user-images.githubusercontent.com/54088512/229291640-6dded359-07ee-480d-b089-41501c1bec4c.png')
+                                               image_url=image_url)
         self.info(f"同步删除 {msg} 完成！")
 
     def get_state(self):
