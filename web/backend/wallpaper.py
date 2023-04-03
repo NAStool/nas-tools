@@ -26,6 +26,7 @@ def get_login_wallpaper(time_now=datetime.datetime.now()):
         return img_enc, img_title, img_link
     return "", "", ""
 
+
 @lru_cache(maxsize=1)
 def __get_image_b64(img_url, cache_tag=None):
     """
@@ -38,6 +39,7 @@ def __get_image_b64(img_url, cache_tag=None):
             return base64.b64encode(res.content).decode()
     return ""
 
+
 @lru_cache(maxsize=1)
 def __get_themoviedb_wallpaper(cache_tag):
     """
@@ -45,6 +47,7 @@ def __get_themoviedb_wallpaper(cache_tag):
     cache_tag 缓存标记, 相同时会命中缓存
     """
     return Media().get_random_discover_backdrop()
+
 
 @lru_cache(maxsize=1)
 def __get_bing_wallpaper(today):
