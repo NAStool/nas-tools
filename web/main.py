@@ -1024,7 +1024,8 @@ def rss_parser():
 def plugin():
     Plugins = PluginManager().get_plugins_conf(current_user.level)
     return render_template("setting/plugin.html",
-                           Plugins=Plugins)
+                           Plugins=Plugins,
+                           Count=len(Plugins))
 
 
 # 事件响应

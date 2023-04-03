@@ -152,6 +152,8 @@ class SystemConfigKey(Enum):
     DefaultRssSettingMOV = "DefaultRssSettingMOV"
     # 默认电视剧订阅设置
     DefaultRssSettingTV = "DefaultRssSettingTV"
+    # 用户已安装的插件
+    UserInstalledPlugins = "UserInstalledPlugins"
 
 
 # 处理进度Key字典

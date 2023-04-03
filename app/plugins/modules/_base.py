@@ -20,6 +20,8 @@ class _IPluginModule(metaclass=ABCMeta):
     module_version = "1.0"
     # 插件作者
     module_author = ""
+    # 作者主页
+    author_url = ""
     # 插件配置项ID前缀：为了避免各插件配置表单相冲突，配置表单元素ID自动在前面加上此前缀
     module_config_prefix = "plugin_"
     # 显示顺序

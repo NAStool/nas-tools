@@ -213,17 +213,42 @@
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-warning"></div>
+      <div class="modal-status bg-danger"></div>
       <div class="modal-body text-center py-4">
-        <span class="mb-2 text-warning">{{ SVG.alert_triangle('icon-lg') }}</span>
+        <span class="mb-2 text-danger">{{ SVG.alert_triangle('icon-lg') }}</span>
         <h3>失败</h3>
-        <div class="text-muted text-wrap" id="system_fail_message">失败！</div>
+        <div class="text-muted text-wrap" id="system_fail_message">错误信息</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
           <div class="row">
             <div class="col">
-              <a href="#" id="system_fail_modal_btn" class="btn btn-warning w-100" data-bs-dismiss="modal">
+              <a href="#" id="system_fail_modal_btn" class="btn btn-danger w-100" data-bs-dismiss="modal">
+                确定
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 警告提示 -->
+<div class="modal modal-blur fade" id="system-warning-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-warning"></div>
+      <div class="modal-body text-center py-4">
+        <span class="mb-2 text-warning">{{ SVG.alert_triangle('icon-lg') }}</span>
+        <h3>注意</h3>
+        <div class="text-muted text-wrap" id="system_warning_message">警告信息</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <a href="#" id="system_warning_modal_btn" class="btn btn-warning w-100" data-bs-dismiss="modal">
                 确定
               </a>
             </div>

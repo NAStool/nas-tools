@@ -224,6 +224,9 @@ class WebAction:
             "get_movie_rss_items": self.get_movie_rss_items,
             "get_tv_rss_items": self.get_tv_rss_items,
             "get_ical_events": self.get_ical_events,
+            "install_plugin": self.install_plugin,
+            "uninstall_plugin": self.uninstall_plugin,
+            "get_plugin_apps": self.get_plugin_apps
         }
 
     def action(self, cmd, data=None):
@@ -4966,3 +4969,46 @@ class WebAction:
                         Events.append(info)
 
         return {"code": 0, "result": Events}
+
+    @staticmethod
+    def install_plugin(data):
+        """
+        安装插件
+        """
+        module_id = data.get("id")
+        if not module_id:
+            return {"code": -1, "msg": "参数错误"}
+        # 用户已安装插件列表
+        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        if module_id not in user_plugins:
+            user_plugins.append(module_id)
+        # 保存配置
+        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        # 重新加载插件
+        PluginManager().init_config()
+        return {"code": 0, "msg": "插件安装成功"}
+
+    @staticmethod
+    def uninstall_plugin(data):
+        """
+        卸载插件
+        """
+        module_id = data.get("id")
+        if not module_id:
+            return {"code": -1, "msg": "参数错误"}
+        # 用户已安装插件列表
+        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        if module_id in user_plugins:
+            user_plugins.remove(module_id)
+        # 保存配置
+        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        # 重新加载插件
+        PluginManager().init_config()
+        return {"code": 0, "msg": "插件卸载功"}
+
+    @staticmethod
+    def get_plugin_apps(data=None):
+        """
+        获取插件列表
+        """
+        return {"code": 0, "result": PluginManager().get_plugin_apps(current_user.level)}

@@ -16,7 +16,7 @@ class DictHelper:
         :param note: 备注
         :return: True False
         """
-        if not dtype or not key or not value:
+        if not dtype or not key:
             return False
         if self.exists(dtype, key):
             return self._db.query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,

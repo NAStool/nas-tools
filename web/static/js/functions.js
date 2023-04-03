@@ -457,6 +457,17 @@ function show_fail_modal(title, func) {
   $("#system-fail-modal").modal("show");
 }
 
+// 显示警告提示
+function show_warning_modal(title, func) {
+  $("#system_warning_message").text(title);
+  if (func) {
+    $("#system_warning_modal_btn").unbind('click').click(func);
+  } else {
+    $("#system_warning_modal_btn").unbind('click');
+  }
+  $("#system-warning-modal").modal("show");
+}
+
 //显示媒体详情弹窗
 function show_mediainfo_modal(rtype, name, year, mediaid, page, rssid) {
   if (!page) {
