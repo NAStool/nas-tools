@@ -8,6 +8,7 @@ from app.helper import SubmoduleHelper
 from app.plugins.event_manager import EventManager
 from app.utils import SystemUtils, PathUtils
 from app.utils.commons import singleton
+from app.utils.types import SystemConfigKey
 from config import Config
 
 
@@ -41,7 +42,9 @@ class PluginManager:
     def init_config(self):
         self.systemconfig = SystemConfig()
         self.eventmanager = EventManager()
-        # 启动事件处理进程
+        # 停止已有插件
+        self.stop_service()
+        # 启动插件
         self.start_service()
 
     def __run(self):
@@ -78,7 +81,8 @@ class PluginManager:
         # 将事件管理器设为停止
         self._active = False
         # 等待事件处理线程退出
-        self._thread.join()
+        if self._thread:
+            self._thread.join()
         # 停止所有插件
         self.__stop_plugins()
 
@@ -86,14 +90,23 @@ class PluginManager:
         """
         加载所有插件
         """
+        # 扫描插件目录
         plugins = SubmoduleHelper.import_submodules(
             "app.plugins.modules",
             filter_func=lambda _, obj: hasattr(obj, 'module_name')
         )
+        # 排序
         plugins.sort(key=lambda x: x.module_order if hasattr(x, "module_order") else 0)
+        # 用户已安装插件列表
+        user_plugins = self.systemconfig.get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        self._running_plugins = {}
+        self._plugins = {}
         for plugin in plugins:
             module_id = plugin.__name__
             self._plugins[module_id] = plugin
+            # 未安装的跳过加载
+            if module_id not in user_plugins:
+                continue
             self._running_plugins[module_id] = plugin()
             self.reload_plugin(module_id)
             log.info(f"加载插件：{plugin}")
@@ -169,8 +182,6 @@ class PluginManager:
                 conf.update({"icon": plugin.module_icon})
             if hasattr(plugin, "module_color"):
                 conf.update({"color": plugin.module_color})
-            if hasattr(plugin, "module_author"):
-                conf.update({"author": plugin.module_author})
             if hasattr(plugin, "module_config_prefix"):
                 conf.update({"prefix": plugin.module_config_prefix})
             # 配置项
@@ -179,6 +190,42 @@ class PluginManager:
             conf.update({"config": self.get_plugin_config(pid)})
             # 状态
             conf.update({"state": plugin.get_state()})
+            # 汇总
+            all_confs[pid] = conf
+        return all_confs
+
+    def get_plugin_apps(self, auth_level):
+        """
+        获取所有插件
+        """
+        all_confs = {}
+        installed_apps = self.systemconfig.get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        for pid, plugin in self._plugins.items():
+            # 基本属性
+            conf = {}
+            # 权限
+            if hasattr(plugin, "auth_level") \
+                    and plugin.auth_level > auth_level:
+                continue
+            conf.update({"id": pid})
+            if pid in installed_apps:
+                conf.update({"installed": True})
+            else:
+                conf.update({"installed": False})
+            if hasattr(plugin, "module_name"):
+                conf.update({"name": plugin.module_name})
+            if hasattr(plugin, "module_desc"):
+                conf.update({"desc": plugin.module_desc})
+            if hasattr(plugin, "module_version"):
+                conf.update({"version": plugin.module_version})
+            if hasattr(plugin, "module_icon"):
+                conf.update({"icon": plugin.module_icon})
+            if hasattr(plugin, "module_color"):
+                conf.update({"color": plugin.module_color})
+            if hasattr(plugin, "module_author"):
+                conf.update({"author": plugin.module_author})
+            if hasattr(plugin, "author_url"):
+                conf.update({"author_url": plugin.author_url})
             # 汇总
             all_confs[pid] = conf
         return all_confs

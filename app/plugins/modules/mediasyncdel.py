@@ -22,6 +22,8 @@ class MediaSyncDel(_IPluginModule):
     module_version = "1.0"
     # 插件作者
     module_author = "thsrite"
+    # 作者主页
+    author_url = "https://github.com/thsrite"
     # 插件配置项ID前缀
     module_config_prefix = "mediasyncdel_"
     # 加载顺序
