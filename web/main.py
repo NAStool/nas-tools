@@ -1235,8 +1235,10 @@ def emby_webhook():
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
         return '不允许的IP地址请求'
     if request.method == 'POST':
+        log.debug("Emby Webhook data: %s" % str(request.form.get('data', {})))
         request_json = json.loads(request.form.get('data', {}))
     else:
+        log.debug("Emby Webhook data: %s" % str(dict(request.args)))
         request_json = dict(request.args)
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     # 发送消息

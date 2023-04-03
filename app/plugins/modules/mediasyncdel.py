@@ -121,17 +121,17 @@ class MediaSyncDel(_IPluginModule):
         tmdb_id = event_data.get("tmdb_id")
         # 季数
         season_num = event_data.get("season_num")
-        if season_num and isinstance(season_num, int) and int(season_num) < 10:
+        if season_num and season_num.isdigit() and int(season_num) < 10:
             season_num = f'0{season_num}'
         # 集数
         episode_num = event_data.get("episode_num")
-        if episode_num and isinstance(episode_num, int) and int(episode_num) < 10:
+        if episode_num and episode_num.isdigit() and int(episode_num) < 10:
             episode_num = f'0{episode_num}'
 
         if not media_type:
             self.error(f"{media_name} 同步删除失败，未获取到媒体类型")
             return
-        if not tmdb_id or not isinstance(tmdb_id, int):
+        if not tmdb_id or not tmdb_id.isdigit():
             self.error(f"{media_name} 同步删除失败，未获取到TMDB ID")
             return
 
@@ -158,7 +158,7 @@ class MediaSyncDel(_IPluginModule):
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
-            if not season_num or not isinstance(season_num, int):
+            if not season_num or not season_num.isdigit():
                 self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
             event_info['item_name'] = f'{media_name} S{season_num}'
@@ -167,7 +167,7 @@ class MediaSyncDel(_IPluginModule):
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
-            if not season_num or not isinstance(season_num, int) or not episode_num or not isinstance(episode_num, int):
+            if not season_num or not season_num.isdigit() or not episode_num or not episode_num.isdigit():
                 self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
             event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
