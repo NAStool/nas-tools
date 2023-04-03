@@ -51,8 +51,6 @@ class ChromeHelper(object):
             return self._chrome
 
     def get_status(self):
-        if not self._executable_path:
-            return False
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
             return False
