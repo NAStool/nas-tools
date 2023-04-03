@@ -259,11 +259,13 @@ security:
 laboratory:
   # 【识别增强】关键字猜想
   search_keyword: false
-  # 【识别增强】通过ChatGPT识别文件名
+  # 【WEB识别增强】通过TMDB WEB检索
+  search_tmdbweb: false
+  # 【ChatGPT识别增强】通过ChatGPT识别文件名
   chatgpt_enable: false
   # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: true
-  # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据
+  # 【默认搜索豆瓣资源】：开启将使用豆瓣进行电影电视剧的名称搜索，否则使用TMDB的数据
   use_douban_titles: false
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
   search_en_title: true

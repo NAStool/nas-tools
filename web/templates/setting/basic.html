@@ -629,7 +629,20 @@
                       Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
                     <span class="form-check-label">辅助识别 <span class="form-help"
                                                                   title="开启后，无法识别到媒体信息时会尝试猜测和纠正关键词并再次匹配，会大大增加识别耗时，一般情况下不建议开启"
-                                                                  data-bs-toggle="tooltip">?</span></span>
+                                                                  data-bs-toggle="tooltip">?</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-12 col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="laboratory.search_tmdbweb" {% if
+                      Config.laboratory and Config.laboratory.search_tmdbweb %}checked{% endif %}>
+                    <span class="form-check-label">WEB增强识别 <span class="form-help"
+                                                                     title="开启后，通过TMDB的API无法识别到媒体信息时，会尝试通过themoviedb.org网站再次搜索匹配，仅个别极端情况下有效，会大大增加识别耗时，一般情况下不建议开启"
+                                                                     data-bs-toggle="tooltip">?</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -640,7 +653,8 @@
                       Config.laboratory and Config.laboratory.chatgpt_enable %}checked{% endif %}>
                     <span class="form-check-label">ChatGPT增强识别 <span class="form-help"
                                                                   title="开启后，通过TMDB的API无法识别到媒体信息时，使用ChatGPT识别匹配，需要先填写OpenAI API Key"
-                                                                  data-bs-toggle="tooltip">?</span></span>
+                                                                  data-bs-toggle="tooltip">?</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -651,7 +665,8 @@
                       Config.laboratory and Config.laboratory.tmdb_cache_expire %}checked{% endif %}>
                     <span class="form-check-label">TMDB缓存过期策略 <span class="form-help"
                                                                           title="开启TMDB缓存过期策略后，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新，建议开启"
-                                                                          data-bs-toggle="tooltip">?</span></span>
+                                                                          data-bs-toggle="tooltip">?</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -660,8 +675,8 @@
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.use_douban_titles" {% if
                       Config.laboratory and Config.laboratory.use_douban_titles %}checked{% endif %}>
-                    <span class="form-check-label">使用豆瓣名称联想 <span class="form-help"
-                                                                          title="开启将使用豆瓣进行电影电视剧的名称联想，允许中文名不完整时自动联想，但如豆瓣数据与TMDB不一致时可能会无法搜索；关闭后使用TMDB的数据，对中文支持不友好，但不会有无法搜索的问题"
+                    <span class="form-check-label">默认搜索豆瓣资源 <span class="form-help"
+                                                                          title="开启将使用豆瓣进行电影电视剧的名称搜索，允许中文名不完整时自动联想，但如豆瓣数据与TMDB不一致时可能会无法搜索；关闭后使用TMDB的数据，对中文支持不友好，但不会有无法搜索的问题"
                                                                           data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
@@ -673,7 +688,8 @@
                       Config.laboratory and Config.laboratory.search_en_title %}checked{% endif %}>
                     <span class="form-check-label">搜索优先使用英文名 <span class="form-help"
                                                                             title="开启后对于精确搜索场景将会优先使用英文名搜索，否则优先使用中文名搜索"
-                                                                            data-bs-toggle="tooltip">?</span></span>
+                                                                            data-bs-toggle="tooltip">?</span>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -684,7 +700,8 @@
                       and Config.laboratory.tmdb_proxy %}checked{% endif %}>
                     <span class="form-check-label">使用TMDB代理服务 <span class="form-help"
                                                                           title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启"
-                                                                          data-bs-toggle="tooltip">?</span></span>
+                                                                          data-bs-toggle="tooltip">?</span>
+                    </span>
                   </label>
                 </div>
               </div>
