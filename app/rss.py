@@ -306,6 +306,7 @@ class Rss:
         """
         解析RSS订阅URL，获取RSS中的种子信息
         :param url: RSS地址
+        :param proxy: 是否使用代理
         :return: 种子信息列表
         """
         _special_title_sites = {

@@ -166,9 +166,9 @@ class LibraryScraper(_IPluginModule):
             self._scheduler.start()
 
             if self._onlyonce:
-                self.info(f"媒体库刮削服务启动，立即运行一次")
+                self.info(f"刮削服务启动，立即运行一次")
             if self._cron:
-                self.info(f"媒体库刮削服务启动，周期：{self._cron}")
+                self.info(f"刮削服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
             self._onlyonce = False
