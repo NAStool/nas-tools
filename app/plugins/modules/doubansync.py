@@ -24,7 +24,7 @@ lock = Lock()
 
 class DoubanSync(_IPluginModule):
     # 插件名称
-    module_name = "豆瓣想看"
+    module_name = "豆瓣同步"
     # 插件描述
     module_desc = "同步豆瓣在看、想看、看过记录，自动添加订阅或搜索下载。"
     # 插件图标
@@ -143,7 +143,7 @@ class DoubanSync(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '开启豆瓣想看同步',
+                            'title': '开启豆瓣同步',
                             'required': "",
                             'tooltip': '开启后，定时同步豆瓣在看、想看、看过记录，有新内容时自动添加订阅或者搜索下载',
                             'type': 'switch',
@@ -199,7 +199,7 @@ class DoubanSync(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '同步间隔(小时)',
+                            'title': '同步间隔（小时）',
                             'required': "required",
                             'tooltip': '间隔多久同步一次豆瓣数据，为了避免被豆瓣封禁IP，应尽可能拉长间隔时间',
                             'type': 'text',
@@ -229,14 +229,14 @@ class DoubanSync(_IPluginModule):
                         {
                             'title': '自动搜索下载',
                             'required': "",
-                            'tooltip': '开启后豆瓣同步的数据会自动进行站点聚合检索下载',
+                            'tooltip': '开启后豆瓣同步的数据会自动进行站点聚合搜索下载',
                             'type': 'switch',
                             'id': 'auto_search',
                         },
                         {
                             'title': '自动添加订阅',
                             'required': "",
-                            'tooltip': '开启后未进行搜索下载的或搜索下载不完整的将加入RSS订阅',
+                            'tooltip': '开启后未进行搜索下载的或搜索下载不完整的将加入订阅',
                             'type': 'switch',
                             'id': 'auto_rss',
                         }

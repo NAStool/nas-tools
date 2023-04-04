@@ -1917,7 +1917,8 @@ class Media:
         """
         en_info = self.get_tmdb_info(mtype=media_info.type,
                                      tmdbid=media_info.tmdb_id,
-                                     language="en")
+                                     language="en",
+                                     chinese=False)
         if en_info:
             return en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
         return None
