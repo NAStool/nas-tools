@@ -265,6 +265,7 @@ class DoubanRank(_IPluginModule):
                         self.info("%s 添加订阅成功" % media_info.get_title_string())
             except Exception as e:
                 self.error(str(e))
+        self.info(f"所有RSS刷新完成")
 
     def __get_rss_info(self, addr):
         """
