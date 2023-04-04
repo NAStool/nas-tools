@@ -1,16 +1,18 @@
 import re
 import xml.dom.minidom
+from datetime import datetime
+from threading import Event
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.helper import DbHelper
-from app.media import DouBan
 from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, DomUtils
-from app.utils.types import MediaType, RssType, SearchType
+from app.utils.types import MediaType, SearchType
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -37,6 +39,8 @@ class DoubanRank(_IPluginModule):
     # 可使用的用户级别
     auth_level = 2
 
+    # 退出事件
+    _event = Event()
     # 私有属性
     mediaserver = None
     dbhelper = None
@@ -48,6 +52,7 @@ class DoubanRank(_IPluginModule):
         'movie-weekly': 'https://rsshub.app/douban/movie/weekly'
     }
     _enable = False
+    _onlyonce = False
     _cron = ""
     _rss_addrs = []
     _ranks = []
@@ -59,20 +64,44 @@ class DoubanRank(_IPluginModule):
         self.subscribe = Subscribe()
         if config:
             self._enable = config.get("enable")
+            self._onlyonce = config.get("onlyonce")
             self._cron = config.get("cron")
-            self._rss_addrs = str(config.get("rss_addrs")).split('\n') if config.get("rss_addrs") else []
+            rss_addrs = config.get("rss_addrs")
+            if rss_addrs:
+                if isinstance(rss_addrs, str):
+                    self._rss_addrs = rss_addrs.split('\n')
+                else:
+                    self._rss_addrs = rss_addrs
+            else:
+                self._rss_addrs = []
             self._ranks = config.get("ranks") or []
 
         # 停止现有任务
         self.stop_service()
 
         # 启动服务
-        if self.get_state():
+        if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
-            self._scheduler.add_job(self.__refresh_rss, CronTrigger.from_crontab(self._cron))
+            if self._cron:
+                self._scheduler.add_job(self.__refresh_rss, CronTrigger.from_crontab(self._cron))
+            if self._onlyonce:
+                self._scheduler.add_job(self.__refresh_rss, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
             self._scheduler.print_jobs()
             self._scheduler.start()
-            self.info(f"订阅服务启动，周期：{self._cron}")
+            if self._onlyonce:
+                self.info(f"订阅服务启动，立即运行一次")
+                # 关闭一次性开关
+                self._onlyonce = False
+                self.update_config({
+                    "onlyonce": False,
+                    "enable": self._enable,
+                    "cron": self._cron,
+                    "ranks": self._ranks,
+                    "rss_addrs": self._rss_addrs
+                })
+            if self._cron:
+                self.info(f"订阅服务启动，周期：{self._cron}")
 
     def get_state(self):
         return self._enable and self._cron and (self._ranks or self._rss_addrs)
@@ -92,6 +121,15 @@ class DoubanRank(_IPluginModule):
                             'tooltip': '开启后，自动监控豆瓣榜单变化，有新内容时如媒体服务器不存在且未订阅过，则会添加订阅，仅支持rsshub的豆瓣RSS',
                             'type': 'switch',
                             'id': 'enable',
+                        }
+                    ],
+                    [
+                        {
+                            'title': '立即运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
+                            'type': 'switch',
+                            'id': 'onlyonce',
                         }
                     ],
                     [
@@ -166,7 +204,9 @@ class DoubanRank(_IPluginModule):
             if self._scheduler:
                 self._scheduler.remove_all_jobs()
                 if self._scheduler.running:
+                    self._event.set()
                     self._scheduler.shutdown()
+                    self._event.clear()
                 self._scheduler = None
         except Exception as e:
             print(str(e))
@@ -175,19 +215,28 @@ class DoubanRank(_IPluginModule):
         """
         刷新RSS
         """
+        self.info(f"开始刷新RSS ...")
         addr_list = self._rss_addrs + [self._douban_address.get(rank) for rank in self._ranks]
         if not addr_list:
+            self.info(f"未设置RSS地址")
             return
+        else:
+            self.info(f"共{len(addr_list)}个RSS地址需要刷新")
         for addr in addr_list:
             if not addr:
                 continue
             try:
+                self.info(f"获取RSS：{addr} ...")
                 rss_infos = self.__get_rss_info(addr)
                 if not rss_infos:
+                    self.error(f"RSS地址：{addr} 未查询到数据")
                     continue
                 else:
                     self.info(f"RSS地址：{addr}，共{len(rss_infos)}条数据")
                 for rss_info in rss_infos:
+                    if self._event.is_set():
+                        self.info(f"订阅服务停止")
+                        return
                     # 识别媒体信息
                     media_info = WebUtils.get_mediainfo_from_id(mtype=rss_info.get("type"),
                                                                 mediaid=f"DB:{rss_info.get('doubanid')}")
