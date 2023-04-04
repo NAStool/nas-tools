@@ -54,6 +54,8 @@ export class LayoutNavbar extends CustomElement {
         this._add_page_to_url(page);
         navmenu(page);
       }
+      // 触发resize事件
+      window.dispatchEvent(new Event('resize'));
       // 默认展开探索
       setTimeout(() => { this.show_collapse("ranking") }, 200);
     }
