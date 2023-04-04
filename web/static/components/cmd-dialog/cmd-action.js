@@ -5,6 +5,11 @@ export class CmdAction extends LitElement {
 
     static styles = unsafeCSS(style);
 
+    static properties = {
+        theme: {attribute: "theme"},
+        action: {attribute: "action"},
+        selected: {attribute: "selected "},
+    };
 
     constructor() {
         super();
