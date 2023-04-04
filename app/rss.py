@@ -530,7 +530,9 @@ class Rss:
                 "restype": match_rss_info.get('filter_restype'),
                 "pix": match_rss_info.get('filter_pix'),
                 "team": match_rss_info.get('filter_team'),
-                "rule": filter_rule
+                "rule": filter_rule,
+                "include": match_rss_info.get('filter_include'),
+                "exclude": match_rss_info.get('filter_exclude'),
             }
             match_filter_flag, res_order, match_filter_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                                               filter_args=filter_dict)

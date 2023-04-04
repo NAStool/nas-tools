@@ -79,10 +79,10 @@
               {% else %} class=“text-muted"{% endif %}>
                 <small>
                   {% if Attr.over_edition %}
-                    <span class="badge bg-red me-1 mb-1" title="已开启洗版">洗版</span>
+                    <span class="badge me-1 mb-1" title="已开启洗版">洗版</span>
                   {% endif %}
                   {% if Attr.download_setting|string in DownloadSettings %}
-                    <span class="badge bg-red me-1 mb-1" title="下载设置">
+                    <span class="badge me-1 mb-1" title="下载设置">
                       {{ DownloadSettings[Attr.download_setting|string].name }}
                     </span>
                   {% endif %}
@@ -97,13 +97,23 @@
                     </span>
                   {% endif %}
                   {% if Attr.filter_team %}
-                    <span class="badge bg-yellow me-1 mb-1 text-wrap text-start" title="制作组/字幕组">
+                    <span class="badge bg-cyan me-1 mb-1 text-wrap text-start" title="制作组/字幕组">
                       {{ Attr.filter_team }}
                     </span>
                   {% endif %}
                   {% if Attr.filter_rule|string in RuleGroups %}
                     <span class="badge bg-orange me-1 mb-1" title="过滤规则">
                       {{ RuleGroups[Attr.filter_rule|string] }}
+                    </span>
+                  {% endif %}
+                  {% if Attr.filter_include %}
+                    <span class="badge bg-green me-1 mb-1 text-wrap text-start" title="包含">
+                      {{ Attr.filter_include }}
+                    </span>
+                  {% endif %}
+                  {% if Attr.filter_exclude %}
+                    <span class="badge bg-red me-1 mb-1 text-wrap text-start" title="排除">
+                      {{ Attr.filter_exclude }}
                     </span>
                   {% endif %}
                 </small>
