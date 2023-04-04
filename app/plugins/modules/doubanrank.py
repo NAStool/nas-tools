@@ -12,7 +12,7 @@ from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, DomUtils
-from app.utils.types import MediaType, SearchType
+from app.utils.types import MediaType, SearchType, RssType
 from config import Config
 from web.backend.web_utils import WebUtils
 
@@ -257,6 +257,7 @@ class DoubanRank(_IPluginModule):
                         name=media_info.title,
                         year=media_info.year,
                         season=media_info.begin_season,
+                        channel=RssType.Auto,
                         in_from=SearchType.PLUGIN
                     )
                     if not rss_media or code != 0:
