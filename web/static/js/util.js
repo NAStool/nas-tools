@@ -69,7 +69,7 @@ function ajax_backup(handler) {
       } else {
         let URL = window.URL || window.webkitURL;
         let objectUrl = URL.createObjectURL(blob);
-        console.log(objectUrl);
+        // console.log(objectUrl);
         if (fileName) {
           const a = document.createElement('a');
           // safari doesn't support this yet
