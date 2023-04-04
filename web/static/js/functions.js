@@ -1,8 +1,6 @@
 /**
  * 公共变量区
  */
-//当前页面地址
-let CURRENT_PAGE_URI = "";
 //刷新LOG标志
 let refresh_logging_flag = false;
 // 日志来源筛选时关掉之前的刷新日志计时器
@@ -25,34 +23,6 @@ let default_path;
 /**
  * 公共函数区
  */
-
-// 页面刷新
-function window_history_refresh() {
-  if (window.history.state?.page) {
-    navmenu(window.history.state.page, true);
-  }
-}
-
-// 保存页面历史
-function window_history(newflag = false, extra = undefined) {
-  const state = {
-    title: document.title,
-    html: $("#page_content").html(),         // 页面内容
-    scroll: $(".page").scrollTop(),  // 页面滚动位置
-    CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
-    page: CURRENT_PAGE_URI,                  // 当前页面地址
-    extra: extra,                            // 额外的保存数据
-  };
-  if (newflag) {
-    window.history.pushState(state, "");
-  } else {
-    // 当未传递extra时的页面缓存刷新, 应当重新保留extra数据
-    if (!extra && window.history.state?.extra) {
-      state.extra = window.history.state.extra;
-    }
-    window.history.replaceState(state, "");
-  }
-}
 
 //导航点击
 function navmenu(page, newflag = false) {

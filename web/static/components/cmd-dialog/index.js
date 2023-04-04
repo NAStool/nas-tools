@@ -1,6 +1,6 @@
 import {html, LitElement, unsafeCSS, live, repeat, unsafeHTML} from "../utility/lit-core.min.js";
-import Fuse from '../../js/fuse.esm.min.js';
-import hotkeys from '../../js/hotkeys.esm.js';
+import Fuse from '../../js/modules/fuse.esm.min.js';
+import hotkeys from '../../js/modules/hotkeys.esm.js';
 
 import './cmd-action.js'; // eslint-disable-line import/no-unassigned-import
 import style from './style.js';
@@ -8,7 +8,6 @@ import style from './style.js';
 
 export class CmdDialog extends LitElement {
     static styles = unsafeCSS(style);
-
 
     static properties = {
         theme: {attribute: "theme"},
@@ -24,7 +23,7 @@ export class CmdDialog extends LitElement {
     constructor() {
         super();
         this.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        this.placeholder = 'Type a command or search...';
+        this.placeholder = '搜索...';
         this.note = '';
         this.hotkey = 'cmd+k,ctrl+k';
         this.actions = [];
@@ -190,8 +189,7 @@ export class CmdDialog extends LitElement {
                 <main part="dialog-body">${actionList}</main>
                 <!-- Footer -->
                 <slot name="footer">
-                    <p><kbd part="kbd">⏎</kbd> to select <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> to navigate
-                        <kbd part="kbd">esc</kbd> to close</p>
+                    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
                     ${unsafeHTML(this.note ?? `<span>${this._results.length} options</span>`)}
                 </slot>
             </dialog>
