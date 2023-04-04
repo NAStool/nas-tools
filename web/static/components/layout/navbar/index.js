@@ -32,7 +32,7 @@ export class LayoutNavbar extends CustomElement {
         if (ret.code === 0) {
           this.navbar_list = ret.menus;
         }
-      }
+      },false
     );
   }
 
