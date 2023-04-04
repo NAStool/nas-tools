@@ -146,7 +146,7 @@ class DoubanRank(_IPluginModule):
                     ],
                     [
                         {
-                            'title': 'RssHub地址',
+                            'title': 'RssHub订阅地址',
                             'required': '',
                             'tooltip': '每一行一个RSS地址，访问 https://docs.rsshub.app/social-media.html#dou-ban 查询可用地址',
                             'type': 'textarea',
