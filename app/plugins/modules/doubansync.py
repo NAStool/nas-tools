@@ -467,10 +467,9 @@ class DoubanSync(_IPluginModule):
         :return: 检索到的媒体信息列表（不含TMDB信息）
         """
         if not self._interval \
-                or not self._days \
                 or not self._users \
                 or not self._types:
-            self.error("豆瓣未配置或配置不正确")
+            self.error("豆瓣插件未配置或配置不正确")
             return []
         # 返回媒体列表
         media_list = []
@@ -520,7 +519,7 @@ class DoubanSync(_IPluginModule):
                                 break
                             else:
                                 mark_date = datetime.strptime(date, '%Y-%m-%d')
-                                if not (datetime.now() - mark_date).days < int(self._days):
+                                if self._days and not (datetime.now() - mark_date).days < int(self._days):
                                     continue_next_page = False
                                     break
                             doubanid = item.get("id")
