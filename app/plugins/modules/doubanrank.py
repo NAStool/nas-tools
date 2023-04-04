@@ -25,7 +25,7 @@ class DoubanRank(_IPluginModule):
     # 插件图标
     module_icon = "movie.jpg"
     # 主题色
-    module_color = "bg-azure"
+    module_color = "#01B3E3"
     # 插件版本
     module_version = "1.0"
     # 插件作者
