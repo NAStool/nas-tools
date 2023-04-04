@@ -356,7 +356,7 @@ class DoubanSync(_IPluginModule):
             print(str(e))
 
     @EventHandler.register(EventType.DoubanSync)
-    def sync(self):
+    def sync(self, event=None):
         """
         同步豆瓣数据
         """
