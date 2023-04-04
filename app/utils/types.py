@@ -131,6 +131,8 @@ class EventType(Enum):
     MediaScrapStart = "media.scrap.start"
     # customHosts插件重载
     CustomHostsReload = "customhosts.reload"
+    # 豆瓣想看同步
+    DoubanSync = "douban.sync"
 
 
 # 系统配置Key字典

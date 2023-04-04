@@ -17,7 +17,6 @@ from werkzeug.security import generate_password_hash
 import log
 from app.brushtask import BrushTask
 from app.conf import SystemConfig, ModuleConf
-from app.doubansync import DoubanSync
 from app.downloader import Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
@@ -194,7 +193,7 @@ class WebAction:
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
             "auto_remove_torrents": self.__auto_remove_torrents,
-            "get_douban_history": self.get_douban_history,
+            "get_plugin_page": self.get_plugin_page,
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
@@ -334,7 +333,7 @@ class WebAction:
             "/pts": {"func": SiteSignin().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
-            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"},
+            "/db": {"func": WebAction().douban_sync, "desp": "豆瓣同步"},
             "/ssa": {"func": Subscribe().subscribe_search_all, "desp": "订阅搜索"},
             "/tbl": {"func": WebAction().truncate_blacklist, "desp": "清理转移缓存"},
             "/trh": {"func": WebAction().truncate_rsshistory, "desp": "清理RSS缓存"},
@@ -486,7 +485,7 @@ class WebAction:
             "ptsignin": SiteSignin().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
-            "douban": DoubanSync().sync,
+            "douban": WebAction().douban_sync,
             "subscribe_search_all": Subscribe().subscribe_search_all,
         }
         sch_item = data.get("item")
@@ -4376,12 +4375,16 @@ class WebAction:
         sitename = data.get("name")
         return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
 
-    def get_douban_history(self, data=None):
+    @staticmethod
+    def get_plugin_page(data):
         """
-        查询豆瓣同步历史
+        查询插件的额外数据
         """
-        results = self.dbhelper.get_douban_history()
-        return {"code": 0, "result": [item.as_dict() for item in results]}
+        plugin_id = data.get("id")
+        if not plugin_id:
+            return {"code": 1, "msg": "参数错误"}
+        title, content = PluginManager().get_plugin_page(pid=plugin_id)
+        return {"code": 0, "title": title, "content": content}
 
     def __delete_douban_history(self, data):
         """
@@ -5018,3 +5021,11 @@ class WebAction:
         获取插件列表
         """
         return {"code": 0, "result": PluginManager().get_plugin_apps(current_user.level)}
+
+    @staticmethod
+    def douban_sync(data=None):
+        """
+        启动豆瓣同步
+        """
+        # 触发事件
+        EventManager().send_event(EventType.DoubanSync, {})

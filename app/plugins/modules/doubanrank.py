@@ -23,9 +23,9 @@ class DoubanRank(_IPluginModule):
     # 插件描述
     module_desc = "监控豆瓣热门榜单，自动添加订阅。"
     # 插件图标
-    module_icon = "douban.png"
+    module_icon = "movie.jpg"
     # 主题色
-    module_color = "bg-green"
+    module_color = "bg-azure"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -35,7 +35,7 @@ class DoubanRank(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "doubanrank_"
     # 加载顺序
-    module_order = 8
+    module_order = 16
     # 可使用的用户级别
     auth_level = 2
 

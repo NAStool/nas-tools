@@ -63,6 +63,7 @@
     plugin-config='{{ Plugin.config|tojson|safe }}'
     plugin-fields='{{ Plugin.fields|tojson|safe }}'
     plugin-prefix="{{ Plugin.prefix }}"
+    plugin-page="{{ Plugin.page }}"
   >
   </plugin-modal>
 {% endfor %}
@@ -76,6 +77,21 @@
       <div class="modal-body">
         <div class="d-grid gap-3 grid-normal-card align-items-start" id="plugin_apps_content">
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-plugin-page" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="plugin_page_title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="plugin_page_content">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
       </div>
     </div>
   </div>
@@ -144,6 +160,18 @@
           $("#plugin_apps_content").append(plugin_html);
         }
         $("#modal-plugin-apps").modal('show');
+      }
+    });
+  }
+
+  // 显示插件页面
+  function show_plugin_extra_page(id) {
+    ajax_post("get_plugin_page", {id: id}, function(ret){
+      if (ret.code === 0) {
+        $("#modal-plugin-" + id).modal('hide');
+        $("#plugin_page_title").text(ret.title);
+        $("#plugin_page_content").html(ret.content);
+        $("#modal-plugin-page").modal('show');
       }
     });
   }

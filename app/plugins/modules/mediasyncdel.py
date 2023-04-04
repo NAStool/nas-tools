@@ -27,7 +27,7 @@ class MediaSyncDel(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "mediasyncdel_"
     # 加载顺序
-    module_order = 22
+    module_order = 15
     # 可使用的用户级别
     auth_level = 1
 

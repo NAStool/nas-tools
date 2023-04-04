@@ -2271,17 +2271,6 @@ class TorrentRemoverTaskUpdate(ClientResource):
         return WebAction().api_action(cmd='update_torrent_remove_task', data=self.parser.parse_args())
 
 
-@douban.route('/history/list')
-class DoubanHistoryList(ClientResource):
-
-    @staticmethod
-    def post():
-        """
-        查询豆瓣同步历史记录
-        """
-        return WebAction().api_action(cmd='get_douban_history')
-
-
 @douban.route('/history/delete')
 class DoubanHistoryDelete(ClientResource):
     parser = reqparse.RequestParser()

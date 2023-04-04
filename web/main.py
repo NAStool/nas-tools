@@ -873,17 +873,6 @@ def directorysync():
                            RmtModeDict=RmtModeDict)
 
 
-# 豆瓣页面
-@App.route('/douban', methods=['POST', 'GET'])
-@login_required
-def douban():
-    DoubanHistory = WebAction().get_douban_history().get("result")
-    return render_template("setting/douban.html",
-                           Config=Config().get_config(),
-                           HistoryCount=len(DoubanHistory),
-                           DoubanHistory=DoubanHistory)
-
-
 # 下载器页面
 @App.route('/downloader', methods=['POST', 'GET'])
 @login_required
