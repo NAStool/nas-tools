@@ -46,8 +46,6 @@ class DoubanRank(_IPluginModule):
     dbhelper = None
     subscribe = None
     _douban_address = {
-        'movie-playing': 'https://rsshub.app/douban/movie/playing',
-        'movie-later': 'https://rsshub.app/douban/movie/later',
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
         'movie-weekly': 'https://rsshub.app/douban/movie/weekly'
     }
@@ -148,7 +146,7 @@ class DoubanRank(_IPluginModule):
                     ],
                     [
                         {
-                            'title': 'RSS地址',
+                            'title': 'RssHub地址',
                             'required': '',
                             'tooltip': '每一行一个RSS地址，访问 https://docs.rsshub.app/social-media.html#dou-ban 查询可用地址',
                             'type': 'textarea',
@@ -165,7 +163,7 @@ class DoubanRank(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '热门榜单',
-                'tooltip': '内建支持的豆瓣电影榜单，使用https://rsshub.app数据源，可直接选择订阅',
+                'tooltip': '内建支持的豆瓣榜单，使用https://rsshub.app数据源，可直接选择订阅',
                 'content': [
                     # 同一行
                     [
@@ -173,21 +171,13 @@ class DoubanRank(_IPluginModule):
                             'id': 'ranks',
                             'type': 'form-selectgroup',
                             'content': {
-                                'movie-playing': {
-                                    'id': 'movie-playing',
-                                    'name': '正在热映的电影',
-                                },
-                                'movie-later': {
-                                    'id': 'movie-later',
-                                    'name': '即将上映的电影',
-                                },
                                 'movie-ustop': {
                                     'id': 'movie-ustop',
-                                    'name': '北美票房榜',
+                                    'name': '北美电影票房榜',
                                 },
                                 'movie-weekly': {
                                     'id': 'movie-weekly',
-                                    'name': '一周口碑榜',
+                                    'name': '一周电影口碑榜',
                                 }
                             }
                         },
@@ -221,7 +211,7 @@ class DoubanRank(_IPluginModule):
             self.info(f"未设置RSS地址")
             return
         else:
-            self.info(f"共{len(addr_list)}个RSS地址需要刷新")
+            self.info(f"共 {len(addr_list)} 个RSS地址需要刷新")
         for addr in addr_list:
             if not addr:
                 continue
@@ -229,10 +219,10 @@ class DoubanRank(_IPluginModule):
                 self.info(f"获取RSS：{addr} ...")
                 rss_infos = self.__get_rss_info(addr)
                 if not rss_infos:
-                    self.error(f"RSS地址：{addr} 未查询到数据")
+                    self.error(f"RSS地址：{addr} ，未查询到数据")
                     continue
                 else:
-                    self.info(f"RSS地址：{addr}，共{len(rss_infos)}条数据")
+                    self.info(f"RSS地址：{addr} ，共 {len(rss_infos)} 条数据")
                 for rss_info in rss_infos:
                     if self._event.is_set():
                         self.info(f"订阅服务停止")
