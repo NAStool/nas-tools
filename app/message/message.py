@@ -532,6 +532,7 @@ class Message(object):
             "PlaybackStart": "开始播放",
             "PlaybackStop": "停止播放",
             "item.rate": "标记了",
+            "media.del": "Emby同步删除"
         }
         _webhook_images = {
             "Emby": "https://emby.media/notificationicon.png",
@@ -551,8 +552,9 @@ class Message(object):
             message_title = f"{_webhook_actions.get(event_info.get('event'))}"
 
         # 消息内容
-        if {event_info.get('user_name')}:
-            message_texts = [f"用户：{event_info.get('user_name')}"]
+        message_texts = []
+        if event_info.get('user_name'):
+            message_texts.append(f"用户：{event_info.get('user_name')}")
         if event_info.get('device_name'):
             message_texts.append(f"设备：{event_info.get('client')} {event_info.get('device_name')}")
         if event_info.get('ip'):

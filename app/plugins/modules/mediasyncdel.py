@@ -1,9 +1,11 @@
 import os
 
 from app.helper import DbHelper
+from app.media import Media
+from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.utils.types import EventType
+from app.utils.types import EventType, MediaServerType, MediaType
 from web.action import WebAction
 
 
@@ -15,15 +17,17 @@ class MediaSyncDel(_IPluginModule):
     # 插件图标
     module_icon = "emby.png"
     # 主题色
-    module_color = "bg-red"
+    module_color = "#C90425"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "thsrite"
+    # 作者主页
+    author_url = "https://github.com/thsrite"
     # 插件配置项ID前缀
     module_config_prefix = "mediasyncdel_"
     # 加载顺序
-    module_order = 22
+    module_order = 15
     # 可使用的用户级别
     auth_level = 1
 
@@ -32,6 +36,7 @@ class MediaSyncDel(_IPluginModule):
     _enable = False
     _del_source = False
     _exclude_path = None
+    _send_notify = False
 
     @staticmethod
     def get_fields():
@@ -52,9 +57,16 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '删除源文件',
                             'required': "",
-                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。',
+                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。同时开启下载任务清理插件，可联动删除下载任务。',
                             'type': 'switch',
                             'id': 'del_source',
+                        },
+                        {
+                            'title': '运行时通知',
+                            'required': "",
+                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开媒体服务通知）',
+                            'type': 'switch',
+                            'id': 'send_notify',
                         }
                     ],
                 ]
@@ -87,6 +99,7 @@ class MediaSyncDel(_IPluginModule):
             self._enable = config.get("enable")
             self._del_source = config.get("del_source")
             self._exclude_path = config.get("exclude_path")
+            self._send_notify = config.get("send_notify")
 
     @EventHandler.register(EventType.EmbyWebhook)
     def sync_del(self, event):
@@ -110,17 +123,17 @@ class MediaSyncDel(_IPluginModule):
         tmdb_id = event_data.get("tmdb_id")
         # 季数
         season_num = event_data.get("season_num")
-        if season_num and int(season_num) < 10:
+        if season_num and str(season_num).isdigit() and int(season_num) < 10:
             season_num = f'0{season_num}'
         # 集数
         episode_num = event_data.get("episode_num")
-        if episode_num and int(episode_num) < 10:
+        if episode_num and str(episode_num).isdigit() and int(episode_num) < 10:
             episode_num = f'0{episode_num}'
 
         if not media_type:
             self.error(f"{media_name} 同步删除失败，未获取到媒体类型")
             return
-        if not tmdb_id:
+        if not tmdb_id or not str(tmdb_id).isdigit():
             self.error(f"{media_name} 同步删除失败，未获取到TMDB ID")
             return
 
@@ -130,30 +143,36 @@ class MediaSyncDel(_IPluginModule):
             self.info(f"媒体路径 {media_path} 已被排除，暂不处理")
             return
 
+        # 消息推送消息体
+        event_info = {'event': 'media.del', 'item_type': 'MOV' if media_type == "Movie" else 'TV'}
+
         # 删除电影
-        msg = None
         if media_type == "Movie":
+            event_info['item_name'] = media_name
             msg = f'电影 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
-            # 删除电视剧
+        # 删除电视剧
         elif media_type == "Series":
+            event_info['item_name'] = media_name
             msg = f'剧集 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除季 S02
         elif media_type == "Season":
-            if not season_num:
+            if not season_num or not str(season_num).isdigit():
                 self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
+            event_info['item_name'] = f'{media_name} S{season_num}'
             msg = f'剧集 {media_name} S{season_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
         # 删除剧集S02E02
         elif media_type == "Episode":
-            if not season_num or not episode_num:
+            if not season_num or not str(season_num).isdigit() or not episode_num or not str(episode_num).isdigit():
                 self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
+            event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
             msg = f'剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
@@ -171,6 +190,23 @@ class MediaSyncDel(_IPluginModule):
             "logids": logids,
             "flag": "del_source" if self._del_source else ""
         })
+
+        # 发送消息
+        if self._send_notify:
+            if media_type == "Episode":
+                # 根据tmdbid获取图片
+                image_url = Media().get_episode_images(tv_id=tmdb_id,
+                                                       season_id=season_num,
+                                                       episode_id=episode_num,
+                                                       orginal=True)
+            else:
+                # 根据tmdbid获取图片
+                image_url = Media().get_tmdb_backdrop(mtype=MediaType.MOVIE if media_type == "Movie" else MediaType.TV,
+                                                      tmdbid=tmdb_id)
+            # 发送通知
+            Message().send_mediaserver_message(event_info=event_info,
+                                               channel=MediaServerType.EMBY.value,
+                                               image_url=image_url)
         self.info(f"同步删除 {msg} 完成！")
 
     def get_state(self):

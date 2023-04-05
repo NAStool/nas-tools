@@ -47,11 +47,10 @@ class Chanify(_IMessageClient):
             data.update({'title': title, 'text': text})
             # 发送文本
             res = RequestUtils().post_res(sc_url, data=parse.urlencode(data).encode())
-            if res:
-                if res.status_code == 200:
-                    return True, "发送成功"
-                else:
-                    return False, "错误码：%s" % res.status_code
+            if res and res.status_code == 200:
+                return True, "发送成功"
+            elif res is not None:
+                return False, f"错误码：{res.status_code}，错误原因：{res.reason}"
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:

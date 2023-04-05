@@ -56,7 +56,7 @@ class PushPlus(_IMessageClient):
             }
             sc_url = "http://www.pushplus.plus/send?%s" % urlencode(values)
             res = RequestUtils().get_res(sc_url)
-            if res:
+            if res and res.status_code == 200:
                 ret_json = res.json()
                 code = ret_json.get("code")
                 msg = ret_json.get("msg")
@@ -64,6 +64,8 @@ class PushPlus(_IMessageClient):
                     return True, msg
                 else:
                     return False, msg
+            elif res is not None:
+                return False, f"错误码：{res.status_code}，错误原因：{res.reason}"
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:

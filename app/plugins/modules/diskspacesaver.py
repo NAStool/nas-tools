@@ -14,15 +14,17 @@ class DiskSpaceSaver(_IPluginModule):
     # 插件图标
     module_icon = "diskusage.jpg"
     # 主题色
-    module_color = "bg-yellow"
+    module_color = "#FE9003"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "link2fun"
+    # 作者主页
+    author_url = "https://github.com/link2fun"
     # 插件配置项ID前缀
     module_config_prefix = "diskspace_saver_"
     # 加载顺序
-    module_order = 20
+    module_order = 13
     # 可使用的用户级别
     auth_level = 1
 

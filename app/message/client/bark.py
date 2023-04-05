@@ -45,7 +45,7 @@ class Bark(_IMessageClient):
             if self._params:
                 sc_url = "%s?%s" % (sc_url, self._params)
             res = RequestUtils().post_res(sc_url)
-            if res:
+            if res and res.status_code == 200:
                 ret_json = res.json()
                 code = ret_json['code']
                 message = ret_json['message']
@@ -53,6 +53,8 @@ class Bark(_IMessageClient):
                     return True, message
                 else:
                     return False, message
+            elif res is not None:
+                return False, f"错误码：{res.status_code}，错误原因：{res.reason}"
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:

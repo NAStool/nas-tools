@@ -9,7 +9,6 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.util import undefined
 
 import log
-from app.doubansync import DoubanSync
 from app.helper import MetaHelper
 from app.mediaserver import MediaServer
 from app.rss import Rss
@@ -95,23 +94,6 @@ class Scheduler:
                         search_rss_interval = 6
                     self.SCHEDULER.add_job(Subscribe().subscribe_search_all, 'interval', hours=search_rss_interval)
                     log.info("订阅定时搜索服务启动")
-
-        # 豆瓣电影同步
-        if self._douban:
-            douban_interval = self._douban.get('interval')
-            if douban_interval:
-                if isinstance(douban_interval, str):
-                    if douban_interval.isdigit():
-                        douban_interval = int(douban_interval)
-                    else:
-                        try:
-                            douban_interval = float(douban_interval)
-                        except Exception as e:
-                            log.info("豆瓣同步服务启动失败：%s" % str(e))
-                            douban_interval = 0
-                if douban_interval:
-                    self.SCHEDULER.add_job(DoubanSync().sync, 'interval', hours=douban_interval)
-                    log.info("豆瓣同步服务启动")
 
         # 媒体库同步
         if self._media:

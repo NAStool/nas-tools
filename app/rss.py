@@ -306,6 +306,7 @@ class Rss:
         """
         解析RSS订阅URL，获取RSS中的种子信息
         :param url: RSS地址
+        :param proxy: 是否使用代理
         :return: 种子信息列表
         """
         _special_title_sites = {
@@ -529,7 +530,9 @@ class Rss:
                 "restype": match_rss_info.get('filter_restype'),
                 "pix": match_rss_info.get('filter_pix'),
                 "team": match_rss_info.get('filter_team'),
-                "rule": filter_rule
+                "rule": filter_rule,
+                "include": match_rss_info.get('filter_include'),
+                "exclude": match_rss_info.get('filter_exclude'),
             }
             match_filter_flag, res_order, match_filter_msg = self.filter.check_torrent_filter(meta_info=media_info,
                                                                                               filter_args=filter_dict)

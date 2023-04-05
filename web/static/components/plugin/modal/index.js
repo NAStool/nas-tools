@@ -8,6 +8,7 @@ export class PluginModal extends CustomElement {
     config: {attribute: "plugin-config", type: Object},
     fields: {attribute: "plugin-fields", type: Array},
     prefix: {attribute: "plugin-prefix"},
+    page: {attribute: "plugin-page"},
   };
 
   constructor() {
@@ -240,6 +241,9 @@ export class PluginModal extends CustomElement {
             ${this.__render_fields()}
             </div>
             <div class="modal-footer">
+              <a href="javascript:show_plugin_extra_page('${this.id}')" class="btn me-auto" ?hidden="${!this.page}">
+                ${this.page}
+              </a>
               <a href="javascript:save_plugin_config('${this.id}', '${this.prefix}')" class="btn btn-primary">
                 确定
               </a>

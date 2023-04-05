@@ -319,7 +319,7 @@ class RssChecker(object):
                                                        year=media_info.year,
                                                        season=media_info.get_season_string()):
                         log.info(
-                            f"【RssChecker】{media_info.title} ({media_info.year}) {media_info.get_season_string()} 已订阅过")
+                            f"【RssChecker】{media_info.get_title_string()}{media_info.get_season_string()} 已订阅过")
                         continue
                     # 添加处理历史
                     self.dbhelper.insert_rss_torrents(media_info)

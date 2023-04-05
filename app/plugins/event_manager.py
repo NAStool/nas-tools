@@ -47,7 +47,7 @@ class EventManager:
             self._handlers[etype.value] = handlerList
         if handler not in handlerList:
             handlerList.append(handler)
-            log.info(f"已注册事件：{etype.value}{handler}")
+            log.debug(f"已注册事件：{etype.value}{handler}")
 
     def remove_event_listener(self, etype: EventType, handler):
         """

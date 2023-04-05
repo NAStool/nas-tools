@@ -44,7 +44,7 @@
             data_dict.title = (!data_dict.tmdbid) ? "未匹配TMDB" : data_dict.title;
             break;
         }
-        console.log("正在新增chips: ", key, data_dict[key], href);
+        // console.log("正在新增chips: ", key, data_dict[key], href);
         this.render(key, data_dict[key], href, flag);
         this.style.display = "block";
       }

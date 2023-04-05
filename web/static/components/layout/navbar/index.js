@@ -24,17 +24,21 @@ export class LayoutNavbar extends CustomElement {
     this._update_appversion = "";
     this._update_url = "https://github.com/NAStool/nas-tools";
     this._is_update = false;
+    this._is_expand = false;
     this.classList.add("navbar","navbar-vertical","navbar-expand-lg","lit-navbar-fixed","lit-navbar","lit-navbar-hide-scrollbar");
-
     // 加载菜单
     Golbal.get_cache_or_ajax("get_user_menus", "usermenus", {},
       (ret) => {
         if (ret.code === 0) {
           this.navbar_list = ret.menus;
-          this._init_page();
         }
-      }
+      },false
     );
+  }
+
+  firstUpdated() {
+    // 初始化页面
+    this._init_page();
   }
 
   _init_page() {
@@ -55,7 +59,9 @@ export class LayoutNavbar extends CustomElement {
         navmenu(page);
       }
       // 默认展开探索
-      setTimeout(() => { this.show_collapse("ranking") }, 200);
+      if (!this._is_expand) {
+        this.show_collapse("ranking");
+      }
     }
 
     // 删除logo动画 加点延迟切换体验好
@@ -115,11 +121,12 @@ export class LayoutNavbar extends CustomElement {
   }
 
   show_collapse(page) {
-    for (const item of this.querySelectorAll("[id^='lit-navbar-collapse-']")) {
+    for (const item of this.querySelectorAll("div[id^='lit-navbar-collapse-']")) {
       for (const a of item.querySelectorAll("a")) {
         if (page === a.getAttribute("data-lit-page")) {
           item.classList.add("show");
           this.querySelectorAll(`button[data-bs-target='#${item.id}']`)[0].classList.remove("collapsed");
+          this._is_expand = true;
           return;
         }
       }

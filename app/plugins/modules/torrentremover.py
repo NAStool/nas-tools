@@ -16,11 +16,13 @@ class TorrentRemover(_IPluginModule):
     # 插件图标
     module_icon = "torrentremover.png"
     # 主题色
-    module_color = "bg-danger"
+    module_color = "#F44336"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "jxxghp"
+    # 作者主页
+    author_url = "https://github.com/jxxghp"
     # 插件配置项ID前缀
     module_config_prefix = "torrentremover_"
     # 加载顺序

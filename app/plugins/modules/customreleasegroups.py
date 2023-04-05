@@ -10,11 +10,13 @@ class CustomReleaseGroups(_IPluginModule):
     # 插件图标
     module_icon = "teamwork.png"
     # 主题色
-    module_color = "bg-cyan"
+    module_color = "#00ADEF"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "Shurelol"
+    # 作者主页
+    author_url = "https://github.com/Shurelol"
     # 插件配置项ID前缀
     module_config_prefix = "customreleasegroups_"
     # 加载顺序

@@ -96,7 +96,7 @@ export class Golbal {
   }
   
   // 判断直接获取缓存或ajax_post
-  static get_cache_or_ajax(api, name, data, func) {
+  static get_cache_or_ajax(api, name, data, func, async=true) {
     const ret = Golbal.get_page_data(api + name);
     //console.log("读取:", api + name, ret);
     if (ret) {
@@ -112,7 +112,7 @@ export class Golbal {
         Golbal.save_page_data(api + name, ret);
         //console.log("缓存:", api + name, ret);
         func(ret)
-      });
+      }, async);
     }
   }
 

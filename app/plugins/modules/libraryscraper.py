@@ -23,11 +23,13 @@ class LibraryScraper(_IPluginModule):
     # 插件图标
     module_icon = "scraper.png"
     # 主题色
-    module_color = "bg-orange"
+    module_color = "#FF7D00"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "jxxghp"
+    # 作者主页
+    author_url = "https://github.com/jxxghp"
     # 插件配置项ID前缀
     module_config_prefix = "libraryscraper_"
     # 加载顺序
@@ -164,9 +166,9 @@ class LibraryScraper(_IPluginModule):
             self._scheduler.start()
 
             if self._onlyonce:
-                self.info(f"媒体库刮削服务启动，立即运行一次")
+                self.info(f"刮削服务启动，立即运行一次")
             if self._cron:
-                self.info(f"媒体库刮削服务启动，周期：{self._cron}")
+                self.info(f"刮削服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
             self._onlyonce = False

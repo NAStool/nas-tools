@@ -1,8 +1,6 @@
 /**
  * 公共变量区
  */
-//当前页面地址
-let CURRENT_PAGE_URI = "";
 //刷新LOG标志
 let refresh_logging_flag = false;
 // 日志来源筛选时关掉之前的刷新日志计时器
@@ -25,34 +23,6 @@ let default_path;
 /**
  * 公共函数区
  */
-
-// 页面刷新
-function window_history_refresh() {
-  if (window.history.state?.page) {
-    navmenu(window.history.state.page, true);
-  }
-}
-
-// 保存页面历史
-function window_history(newflag = false, extra = undefined) {
-  const state = {
-    title: document.title,
-    html: $("#page_content").html(),         // 页面内容
-    scroll: $(".page").scrollTop(),  // 页面滚动位置
-    CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
-    page: CURRENT_PAGE_URI,                  // 当前页面地址
-    extra: extra,                            // 额外的保存数据
-  };
-  if (newflag) {
-    window.history.pushState(state, "");
-  } else {
-    // 当未传递extra时的页面缓存刷新, 应当重新保留extra数据
-    if (!extra && window.history.state?.extra) {
-      state.extra = window.history.state.extra;
-    }
-    window.history.replaceState(state, "");
-  }
-}
 
 //导航点击
 function navmenu(page, newflag = false) {
@@ -457,6 +427,17 @@ function show_fail_modal(title, func) {
   $("#system-fail-modal").modal("show");
 }
 
+// 显示警告提示
+function show_warning_modal(title, func) {
+  $("#system_warning_message").text(title);
+  if (func) {
+    $("#system_warning_modal_btn").unbind('click').click(func);
+  } else {
+    $("#system_warning_modal_btn").unbind('click');
+  }
+  $("#system-warning-modal").modal("show");
+}
+
 //显示媒体详情弹窗
 function show_mediainfo_modal(rtype, name, year, mediaid, page, rssid) {
   if (!page) {
@@ -679,6 +660,8 @@ function add_rss_manual(flag) {
   const filter_pix = $("#rss_pix").val();
   const filter_team = $("#rss_team").val();
   const filter_rule = $("#rss_rule").val();
+  const filter_include = $("#rss_include").val();
+  const filter_exclude = $("#rss_exclude").val();
   const save_path = $("#rss_save_path").val();
   const download_setting = $("#rss_download_setting").val();
   const total_ep = $("#rss_total_ep").val();
@@ -733,6 +716,8 @@ function add_rss_manual(flag) {
     "filter_pix": filter_pix,
     "filter_team": filter_team,
     "filter_rule": filter_rule,
+    "filter_include": filter_include,
+    "filter_exclude": filter_exclude,
     "save_path": save_path,
     "download_setting": download_setting,
     "rss_sites": rss_sites,
@@ -846,6 +831,8 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_pix").val(rss_setting.filter_pix);
     $("#rss_team").val(rss_setting.filter_team);
     $("#rss_rule").val(rss_setting.filter_rule);
+    $("#rss_include").val(rss_setting.filter_include);
+    $("#rss_exclude").val(rss_setting.filter_exclude);
     $("#rss_download_setting").val(rss_setting.download_setting);
     refresh_savepath_select('rss_save_path', false, rss_setting.download_setting)
     $("#rss_save_path").val(rss_setting.save_path);
@@ -864,6 +851,8 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_pix").val('');
     $("#rss_team").val('');
     $("#rss_rule").val('');
+    $("#rss_include").val('');
+    $("#rss_exclude").val('');
     $("#rss_save_path").val('');
     $("#rss_download_setting").val('');
     select_SelectALL(false, "rss_sites");
@@ -889,6 +878,8 @@ function show_default_rss_setting_modal(mtype) {
       $("#default_rss_setting_pix").val(ret.data.pix);
       $("#default_rss_setting_team").val(ret.data.team);
       $("#default_rss_setting_rule").val(ret.data.rule);
+      $("#default_rss_setting_include").val(ret.data.include);
+      $("#default_rss_setting_exclude").val(ret.data.exclude);
       $("#default_rss_setting_download_setting").val(ret.data.download_setting);
       $("#default_rss_setting_over_edition").val(ret.data.over_edition);
       if (ret.data.rss_sites.length === 0) {
@@ -906,6 +897,8 @@ function show_default_rss_setting_modal(mtype) {
       $("#default_rss_setting_pix").val('');
       $("#default_rss_setting_team").val('');
       $("#default_rss_setting_rule").val('');
+      $("#default_rss_setting_include").val('');
+      $("#default_rss_setting_exclude").val('');
       $("#default_rss_setting_download_setting").val('');
       $("#default_rss_setting_over_edition").val('0');
       select_SelectALL(false, "default_rss_sites");
@@ -993,6 +986,8 @@ function show_edit_rss_media_modal(rssid, type) {
       $("#rss_pix").val(ret.detail.filter_pix);
       $("#rss_team").val(ret.detail.filter_team);
       $("#rss_rule").val(ret.detail.filter_rule);
+      $("#rss_include").val(ret.detail.filter_include);
+      $("#rss_exclude").val(ret.detail.filter_exclude);
       $("#rss_download_setting").val(ret.detail.download_setting);
       refresh_savepath_select('rss_save_path', false, ret.detail.download_setting)
       $("#rss_save_path").val(ret.detail.save_path);

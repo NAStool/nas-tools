@@ -18,11 +18,13 @@ class MovieLike(_IPluginModule):
     # 插件图标
     module_icon = "like.jpg"
     # 主题色
-    module_color = "bg-pink"
+    module_color = "#E4003F"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "jxxghp"
+    # 作者主页
+    author_url = "https://github.com/jxxghp"
     # 插件配置项ID前缀
     module_config_prefix = "movielike_"
     # 加载顺序

@@ -25,15 +25,17 @@ class AutoSub(_IPluginModule):
     # 插件图标
     module_icon = "autosubtitles.jpeg"
     # 主题色
-    module_color = "bg-cyan"
+    module_color = "#2C4F7E"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "olly"
+    # 作者主页
+    author_url = "https://github.com/lightolly"
     # 插件配置项ID前缀
     module_config_prefix = "autosub"
     # 加载顺序
-    module_order = 21
+    module_order = 14
     # 可使用的用户级别
     auth_level = 2
 

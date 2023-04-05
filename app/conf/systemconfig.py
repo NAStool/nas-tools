@@ -43,7 +43,7 @@ class SystemConfig:
         self.systemconfig[key] = value
         # 写入数据库
         if self.__is_obj(value):
-            if value:
+            if value is not None:
                 value = json.dumps(value)
             else:
                 value = ''

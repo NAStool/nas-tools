@@ -168,13 +168,15 @@ class Telegram(_IMessageClient):
         向Telegram发送报文
         """
         def _res_parse(result):
-            if result:
+            if result and result.status_code == 200:
                 ret_json = result.json()
                 status = ret_json.get("ok")
                 if status:
                     return True, ""
                 else:
                     return False, ret_json.get("description")
+            elif result is not None:
+                return False, f"错误码：{result.status_code}，错误原因：{result.reason}"
             else:
                 return False, "未获取到返回信息"
 

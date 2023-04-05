@@ -33,7 +33,7 @@ from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
-from app.plugins import EventManager, PluginManager
+from app.plugins import EventManager
 from app.rsschecker import RssChecker
 from app.sites import Sites, SiteUserInfo
 from app.subscribe import Subscribe
@@ -127,7 +127,7 @@ def login():
         跳转到导航页面
         """
         if GoPage and GoPage != 'web':
-            return redirect('/web?next=' + GoPage)
+            return redirect('/web#' + GoPage)
         else:
             return redirect('/web')
 
@@ -720,18 +720,6 @@ def service():
         else:
             Services.pop('sync')
 
-    # 豆瓣同步
-    if "douban" in Services:
-        interval = Config().get_config('douban').get('interval')
-        if interval:
-            interval = "%s 小时" % interval
-            Services['douban'].update({
-                'state': 'ON',
-                'time': interval,
-            })
-        else:
-            Services.pop('douban')
-
     return render_template("service.html",
                            Count=len(Services),
                            RuleGroups=RuleGroups,
@@ -873,17 +861,6 @@ def directorysync():
                            RmtModeDict=RmtModeDict)
 
 
-# 豆瓣页面
-@App.route('/douban', methods=['POST', 'GET'])
-@login_required
-def douban():
-    DoubanHistory = WebAction().get_douban_history().get("result")
-    return render_template("setting/douban.html",
-                           Config=Config().get_config(),
-                           HistoryCount=len(DoubanHistory),
-                           DoubanHistory=DoubanHistory)
-
-
 # 下载器页面
 @App.route('/downloader', methods=['POST', 'GET'])
 @login_required
@@ -1022,9 +999,10 @@ def rss_parser():
 @App.route('/plugin', methods=['POST', 'GET'])
 @login_required
 def plugin():
-    Plugins = PluginManager().get_plugins_conf(current_user.level)
+    Plugins = WebAction().get_plugins_conf().get("result")
     return render_template("setting/plugin.html",
-                           Plugins=Plugins)
+                           Plugins=Plugins,
+                           Count=len(Plugins))
 
 
 # 事件响应
@@ -1228,13 +1206,18 @@ def jellyfin_webhook():
 
 
 # Emby Webhook
-@App.route('/emby', methods=['POST'])
+@App.route('/emby', methods=['GET', 'POST'])
 @require_auth(force=False)
 def emby_webhook():
     if not SecurityHelper().check_mediaserver_ip(request.remote_addr):
         log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
         return '不允许的IP地址请求'
-    request_json = json.loads(request.form.get('data', {}))
+    if request.method == 'POST':
+        log.debug("Emby Webhook data: %s" % str(request.form.get('data', {})))
+        request_json = json.loads(request.form.get('data', {}))
+    else:
+        log.debug("Emby Webhook data: %s" % str(dict(request.args)))
+        request_json = dict(request.args)
     log.debug("收到Emby Webhook报文：%s" % str(request_json))
     # 发送消息
     ThreadHelper().start_thread(MediaServer().webhook_message_handler,

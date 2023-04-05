@@ -20,11 +20,13 @@ class SpeedLimiter(_IPluginModule):
     # 插件图标
     module_icon = "SpeedLimiter.jpg"
     # 主题色
-    module_color = "bg-blue"
+    module_color = "#183883"
     # 插件版本
     module_version = "1.0"
     # 插件作者
     module_author = "Shurelol"
+    # 作者主页
+    author_url = "https://github.com/Shurelol"
     # 插件配置项ID前缀
     module_config_prefix = "speedlimit_"
     # 加载顺序

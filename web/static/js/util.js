@@ -69,7 +69,7 @@ function ajax_backup(handler) {
       } else {
         let URL = window.URL || window.webkitURL;
         let objectUrl = URL.createObjectURL(blob);
-        console.log(objectUrl);
+        // console.log(objectUrl);
         if (fileName) {
           const a = document.createElement('a');
           // safari doesn't support this yet
@@ -370,5 +370,36 @@ function set_user_agent(id) {
   let userAgent = navigator.userAgent;
   if (userAgent) {
     $("#" + id).val(userAgent);
+  }
+}
+
+
+// 页面刷新
+function window_history_refresh() {
+  if (window.history.state?.page) {
+    navmenu(window.history.state.page, true);
+  }
+}
+
+//当前页面地址
+let CURRENT_PAGE_URI = "";
+// 保存页面历史
+function window_history(newflag = false, extra = undefined) {
+  const state = {
+    title: document.title,
+    html: $("#page_content").html(),         // 页面内容
+    scroll: $(".page").scrollTop(),  // 页面滚动位置
+    CurrentPage: sessionStorage.CurrentPage, // 页面当前页码
+    page: CURRENT_PAGE_URI,                  // 当前页面地址
+    extra: extra,                            // 额外的保存数据
+  };
+  if (newflag) {
+    window.history.pushState(state, "");
+  } else {
+    // 当未传递extra时的页面缓存刷新, 应当重新保留extra数据
+    if (!extra && window.history.state?.extra) {
+      state.extra = window.history.state.extra;
+    }
+    window.history.replaceState(state, "");
   }
 }

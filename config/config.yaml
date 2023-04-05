@@ -210,25 +210,6 @@ pt:
   # 【搜索结果数量限制】：每个站点返回搜索结果的最大数量
   site_search_result_num: 100
 
-# 【配置豆瓣账号信息】：配置后会自动同步豆瓣收藏，豆瓣标记想看内容后，后台自动下载
-douban:
-  # 【用户ID列表】：豆瓣电影点个我主页people后面的那一串数字，或者使用豆瓣App个人信息中查看。可以配置多个，注意要加引号
-  # 这里可以是自己的，也可以是别人的，比如填写几个大V的账号ID，实现热门影视自动下载
-  users:
-    - ""
-  # 【豆瓣Cookie】：选配，嫌麻烦的可以不用配置，可能影响个别电影的同步
-  cookie:
-  # 【同步天数】：同步多少天内加入的数据
-  days: 30
-  # 【同步间隔】：多久同步一次数据，单位小时，建议不要太频繁，避免被检测到后封号
-  interval:
-  # 【同步数据类型】：同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用逗号分隔配置
-  types: "wish"
-  # 【自动开载开关】：同步到豆瓣的数据后是否自动检索站点并下载
-  auto_search: true
-  # 【自动添加RSS开关】：站点检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
-  auto_rss: true
-
 # 【openai】
 openai:
   # 【openai api key】：openai的api key，可在openai官网申请
@@ -259,11 +240,13 @@ security:
 laboratory:
   # 【识别增强】关键字猜想
   search_keyword: false
-  # 【识别增强】通过ChatGPT识别文件名
+  # 【WEB识别增强】通过TMDB WEB检索
+  search_tmdbweb: false
+  # 【ChatGPT识别增强】通过ChatGPT识别文件名
   chatgpt_enable: false
   # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: true
-  # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据
+  # 【默认搜索豆瓣资源】：开启将使用豆瓣进行电影电视剧的名称搜索，否则使用TMDB的数据
   use_douban_titles: false
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
   search_en_title: true

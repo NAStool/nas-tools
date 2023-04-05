@@ -45,8 +45,6 @@
   <script src="../static/js/fullcalendar/locales/zh-cn.js"></script>
   <!-- lit -->
   <script type="module" src="../static/components/lit-index.js"></script>
-  <!-- cmd-dialog -->
-  <script type="module" src="https://esm.run/cmd-dialog" async></script>
   <!-- 解决密码填充问题 -->
   <span hidden><input type="text" aria-label=""><input type="password" aria-label=""></span>
   <layout-navbar id="navbar-menu" hidden
@@ -213,17 +211,42 @@
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-warning"></div>
+      <div class="modal-status bg-danger"></div>
       <div class="modal-body text-center py-4">
-        <span class="mb-2 text-warning">{{ SVG.alert_triangle('icon-lg') }}</span>
+        <span class="mb-2 text-danger">{{ SVG.alert_triangle('icon-lg') }}</span>
         <h3>失败</h3>
-        <div class="text-muted text-wrap" id="system_fail_message">失败！</div>
+        <div class="text-muted text-wrap" id="system_fail_message">错误信息</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
           <div class="row">
             <div class="col">
-              <a href="#" id="system_fail_modal_btn" class="btn btn-warning w-100" data-bs-dismiss="modal">
+              <a href="#" id="system_fail_modal_btn" class="btn btn-danger w-100" data-bs-dismiss="modal">
+                确定
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 警告提示 -->
+<div class="modal modal-blur fade" id="system-warning-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-warning"></div>
+      <div class="modal-body text-center py-4">
+        <span class="mb-2 text-warning">{{ SVG.alert_triangle('icon-lg') }}</span>
+        <h3>注意</h3>
+        <div class="text-muted text-wrap" id="system_warning_message">警告信息</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col">
+              <a href="#" id="system_warning_modal_btn" class="btn btn-warning w-100" data-bs-dismiss="modal">
                 确定
               </a>
             </div>
@@ -389,6 +412,24 @@
             <div class="mb-3">
               <label class="form-label">制作组/字幕组</label>
               <input type="text" id="default_rss_setting_team" class="form-control" placeholder="支持正则表达式">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">包含 <span class="form-help"
+                                                       title="只有种子标题或副标题中包含对应关键字或匹配对应正则表达式的才会被选中"
+                                                       data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="default_rss_setting_include" class="form-control" placeholder="关键字或正则表达式">
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">排除 <span class="form-help"
+                                                       title="种子标题或副标题中包含对应关键字或匹配对应正则表达式的将会被过滤掉"
+                                                       data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="default_rss_setting_exclude" class="form-control" placeholder="关键字或正则表达式">
             </div>
           </div>
         </div>
@@ -562,6 +603,24 @@
                                                        data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="rss_rule">
               </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">包含 <span class="form-help"
+                                                       title="只有种子标题或副标题中包含对应关键字或匹配对应正则表达式的才会被选中"
+                                                       data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="rss_include" class="form-control" placeholder="关键字或正则表达式">
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
+              <label class="form-label">排除 <span class="form-help"
+                                                       title="种子标题或副标题中包含对应关键字或匹配对应正则表达式的将会被过滤掉"
+                                                       data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="rss_exclude" class="form-control" placeholder="关键字或正则表达式">
             </div>
           </div>
         </div>
@@ -1025,10 +1084,7 @@
     </div>
   </div>
 </div>
-<cmd-dialog theme="light" placeholder="搜索...">
-  <div slot="footer">
-    <p><kbd part="kbd">⏎</kbd> 确定 <kbd part="kbd">↑</kbd> <kbd part="kbd">↓</kbd> 选择 <kbd part="kbd">esc</kbd> 关闭</p>
-  </div>
+<cmd-dialog theme="light">
 </cmd-dialog>
 <!-- 载入tabler组件 -->
 <script src="../static/js/tabler/tabler.min.js"></script>

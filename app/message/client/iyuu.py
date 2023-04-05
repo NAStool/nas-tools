@@ -38,7 +38,7 @@ class IyuuMsg(_IMessageClient):
         try:
             sc_url = "http://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))
             res = RequestUtils().get_res(sc_url)
-            if res:
+            if res and res.status_code == 200:
                 ret_json = res.json()
                 errno = ret_json.get('errcode')
                 error = ret_json.get('errmsg')
@@ -46,6 +46,8 @@ class IyuuMsg(_IMessageClient):
                     return True, error
                 else:
                     return False, error
+            elif res is not None:
+                return False, f"错误码：{res.status_code}，错误原因：{res.reason}"
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:

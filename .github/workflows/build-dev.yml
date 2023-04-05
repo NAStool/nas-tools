@@ -1,4 +1,4 @@
-name: NAStool Dev
+name: NAStool Docker Dev
 on:
   workflow_dispatch:
   push:
@@ -9,7 +9,7 @@ on:
       - .github/workflows/build-dev.yml
       - package_list.txt
       - requirements.txt
-      - docker/Dockerfile.dev
+      - docker/dev.Dockerfile
       - docker/entrypoint.sh
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker/Dockerfile.dev
+          file: docker/dev.Dockerfile
           platforms: |
             linux/amd64
             linux/arm64
