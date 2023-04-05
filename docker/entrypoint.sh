@@ -13,7 +13,7 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
     if [ ! -s /tmp/package_list.txt.sha256sum ]; then
         sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
     fi
-    echo "更新程序..."
+    echo "更新主程序..."
     git remote set-url origin "${REPO_URL}" &> /dev/null
     echo "windows/" > .gitignore
     # 更新分支
@@ -28,7 +28,7 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
     git reset --hard origin/${branch}
 
     if [ $? -eq 0 ]; then
-        echo "更新成功..."
+        echo "主程序更新成功"
         # 系统软件包更新
         hash_old=$(cat /tmp/package_list.txt.sha256sum)
         hash_new=$(sha256sum package_list.txt)
@@ -38,16 +38,14 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
                 sed -i "s/dl-cdn.alpinelinux.org/${ALPINE_MIRROR}/g" /etc/apk/repositories
                 apk update -f
                 if [ $? -ne 0 ]; then
-                    echo "无法更新软件包，请更新镜像..."
-                    exit 1
+                    echo "无法更新软件包，请更新镜像！"
                 fi
             fi
             apk add --no-cache $(echo $(cat package_list.txt))
             if [ $? -ne 0 ]; then
-                echo "无法更新软件包，请更新镜像..."
-                exit 1
+                echo "无法更新软件包，请更新镜像！"
             else
-                echo "软件包安装成功..."
+                echo "软件包安装成功"
                 sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
             fi
         fi
@@ -64,10 +62,10 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
                 pip install -r requirements.txt
             fi
             if [ $? -ne 0 ]; then
-                echo "无法安装依赖，请更新镜像..."
+                echo "无法安装依赖，请更新镜像！"
                 exit 1
             else
-                echo "依赖安装成功..."
+                echo "依赖安装成功"
                 sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
             fi
         fi
@@ -78,10 +76,10 @@ if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
             echo "检测到third_party.txt有变化，更新第三方组件..."
             git submodule update --init --recursive
             if [ $? -ne 0 ]; then
-                echo "无法更新第三方组件，请更新镜像..."
+                echo "无法更新第三方组件，请更新镜像！"
                 exit 1
             else
-                echo "第三方组件安装成功..."
+                echo "第三方组件安装成功"
                 sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
             fi
         fi
