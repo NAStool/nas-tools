@@ -48,7 +48,7 @@ class OpenSubtitles(_IPluginModule):
     def __init__(self):
         self._ua = Config().get_ua()
 
-    def init_config(self, config: dict):
+    def init_config(self, config: dict = None):
         self.sitehelper = SiteHelper()
         self._save_tmp_path = Config().get_temp_path()
         if not os.path.exists(self._save_tmp_path):

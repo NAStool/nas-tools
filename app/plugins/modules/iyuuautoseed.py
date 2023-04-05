@@ -6,6 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.downloader import Downloader
+from app.helper import IyuuHelper
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
@@ -37,6 +38,8 @@ class IYUUAutoSeed(_IPluginModule):
 
     # 私有属性
     _scheduler = None
+    downloader = None
+    iyuuhelper = None
     # 限速开关
     _cron = None
     _onlyonce = False
@@ -152,7 +155,7 @@ class IYUUAutoSeed(_IPluginModule):
         ]
 
     def init_config(self, config=None):
-
+        self.downloader = Downloader()
         # 读取配置
         if config:
             self._onlyonce = config.get("onlyonce")
@@ -161,7 +164,8 @@ class IYUUAutoSeed(_IPluginModule):
             self._downloaders = config.get("downloaders")
             self._sites = config.get("sites")
             self._notify = config.get("notify")
-
+            if self._token:
+                self.iyuuhelper = IyuuHelper(token=self._token)
         # 停止现有任务
         self.stop_service()
 
@@ -195,16 +199,54 @@ class IYUUAutoSeed(_IPluginModule):
         return True if self._cron and self._token and self._downloaders else False
 
     @EventHandler.register(EventType.AutoSeedStart)
-    def auto_seed(self, event):
+    def auto_seed(self, event=None):
         """
         开始辅种
         :param event:
         :return:
         """
-        event_info = event.event_data
-        if not event_info:
+        if not self.get_state():
             return
+        event_info = event.event_data
+        if event_info and event_info.get("hash"):
+            # 辅种事件中的一个种子
+            downloader = event_info.get("downloader")
+            self.__seed_torrent(event_info.get("hash"), downloader)
+        else:
+            # 扫描下载器辅种
+            for downloader in self._downloaders:
+                self.info(f"开始扫描下载器：{downloader} ...")
+                # 下载器类型
+                downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+                # 获取下载器中已完成的种子
+                torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
+                if torrents:
+                    self.info(f"下载器：{downloader}，已完成种子数：{len(torrents)}")
+                else:
+                    self.info(f"下载器：{downloader}，没有已完成种子")
+                    continue
+                for torrent in torrents:
+                    # 获取种子hash
+                    hash_str = self.__get_hash(torrent, downloader_type)
+                    self.__seed_torrent(hash_str, downloader)
+                    self.info(f"辅种进度：{torrents.index(torrent) + 1}/{len(torrents)}")
+
+    def __seed_torrent(self, hash_str, downloader):
+        """
+        执行一个种子的辅种
+        """
+        self.info(f"开始辅种：{hash_str} ...")
         # TODO 完善辅种逻辑
+        # 获取当前hash可辅助的站点和种子信息列表
+        # 针对每一个站点的种子，拼装下载链接下载种子，发送至下载器
+        self.info(f"下载器：{downloader}，种子：{hash_str}，辅种完成")
+
+    @staticmethod
+    def __get_hash(torrent, dl_type):
+        """
+        获取种子hash
+        """
+        return torrent.get("hash") if dl_type == "qbittorrent" else torrent.hashString
 
     def stop_service(self):
         """

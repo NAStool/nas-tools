@@ -37,7 +37,7 @@ class TorrentRemover(_IPluginModule):
     def __init__(self):
         self._ua = Config().get_ua()
 
-    def init_config(self, config: dict):
+    def init_config(self, config: dict = None):
         self.dbhelper = DbHelper()
         if config:
             self._enable = config.get("enable")
