@@ -469,8 +469,6 @@ class AutoSub(_IPluginModule):
     def __get_video_prefer_audio(self, video_meta, prefer_lang=None):
         """
         获取视频的首选音轨，如果有多音轨， 优先指定语言音轨，否则获取默认音轨
-        :param video_file:
-        :return:
         """
         if type(prefer_lang) == str and prefer_lang:
             prefer_lang = [prefer_lang]
