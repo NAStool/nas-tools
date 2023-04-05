@@ -108,6 +108,7 @@ class PluginManager:
             if module_id not in user_plugins:
                 continue
             self._running_plugins[module_id] = plugin()
+            # 初始化配置
             self.reload_plugin(module_id)
             log.info(f"加载插件：{plugin}")
 
@@ -128,11 +129,14 @@ class PluginManager:
         """
         生效插件配置
         """
+        if not pid:
+            return
         if not self._running_plugins.get(pid):
             return
         if hasattr(self._running_plugins[pid], "init_config"):
             try:
                 self._running_plugins[pid].init_config(self.get_plugin_config(pid))
+                log.debug(f"生效插件配置：{pid}")
             except Exception as err:
                 print(str(err))
 
