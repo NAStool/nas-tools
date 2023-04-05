@@ -1,9 +1,7 @@
 from python_hosts import Hosts, HostsEntry
 
-from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, IpUtils
-from app.utils.types import EventType
 
 
 class CustomHosts(_IPluginModule):
@@ -107,13 +105,6 @@ class CustomHosts(_IPluginModule):
                     "err_hosts": error_hosts,
                     "enable": self._enable
                 })
-
-    @EventHandler.register(EventType.CustomHostsReload)
-    def reload(self, event):
-        """
-        CloudflareSpeedTest优选ip后重载本插件
-        """
-        self.init_config(event.event_data)
 
     @staticmethod
     def __read_system_hosts():

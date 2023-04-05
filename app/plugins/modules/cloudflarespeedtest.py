@@ -279,9 +279,11 @@ class CloudflareSpeedTest(_IPluginModule):
                     self.info(f"CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
 
                     # 解发自定义hosts插件重载
-                    self.eventmanager.send_event(EventType.CustomHostsReload,
-                                                 self.get_config("CustomHosts"))
-                    self.info("通知CustomHosts插件重载")
+                    self.info("通知CustomHosts插件重载 ...")
+                    self.eventmanager.send_event(EventType.PluginReload,
+                                                 {
+                                                     "plugin_id": "CustomHosts"
+                                                 })
         else:
             self.error("获取到最优ip格式错误，请重试")
             self._onlyonce = False

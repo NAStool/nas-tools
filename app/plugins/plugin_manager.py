@@ -5,10 +5,10 @@ from threading import Thread
 import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
-from app.plugins.event_manager import EventManager
+from app.plugins.event_manager import EventManager, EventHandler, Event
 from app.utils import SystemUtils, PathUtils
 from app.utils.commons import singleton
-from app.utils.types import SystemConfigKey
+from app.utils.types import SystemConfigKey, EventType
 from config import Config
 
 
@@ -108,6 +108,7 @@ class PluginManager:
             if module_id not in user_plugins:
                 continue
             self._running_plugins[module_id] = plugin()
+            # 初始化配置
             self.reload_plugin(module_id)
             log.info(f"加载插件：{plugin}")
 
@@ -124,15 +125,24 @@ class PluginManager:
         except Exception as err:
             print(str(err), traceback.format_exc())
 
-    def reload_plugin(self, pid):
+    @EventHandler.register(EventType.PluginReload)
+    def reload_plugin(self, event):
         """
         生效插件配置
+        :param event: 事件或者插件ID
         """
+        if isinstance(event, Event):
+            pid = event.event_data.get("plugin_id")
+        else:
+            pid = event
+        if not pid:
+            return
         if not self._running_plugins.get(pid):
             return
         if hasattr(self._running_plugins[pid], "init_config"):
             try:
                 self._running_plugins[pid].init_config(self.get_plugin_config(pid))
+                log.debug(f"生效插件配置：{pid}")
             except Exception as err:
                 print(str(err))
 
