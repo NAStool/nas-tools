@@ -5,10 +5,10 @@ from threading import Thread
 import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
-from app.plugins.event_manager import EventManager, EventHandler, Event
+from app.plugins.event_manager import EventManager
 from app.utils import SystemUtils, PathUtils
 from app.utils.commons import singleton
-from app.utils.types import SystemConfigKey, EventType
+from app.utils.types import SystemConfigKey
 from config import Config
 
 
@@ -125,16 +125,10 @@ class PluginManager:
         except Exception as err:
             print(str(err), traceback.format_exc())
 
-    @EventHandler.register(EventType.PluginReload)
-    def reload_plugin(self, event):
+    def reload_plugin(self, pid):
         """
         生效插件配置
-        :param event: 事件或者插件ID
         """
-        if isinstance(event, Event):
-            pid = event.event_data.get("plugin_id")
-        else:
-            pid = event
         if not pid:
             return
         if not self._running_plugins.get(pid):
