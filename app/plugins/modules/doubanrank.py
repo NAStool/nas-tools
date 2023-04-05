@@ -47,7 +47,12 @@ class DoubanRank(_IPluginModule):
     subscribe = None
     _douban_address = {
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
-        'movie-weekly': 'https://rsshub.app/douban/movie/weekly'
+        'movie-weekly': 'https://rsshub.app/douban/movie/weekly',
+        'movie-real-time': 'https://rsshub.app/douban/movie/weekly/subject_real_time_hotest',
+        'show-domestic': 'https://rsshub.app/douban/movie/weekly/show_domestic',
+        'movie-hot-gaia': 'https://rsshub.app/douban/movie/weekly/movie_hot_gaia',
+        'tv-hot': 'https://rsshub.app/douban/movie/weekly/tv_hot',
+        'movie-top250': 'https://rsshub.app/douban/movie/weekly/movie_top250',
     }
     _enable = False
     _onlyonce = False
@@ -178,6 +183,26 @@ class DoubanRank(_IPluginModule):
                                 'movie-weekly': {
                                     'id': 'movie-weekly',
                                     'name': '一周电影口碑榜',
+                                },
+                                'movie-real-time': {
+                                    'id': 'movie-real-time',
+                                    'name': '实时热门榜',
+                                },
+                                'movie-hot-gaia': {
+                                    'id': 'movie-hot-gaia',
+                                    'name': '热门电影',
+                                },
+                                'movie-top250': {
+                                    'id': 'movie-top250',
+                                    'name': '电影TOP10',
+                                },
+                                'tv-hot': {
+                                    'id': 'tv-hot',
+                                    'name': '热门剧集',
+                                },
+                                'show-domestic': {
+                                    'id': 'show-domestic',
+                                    'name': '热门综艺',
                                 }
                             }
                         },
