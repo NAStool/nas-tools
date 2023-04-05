@@ -1,4 +1,6 @@
+import hashlib
 import json
+import time
 
 from app.utils import RequestUtils
 from app.utils.commons import singleton
@@ -6,7 +8,8 @@ from app.utils.commons import singleton
 
 @singleton
 class IyuuHelper(object):
-    _api_base = "https://api.iyuu.cn/index.php?s=%s&version=2.0.0"
+    _version = "2.0.0"
+    _api_base = "https://api.iyuu.cn/index.php?s=%s"
     _sites = []
     _token = None
 
@@ -22,9 +25,12 @@ class IyuuHelper(object):
         向IYUUApi发送请求
         """
         if params:
-            params.update({"sign": self._token})
+            if not params.get("sign"):
+                params.update({"sign": self._token})
+            if not params.get("version"):
+                params.update({"version": self._version})
         else:
-            params = {"sign": self._token}
+            params = {"sign": self._token, "version": self._version}
         # 开始请求
         if method == "get":
             ret = RequestUtils(
@@ -83,7 +89,7 @@ class IyuuHelper(object):
             print(msg)
             return []
 
-    def get_seed_info(self, info_hash):
+    def get_seed_info(self, info_hashs: list):
         """
         返回info_hash对应的站点id、种子id
         {
@@ -104,11 +110,21 @@ class IyuuHelper(object):
             "version": "1.0.0"
         }
         """
-        result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.GetTorrentInfo',
+        info_hashs = sorted(info_hashs)
+        result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.Infohash',
                                           method="post",
-                                          params={"hash": [info_hash]})
-        if result and not result[0].get('errmsg'):
-            return result, ""
-        elif result:
-            return [], result.get('errmsg') or msg
-        return [], msg
+                                          params={
+                                              "timestamp": int(time.time()),
+                                              "hash": info_hashs,
+                                              "sha1": self.get_sha1(info_hashs)
+                                          })
+        return result, msg
+
+    @staticmethod
+    def get_sha1(arr: list) -> str:
+        # 将字典转换为JSON格式字符串并排序，确保哈希值相同
+        # FIXME 校验过不了
+        json_str = json.dumps(arr)
+        # 创建sha1哈希对象并计算哈希值
+        sha1 = hashlib.sha1(json_str.encode())
+        return sha1.hexdigest().lower()

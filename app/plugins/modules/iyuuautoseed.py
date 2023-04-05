@@ -9,10 +9,9 @@ from app.downloader import Downloader
 from app.helper import IyuuHelper
 from app.media.meta import MetaInfo
 from app.message import Message
-from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
-from app.utils.types import EventType, DownloaderType
+from app.utils.types import DownloaderType
 from config import Config
 
 
@@ -209,74 +208,95 @@ class IYUUAutoSeed(_IPluginModule):
     def get_state(self):
         return True if self._enable and self._token and self._downloaders else False
 
-    @EventHandler.register(EventType.AutoSeedStart)
-    def auto_seed(self, event=None):
+    def auto_seed(self):
         """
         开始辅种
-        :param event:
-        :return:
         """
         if not self.get_state():
             return
         if not self.iyuuhelper:
             return
         self.info("开始辅种任务 ...")
-        if event:
-            # 辅种事件中的一个种子
-            event_info = event.event_data
-            downloader = event_info.get("downloader")
-            self.__seed_torrent(event_info.get("hash"), downloader)
-        else:
-            # 扫描下载器辅种
-            for downloader in self._downloaders:
-                self.info(f"开始扫描下载器：{downloader} ...")
-                # 下载器类型
-                downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
-                # 获取下载器中已完成的种子
-                torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
-                if torrents:
-                    self.info(f"下载器：{downloader}，已完成种子数：{len(torrents)}")
-                else:
-                    self.info(f"下载器：{downloader}，没有已完成种子")
-                    continue
-                for torrent in torrents:
-                    # 获取种子hash
-                    hash_str = self.__get_hash(torrent, downloader_type)
-                    self.__seed_torrent(hash_str, downloader)
-                    self.info(f"辅种进度：{torrents.index(torrent) + 1}/{len(torrents)}")
+        # 扫描下载器辅种
+        for downloader in self._downloaders:
+            self.info(f"开始扫描下载器：{downloader} ...")
+            # 下载器类型
+            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+            # 获取下载器中已完成的种子
+            torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
+            if torrents:
+                self.info(f"下载器：{downloader}，已完成种子数：{len(torrents)}")
+            else:
+                self.info(f"下载器：{downloader}，没有已完成种子")
+                continue
+            hash_strs = []
+            for torrent in torrents:
+                if self._event.is_set():
+                    self.info(f"辅种服务停止")
+                    return
+                # 获取种子hash
+                hash_str = self.__get_hash(torrent, downloader_type)
+                save_path = self.__get_save_path(torrent, downloader_type)
+                hash_strs.append({
+                    "hash": hash_str,
+                    "save_path": save_path
+                })
+            if hash_strs:
+                self.__seed_torrent(hash_strs=hash_strs,
+                                    downloader=downloader)
         self.info("辅种任务执行完成")
 
-    def __seed_torrent(self, hash_str, downloader):
+    def __seed_torrent(self, hash_strs: list, downloader):
         """
         执行一个种子的辅种
         """
-        self.info(f"开始辅种：{hash_str} ...")
+        if not hash_strs:
+            return
+        self.info(f"下载器 {downloader} 开始查询辅种 ...")
         # 获取当前hash可辅助的站点和种子信息列表
-        seed_list, msg = self.iyuuhelper.get_seed_info(hash_str)
-        if not seed_list:
-            self.warn(f"{hash_str} 没有可辅种的站点：{msg}")
+        hashs = [hash_str.get("hash") for hash_str in hash_strs]
+        # 每个Hash的保存目录
+        save_paths = {}
+        for hash_str in hash_strs:
+            save_paths[hash_str.get("hash")] = hash_str.get("save_path")
+        # 查询可辅种数据
+        seed_list, msg = self.iyuuhelper.get_seed_info(hashs)
+        if not isinstance(seed_list, dict):
+            self.warn(f"当前种子列表没有可辅种的站点：{msg}")
             return
         else:
-            self.info(f"{hash_str} 可辅种站点数：{len(seed_list)}")
+            self.info(f"IYUU返回可辅种数：{len(seed_list)}")
         # 遍历
-        for seeds in seed_list:
-            if not seeds:
+        for current_hash, seed_info in seed_list.items():
+            if not seed_info:
                 continue
-            if not isinstance(seeds, list):
-                seeds = [seeds]
-            for seed in seeds:
-                site_url, torrent_url = self.__get_torrent_url(seed)
-                if not torrent_url or not site_url:
+            seed_torrents = seed_info.get("torrent")
+            if not isinstance(seed_torrents, list):
+                seed_torrents = [seed_torrents]
+            for seed in seed_torrents:
+                if not seed:
+                    continue
+                if not isinstance(seed, dict):
+                    continue
+                if not seed.get("sid"):
+                    continue
+                if seed.get("info_hash") == current_hash:
+                    self.info(f"跳过站点自身种子：{current_hash} ...")
                     continue
                 # 添加任务
-                self.__download_torrent(site_url, torrent_url, downloader)
+                self.__download_torrent(torrent=seed,
+                                        downloader=downloader,
+                                        save_path=save_paths.get(current_hash))
         # 针对每一个站点的种子，拼装下载链接下载种子，发送至下载器
-        self.info(f"下载器：{downloader}，种子：{hash_str}，辅种完成")
+        self.info(f"下载器 {downloader} 辅种完成")
 
-    def __download_torrent(self, site_url, torrent_url, downloader):
+    def __download_torrent(self, torrent, downloader, save_path):
         """
         下载种子
         """
+        site_url, download_page = self.iyuuhelper.get_torrent_url(torrent.get("sid"))
+        if not site_url or not download_page:
+            return
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
         if not site_info:
@@ -286,7 +306,11 @@ class IYUUAutoSeed(_IPluginModule):
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
             return
         # 下载种子
-        torrent_url = f"{site_info.get('strict_url')}/{torrent_url}"
+        torrent_url = self.__get_download_url(torrent=torrent,
+                                              site=site_info,
+                                              base_url=download_page)
+        if not torrent_url:
+            return
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
@@ -294,6 +318,7 @@ class IYUUAutoSeed(_IPluginModule):
             media_info=meta_info,
             tag=["已整理", "辅种"],
             downloader_id=downloader,
+            download_dir=save_path,
             download_setting="-2"
         )
         if not download_id:
@@ -317,24 +342,28 @@ class IYUUAutoSeed(_IPluginModule):
         """
         return torrent.get("hash") if dl_type == DownloaderType.QB else torrent.hashString
 
-    def __get_torrent_url(self, seed):
+    @staticmethod
+    def __get_save_path(torrent, dl_type):
+        """
+        获取种子保存路径
+        """
+        return torrent.get("save_path") if dl_type == DownloaderType.QB else torrent.download_dir
+
+    def __get_download_url(self, torrent, site, base_url):
         """
         拼装种子下载链接
         """
-        if not seed:
-            return None, None
-        site_url, seed_url = self.iyuuhelper.get_torrent_url(seed.get('sid'))
-        if seed_url:
-            seed_url = seed_url.replace("id={}",
+        download_url = base_url.replace("id={}",
                                         "id={id}"
-                                        ).format(**{"id": seed.get("torrent_id"),
-                                                    "passkey": "",
-                                                    "uid": ""
-                                                    })
-            if seed_url.find("{") != -1:
-                self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{seed_url}")
-                return None, None
-        return site_url, seed_url
+                                        ).format(
+            **{"id": torrent.get("torrent_id"),
+               "passkey": site.get("passkey"),
+               "uid": site.get("uid")
+               })
+        if download_url.find("{") != -1:
+            self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{download_url}")
+            return None
+        return f"{site.get('strict_url')}/{download_url}"
 
     def stop_service(self):
         """
