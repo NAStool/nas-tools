@@ -37,6 +37,13 @@ class MediaSyncDel(_IPluginModule):
     _del_source = False
     _exclude_path = None
     _send_notify = False
+    _remote_path = None
+    _local_path = None
+    _remote_path2 = None
+    _local_path2 = None
+    _remote_path3 = None
+    _local_path3 = None
+    _replace_paths = False
 
     @staticmethod
     def get_fields():
@@ -57,7 +64,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '删除源文件',
                             'required': "",
-                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。同时开启下载任务清理插件，可联动删除下载任务。',
+                            'tooltip': '开启后，删除历史记录的同时会同步删除源文件。同时开启下载任务清理插件，可联动删除下载任务。（如果电影或剧集有多个版本需要配置路径映射，否则会一同删除）',
                             'type': 'switch',
                             'id': 'del_source',
                         },
@@ -67,6 +74,58 @@ class MediaSyncDel(_IPluginModule):
                             'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开媒体服务通知）',
                             'type': 'switch',
                             'id': 'send_notify',
+                        }
+                    ],
+                ]
+            },
+            {
+                'type': 'details',
+                'summary': '路径映射',
+                'tooltip': '当NAStool与Emby媒体库路程不一致时，需要映射转换，最多可设置三组，不设置的话，如果电影或者电视剧有多个版本，会一同删除。（例如，本系统路径/mnt/link/series/国产剧，emby路径/data/series/国产剧。这里本地路径就是/mnt/link，远程路径是/data）',
+                'content': [
+                    # 同一行
+                    [
+                        {
+                            'title': '路径1',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '路径2',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path2',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path2',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '路径3',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path3',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path3',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
                         }
                     ],
                 ]
@@ -100,6 +159,12 @@ class MediaSyncDel(_IPluginModule):
             self._del_source = config.get("del_source")
             self._exclude_path = config.get("exclude_path")
             self._send_notify = config.get("send_notify")
+            self._local_path = config.get("local_path")
+            self._remote_path = config.get("remote_path")
+            self._local_path2 = config.get("local_path2")
+            self._remote_path2 = config.get("remote_path2")
+            self._local_path3 = config.get("local_path3")
+            self._remote_path3 = config.get("remote_path3")
 
     @EventHandler.register(EventType.EmbyWebhook)
     def sync_del(self, event):
@@ -143,6 +208,23 @@ class MediaSyncDel(_IPluginModule):
             self.info(f"媒体路径 {media_path} 已被排除，暂不处理")
             return
 
+        # 路径替换
+        nt_path = None
+        if self._local_path and self._remote_path and media_path.startswith(self._remote_path):
+            nt_path = media_path.replace(self._remote_path, self._local_path).replace('\\', '/')
+            self._replace_paths = True
+
+        if self._local_path2 and self._remote_path2 and media_path.startswith(self._remote_path2):
+            nt_path = media_path.replace(self._remote_path2, self._local_path2).replace('\\', '/')
+            self._replace_paths = True
+
+        if self._local_path3 and self._remote_path3 and media_path.startswith(self._remote_path3):
+            nt_path = media_path.replace(self._remote_path3, self._local_path3).replace('\\', '/')
+            self._replace_paths = True
+
+        if self._replace_paths:
+            self.info(f"emby媒体路径 {media_path}，替换后媒体路径 {nt_path}")
+
         # 消息推送消息体
         event_info = {'event': 'media.del', 'item_type': 'MOV' if media_type == "Movie" else 'TV'}
 
@@ -184,7 +266,17 @@ class MediaSyncDel(_IPluginModule):
             return
 
         # 开始删除
-        logids = [history.ID for history in transfer_history]
+        if (media_type == "Episode" or media_type == "Movie") and self._replace_paths:
+            # 如果有剧集或者电影有多个版本的话，需要根据名称筛选下要删除的版本
+            logids = [history.ID for history in transfer_history if
+                      os.path.join(history.DEST_PATH, history.DEST_FILENAME) == nt_path]
+        else:
+            logids = [history.ID for history in transfer_history]
+
+        if len(logids) == 0:
+            self.warn("未获取到可删除数据，如果是电影或者单个剧集请检查路径映射是否正确设置")
+            return
+
         self.info(f"获取到删除媒体数量 {len(logids)}")
         WebAction().delete_history({
             "logids": logids,
