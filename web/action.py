@@ -23,7 +23,7 @@ from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
     MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper, IndexerHelper
 from app.indexer import Indexer
-from app.media import Category, Media, Bangumi, DouBan
+from app.media import Category, Media, Bangumi, DouBan, Scraper
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
@@ -4096,11 +4096,10 @@ class WebAction:
         """
         刮削媒体文件夹或文件
         """
-        # 触发字幕下载事件
-        EventManager().send_event(EventType.MediaScrapStart, {
-            "path": data.get("path"),
-            "force": True
-        })
+        path = data.get("path")
+        if not path:
+            return {"code": -1, "msg": "请指定刮削路径"}
+        ThreadHelper().start_thread(Scraper().folder_scraper, (path, None, 'force_all'))
         return {"code": 0, "msg": "刮削任务已提交，正在后台运行。"}
 
     @staticmethod
