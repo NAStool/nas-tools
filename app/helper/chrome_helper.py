@@ -74,6 +74,8 @@ class ChromeHelper(object):
         options.add_argument('--no-service-autorun')
         options.add_argument('--no-default-browser-check')
         options.add_argument('--password-store=basic')
+        if SystemUtils.is_windows() or SystemUtils.is_macos():
+            options.add_argument("--window-position=-32000,-32000")
         if self._proxy:
             proxy = Config().get_proxies().get("https")
             if proxy:
