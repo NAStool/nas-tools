@@ -1,3 +1,5 @@
+import json
+
 from app.utils import RequestUtils
 from app.utils.commons import singleton
 
@@ -13,9 +15,9 @@ class IyuuHelper(object):
         self.init_config()
 
     def init_config(self):
-        self._sites = self.get_sites()
+        self._sites = self.__get_sites()
 
-    def __request_iyuu(self, url, params=None):
+    def __request_iyuu(self, url, method="get", params=None):
         """
         向IYUUApi发送请求
         """
@@ -24,9 +26,14 @@ class IyuuHelper(object):
         else:
             params = {"sign": self._token}
         # 开始请求
-        ret = RequestUtils(
-            accept_type="application/json"
-        ).get_res(f"{url}", params=params)
+        if method == "get":
+            ret = RequestUtils(
+                accept_type="application/json"
+            ).get_res(f"{url}", params=params)
+        else:
+            ret = RequestUtils(
+                accept_type="application/json"
+            ).post_res(f"{url}", data=json.dumps(params))
         if ret:
             result = ret.json()
             if result.get('ret') == 200:
@@ -38,7 +45,17 @@ class IyuuHelper(object):
         else:
             return None, f"请求IYUU失败，未获取到返回信息"
 
-    def get_sites(self):
+    def get_torrent_url(self, sid):
+        if not self._sites:
+            return None, None
+        if not sid:
+            return None, None
+        for site in self._sites:
+            if site.get('id') == sid:
+                return site.get('base_url'), site.get('download_page')
+        return None, None
+
+    def __get_sites(self):
         """
         返回支持辅种的全部站点
         :return: 站点列表、错误信息
@@ -61,11 +78,12 @@ class IyuuHelper(object):
         """
         result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.Sites')
         if result:
-            return result.get('sites'), ""
+            return result.get('sites')
         else:
-            return [], msg
+            print(msg)
+            return []
 
-    def get_torrent_info(self, info_hash):
+    def get_seed_info(self, info_hash):
         """
         返回info_hash对应的站点id、种子id
         {
@@ -87,8 +105,9 @@ class IyuuHelper(object):
         }
         """
         result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.GetTorrentInfo',
-                                          params={"hash": info_hash})
-        if result and not result.get('errmsg'):
+                                          method="post",
+                                          params={"hash": [info_hash]})
+        if result and not result[0].get('errmsg'):
             return result, ""
         elif result:
             return [], result.get('errmsg') or msg

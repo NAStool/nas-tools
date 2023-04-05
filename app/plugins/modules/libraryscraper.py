@@ -166,14 +166,15 @@ class LibraryScraper(_IPluginModule):
                 self.info(f"刮削服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
-            self._onlyonce = False
-            self.update_config({
-                "onlyonce": False,
-                "cron": self._cron,
-                "mode": self._mode,
-                "scraper_path": self._scraper_path,
-                "exclude_path": self._exclude_path
-            })
+            if self._onlyonce:
+                self._onlyonce = False
+                self.update_config({
+                    "onlyonce": False,
+                    "cron": self._cron,
+                    "mode": self._mode,
+                    "scraper_path": self._scraper_path,
+                    "exclude_path": self._exclude_path
+                })
 
     def get_state(self):
         return True if self._cron else False

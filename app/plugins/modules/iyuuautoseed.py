@@ -7,10 +7,12 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.downloader import Downloader
 from app.helper import IyuuHelper
+from app.media.meta import MetaInfo
+from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
-from app.utils.types import EventType
+from app.utils.types import EventType, DownloaderType
 from config import Config
 
 
@@ -40,7 +42,10 @@ class IYUUAutoSeed(_IPluginModule):
     _scheduler = None
     downloader = None
     iyuuhelper = None
+    sites = None
+    message = None
     # 限速开关
+    _enable = False
     _cron = None
     _onlyonce = False
     _token = None
@@ -156,47 +161,53 @@ class IYUUAutoSeed(_IPluginModule):
 
     def init_config(self, config=None):
         self.downloader = Downloader()
+        self.sites = Sites()
+        self.message = Message()
         # 读取配置
         if config:
+            self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
             self._cron = config.get("cron")
             self._token = config.get("token")
             self._downloaders = config.get("downloaders")
             self._sites = config.get("sites")
             self._notify = config.get("notify")
-            if self._token:
-                self.iyuuhelper = IyuuHelper(token=self._token)
         # 停止现有任务
         self.stop_service()
 
         # 启动定时任务 & 立即运行一次
-        if self._cron or self._onlyonce:
+        if self.get_state() or self._onlyonce:
+            self.iyuuhelper = IyuuHelper(token=self._token)
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
                 self._scheduler.add_job(self.auto_seed, CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
                 self._scheduler.add_job(self.auto_seed, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
+            if self._cron or self._onlyonce:
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
-            if self._onlyonce:
-                self.info(f"辅种服务启动，立即运行一次")
-            if self._cron:
-                self.info(f"辅种服务启动，周期：{self._cron}")
+                if self._onlyonce:
+                    self.info(f"辅种服务启动，立即运行一次")
+                if self._cron:
+                    self.info(f"辅种服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
-            self._onlyonce = False
-            self.update_config({
-                "onlyonce": False,
-                "cron": self._cron,
-                "token": self._token,
-                "downloaders": self._downloaders,
-                "sites": self._sites
-            })
+            if self._onlyonce:
+                self._onlyonce = False
+                self.update_config({
+                    "enable": self._enable,
+                    "onlyonce": False,
+                    "cron": self._cron,
+                    "token": self._token,
+                    "downloaders": self._downloaders,
+                    "sites": self._sites,
+                    "notify": self._notify
+                })
 
     def get_state(self):
-        return True if self._cron and self._token and self._downloaders else False
+        return True if self._enable and self._token and self._downloaders else False
 
     @EventHandler.register(EventType.AutoSeedStart)
     def auto_seed(self, event=None):
@@ -207,9 +218,12 @@ class IYUUAutoSeed(_IPluginModule):
         """
         if not self.get_state():
             return
-        event_info = event.event_data
-        if event_info and event_info.get("hash"):
+        if not self.iyuuhelper:
+            return
+        self.info("开始辅种任务 ...")
+        if event:
             # 辅种事件中的一个种子
+            event_info = event.event_data
             downloader = event_info.get("downloader")
             self.__seed_torrent(event_info.get("hash"), downloader)
         else:
@@ -230,23 +244,97 @@ class IYUUAutoSeed(_IPluginModule):
                     hash_str = self.__get_hash(torrent, downloader_type)
                     self.__seed_torrent(hash_str, downloader)
                     self.info(f"辅种进度：{torrents.index(torrent) + 1}/{len(torrents)}")
+        self.info("辅种任务执行完成")
 
     def __seed_torrent(self, hash_str, downloader):
         """
         执行一个种子的辅种
         """
         self.info(f"开始辅种：{hash_str} ...")
-        # TODO 完善辅种逻辑
         # 获取当前hash可辅助的站点和种子信息列表
+        seed_list, msg = self.iyuuhelper.get_seed_info(hash_str)
+        if not seed_list:
+            self.warn(f"{hash_str} 没有可辅种的站点：{msg}")
+            return
+        else:
+            self.info(f"{hash_str} 可辅种站点数：{len(seed_list)}")
+        # 遍历
+        for seeds in seed_list:
+            if not seeds:
+                continue
+            if not isinstance(seeds, list):
+                seeds = [seeds]
+            for seed in seeds:
+                site_url, torrent_url = self.__get_torrent_url(seed)
+                if not torrent_url or not site_url:
+                    continue
+                # 添加任务
+                self.__download_torrent(site_url, torrent_url, downloader)
         # 针对每一个站点的种子，拼装下载链接下载种子，发送至下载器
         self.info(f"下载器：{downloader}，种子：{hash_str}，辅种完成")
+
+    def __download_torrent(self, site_url, torrent_url, downloader):
+        """
+        下载种子
+        """
+        # 查询站点
+        site_info = self.sites.get_sites(siteurl=site_url)
+        if not site_info:
+            self.warn(f"没有维护种子对应的站点：{site_url}")
+            return
+        if self._sites and str(site_info.get("id")) not in self._sites:
+            self.info("当前站点不在选择的辅助站点范围，跳过 ...")
+            return
+        # 下载种子
+        torrent_url = f"{site_info.get('strict_url')}/{torrent_url}"
+        meta_info = MetaInfo(title="IYUU自动辅种")
+        meta_info.set_torrent_info(site=site_info.get("name"),
+                                   enclosure=torrent_url)
+        _, download_id, retmsg = self.downloader.download(
+            media_info=meta_info,
+            tag=["已整理", "辅种"],
+            downloader_id=downloader,
+            download_setting="-2"
+        )
+        if not download_id:
+            # 下载失败
+            self.warn(f"添加下载任务出错，"
+                      f"错误原因：{retmsg or '下载器添加任务失败'}，"
+                      f"种子链接：{torrent_url}")
+            return
+        else:
+            # 下载成功
+            self.info(f"成功添加辅种下载：站点：{site_info.get('name')}，种子链接：{torrent_url}")
+            if self._notify:
+                msg_title = "【IYUU自动辅种新增任务】"
+                msg_text = f"站点：{site_info.get('name')}\n种子链接：{torrent_url}"
+                self.message.send_custom_message(title=msg_title, text=msg_text)
 
     @staticmethod
     def __get_hash(torrent, dl_type):
         """
         获取种子hash
         """
-        return torrent.get("hash") if dl_type == "qbittorrent" else torrent.hashString
+        return torrent.get("hash") if dl_type == DownloaderType.QB else torrent.hashString
+
+    def __get_torrent_url(self, seed):
+        """
+        拼装种子下载链接
+        """
+        if not seed:
+            return None, None
+        site_url, seed_url = self.iyuuhelper.get_torrent_url(seed.get('sid'))
+        if seed_url:
+            seed_url = seed_url.replace("id={}",
+                                        "id={id}"
+                                        ).format(**{"id": seed.get("torrent_id"),
+                                                    "passkey": "",
+                                                    "uid": ""
+                                                    })
+            if seed_url.find("{") != -1:
+                self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{seed_url}")
+                return None, None
+        return site_url, seed_url
 
     def stop_service(self):
         """

@@ -217,8 +217,9 @@ class CloudflareSpeedTest(_IPluginModule):
                 self.info(f"Cloudflare CDN优选服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
-            self._onlyonce = False
-            self.__update_config()
+            if self._onlyonce:
+                self._onlyonce = False
+                self.__update_config()
 
     def __cloudflareSpeedTest(self):
         """
