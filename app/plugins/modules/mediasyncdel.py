@@ -184,7 +184,16 @@ class MediaSyncDel(_IPluginModule):
             return
 
         # 开始删除
-        logids = [history.ID for history in transfer_history]
+        if media_type == "Episode" or media_type == "Movie":
+            # 如果有剧集或者电影有多个版本的话，需要根据名称筛选下要删除的版本
+            logids = [history.ID for history in transfer_history if history.DEST_FILENAME == str(media_name)]
+        else:
+            logids = [history.ID for history in transfer_history]
+
+        if len(logids) == 0:
+            self.warn(f"{media_type} {media_name} 未获取到可删除数据")
+            return
+
         self.info(f"获取到删除媒体数量 {len(logids)}")
         WebAction().delete_history({
             "logids": logids,
