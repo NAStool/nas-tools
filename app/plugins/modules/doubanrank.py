@@ -101,7 +101,7 @@ class DoubanRank(_IPluginModule):
                     "enable": self._enable,
                     "cron": self._cron,
                     "ranks": self._ranks,
-                    "rss_addrs": self._rss_addrs
+                    "rss_addrs": "\n".join(self._rss_addrs)
                 })
             if self._cron:
                 self.info(f"订阅服务启动，周期：{self._cron}")
