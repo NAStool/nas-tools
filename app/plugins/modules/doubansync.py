@@ -30,7 +30,7 @@ class DoubanSync(_IPluginModule):
     # 插件图标
     module_icon = "douban.png"
     # 主题色
-    module_color = "bg-green"
+    module_color = "#05B711"
     # 插件版本
     module_version = "1.0"
     # 插件作者

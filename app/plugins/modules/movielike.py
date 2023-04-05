@@ -18,7 +18,7 @@ class MovieLike(_IPluginModule):
     # 插件图标
     module_icon = "like.jpg"
     # 主题色
-    module_color = "bg-pink"
+    module_color = "#E4003F"
     # 插件版本
     module_version = "1.0"
     # 插件作者

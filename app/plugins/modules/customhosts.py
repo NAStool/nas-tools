@@ -14,7 +14,7 @@ class CustomHosts(_IPluginModule):
     # 插件图标
     module_icon = "hosts.png"
     # 主题色
-    module_color = "bg-cyan"
+    module_color = "#02C4E0"
     # 插件版本
     module_version = "1.0"
     # 插件作者

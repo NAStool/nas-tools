@@ -12,7 +12,7 @@ class Webhook(_IPluginModule):
     # 插件图标
     module_icon = "webhook.png"
     # 主题色
-    module_color = "bg-purple"
+    module_color = "#C73A63"
     # 插件版本
     module_version = "1.0"
     # 插件作者

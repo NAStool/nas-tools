@@ -14,7 +14,7 @@ class DiskSpaceSaver(_IPluginModule):
     # 插件图标
     module_icon = "diskusage.jpg"
     # 主题色
-    module_color = "bg-yellow"
+    module_color = "#FE9003"
     # 插件版本
     module_version = "1.0"
     # 插件作者

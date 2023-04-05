@@ -22,7 +22,7 @@ class CloudflareSpeedTest(_IPluginModule):
     # 插件图标
     module_icon = "cloudflare.jpg"
     # 主题色
-    module_color = "bg-orange"
+    module_color = "#F6821F"
     # 插件版本
     module_version = "1.0"
     # 插件作者

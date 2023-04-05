@@ -16,7 +16,7 @@ class ChineseSubFinder(_IPluginModule):
     # 插件图标
     module_icon = "chinesesubfinder.png"
     # 主题色
-    module_color = "bg-lime"
+    module_color = "#83BE39"
     # 插件版本
     module_version = "1.0"
     # 插件作者

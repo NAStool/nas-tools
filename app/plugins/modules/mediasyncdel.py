@@ -17,7 +17,7 @@ class MediaSyncDel(_IPluginModule):
     # 插件图标
     module_icon = "emby.png"
     # 主题色
-    module_color = "bg-red"
+    module_color = "#C90425"
     # 插件版本
     module_version = "1.0"
     # 插件作者
