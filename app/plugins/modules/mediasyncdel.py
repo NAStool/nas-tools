@@ -186,7 +186,7 @@ class MediaSyncDel(_IPluginModule):
         # 开始删除
         if media_type == "Episode" or media_type == "Movie":
             # 如果有剧集或者电影有多个版本的话，需要根据名称筛选下要删除的版本
-            logids = [history.ID for history in transfer_history if history.DEST_FILENAME == str(media_name)]
+            logids = [history.ID for history in transfer_history if history.DEST_FILENAME == os.path.basename(media_path)]
         else:
             logids = [history.ID for history in transfer_history]
 
