@@ -37,7 +37,6 @@ class MediaSyncDel(_IPluginModule):
     _del_source = False
     _exclude_path = None
     _send_notify = False
-    _remote_path = None
 
     @staticmethod
     def get_fields():
