@@ -4,14 +4,12 @@ from time import sleep
 
 import zhconv
 
-from app.utils.commons import singleton
-from app.utils import ExceptionUtils, StringUtils
-
 import log
-from config import Config
 from app.media.doubanapi import DoubanApi, DoubanWeb
 from app.media.meta import MetaInfo
+from app.utils import ExceptionUtils, StringUtils
 from app.utils import RequestUtils
+from app.utils.commons import singleton
 from app.utils.types import MediaType
 
 lock = Lock()
@@ -32,18 +30,13 @@ class DouBan:
     def init_config(self):
         self.doubanapi = DoubanApi()
         self.doubanweb = DoubanWeb()
-        douban = Config().get_config('douban')
-        if douban:
-            # Cookie
-            self.cookie = douban.get('cookie')
-            if not self.cookie:
-                try:
-                    res = RequestUtils(timeout=5).get_res("https://www.douban.com/")
-                    if res:
-                        self.cookie = StringUtils.str_from_cookiejar(res.cookies)
-                except Exception as err:
-                    ExceptionUtils.exception_traceback(err)
-                    log.warn(f"【Douban】获取cookie失败：{format(err)}")
+        try:
+            res = RequestUtils(timeout=5).get_res("https://www.douban.com/")
+            if res:
+                self.cookie = StringUtils.str_from_cookiejar(res.cookies)
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            log.warn(f"【Douban】获取cookie失败：{format(err)}")
 
     def get_douban_detail(self, doubanid, mtype=None, wait=False):
         """

@@ -153,7 +153,7 @@ class DoubanRank(_IPluginModule):
                             'content':
                                 {
                                     'id': 'rss_addrs',
-                                    'placeholder': 'https://rsshub.app/douban/xxx',
+                                    'placeholder': 'https://rsshub.app/douban/movie/classification/:sort?/:score?/:tags?',
                                     'rows': 5
                                 }
                         }

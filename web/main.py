@@ -127,7 +127,7 @@ def login():
         跳转到导航页面
         """
         if GoPage and GoPage != 'web':
-            return redirect('/web?next=' + GoPage)
+            return redirect('/web#' + GoPage)
         else:
             return redirect('/web')
 
@@ -719,18 +719,6 @@ def service():
             })
         else:
             Services.pop('sync')
-
-    # 豆瓣同步
-    if "douban" in Services:
-        interval = Config().get_config('douban').get('interval')
-        if interval:
-            interval = "%s 小时" % interval
-            Services['douban'].update({
-                'state': 'ON',
-                'time': interval,
-            })
-        else:
-            Services.pop('douban')
 
     return render_template("service.html",
                            Count=len(Services),
