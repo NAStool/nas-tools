@@ -6,8 +6,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # 运行环境判断
-is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
 is_executable = getattr(sys, 'frozen', False)
+is_windows_exe = is_executable and (os.name == "nt")
 if is_windows_exe:
     # 托盘相关库
     import threading
