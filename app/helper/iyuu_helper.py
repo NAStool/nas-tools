@@ -110,21 +110,18 @@ class IyuuHelper(object):
             "version": "1.0.0"
         }
         """
-        info_hashs = sorted(info_hashs)
+        # FIXME 非法请求：做种列表sha1校验失败
+        info_hashs.sort()
+        hashs_str = json.dumps(info_hashs, ensure_ascii=False)
         result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.Infohash',
                                           method="post",
                                           params={
                                               "timestamp": int(time.time()),
-                                              "hash": info_hashs,
-                                              "sha1": self.get_sha1(info_hashs)
+                                              "hash": hashs_str,
+                                              "sha1": self.get_sha1(hashs_str)
                                           })
         return result, msg
 
     @staticmethod
-    def get_sha1(arr: list) -> str:
-        # 将字典转换为JSON格式字符串并排序，确保哈希值相同
-        # FIXME 校验过不了
-        json_str = json.dumps(arr)
-        # 创建sha1哈希对象并计算哈希值
-        sha1 = hashlib.sha1(json_str.encode())
-        return sha1.hexdigest().lower()
+    def get_sha1(text) -> str:
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()

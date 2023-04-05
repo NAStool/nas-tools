@@ -243,17 +243,22 @@ class IYUUAutoSeed(_IPluginModule):
                     "save_path": save_path
                 })
             if hash_strs:
-                self.__seed_torrent(hash_strs=hash_strs,
-                                    downloader=downloader)
+                # 200个为一组
+                chunk_size = 200
+                for i in range(0, len(hash_strs), chunk_size):
+                    chunk = hash_strs[i:i + chunk_size]  # 切片操作
+                    # 处理分组
+                    self.__seed_torrents(hash_strs=chunk,
+                                         downloader=downloader)
         self.info("辅种任务执行完成")
 
-    def __seed_torrent(self, hash_strs: list, downloader):
+    def __seed_torrents(self, hash_strs: list, downloader):
         """
         执行一个种子的辅种
         """
         if not hash_strs:
             return
-        self.info(f"下载器 {downloader} 开始查询辅种 ...")
+        self.info(f"下载器 {downloader} 开始查询辅种，数量：{len(hash_strs)} ...")
         # 获取当前hash可辅助的站点和种子信息列表
         hashs = [hash_str.get("hash") for hash_str in hash_strs]
         # 每个Hash的保存目录
