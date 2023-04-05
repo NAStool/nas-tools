@@ -193,7 +193,7 @@ class WebAction:
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
             "auto_remove_torrents": self.__auto_remove_torrents,
-            "get_plugin_page": self.get_plugin_page,
+            "douban_sync": self.douban_sync,
             "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
@@ -225,7 +225,10 @@ class WebAction:
             "get_ical_events": self.get_ical_events,
             "install_plugin": self.install_plugin,
             "uninstall_plugin": self.uninstall_plugin,
-            "get_plugin_apps": self.get_plugin_apps
+            "get_plugin_apps": self.get_plugin_apps,
+            "get_plugin_page": self.get_plugin_page,
+            "get_plugin_state": self.get_plugin_state,
+            "get_plugins_conf": self.get_plugins_conf
         }
 
     def action(self, cmd, data=None):
@@ -4375,17 +4378,6 @@ class WebAction:
         sitename = data.get("name")
         return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
 
-    @staticmethod
-    def get_plugin_page(data):
-        """
-        查询插件的额外数据
-        """
-        plugin_id = data.get("id")
-        if not plugin_id:
-            return {"code": 1, "msg": "参数错误"}
-        title, content = PluginManager().get_plugin_page(pid=plugin_id)
-        return {"code": 0, "title": title, "content": content}
-
     def __delete_douban_history(self, data):
         """
         删除豆瓣同步历史
@@ -5021,6 +5013,33 @@ class WebAction:
         获取插件列表
         """
         return {"code": 0, "result": PluginManager().get_plugin_apps(current_user.level)}
+
+    @staticmethod
+    def get_plugin_page(data):
+        """
+        查询插件的额外数据
+        """
+        plugin_id = data.get("id")
+        if not plugin_id:
+            return {"code": 1, "msg": "参数错误"}
+        title, content = PluginManager().get_plugin_page(pid=plugin_id)
+        return {"code": 0, "title": title, "content": content}
+
+    @staticmethod
+    def get_plugin_state(data):
+        """
+        获取插件状态
+        """
+        plugin_id = data.get("id")
+        if not plugin_id:
+            return {"code": 1, "msg": "参数错误"}
+        state = PluginManager().get_plugin_state(plugin_id)
+        return {"code": 0, "state": state}
+
+    @staticmethod
+    def get_plugins_conf(data=None):
+        Plugins = PluginManager().get_plugins_conf(current_user.level)
+        return {"code": 0, "result": Plugins}
 
     @staticmethod
     def douban_sync(data=None):

@@ -163,6 +163,16 @@ class PluginManager:
         title, html = self._running_plugins[pid].get_page()
         return title, html
 
+    def get_plugin_state(self, pid):
+        """
+        获取插件状态
+        """
+        if not self._running_plugins.get(pid):
+            return None
+        if not hasattr(self._running_plugins[pid], "get_state"):
+            return None
+        return self._running_plugins[pid].get_state()
+
     def save_plugin_config(self, pid, conf):
         """
         保存插件配置

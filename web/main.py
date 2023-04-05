@@ -33,7 +33,7 @@ from app.indexer import Indexer
 from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.message import Message
-from app.plugins import EventManager, PluginManager
+from app.plugins import EventManager
 from app.rsschecker import RssChecker
 from app.sites import Sites, SiteUserInfo
 from app.subscribe import Subscribe
@@ -999,7 +999,7 @@ def rss_parser():
 @App.route('/plugin', methods=['POST', 'GET'])
 @login_required
 def plugin():
-    Plugins = PluginManager().get_plugins_conf(current_user.level)
+    Plugins = WebAction().get_plugins_conf().get("result")
     return render_template("setting/plugin.html",
                            Plugins=Plugins,
                            Count=len(Plugins))
