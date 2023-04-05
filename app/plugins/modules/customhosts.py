@@ -1,7 +1,9 @@
 from python_hosts import Hosts, HostsEntry
 
+from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, IpUtils
+from app.utils.types import EventType
 
 
 class CustomHosts(_IPluginModule):
@@ -105,6 +107,18 @@ class CustomHosts(_IPluginModule):
                     "err_hosts": error_hosts,
                     "enable": self._enable
                 })
+
+    @EventHandler.register(EventType.PluginReload)
+    def reload(self, event):
+        """
+        响应插件重载事件
+        """
+        plugin_id = event.event_data.get("plugin_id")
+        if not plugin_id:
+            return
+        if plugin_id != self.__class__.__name__:
+            return
+        return self.init_config(self.get_config())
 
     @staticmethod
     def __read_system_hosts():
