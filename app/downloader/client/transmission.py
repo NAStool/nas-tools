@@ -87,7 +87,7 @@ class Transmission(_IDownloadClient):
         """
         if not self.trc:
             return [], True
-        if isinstance(ids, list):
+        if isinstance(ids, list) and any([str(x).isdigit() for x in ids]):
             ids = [int(x) for x in ids if str(x).isdigit()]
         elif str(ids).isdigit():
             ids = int(ids)

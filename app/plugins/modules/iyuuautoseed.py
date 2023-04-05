@@ -206,7 +206,7 @@ class IYUUAutoSeed(_IPluginModule):
                 })
 
     def get_state(self):
-        return True if self._enable and self._token and self._downloaders else False
+        return True if self._enable and self._cron and self._token and self._downloaders else False
 
     def auto_seed(self):
         """
@@ -237,7 +237,6 @@ class IYUUAutoSeed(_IPluginModule):
                 # 获取种子hash
                 hash_str = self.__get_hash(torrent, downloader_type)
                 save_path = self.__get_save_path(torrent, downloader_type)
-                # FIXME 需要控制单次提交条数
                 hash_strs.append({
                     "hash": hash_str,
                     "save_path": save_path
@@ -259,12 +258,12 @@ class IYUUAutoSeed(_IPluginModule):
         if not hash_strs:
             return
         self.info(f"下载器 {downloader} 开始查询辅种，数量：{len(hash_strs)} ...")
-        # 获取当前hash可辅助的站点和种子信息列表
-        hashs = [hash_str.get("hash") for hash_str in hash_strs]
+        # 下载器中的Hashs
+        hashs = [item.get("hash") for item in hash_strs]
         # 每个Hash的保存目录
         save_paths = {}
-        for hash_str in hash_strs:
-            save_paths[hash_str.get("hash")] = hash_str.get("save_path")
+        for item in hash_strs:
+            save_paths[item.get("hash")] = item.get("save_path")
         # 查询可辅种数据
         seed_list, msg = self.iyuuhelper.get_seed_info(hashs)
         if not isinstance(seed_list, dict):
@@ -284,23 +283,28 @@ class IYUUAutoSeed(_IPluginModule):
                     continue
                 if not isinstance(seed, dict):
                     continue
-                if not seed.get("sid"):
+                if not seed.get("sid") or not seed.get("info_hash"):
                     continue
-                if seed.get("info_hash") == current_hash:
-                    self.info(f"跳过站点自身种子：{current_hash} ...")
+                if seed.get("info_hash") in hashs:
+                    self.debug(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
                     continue
                 # 添加任务
-                self.__download_torrent(torrent=seed,
+                self.__download_torrent(seed=seed,
                                         downloader=downloader,
                                         save_path=save_paths.get(current_hash))
         # 针对每一个站点的种子，拼装下载链接下载种子，发送至下载器
         self.info(f"下载器 {downloader} 辅种完成")
 
-    def __download_torrent(self, torrent, downloader, save_path):
+    def __download_torrent(self, seed, downloader, save_path):
         """
         下载种子
+        torrent: {
+                    "sid": 3,
+                    "torrent_id": 377467,
+                    "info_hash": "a444850638e7a6f6220e2efdde94099c53358159"
+                }
         """
-        site_url, download_page = self.iyuuhelper.get_torrent_url(torrent.get("sid"))
+        site_url, download_page = self.iyuuhelper.get_torrent_url(seed.get("sid"))
         if not site_url or not download_page:
             return
         # 查询站点
@@ -311,8 +315,14 @@ class IYUUAutoSeed(_IPluginModule):
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
             return
+        # 查询hash值是否已经在下载器中
+        torrent_info = self.downloader.get_torrents(downloader_id=downloader,
+                                                    ids=[seed.get("info_hash")])
+        if torrent_info:
+            self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
+            return
         # 下载种子
-        torrent_url = self.__get_download_url(torrent=torrent,
+        torrent_url = self.__get_download_url(seed=seed,
                                               site=site_info,
                                               base_url=download_page)
         if not torrent_url:
@@ -355,14 +365,14 @@ class IYUUAutoSeed(_IPluginModule):
         """
         return torrent.get("save_path") if dl_type == DownloaderType.QB else torrent.download_dir
 
-    def __get_download_url(self, torrent, site, base_url):
+    def __get_download_url(self, seed, site, base_url):
         """
         拼装种子下载链接
         """
         download_url = base_url.replace("id={}",
                                         "id={id}"
                                         ).format(
-            **{"id": torrent.get("torrent_id"),
+            **{"id": seed.get("torrent_id"),
                "passkey": site.get("passkey"),
                "uid": site.get("uid")
                })
