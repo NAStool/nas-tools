@@ -237,6 +237,7 @@ class IYUUAutoSeed(_IPluginModule):
                 # 获取种子hash
                 hash_str = self.__get_hash(torrent, downloader_type)
                 save_path = self.__get_save_path(torrent, downloader_type)
+                # FIXME 需要控制单次提交条数
                 hash_strs.append({
                     "hash": hash_str,
                     "save_path": save_path
