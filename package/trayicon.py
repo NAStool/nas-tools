@@ -7,7 +7,7 @@ import wx.adv
 
 
 class Balloon(wx.adv.TaskBarIcon):
-    ICON = os.path.dirname(__file__).replace("windows", "") + "nas-tools.ico"
+    ICON = os.path.dirname(__file__).replace("package", "") + "nas-tools.ico"
 
     def __init__(self, homepage, log_path):
         wx.adv.TaskBarIcon.__init__(self)
