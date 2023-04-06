@@ -4,7 +4,7 @@ from datetime import datetime
 import log
 from app.helper import ChromeHelper, SiteHelper, DbHelper
 from app.message import Message
-from app.sites import SiteRateLimiter
+from app.sites.site_limiter import SiteRateLimiter
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
 from config import Config
