@@ -352,6 +352,9 @@ class IYUUAutoSeed(_IPluginModule):
         if torrent_info:
             self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
             return
+        # 站点流控
+        if self.sites.check_ratelimit(site_info.get("id")):
+            return
         # 下载种子
         torrent_url = self.__get_download_url(seed=seed,
                                               site=site_info,

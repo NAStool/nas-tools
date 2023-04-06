@@ -67,6 +67,7 @@ class BuiltinIndexer(_IIndexClient):
                 continue
             render = False if not chrome_ok else site.get("chrome")
             indexer = IndexerHelper().get_indexer(url=url,
+                                                  siteid=site.get("id"),
                                                   cookie=cookie,
                                                   ua=site.get("ua"),
                                                   name=site.get("name"),
@@ -100,6 +101,9 @@ class BuiltinIndexer(_IIndexClient):
         # 不是配置的索引站点过滤掉
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
         if indexer_sites and indexer.id not in indexer_sites:
+            return []
+        # 站点流控
+        if self.sites.check_ratelimit(indexer.siteid):
             return []
         # fix 共用同一个dict时会导致某个站点的更新全局全效
         if filter_args is None:

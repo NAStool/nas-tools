@@ -156,6 +156,8 @@ class BrushTask(object):
         if not site_info:
             log.error("【Brush】刷流任务 %s 的站点已不存在，无法刷流！" % task_name)
             return
+        # 站点属性
+        site_id = site_info.get("id")
         site_name = site_info.get("name")
         site_proxy = site_info.get("proxy")
 
@@ -217,6 +219,7 @@ class BrushTask(object):
                                              torrent_url=page_url,
                                              torrent_size=size,
                                              pubdate=pubdate,
+                                             siteid=site_id,
                                              cookie=cookie,
                                              ua=ua,
                                              proxy=site_proxy):
@@ -475,6 +478,9 @@ class BrushTask(object):
         """
         if not enclosure:
             return False
+        # 站点流控
+        if self.sites.check_ratelimit(site_info.get("id")):
+            return False
         taskid = taskinfo.get("id")
         taskname = taskinfo.get("name")
         transfer = taskinfo.get("transfer")
@@ -536,6 +542,7 @@ class BrushTask(object):
                          torrent_url,
                          torrent_size,
                          pubdate,
+                         siteid,
                          cookie,
                          ua,
                          proxy):
@@ -546,6 +553,7 @@ class BrushTask(object):
         :param torrent_url: 种子页面地址
         :param torrent_size: 种子大小
         :param pubdate: 发布时间
+        :param siteid: 站点ID
         :param cookie: Cookie
         :param ua: User-Agent
         :return: 是否命中
@@ -581,6 +589,10 @@ class BrushTask(object):
             if rss_rule.get("exclude"):
                 if re.search(r"%s" % rss_rule.get("exclude"), title):
                     return False
+
+            # 站点流控
+            if self.sites.check_ratelimit(siteid):
+                return False
 
             torrent_attr = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
                                                             cookie=cookie,
