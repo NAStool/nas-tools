@@ -116,7 +116,7 @@ class MediaSyncDel(_IPluginModule):
         # 是否虚拟标识
         item_isvirtual = event_data.get("item_isvirtual")
         if not item_isvirtual:
-            self.error("item_isvirtual参数未配置，未防止误删除，暂停插件运行")
+            self.error("item_isvirtual参数未配置，为防止误删除，暂停插件运行")
             self.update_config({
                 "enable": False,
                 "del_source": self._del_source,
