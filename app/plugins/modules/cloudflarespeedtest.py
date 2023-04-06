@@ -433,7 +433,7 @@ class CloudflareSpeedTest(_IPluginModule):
             return None
 
     def get_state(self):
-        return self._customhosts and self._cf_ip and True if self._cron else False
+        return self._cf_ip and True if self._cron else False
 
     def stop_service(self):
         """
