@@ -78,15 +78,6 @@ class IYUUAutoSeed(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '立即运行一次',
-                            'required': "",
-                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
-                            'type': 'switch',
-                            'id': 'onlyonce',
-                        }
-                    ],
-                    [
-                        {
                             'title': 'IYUU Token',
                             'required': "required",
                             'tooltip': '登录IYUU使用的Token，用于调用IYUU官方Api',
@@ -168,6 +159,13 @@ class IYUUAutoSeed(_IPluginModule):
                             'tooltip': '运行辅助任务后会发送通知（需要打开自定义消息通知）',
                             'type': 'switch',
                             'id': 'notify',
+                        },
+                        {
+                            'title': '立即运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
+                            'type': 'switch',
+                            'id': 'onlyonce',
                         }
                     ]
                 ]
