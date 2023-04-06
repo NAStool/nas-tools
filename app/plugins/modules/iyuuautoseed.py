@@ -272,7 +272,7 @@ class IYUUAutoSeed(_IPluginModule):
                 })
             if hash_strs:
                 # 分组处理，减少IYUU Api请求次数
-                chunk_size = 120
+                chunk_size = 200
                 for i in range(0, len(hash_strs), chunk_size):
                     # 切片操作
                     chunk = hash_strs[i:i + chunk_size]
