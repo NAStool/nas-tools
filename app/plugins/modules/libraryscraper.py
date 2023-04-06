@@ -150,31 +150,29 @@ class LibraryScraper(_IPluginModule):
         self.stop_service()
 
         # 启动定时任务 & 立即运行一次
-        if self._cron or self._onlyonce:
+        if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.__libraryscraper, CronTrigger.from_crontab(self._cron))
-            if self._onlyonce:
-                self._scheduler.add_job(self.__libraryscraper, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
-
+                self.info(f"刮削服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__libraryscraper,
+                                        CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
                 self.info(f"刮削服务启动，立即运行一次")
-            if self._cron:
-                self.info(f"刮削服务启动，周期：{self._cron}")
-
-            # 关闭一次性开关
-            if self._onlyonce:
+                self._scheduler.add_job(self.__libraryscraper, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
-                    "onlyonce": False,
+                    "onlyonce": self._onlyonce,
                     "cron": self._cron,
                     "mode": self._mode,
                     "scraper_path": self._scraper_path,
                     "exclude_path": self._exclude_path
                 })
+            if self._cron or self._onlyonce:
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return True if self._cron else False

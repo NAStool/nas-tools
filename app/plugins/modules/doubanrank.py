@@ -86,14 +86,13 @@ class DoubanRank(_IPluginModule):
         if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.__refresh_rss, CronTrigger.from_crontab(self._cron))
-            if self._onlyonce:
-                self._scheduler.add_job(self.__refresh_rss, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
+                self.info(f"订阅服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__refresh_rss,
+                                        CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
                 self.info(f"订阅服务启动，立即运行一次")
+                self._scheduler.add_job(self.__refresh_rss, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
@@ -103,8 +102,10 @@ class DoubanRank(_IPluginModule):
                     "ranks": self._ranks,
                     "rss_addrs": "\n".join(self._rss_addrs)
                 })
-            if self._cron:
-                self.info(f"订阅服务启动，周期：{self._cron}")
+            if self._onlyonce or self._cron:
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return self._enable and self._cron and (self._ranks or self._rss_addrs)

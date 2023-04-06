@@ -202,25 +202,18 @@ class IYUUAutoSeed(_IPluginModule):
             self.iyuuhelper = IyuuHelper(token=self._token)
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.auto_seed, CronTrigger.from_crontab(self._cron))
+                self.info(f"辅种服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.auto_seed,
+                                        CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
+                self.info(f"辅种服务启动，立即运行一次")
                 self._scheduler.add_job(self.auto_seed, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            if self._cron or self._onlyonce:
-                self._scheduler.print_jobs()
-                self._scheduler.start()
-
-                if self._onlyonce:
-                    self.info(f"辅种服务启动，立即运行一次")
-                if self._cron:
-                    self.info(f"辅种服务启动，周期：{self._cron}")
-
-            # 关闭一次性开关
-            if self._onlyonce:
+                # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
                     "enable": self._enable,
-                    "onlyonce": False,
+                    "onlyonce": self._onlyonce,
                     "cron": self._cron,
                     "token": self._token,
                     "downloaders": self._downloaders,
@@ -228,6 +221,10 @@ class IYUUAutoSeed(_IPluginModule):
                     "notify": self._notify,
                     "nolabels": self._nolabels
                 })
+            if self._cron or self._onlyonce:
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return True if self._enable and self._cron and self._token and self._downloaders else False
@@ -250,9 +247,9 @@ class IYUUAutoSeed(_IPluginModule):
             # 获取下载器中已完成的种子
             torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
             if torrents:
-                self.info(f"下载器：{downloader}，已完成种子数：{len(torrents)}")
+                self.info(f"下载器 {downloader} 已完成种子数：{len(torrents)}")
             else:
-                self.info(f"下载器：{downloader}，没有已完成种子")
+                self.info(f"下载器 {downloader} 没有已完成种子")
                 continue
             hash_strs = []
             for torrent in torrents:
@@ -275,7 +272,7 @@ class IYUUAutoSeed(_IPluginModule):
                 })
             if hash_strs:
                 # 分组处理，减少IYUU Api请求次数
-                chunk_size = 200
+                chunk_size = 120
                 for i in range(0, len(hash_strs), chunk_size):
                     # 切片操作
                     chunk = hash_strs[i:i + chunk_size]
@@ -298,7 +295,6 @@ class IYUUAutoSeed(_IPluginModule):
         for item in hash_strs:
             save_paths[item.get("hash")] = item.get("save_path")
         # 查询可辅种数据
-        # FIXME 此处应该有缓存和去重，再调API
         seed_list, msg = self.iyuuhelper.get_seed_info(hashs)
         if not isinstance(seed_list, dict):
             self.warn(f"当前种子列表没有可辅种的站点：{msg}")
@@ -320,7 +316,7 @@ class IYUUAutoSeed(_IPluginModule):
                 if not seed.get("sid") or not seed.get("info_hash"):
                     continue
                 if seed.get("info_hash") in hashs:
-                    self.debug(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
+                    self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
                     continue
                 # 添加任务
                 self.__download_torrent(seed=seed,
@@ -440,13 +436,19 @@ class IYUUAutoSeed(_IPluginModule):
                 # 从详情页面获取下载链接
                 return self.__get_torrent_url_from_page(seed=seed, site=site)
             else:
-                download_url = base_url.replace("id={}",
-                                                "id={id}"
-                                                ).format(
-                    **{"id": seed.get("torrent_id"),
-                       "passkey": site.get("passkey") or '',
-                       "uid": site.get("uid") or ''
-                       })
+                download_url = base_url.replace(
+                    "id={}",
+                    "id={id}"
+                ).replace(
+                    "/{}",
+                    "/{id}"
+                ).format(
+                    **{
+                        "id": seed.get("torrent_id"),
+                        "passkey": site.get("passkey") or '',
+                        "uid": site.get("uid") or ''
+                    }
+                )
                 if download_url.count("{"):
                     self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{seed}")
                     return None
