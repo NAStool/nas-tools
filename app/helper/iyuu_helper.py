@@ -39,7 +39,7 @@ class IyuuHelper(object):
         else:
             ret = RequestUtils(
                 accept_type="application/json"
-            ).post_res(f"{url}", data=json.dumps(params))
+            ).post_res(f"{url}", data=params)
         if ret:
             result = ret.json()
             if result.get('ret') == 200:
@@ -110,15 +110,14 @@ class IyuuHelper(object):
             "version": "1.0.0"
         }
         """
-        # FIXME 非法请求：做种列表sha1校验失败
         info_hashs.sort()
-        json_str = json.dumps(info_hashs, ensure_ascii=False)
-        sha1 = self.get_sha1(json_str)
+        json_data = json.dumps(info_hashs, separators=(',', ':'), ensure_ascii=False)
+        sha1 = self.get_sha1(json_data)
         result, msg = self.__request_iyuu(url=self._api_base % 'api/infohash',
                                           method="post",
                                           params={
                                               "timestamp": time.time(),
-                                              "hash": json_str,
+                                              "hash": json_data,
                                               "sha1": sha1
                                           })
         return result, msg
