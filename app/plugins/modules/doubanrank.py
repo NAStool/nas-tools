@@ -254,9 +254,10 @@ class DoubanRank(_IPluginModule):
                         return
                     # 识别媒体信息
                     media_info = WebUtils.get_mediainfo_from_id(mtype=rss_info.get("type"),
-                                                                mediaid=f"DB:{rss_info.get('doubanid')}")
+                                                                mediaid=f"DB:{rss_info.get('doubanid')}",
+                                                                wait=True)
                     if not media_info:
-                        self.warn(f"未查询到TMDB媒体信息：{rss_info.get('doubanid')} - {rss_info.get('title')}")
+                        self.warn(f"未查询到媒体信息：{rss_info.get('doubanid')} - {rss_info.get('title')}")
                         continue
                     # 检查媒体服务器是否存在
                     item_id = self.mediaserver.check_item_exists(mtype=media_info.type,
