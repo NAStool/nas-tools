@@ -123,6 +123,7 @@ class MediaSyncDel(_IPluginModule):
                 "exclude_path": self._exclude_path,
                 "send_notify": self._send_notify
             })
+            return
 
         # 如果是虚拟item，则直接return，不进行删除
         if item_isvirtual == 'True':
