@@ -183,14 +183,14 @@ class MovieLike(_IPluginModule):
             self.warn(f"{item_path} 文件不存在")
             return
         # 路径替换
-        if self._local_path and self._remote_path and item_path.startswith(self._local_path):
-            item_path = item_path.replace(self._local_path, self._remote_path).replace('\\', '/')
+        if self._local_path and self._remote_path and item_path.startswith(self._remote_path):
+            item_path = item_path.replace(self._remote_path, self._local_path).replace('\\', '/')
 
-        if self._local_path2 and self._remote_path2 and item_path.startswith(self._local_path2):
-            item_path = item_path.replace(self._local_path2, self._remote_path2).replace('\\', '/')
+        if self._local_path2 and self._remote_path2 and item_path.startswith(self._remote_path2):
+            item_path = item_path.replace(self._remote_path2, self._local_path2).replace('\\', '/')
 
-        if self._local_path3 and self._remote_path3 and item_path.startswith(self._local_path3):
-            item_path = item_path.replace(self._local_path3, self._remote_path3).replace('\\', '/')
+        if self._local_path3 and self._remote_path3 and item_path.startswith(self._remote_path3):
+            item_path = item_path.replace(self._remote_path3, self._local_path3).replace('\\', '/')
 
         # 文件转为目录
         if os.path.isdir(item_path):
