@@ -9,7 +9,7 @@ from app.utils.commons import singleton
 @singleton
 class IyuuHelper(object):
     _version = "2.0.0"
-    _api_base = "https://api.iyuu.cn/index.php?s=%s"
+    _api_base = "https://api.iyuu.cn/%s"
     _sites = []
     _token = None
 
@@ -82,7 +82,7 @@ class IyuuHelper(object):
             }
         }
         """
-        result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.Sites')
+        result, msg = self.__request_iyuu(url=self._api_base % 'api/sites')
         if result:
             return result.get('sites')
         else:
@@ -112,16 +112,17 @@ class IyuuHelper(object):
         """
         # FIXME 非法请求：做种列表sha1校验失败
         info_hashs.sort()
-        hashs_str = json.dumps(info_hashs, ensure_ascii=False)
-        result, msg = self.__request_iyuu(url=self._api_base % 'App.Api.Infohash',
+        json_str = json.dumps(info_hashs, ensure_ascii=False)
+        sha1 = self.get_sha1(json_str)
+        result, msg = self.__request_iyuu(url=self._api_base % 'api/infohash',
                                           method="post",
                                           params={
-                                              "timestamp": int(time.time()),
-                                              "hash": hashs_str,
-                                              "sha1": self.get_sha1(hashs_str)
+                                              "timestamp": time.time(),
+                                              "hash": json_str,
+                                              "sha1": sha1
                                           })
         return result, msg
 
     @staticmethod
-    def get_sha1(text) -> str:
-        return hashlib.sha1(text.encode("utf-8")).hexdigest()
+    def get_sha1(json_str) -> str:
+        return hashlib.sha1(json_str.encode('utf-8')).hexdigest()

@@ -430,7 +430,7 @@ class Downloader:
                                              download_dir=download_dir,
                                              cookie=site_info.get("cookie"))
                 if ret:
-                    download_id = ret.id
+                    download_id = ret.hashString
                     downloader.change_torrent(tid=download_id,
                                               tag=tags,
                                               upload_limit=upload_limit,

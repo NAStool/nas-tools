@@ -303,7 +303,7 @@ class BrushTask(object):
                     set(torrent_ids).difference(
                         set([(torrent.get("hash")
                               if downloader_type == 'qbittorrent'
-                              else str(torrent.id)) for torrent in torrents])))
+                              else str(torrent.hashString)) for torrent in torrents])))
                 # 完成的种子
                 for torrent in torrents:
                     torrent_info = self.__get_torrent_dict(downloader_type=downloader_type,
@@ -345,7 +345,7 @@ class BrushTask(object):
                     set(remove_torrent_ids).difference(
                         set([(torrent.get("hash")
                               if downloader_type == 'qbittorrent'
-                              else str(torrent.id)) for torrent in torrents])))
+                              else str(torrent.hashString)) for torrent in torrents])))
                 # 下载中的种子
                 for torrent in torrents:
                     torrent_info = self.__get_torrent_dict(downloader_type=downloader_type,
@@ -742,7 +742,7 @@ class BrushTask(object):
             total_size = torrent.get("total_size")
         else:
             # ID
-            torrent_id = torrent.id
+            torrent_id = torrent.hashString
             # 做种时间
             date_done = torrent.date_done or torrent.date_added
             # 下载耗时
