@@ -104,6 +104,7 @@ class BuiltinIndexer(_IIndexClient):
             return []
         # 站点流控
         if self.sites.check_ratelimit(indexer.siteid):
+            self.progress.update(ptype=ProgressKey.Search, text=f"{indexer.name} 触发站点流控，跳过 ...")
             return []
         # fix 共用同一个dict时会导致某个站点的更新全局全效
         if filter_args is None:
