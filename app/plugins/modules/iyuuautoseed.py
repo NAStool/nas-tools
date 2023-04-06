@@ -290,6 +290,7 @@ class IYUUAutoSeed(_IPluginModule):
         for item in hash_strs:
             save_paths[item.get("hash")] = item.get("save_path")
         # 查询可辅种数据
+        # FIXME 此处应该有缓存和去重，再调API
         seed_list, msg = self.iyuuhelper.get_seed_info(hashs)
         if not isinstance(seed_list, dict):
             self.warn(f"当前种子列表没有可辅种的站点：{msg}")
@@ -414,23 +415,26 @@ class IYUUAutoSeed(_IPluginModule):
         拼装种子下载链接
         """
         try:
-            download_url = base_url.replace("id={}",
-                                            "id={id}"
-                                            ).format(
-                **{"id": seed.get("torrent_id"),
-                   "passkey": site.get("passkey") or '',
-                   "uid": site.get("uid") or '',
-                   "hash": seed.get("torrent_id")
-                   })
-            if download_url.find("{") != -1:
-                self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{download_url}")
+            if base_url.count("{hash}") or base_url.count("{cuhash}"):
+                # FIXME hdchina hdsky 使用hash值下载，需要从详情页获取种子下载链接
                 return None
-            download_url = re.sub(r"[&?]passkey=", "",
-                                  re.sub(r"[&?]uid=", "",
-                                         download_url,
-                                         flags=re.IGNORECASE),
-                                  flags=re.IGNORECASE)
-            return f"{site.get('strict_url')}/{download_url}"
+            else:
+                download_url = base_url.replace("id={}",
+                                                "id={id}"
+                                                ).format(
+                    **{"id": seed.get("torrent_id"),
+                       "passkey": site.get("passkey") or '',
+                       "uid": site.get("uid") or ''
+                       })
+                if download_url.find("{") != -1:
+                    self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{seed}")
+                    return None
+                download_url = re.sub(r"[&?]passkey=", "",
+                                      re.sub(r"[&?]uid=", "",
+                                             download_url,
+                                             flags=re.IGNORECASE),
+                                      flags=re.IGNORECASE)
+                return f"{site.get('strict_url')}/{download_url}"
         except Exception as e:
             self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{str(e)}")
             return None
