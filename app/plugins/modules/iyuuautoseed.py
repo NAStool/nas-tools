@@ -61,7 +61,8 @@ class IYUUAutoSeed(_IPluginModule):
     _torrent_xpaths = [
         "//form[contains(@action, 'download.php?id=')]/@action",
         "//a[contains(@href, 'download.php?hash=')]/@href",
-        "//a[contains(@href, 'download.php?id=')]/@href"
+        "//a[contains(@href, 'download.php?id=')]/@href",
+        "//a[@class='index'][contains(@href, '/dl/')]/@href",
     ]
 
     @staticmethod
@@ -429,10 +430,12 @@ class IYUUAutoSeed(_IPluginModule):
                 return True
             if "hdcity.in" in url:
                 return True
+            if "totheglory.im" in url:
+                return True
             return False
 
         try:
-            if __is_special_site(base_url):
+            if __is_special_site(site.get('strict_url')):
                 # 从详情页面获取下载链接
                 return self.__get_torrent_url_from_page(seed=seed, site=site)
             else:
