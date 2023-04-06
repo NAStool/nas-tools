@@ -302,6 +302,34 @@
             </div>
           </div>
         </div>
+        <details>
+          <summary class="summary">
+            站点流控规则 <span class="form-help" title="控制全局站点访问频率，触发流控时将跳过该站点，留空则不限制"
+                            data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2">
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">单位时间（分钟）</label>
+                  <input type="text" class="form-control" id="sitelimit_interval" value="" placeholder="10">
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">单位时间内访问次数 </label>
+                  <input type="text" class="form-control" id="sitelimit_count" value="" placeholder="10">
+                </div>
+              </div>
+               <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">访问间隔（秒） </label>
+                  <input type="text" class="form-control" id="sitelimit_seconds" value="" placeholder="5">
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
       <div class="modal-footer">
         <button id="site_close_btn" class="btn btn-link">
@@ -506,6 +534,9 @@
     $("#site_parse").val('Y');
     $("#site_subtitle").val('N');
     $("#site_unread_msg_notify").val('Y');
+    $("#sitelimit_interval").val('');
+    $("#sitelimit_count").val('');
+    $("#sitelimit_seconds").val('');
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
     $("#add_or_edit_site_btn").text("新增");
@@ -552,6 +583,9 @@
           $("#site_unread_msg_notify").val("N");
         }
         select_SelectPart(ret.site.uses, "site_uses")
+        $("#sitelimit_interval").val(ret.site.limit_interval);
+        $("#sitelimit_count").val(ret.site.limit_count);
+        $("#sitelimit_seconds").val(ret.site.limit_seconds);
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -622,6 +656,10 @@
     let chrome = $("#site_chrome").val();
     let proxy = $("#site_proxy").val();
     let subtitle = $("#site_subtitle").val();
+    // 流控规则
+    let limit_interval = $("#sitelimit_interval").val();
+    let limit_count = $("#sitelimit_count").val();
+    let limit_seconds = $("#sitelimit_seconds").val();
     let data = {
       "site_id": site_id,
       "site_name": site_name,
@@ -638,7 +676,10 @@
         "chrome": chrome,
         "proxy": proxy,
         "message": site_unread_msg_notify,
-        "subtitle": subtitle
+        "subtitle": subtitle,
+        "limit_interval": limit_interval,
+        "limit_count": limit_count,
+        "limit_seconds": limit_seconds
       }
     }
 
