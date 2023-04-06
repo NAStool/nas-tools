@@ -7,9 +7,10 @@ from requests.exceptions import RequestException
 import log
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
+from app.media.meta import MetaInfo
 from app.utils.commons import retry
-from config import Config
-from app.utils import DomUtils, RequestUtils, ExceptionUtils
+from config import Config, RMT_MEDIAEXT
+from app.utils import DomUtils, RequestUtils, ExceptionUtils, NfoReader
 from app.utils.types import MediaType
 from app.media import Media
 
@@ -26,6 +27,110 @@ class Scraper:
         self._scraper_flag = Config().get_config('media').get("nfo_poster")
         self._scraper_nfo = Config().get_config('scraper_nfo')
         self._scraper_pic = Config().get_config('scraper_pic')
+
+    def folder_scraper(self, path, exclude_path=None, mode=None):
+        """
+        刮削指定文件夹或文件
+        :param path: 文件夹或文件路径
+        :param exclude_path: 排除路径
+        :param mode: 刮削模式，可选值：force_nfo, force_all
+        :return:
+        """
+        # 模式
+        force_nfo = True if mode in ["force_nfo", "force_all"] else False
+        force_pic = True if mode in ["force_all"] else False
+        # 每个媒体库下的所有文件
+        for file in self.__get_library_files(path, exclude_path):
+            if not file:
+                continue
+            log.info(f"【Scraper】开始刮削媒体库文件：{file} ...")
+            # 识别媒体文件
+            meta_info = MetaInfo(os.path.basename(file))
+            # 优先读取本地文件
+            tmdbid = None
+            if meta_info.type == MediaType.MOVIE:
+                # 电影
+                movie_nfo = os.path.join(os.path.dirname(file), "movie.nfo")
+                if os.path.exists(movie_nfo):
+                    tmdbid = self.__get_tmdbid_from_nfo(movie_nfo)
+                file_nfo = os.path.join(os.path.splitext(file)[0] + ".nfo")
+                if not tmdbid and os.path.exists(file_nfo):
+                    tmdbid = self.__get_tmdbid_from_nfo(file_nfo)
+            else:
+                # 电视剧
+                tv_nfo = os.path.join(os.path.dirname(os.path.dirname(file)), "tvshow.nfo")
+                if os.path.exists(tv_nfo):
+                    tmdbid = self.__get_tmdbid_from_nfo(tv_nfo)
+            if tmdbid and not force_nfo:
+                log.info(f"【Scraper】读取到本地nfo文件的tmdbid：{tmdbid}")
+                meta_info.set_tmdb_info(self.media.get_tmdb_info(mtype=meta_info.type,
+                                                                 tmdbid=tmdbid,
+                                                                 append_to_response='all'))
+                media_info = meta_info
+            else:
+                medias = self.media.get_media_info_on_files(file_list=[file],
+                                                            append_to_response="all")
+                if not medias:
+                    continue
+                media_info = None
+                for _, media in medias.items():
+                    media_info = media
+                    break
+            if not media_info or not media_info.tmdb_info:
+                continue
+            self.gen_scraper_files(media=media_info,
+                                   dir_path=os.path.dirname(file),
+                                   file_name=os.path.splitext(os.path.basename(file))[0],
+                                   file_ext=os.path.splitext(file)[-1],
+                                   force=True,
+                                   force_nfo=force_nfo,
+                                   force_pic=force_pic)
+            log.info(f"【Scraper】{file} 刮削完成")
+
+    @staticmethod
+    def __get_library_files(in_path, exclude_path=None):
+        """
+        获取媒体库文件列表
+        """
+        if not os.path.isdir(in_path):
+            yield in_path
+            return
+
+        for root, dirs, files in os.walk(in_path):
+            if exclude_path and any(os.path.abspath(root).startswith(os.path.abspath(path))
+                                    for path in exclude_path.split(",")):
+                continue
+
+            for file in files:
+                cur_path = os.path.join(root, file)
+                # 检查后缀
+                if os.path.splitext(file)[-1].lower() in RMT_MEDIAEXT:
+                    yield cur_path
+
+    @staticmethod
+    def __get_tmdbid_from_nfo(file_path):
+        """
+        从nfo文件中获取信息
+        :param file_path:
+        :return: tmdbid
+        """
+        if not file_path:
+            return None
+        xpaths = [
+            "uniqueid[@type='Tmdb']",
+            "uniqueid[@type='tmdb']",
+            "uniqueid[@type='TMDB']",
+            "tmdbid"
+        ]
+        reader = NfoReader(file_path)
+        for xpath in xpaths:
+            try:
+                tmdbid = reader.get_element_value(xpath)
+                if tmdbid:
+                    return tmdbid
+            except Exception as err:
+                print(str(err))
+        return None
 
     def __gen_common_nfo(self,
                          tmdbinfo: dict,

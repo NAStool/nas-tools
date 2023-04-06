@@ -16,7 +16,7 @@ class TorrentRemover(_IPluginModule):
     # 插件图标
     module_icon = "torrentremover.png"
     # 主题色
-    module_color = "bg-danger"
+    module_color = "#F44336"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -37,7 +37,7 @@ class TorrentRemover(_IPluginModule):
     def __init__(self):
         self._ua = Config().get_ua()
 
-    def init_config(self, config: dict):
+    def init_config(self, config: dict = None):
         self.dbhelper = DbHelper()
         if config:
             self._enable = config.get("enable")

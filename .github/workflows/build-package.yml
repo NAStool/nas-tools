@@ -201,7 +201,7 @@ jobs:
           cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
           cd package
           pyinstaller nas-tools.spec
-          mv ./dist/nas-tools ./dist/nas-tools.mac
+          mv ./dist/nas-tools ./dist/nas-tools.macos
           pwd
           ls -all ./dist/
         shell: bash
@@ -214,7 +214,7 @@ jobs:
   Create-release_Send-message:
     permissions: write-all
     runs-on: ubuntu-latest
-    needs: [Windows-build, Linux-build, Mac-build]
+    needs: [Windows-build, Linux-build-amd64, Linux-build-arm64, Linux-build-amd64-musl, Linux-build-arm64-musl, Mac-build]
     steps:
     - uses: actions/checkout@v2
     - name: Release version

@@ -14,3 +14,4 @@ from .submodule_helper import SubmoduleHelper
 from .cookiecloud_helper import CookieCloudHelper
 from .ffmpeg_helper import FfmpegHelper
 from .redis_helper import RedisHelper
+from .iyuu_helper import IyuuHelper

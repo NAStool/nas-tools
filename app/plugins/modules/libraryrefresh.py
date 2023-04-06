@@ -12,7 +12,7 @@ class LibraryRefresh(_IPluginModule):
     # 插件图标
     module_icon = "refresh.png"
     # 主题色
-    module_color = "bg-teal"
+    module_color = "#32BEA6"
     # 插件版本
     module_version = "1.0"
     # 插件作者

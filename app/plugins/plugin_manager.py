@@ -108,6 +108,7 @@ class PluginManager:
             if module_id not in user_plugins:
                 continue
             self._running_plugins[module_id] = plugin()
+            # 初始化配置
             self.reload_plugin(module_id)
             log.info(f"加载插件：{plugin}")
 
@@ -128,11 +129,14 @@ class PluginManager:
         """
         生效插件配置
         """
+        if not pid:
+            return
         if not self._running_plugins.get(pid):
             return
         if hasattr(self._running_plugins[pid], "init_config"):
             try:
                 self._running_plugins[pid].init_config(self.get_plugin_config(pid))
+                log.debug(f"生效插件配置：{pid}")
             except Exception as err:
                 print(str(err))
 
@@ -151,6 +155,27 @@ class PluginManager:
         if not self._plugins.get(pid):
             return {}
         return self.systemconfig.get_system_config(self._config_key % pid) or {}
+
+    def get_plugin_page(self, pid):
+        """
+        获取插件数据
+        """
+        if not self._running_plugins.get(pid):
+            return None
+        if not hasattr(self._running_plugins[pid], "get_page"):
+            return None
+        title, html = self._running_plugins[pid].get_page()
+        return title, html
+
+    def get_plugin_state(self, pid):
+        """
+        获取插件状态
+        """
+        if not self._running_plugins.get(pid):
+            return None
+        if not hasattr(self._running_plugins[pid], "get_state"):
+            return None
+        return self._running_plugins[pid].get_state()
 
     def save_plugin_config(self, pid, conf):
         """
@@ -184,6 +209,9 @@ class PluginManager:
                 conf.update({"color": plugin.module_color})
             if hasattr(plugin, "module_config_prefix"):
                 conf.update({"prefix": plugin.module_config_prefix})
+            if hasattr(plugin, "get_page"):
+                title, _ = plugin.get_page()
+                conf.update({"page": title})
             # 配置项
             conf.update({"fields": plugin.get_fields() or {}})
             # 配置值

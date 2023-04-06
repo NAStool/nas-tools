@@ -23,9 +23,9 @@ class DoubanRank(_IPluginModule):
     # 插件描述
     module_desc = "监控豆瓣热门榜单，自动添加订阅。"
     # 插件图标
-    module_icon = "douban.png"
+    module_icon = "movie.jpg"
     # 主题色
-    module_color = "bg-green"
+    module_color = "#01B3E3"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -35,7 +35,7 @@ class DoubanRank(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "doubanrank_"
     # 加载顺序
-    module_order = 8
+    module_order = 16
     # 可使用的用户级别
     auth_level = 2
 
@@ -47,7 +47,12 @@ class DoubanRank(_IPluginModule):
     subscribe = None
     _douban_address = {
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
-        'movie-weekly': 'https://rsshub.app/douban/movie/weekly'
+        'movie-weekly': 'https://rsshub.app/douban/movie/weekly',
+        'movie-real-time': 'https://rsshub.app/douban/movie/weekly/subject_real_time_hotest',
+        'show-domestic': 'https://rsshub.app/douban/movie/weekly/show_domestic',
+        'movie-hot-gaia': 'https://rsshub.app/douban/movie/weekly/movie_hot_gaia',
+        'tv-hot': 'https://rsshub.app/douban/movie/weekly/tv_hot',
+        'movie-top250': 'https://rsshub.app/douban/movie/weekly/movie_top250',
     }
     _enable = False
     _onlyonce = False
@@ -96,7 +101,7 @@ class DoubanRank(_IPluginModule):
                     "enable": self._enable,
                     "cron": self._cron,
                     "ranks": self._ranks,
-                    "rss_addrs": self._rss_addrs
+                    "rss_addrs": "\n".join(self._rss_addrs)
                 })
             if self._cron:
                 self.info(f"订阅服务启动，周期：{self._cron}")
@@ -146,14 +151,14 @@ class DoubanRank(_IPluginModule):
                     ],
                     [
                         {
-                            'title': 'RssHub地址',
+                            'title': 'RssHub订阅地址',
                             'required': '',
                             'tooltip': '每一行一个RSS地址，访问 https://docs.rsshub.app/social-media.html#dou-ban 查询可用地址',
                             'type': 'textarea',
                             'content':
                                 {
                                     'id': 'rss_addrs',
-                                    'placeholder': 'https://rsshub.app/douban/xxx',
+                                    'placeholder': 'https://rsshub.app/douban/movie/classification/:sort?/:score?/:tags?',
                                     'rows': 5
                                 }
                         }
@@ -178,6 +183,26 @@ class DoubanRank(_IPluginModule):
                                 'movie-weekly': {
                                     'id': 'movie-weekly',
                                     'name': '一周电影口碑榜',
+                                },
+                                'movie-real-time': {
+                                    'id': 'movie-real-time',
+                                    'name': '实时热门榜',
+                                },
+                                'movie-hot-gaia': {
+                                    'id': 'movie-hot-gaia',
+                                    'name': '热门电影',
+                                },
+                                'movie-top250': {
+                                    'id': 'movie-top250',
+                                    'name': '电影TOP10',
+                                },
+                                'tv-hot': {
+                                    'id': 'tv-hot',
+                                    'name': '热门剧集',
+                                },
+                                'show-domestic': {
+                                    'id': 'show-domestic',
+                                    'name': '热门综艺',
                                 }
                             }
                         },

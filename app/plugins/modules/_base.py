@@ -45,7 +45,7 @@ class _IPluginModule(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def init_config(self, config: dict):
+    def init_config(self, config: dict = None):
         """
         生效配置信息
         :param config: 配置信息字典

@@ -129,8 +129,12 @@ class EventType(Enum):
     LibraryFileDeleted = "libraryfile.deleted"
     # 刮削媒体信息
     MediaScrapStart = "media.scrap.start"
-    # customHosts插件重载
-    CustomHostsReload = "customhosts.reload"
+    # 插件重载
+    PluginReload = "plugin.reload"
+    # 豆瓣想看同步
+    DoubanSync = "douban.sync"
+    # 辅种任务开始
+    AutoSeedStart = "autoseed.start"
 
 
 # 系统配置Key字典

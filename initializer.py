@@ -214,6 +214,28 @@ def update_config():
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
 
+    # 豆瓣配置转为插件
+    try:
+        douban = Config().get_config('douban')
+        if douban:
+            _enable = True if douban.get("users") and douban.get("interval") and douban.get("types") else False
+            PluginManager().save_plugin_config(pid="DoubanSync", conf={
+                "onlyonce": False,
+                "enable": _enable,
+                "interval": douban.get("interval"),
+                "auto_search": douban.get("auto_search"),
+                "auto_rss": douban.get("auto_rss"),
+                "cookie": douban.get("cookie"),
+                "users": douban.get("users"),
+                "days": douban.get("days"),
+                "types": douban.get("types")
+            })
+            # 删除旧配置
+            _config.pop("douban")
+            overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
     # 重写配置文件
     if overwrite_cofig:
         Config().save_config(_config)

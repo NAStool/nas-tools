@@ -22,7 +22,7 @@ class CloudflareSpeedTest(_IPluginModule):
     # 插件图标
     module_icon = "cloudflare.jpg"
     # 主题色
-    module_color = "bg-orange"
+    module_color = "#F6821F"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -217,8 +217,9 @@ class CloudflareSpeedTest(_IPluginModule):
                 self.info(f"Cloudflare CDN优选服务启动，周期：{self._cron}")
 
             # 关闭一次性开关
-            self._onlyonce = False
-            self.__update_config()
+            if self._onlyonce:
+                self._onlyonce = False
+                self.__update_config()
 
     def __cloudflareSpeedTest(self):
         """
@@ -279,9 +280,11 @@ class CloudflareSpeedTest(_IPluginModule):
                     self.info(f"CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
 
                     # 解发自定义hosts插件重载
-                    self.eventmanager.send_event(EventType.CustomHostsReload,
-                                                 self.get_config("CustomHosts"))
-                    self.info("通知CustomHosts插件重载")
+                    self.info("通知CustomHosts插件重载 ...")
+                    self.eventmanager.send_event(EventType.PluginReload,
+                                                 {
+                                                     "plugin_id": "CustomHosts"
+                                                 })
         else:
             self.error("获取到最优ip格式错误，请重试")
             self._onlyonce = False
