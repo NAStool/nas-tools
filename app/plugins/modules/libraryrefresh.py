@@ -63,7 +63,10 @@ class LibraryRefresh(_IPluginModule):
     def stop_service(self):
         pass
 
-    @EventHandler.register(EventType.TransferFinished)
+    @EventHandler.register([
+        EventType.TransferFinished,
+        EventType.RefreshMediaServer
+    ])
     def refresh(self, event):
         """
         监听入库完成事件
