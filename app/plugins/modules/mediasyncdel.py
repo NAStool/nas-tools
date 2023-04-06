@@ -115,7 +115,7 @@ class MediaSyncDel(_IPluginModule):
 
         # 是否虚拟
         item_isvirtual = event_data.get("item_isvirtual")
-        if item_isvirtual:
+        if item_isvirtual and item_isvirtual == 'True':
             return
 
         # 媒体类型
