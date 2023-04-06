@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from threading import Event
 
@@ -212,7 +213,8 @@ class IYUUAutoSeed(_IPluginModule):
         """
         开始辅种
         """
-        if not self.get_state():
+        if not self._enable or not self._token or not self._downloaders:
+            self.warn("辅种服务未启用或未配置")
             return
         if not self.iyuuhelper:
             return
@@ -242,10 +244,11 @@ class IYUUAutoSeed(_IPluginModule):
                     "save_path": save_path
                 })
             if hash_strs:
-                # 200个为一组
-                chunk_size = 200
+                # 100个为一组
+                chunk_size = 100
                 for i in range(0, len(hash_strs), chunk_size):
-                    chunk = hash_strs[i:i + chunk_size]  # 切片操作
+                    # 切片操作
+                    chunk = hash_strs[i:i + chunk_size]
                     # 处理分组
                     self.__seed_torrents(hash_strs=chunk,
                                          downloader=downloader)
@@ -369,17 +372,27 @@ class IYUUAutoSeed(_IPluginModule):
         """
         拼装种子下载链接
         """
-        download_url = base_url.replace("id={}",
-                                        "id={id}"
-                                        ).format(
-            **{"id": seed.get("torrent_id"),
-               "passkey": site.get("passkey"),
-               "uid": site.get("uid")
-               })
-        if download_url.find("{") != -1:
-            self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{download_url}")
+        try:
+            download_url = base_url.replace("id={}",
+                                            "id={id}"
+                                            ).format(
+                **{"id": seed.get("torrent_id"),
+                   "passkey": site.get("passkey") or '',
+                   "uid": site.get("uid") or '',
+                   "hash": seed.get("info_hash")
+                   })
+            if download_url.find("{") != -1:
+                self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{download_url}")
+                return None
+            download_url = re.sub(r"[&?]passkey=", "",
+                                  re.sub(r"[&?]uid=", "",
+                                         download_url,
+                                         flags=re.IGNORECASE),
+                                  flags=re.IGNORECASE)
+            return f"{site.get('strict_url')}/{download_url}"
+        except Exception as e:
+            self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{str(e)}")
             return None
-        return f"{site.get('strict_url')}/{download_url}"
 
     def stop_service(self):
         """
