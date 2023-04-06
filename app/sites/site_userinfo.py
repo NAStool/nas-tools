@@ -53,11 +53,17 @@ class SiteUserInfo(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
-    def build(self, url, site_name, site_cookie=None, ua=None, emulate=None, proxy=False):
+    def build(self, url, site_id, site_name,
+              site_cookie=None, ua=None, emulate=None, proxy=False):
         if not site_cookie:
             return None
         session = requests.Session()
         log.debug(f"【Sites】站点 {site_name} url={url} site_cookie={site_cookie} ua={ua}")
+
+        # 站点流控
+        if self.sites.check_ratelimit(site_id):
+            return
+
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if emulate and chrome.get_status():
@@ -142,6 +148,7 @@ class SiteUserInfo(object):
         :param site_info:
         :return:
         """
+        site_id = site_info.get("id")
         site_name = site_info.get("name")
         site_url = site_info.get("strict_url")
         if not site_url:
@@ -153,6 +160,7 @@ class SiteUserInfo(object):
         proxy = site_info.get("proxy")
         try:
             site_user_info = self.build(url=site_url,
+                                        site_id=site_id,
                                         site_name=site_name,
                                         site_cookie=site_cookie,
                                         ua=ua,
