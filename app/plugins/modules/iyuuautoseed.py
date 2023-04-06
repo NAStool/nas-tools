@@ -52,6 +52,7 @@ class IYUUAutoSeed(_IPluginModule):
     _downloaders = []
     _sites = []
     _notify = False
+    _nolabels = None
     # 退出事件
     _event = Event()
 
@@ -106,6 +107,20 @@ class IYUUAutoSeed(_IPluginModule):
                                 {
                                     'id': 'cron',
                                     'placeholder': '0 0 0 ? *',
+                                }
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            'title': '不辅种标签',
+                            'required': "",
+                            'tooltip': '下载器中的种子有以下标签时不进行辅种，多个标签使用英文,分隔',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'nolabels',
+                                    'placeholder': '使用,分隔多个标签',
                                 }
                             ]
                         }
@@ -172,6 +187,7 @@ class IYUUAutoSeed(_IPluginModule):
             self._downloaders = config.get("downloaders")
             self._sites = config.get("sites")
             self._notify = config.get("notify")
+            self._nolabels = config.get("nolabels")
         # 停止现有任务
         self.stop_service()
 
@@ -203,7 +219,8 @@ class IYUUAutoSeed(_IPluginModule):
                     "token": self._token,
                     "downloaders": self._downloaders,
                     "sites": self._sites,
-                    "notify": self._notify
+                    "notify": self._notify,
+                    "nolabels": self._nolabels
                 })
 
     def get_state(self):
@@ -239,13 +256,20 @@ class IYUUAutoSeed(_IPluginModule):
                 # 获取种子hash
                 hash_str = self.__get_hash(torrent, downloader_type)
                 save_path = self.__get_save_path(torrent, downloader_type)
+                # 获取种子标签
+                torrent_labels = self.__get_label(torrent, downloader_type)
+                if self._nolabels \
+                        and torrent_labels \
+                        and set(self._nolabels.split(',')).intersection(set(torrent_labels)):
+                    self.info(f"种子 {hash_str} 含有不辅种标签，跳过 ...")
+                    continue
                 hash_strs.append({
                     "hash": hash_str,
                     "save_path": save_path
                 })
             if hash_strs:
-                # 100个为一组
-                chunk_size = 100
+                # 分组处理，减少IYUU Api请求次数
+                chunk_size = 200
                 for i in range(0, len(hash_strs), chunk_size):
                     # 切片操作
                     chunk = hash_strs[i:i + chunk_size]
@@ -359,14 +383,33 @@ class IYUUAutoSeed(_IPluginModule):
         """
         获取种子hash
         """
-        return torrent.get("hash") if dl_type == DownloaderType.QB else torrent.hashString
+        try:
+            return torrent.get("hash") if dl_type == DownloaderType.QB else torrent.hashString
+        except Exception as e:
+            print(str(e))
+            return ""
+
+    @staticmethod
+    def __get_label(torrent, dl_type):
+        """
+        获取种子标签
+        """
+        try:
+            return torrent.get("tags") or [] if dl_type == DownloaderType.QB else torrent.labels or []
+        except Exception as e:
+            print(str(e))
+            return []
 
     @staticmethod
     def __get_save_path(torrent, dl_type):
         """
         获取种子保存路径
         """
-        return torrent.get("save_path") if dl_type == DownloaderType.QB else torrent.download_dir
+        try:
+            return torrent.get("save_path") if dl_type == DownloaderType.QB else torrent.download_dir
+        except Exception as e:
+            print(str(e))
+            return ""
 
     def __get_download_url(self, seed, site, base_url):
         """
@@ -379,7 +422,7 @@ class IYUUAutoSeed(_IPluginModule):
                 **{"id": seed.get("torrent_id"),
                    "passkey": site.get("passkey") or '',
                    "uid": site.get("uid") or '',
-                   "hash": seed.get("info_hash")
+                   "hash": seed.get("torrent_id")
                    })
             if download_url.find("{") != -1:
                 self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{download_url}")
