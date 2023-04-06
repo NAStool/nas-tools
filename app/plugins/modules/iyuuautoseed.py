@@ -495,6 +495,11 @@ class IYUUAutoSeed(_IPluginModule):
                     if download_url:
                         download_url = download_url[0]
                         self.info(f"获取种子下载链接成功：{download_url}")
+                        if not download_url.startswith("http"):
+                            if download_url.startswith("/"):
+                                download_url = f"{site.get('strict_url')}{download_url}"
+                            else:
+                                download_url = f"{site.get('strict_url')}/{download_url}"
                         return download_url
                 self.warn(f"获取种子下载链接失败，未找到下载链接：{page_url}")
                 return None
