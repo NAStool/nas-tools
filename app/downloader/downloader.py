@@ -486,7 +486,13 @@ class Downloader:
                             subtitle_dir = visit_dir
                         ThreadHelper().start_thread(
                             self.sitesubtitle.download,
-                            (media_info, site_info.get("cookie"), site_info.get("ua"), subtitle_dir)
+                            (
+                                media_info,
+                                site_info.get("id"),
+                                site_info.get("cookie"),
+                                site_info.get("ua"),
+                                subtitle_dir
+                            )
                         )
                 # 发送下载消息
                 if in_from:
