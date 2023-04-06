@@ -2,7 +2,6 @@ import os
 
 from app.filetransfer import FileTransfer
 from app.media import Category
-from app.media.meta import MetaInfo
 from app.mediaserver import MediaServer
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
@@ -225,10 +224,8 @@ class MovieLike(_IPluginModule):
             else:
                 # 发送刷新媒体库事件
                 EventHandler.send_event(EventType.RefreshMediaServer, {
-                    "in_path": org_path,
-                    "file": item_path,
                     "dest": new_path,
-                    "media_info": MetaInfo(title=movie_name, mtype=MediaType.MOVIE).to_dict()
+                    "media_info": {}
                 })
         else:
             self.warn(f"{org_path} 目录不存在")
