@@ -5,6 +5,7 @@ from threading import Event
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from lxml import etree
 
 from app.downloader import Downloader
 from app.helper import IyuuHelper
@@ -12,6 +13,7 @@ from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
+from app.utils import RequestUtils
 from app.utils.types import DownloaderType
 from config import Config
 
@@ -55,6 +57,12 @@ class IYUUAutoSeed(_IPluginModule):
     _nolabels = None
     # 退出事件
     _event = Event()
+    # 种子链接xpaths
+    _torrent_xpaths = [
+        "//form[contains(@action, 'download.php?id=')]/@action",
+        "//a[contains(@href, 'download.php?hash=')]/@href",
+        "//a[contains(@href, 'download.php?id=')]/@href"
+    ]
 
     @staticmethod
     def get_fields():
@@ -414,10 +422,23 @@ class IYUUAutoSeed(_IPluginModule):
         """
         拼装种子下载链接
         """
+
+        def __is_special_site(url):
+            """
+            判断是否为特殊站点
+            """
+            if "hdchina.org" in url:
+                return True
+            if "hdsky.me" in url:
+                return True
+            if "hdcity.in" in url:
+                return True
+            return False
+
         try:
-            if base_url.count("{hash}") or base_url.count("{cuhash}"):
-                # FIXME hdchina hdsky 使用hash值下载，需要从详情页获取种子下载链接
-                return None
+            if __is_special_site(base_url):
+                # 从详情页面获取下载链接
+                return self.__get_torrent_url_from_page(seed=seed, site=site)
             else:
                 download_url = base_url.replace("id={}",
                                                 "id={id}"
@@ -426,7 +447,7 @@ class IYUUAutoSeed(_IPluginModule):
                        "passkey": site.get("passkey") or '',
                        "uid": site.get("uid") or ''
                        })
-                if download_url.find("{") != -1:
+                if download_url.count("{"):
                     self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{seed}")
                     return None
                 download_url = re.sub(r"[&?]passkey=", "",
@@ -437,6 +458,42 @@ class IYUUAutoSeed(_IPluginModule):
                 return f"{site.get('strict_url')}/{download_url}"
         except Exception as e:
             self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{str(e)}")
+            return None
+
+    def __get_torrent_url_from_page(self, seed, site):
+        """
+        从详情页面获取下载链接
+        """
+        try:
+            page_url = f"{site.get('strict_url')}/details.php?id={seed.get('torrent_id')}&hit=1"
+            self.info(f"正在获取种子下载链接：{page_url} ...")
+            res = RequestUtils(
+                cookies=site.get("cookie"),
+                headers=site.get("ua"),
+                proxies=Config().get_proxies() if site.get("proxy") else None
+            ).get_res(url=page_url)
+            if res is not None and res.status_code in (200, 500):
+                if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
+                    res.encoding = "UTF-8"
+                else:
+                    res.encoding = res.apparent_encoding
+                if not res.text:
+                    self.warn(f"获取种子下载链接失败，页面内容为空：{page_url}")
+                    return None
+                # 使用xpath从页面中获取下载链接
+                html = etree.HTML(res.text)
+                for xpath in self._torrent_xpaths:
+                    download_url = html.xpath(xpath)
+                    if download_url:
+                        download_url = download_url[0]
+                        self.info(f"获取种子下载链接成功：{download_url}")
+                        return download_url
+                self.warn(f"获取种子下载链接失败，未找到下载链接：{page_url}")
+                return None
+            else:
+                return None
+        except Exception as e:
+            self.warn(f"获取种子下载链接失败：{str(e)}")
             return None
 
     def stop_service(self):
