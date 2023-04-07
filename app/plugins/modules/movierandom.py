@@ -122,6 +122,7 @@ class MovieRandom(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'vote',
+                                    'placeholder': '8',
                                 }
                             ]
                         },
