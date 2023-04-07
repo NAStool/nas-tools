@@ -739,8 +739,7 @@ class ModuleConf(object):
                 "type": "dropdown",
                 "options": [{'value': '', 'name': '默认'},
                             {'value': 'popularity.desc', 'name': '近期热度'},
-                            {'value': 'vote_average.desc', 'name': '高分优先'},
-                            {'value': 'release_date.desc', 'name': '首播时间'}]
+                            {'value': 'vote_average.desc', 'name': '高分优先'}]
             },
             "with_genres": {
                 "name": "类型",
@@ -779,8 +778,7 @@ class ModuleConf(object):
                 "type": "dropdown",
                 "options": [{'value': '', 'name': '默认'},
                             {'value': 'popularity.desc', 'name': '近期热度'},
-                            {'value': 'vote_average.desc', 'name': '高分优先'},
-                            {'value': 'first_air_date.desc', 'name': '首播时间'}]
+                            {'value': 'vote_average.desc', 'name': '高分优先'}]
             },
             "with_genres": {
                 "name": "类型",
