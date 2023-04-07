@@ -510,6 +510,7 @@ class BrushTask(object):
             download_setting="-2",
             download_limit=download_limit,
             upload_limit=upload_limit,
+            is_auto=False if download_dir else None
         )
         if not download_id:
             # 下载失败

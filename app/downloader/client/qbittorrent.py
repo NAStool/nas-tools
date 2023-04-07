@@ -317,6 +317,7 @@ class Qbittorrent(_IDownloadClient):
     def add_torrent(self,
                     content,
                     is_paused=False,
+                    is_auto=None,
                     download_dir=None,
                     tag=None,
                     category=None,
@@ -331,6 +332,7 @@ class Qbittorrent(_IDownloadClient):
         添加种子
         :param content: 种子urls或文件
         :param is_paused: 添加后暂停
+        :param is_auto: 自动管理
         :param tag: 标签
         :param download_dir: 下载路径
         :param category: 分类
@@ -379,7 +381,9 @@ class Qbittorrent(_IDownloadClient):
         else:
             seeding_time_limit = None
         try:
-            if self._torrent_management:
+            if is_auto is None:
+                is_auto = self._torrent_management
+            if is_auto:
                 save_path = None
             qbc_ret = self.qbc.torrents_add(urls=urls,
                                             torrent_files=torrent_files,
@@ -392,7 +396,7 @@ class Qbittorrent(_IDownloadClient):
                                             download_limit=download_limit,
                                             ratio_limit=ratio_limit,
                                             seeding_time_limit=seeding_time_limit,
-                                            use_auto_torrent_management=self._torrent_management,
+                                            use_auto_torrent_management=is_auto,
                                             cookie=cookie)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:

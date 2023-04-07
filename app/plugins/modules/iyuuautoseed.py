@@ -64,6 +64,8 @@ class IYUUAutoSeed(_IPluginModule):
         "//a[contains(@href, 'download.php?id=')]/@href",
         "//a[@class='index'][contains(@href, '/dl/')]/@href",
     ]
+    # 待校全种子hash清单
+    _recheck_torrents = []
 
     @staticmethod
     def get_fields():
@@ -223,6 +225,8 @@ class IYUUAutoSeed(_IPluginModule):
                     "nolabels": self._nolabels
                 })
             if self._scheduler.get_jobs():
+                # 追加种子校验服务
+                self._scheduler.add_job(self.check_recheck, 'interval', minutes=10)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -281,6 +285,14 @@ class IYUUAutoSeed(_IPluginModule):
                     self.__seed_torrents(hash_strs=chunk,
                                          downloader=downloader)
         self.info("辅种任务执行完成")
+
+    def check_recheck(self):
+        """
+        定时检查下载器中种子是否校验完成，校验完成且完整的自动开始辅种
+        """
+        if not self._recheck_torrents:
+            return
+        # TODO 根据待检查种子清单self._recheck_torrents，定时检查状态，如果状态为校验完成进度100%，则通知开始辅种并清除待检查种子清单
 
     def __seed_torrents(self, hash_strs: list, downloader):
         """
@@ -364,14 +376,15 @@ class IYUUAutoSeed(_IPluginModule):
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
-        # 辅种任务默认暂停
+        # 辅种任务默认暂停，关闭自动管理模式
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
             tag=["已整理", "辅种"],
             downloader_id=downloader,
             download_dir=save_path,
-            download_setting="-2"
+            download_setting="-2",
+            is_auto=False
         )
         if not download_id:
             # 下载失败
@@ -380,6 +393,8 @@ class IYUUAutoSeed(_IPluginModule):
                       f"种子链接：{torrent_url}")
             return
         else:
+            # 追加校验任务
+            self._recheck_torrents.append(seed.get("info_hash"))
             # 下载成功
             self.info(f"成功添加辅种下载：站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:

@@ -1,19 +1,13 @@
-import re
 from datetime import datetime
 from threading import Event
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from lxml import etree
 
 from app.downloader import Downloader
-from app.helper import IyuuHelper
-from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
-from app.sites import Sites
-from app.utils import RequestUtils
 from app.utils.types import DownloaderType
 from config import Config
 
@@ -61,6 +55,8 @@ class TorrentTransfer(_IPluginModule):
     _totorrentpath = None
     # 退出事件
     _event = Event()
+    # 待检查种子清单
+    _recheck_torrents = []
 
     @staticmethod
     def get_fields():
@@ -301,6 +297,8 @@ class TorrentTransfer(_IPluginModule):
                     "totorrentpath": self._totorrentpath
                 })
             if self._scheduler.get_jobs():
+                # 追加种子校验服务
+                self._scheduler.add_job(self.check_recheck, 'interval', minutes=10)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -309,19 +307,43 @@ class TorrentTransfer(_IPluginModule):
         return True if self._enable \
                        and self._cron \
                        and self._fromdownloader \
-                       and self._todownloader else False
+                       and self._todownloader \
+                       and self._frompath \
+                       and self._topath \
+                       and self._fromtorrentpath \
+                       and self._totorrentpath else False
 
     def transfer(self):
         """
         开始转种
         """
-        if not self._enable or not self._fromdownloader or not self._todownloader:
+        if not self._enable \
+                or not self._fromdownloader \
+                or not self._todownloader \
+                or not self._frompath \
+                or not self._topath \
+                or not self._fromtorrentpath \
+                or not self._totorrentpath:
             self.warn("转种服务未启用或未配置")
             return
         self.info("开始转种任务 ...")
         # TODO 转种
-        
+        # 1、获取源下载器中的种子信息，获取种子hash、标签、保存路径
+        # 2、过滤种子标签
+        # 3、过滤种子保存路径
+        # 4、拼接种子保存路径，如不存在则跳过
+        # 5、读取种子文件，发送到另一个下载器中下载：默认暂停、传输下载路径、关闭自动管理模式
+        # 6、对方添加成功后，根据开关删除源下载器中的种子，否则不删除
+        # 7、添加校验种子到_recheck_torrents，发送通知
         self.info("转种任务执行完成")
+
+    def check_recheck(self):
+        """
+        定时检查下载器中种子是否校验完成，校验完成且完整的自动开始辅种
+        """
+        if not self._recheck_torrents:
+            return
+        # TODO 根据待检查种子清单self._recheck_torrents，定时检查状态，如果状态为校验完成进度100%，则通知开始辅种并清除待检查种子清单
 
     @staticmethod
     def __get_hash(torrent, dl_type):
