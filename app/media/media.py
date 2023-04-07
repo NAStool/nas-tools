@@ -436,7 +436,8 @@ class Media:
                             info = tv_info
         # 返回
         if info:
-            info['media_type'] = MediaType.MOVIE if info.get('media_type') == 'movie' else MediaType.TV
+            info['media_type'] = MediaType.MOVIE if info.get('media_type') in ['movie',
+                                                                               MediaType.MOVIE] else MediaType.TV
         else:
             log.info("【Meta】%s 在TMDB中未找到媒体信息!" % file_media_name)
         return info
