@@ -417,17 +417,19 @@ class IYUUAutoSeed(_IPluginModule):
                       f"种子链接：{torrent_url}")
             return
         else:
-            # TR即使是暂停的种子也会自动校验
-            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
-            if downloader_type == DownloaderType.QB:
-                # 追加校验任务
-                self._recheck_torrents.append(seed.get("info_hash"))
+            # 追加校验任务
+            self._recheck_torrents.append(seed.get("info_hash"))
             # 下载成功
             self.info(f"成功添加辅种下载：站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:
                 msg_title = "【IYUU自动辅种新增任务】"
                 msg_text = f"站点：{site_info.get('name')}\n种子链接：{torrent_url}"
                 self.message.send_custom_message(title=msg_title, text=msg_text)
+            # TR会自动校验
+            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+            if downloader_type == DownloaderType.QB:
+                self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
+
 
     @staticmethod
     def __get_hash(torrent, dl_type):
