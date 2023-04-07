@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from app.utils import ExceptionUtils
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from config import Config
+
 
 class LibraryRefresh(_IPluginModule):
     # 插件名称
@@ -52,12 +54,12 @@ class LibraryRefresh(_IPluginModule):
 
         self.stop_service()
 
-        if not self._enable :
+        if not self._enable:
             return
 
         if self._refresh_delay > 0:
             self.info(f"媒体库延迟刷新服务启动，延迟 {self._refresh_delay} 秒刷新媒体库")
-            self._scheduler = BackgroundScheduler()
+            self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         else:
             self.info("媒体库实时刷新服务启动")
 
@@ -149,11 +151,12 @@ class LibraryRefresh(_IPluginModule):
             # 使用 date 触发器添加任务到调度器
             formatted_run_date = run_date.strftime("%Y-%m-%d %H:%M:%S")
             self.info(f"新增延迟刷新任务，将在 {formatted_run_date} 刷新媒体库")
-            self._scheduler.add_job(func=self.__refresh_library, args=[event.event_data], trigger='date', run_date=run_date)
+            self._scheduler.add_job(func=self.__refresh_library, args=[event.event_data], trigger='date',
+                                    run_date=run_date)
 
             # 启动调度器（懒启动）
             if not self._scheduler.running:
-              self._scheduler.start()
+                self._scheduler.start()
         else:
             # 不延迟刷新
             self.__refresh_library(event.event_data)
