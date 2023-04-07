@@ -52,11 +52,12 @@ class MovieRandom(_IPluginModule):
     _language = None
     _genres = None
     _sort = None
+    _vote = None
 
     @staticmethod
     def get_fields():
         # tmdb电影排序
-        sort = {m.get('value'): {'name': m.get('name')} for m in
+        sort = {m.get('value'): m.get('name') for m in
                 ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options") if
                 m.get('value')}
         # tmdb电影类型
@@ -100,21 +101,30 @@ class MovieRandom(_IPluginModule):
                                     'placeholder': '0 0 0 ? *',
                                 }
                             ]
-                        }
-                    ]
-                ]
-            },
-            {
-                'type': 'details',
-                'summary': '排序',
-                'tooltip': '按照喜好选择随机电影排序',
-                'content': [
-                    # 同一行
-                    [
+                        },
                         {
-                            'id': 'sort',
-                            'type': 'form-selectgroup',
-                            'content': sort
+                            'title': '默认排序',
+                            'required': "",
+                            'tooltip': '按照喜好选择随机电影排序',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'sort',
+                                    'options': sort,
+                                    'default': 'popularity.desc'
+                                },
+                            ]
+                        },
+                        {
+                            'title': '电影评分',
+                            'required': "",
+                            'tooltip': '最低评分，大于等于该评分（最大10）',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'vote',
+                                }
+                            ]
                         },
                     ]
                 ]
@@ -162,6 +172,7 @@ class MovieRandom(_IPluginModule):
             self._language = config.get("language")
             self._genres = config.get("genres")
             self._sort = config.get("sort")
+            self._vote = config.get("vote")
 
         # 停止现有任务
         self.stop_service()
@@ -185,7 +196,8 @@ class MovieRandom(_IPluginModule):
                     "cron": self._cron,
                     "language": self._language,
                     "genres": self._genres,
-                    "sort": self._sort
+                    "sort": self._sort,
+                    "vote": self._vote
                 })
             if self._cron or self._onlyonce:
                 # 启动服务
@@ -197,15 +209,23 @@ class MovieRandom(_IPluginModule):
         随机获取一部tmdb电影下载
         """
         params = {}
-        random_max_page = 100
+        if self._vote:
+            params['vote_average.gte'] = self._vote
         if self._sort:
-            params['sort_by'] = ",".join(self._sort)
-            random_max_page = 5
+            params['sort_by'] = self._sort
         if self._genres:
             params['with_genres'] = ",".join(self._genres)
 
         if self._language:
             params['with_original_language'] = ",".join(self._language)
+
+        # 查询选择条件下所有页数
+        random_max_page = Media().discover.discover_movies_pages(params=params)
+        if random_max_page == 0:
+            log.error("当前所选条件下未获取到电影数据，停止随机订阅")
+            return
+
+        log.info(f"当前所选条件下获取到电影数据 {random_max_page} 页，开始随机订阅")
 
         movie_list = []
         retry_time = 0
@@ -220,7 +240,8 @@ class MovieRandom(_IPluginModule):
             # 根据请求参数随机获取一页电影
             movie_list = self.__get_discover(page=page,
                                              params=params)
-            self.info(f"获取到随机页数 {page} 电影数据 {len(movie_list)} 条，第 {retry_time} 次获取，最多尝试5次")
+            self.info(
+                f"正在尝试第 {retry_time + 1} 次获取，获取到随机页数 {page} 电影数据 {len(movie_list)} 条，最多尝试5次")
             retry_time = retry_time + 1
             try_page.append(page)
 
@@ -235,7 +256,7 @@ class MovieRandom(_IPluginModule):
             return
 
         log.info(
-            f"电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('tmdb_id')}未入库，开始订阅")
+            f"电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('id')}未入库，开始订阅")
 
         # 检查是否已订阅过
         if self.dbhelper.check_rss_history(
@@ -267,7 +288,7 @@ class MovieRandom(_IPluginModule):
         """
         # 随机一个电影
         media_info = random.choice(movie_list)
-        log.info(f"随机出电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('tmdb_id')}")
+        log.info(f"随机出电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('id')}")
         # 删除该电影，防止再次random到
         movie_list.remove(media_info)
 
@@ -275,7 +296,7 @@ class MovieRandom(_IPluginModule):
         item_id = self.mediaserver.check_item_exists(mtype=MediaType.MOVIE,
                                                      title=media_info.get('title'),
                                                      year=media_info.get('year'),
-                                                     tmdbid=media_info.get('tmdb_id'))
+                                                     tmdbid=media_info.get('id'))
         if item_id:
             self.info(f"媒体服务器已存在：{media_info.get('title')}")
             if len(movie_list) == 0:
