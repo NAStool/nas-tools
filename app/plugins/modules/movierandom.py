@@ -53,20 +53,20 @@ class MovieRandom(_IPluginModule):
     _genres = None
     _sort = None
     _vote = None
+    _date = None
 
     @staticmethod
     def get_fields():
+        sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
+        language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
+            "options")
+        genres_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")
         # tmdb电影排序
-        sort = {m.get('value'): m.get('name') for m in
-                ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options") if
-                m.get('value')}
+        sort = {m.get('name'): m.get('name') for m in sort_options}
         # tmdb电影类型
-        genres = {m.get('value'): {'name': m.get('name')} for m in
-                  ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options") if m.get('value')}
+        genres = {m.get('name'): m.get('name') for m in genres_options}
         # tmdb电影语言
-        language = {m.get('value'): {'name': m.get('name')} for m in
-                    ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options") if
-                    m.get('value')}
+        language = {m.get('name'): m.get('name') for m in language_options}
         return [
             # 同一板块
             {
@@ -103,58 +103,66 @@ class MovieRandom(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '默认排序',
+                            'title': '上映时间',
                             'required': "",
-                            'tooltip': '按照喜好选择随机电影排序',
-                            'type': 'select',
+                            'tooltip': '电影上映时间，大于该时间的会被订阅',
+                            'type': 'text',
                             'content': [
                                 {
-                                    'id': 'sort',
-                                    'options': sort,
-                                    'default': 'popularity.desc'
-                                },
+                                    'id': 'date',
+                                    'placeholder': '2022',
+                                }
                             ]
                         },
                         {
                             'title': '电影评分',
                             'required': "",
-                            'tooltip': '最低评分，大于等于该评分（最大10）',
+                            'tooltip': '最低评分，大于等于该评分的会被订阅（最大10）',
                             'type': 'text',
                             'content': [
                                 {
                                     'id': 'vote',
+                                    'placeholder': '8',
                                 }
                             ]
                         },
-                    ]
-                ]
-            },
-            {
-                'type': 'details',
-                'summary': '类型',
-                'tooltip': '按照喜好选择随机电影类型',
-                'content': [
-                    # 同一行
+                    ],
                     [
                         {
-                            'id': 'genres',
-                            'type': 'form-selectgroup',
-                            'content': genres
+                            'title': '默认排序',
+                            'required': "",
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'sort',
+                                    'options': sort,
+                                    'default': '默认'
+                                },
+                            ]
                         },
-                    ]
-                ]
-            },
-            {
-                'type': 'details',
-                'summary': '语言',
-                'tooltip': '按照喜好选择随机电影语言',
-                'content': [
-                    # 同一行
-                    [
                         {
-                            'id': 'language',
-                            'type': 'form-selectgroup',
-                            'content': language
+                            'title': '电影类型',
+                            'required': "",
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'genres',
+                                    'options': genres,
+                                    'default': '全部'
+                                },
+                            ]
+                        },
+                        {
+                            'title': '电影语言',
+                            'required': "",
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'language',
+                                    'options': language,
+                                    'default': '全部'
+                                },
+                            ]
                         },
                     ]
                 ]
@@ -173,6 +181,7 @@ class MovieRandom(_IPluginModule):
             self._genres = config.get("genres")
             self._sort = config.get("sort")
             self._vote = config.get("vote")
+            self._date = config.get("date")
 
         # 停止现有任务
         self.stop_service()
@@ -197,7 +206,8 @@ class MovieRandom(_IPluginModule):
                     "language": self._language,
                     "genres": self._genres,
                     "sort": self._sort,
-                    "vote": self._vote
+                    "vote": self._vote,
+                    "date": self._date,
                 })
             if self._scheduler.get_jobs():
                 # 启动服务
@@ -209,15 +219,29 @@ class MovieRandom(_IPluginModule):
         随机获取一部tmdb电影下载
         """
         params = {}
+        if self._date:
+            params['release_date.gte'] = self._date
         if self._vote:
             params['vote_average.gte'] = self._vote
         if self._sort:
-            params['sort_by'] = self._sort
-        if self._genres:
-            params['with_genres'] = ",".join(self._genres)
-
+            sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
+            for m in sort_options:
+                if m.get('name') == self._sort:
+                    params['sort_by'] = m.get('value')
+                    break
         if self._language:
-            params['with_original_language'] = ",".join(self._language)
+            language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
+                "options")
+            for m in language_options:
+                if m.get('name') == self._language:
+                    params['with_original_language'] = m.get('value')
+                    break
+        if self._genres:
+            genres_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")
+            for m in genres_options:
+                if m.get('name') == self._genres:
+                    params['with_genres'] = m.get('value')
+                    break
 
         # 查询选择条件下所有页数
         random_max_page = Media().get_tmdb_discover_movies_pages(params=params)
