@@ -14,9 +14,9 @@ from config import Config
 
 class TorrentTransfer(_IPluginModule):
     # 插件名称
-    module_name = "自动转种"
+    module_name = "自动转移保种"
     # 插件描述
-    module_desc = "定期转移下载器中的做种任务到另一个下载器。"
+    module_desc = "定期转移下载器中的保种任务到另一个下载器。"
     # 插件图标
     module_icon = "torrenttransfer.jpg"
     # 主题色
@@ -70,7 +70,7 @@ class TorrentTransfer(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '开启自动转种',
+                            'title': '开启自动转移保种',
                             'required': "",
                             'tooltip': '开启后，定期将源下载器中已完成的种子任务迁移至目的下载器。',
                             'type': 'switch',
@@ -91,7 +91,7 @@ class TorrentTransfer(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '不转种标签',
+                            'title': '不转移种子标签',
                             'required': "",
                             'tooltip': '下载器中的种子有以下标签时不进行转种，多个标签使用英文,分隔',
                             'type': 'text',
@@ -108,7 +108,7 @@ class TorrentTransfer(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '源下载器',
-                'tooltip': '只有选中的下载器才会执行转种任务，只能选择一个',
+                'tooltip': '只有选中的下载器才会执行转移任务，只能选择一个',
                 'content': [
                     # 同一行
                     [
@@ -155,7 +155,7 @@ class TorrentTransfer(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '目的下载器',
-                'tooltip': '将做种任务转移到这个下载器，只能选择一个',
+                'tooltip': '将保种任务转移到这个下载器，只能选择一个',
                 'content': [
                     # 同一行
                     [
@@ -204,9 +204,9 @@ class TorrentTransfer(_IPluginModule):
                 'content': [
                     [
                         {
-                            'title': '不转种目录',
+                            'title': '不转移数据文件目录',
                             'required': "",
-                            'tooltip': '以下目录中的种子不进行转种，指下载器可访问的目录，每一行一个目录',
+                            'tooltip': '以下数据文件目录的任务不进行转移，指下载器可访问的目录，每一行一个目录',
                             'type': 'textarea',
                             'content': {
                                 'id': 'nopaths',
@@ -232,7 +232,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '运行辅助任务后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '运行任务后会发送通知（需要打开自定义消息通知）',
                             'type': 'switch',
                             'id': 'notify',
                         },
