@@ -65,7 +65,7 @@ class MovieRandom(_IPluginModule):
         genres = {m.get('value'): {'name': m.get('name')} for m in
                   ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options") if m.get('value')}
         # tmdb电影语言
-        language = {m.get('value'): {'name': m.get('name')} for m in
+        language = {m.get('value'): m.get('name') for m in
                     ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options") if
                     m.get('value')}
         return [
@@ -104,22 +104,9 @@ class MovieRandom(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '默认排序',
-                            'required': "",
-                            'tooltip': '按照喜好选择随机电影排序',
-                            'type': 'select',
-                            'content': [
-                                {
-                                    'id': 'sort',
-                                    'options': sort,
-                                    'default': 'popularity.desc'
-                                },
-                            ]
-                        },
-                        {
                             'title': '上映时间',
                             'required': "",
-                            'tooltip': '电影上映时间，大于该选项的会被订阅',
+                            'tooltip': '电影上映时间，大于该时间的会被订阅',
                             'type': 'text',
                             'content': [
                                 {
@@ -139,6 +126,34 @@ class MovieRandom(_IPluginModule):
                                 }
                             ]
                         },
+                    ],
+                    [
+                        {
+                            'title': '默认排序',
+                            'required': "",
+                            'tooltip': '电影排序',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'sort',
+                                    'options': sort,
+                                    'default': 'popularity.desc'
+                                },
+                            ]
+                        },
+                        {
+                            'title': '默认语言',
+                            'required': "",
+                            'tooltip': '电影语言',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'language',
+                                    'options': language,
+                                    'default': 'zh'
+                                },
+                            ]
+                        },
                     ]
                 ]
             },
@@ -153,21 +168,6 @@ class MovieRandom(_IPluginModule):
                             'id': 'genres',
                             'type': 'form-selectgroup',
                             'content': genres
-                        },
-                    ]
-                ]
-            },
-            {
-                'type': 'details',
-                'summary': '语言',
-                'tooltip': '按照喜好选择随机电影语言',
-                'content': [
-                    # 同一行
-                    [
-                        {
-                            'id': 'language',
-                            'type': 'form-selectgroup',
-                            'content': language
                         },
                     ]
                 ]
@@ -230,11 +230,10 @@ class MovieRandom(_IPluginModule):
             params['vote_average.gte'] = self._vote
         if self._sort:
             params['sort_by'] = self._sort
+        if self._language:
+            params['with_original_language'] = self._language
         if self._genres:
             params['with_genres'] = ",".join(self._genres)
-
-        if self._language:
-            params['with_original_language'] = ",".join(self._language)
 
         # 查询选择条件下所有页数
         random_max_page = Media().get_tmdb_discover_movies_pages(params=params)
