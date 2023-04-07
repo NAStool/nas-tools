@@ -57,15 +57,16 @@ class MovieRandom(_IPluginModule):
 
     @staticmethod
     def get_fields():
+        sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
+        language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
+            "options")
+        genres_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")
         # tmdb电影排序
-        sort = {m.get('value'): m.get('name') for m in
-                ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")}
+        sort = {m.get('name'): m.get('name') for m in sort_options}
         # tmdb电影类型
-        genres = {m.get('value'): m.get('name') for m in
-                  ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")}
+        genres = {m.get('name'): m.get('name') for m in genres_options}
         # tmdb电影语言
-        language = {m.get('value'): m.get('name') for m in
-                    ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options")}
+        language = {m.get('name'): m.get('name') for m in language_options}
         return [
             # 同一板块
             {
@@ -134,7 +135,7 @@ class MovieRandom(_IPluginModule):
                                 {
                                     'id': 'sort',
                                     'options': sort,
-                                    'default': ''
+                                    'default': '默认'
                                 },
                             ]
                         },
@@ -146,7 +147,7 @@ class MovieRandom(_IPluginModule):
                                 {
                                     'id': 'genres',
                                     'options': genres,
-                                    'default': ''
+                                    'default': '全部'
                                 },
                             ]
                         },
@@ -158,7 +159,7 @@ class MovieRandom(_IPluginModule):
                                 {
                                     'id': 'language',
                                     'options': language,
-                                    'default': ''
+                                    'default': '全部'
                                 },
                             ]
                         },
@@ -222,11 +223,24 @@ class MovieRandom(_IPluginModule):
         if self._vote:
             params['vote_average.gte'] = self._vote
         if self._sort:
-            params['sort_by'] = self._sort
+            sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
+            for m in sort_options:
+                if m.get('name') == self._sort:
+                    params['sort_by'] = m.get('value')
+                    break
         if self._language:
-            params['with_original_language'] = self._language
+            language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
+                "options")
+            for m in language_options:
+                if m.get('name') == self._language:
+                    params['with_original_language'] = m.get('value')
+                    break
         if self._genres:
-            params['with_genres'] = self._genres
+            genres_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")
+            for m in genres_options:
+                if m.get('name') == self._genres:
+                    params['with_genres'] = m.get('value')
+                    break
 
         # 查询选择条件下所有页数
         random_max_page = Media().get_tmdb_discover_movies_pages(params=params)
