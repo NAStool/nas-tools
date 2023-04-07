@@ -66,8 +66,7 @@ class MovieRandom(_IPluginModule):
                   ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options") if m.get('value')}
         # tmdb电影语言
         language = {m.get('value'): m.get('name') for m in
-                    ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options") if
-                    m.get('value')}
+                    ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options")}
         return [
             # 同一板块
             {
