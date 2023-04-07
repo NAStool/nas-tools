@@ -53,6 +53,7 @@ class MovieRandom(_IPluginModule):
     _genres = None
     _sort = None
     _vote = None
+    _date = None
 
     @staticmethod
     def get_fields():
@@ -116,9 +117,21 @@ class MovieRandom(_IPluginModule):
                             ]
                         },
                         {
+                            'title': '上映时间',
+                            'required': "",
+                            'tooltip': '电影上映时间，大于该选项的会被订阅',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'date',
+                                    'placeholder': '2022',
+                                }
+                            ]
+                        },
+                        {
                             'title': '电影评分',
                             'required': "",
-                            'tooltip': '最低评分，大于等于该评分（最大10）',
+                            'tooltip': '最低评分，大于等于该评分的会被订阅（最大10）',
                             'type': 'text',
                             'content': [
                                 {
@@ -173,6 +186,7 @@ class MovieRandom(_IPluginModule):
             self._genres = config.get("genres")
             self._sort = config.get("sort")
             self._vote = config.get("vote")
+            self._date = config.get("date")
 
         # 停止现有任务
         self.stop_service()
@@ -197,7 +211,8 @@ class MovieRandom(_IPluginModule):
                     "language": self._language,
                     "genres": self._genres,
                     "sort": self._sort,
-                    "vote": self._vote
+                    "vote": self._vote,
+                    "date": self._date,
                 })
             if self._cron or self._onlyonce:
                 # 启动服务
@@ -209,6 +224,8 @@ class MovieRandom(_IPluginModule):
         随机获取一部tmdb电影下载
         """
         params = {}
+        if self._date:
+            params['release_date.gte'] = self._date
         if self._vote:
             params['vote_average.gte'] = self._vote
         if self._sort:
