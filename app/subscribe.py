@@ -109,7 +109,11 @@ class Subscribe:
             return -1, "标题或类型有误", None
         year = int(year) if str(year).isdigit() else ""
         rss_sites = rss_sites or []
+        if isinstance(rss_sites, str):
+            rss_sites = rss_sites.split(",")
         search_sites = search_sites or []
+        if isinstance(search_sites, str):
+            search_sites = search_sites.split(",")
         over_edition = 1 if over_edition else 0
         filter_rule = int(filter_rule) if str(filter_rule).isdigit() else None
         total_ep = int(total_ep) if str(total_ep).isdigit() else None
