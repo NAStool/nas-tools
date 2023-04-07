@@ -51,18 +51,14 @@ class MovieRandom(_IPluginModule):
     _cron = None
     _language = None
     _genres = None
-    _sort = None
     _vote = None
     _date = None
 
     @staticmethod
     def get_fields():
-        sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
         language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
             "options")
         genres_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")
-        # tmdb电影排序
-        sort = {m.get('name'): m.get('name') for m in sort_options}
         # tmdb电影类型
         genres = {m.get('name'): m.get('name') for m in genres_options}
         # tmdb电影语言
@@ -129,18 +125,6 @@ class MovieRandom(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '默认排序',
-                            'required': "",
-                            'type': 'select',
-                            'content': [
-                                {
-                                    'id': 'sort',
-                                    'options': sort,
-                                    'default': '默认'
-                                },
-                            ]
-                        },
-                        {
                             'title': '电影类型',
                             'required': "",
                             'type': 'select',
@@ -179,7 +163,6 @@ class MovieRandom(_IPluginModule):
             self._cron = config.get("cron")
             self._language = config.get("language")
             self._genres = config.get("genres")
-            self._sort = config.get("sort")
             self._vote = config.get("vote")
             self._date = config.get("date")
 
@@ -205,7 +188,6 @@ class MovieRandom(_IPluginModule):
                     "cron": self._cron,
                     "language": self._language,
                     "genres": self._genres,
-                    "sort": self._sort,
                     "vote": self._vote,
                     "date": self._date,
                 })
@@ -223,12 +205,6 @@ class MovieRandom(_IPluginModule):
             params['release_date.gte'] = self._date
         if self._vote:
             params['vote_average.gte'] = self._vote
-        if self._sort:
-            sort_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")
-            for m in sort_options:
-                if m.get('name') == self._sort:
-                    params['sort_by'] = m.get('value')
-                    break
         if self._language:
             language_options = ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get(
                 "options")
