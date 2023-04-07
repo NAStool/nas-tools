@@ -75,6 +75,15 @@ class MovieLike(_IPluginModule):
                     # 同一行
                     [
                         {
+                            'title': '开启电影精选',
+                            'required': "",
+                            'tooltip': '目前仅支持Emby，NAStool挂载目录如与Emby媒体库目录不一致则需要配置路径映射。在Emby的Webhooks中勾选 用户->添加到最爱 事件，如需控制仅部分用户生效，可在媒体服务器单独建立Webhook并设置对应用户范围',
+                            'type': 'switch',
+                            'id': 'enable',
+                        }
+                    ],
+                    [
+                        {
                             'title': '分类目录名称',
                             'required': True,
                             'tooltip': '添加到喜爱的电影将移动到该目录下',
@@ -86,15 +95,6 @@ class MovieLike(_IPluginModule):
                                     'id': 'dir_name',
                                 }
                             ]
-                        }
-                    ],
-                    [
-                        {
-                            'title': '开启电影精选',
-                            'required': "",
-                            'tooltip': '目前仅支持Emby，NAStool挂载目录如与Emby媒体库目录不一致则需要配置路径映射。在Emby的Webhooks中勾选 用户->添加到最爱 事件，如需控制仅部分用户生效，可在媒体服务器单独建立Webhook并设置对应用户范围',
-                            'type': 'switch',
-                            'id': 'enable',
                         }
                     ],
                 ]

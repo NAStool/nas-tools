@@ -88,15 +88,6 @@ class LibraryScraper(_IPluginModule):
                             ]
                         }
                     ],
-                    [
-                        {
-                            'title': '立即运行一次',
-                            'required': "",
-                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
-                            'type': 'switch',
-                            'id': 'onlyonce',
-                        }
-                    ],
                 ]
             },
             {
@@ -126,11 +117,25 @@ class LibraryScraper(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'exclude_path',
-                                    'placeholder': ''
+                                    'placeholder': '多个路径用,分割'
                                 }
                             ]
                         }
                     ]
+                ]
+            },
+            {
+                'type': 'div',
+                'content': [
+                    [
+                        {
+                            'title': '立即运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
+                            'type': 'switch',
+                            'id': 'onlyonce',
+                        }
+                    ],
                 ]
             }
         ]
