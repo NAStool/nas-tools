@@ -1,6 +1,13 @@
 FROM alpine
 RUN apk update  \
+    && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
+		&& echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+		&& echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk add --no-cache libffi-dev \
+    && apk add --no-cache python3-dev --repository http://dl-3.alpinelinux.org/alpine/edge/main/ \
+    && apk add --no-cache py3-numpy --repository http://dl-3.alpinelinux.org/alpine/edge/main/ \
+    && apk add --no-cache py3-onnxruntime \
+    && apk add --no-cache make \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NAStool/nas-tools/master/package_list.txt)) \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
@@ -10,7 +17,7 @@ RUN apk update  \
     && curl https://dl.min.io/client/mc/release/linux-${ARCH}/mc --create-dirs -o /usr/bin/mc \
     && chmod +x /usr/bin/mc \
     && pip install --upgrade pip setuptools wheel \
-    && pip install cython \
+    && pip install cython cmake \
     && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/master/requirements.txt \
     && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
