@@ -150,7 +150,7 @@ class MovieRandom(_IPluginModule):
                                 {
                                     'id': 'language',
                                     'options': language,
-                                    'default': 'zh'
+                                    'default': ''
                                 },
                             ]
                         },
