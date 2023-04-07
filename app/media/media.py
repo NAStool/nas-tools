@@ -2010,6 +2010,18 @@ class Media:
             print(str(e))
         return []
 
+    def get_tmdb_discover_movies_pages(self, params=None):
+        """
+        获取电影浏览的总页数
+        """
+        if not self.discover:
+            return 0
+        try:
+            return self.discover.discover_movies_pages(params=params)
+        except Exception as e:
+            print(str(e))
+        return 0
+
     def get_person_medias(self, personid, mtype=None, page=1):
         """
         查询人物相关影视作品

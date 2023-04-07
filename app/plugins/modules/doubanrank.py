@@ -102,7 +102,7 @@ class DoubanRank(_IPluginModule):
                     "ranks": self._ranks,
                     "rss_addrs": "\n".join(self._rss_addrs)
                 })
-            if self._onlyonce or self._cron:
+            if self._scheduler.get_jobs():
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()

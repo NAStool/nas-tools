@@ -222,7 +222,7 @@ class IYUUAutoSeed(_IPluginModule):
                     "notify": self._notify,
                     "nolabels": self._nolabels
                 })
-            if self._cron or self._onlyonce:
+            if self._scheduler.get_jobs():
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()

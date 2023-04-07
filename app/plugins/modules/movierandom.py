@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from threading import Event, Lock
+from threading import Event
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -214,7 +214,7 @@ class MovieRandom(_IPluginModule):
                     "vote": self._vote,
                     "date": self._date,
                 })
-            if self._cron or self._onlyonce:
+            if self._scheduler.get_jobs():
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -237,7 +237,7 @@ class MovieRandom(_IPluginModule):
             params['with_original_language'] = ",".join(self._language)
 
         # 查询选择条件下所有页数
-        random_max_page = Media().discover.discover_movies_pages(params=params)
+        random_max_page = Media().get_tmdb_discover_movies_pages(params=params)
         if random_max_page == 0:
             log.error("当前所选条件下未获取到电影数据，停止随机订阅")
             return
