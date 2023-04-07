@@ -124,7 +124,7 @@ class DoubanSync(_IPluginModule):
                     "days": self._days,
                     "types": self._types
                 })
-            if self._onlyonce or self._interval:
+            if self._scheduler.get_jobs():
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()

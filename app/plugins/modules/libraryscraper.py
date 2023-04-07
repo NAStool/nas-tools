@@ -169,7 +169,7 @@ class LibraryScraper(_IPluginModule):
                     "scraper_path": self._scraper_path,
                     "exclude_path": self._exclude_path
                 })
-            if self._cron or self._onlyonce:
+            if self._scheduler.get_jobs():
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
