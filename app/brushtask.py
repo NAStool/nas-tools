@@ -103,6 +103,7 @@ class BrushTask(object):
                 "site_id": task.SITE,
                 "interval": task.INTEVAL,
                 "label": task.LABEL,
+                "savepath": task.SAVEPATH,
                 "state": True if task.STATE == "Y" else False,
                 "downloader": task.DOWNLOADER,
                 "downloader_name": downloader_info.get("name") if downloader_info else None,
@@ -488,6 +489,7 @@ class BrushTask(object):
         downloader_id = taskinfo.get("downloader")
         download_limit = rss_rule.get("downspeed")
         upload_limit = rss_rule.get("upspeed")
+        download_dir = taskinfo.get("savepath")
         tag = taskinfo.get("label").split(',') if taskinfo.get("label") else None
         # 标签
         if not transfer:
@@ -504,6 +506,7 @@ class BrushTask(object):
             media_info=meta_info,
             tag=tag,
             downloader_id=downloader_id,
+            download_dir=download_dir,
             download_setting="-2",
             download_limit=download_limit,
             upload_limit=upload_limit,

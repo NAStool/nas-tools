@@ -1964,6 +1964,7 @@ class WebAction:
         brushtask_state = data.get("brushtask_state")
         brushtask_rssurl = data.get("brushtask_rssurl")
         brushtask_label = data.get("brushtask_label")
+        brushtask_savepath = data.get("brushtask_savepath")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_sendmessage = 'Y' if data.get(
             "brushtask_sendmessage") else 'N'
@@ -2015,6 +2016,7 @@ class WebAction:
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,
             "label": brushtask_label,
+            "savepath": brushtask_savepath,
             "transfer": brushtask_transfer,
             "state": brushtask_state,
             "rss_rule": rss_rule,
