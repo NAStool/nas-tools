@@ -36,7 +36,7 @@ class IYUUAutoSeed(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "iyuuautoseed_"
     # 加载顺序
-    module_order = 10
+    module_order = 20
     # 可使用的用户级别
     user_level = 1
 
