@@ -19,8 +19,10 @@ let torrent_dropzone;
 let default_transfer_mode;
 // 默认路径
 let default_path;
-// 当前正在刷新的页面
-let RefreshingPage;
+// 页面正在加载中的标志
+let NavPageLoading = false;
+// 加载中页面的字柄
+let NavPageXhr;
 
 /**
  * 公共函数区
@@ -42,27 +44,44 @@ function navmenu(page, newflag = false) {
   $(window).unbind('scroll');
   // 显示进度条
   NProgress.start();
-  // 加载页面
-  $("#page_content").load(page, {}, function (response, status, xhr) {
-    // 隐藏进度条
-    NProgress.done();
-    // 修复登录页面刷新问题
-    if ($("#page_content").find("title").first().text() === "登录 - NAStool") {
-      window.location.reload();
-    } else {
-      // 刷新tooltip
-      fresh_tooltip();
-      // 刷新filetree控件
-      init_filetree_element();
+  // 停止上一次加载
+  if (NavPageXhr && NavPageLoading) {
+    NavPageXhr.abort();
+  }
+  // 加载新页面
+  NavPageLoading = true;
+  NavPageXhr = $.ajax({
+    url: page,
+    dataType: 'html',
+    success: function (data) {
+      // 演染
+      let page_content = $("#page_content");
+      page_content.html(data);
+      // 加载完成
+      NavPageLoading = false;
+      // 隐藏进度条
+      NProgress.done();
+      // 修复登录页面刷新问题
+      if (page_content.find("title").first().text() === "登录 - NAStool") {
+        // 刷新页面
+        window.location.reload();
+      } else {
+        // 关掉已经打开的弹窗
+        $(".modal").modal("hide");
+        // 刷新tooltip
+        fresh_tooltip();
+        // 刷新filetree控件
+        init_filetree_element();
+      }
+      if (page !== CURRENT_PAGE_URI) {
+        // 切换页面时滚动到顶部
+        $(window).scrollTop(0);
+        // 记录当前页面ID
+        CURRENT_PAGE_URI = page;
+      }
+      // 并记录当前历史记录
+      window_history(!newflag);
     }
-    if (page !== CURRENT_PAGE_URI) {
-      // 切换页面时滚动到顶部
-      $(window).scrollTop(0);
-      // 记录当前页面ID
-      CURRENT_PAGE_URI = page;
-    }
-    // 并记录当前历史记录
-    window_history(!newflag);
   });
 }
 
