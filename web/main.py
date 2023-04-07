@@ -1628,11 +1628,12 @@ def ical():
             continue
         event.add('dtstart',
                   datetime.datetime.strptime(item.get("start"),
-                                             '%Y-%m-%d'))
+                                             '%Y-%m-%d')
+                  + datetime.timedelta(hours=8))
         event.add('dtend',
                   datetime.datetime.strptime(item.get("start"),
                                              '%Y-%m-%d')
-                  + datetime.timedelta(hours=1))
+                  + datetime.timedelta(hours=9))
 
         # 添加事件提醒
         if remind:
