@@ -59,11 +59,10 @@ class MovieRandom(_IPluginModule):
     def get_fields():
         # tmdb电影排序
         sort = {m.get('value'): m.get('name') for m in
-                ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options") if
-                m.get('value')}
+                ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("sort_by").get("options")}
         # tmdb电影类型
-        genres = {m.get('value'): {'name': m.get('name')} for m in
-                  ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options") if m.get('value')}
+        genres = {m.get('value'): m.get('name') for m in
+                  ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_genres").get("options")}
         # tmdb电影语言
         language = {m.get('value'): m.get('name') for m in
                     ModuleConf.DISCOVER_FILTER_CONF.get("tmdb_movie").get("with_original_language").get("options")}
@@ -130,20 +129,30 @@ class MovieRandom(_IPluginModule):
                         {
                             'title': '默认排序',
                             'required': "",
-                            'tooltip': '电影排序',
                             'type': 'select',
                             'content': [
                                 {
                                     'id': 'sort',
                                     'options': sort,
-                                    'default': 'popularity.desc'
+                                    'default': ''
                                 },
                             ]
                         },
                         {
-                            'title': '默认语言',
+                            'title': '电影类型',
                             'required': "",
-                            'tooltip': '电影语言',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'genres',
+                                    'options': genres,
+                                    'default': ''
+                                },
+                            ]
+                        },
+                        {
+                            'title': '电影语言',
+                            'required': "",
                             'type': 'select',
                             'content': [
                                 {
@@ -152,21 +161,6 @@ class MovieRandom(_IPluginModule):
                                     'default': ''
                                 },
                             ]
-                        },
-                    ]
-                ]
-            },
-            {
-                'type': 'details',
-                'summary': '类型',
-                'tooltip': '按照喜好选择随机电影类型',
-                'content': [
-                    # 同一行
-                    [
-                        {
-                            'id': 'genres',
-                            'type': 'form-selectgroup',
-                            'content': genres
                         },
                     ]
                 ]
@@ -232,7 +226,7 @@ class MovieRandom(_IPluginModule):
         if self._language:
             params['with_original_language'] = self._language
         if self._genres:
-            params['with_genres'] = ",".join(self._genres)
+            params['with_genres'] = self._genres
 
         # 查询选择条件下所有页数
         random_max_page = Media().get_tmdb_discover_movies_pages(params=params)
