@@ -19,34 +19,46 @@ let torrent_dropzone;
 let default_transfer_mode;
 // 默认路径
 let default_path;
+// 当前正在刷新的页面
+let RefreshingPage;
 
 /**
  * 公共函数区
  */
 
-//导航点击
+// 导航菜单点击
 function navmenu(page, newflag = false) {
   if (!newflag) {
     // 更新当前历史记录
     window_history();
   }
+  // 修复空格问题
+  page = page.replaceAll(" ", "%20");
   // 主动点击时清除页码, 刷新页面也需要清除
   sessionStorage.removeItem("CurrentPage");
-
+  // 展开菜单
   document.querySelector("#navbar-menu").update_active(page);
+  // 解除滚动事件
   $(window).unbind('scroll');
-  page = page.replaceAll(" ", "%20");
+  // 显示进度条
   NProgress.start();
+  // 加载页面
   $("#page_content").load(page, {}, function (response, status, xhr) {
+    // 隐藏进度条
     NProgress.done();
+    // 修复登录页面刷新问题
     if ($("#page_content").find("title").first().text() === "登录 - NAStool") {
       window.location.reload();
     } else {
+      // 刷新tooltip
       fresh_tooltip();
+      // 刷新filetree控件
       init_filetree_element();
     }
     if (page !== CURRENT_PAGE_URI) {
+      // 切换页面时滚动到顶部
       $(window).scrollTop(0);
+      // 记录当前页面ID
       CURRENT_PAGE_URI = page;
     }
     // 并记录当前历史记录
@@ -54,7 +66,7 @@ function navmenu(page, newflag = false) {
   });
 }
 
-//搜索
+// 搜索
 function media_search(tmdbid, title, type) {
   const param = {"tmdbid": tmdbid, "search_word": title, "media_type": type};
   show_refresh_process("正在搜索 " + title + " ...", "search");
@@ -94,7 +106,6 @@ function start_logging() {
 function stop_logging() {
   refresh_logging_flag = false;
 }
-
 
 //刷新日志
 function refresh_logging(flag) {
