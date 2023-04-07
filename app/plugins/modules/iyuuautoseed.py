@@ -292,7 +292,31 @@ class IYUUAutoSeed(_IPluginModule):
         """
         if not self._recheck_torrents:
             return
-        # TODO 根据待检查种子清单self._recheck_torrents，定时检查状态，如果状态为校验完成进度100%，则通知开始辅种并清除待检查种子清单
+        checked_torrents = []
+        for downloader in self._downloaders:
+            self.info(f"开始扫描下载器：{downloader} ...")
+            # 下载器类型
+            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+            # 获取下载器中已完成的种子
+            torrents = self.downloader.get_torrents(downloader_id=downloader, tag=["已整理", "辅种"],
+                                                    ids=self._recheck_torrents)
+            if torrents:
+                need_seeding_torrents = []
+                for torrent in torrents:
+                    # 获取种子hash
+                    hash_str = self.__get_hash(torrent, downloader_type)
+                    need_seeding = self.__need_seeding(torrent, downloader_type)
+                    if need_seeding:
+                        need_seeding_torrents.append(hash_str)
+                if need_seeding_torrents:
+                    self.info(f"启动辅种的种子: ：{len(need_seeding_torrents)} ...")
+                    self.downloader.start_torrents(downloader_id=downloader, ids=need_seeding_torrents)
+                # 追加已经处理过的种子
+                checked_torrents.extend(need_seeding_torrents)
+
+        if checked_torrents:
+            # 取差集 下次继续
+            self._recheck_torrents = list(set(self._recheck_torrents).difference(set(checked_torrents)))
 
     def __seed_torrents(self, hash_strs: list, downloader):
         """
@@ -393,18 +417,17 @@ class IYUUAutoSeed(_IPluginModule):
                       f"种子链接：{torrent_url}")
             return
         else:
-            # 追加校验任务
-            self._recheck_torrents.append(seed.get("info_hash"))
+            # TR即使是暂停的种子也会自动校验
+            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+            if downloader_type == DownloaderType.QB:
+                # 追加校验任务
+                self._recheck_torrents.append(seed.get("info_hash"))
             # 下载成功
             self.info(f"成功添加辅种下载：站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:
                 msg_title = "【IYUU自动辅种新增任务】"
                 msg_text = f"站点：{site_info.get('name')}\n种子链接：{torrent_url}"
                 self.message.send_custom_message(title=msg_title, text=msg_text)
-            # TR即使是暂停的种子也会自动校验
-            downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
-            if downloader_type == DownloaderType.QB:
-                self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
 
     @staticmethod
     def __get_hash(torrent, dl_type):
@@ -427,6 +450,18 @@ class IYUUAutoSeed(_IPluginModule):
         except Exception as e:
             print(str(e))
             return []
+
+    @staticmethod
+    def __need_seeding(torrent, dl_type):
+        """
+        判断种子是否可以做种并处于暂停状态
+        """
+        try:
+            return torrent.get("state") == "pausedUP" if dl_type == DownloaderType.QB \
+                else (torrent.status.stopped and torrent.percent_done == 1)
+        except Exception as e:
+            print(str(e))
+            return ""
 
     @staticmethod
     def __get_save_path(torrent, dl_type):
