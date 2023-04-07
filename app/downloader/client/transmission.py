@@ -542,3 +542,13 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
+
+    def recheck_torrents(self, ids):
+        if not self.trc:
+            return False
+        ids = self.__parse_ids(ids)
+        try:
+            return self.trc.verify_torrent(ids=ids)
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False
