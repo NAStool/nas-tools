@@ -10,6 +10,7 @@ from datetime import timedelta
 import iso639
 import psutil
 import srt
+from lxml import etree
 
 from app.helper import FfmpegHelper
 from app.helper.openai_helper import OpenAiHelper
@@ -45,7 +46,7 @@ class AutoSub(_IPluginModule):
     _running = False
     # 语句结束符
     _end_token = ['.', '!', '?', '。', '！', '？', '。"', '！"', '？"', '."', '!"', '?"']
-    _noisy_token = [('(', ')'), ('[', ']'), ('{', '}'), ('<', '>'), ('【', '】'), ('♪', '♪'), ('♫', '♫'), ('♪♪', '♪♪')]
+    _noisy_token = [('(', ')'), ('[', ']'), ('{', '}'),  ('【', '】'), ('♪', '♪'), ('♫', '♫'), ('♪♪', '♪♪')]
 
     def __init__(self):
         self.additional_args = '-t 4 -p 1'
@@ -729,6 +730,10 @@ class AutoSub(_IPluginModule):
         for index, item in enumerate(subtitle_data):
             # 当前字幕先将多行合并为一行，再去除首尾空格
             content = item.content.replace('\n', ' ').strip()
+            # 去除html标签
+            parse = etree.HTML(content)
+            if parse is not None:
+                content = parse.xpath('string(.)')
             if content == '':
                 continue
             item.content = content
@@ -788,7 +793,7 @@ class AutoSub(_IPluginModule):
         if source_lang in ['en', 'eng']:
             self.info(f"开始合并字幕语句 ...")
             merged_data = self.__merge_srt(srt_data)
-            self.info(f"合并字幕语句完成，合并前字幕数量：{len(merged_data)}, 合并后字幕数量：{len(srt_data)}")
+            self.info(f"合并字幕语句完成，合并前字幕数量：{len(srt_data)}, 合并后字幕数量：{len(merged_data)}")
             srt_data = merged_data
 
         batch = []
