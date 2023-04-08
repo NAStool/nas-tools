@@ -211,7 +211,7 @@ class CookieCloud(_IPluginModule):
                 self._scheduler.start()
 
     def get_state(self):
-        return self._enabled
+        return self._enabled and self._cron
 
     def __download_data(self) -> [dict, str, bool]:
         """
