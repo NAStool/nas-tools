@@ -449,7 +449,7 @@ class IYUUAutoSeed(_IPluginModule):
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
         if not site_info:
-            self.warn(f"没有维护种子对应的站点：{site_url}")
+            self.debug(f"没有维护种子对应的站点：{site_url}")
             return
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
