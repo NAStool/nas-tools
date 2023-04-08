@@ -277,7 +277,7 @@ class IYUUAutoSeed(_IPluginModule):
                     "save_path": save_path
                 })
             if hash_strs:
-                self.info(f"需要辅种的种子数：{len(hash_strs)}")
+                self.info(f"总共需要辅种的种子数：{len(hash_strs)}")
                 # 分组处理，减少IYUU Api请求次数
                 chunk_size = 200
                 for i in range(0, len(hash_strs), chunk_size):
@@ -395,7 +395,7 @@ class IYUUAutoSeed(_IPluginModule):
         torrent_info = self.downloader.get_torrents(downloader_id=downloader,
                                                     ids=[seed.get("info_hash")])
         if torrent_info:
-            self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
+            self.debug(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
             return
         # 站点流控
         if self.sites.check_ratelimit(site_info.get("id")):

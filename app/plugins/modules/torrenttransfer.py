@@ -368,6 +368,12 @@ class TorrentTransfer(_IPluginModule):
                     self.error(f"种子文件不存在：{torrent_file}")
                     fail += 1
                     continue
+                # 查询hash值是否已经在目的下载器中
+                torrent_info = self.downloader.get_torrents(downloader_id=self._todownloader[0],
+                                                            ids=[hash_item.get('hash')])
+                if torrent_info:
+                    self.debug(f"{hash_item.get('hash')} 已在目的下载器中，跳过 ...")
+                    continue
                 # 转换保存路径
                 download_dir = self.__convert_save_path(hash_item.get('save_path'),
                                                         self._frompath,
