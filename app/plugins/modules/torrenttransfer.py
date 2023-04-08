@@ -348,7 +348,18 @@ class TorrentTransfer(_IPluginModule):
                 return
             # 获取种子hash
             hash_str = self.__get_hash(torrent, downloader_type)
+            # 获取保存路径
             save_path = self.__get_save_path(torrent, downloader_type)
+            if self._nopaths and save_path:
+                # 过滤不需要移转的路径
+                nopath_skip = False
+                for nopath in self._nopaths.split('\n'):
+                    if os.path.normpath(save_path).startswith(os.path.normpath(nopath)):
+                        self.info(f"种子 {hash_str} 保存路径 {save_path} 不需要移转，跳过 ...")
+                        nopath_skip = True
+                        break
+                if nopath_skip:
+                    continue
             # 获取种子标签
             torrent_labels = self.__get_label(torrent, downloader_type)
             if self._nolabels \
