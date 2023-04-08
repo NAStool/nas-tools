@@ -113,6 +113,22 @@ class MediaSyncDel(_IPluginModule):
         if not event_type or str(event_type) != 'media_del':
             return
 
+        # 是否虚拟标识
+        item_isvirtual = event_data.get("item_isvirtual")
+        if not item_isvirtual:
+            self.error("item_isvirtual参数未配置，为防止误删除，暂停插件运行")
+            self.update_config({
+                "enable": False,
+                "del_source": self._del_source,
+                "exclude_path": self._exclude_path,
+                "send_notify": self._send_notify
+            })
+            return
+
+        # 如果是虚拟item，则直接return，不进行删除
+        if item_isvirtual == 'True':
+            return
+
         # 媒体类型
         media_type = event_data.get("media_type")
         # 媒体名称
@@ -184,7 +200,17 @@ class MediaSyncDel(_IPluginModule):
             return
 
         # 开始删除
-        logids = [history.ID for history in transfer_history]
+        if media_type == "Episode" or media_type == "Movie":
+            # 如果有剧集或者电影有多个版本的话，需要根据名称筛选下要删除的版本
+            logids = [history.ID for history in transfer_history if
+                      history.DEST_FILENAME == os.path.basename(media_path)]
+        else:
+            logids = [history.ID for history in transfer_history]
+
+        if len(logids) == 0:
+            self.warn(f"{media_type} {media_name} 未获取到可删除数据")
+            return
+
         self.info(f"获取到删除媒体数量 {len(logids)}")
         WebAction().delete_history({
             "logids": logids,

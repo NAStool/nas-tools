@@ -163,9 +163,6 @@ class CloudflareSpeedTest(_IPluginModule):
     def init_config(self, config=None):
         self.eventmanager = EventManager()
 
-        # 停止现有任务
-        self.stop_service()
-
         # 读取配置
         if config:
             self._onlyonce = config.get("onlyonce")
@@ -177,54 +174,50 @@ class CloudflareSpeedTest(_IPluginModule):
             self._re_install = config.get("re_install")
             self._additional_args = config.get("additional_args")
 
-        # 自定义插件hosts配置
-        customHosts = self.get_config("CustomHosts")
-        self._customhosts = customHosts and customHosts.get("enable")
+        # 停止现有任务
+        self.stop_service()
 
         # 启动定时任务 & 立即运行一次
-        if self._cron or self._onlyonce:
-            # 获取自定义Hosts插件，若无设置则停止
-            if self._cf_ip and not customHosts or not customHosts.get("hosts"):
-                self.error(f"Cloudflare CDN优选依赖于自定义Hosts，请先维护hosts")
-                self._onlyonce = False
-                self.__update_config()
-                return
-
-            if not self._cf_ip:
-                self.error("CloudflareSpeedTest加载成功，首次运行，需要配置优选ip")
-                self._onlyonce = False
-                self.__update_config()
-                return
-
-            # ipv4和ipv6必须其一
-            if not self._ipv4 and not self._ipv6:
-                self._ipv4 = True
-                self.__update_config()
-                self.warn(f"Cloudflare CDN优选未指定ip类型，默认ipv4")
-
+        if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
+                self.info(f"Cloudflare CDN优选服务启动，周期：{self._cron}")
                 self._scheduler.add_job(self.__cloudflareSpeedTest, CronTrigger.from_crontab(self._cron))
-            if self._onlyonce:
-                self._scheduler.add_job(self.__cloudflareSpeedTest, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
 
             if self._onlyonce:
                 self.info(f"Cloudflare CDN优选服务启动，立即运行一次")
-            if self._cron:
-                self.info(f"Cloudflare CDN优选服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__cloudflareSpeedTest, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                # 关闭一次性开关
+                self._onlyonce = False
+                self.__update_config()
 
-            # 关闭一次性开关
-            self._onlyonce = False
-            self.__update_config()
+            if self._cron or self._onlyonce:
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def __cloudflareSpeedTest(self):
         """
         CloudflareSpeedTest优选
         """
+        # 获取自定义Hosts插件，若无设置则停止
         customHosts = self.get_config("CustomHosts")
+        self._customhosts = customHosts and customHosts.get("enable")
+        if self._cf_ip and not customHosts or not customHosts.get("hosts"):
+            self.error(f"Cloudflare CDN优选依赖于自定义Hosts，请先维护hosts")
+            return
+
+        if not self._cf_ip:
+            self.error("CloudflareSpeedTest加载成功，首次运行，需要配置优选ip")
+            return
+
+        # ipv4和ipv6必须其一
+        if not self._ipv4 and not self._ipv6:
+            self._ipv4 = True
+            self.__update_config()
+            self.warn(f"Cloudflare CDN优选未指定ip类型，默认ipv4")
+
         err_flag, release_version = self.__check_envirment()
         if err_flag and release_version:
             # 更新版本
@@ -440,7 +433,7 @@ class CloudflareSpeedTest(_IPluginModule):
             return None
 
     def get_state(self):
-        return self._customhosts and self._cf_ip and True if self._cron else False
+        return self._cf_ip and True if self._cron else False
 
     def stop_service(self):
         """

@@ -19,13 +19,6 @@
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </a>
-          <a href="javascript:show_cookiecloud_modal()" class="btn btn-twitter d-none d-sm-inline-block">
-            {{ SVG.refresh_dot() }}
-            CookieCloud
-          </a>
-          <a href="javascript:show_cookiecloud_modal()" class="btn btn-twitter d-sm-none btn-icon">
-            {{ SVG.refresh_dot() }}
-          </a>
           <a href="javascript:show_sitetest_modal()" class="btn d-none d-sm-inline-block">
             {{ SVG.activity_heartbeat() }}
             站点测试
@@ -302,6 +295,34 @@
             </div>
           </div>
         </div>
+        <details>
+          <summary class="summary">
+            站点流控规则 <span class="form-help" title="控制全局站点访问频率，触发流控时将跳过该站点，留空则不限制"
+                            data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2">
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">单位时间（分钟）</label>
+                  <input type="text" class="form-control" id="sitelimit_interval" value="" placeholder="10">
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">单位时间内访问次数 </label>
+                  <input type="text" class="form-control" id="sitelimit_count" value="" placeholder="10">
+                </div>
+              </div>
+               <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">访问间隔（秒） </label>
+                  <input type="text" class="form-control" id="sitelimit_seconds" value="" placeholder="5">
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
       <div class="modal-footer">
         <button id="site_close_btn" class="btn btn-link">
@@ -420,52 +441,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-cookiecloud" tabindex="-1" role="dialog" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cookieua_modal_title">CookieCloud数据同步</h5>
-        <input type="hidden" id="cookieua_siteid">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg">
-            <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help"
-                                                              title="参考https://github.com/easychen/CookieCloud搭建私有CookieCloud服务器；也可使用默认的公共服务器，公共服务器不会存储任何非加密用户数据，也不会存储用户KEY、端对端加密密码，但要注意千万不要对外泄露加密信息，否则Cookie数据也会被泄露！"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{{ CookieCloudCfg.server }}" id="cookiecloud_server" class="form-control" placeholder="http://nastool.cn:8088">
-            </div>
-          </div>
-          <div class="col-lg">
-            <div class="mb-3">
-              <label class="form-label required">用户KEY <span class="form-help"
-                                                              title="在浏览器CookieCloud插件中获取，使用公共服务器时注意不要泄露该信息"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{{ CookieCloudCfg.key }}" id="cookiecloud_key" class="form-control" placeholder="">
-            </div>
-          </div>
-          <div class="col-lg">
-            <div class="mb-3">
-              <label class="form-label required">端对端加密密码 <span class="form-help"
-                                                              title="在浏览器CookieCloud插件中获取，使用公共服务器时注意不要泄露该信息"
-                                                              data-bs-toggle="tooltip">?</span></label>
-              <input type="password" value="{{ CookieCloudCfg.password }}" id="cookiecloud_password" class="form-control" placeholder="">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button onclick="sync_site_cookiecloud()" id="cookiecloud_syncbtn" class="btn btn-primary">开始同步</button>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="modal modal-blur fade" id="modal-captcha-code" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -506,6 +481,9 @@
     $("#site_parse").val('Y');
     $("#site_subtitle").val('N');
     $("#site_unread_msg_notify").val('Y');
+    $("#sitelimit_interval").val('');
+    $("#sitelimit_count").val('');
+    $("#sitelimit_seconds").val('');
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
     $("#add_or_edit_site_btn").text("新增");
@@ -552,6 +530,9 @@
           $("#site_unread_msg_notify").val("N");
         }
         select_SelectPart(ret.site.uses, "site_uses")
+        $("#sitelimit_interval").val(ret.site.limit_interval);
+        $("#sitelimit_count").val(ret.site.limit_count);
+        $("#sitelimit_seconds").val(ret.site.limit_seconds);
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -622,6 +603,10 @@
     let chrome = $("#site_chrome").val();
     let proxy = $("#site_proxy").val();
     let subtitle = $("#site_subtitle").val();
+    // 流控规则
+    let limit_interval = $("#sitelimit_interval").val();
+    let limit_count = $("#sitelimit_count").val();
+    let limit_seconds = $("#sitelimit_seconds").val();
     let data = {
       "site_id": site_id,
       "site_name": site_name,
@@ -638,7 +623,10 @@
         "chrome": chrome,
         "proxy": proxy,
         "message": site_unread_msg_notify,
-        "subtitle": subtitle
+        "subtitle": subtitle,
+        "limit_interval": limit_interval,
+        "limit_count": limit_count,
+        "limit_seconds": limit_seconds
       }
     }
 
@@ -680,11 +668,6 @@
   //显示测试站点
   function show_sitetest_modal() {
     $("#modal-sitetest").modal("show");
-  }
-
-  //显示CookieCloud同步对话框
-  function show_cookiecloud_modal() {
-    $("#modal-cookiecloud").modal("show");
   }
 
   //测试一个站点
@@ -764,45 +747,6 @@
       refresh_sitecookie_current = "";
     }, true, false);
 
-  }
-
-  // 同步CookieCloud中的站点Cookie数据
-  function sync_site_cookiecloud(){
-    const server = $("#cookiecloud_server").val();
-    const key = $("#cookiecloud_key").val();
-    const password = $("#cookiecloud_password").val();
-    if (!server) {
-      $("#cookiecloud_server").addClass("is-invalid");
-      return;
-    }else{
-      $("#cookiecloud_server").removeClass("is-invalid");
-    }
-    if (!key) {
-      $("#cookiecloud_key").addClass("is-invalid");
-      return;
-    }else{
-      $("#cookiecloud_key").removeClass("is-invalid");
-    }
-    if (!password) {
-      $("#cookiecloud_password").addClass("is-invalid");
-      return;
-    }else{
-      $("#cookiecloud_password").removeClass("is-invalid");
-    }
-    $("#cookiecloud_syncbtn").text("正在同步...").attr("disabled", true);
-    ajax_post("cookiecloud_sync", { server: server, key: key, password: password }, function (ret) {
-      $("#cookiecloud_syncbtn").text("开始同步").attr("disabled", false);
-      $("#modal-cookiecloud").modal("hide");
-      if (ret.code === 0) {
-        show_success_modal(ret.msg, function (){
-          window_history_refresh();
-        });
-      } else {
-        show_fail_modal(ret.msg, function(){
-          $("#modal-cookiecloud").modal("show");
-        });
-      }
-    });
   }
 
   // 刷新进度标志

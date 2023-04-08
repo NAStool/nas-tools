@@ -5,9 +5,12 @@ import subprocess
 import tempfile
 import time
 import traceback
+from datetime import timedelta
 
 import iso639
+import psutil
 import srt
+from lxml import etree
 
 from app.helper import FfmpegHelper
 from app.helper.openai_helper import OpenAiHelper
@@ -43,7 +46,7 @@ class AutoSub(_IPluginModule):
     _running = False
     # 语句结束符
     _end_token = ['.', '!', '?', '。', '！', '？', '。"', '！"', '？"', '."', '!"', '?"']
-    _noisy_token = [('(', ')'), ('[', ']'), ('{', '}'), ('<', '>'), ('【', '】'), ('♪', '♪'), ('♫', '♫'), ('♪♪', '♪♪')]
+    _noisy_token = [('(', ')'), ('[', ']'), ('{', '}'),  ('【', '】'), ('♪', '♪'), ('♫', '♫'), ('♪♪', '♪♪')]
 
     def __init__(self):
         self.additional_args = '-t 4 -p 1'
@@ -57,6 +60,9 @@ class AutoSub(_IPluginModule):
         self.fail_count = 0
         self.success_count = 0
         self.send_notify = False
+        self.asr_engine = 'whisper.cpp'
+        self.faster_whisper_model = 'base'
+        self.faster_whisper_model_path = None
 
     @staticmethod
     def get_fields():
@@ -65,51 +71,6 @@ class AutoSub(_IPluginModule):
             {
                 'type': 'div',
                 'content': [
-                    # 同一行
-                    [
-                        {
-                            'title': 'whisper.cpp路径',
-                            'required': "required",
-                            'tooltip': '填写whisper.cpp主程序路径，如/config/plugin/autosub/main \n'
-                                       '推荐教程 https://ddsrem.com/autosub',
-                            'type': 'text',
-                            'content': [
-                                {
-                                    'id': 'whisper_main',
-                                    'placeholder': 'whisper.cpp主程序路径'
-                                }
-                            ]
-                        }
-                    ],
-                    # 模型路径
-                    [
-                        {
-                            'title': 'whisper.cpp模型路径',
-                            'required': "required",
-                            'tooltip': '填写whisper.cpp模型路径，如/config/plugin/autosub/models/ggml-base.en.bin\n'
-                                       '可从https://github.com/ggerganov/whisper.cpp/tree/master/models处下载',
-                            'type': 'text',
-                            'content':
-                                [{
-                                    'id': 'whisper_model',
-                                    'placeholder': 'whisper.cpp模型路径'
-                                }]
-                        }
-                    ],
-                    # 文件大小
-                    [
-                        {
-                            'title': '文件大小（MB）',
-                            'required': "required",
-                            'tooltip': '单位 MB, 大于该大小的文件才会进行字幕生成',
-                            'type': 'text',
-                            'content':
-                                [{
-                                    'id': 'file_size',
-                                    'placeholder': '文件大小, 单位MB'
-                                }]
-                        }
-                    ],
                     [
                         {
                             'title': '媒体路径',
@@ -124,6 +85,146 @@ class AutoSub(_IPluginModule):
                                 }
                         }
                     ],
+                    # asr 引擎
+                    [
+                        {
+                            'title': '文件大小（MB）',
+                            'required': "required",
+                            'tooltip': '单位 MB, 大于该大小的文件才会进行字幕生成',
+                            'type': 'text',
+                            'content':
+                                [{
+                                    'id': 'file_size',
+                                    'placeholder': '文件大小, 单位MB'
+                                }]
+                        },
+                        {
+                            'title': 'ASR引擎',
+                            'required': "required",
+                            'tooltip': '自动语音识别引擎选择',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'asr_engine',
+                                    'options': {
+                                        'whisper.cpp': 'whisper.cpp',
+                                        'faster-whisper': 'faster-whisper'
+                                    },
+                                    'default': 'whisper.cpp',
+                                    'onchange': 'AutoSub_asr_engine_change(this)'
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                'type': 'details',
+                'id': 'whisper_config',
+                'summary': 'whisper.cpp 配置',
+                'tooltip': '使用 whisper.cpp 引擎时的配置',
+                'hidden': False,
+                'content': [
+                    [
+                        {
+                            'title': 'whisper.cpp路径',
+                            'required': "",
+                            'tooltip': '填写whisper.cpp主程序路径，如/config/plugin/autosub/main \n'
+                                       '推荐教程 https://ddsrem.com/autosub',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'whisper_main',
+                                    'placeholder': 'whisper.cpp主程序路径'
+                                }
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            'title': 'whisper.cpp模型路径',
+                            'required': "",
+                            'tooltip': '填写whisper.cpp模型路径，如/config/plugin/autosub/models/ggml-base.en.bin\n'
+                                       '可从https://github.com/ggerganov/whisper.cpp/tree/master/models处下载',
+                            'type': 'text',
+                            'content':
+                                [{
+                                    'id': 'whisper_model',
+                                    'placeholder': 'whisper.cpp模型路径'
+                                }]
+                        }
+                    ],
+                    [
+                        {
+                            'title': '高级参数',
+                            'tooltip': 'whisper.cpp的高级参数，请勿随意修改',
+                            'required': "",
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'additional_args',
+                                    'placeholder': '-t 4 -p 1'
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                'type': 'details',
+                'id': 'faster_whisper_config',
+                'summary': 'faster-whisper 配置',
+                'tooltip': '使用 faster-whisper 引擎时的配置，安装参考 https://github.com/guillaumekln/faster-whisper',
+                'hidden': True,
+                'content': [
+                    [
+                        {
+                            'title': '模型',
+                            'required': "",
+                            'tooltip': '选择模型后第一次运行会从Hugging Face Hub下载模型，可能需要一段时间',
+                            'type': 'select',
+                            'content': [
+                                {
+                                    'id': 'faster_whisper_model',
+                                    'options': {
+                                        # tiny, tiny.en, base, base.en,
+                                        # small, small.en, medium, medium.en,
+                                        # large-v1, or large-v2
+                                        'tiny': 'tiny',
+                                        'tiny.en': 'tiny.en',
+                                        'base': 'base',
+                                        'base.en': 'base.en',
+                                        'small': 'small',
+                                        'small.en': 'small.en',
+                                        'medium': 'medium',
+                                        'medium.en': 'medium.en',
+                                        'large-v1': 'large-v1',
+                                        'large-v2': 'large-v2',
+                                    },
+                                    'default': 'base'
+                                }
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            'title': '模型保存路径',
+                            'required': "",
+                            'tooltip': '配置模型保存路径，如/config/plugin/autosub/faster-whisper/models',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'faster_whisper_model_path',
+                                    'placeholder': 'faster-whisper配置模型保存路径'
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                'type': 'div',
+                'content': [
                     [
                         {
                             'title': '立即运行一次',
@@ -157,27 +258,25 @@ class AutoSub(_IPluginModule):
                         }
                     ]
                 ]
-            },
-            {
-                'type': 'details',
-                'summary': '高级参数',
-                'tooltip': 'whisper.cpp的高级参数，请勿随意修改',
-                'content': [
-                    [
-                        {
-                            'required': "",
-                            'type': 'text',
-                            'content': [
-                                {
-                                    'id': 'additional_args',
-                                    'placeholder': '-t 4 -p 1'
-                                }
-                            ]
-                        }
-                    ]
-                ]
             }
         ]
+
+    @staticmethod
+    def get_script():
+        """
+        返回插件额外的JS代码
+        """
+        return """
+        function AutoSub_asr_engine_change(obj) {
+            if ($(obj).val() == 'faster-whisper') {
+                $('#autosubwhisper_config').hide();
+                $('#autosubfaster_whisper_config').show();
+            }else{
+                $('#autosubwhisper_config').show();
+                $('#autosubfaster_whisper_config').hide();
+            }
+        }
+        """
 
     def init_config(self, config=None):
         # 如果没有配置信息， 则不处理
@@ -194,6 +293,9 @@ class AutoSub(_IPluginModule):
         self.translate_only = config.get('translate_only', False)
         self.additional_args = config.get('additional_args', '-t 4 -p 1')
         self.send_notify = config.get('send_notify', False)
+        self.asr_engine = config.get('asr_engine', 'whisper.cpp')
+        self.faster_whisper_model = config.get('faster_whisper_model', 'base')
+        self.faster_whisper_model_path = config.get('faster_whisper_model_path')
 
         run_now = config.get('run_now')
         if not run_now:
@@ -203,26 +305,17 @@ class AutoSub(_IPluginModule):
         self.update_config(config)
 
         # 如果没有配置信息， 则不处理
-        if not path_list or not self.file_size or not self.whisper_main or not self.whisper_model:
+        if not path_list or not self.file_size:
             self.warn(f"配置信息不完整，不进行处理")
-            return
-
-        if not os.path.exists(self.whisper_main):
-            self.warn(f"whisper.cpp主程序不存在，不进行处理")
-            return
-
-        if not os.path.exists(self.whisper_model):
-            self.warn(f"whisper.cpp模型文件不存在，不进行处理")
-            return
-
-        # 校验扩展参数是否包含异常字符
-        if self.additional_args and re.search(r'[;|&]', self.additional_args):
-            self.warn(f"扩展参数包含异常字符，不进行处理")
             return
 
         # 校验文件大小是否为数字
         if not self.file_size.isdigit():
             self.warn(f"文件大小不是数字，不进行处理")
+            return
+
+        # asr 配置检查
+        if not self.translate_only and not self.__check_asr():
             return
 
         if self._running:
@@ -258,6 +351,39 @@ class AutoSub(_IPluginModule):
             self.info(f"处理完成: "
                       f"成功{self.success_count} / 跳过{self.skip_count} / 失败{self.fail_count} / 共{self.process_count}")
             self._running = False
+
+    def __check_asr(self):
+        if self.asr_engine == 'whisper.cpp':
+            if not self.whisper_main or not self.whisper_model:
+                self.warn(f"配置信息不完整，不进行处理")
+                return
+            if not os.path.exists(self.whisper_main):
+                self.warn(f"whisper.cpp主程序不存在，不进行处理")
+                return False
+            if not os.path.exists(self.whisper_model):
+                self.warn(f"whisper.cpp模型文件不存在，不进行处理")
+                return False
+            # 校验扩展参数是否包含异常字符
+            if self.additional_args and re.search(r'[;|&]', self.additional_args):
+                self.warn(f"扩展参数包含异常字符，不进行处理")
+                return False
+        elif self.asr_engine == 'faster-whisper':
+            if not self.faster_whisper_model_path or not self.faster_whisper_model:
+                self.warn(f"配置信息不完整，不进行处理")
+                return
+            if not os.path.exists(self.faster_whisper_model_path):
+                self.warn(f"faster-whisper模型文件夹不存在，不进行处理")
+                return False
+            try:
+                from faster_whisper import WhisperModel, download_model
+            except ImportError:
+                self.warn(f"faster-whisper 未安装，不进行处理")
+                return False
+            return True
+        else:
+            self.warn(f"未配置asr引擎，不进行处理")
+            return False
+        return True
 
     def __process_folder_subtitle(self, path):
         """
@@ -331,6 +457,76 @@ class AutoSub(_IPluginModule):
                 traceback.print_exc()
                 self.fail_count += 1
 
+    def __do_speech_recognition(self, audio_lang, audio_file):
+        """
+        语音识别, 生成字幕
+        :param audio_lang:
+        :param audio_file:
+        :return:
+        """
+        lang = audio_lang
+        if self.asr_engine == 'whisper.cpp':
+            command = [self.whisper_main] + self.additional_args.split()
+            command += ['-l', lang, '-m', self.whisper_model, '-osrt', '-of', audio_file, audio_file]
+            ret = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if ret.returncode == 0:
+                if lang == 'auto':
+                    # 从output中获取语言 "whisper_full_with_state: auto-detected language: en (p = 0.973642)"
+                    output = ret.stdout.decode('utf-8') if ret.stdout else ""
+                    lang = re.search(r"auto-detected language: (\w+)", output)
+                    if lang and lang.group(1):
+                        lang = lang.group(1)
+                    else:
+                        lang = "en"
+                return True, lang
+        elif self.asr_engine == 'faster-whisper':
+            try:
+                from faster_whisper import WhisperModel, download_model
+                # 设置缓存目录, 防止缓存同目录出现 cross-device 错误
+                cache_dir = os.path.join(self.faster_whisper_model_path, "cache")
+                if not os.path.exists(cache_dir):
+                    os.mkdir(cache_dir)
+                os.environ["HUGGINGFACE_HUB_CACHE"] = cache_dir
+                model = WhisperModel(download_model(self.faster_whisper_model),
+                                     device="cpu", compute_type="int8", cpu_threads=psutil.cpu_count(logical=False))
+                segments, info = model.transcribe(audio_file,
+                                                  language=lang if lang != 'auto' else None,
+                                                  word_timestamps=True,
+                                                  temperature=0,
+                                                  beam_size=5)
+                if lang == 'auto':
+                    lang = info.language
+
+                subs = []
+                if lang in ['en', 'eng']:
+                    # 英文先生成单词级别字幕，再合并
+                    idx = 0
+                    for segment in segments:
+                        for word in segment.words:
+                            idx += 1
+                            subs.append(srt.Subtitle(index=idx,
+                                                     start=timedelta(seconds=word.start),
+                                                     end=timedelta(seconds=word.end),
+                                                     content=word.word))
+                    subs = self.__merge_srt(subs)
+                else:
+                    for i, segment in enumerate(segments):
+                        subs.append(srt.Subtitle(index=i,
+                                                 start=timedelta(seconds=segment.start),
+                                                 end=timedelta(seconds=segment.end),
+                                                 content=segment.text))
+
+                self.__save_srt(f"{audio_file}.srt", subs)
+                return True, lang
+            except ImportError:
+                self.warn(f"faster-whisper 未安装，不进行处理")
+                return False, None
+            except Exception as e:
+                traceback.print_exc()
+                self.error(f"faster-whisper 处理异常：{e}")
+                return False, None
+        return False, None
+
     def __generate_subtitle(self, video_file, subtitle_file, only_extract=False):
         """
         生成字幕
@@ -399,27 +595,16 @@ class AutoSub(_IPluginModule):
             self.info(f"提取音频完成：{audio_file.name}")
 
             # 生成字幕
-            command = [self.whisper_main] + self.additional_args.split()
-            command += ['-l', audio_lang, '-m', self.whisper_model, '-osrt', '-of', audio_file.name, audio_file.name]
             self.info(f"开始生成字幕, 语言 {audio_lang} ...")
-            ret = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if ret.returncode == 0:
-                lang = audio_lang
-                if lang == 'auto':
-                    # 从output中获取语言 "whisper_full_with_state: auto-detected language: en (p = 0.973642)"
-                    output = ret.stdout.decode('utf-8') if ret.stdout else ""
-                    lang = re.search(r"auto-detected language: (\w+)", output)
-                    if lang and lang.group(1):
-                        lang = lang.group(1)
-                    else:
-                        lang = "en"
+            ret, lang = self.__do_speech_recognition(audio_lang, audio_file.name)
+            if ret:
                 self.info(f"生成字幕成功，原始语言：{lang}")
                 # 复制字幕文件
                 SystemUtils.copy(f"{audio_file.name}.srt", f"{subtitle_file}.{lang}.srt")
                 self.info(f"复制字幕文件：{subtitle_file}.{lang}.srt")
                 # 删除临时文件
                 os.remove(f"{audio_file.name}.srt")
-                return True, lang
+                return ret, lang
             else:
                 self.error(f"生成字幕失败")
                 return False, None
@@ -469,7 +654,7 @@ class AutoSub(_IPluginModule):
     def __get_video_prefer_audio(self, video_meta, prefer_lang=None):
         """
         获取视频的首选音轨，如果有多音轨， 优先指定语言音轨，否则获取默认音轨
-        :param video_file:
+        :param video_meta
         :return:
         """
         if type(prefer_lang) == str and prefer_lang:
@@ -564,10 +749,13 @@ class AutoSub(_IPluginModule):
         merged_subtitle = []
         sentence_end = True
 
-        self.info(f"开始合并字幕语句 ...")
         for index, item in enumerate(subtitle_data):
             # 当前字幕先将多行合并为一行，再去除首尾空格
             content = item.content.replace('\n', ' ').strip()
+            # 去除html标签
+            parse = etree.HTML(content)
+            if parse is not None:
+                content = parse.xpath('string(.)')
             if content == '':
                 continue
             item.content = content
@@ -593,7 +781,6 @@ class AutoSub(_IPluginModule):
             else:
                 sentence_end = False
 
-        self.info(f"合并字幕语句完成，合并前字幕数量：{len(subtitle_data)}, 合并后字幕数量：{len(merged_subtitle)}")
         return merged_subtitle
 
     def __do_translate_with_retry(self, text, retry=3):
@@ -626,7 +813,11 @@ class AutoSub(_IPluginModule):
         srt_data = self.__load_srt(source_subtitle)
         # 合并字幕语句，目前带标点带英文效果较好，非英文或者无标点的需要NLP处理
         if source_lang in ['en', 'eng']:
-            srt_data = self.__merge_srt(srt_data)
+            self.info(f"开始合并字幕语句 ...")
+            merged_data = self.__merge_srt(srt_data)
+            self.info(f"合并字幕语句完成，合并前字幕数量：{len(srt_data)}, 合并后字幕数量：{len(merged_data)}")
+            srt_data = merged_data
+
         batch = []
         max_batch_tokens = 1000
         for srt_item in srt_data:

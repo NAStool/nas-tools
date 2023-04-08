@@ -6,24 +6,21 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # 运行环境判断
-is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
+is_executable = getattr(sys, 'frozen', False)
+is_windows_exe = is_executable and (os.name == "nt")
 if is_windows_exe:
     # 托盘相关库
     import threading
     from package.trayicon import TrayIcon, NullWriter
 
-    # 初始化环境变量
-    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable),
-                                                "config",
-                                                "config.yaml").replace("\\", "/")
-    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable),
-                                             "config",
-                                             "logs").replace("\\", "/")
+if is_executable:
+    # 可执行文件初始化环境变量
+    config_path = os.path.join(os.path.dirname(sys.executable), "config").replace("\\", "/")
+    os.environ["NASTOOL_CONFIG"] = os.path.join(config_path, "config.yaml").replace("\\", "/")
+    os.environ["NASTOOL_LOG"] = os.path.join(config_path, "logs").replace("\\", "/")
     try:
-        config_dir = os.path.join(os.path.dirname(sys.executable),
-                                  "config").replace("\\", "/")
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
+        if not os.path.exists(config_path):
+            os.makedirs(config_path)
     except Exception as err:
         print(str(err))
 
@@ -135,9 +132,9 @@ if __name__ == '__main__':
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable), 'r').read().splitlines()) <= 2:
             p1 = threading.Thread(target=traystart, daemon=True)
             p1.start()
-    else:
-        # 初始化浏览器驱动
-        init_chrome()
+
+    # 初始化浏览器驱动
+    init_chrome()
 
     # gunicorn 启动
     App.run(**get_run_config(is_windows_exe))

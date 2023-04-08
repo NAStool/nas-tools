@@ -20,7 +20,7 @@ from flask import Flask, request, json, render_template, make_response, session,
     redirect, Response
 from flask_compress import Compress
 from flask_login import LoginManager, login_user, login_required, current_user
-from ics import Calendar, Event
+from icalendar import Calendar, Event, Alarm
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import log
@@ -1617,17 +1617,35 @@ def upload():
 @App.route('/ical')
 @require_auth(force=False)
 def ical():
-    ICal = Calendar()
+    # 是否设置提醒开关
+    remind = request.args.get("remind")
+    cal = Calendar()
     RssItems = WebAction().get_ical_events().get("result")
     for item in RssItems:
         event = Event()
-        event.name = f'{item.get("type")}：{item.get("title")}'
+        event.add('summary', f'{item.get("type")}：{item.get("title")}')
         if not item.get("start"):
             continue
-        event.begin = datetime.datetime.strptime(item.get("start"), '%Y-%m-%d')
-        event.duration = datetime.timedelta(hours=1)
-        ICal.events.add(event)
-    response = Response(ICal.serialize_iter(), mimetype='text/calendar')
+        event.add('dtstart',
+                  datetime.datetime.strptime(item.get("start"),
+                                             '%Y-%m-%d')
+                  + datetime.timedelta(hours=8))
+        event.add('dtend',
+                  datetime.datetime.strptime(item.get("start"),
+                                             '%Y-%m-%d')
+                  + datetime.timedelta(hours=9))
+
+        # 添加事件提醒
+        if remind:
+            alarm = Alarm()
+            alarm.add('trigger', datetime.timedelta(minutes=30))
+            alarm.add('action', 'DISPLAY')
+            event.add_component(alarm)
+
+        cal.add_component(event)
+
+    # 返回日历文件
+    response = Response(cal.to_ical(), mimetype='text/calendar')
     response.headers['Content-Disposition'] = 'attachment; filename=nastool.ics'
     return response
 

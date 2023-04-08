@@ -558,7 +558,8 @@ class DbHelper:
         return self._db.query(CONFIGSITE).filter(CONFIGSITE.NAME == name).all()
 
     @DbPersist(_db)
-    def insert_config_site(self, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
+    def insert_config_site(self, name, site_pri,
+                           rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None):
         """
         插入站点信息
         """
@@ -1716,6 +1717,7 @@ class DbHelper:
                 INTEVAL=item.get('interval'),
                 DOWNLOADER=item.get('downloader'),
                 LABEL=item.get('label'),
+                SAVEPATH=item.get('savepath'),
                 TRANSFER=item.get('transfer'),
                 DOWNLOAD_COUNT=0,
                 REMOVE_COUNT=0,
@@ -1738,6 +1740,7 @@ class DbHelper:
                     "INTEVAL": item.get('interval'),
                     "DOWNLOADER": item.get('downloader'),
                     "LABEL": item.get('label'),
+                    "SAVEPATH": item.get('savepath'),
                     "TRANSFER": item.get('transfer'),
                     "STATE": item.get('state'),
                     "LST_MOD_DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),

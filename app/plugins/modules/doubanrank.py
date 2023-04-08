@@ -86,14 +86,13 @@ class DoubanRank(_IPluginModule):
         if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.__refresh_rss, CronTrigger.from_crontab(self._cron))
-            if self._onlyonce:
-                self._scheduler.add_job(self.__refresh_rss, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
+                self.info(f"订阅服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__refresh_rss,
+                                        CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
                 self.info(f"订阅服务启动，立即运行一次")
+                self._scheduler.add_job(self.__refresh_rss, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
@@ -103,8 +102,10 @@ class DoubanRank(_IPluginModule):
                     "ranks": self._ranks,
                     "rss_addrs": "\n".join(self._rss_addrs)
                 })
-            if self._cron:
-                self.info(f"订阅服务启动，周期：{self._cron}")
+            if self._scheduler.get_jobs():
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return self._enable and self._cron and (self._ranks or self._rss_addrs)
@@ -254,9 +255,10 @@ class DoubanRank(_IPluginModule):
                         return
                     # 识别媒体信息
                     media_info = WebUtils.get_mediainfo_from_id(mtype=rss_info.get("type"),
-                                                                mediaid=f"DB:{rss_info.get('doubanid')}")
+                                                                mediaid=f"DB:{rss_info.get('doubanid')}",
+                                                                wait=True)
                     if not media_info:
-                        self.warn(f"未查询到TMDB媒体信息：{rss_info.get('doubanid')} - {rss_info.get('title')}")
+                        self.warn(f"未查询到媒体信息：{rss_info.get('doubanid')} - {rss_info.get('title')}")
                         continue
                     # 检查媒体服务器是否存在
                     item_id = self.mediaserver.check_item_exists(mtype=media_info.type,

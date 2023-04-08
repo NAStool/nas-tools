@@ -254,7 +254,8 @@ class Downloader:
                  download_limit=None,
                  torrent_file=None,
                  in_from=None,
-                 user_name=None):
+                 user_name=None,
+                 is_auto=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
@@ -268,6 +269,7 @@ class Downloader:
         :param torrent_file: 种子文件路径
         :param in_from: 来源
         :param user_name: 用户名
+        :param is_auto: 是否开始自动管理模式
         :return: 下载器类型, 种子ID，错误信息
         """
 
@@ -430,7 +432,7 @@ class Downloader:
                                              download_dir=download_dir,
                                              cookie=site_info.get("cookie"))
                 if ret:
-                    download_id = ret.id
+                    download_id = ret.hashString
                     downloader.change_torrent(tid=download_id,
                                               tag=tags,
                                               upload_limit=upload_limit,
@@ -446,6 +448,7 @@ class Downloader:
                     tags = [torrent_tag]
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,
+                                             is_auto=is_auto,
                                              download_dir=download_dir,
                                              tag=tags,
                                              category=category,
@@ -486,7 +489,13 @@ class Downloader:
                             subtitle_dir = visit_dir
                         ThreadHelper().start_thread(
                             self.sitesubtitle.download,
-                            (media_info, site_info.get("cookie"), site_info.get("ua"), subtitle_dir)
+                            (
+                                media_info,
+                                site_info.get("id"),
+                                site_info.get("cookie"),
+                                site_info.get("ua"),
+                                subtitle_dir
+                            )
                         )
                 # 发送下载消息
                 if in_from:
@@ -1317,3 +1326,17 @@ class Downloader:
         if not state:
             log.error(f"【Downloader】下载器连接测试失败")
         return state
+
+    def recheck_torrents(self, downloader_id=None, ids=None):
+        """
+        下载控制：重新校验种子
+        :param downloader_id: 下载器ID
+        :param ids: 种子ID列表
+        :return: 处理状态
+        """
+        if not ids:
+            return False
+        _client = self.__get_client(downloader_id) if downloader_id else self.default_client
+        if not _client:
+            return False
+        return _client.recheck_torrents(ids)

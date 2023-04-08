@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from threading import Event
 
@@ -6,13 +5,11 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.media import Media, Scraper
-from app.media.meta import MetaInfo
+from app.media import Scraper
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.utils import NfoReader
-from app.utils.types import MediaType, EventType
-from config import Config, RMT_MEDIAEXT
+from app.utils.types import EventType
+from config import Config
 
 
 class LibraryScraper(_IPluginModule):
@@ -39,7 +36,6 @@ class LibraryScraper(_IPluginModule):
 
     # 私有属性
     _scheduler = None
-    _media = None
     _scraper = None
     # 限速开关
     _cron = None
@@ -92,15 +88,6 @@ class LibraryScraper(_IPluginModule):
                             ]
                         }
                     ],
-                    [
-                        {
-                            'title': '立即运行一次',
-                            'required': "",
-                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
-                            'type': 'switch',
-                            'id': 'onlyonce',
-                        }
-                    ],
                 ]
             },
             {
@@ -130,17 +117,30 @@ class LibraryScraper(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'exclude_path',
-                                    'placeholder': ''
+                                    'placeholder': '多个路径用,分割'
                                 }
                             ]
                         }
                     ]
                 ]
+            },
+            {
+                'type': 'div',
+                'content': [
+                    [
+                        {
+                            'title': '立即运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
+                            'type': 'switch',
+                            'id': 'onlyonce',
+                        }
+                    ],
+                ]
             }
         ]
 
     def init_config(self, config=None):
-        self._media = Media()
         self._scraper = Scraper()
 
         # 读取配置
@@ -155,30 +155,29 @@ class LibraryScraper(_IPluginModule):
         self.stop_service()
 
         # 启动定时任务 & 立即运行一次
-        if self._cron or self._onlyonce:
+        if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self._scheduler.add_job(self.__libraryscraper, CronTrigger.from_crontab(self._cron))
-            if self._onlyonce:
-                self._scheduler.add_job(self.__libraryscraper, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
-
+                self.info(f"刮削服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__libraryscraper,
+                                        CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
                 self.info(f"刮削服务启动，立即运行一次")
-            if self._cron:
-                self.info(f"刮削服务启动，周期：{self._cron}")
-
-            # 关闭一次性开关
-            self._onlyonce = False
-            self.update_config({
-                "onlyonce": False,
-                "cron": self._cron,
-                "mode": self._mode,
-                "scraper_path": self._scraper_path,
-                "exclude_path": self._exclude_path
-            })
+                self._scheduler.add_job(self.__libraryscraper, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                # 关闭一次性开关
+                self._onlyonce = False
+                self.update_config({
+                    "onlyonce": self._onlyonce,
+                    "cron": self._cron,
+                    "mode": self._mode,
+                    "scraper_path": self._scraper_path,
+                    "exclude_path": self._exclude_path
+                })
+            if self._scheduler.get_jobs():
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return True if self._cron else False
@@ -195,71 +194,11 @@ class LibraryScraper(_IPluginModule):
             return
         path = event_info.get("path")
         force = event_info.get("force")
-        self.__folder_scraper(path, force=force)
-
-    def __folder_scraper(self, path, exclude_path=None, force=None):
-        """
-        刮削指定文件夹或文件
-        :param path: 文件夹或文件路径
-        :param force: 是否强制刮削
-        :return:
-        """
-        # 模式
-        if force is not None:
-            force_nfo = force_pic = force
+        if force:
+            mode = 'force_all'
         else:
-            force_nfo = True if self._mode in ["force_nfo", "force_all"] else False
-            force_pic = True if self._mode in ["force_all"] else False
-        # 每个媒体库下的所有文件
-        for file in self.__get_library_files(path, exclude_path):
-            if self._event.is_set():
-                self.info(f"媒体库刮削服务停止")
-                return
-            if not file:
-                continue
-            self.info(f"开始刮削媒体库文件：{file} ...")
-            # 识别媒体文件
-            meta_info = MetaInfo(os.path.basename(file))
-            # 优先读取本地文件
-            tmdbid = None
-            if meta_info.type == MediaType.MOVIE:
-                # 电影
-                movie_nfo = os.path.join(os.path.dirname(file), "movie.nfo")
-                if os.path.exists(movie_nfo):
-                    tmdbid = self.__get_tmdbid_from_nfo(movie_nfo)
-                file_nfo = os.path.join(os.path.splitext(file)[0] + ".nfo")
-                if not tmdbid and os.path.exists(file_nfo):
-                    tmdbid = self.__get_tmdbid_from_nfo(file_nfo)
-            else:
-                # 电视剧
-                tv_nfo = os.path.join(os.path.dirname(os.path.dirname(file)), "tvshow.nfo")
-                if os.path.exists(tv_nfo):
-                    tmdbid = self.__get_tmdbid_from_nfo(tv_nfo)
-            if tmdbid and not force_nfo:
-                self.info(f"读取到本地nfo文件的tmdbid：{tmdbid}")
-                meta_info.set_tmdb_info(self._media.get_tmdb_info(mtype=meta_info.type,
-                                                                  tmdbid=tmdbid,
-                                                                  append_to_response='all'))
-                media_info = meta_info
-            else:
-                medias = self._media.get_media_info_on_files(file_list=[file],
-                                                             append_to_response="all")
-                if not medias:
-                    continue
-                media_info = None
-                for _, media in medias.items():
-                    media_info = media
-                    break
-            if not media_info or not media_info.tmdb_info:
-                continue
-            self._scraper.gen_scraper_files(media=media_info,
-                                            dir_path=os.path.dirname(file),
-                                            file_name=os.path.splitext(os.path.basename(file))[0],
-                                            file_ext=os.path.splitext(file)[-1],
-                                            force=True,
-                                            force_nfo=force_nfo,
-                                            force_pic=force_pic)
-            self.info(f"{file} 刮削完成")
+            mode = 'no_force'
+        self._scraper.folder_scraper(path, mode=mode)
 
     def __libraryscraper(self):
         """
@@ -270,54 +209,14 @@ class LibraryScraper(_IPluginModule):
         for path in self._scraper_path:
             if not path:
                 continue
+            if self._event.is_set():
+                self.info(f"媒体库刮削服务停止")
+                return
             # 刮削目录
-            self.__folder_scraper(path, self._exclude_path)
+            self._scraper.folder_scraper(path=path,
+                                         exclude_path=self._exclude_path,
+                                         mode=self._mode)
         self.info(f"媒体库刮削完成")
-
-    @staticmethod
-    def __get_library_files(in_path, exclude_path=None):
-        """
-        获取媒体库文件列表
-        """
-        if not os.path.isdir(in_path):
-            yield in_path
-            return
-
-        for root, dirs, files in os.walk(in_path):
-            if exclude_path and any(os.path.abspath(root).startswith(os.path.abspath(path))
-                                    for path in exclude_path.split(",")):
-                continue
-
-            for file in files:
-                cur_path = os.path.join(root, file)
-                # 检查后缀
-                if os.path.splitext(file)[-1].lower() in RMT_MEDIAEXT:
-                    yield cur_path
-
-    @staticmethod
-    def __get_tmdbid_from_nfo(file_path):
-        """
-        从nfo文件中获取信息
-        :param file_path:
-        :return: tmdbid
-        """
-        if not file_path:
-            return None
-        xpaths = [
-            "uniqueid[@type='Tmdb']",
-            "uniqueid[@type='tmdb']",
-            "uniqueid[@type='TMDB']",
-            "tmdbid"
-        ]
-        reader = NfoReader(file_path)
-        for xpath in xpaths:
-            try:
-                tmdbid = reader.get_element_value(xpath)
-                if tmdbid:
-                    return tmdbid
-            except Exception as err:
-                print(str(err))
-        return None
 
     def stop_service(self):
         """

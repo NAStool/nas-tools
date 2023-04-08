@@ -1,5 +1,6 @@
 import re
 
+import log
 from app.conf import ModuleConf
 from app.helper import DbHelper
 from app.media.meta import ReleaseGroupsMatcher
@@ -123,76 +124,79 @@ class Filter:
         # 当前规则组是否命中
         group_match = True
         for filter_info in filters:
-            # 当前规则是否命中
-            rule_match = True
-            # 命中规则的序号
-            order_seq = 100 - int(filter_info.get('pri'))
-            # 必须包括的项
-            includes = filter_info.get('include')
-            if includes and rule_match:
-                include_flag = True
-                for include in includes:
-                    if not include:
-                        continue
-                    if not re.search(r'%s' % include.strip(), title, re.IGNORECASE):
-                        include_flag = False
-                        break
-                if not include_flag:
-                    rule_match = False
+            try:
+                # 当前规则是否命中
+                rule_match = True
+                # 命中规则的序号
+                order_seq = 100 - int(filter_info.get('pri'))
+                # 必须包括的项
+                includes = filter_info.get('include')
+                if includes and rule_match:
+                    include_flag = True
+                    for include in includes:
+                        if not include:
+                            continue
+                        if not re.search(r'%s' % include.strip(), title, re.IGNORECASE):
+                            include_flag = False
+                            break
+                    if not include_flag:
+                        rule_match = False
 
-            # 不能包含的项
-            excludes = filter_info.get('exclude')
-            if excludes and rule_match:
-                exclude_flag = False
-                exclude_count = 0
-                for exclude in excludes:
-                    if not exclude:
-                        continue
-                    exclude_count += 1
-                    if not re.search(r'%s' % exclude.strip(), title, re.IGNORECASE):
-                        exclude_flag = True
-                if exclude_count > 0 and not exclude_flag:
-                    rule_match = False
-            # 大小
-            sizes = filter_info.get('size')
-            if sizes and rule_match and meta_info.size:
-                meta_info.size = StringUtils.num_filesize(meta_info.size)
-                if sizes.find(',') != -1:
-                    sizes = sizes.split(',')
-                    if sizes[0].isdigit():
-                        begin_size = int(sizes[0].strip())
+                # 不能包含的项
+                excludes = filter_info.get('exclude')
+                if excludes and rule_match:
+                    exclude_flag = False
+                    exclude_count = 0
+                    for exclude in excludes:
+                        if not exclude:
+                            continue
+                        exclude_count += 1
+                        if not re.search(r'%s' % exclude.strip(), title, re.IGNORECASE):
+                            exclude_flag = True
+                    if exclude_count > 0 and not exclude_flag:
+                        rule_match = False
+                # 大小
+                sizes = filter_info.get('size')
+                if sizes and rule_match and meta_info.size:
+                    meta_info.size = StringUtils.num_filesize(meta_info.size)
+                    if sizes.find(',') != -1:
+                        sizes = sizes.split(',')
+                        if sizes[0].isdigit():
+                            begin_size = int(sizes[0].strip())
+                        else:
+                            begin_size = 0
+                        if sizes[1].isdigit():
+                            end_size = int(sizes[1].strip())
+                        else:
+                            end_size = 0
                     else:
                         begin_size = 0
-                    if sizes[1].isdigit():
-                        end_size = int(sizes[1].strip())
+                        if sizes.isdigit():
+                            end_size = int(sizes.strip())
+                        else:
+                            end_size = 0
+                    if meta_info.type == MediaType.MOVIE:
+                        if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
+                            rule_match = False
                     else:
-                        end_size = 0
-                else:
-                    begin_size = 0
-                    if sizes.isdigit():
-                        end_size = int(sizes.strip())
-                    else:
-                        end_size = 0
-                if meta_info.type == MediaType.MOVIE:
-                    if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
-                        rule_match = False
-                else:
-                    if meta_info.total_episodes \
-                            and not begin_size * 1024 ** 3 <= int(meta_info.size) / int(meta_info.total_episodes) <= end_size * 1024 ** 3:
+                        if meta_info.total_episodes \
+                                and not begin_size * 1024 ** 3 <= int(meta_info.size) / int(meta_info.total_episodes) <= end_size * 1024 ** 3:
+                            rule_match = False
+
+                # 促销
+                free = filter_info.get("free")
+                if free and meta_info.upload_volume_factor is not None and meta_info.download_volume_factor is not None:
+                    ul_factor, dl_factor = free.split()
+                    if float(ul_factor) > meta_info.upload_volume_factor \
+                            or float(dl_factor) < meta_info.download_volume_factor:
                         rule_match = False
 
-            # 促销
-            free = filter_info.get("free")
-            if free and meta_info.upload_volume_factor is not None and meta_info.download_volume_factor is not None:
-                ul_factor, dl_factor = free.split()
-                if float(ul_factor) > meta_info.upload_volume_factor \
-                        or float(dl_factor) < meta_info.download_volume_factor:
-                    rule_match = False
-
-            if rule_match:
-                return True, order_seq, rulegroup.get("name")
-            else:
-                group_match = False
+                if rule_match:
+                    return True, order_seq, rulegroup.get("name")
+                else:
+                    group_match = False
+            except Exception as err:
+                log.error(f"【Filter】过滤规则出现严重错误 {err}，请检查：{filter_info}")
         if not group_match:
             return False, 0, rulegroup.get("name")
         return True, order_seq, rulegroup.get("name")

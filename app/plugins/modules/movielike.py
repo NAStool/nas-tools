@@ -35,6 +35,12 @@ class MovieLike(_IPluginModule):
     # 私有属性
     _enable = False
     _dir_name = RMT_FAVTYPE
+    _remote_path = None
+    _local_path = None
+    _remote_path2 = None
+    _local_path2 = None
+    _remote_path3 = None
+    _local_path3 = None
 
     mediaserver = None
     filetransfer = None
@@ -49,6 +55,12 @@ class MovieLike(_IPluginModule):
             self._dir_name = config.get("dir_name")
             if self._dir_name:
                 Config().update_favtype(self._dir_name)
+            self._local_path = config.get("local_path")
+            self._remote_path = config.get("remote_path")
+            self._local_path2 = config.get("local_path2")
+            self._remote_path2 = config.get("remote_path2")
+            self._local_path3 = config.get("local_path3")
+            self._remote_path3 = config.get("remote_path3")
 
     def get_state(self):
         return self._enable
@@ -61,6 +73,15 @@ class MovieLike(_IPluginModule):
                 'type': 'div',
                 'content': [
                     # 同一行
+                    [
+                        {
+                            'title': '开启电影精选',
+                            'required': "",
+                            'tooltip': '目前仅支持Emby，NAStool挂载目录如与Emby媒体库目录不一致则需要配置路径映射。在Emby的Webhooks中勾选 用户->添加到最爱 事件，如需控制仅部分用户生效，可在媒体服务器单独建立Webhook并设置对应用户范围',
+                            'type': 'switch',
+                            'id': 'enable',
+                        }
+                    ],
                     [
                         {
                             'title': '分类目录名称',
@@ -76,13 +97,56 @@ class MovieLike(_IPluginModule):
                             ]
                         }
                     ],
+                ]
+            },
+            {
+                'type': 'details',
+                'summary': '路径映射',
+                'tooltip': '当NAStool与媒体服务器的媒体库路程不一致时，需要映射转换，最多可设置三组,留空时不启用',
+                'content': [
+                    # 同一行
                     [
                         {
-                            'title': '开启电影精选',
-                            'required': "",
-                            'tooltip': '目前仅支持Emby，NAStool挂载目录需与Emby媒体库目录一致。在Emby的Webhooks中勾选 用户->添加到最爱 事件，如需控制仅部分用户生效，可在媒体服务器单独建立Webhook并设置对应用户范围',
-                            'type': 'switch',
-                            'id': 'enable',
+                            'title': '路径1',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '路径2',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path2',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path2',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '路径3',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'local_path3',
+                                    'placeholder': '本地路径'
+                                },
+                                {
+                                    'id': 'remote_path3',
+                                    'placeholder': '远程路径'
+                                }
+                            ]
                         }
                     ],
                 ]
@@ -115,9 +179,20 @@ class MovieLike(_IPluginModule):
         item_path = event_info.get('Item', {}).get('Path')
         if not item_path:
             return
+        # 路径替换
+        if self._local_path and self._remote_path and item_path.startswith(self._remote_path):
+            item_path = item_path.replace(self._remote_path, self._local_path).replace('\\', '/')
+
+        if self._local_path2 and self._remote_path2 and item_path.startswith(self._remote_path2):
+            item_path = item_path.replace(self._remote_path2, self._local_path2).replace('\\', '/')
+
+        if self._local_path3 and self._remote_path3 and item_path.startswith(self._remote_path3):
+            item_path = item_path.replace(self._remote_path3, self._local_path3).replace('\\', '/')
+        # 路径不存在不处理
         if not os.path.exists(item_path):
             self.warn(f"{item_path} 文件不存在")
             return
+
         # 文件转为目录
         if os.path.isdir(item_path):
             movie_dir = item_path
@@ -146,5 +221,11 @@ class MovieLike(_IPluginModule):
             ret, retmsg = SystemUtils.move(org_path, new_path)
             if ret != 0:
                 self.error(f"{retmsg}")
+            else:
+                # 发送刷新媒体库事件
+                EventHandler.send_event(EventType.RefreshMediaServer, {
+                    "dest": new_path,
+                    "media_info": {}
+                })
         else:
             self.warn(f"{org_path} 目录不存在")

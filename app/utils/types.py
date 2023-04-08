@@ -133,6 +133,10 @@ class EventType(Enum):
     PluginReload = "plugin.reload"
     # 豆瓣想看同步
     DoubanSync = "douban.sync"
+    # 辅种任务开始
+    AutoSeedStart = "autoseed.start"
+    # 刷新媒体库
+    RefreshMediaServer = "refresh.mediaserver"
 
 
 # 系统配置Key字典

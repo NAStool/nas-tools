@@ -225,3 +225,11 @@
     });
   });
 </script>
+<script type="text/javascript">
+  // 插件自带脚本函数
+  {% for Id, Plugin in Plugins.items() %}
+    {% if Plugin.script %}
+      {{ Plugin.script|safe }}
+    {% endif %}
+  {% endfor %}
+</script>

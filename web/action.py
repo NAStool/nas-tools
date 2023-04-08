@@ -21,9 +21,9 @@ from app.downloader import Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
-    MetaHelper, DisplayHelper, WordsHelper, CookieCloudHelper, IndexerHelper
+    MetaHelper, DisplayHelper, WordsHelper, IndexerHelper
 from app.indexer import Indexer
-from app.media import Category, Media, Bangumi, DouBan
+from app.media import Category, Media, Bangumi, DouBan, Scraper
 from app.media.meta import MetaInfo, MetaBase
 from app.mediaserver import MediaServer
 from app.message import Message, MessageCenter
@@ -199,7 +199,6 @@ class WebAction:
             "set_system_config": self.__set_system_config,
             "get_site_user_statistics": self.get_site_user_statistics,
             "send_custom_message": self.send_custom_message,
-            "cookiecloud_sync": self.__cookiecloud_sync,
             "media_detail": self.media_detail,
             "media_similar": self.__media_similar,
             "media_recommendations": self.__media_recommendations,
@@ -1964,6 +1963,7 @@ class WebAction:
         brushtask_state = data.get("brushtask_state")
         brushtask_rssurl = data.get("brushtask_rssurl")
         brushtask_label = data.get("brushtask_label")
+        brushtask_savepath = data.get("brushtask_savepath")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_sendmessage = 'Y' if data.get(
             "brushtask_sendmessage") else 'N'
@@ -2015,6 +2015,7 @@ class WebAction:
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,
             "label": brushtask_label,
+            "savepath": brushtask_savepath,
             "transfer": brushtask_transfer,
             "state": brushtask_state,
             "rss_rule": rss_rule,
@@ -2398,6 +2399,7 @@ class WebAction:
             mtype = MediaType.MOVIE if SubType in MovieTypes else MediaType.TV
             # 过滤参数 with_genres with_original_language
             params = data.get("params") or {}
+
             res_list = Media().get_tmdb_discover(mtype=mtype, page=CurrentPage, params=params)
         elif Type == "DOUBANTAG":
             # 豆瓣发现
@@ -4096,11 +4098,10 @@ class WebAction:
         """
         刮削媒体文件夹或文件
         """
-        # 触发字幕下载事件
-        EventManager().send_event(EventType.MediaScrapStart, {
-            "path": data.get("path"),
-            "force": True
-        })
+        path = data.get("path")
+        if not path:
+            return {"code": -1, "msg": "请指定刮削路径"}
+        ThreadHelper().start_thread(Scraper().folder_scraper, (path, None, 'force_all'))
         return {"code": 0, "msg": "刮削任务已提交，正在后台运行。"}
 
     @staticmethod
@@ -4451,51 +4452,6 @@ class WebAction:
             "value": value,
             "name": name.value
         } for value, name in RmtModes.items()]
-
-    def __cookiecloud_sync(self, data):
-        """
-        CookieCloud数据同步
-        """
-        server = data.get("server")
-        key = data.get("key")
-        password = data.get("password")
-        # 保存设置
-        SystemConfig().set_system_config(key=SystemConfigKey.CookieCloud,
-                                         value={
-                                             "server": server,
-                                             "key": key,
-                                             "password": password
-                                         })
-        # 同步数据
-        contents, retmsg = CookieCloudHelper(server=server,
-                                             key=key,
-                                             password=password).download_data()
-        if not contents:
-            return {"code": 1, "msg": retmsg}
-        # 整理数据,使用domain域名的最后两级作为分组依据
-        domain_groups = defaultdict(list)
-        for site, cookies in contents.items():
-            for cookie in cookies:
-                domain_parts = cookie["domain"].split(".")[-2:]
-                domain_key = tuple(domain_parts)
-                domain_groups[domain_key].append(cookie)
-        success_count = 0
-        for domain, content_list in domain_groups.items():
-            if not content_list:
-                continue
-            cookie_str = ";".join(
-                [f"{content['name']}={content['value']}" for content in content_list]
-            )
-            site_info = Sites().get_sites_by_suffix(".".join(domain))
-            if site_info:
-                self.dbhelper.update_site_cookie_ua(tid=site_info.get("id"),
-                                                    cookie=cookie_str)
-                success_count += 1
-        if success_count:
-            # 重载站点信息
-            Sites().init_config()
-            return {"code": 0, "msg": f"成功更新 {success_count} 个站点的Cookie数据"}
-        return {"code": 0, "msg": "同步完成，但未更新任何站点的Cookie！"}
 
     def media_detail(self, data):
         """

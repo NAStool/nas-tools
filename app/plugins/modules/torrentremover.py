@@ -10,7 +10,7 @@ from config import Config
 
 class TorrentRemover(_IPluginModule):
     # 插件名称
-    module_name = "下载任务清理"
+    module_name = "删除下载任务"
     # 插件描述
     module_desc = "历史记录中源文件被删除时，同步删除下载器中的下载任务。"
     # 插件图标
@@ -37,7 +37,7 @@ class TorrentRemover(_IPluginModule):
     def __init__(self):
         self._ua = Config().get_ua()
 
-    def init_config(self, config: dict):
+    def init_config(self, config: dict = None):
         self.dbhelper = DbHelper()
         if config:
             self._enable = config.get("enable")

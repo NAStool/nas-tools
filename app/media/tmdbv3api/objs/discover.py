@@ -31,6 +31,20 @@ class Discover(TMDb):
             "results"
         )
 
+    def discover_movies_pages(self, params):
+        """
+        Discover movies by different types of data like average rating, number of votes, genres and certifications.
+        :param params: dict
+        :return: total_pages
+        """
+        if not params:
+            params = {}
+        result = self._call(
+            self._urls["movies"],
+            urlencode(params)
+        )
+        return result.get("total_pages") or 0
+
     def discover_tv_shows(self, params, page=1):
         """
         Discover TV shows by different types of data like average rating, number of votes, genres,

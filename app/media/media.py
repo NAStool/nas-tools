@@ -436,7 +436,8 @@ class Media:
                             info = tv_info
         # 返回
         if info:
-            info['media_type'] = MediaType.MOVIE if info.get('media_type') == 'movie' else MediaType.TV
+            info['media_type'] = MediaType.MOVIE if info.get('media_type') in ['movie',
+                                                                               MediaType.MOVIE] else MediaType.TV
         else:
             log.info("【Meta】%s 在TMDB中未找到媒体信息!" % file_media_name)
         return info
@@ -2009,6 +2010,18 @@ class Media:
         except Exception as e:
             print(str(e))
         return []
+
+    def get_tmdb_discover_movies_pages(self, params=None):
+        """
+        获取电影浏览的总页数
+        """
+        if not self.discover:
+            return 0
+        try:
+            return self.discover.discover_movies_pages(params=params)
+        except Exception as e:
+            print(str(e))
+        return 0
 
     def get_person_medias(self, personid, mtype=None, page=1):
         """

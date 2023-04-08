@@ -103,18 +103,18 @@ class DoubanSync(_IPluginModule):
         if self.get_state() or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._interval:
-                self._scheduler.add_job(self.sync, 'interval', hours=self._interval)
-            if self._onlyonce:
-                self._scheduler.add_job(self.sync, 'date',
-                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
-            self._scheduler.print_jobs()
-            self._scheduler.start()
+                self.info(f"订阅服务启动，周期：{self._interval} 小时，类型：{self._types}，用户：{self._users}")
+                self._scheduler.add_job(self.sync, 'interval',
+                                        hours=self._interval)
+
             if self._onlyonce:
                 self.info(f"同步服务启动，立即运行一次")
+                self._scheduler.add_job(self.sync, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
                 self.update_config({
-                    "onlyonce": False,
+                    "onlyonce": self._onlyonce,
                     "enable": self._enable,
                     "interval": self._interval,
                     "auto_search": self._auto_search,
@@ -124,8 +124,10 @@ class DoubanSync(_IPluginModule):
                     "days": self._days,
                     "types": self._types
                 })
-            if self._interval:
-                self.info(f"订阅服务启动，周期：{self._interval} 小时，类型：{self._types}，用户：{self._users}")
+            if self._scheduler.get_jobs():
+                # 启动服务
+                self._scheduler.print_jobs()
+                self._scheduler.start()
 
     def get_state(self):
         return self._enable \

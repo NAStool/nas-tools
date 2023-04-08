@@ -25,8 +25,15 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
+    def get_indexer_info(self, url):
+        for indexer in self._indexers:
+            if StringUtils.url_equal(indexer.get("domain"), url):
+                return indexer
+        return None
+
     def get_indexer(self,
                     url,
+                    siteid=None,
                     cookie=None,
                     name=None,
                     rule=None,
@@ -44,6 +51,7 @@ class IndexerHelper:
                 continue
             if StringUtils.url_equal(indexer.get("domain"), url):
                 return IndexerConf(datas=indexer,
+                                   siteid=siteid,
                                    cookie=cookie,
                                    name=name,
                                    rule=rule,
@@ -62,6 +70,7 @@ class IndexerConf(object):
 
     def __init__(self,
                  datas=None,
+                 siteid=None,
                  cookie=None,
                  name=None,
                  rule=None,
@@ -75,7 +84,7 @@ class IndexerConf(object):
                  pri=None):
         if not datas:
             return
-        # ID
+        # 索引ID
         self.id = datas.get('id')
         # 名称
         self.name = datas.get('name') if not name else name
@@ -97,6 +106,8 @@ class IndexerConf(object):
         self.torrents = datas.get('torrents', {})
         # 分类
         self.category = datas.get('category', {})
+        # 站点ID
+        self.siteid = siteid
         # Cookie
         self.cookie = cookie
         # User-Agent
