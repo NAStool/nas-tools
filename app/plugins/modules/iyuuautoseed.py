@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from datetime import datetime
 from threading import Event
 
@@ -482,7 +483,7 @@ class IYUUAutoSeed(_IPluginModule):
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
-            tag=self._torrent_tags,
+            tag=deepcopy(self._torrent_tags),
             downloader_id=downloader,
             download_dir=save_path,
             download_setting="-2",

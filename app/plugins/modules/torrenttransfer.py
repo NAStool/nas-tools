@@ -1,4 +1,5 @@
 import os.path
+from copy import deepcopy
 from datetime import datetime
 from threading import Event
 
@@ -392,7 +393,7 @@ class TorrentTransfer(_IPluginModule):
                     media_info=MetaInfo("自动转移做种"),
                     torrent_file=torrent_file,
                     is_paused=True,
-                    tag=self._torrent_tags,
+                    tag=deepcopy(self._torrent_tags),
                     downloader_id=todownloader,
                     download_dir=download_dir,
                     download_setting="-2",
