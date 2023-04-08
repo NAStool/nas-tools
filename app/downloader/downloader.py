@@ -1326,3 +1326,17 @@ class Downloader:
         if not state:
             log.error(f"【Downloader】下载器连接测试失败")
         return state
+
+    def recheck_torrents(self, downloader_id=None, ids=None):
+        """
+        下载控制：重新校验种子
+        :param downloader_id: 下载器ID
+        :param ids: 种子ID列表
+        :return: 处理状态
+        """
+        if not ids:
+            return False
+        _client = self.__get_client(downloader_id) if downloader_id else self.default_client
+        if not _client:
+            return False
+        return _client.recheck_torrents(ids)

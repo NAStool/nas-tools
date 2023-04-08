@@ -12,7 +12,6 @@ from app.utils.types import DownloaderType
 
 
 class Qbittorrent(_IDownloadClient):
-
     # 下载器ID
     client_id = "qbittorrent"
     # 下载器类型
@@ -546,6 +545,15 @@ class Qbittorrent(_IDownloadClient):
                 self.qbc.transfer.upload_limit = upload_limit
             if self.qbc.transfer.download_limit != download_limit:
                 self.qbc.transfer.download_limit = download_limit
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False
+
+    def recheck_torrents(self, ids):
+        if not self.qbc:
+            return False
+        try:
+            return self.qbc.torrents_recheck(torrent_hashes=ids)
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
