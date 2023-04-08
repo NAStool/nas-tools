@@ -75,7 +75,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '开启自动转移保种',
                             'required': "",
-                            'tooltip': '开启后，定期将源下载器中已完成的种子任务迁移至目的下载器。',
+                            'tooltip': '开启后，定期将源下载器中已完成的种子任务迁移至目的下载器，任务转移后会自动暂停，校验通过且完整后才开始做种。',
                             'type': 'switch',
                             'id': 'enable',
                         }

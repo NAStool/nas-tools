@@ -83,7 +83,7 @@ class IYUUAutoSeed(_IPluginModule):
                         {
                             'title': '开启自动辅种',
                             'required': "",
-                            'tooltip': '开启后，自动监控下载器，对下载完成的任务根据执行周期自动辅种。',
+                            'tooltip': '开启后，自动监控下载器，对下载完成的任务根据执行周期自动辅种，辅种任务会自动暂停，校验通过且完整后才开始做种。',
                             'type': 'switch',
                             'id': 'enable',
                         }
