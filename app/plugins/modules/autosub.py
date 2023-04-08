@@ -110,7 +110,8 @@ class AutoSub(_IPluginModule):
                                         'whisper.cpp': 'whisper.cpp',
                                         'faster-whisper': 'faster-whisper'
                                     },
-                                    'default': 'whisper.cpp'
+                                    'default': 'whisper.cpp',
+                                    'onchange': 'AutoSub_asr_engine_change(this)'
                                 }
                             ]
                         }
@@ -119,8 +120,10 @@ class AutoSub(_IPluginModule):
             },
             {
                 'type': 'details',
+                'id': 'whisper_config',
                 'summary': 'whisper.cpp 配置',
                 'tooltip': '使用 whisper.cpp 引擎时的配置',
+                'hidden': False,
                 'content': [
                     [
                         {
@@ -169,8 +172,10 @@ class AutoSub(_IPluginModule):
             },
             {
                 'type': 'details',
+                'id': 'faster_whisper_config',
                 'summary': 'faster-whisper 配置',
                 'tooltip': '使用 faster-whisper 引擎时的配置，安装参考 https://github.com/guillaumekln/faster-whisper',
+                'hidden': True,
                 'content': [
                     [
                         {
@@ -255,6 +260,23 @@ class AutoSub(_IPluginModule):
                 ]
             }
         ]
+
+    @staticmethod
+    def get_script():
+        """
+        返回插件额外的JS代码
+        """
+        return """
+        function AutoSub_asr_engine_change(obj) {
+            if ($(obj).val() == 'faster-whisper') {
+                $('#autosubwhisper_config').hide();
+                $('#autosubfaster_whisper_config').show();
+            }else{
+                $('#autosubwhisper_config').show();
+                $('#autosubfaster_whisper_config').hide();
+            }
+        }
+        """
 
     def init_config(self, config=None):
         # 如果没有配置信息， 则不处理

@@ -158,7 +158,7 @@ class PluginManager:
 
     def get_plugin_page(self, pid):
         """
-        获取插件数据
+        获取插件额外页面数据
         """
         if not self._running_plugins.get(pid):
             return None
@@ -166,6 +166,16 @@ class PluginManager:
             return None
         title, html = self._running_plugins[pid].get_page()
         return title, html
+
+    def get_plugin_script(self, pid):
+        """
+        获取插件额外脚本
+        """
+        if not self._running_plugins.get(pid):
+            return None
+        if not hasattr(self._running_plugins[pid], "get_script"):
+            return None
+        return self._running_plugins[pid].get_script()
 
     def get_plugin_state(self, pid):
         """
@@ -209,9 +219,13 @@ class PluginManager:
                 conf.update({"color": plugin.module_color})
             if hasattr(plugin, "module_config_prefix"):
                 conf.update({"prefix": plugin.module_config_prefix})
+            # 插件额外的页面
             if hasattr(plugin, "get_page"):
                 title, _ = plugin.get_page()
                 conf.update({"page": title})
+            # 插件额外的脚本
+            if hasattr(plugin, "get_script"):
+                conf.update({"script": plugin.get_script()})
             # 配置项
             conf.update({"fields": plugin.get_fields() or {}})
             # 配置值

@@ -6,7 +6,21 @@ from app.conf import SystemConfig
 
 class _IPluginModule(metaclass=ABCMeta):
     """
-    插件模块基类
+    插件模块基类，通过继续该类实现插件功能
+    除内置属性外，还有以下方法可以扩展：
+    - get_fields() 获取配置字典，用于生成插件配置表单
+    - get_state() 获取插件启用状态，用于展示运行状态
+    - stop_service() 停止插件服务
+    - get_config() 获取配置信息
+    - update_config() 更新配置信息
+    - init_config() 生效配置信息
+    - info(msg) 记录INFO日志
+    - warn(msg) 记录插件WARN日志
+    - error(msg) 记录插件ERROR日志
+    - debug(msg) 记录插件DEBUG日志
+    - get_page() 插件额外页面数据，在插件配置页面左下解按钮展示
+    - get_script() 插件额外脚本（Javascript），将会写入插件页面，可在插件元素中绑定使用
+
     """
     # 插件名称
     module_name = ""

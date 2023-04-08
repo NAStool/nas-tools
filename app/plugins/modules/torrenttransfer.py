@@ -122,13 +122,7 @@ class TorrentTransfer(_IPluginModule):
                             'radio': True,
                             'content': downloaders
                         },
-                    ]
-                ]
-            },
-            {
-                'type': 'div',
-                'content': [
-                    # 同一行
+                    ],
                     [
                         {
                             'title': '源下载器种子文件保存路径',
@@ -170,13 +164,7 @@ class TorrentTransfer(_IPluginModule):
                             'radio': True,
                             'content': downloaders
                         },
-                    ]
-                ]
-            },
-            {
-                'type': 'div',
-                'content': [
-                    # 同一行
+                    ],
                     [
                         {
                             'title': '目的下载器数据文件根路径',
@@ -371,7 +359,7 @@ class TorrentTransfer(_IPluginModule):
                 "hash": hash_str,
                 "save_path": save_path
             })
-        # 4、拼接种子保存路径，如不存在则跳过
+        # 开始转移任务
         if hash_strs:
             self.info(f"需要移转的种子数：{len(hash_strs)}")
             # 记数
