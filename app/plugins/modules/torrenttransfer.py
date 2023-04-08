@@ -125,7 +125,7 @@ class TorrentTransfer(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '源下载器种子文件保存路径',
+                            'title': '种子文件路径',
                             'required': "required",
                             'tooltip': '源下载器保存种子文件的路径，需要是NAStool可访问的路径，QB一般为BT_backup，TR一般为torrents',
                             'type': 'text',
@@ -137,7 +137,7 @@ class TorrentTransfer(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '源下载器数据文件根路径',
+                            'title': '数据文件根路径',
                             'required': "required",
                             'tooltip': '源下载器中的种子数据文件保存根目录路径，必须是下载器能访问的路径，用于转移时替换种子数据文件路径使用',
                             'type': 'text',
@@ -167,7 +167,7 @@ class TorrentTransfer(_IPluginModule):
                     ],
                     [
                         {
-                            'title': '目的下载器数据文件根路径',
+                            'title': '数据文件根路径',
                             'required': "required",
                             'tooltip': '目的下载器的种子数据文件保存目录根路径，必须是下载器能访问的路径，将会使用该路径替换源下载器中种子数据文件保存路径中的源目录根路径，替换后的新路径做为目的下载器种子数据文件的保存路径，需要准确填写，否则可能导致移转做种后找不到数据文件，从而触发重新下载',
                             'type': 'text',
