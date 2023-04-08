@@ -304,7 +304,7 @@ class IYUUAutoSeed(_IPluginModule):
         self._is_recheck_running = True
         for downloader in self._downloaders:
             # 需要检查的种子
-            recheck_torrents = self._recheck_torrents.get(downloader, [])
+            recheck_torrents = self._recheck_torrents.get(downloader) or []
             if not recheck_torrents:
                 continue
             self.info(f"开始检查下载器 {downloader} 的校验任务 ...")
@@ -434,7 +434,8 @@ class IYUUAutoSeed(_IPluginModule):
             return
         else:
             # 追加校验任务
-            self._recheck_torrents.get(downloader, []).append(seed.get("info_hash"))
+            self.info(f"添加校验检查任务：{download_id} ...")
+            self._recheck_torrents.get(downloader, []).append(download_id)
             # 下载成功
             self.info(f"成功添加辅种下载，站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:

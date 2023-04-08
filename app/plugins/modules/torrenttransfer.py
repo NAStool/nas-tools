@@ -408,7 +408,8 @@ class TorrentTransfer(_IPluginModule):
                     continue
                 else:
                     # 追加校验任务
-                    self._recheck_torrents.get(todownloader, []).append(hash_item.get('hash'))
+                    self.info(f"添加校验检查任务：{download_id} ...")
+                    self._recheck_torrents.get(todownloader, []).append(download_id)
                     # 下载成功
                     self.info(f"成功添加转移保种任务，种子文件：{torrent_file}")
                     # TR会自动校验
