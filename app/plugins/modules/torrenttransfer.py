@@ -247,6 +247,7 @@ class TorrentTransfer(_IPluginModule):
             self._todownloader = config.get("todownloader")
             self._deletesource = config.get("deletesource")
             self._fromtorrentpath = config.get("fromtorrentpath")
+            self._nopaths = config.get("nopaths")
 
         # 停止现有任务
         self.stop_service()
