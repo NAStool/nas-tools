@@ -64,6 +64,7 @@ class IYUUAutoSeed(_IPluginModule):
         "//a[contains(@href, 'download.php?id=')]/@href",
         "//a[@class='index'][contains(@href, '/dl/')]/@href",
     ]
+    _torrent_tags = ["已整理", "辅种"]
     # 待校全种子hash清单
     _recheck_torrents = {}
 
@@ -276,6 +277,7 @@ class IYUUAutoSeed(_IPluginModule):
                     "save_path": save_path
                 })
             if hash_strs:
+                self.info(f"需要辅种的种子数：{len(hash_strs)}")
                 # 分组处理，减少IYUU Api请求次数
                 chunk_size = 200
                 for i in range(0, len(hash_strs), chunk_size):
@@ -284,6 +286,8 @@ class IYUUAutoSeed(_IPluginModule):
                     # 处理分组
                     self.__seed_torrents(hash_strs=chunk,
                                          downloader=downloader)
+            else:
+                self.info(f"没有需要辅种的种子")
         self.info("辅种任务执行完成")
 
     def check_recheck(self):
@@ -409,7 +413,7 @@ class IYUUAutoSeed(_IPluginModule):
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
-            tag=["已整理", "辅种"],
+            tag=self._torrent_tags,
             downloader_id=downloader,
             download_dir=save_path,
             download_setting="-2",
@@ -425,7 +429,7 @@ class IYUUAutoSeed(_IPluginModule):
             # 追加校验任务
             self._recheck_torrents.get(downloader, []).append(seed.get("info_hash"))
             # 下载成功
-            self.info(f"成功添加辅种下载：站点：{site_info.get('name')}，种子链接：{torrent_url}")
+            self.info(f"成功添加辅种下载，站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:
                 msg_title = "【IYUU自动辅种新增任务】"
                 msg_text = f"站点：{site_info.get('name')}\n种子链接：{torrent_url}"
