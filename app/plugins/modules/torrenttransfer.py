@@ -1,3 +1,4 @@
+import os.path
 from datetime import datetime
 from threading import Event
 
@@ -6,6 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.downloader import Downloader
+from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.utils.types import DownloaderType
@@ -14,9 +16,9 @@ from config import Config
 
 class TorrentTransfer(_IPluginModule):
     # 插件名称
-    module_name = "自动转移保种"
+    module_name = "自动转移做种"
     # 插件描述
-    module_desc = "定期转移下载器中的保种任务到另一个下载器。"
+    module_desc = "定期转移下载器中的做种任务到另一个下载器。"
     # 插件图标
     module_icon = "torrenttransfer.jpg"
     # 主题色
@@ -52,11 +54,13 @@ class TorrentTransfer(_IPluginModule):
     _nopaths = None
     _deletesource = False
     _fromtorrentpath = None
-    _totorrentpath = None
     # 退出事件
     _event = Event()
     # 待检查种子清单
-    _recheck_torrents = []
+    _recheck_torrents = {}
+    _is_recheck_running = False
+    # 任务标签
+    _torrent_tags = ["已整理", "转移做种"]
 
     @staticmethod
     def get_fields():
@@ -70,9 +74,9 @@ class TorrentTransfer(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '开启自动转移保种',
+                            'title': '开启自动转移做种',
                             'required': "",
-                            'tooltip': '开启后，定期将源下载器中已完成的种子任务迁移至目的下载器。',
+                            'tooltip': '开启后，定期将源下载器中已完成的种子任务迁移至目的下载器，任务转移后会自动暂停，校验通过且完整后才开始做种。',
                             'type': 'switch',
                             'id': 'enable',
                         }
@@ -81,7 +85,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '执行周期',
                             'required': "required",
-                            'tooltip': '设置转种任务执行的时间周期，支持5位cron表达式；应避免任务执行过于频繁',
+                            'tooltip': '设置移转做种任务执行的时间周期，支持5位cron表达式；应避免任务执行过于频繁',
                             'type': 'text',
                             'content': [
                                 {
@@ -93,7 +97,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '不转移种子标签',
                             'required': "",
-                            'tooltip': '下载器中的种子有以下标签时不进行转种，多个标签使用英文,分隔',
+                            'tooltip': '下载器中的种子有以下标签时不进行移转做种，多个标签使用英文,分隔',
                             'type': 'text',
                             'content': [
                                 {
@@ -115,6 +119,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'id': 'fromdownloader',
                             'type': 'form-selectgroup',
+                            'radio': True,
                             'content': downloaders
                         },
                     ]
@@ -155,13 +160,14 @@ class TorrentTransfer(_IPluginModule):
             {
                 'type': 'details',
                 'summary': '目的下载器',
-                'tooltip': '将保种任务转移到这个下载器，只能选择一个',
+                'tooltip': '将做种任务转移到这个下载器，只能选择一个',
                 'content': [
                     # 同一行
                     [
                         {
                             'id': 'todownloader',
                             'type': 'form-selectgroup',
+                            'radio': True,
                             'content': downloaders
                         },
                     ]
@@ -173,21 +179,9 @@ class TorrentTransfer(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '目的下载器种子文件保存路径',
-                            'required': "required",
-                            'tooltip': '目的下载器保存种子文件的路径，需要是NAStool可访问的路径，QB一般为BT_backup，TR一般为torrents',
-                            'type': 'text',
-                            'content': [
-                                {
-                                    'id': 'totorrentpath',
-                                    'placeholder': 'BT_backup|torrents',
-                                }
-                            ]
-                        },
-                        {
                             'title': '目的下载器数据文件根路径',
                             'required': "required",
-                            'tooltip': '目的下载器的种子数据文件保存目录根路径，必须是下载器能访问的路径，将会使用该路径替换源下载器中种子数据文件保存路径中的源目录根路径，替换后的新路径做为目的下载器种子数据文件的保存路径，需要准确填写，否则可能导致转种后找不到数据文件，从而触发重新下载',
+                            'tooltip': '目的下载器的种子数据文件保存目录根路径，必须是下载器能访问的路径，将会使用该路径替换源下载器中种子数据文件保存路径中的源目录根路径，替换后的新路径做为目的下载器种子数据文件的保存路径，需要准确填写，否则可能导致移转做种后找不到数据文件，从而触发重新下载',
                             'type': 'text',
                             'content': [
                                 {
@@ -264,20 +258,29 @@ class TorrentTransfer(_IPluginModule):
             self._todownloader = config.get("todownloader")
             self._deletesource = config.get("deletesource")
             self._fromtorrentpath = config.get("fromtorrentpath")
-            self._totorrentpath = config.get("totorrentpath")
 
         # 停止现有任务
         self.stop_service()
 
         # 启动定时任务 & 立即运行一次
         if self.get_state() or self._onlyonce:
+            # 检查配置
+            if self._fromtorrentpath and not os.path.exists(self._fromtorrentpath):
+                self.error(f"源下载器种子文件保存路径不存在：{self._fromtorrentpath}")
+                return
+            if isinstance(self._fromdownloader, list) and len(self._fromdownloader) > 1:
+                self.error(f"源下载器只能选择一个")
+                return
+            if isinstance(self._todownloader, list) and len(self._todownloader) > 1:
+                self.error(f"目的下载器只能选择一个")
+                return
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
             if self._cron:
-                self.info(f"转种服务启动，周期：{self._cron}")
+                self.info(f"移转做种服务启动，周期：{self._cron}")
                 self._scheduler.add_job(self.transfer,
                                         CronTrigger.from_crontab(self._cron))
             if self._onlyonce:
-                self.info(f"转种服务启动，立即运行一次")
+                self.info(f"移转做种服务启动，立即运行一次")
                 self._scheduler.add_job(self.transfer, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
@@ -294,11 +297,10 @@ class TorrentTransfer(_IPluginModule):
                     "todownloader": self._todownloader,
                     "deletesource": self._deletesource,
                     "fromtorrentpath": self._fromtorrentpath,
-                    "totorrentpath": self._totorrentpath
                 })
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
-                self._scheduler.add_job(self.check_recheck, 'interval', minutes=10)
+                self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -310,32 +312,131 @@ class TorrentTransfer(_IPluginModule):
                        and self._todownloader \
                        and self._frompath \
                        and self._topath \
-                       and self._fromtorrentpath \
-                       and self._totorrentpath else False
+                       and self._fromtorrentpath else False
 
     def transfer(self):
         """
-        开始转种
+        开始移转做种
         """
         if not self._enable \
                 or not self._fromdownloader \
                 or not self._todownloader \
                 or not self._frompath \
                 or not self._topath \
-                or not self._fromtorrentpath \
-                or not self._totorrentpath:
-            self.warn("转种服务未启用或未配置")
+                or not self._fromtorrentpath:
+            self.warn("移转做种服务未启用或未配置")
             return
-        self.info("开始转种任务 ...")
-        # TODO 转种
-        # 1、获取源下载器中的种子信息，获取种子hash、标签、保存路径
-        # 2、过滤种子标签
-        # 3、过滤种子保存路径
+        self.info("开始移转做种任务 ...")
+        # 源下载器
+        downloader = self._fromdownloader[0]
+        # 目的下载器
+        todownloader = self._todownloader[0]
+        # 下载器类型
+        downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+        # 获取下载器中已完成的种子
+        torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
+        if torrents:
+            self.info(f"下载器 {downloader} 已完成种子数：{len(torrents)}")
+        else:
+            self.info(f"下载器 {downloader} 没有已完成种子")
+            return
+        # 过滤种子，记录保存目录
+        hash_strs = []
+        for torrent in torrents:
+            if self._event.is_set():
+                self.info(f"移转服务停止")
+                return
+            # 获取种子hash
+            hash_str = self.__get_hash(torrent, downloader_type)
+            save_path = self.__get_save_path(torrent, downloader_type)
+            # 获取种子标签
+            torrent_labels = self.__get_label(torrent, downloader_type)
+            if self._nolabels \
+                    and torrent_labels \
+                    and set(self._nolabels.split(',')).intersection(set(torrent_labels)):
+                self.info(f"种子 {hash_str} 含有不转移标签，跳过 ...")
+                continue
+            hash_strs.append({
+                "hash": hash_str,
+                "save_path": save_path
+            })
         # 4、拼接种子保存路径，如不存在则跳过
-        # 5、读取种子文件，发送到另一个下载器中下载：默认暂停、传输下载路径、关闭自动管理模式
-        # 6、对方添加成功后，根据开关删除源下载器中的种子，否则不删除
-        # 7、添加校验种子到_recheck_torrents，发送通知
-        self.info("转种任务执行完成")
+        if hash_strs:
+            self.info(f"需要移转的种子数：{len(hash_strs)}")
+            # 记数
+            total = len(hash_strs)
+            success = 0
+            fail = 0
+            for hash_item in hash_strs:
+                # 检查种子文件是否存在
+                torrent_file = os.path.join(self._fromtorrentpath, f"{hash_item.get('hash')}.torrent")
+                if not os.path.exists(torrent_file):
+                    self.error(f"种子文件不存在：{torrent_file}")
+                    fail += 1
+                    continue
+                # 查询hash值是否已经在目的下载器中
+                torrent_info = self.downloader.get_torrents(downloader_id=todownloader,
+                                                            ids=[hash_item.get('hash')])
+                if torrent_info:
+                    self.debug(f"{hash_item.get('hash')} 已在目的下载器中，跳过 ...")
+                    continue
+                # 转换保存路径
+                download_dir = self.__convert_save_path(hash_item.get('save_path'),
+                                                        self._frompath,
+                                                        self._topath)
+                if not download_dir:
+                    self.error(f"转换保存路径失败：{hash_item.get('save_path')}")
+                    fail += 1
+                    continue
+                # 发送到另一个下载器中下载：默认暂停、传输下载路径、关闭自动管理模式
+                _, download_id, retmsg = self.downloader.download(
+                    media_info=MetaInfo("自动转移做种"),
+                    torrent_file=torrent_file,
+                    is_paused=True,
+                    tag=self._torrent_tags,
+                    downloader_id=todownloader,
+                    download_dir=download_dir,
+                    download_setting="-2",
+                    is_auto=False
+                )
+                if not download_id:
+                    # 下载失败
+                    self.warn(f"添加转移任务出错，"
+                              f"错误原因：{retmsg or '下载器添加任务失败'}，"
+                              f"种子文件：{torrent_file}")
+                    fail += 1
+                    continue
+                else:
+                    # 追加校验任务
+                    self.info(f"添加校验检查任务：{download_id} ...")
+                    if not self._recheck_torrents.get(todownloader):
+                        self._recheck_torrents[todownloader] = []
+                    self._recheck_torrents[todownloader].append(download_id)
+                    # 下载成功
+                    self.info(f"成功添加转移做种任务，种子文件：{torrent_file}")
+                    # TR会自动校验
+                    downloader_type = self.downloader.get_downloader_type(downloader_id=todownloader)
+                    if downloader_type == DownloaderType.QB:
+                        # 开始校验种子
+                        self.downloader.recheck_torrents(downloader_id=todownloader, ids=[download_id])
+                    # 删除源种子，不能删除文件！
+                    if self._deletesource:
+                        self.downloader.delete_torrents(downloader_id=downloader,
+                                                        ids=[download_id],
+                                                        delete_file=False)
+                    success += 1
+            # 触发校验任务
+            if success > 0:
+                self.check_recheck()
+            # 发送通知
+            if self._notify:
+                self.message.send_custom_message(
+                    title="移转做种任务执行完成",
+                    text=f"总数：{total}，成功：{success}，失败：{fail}"
+                )
+        else:
+            self.info(f"没有需要移转的种子")
+        self.info("移转做种任务执行完成")
 
     def check_recheck(self):
         """
@@ -343,7 +444,41 @@ class TorrentTransfer(_IPluginModule):
         """
         if not self._recheck_torrents:
             return
-        # TODO 根据待检查种子清单self._recheck_torrents，定时检查状态，如果状态为校验完成进度100%，则通知开始辅种并清除待检查种子清单
+        if not self._todownloader:
+            return
+        if self._is_recheck_running:
+            return
+        downloader = self._todownloader[0]
+        # 需要检查的种子
+        recheck_torrents = self._recheck_torrents.get(downloader, [])
+        if not recheck_torrents:
+            return
+        self.info(f"开始检查下载器 {downloader} 的校验任务 ...")
+        self._is_recheck_running = True
+        # 下载器类型
+        downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+        # 获取下载器中的种子
+        torrents = self.downloader.get_torrents(downloader_id=downloader,
+                                                ids=recheck_torrents)
+        if torrents:
+            can_seeding_torrents = []
+            for torrent in torrents:
+                # 获取种子hash
+                hash_str = self.__get_hash(torrent, downloader_type)
+                if self.__can_seeding(torrent, downloader_type):
+                    can_seeding_torrents.append(hash_str)
+            if can_seeding_torrents:
+                self.info(f"共 {len(can_seeding_torrents)} 个任务校验完成，开始辅种 ...")
+                self.downloader.start_torrents(downloader_id=downloader, ids=can_seeding_torrents)
+                # 去除已经处理过的种子
+                self._recheck_torrents[downloader] = list(
+                    set(recheck_torrents).difference(set(can_seeding_torrents)))
+        elif torrents is None:
+            self.info(f"下载器 {downloader} 查询校验任务失败，将在下次继续查询 ...")
+        else:
+            self.info(f"下载器 {downloader} 中没有需要检查的校验任务，清空待处理列表 ...")
+            self._recheck_torrents[downloader] = []
+        self._is_recheck_running = False
 
     @staticmethod
     def __get_hash(torrent, dl_type):
@@ -377,6 +512,41 @@ class TorrentTransfer(_IPluginModule):
         except Exception as e:
             print(str(e))
             return ""
+
+    @staticmethod
+    def __can_seeding(torrent, dl_type):
+        """
+        判断种子是否可以做种并处于暂停状态
+        """
+        try:
+            return torrent.get("state") == "pausedUP" if dl_type == DownloaderType.QB \
+                else (torrent.status.stopped and torrent.percent_done == 1)
+        except Exception as e:
+            print(str(e))
+            return False
+
+    @staticmethod
+    def __convert_save_path(save_path, from_root, to_root):
+        """
+        转换保存路径
+        """
+        try:
+            # 没有保存目录，以目的根目录为准
+            if not save_path:
+                return to_root
+            # 没有设置根目录时返回None
+            if not to_root or not from_root:
+                return None
+            # 统一目录格式
+            save_path = os.path.normpath(save_path).replace("\\", "/")
+            from_root = os.path.normpath(from_root).replace("\\", "/")
+            to_root = os.path.normpath(to_root).replace("\\", "/")
+            # 替换根目录
+            if save_path.startswith(from_root):
+                return save_path.replace(from_root, to_root, 1)
+        except Exception as e:
+            print(str(e))
+        return None
 
     def stop_service(self):
         """
