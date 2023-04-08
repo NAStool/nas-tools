@@ -324,7 +324,10 @@ class TorrentTransfer(_IPluginModule):
             self.warn("移转保种服务未启用或未配置")
             return
         self.info("开始移转保种任务 ...")
+        # 源下载器
         downloader = self._fromdownloader[0]
+        # 目的下载器
+        todownloader = self._todownloader[0]
         # 下载器类型
         downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
         # 获取下载器中已完成的种子
@@ -369,7 +372,7 @@ class TorrentTransfer(_IPluginModule):
                     fail += 1
                     continue
                 # 查询hash值是否已经在目的下载器中
-                torrent_info = self.downloader.get_torrents(downloader_id=self._todownloader[0],
+                torrent_info = self.downloader.get_torrents(downloader_id=todownloader,
                                                             ids=[hash_item.get('hash')])
                 if torrent_info:
                     self.debug(f"{hash_item.get('hash')} 已在目的下载器中，跳过 ...")
@@ -388,7 +391,7 @@ class TorrentTransfer(_IPluginModule):
                     torrent_file=torrent_file,
                     is_paused=True,
                     tag=self._torrent_tags,
-                    downloader_id=downloader,
+                    downloader_id=todownloader,
                     download_dir=download_dir,
                     download_setting="-2",
                     is_auto=False
@@ -402,14 +405,14 @@ class TorrentTransfer(_IPluginModule):
                     continue
                 else:
                     # 追加校验任务
-                    self._recheck_torrents.get(downloader, []).append(hash_item.get('hash'))
+                    self._recheck_torrents.get(todownloader, []).append(hash_item.get('hash'))
                     # 下载成功
                     self.info(f"成功添加转移保种任务，种子文件：{torrent_file}")
                     # TR会自动校验
-                    downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+                    downloader_type = self.downloader.get_downloader_type(downloader_id=todownloader)
                     if downloader_type == DownloaderType.QB:
                         # 开始校验种子
-                        self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
+                        self.downloader.recheck_torrents(downloader_id=todownloader, ids=[download_id])
                     # 删除源种子，不能删除文件！
                     if self._deletesource:
                         self.downloader.delete_torrents(downloader_id=downloader,
