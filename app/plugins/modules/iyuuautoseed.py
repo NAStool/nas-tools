@@ -55,6 +55,7 @@ class IYUUAutoSeed(_IPluginModule):
     _sites = []
     _notify = False
     _nolabels = None
+    _clearcache = False
     # 退出事件
     _event = Event()
     # 种子链接xpaths
@@ -68,6 +69,15 @@ class IYUUAutoSeed(_IPluginModule):
     # 待校全种子hash清单
     _recheck_torrents = {}
     _is_recheck_running = False
+    # 辅助缓存，出错的种子不再重复辅种
+    _error_caches = []
+    # 辅种计数
+    total = 0
+    realtotal = 0
+    success = 0
+    exist = 0
+    fail = 0
+    cached = 0
 
     @staticmethod
     def get_fields():
@@ -179,6 +189,13 @@ class IYUUAutoSeed(_IPluginModule):
                             'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照刮削周期运行（同时上次触发运行的任务如果在运行中也会停止）',
                             'type': 'switch',
                             'id': 'onlyonce',
+                        },
+                        {
+                            'title': '下一次运行时清除缓存',
+                            'required': "",
+                            'tooltip': '打开后下一次运行前会先清除辅种缓存，辅种出错的种子会重新尝试辅种，此开关仅生效一次',
+                            'type': 'switch',
+                            'id': 'clearcache',
                         }
                     ]
                 ]
@@ -199,6 +216,8 @@ class IYUUAutoSeed(_IPluginModule):
             self._sites = config.get("sites")
             self._notify = config.get("notify")
             self._nolabels = config.get("nolabels")
+            self._clearcache = config.get("clearcache")
+            self._error_caches = [] if self._clearcache else config.get("error_caches") or []
         # 停止现有任务
         self.stop_service()
 
@@ -216,16 +235,14 @@ class IYUUAutoSeed(_IPluginModule):
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
-                self.update_config({
-                    "enable": self._enable,
-                    "onlyonce": self._onlyonce,
-                    "cron": self._cron,
-                    "token": self._token,
-                    "downloaders": self._downloaders,
-                    "sites": self._sites,
-                    "notify": self._notify,
-                    "nolabels": self._nolabels
-                })
+            if self._clearcache:
+                # 关闭清除缓存开关
+                self._clearcache = False
+
+            if self._clearcache or self._onlyonce:
+                # 保存配置
+                self.__update_config()
+
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
                 self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
@@ -235,6 +252,20 @@ class IYUUAutoSeed(_IPluginModule):
 
     def get_state(self):
         return True if self._enable and self._cron and self._token and self._downloaders else False
+
+    def __update_config(self):
+        self.update_config({
+            "enable": self._enable,
+            "onlyonce": self._onlyonce,
+            "clearcache": self._clearcache,
+            "cron": self._cron,
+            "token": self._token,
+            "downloaders": self._downloaders,
+            "sites": self._sites,
+            "notify": self._notify,
+            "nolabels": self._nolabels,
+            "error_caches": self._error_caches
+        })
 
     def auto_seed(self):
         """
@@ -265,6 +296,9 @@ class IYUUAutoSeed(_IPluginModule):
                     return
                 # 获取种子hash
                 hash_str = self.__get_hash(torrent, downloader_type)
+                if hash_str in self._error_caches:
+                    self.info(f"种子 {hash_str} 辅种失败且已缓存，跳过 ...")
+                    continue
                 save_path = self.__get_save_path(torrent, downloader_type)
                 # 获取种子标签
                 torrent_labels = self.__get_label(torrent, downloader_type)
@@ -291,6 +325,19 @@ class IYUUAutoSeed(_IPluginModule):
                 self.check_recheck()
             else:
                 self.info(f"没有需要辅种的种子")
+        # 保存缓存
+        self.__update_config()
+        # 发送消息
+        if self._notify:
+            self.message.send_custom_message(
+                title="【IYUU自动辅种任务完成】",
+                text=f"服务器返回可辅种总数：{self.total}，"
+                     f"实际可辅种数：{self.realtotal}，"
+                     f"已存在：{self.exist}, "
+                     f"成功：{self.success}，"
+                     f"失败：{self.fail}，"
+                     f"{self.cached} 条失败记录已加入缓存"
+            )
         self.info("辅种任务执行完成")
 
     def check_recheck(self):
@@ -336,7 +383,7 @@ class IYUUAutoSeed(_IPluginModule):
 
     def __seed_torrents(self, hash_strs: list, downloader):
         """
-        执行一个种子的辅种
+        执行一批种子的辅种
         """
         if not hash_strs:
             return
@@ -371,11 +418,13 @@ class IYUUAutoSeed(_IPluginModule):
                 if seed.get("info_hash") in hashs:
                     self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
                     continue
+                if seed.get("info_hash") in self._error_caches:
+                    self.info(f"种子 {seed.get('info_hash')} 辅种失败且已缓存，跳过 ...")
+                    continue
                 # 添加任务
                 self.__download_torrent(seed=seed,
                                         downloader=downloader,
                                         save_path=save_paths.get(current_hash))
-        # 针对每一个站点的种子，拼装下载链接下载种子，发送至下载器
         self.info(f"下载器 {downloader} 辅种完成")
 
     def __download_torrent(self, seed, downloader, save_path):
@@ -387,8 +436,14 @@ class IYUUAutoSeed(_IPluginModule):
                     "info_hash": "a444850638e7a6f6220e2efdde94099c53358159"
                 }
         """
+        self.total += 1
+        # 获取种子站点及下载地址模板
         site_url, download_page = self.iyuuhelper.get_torrent_url(seed.get("sid"))
         if not site_url or not download_page:
+            # 加入缓存
+            self._error_caches.append(seed.get("info_hash"))
+            self.fail += 1
+            self.cached += 1
             return
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
@@ -398,20 +453,27 @@ class IYUUAutoSeed(_IPluginModule):
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
             return
+        self.realtotal += 1
         # 查询hash值是否已经在下载器中
         torrent_info = self.downloader.get_torrents(downloader_id=downloader,
                                                     ids=[seed.get("info_hash")])
         if torrent_info:
             self.debug(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
+            self.exist += 1
             return
         # 站点流控
         if self.sites.check_ratelimit(site_info.get("id")):
+            self.fail += 1
             return
         # 下载种子
         torrent_url = self.__get_download_url(seed=seed,
                                               site=site_info,
                                               base_url=download_page)
         if not torrent_url:
+            # 加入失败缓存
+            self._error_caches.append(seed.get("info_hash"))
+            self.fail += 1
+            self.cached += 1
             return
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
@@ -431,8 +493,10 @@ class IYUUAutoSeed(_IPluginModule):
             self.warn(f"添加下载任务出错，"
                       f"错误原因：{retmsg or '下载器添加任务失败'}，"
                       f"种子链接：{torrent_url}")
+            self.fail += 1
             return
         else:
+            self.success += 1
             # 追加校验任务
             self.info(f"添加校验检查任务：{download_id} ...")
             if not self._recheck_torrents.get(downloader):
@@ -440,10 +504,6 @@ class IYUUAutoSeed(_IPluginModule):
             self._recheck_torrents[downloader].append(download_id)
             # 下载成功
             self.info(f"成功添加辅种下载，站点：{site_info.get('name')}，种子链接：{torrent_url}")
-            if self._notify:
-                msg_title = "【IYUU自动辅种新增任务】"
-                msg_text = f"站点：{site_info.get('name')}\n种子链接：{torrent_url}"
-                self.message.send_custom_message(title=msg_title, text=msg_text)
             # TR会自动校验
             downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
             if downloader_type == DownloaderType.QB:

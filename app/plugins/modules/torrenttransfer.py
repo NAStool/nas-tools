@@ -430,7 +430,7 @@ class TorrentTransfer(_IPluginModule):
             # 发送通知
             if self._notify:
                 self.message.send_custom_message(
-                    title="移转做种任务执行完成",
+                    title="【移转做种任务执行完成】",
                     text=f"总数：{total}，成功：{success}，失败：{fail}"
                 )
         else:
