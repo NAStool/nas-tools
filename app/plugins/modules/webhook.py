@@ -84,19 +84,7 @@ class Webhook(_IPluginModule):
     def stop_service(self):
         pass
 
-    @EventHandler.register([
-        EventType.DownloadAdd,
-        EventType.DownloadFail,
-        EventType.TransferFinished,
-        EventType.TransferFail,
-        EventType.SubtitleDownload,
-        EventType.SubscribeAdd,
-        EventType.SubscribeFinished,
-        EventType.MessageIncoming,
-        EventType.SearchStart,
-        EventType.SourceFileDeleted,
-        EventType.LibraryFileDeleted
-    ])
+    @EventHandler.register(EventType)
     def send(self, event):
         """
         向第三方Webhook发送请求

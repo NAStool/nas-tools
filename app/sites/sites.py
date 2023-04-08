@@ -178,6 +178,12 @@ class Sites:
                 return self._siteByUrls[key]
         return {}
 
+    def get_max_site_pri(self):
+        """
+        获取最大站点优先级
+        """
+        return max([int(site.get("pri")) for site in self._siteByIds.values()])
+
     def get_site_dict(self,
                       rss=False,
                       brush=False,

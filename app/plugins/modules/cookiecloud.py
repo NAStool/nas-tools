@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 import pytz
-from app.helper import DbHelper
+from app.helper import DbHelper, IndexerHelper
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
@@ -18,7 +18,7 @@ class CookieCloud(_IPluginModule):
     # 插件名称
     module_name = "CookieCloud同步"
     # 插件描述
-    module_desc = "从CookieCloud云端同步站点Cookie数据。"
+    module_desc = "从CookieCloud云端同步数据，自动新增站点或更新已有站点Cookie。"
     # 插件图标
     module_icon = "cloud.png"
     # 主题色
@@ -32,7 +32,7 @@ class CookieCloud(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "cookiecloud_"
     # 加载顺序
-    module_order = 1
+    module_order = 21
     # 可使用的用户级别
     auth_level = 2
 
@@ -41,6 +41,7 @@ class CookieCloud(_IPluginModule):
     _site = None
     _dbhelper = None
     _message = None
+    _index_helper = None
     # 设置开关
     _req = None
     _server = None
@@ -80,7 +81,7 @@ class CookieCloud(_IPluginModule):
                         {
                             'title': '执行周期',
                             'required': "",
-                            'tooltip': '设置移转做种任务执行的时间周期，支持5位cron表达式；应避免任务执行过于频繁',
+                            'tooltip': '设置自动同步时间周期，支持5位cron表达式',
                             'type': 'text',
                             'content': [
                                 {
@@ -152,6 +153,7 @@ class CookieCloud(_IPluginModule):
         self._dbhelper = DbHelper()
         self._site = Sites()
         self._message = Message()
+        self._index_helper = IndexerHelper()
 
         # 读取配置
         if config:
@@ -238,6 +240,7 @@ class CookieCloud(_IPluginModule):
         同步站点Cookie
         """
         # 同步数据
+        self.info(f"同步服务开始 ...")
         contents, msg, _ = self.__download_data()
         if not contents:
             self.__send_message(msg)
@@ -246,43 +249,73 @@ class CookieCloud(_IPluginModule):
         domain_groups = defaultdict(list)
         for site, cookies in contents.items():
             for cookie in cookies:
-                if self._event.is_set():
-                    self.info(f"同步服务停止")
-                    return
                 domain_parts = cookie["domain"].split(".")[-2:]
                 domain_key = tuple(domain_parts)
                 domain_groups[domain_key].append(cookie)
-        success_count = 0
+        # 计数
+        update_count = 0
+        add_count = 0
+        # 索引器
         for domain, content_list in domain_groups.items():
             if self._event.is_set():
                 self.info(f"同步服务停止")
                 return
             if not content_list:
                 continue
+            # 域名
+            domain_url = ".".join(domain)
+            # 只有cf的cookie过滤掉
+            cloudflare_cookie = True
+            for content in content_list:
+                if content["name"] != "cf_clearance":
+                    cloudflare_cookie = False
+                    break
+            if cloudflare_cookie:
+                continue
+            # Cookie
             cookie_str = ";".join(
                 [f"{content['name']}={content['value']}" for content in content_list]
             )
-            site_info = self._site.get_sites_by_suffix(".".join(domain))
+            # 查询站点
+            site_info = self._site.get_sites_by_suffix(domain_url)
             if site_info:
+                # 已存在的站点更新Cookie
                 self._dbhelper.update_site_cookie_ua(tid=site_info.get("id"), cookie=cookie_str)
-                success_count += 1
-        if success_count:
+                update_count += 1
+            else:
+                # 查询是否在索引器范围
+                indexer_info = self._index_helper.get_indexer_info(domain_url)
+                if indexer_info:
+                    # 支持则新增站点
+                    site_pri = self._site.get_max_site_pri() + 1
+                    self._dbhelper.insert_config_site(
+                        name=indexer_info.get("name"),
+                        site_pri=site_pri,
+                        signurl=indexer_info.get("domain"),
+                        cookie=cookie_str,
+                        rss_uses='QT'
+                    )
+                    add_count += 1
+        # 发送消息
+        if update_count or add_count:
             # 重载站点信息
             self._site.init_config()
-            self.__send_message(f"同步完成，更新 {success_count} 个站点的Cookie数据")
+            msg = f"更新了 {update_count} 个站点的Cookie数据，新增了 {add_count} 个站点"
         else:
-            self.__send_message(f"同步完成，未更新任何站点的Cookie！")
+            msg = f"同步完成，但未更新任何站点数据！"
+        self.info(msg)
+        # 发送消息
+        if self._notify:
+            self.__send_message(msg)
 
     def __send_message(self, msg):
         """
         发送通知
         """
-        self.info(msg)
-        if self._notify:
-            self._message.send_custom_message(
-                title="CookieCloud同步任务执行完成",
-                text=f"{msg}"
-            )
+        self._message.send_custom_message(
+            title="【CookieCloud同步任务执行完成】",
+            text=f"{msg}"
+        )
 
     def stop_service(self):
         """

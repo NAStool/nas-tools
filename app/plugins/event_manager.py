@@ -83,6 +83,9 @@ class EventManager:
             if isinstance(etype, list):
                 for et in etype:
                     self.add_event_listener(et, f)
+            elif type(etype) == type(EventType):
+                for et in etype.__members__.values():
+                    self.add_event_listener(et, f)
             else:
                 self.add_event_listener(etype, f)
             return f

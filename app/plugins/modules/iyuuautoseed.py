@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from datetime import datetime
 from threading import Event
 
@@ -448,7 +449,7 @@ class IYUUAutoSeed(_IPluginModule):
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
         if not site_info:
-            self.warn(f"没有维护种子对应的站点：{site_url}")
+            self.debug(f"没有维护种子对应的站点：{site_url}")
             return
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
@@ -482,7 +483,7 @@ class IYUUAutoSeed(_IPluginModule):
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
-            tag=self._torrent_tags,
+            tag=deepcopy(self._torrent_tags),
             downloader_id=downloader,
             download_dir=save_path,
             download_setting="-2",

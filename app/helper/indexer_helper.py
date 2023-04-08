@@ -25,6 +25,12 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
+    def get_indexer_info(self, url):
+        for indexer in self._indexers:
+            if StringUtils.url_equal(indexer.get("domain"), url):
+                return indexer
+        return None
+
     def get_indexer(self,
                     url,
                     siteid=None,
