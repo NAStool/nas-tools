@@ -435,7 +435,9 @@ class IYUUAutoSeed(_IPluginModule):
         else:
             # 追加校验任务
             self.info(f"添加校验检查任务：{download_id} ...")
-            self._recheck_torrents.get(downloader, []).append(download_id)
+            if not self._recheck_torrents.get(downloader):
+                self._recheck_torrents[downloader] = []
+            self._recheck_torrents[downloader].append(download_id)
             # 下载成功
             self.info(f"成功添加辅种下载，站点：{site_info.get('name')}，种子链接：{torrent_url}")
             if self._notify:

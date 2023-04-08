@@ -409,7 +409,9 @@ class TorrentTransfer(_IPluginModule):
                 else:
                     # 追加校验任务
                     self.info(f"添加校验检查任务：{download_id} ...")
-                    self._recheck_torrents.get(todownloader, []).append(download_id)
+                    if not self._recheck_torrents.get(todownloader):
+                        self._recheck_torrents[todownloader] = []
+                    self._recheck_torrents[todownloader].append(download_id)
                     # 下载成功
                     self.info(f"成功添加转移做种任务，种子文件：{torrent_file}")
                     # TR会自动校验
