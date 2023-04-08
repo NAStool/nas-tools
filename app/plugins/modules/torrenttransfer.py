@@ -58,6 +58,7 @@ class TorrentTransfer(_IPluginModule):
     _event = Event()
     # 待检查种子清单
     _recheck_torrents = {}
+    _is_recheck_running = False
     # 任务标签
     _torrent_tags = ["已整理", "转移保种"]
 
@@ -118,6 +119,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'id': 'fromdownloader',
                             'type': 'form-selectgroup',
+                            'radio': True,
                             'content': downloaders
                         },
                     ]
@@ -165,6 +167,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'id': 'todownloader',
                             'type': 'form-selectgroup',
+                            'radio': True,
                             'content': downloaders
                         },
                     ]
@@ -297,7 +300,7 @@ class TorrentTransfer(_IPluginModule):
                 })
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
-                self._scheduler.add_job(self.check_recheck, 'interval', minutes=5)
+                self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -419,6 +422,9 @@ class TorrentTransfer(_IPluginModule):
                                                         ids=[download_id],
                                                         delete_file=False)
                     success += 1
+            # 触发校验任务
+            if success > 0:
+                self.check_recheck()
             # 发送通知
             if self._notify:
                 self.message.send_custom_message(
@@ -437,12 +443,15 @@ class TorrentTransfer(_IPluginModule):
             return
         if not self._todownloader:
             return
+        if self._is_recheck_running:
+            return
         downloader = self._todownloader[0]
         # 需要检查的种子
         recheck_torrents = self._recheck_torrents.get(downloader, [])
         if not recheck_torrents:
             return
         self.info(f"开始检查下载器 {downloader} 的校验任务 ...")
+        self._is_recheck_running = True
         # 下载器类型
         downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
         # 获取下载器中的种子
@@ -466,6 +475,7 @@ class TorrentTransfer(_IPluginModule):
         else:
             self.info(f"下载器 {downloader} 中没有需要检查的校验任务，清空待处理列表 ...")
             self._recheck_torrents[downloader] = []
+        self._is_recheck_running = False
 
     @staticmethod
     def __get_hash(torrent, dl_type):

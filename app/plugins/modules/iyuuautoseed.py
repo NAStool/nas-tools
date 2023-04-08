@@ -67,6 +67,7 @@ class IYUUAutoSeed(_IPluginModule):
     _torrent_tags = ["已整理", "辅种"]
     # 待校全种子hash清单
     _recheck_torrents = {}
+    _is_recheck_running = False
 
     @staticmethod
     def get_fields():
@@ -227,7 +228,7 @@ class IYUUAutoSeed(_IPluginModule):
                 })
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
-                self._scheduler.add_job(self.check_recheck, 'interval', minutes=5)
+                self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -286,6 +287,8 @@ class IYUUAutoSeed(_IPluginModule):
                     # 处理分组
                     self.__seed_torrents(hash_strs=chunk,
                                          downloader=downloader)
+                # 触发校验检查
+                self.check_recheck()
             else:
                 self.info(f"没有需要辅种的种子")
         self.info("辅种任务执行完成")
@@ -296,6 +299,9 @@ class IYUUAutoSeed(_IPluginModule):
         """
         if not self._recheck_torrents:
             return
+        if self._is_recheck_running:
+            return
+        self._is_recheck_running = True
         for downloader in self._downloaders:
             # 需要检查的种子
             recheck_torrents = self._recheck_torrents.get(downloader, [])
@@ -326,6 +332,7 @@ class IYUUAutoSeed(_IPluginModule):
             else:
                 self.info(f"下载器 {downloader} 中没有需要检查的校验任务，清空待处理列表 ...")
                 self._recheck_torrents[downloader] = []
+        self._is_recheck_running = False
 
     def __seed_torrents(self, hash_strs: list, downloader):
         """
