@@ -557,3 +557,12 @@ class Qbittorrent(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
+
+    def rename_torrent_path(self, torrent_id, location, name):
+        if not self.qbc:
+            return False
+        try:
+            return True
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False

@@ -1340,3 +1340,19 @@ class Downloader:
         if not _client:
             return False
         return _client.recheck_torrents(ids)
+
+    def rename_torrent_path(self, downloader_id=None, torrent_id=None, location=None, name=None):
+        """
+        修改种子路径
+        :param downloader_id: 下载器ID
+        :param torrent_id: 种子ID
+        :param location：种子目录
+        :param name: 种子名称
+        :return: 处理状态
+        """
+        if not torrent_id or not location or not name:
+            return False
+        _client = self.__get_client(downloader_id) if downloader_id else self.default_client
+        if not _client:
+            return False
+        return _client.rename_torrent_path(torrent_id, location, name)

@@ -552,3 +552,15 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
+
+    def rename_torrent_path(self, torrent_id, location, name):
+        if not self.trc:
+            return False
+        torrent_id = self.__parse_ids(torrent_id)
+        try:
+            return self.trc.rename_torrent_path(torrent_id=torrent_id,
+                                                location=location,
+                                                name=name)
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            return False

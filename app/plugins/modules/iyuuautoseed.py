@@ -308,9 +308,21 @@ class IYUUAutoSeed(_IPluginModule):
                         and set(self._nolabels.split(',')).intersection(set(torrent_labels)):
                     self.info(f"种子 {hash_str} 含有不辅种标签，跳过 ...")
                     continue
+
+                # 获取种子name
+                torrent_name = self.__get_name(torrent, downloader_type)
+
+                # 获取种子保存目录
+                torrent_path = None
+                torrent_files = self.downloader.get_files(tid=hash_str,
+                                                          downloader_id=downloader)
+                if len(torrent_files) > 0:
+                    torrent_path = torrent_files[0].get('name').split("/")[0]
                 hash_strs.append({
                     "hash": hash_str,
-                    "save_path": save_path
+                    "save_path": save_path,
+                    "torrent_name": torrent_name,
+                    "torrent_path": torrent_path
                 })
             if hash_strs:
                 self.info(f"总共需要辅种的种子数：{len(hash_strs)}")
@@ -395,6 +407,12 @@ class IYUUAutoSeed(_IPluginModule):
         save_paths = {}
         for item in hash_strs:
             save_paths[item.get("hash")] = item.get("save_path")
+        torrent_names = {}
+        for item in hash_strs:
+            torrent_names[item.get("hash")] = item.get("torrent_name")
+        torrent_paths = {}
+        for item in hash_strs:
+            torrent_paths[item.get("hash")] = item.get("torrent_path")
         # 查询可辅种数据
         seed_list, msg = self.iyuuhelper.get_seed_info(hashs)
         if not isinstance(seed_list, dict):
@@ -425,10 +443,12 @@ class IYUUAutoSeed(_IPluginModule):
                 # 添加任务
                 self.__download_torrent(seed=seed,
                                         downloader=downloader,
-                                        save_path=save_paths.get(current_hash))
+                                        save_path=save_paths.get(current_hash),
+                                        torrent_name=torrent_names.get(current_hash),
+                                        torrent_path=torrent_paths.get(current_hash))
         self.info(f"下载器 {downloader} 辅种完成")
 
-    def __download_torrent(self, seed, downloader, save_path):
+    def __download_torrent(self, seed, downloader, save_path, torrent_name, torrent_path):
         """
         下载种子
         torrent: {
@@ -498,6 +518,14 @@ class IYUUAutoSeed(_IPluginModule):
             return
         else:
             self.success += 1
+
+            # 设置种子目录
+            if not torrent_name and not torrent_path and '枪王之王' in torrent_name:
+                self.downloader.rename_torrent_path(downloader_id=downloader,
+                                                    torrent_id=seed.get("info_hash"),
+                                                    location=torrent_path,
+                                                    name=torrent_name)
+
             # 追加校验任务
             self.info(f"添加校验检查任务：{download_id} ...")
             if not self._recheck_torrents.get(downloader):
@@ -529,6 +557,17 @@ class IYUUAutoSeed(_IPluginModule):
         """
         try:
             return torrent.get("tags") or [] if dl_type == DownloaderType.QB else torrent.labels or []
+        except Exception as e:
+            print(str(e))
+            return []
+
+    @staticmethod
+    def __get_name(torrent, dl_type):
+        """
+        获取种子名称
+        """
+        try:
+            return torrent.get("name") or [] if dl_type == DownloaderType.QB else torrent.name or []
         except Exception as e:
             print(str(e))
             return []
