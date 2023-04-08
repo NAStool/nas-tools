@@ -18,11 +18,11 @@ class CookieCloud(_IPluginModule):
     # 插件名称
     module_name = "CookieCloud同步"
     # 插件描述
-    module_desc = "同步（定时）站点cookie"
+    module_desc = "从CookieCloud云端同步站点Cookie数据。"
     # 插件图标
-    module_icon = "SpeedLimiter.jpg"
+    module_icon = "cloud.png"
     # 主题色
-    module_color = "#183883"
+    module_color = "#77B3D4"
     # 插件版本
     module_version = "1.0"
     # 插件作者
