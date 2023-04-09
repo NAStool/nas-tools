@@ -157,7 +157,9 @@ class _IDownloadClient(metaclass=ABCMeta):
         """
         try:
             for directory in download_dir:
-                if os.path.commonpath([directory['save_path'], path]) == directory['save_path']:
+                if path \
+                        and directory['save_path'] \
+                        and os.path.commonpath([directory['save_path'], path]) == directory['save_path']:
                     return True
             return False
         except Exception as e:

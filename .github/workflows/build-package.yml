@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10.10'
+
     - name: install dependent packages
       run: |
         python -m pip install --upgrade pip
@@ -27,6 +28,7 @@ jobs:
         echo ("NASTOOL_CONFIG=D:/a/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
         echo $env:NASTOOL_CONFIG
       shell: pwsh
+
     - name: package through pyinstaller
       run: |
         cd nas-tools
@@ -44,6 +46,7 @@ jobs:
         pyinstaller nas-tools.spec
         dir  D:/a/nas-tools/nas-tools/nas-tools/package/dist
       shell: pwsh
+
     - name: upload windows file
       uses: actions/upload-artifact@v3
       with:
@@ -57,6 +60,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10.10'
+
       - name: install dependent packages
         run: |
           python -m pip install --upgrade pip
@@ -67,6 +71,7 @@ jobs:
           echo ("NASTOOL_CONFIG=/home/runner/work/nas-tools/nas-tools/nas-tools/config/config.yaml") >> $env:GITHUB_ENV
           echo $env:NASTOOL_CONFIG
         shell: pwsh
+
       - name: package through pyinstaller
         run: |
           cd nas-tools
@@ -87,6 +92,7 @@ jobs:
           mv /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.amd64
           ls -all /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist
         shell: pwsh
+
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
@@ -96,15 +102,15 @@ jobs:
   Linux-build-arm64:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@master
-      -
-        name: Set Up QEMU
+
+      - name: Set Up QEMU
         uses: docker/setup-qemu-action@v1
-      -
-        name: Set Up Buildx
+
+      - name: Set Up Buildx
         uses: docker/setup-buildx-action@v1
+
       - name: package through pyinstaller
         run: |
           mkdir rootfs
@@ -112,6 +118,7 @@ jobs:
           mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
           cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.arm64
         shell: pwsh
+
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
@@ -121,15 +128,15 @@ jobs:
   Linux-build-amd64-musl:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@master
-      -
-        name: Set Up QEMU
+
+      - name: Set Up QEMU
         uses: docker/setup-qemu-action@v1
-      -
-        name: Set Up Buildx
+
+      - name: Set Up Buildx
         uses: docker/setup-buildx-action@v1
+
       - name: package through pyinstaller
         run: |
           mkdir rootfs
@@ -137,6 +144,7 @@ jobs:
           mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
           cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.amd64
         shell: pwsh
+
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
@@ -146,15 +154,15 @@ jobs:
   Linux-build-arm64-musl:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@master
-      -
-        name: Set Up QEMU
+
+      - name: Set Up QEMU
         uses: docker/setup-qemu-action@v1
-      -
-        name: Set Up Buildx
+
+      - name: Set Up Buildx
         uses: docker/setup-buildx-action@v1
+
       - name: package through pyinstaller
         run: |
           mkdir rootfs
@@ -162,6 +170,7 @@ jobs:
           mkdir -p /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/
           cp ./rootfs/nas-tools /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
         shell: pwsh
+
       - name: upload linux file
         uses: actions/upload-artifact@v3
         with:
@@ -175,6 +184,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10.10'
+
       - name: install dependent packages
         run: |
           python -m pip install --upgrade pip
@@ -186,6 +196,7 @@ jobs:
           echo "NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml" >> $GITHUB_ENV
           echo $env:NASTOOL_CONFIG
         shell: bash
+
       - name: package through pyinstaller
         run: |
           cd nas-tools
@@ -205,6 +216,7 @@ jobs:
           pwd
           ls -all ./dist/
         shell: bash
+
       - name: upload mac file
         uses: actions/upload-artifact@v3
         with:
@@ -217,11 +229,13 @@ jobs:
     needs: [Windows-build, Linux-build-amd64, Linux-build-arm64, Linux-build-amd64-musl, Linux-build-arm64-musl, Mac-build]
     steps:
     - uses: actions/checkout@v2
+
     - name: Release version
       id: release_version
       run: |
         app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
         echo "app_version=$app_version" >> $GITHUB_ENV
+
     - name: download exe and rename
       uses: actions/download-artifact@v3
     - name: get release_informations
@@ -238,6 +252,7 @@ jobs:
         mv ./macos/nas-tools.macos /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
         pwd
         ls -all
+
     - name: Create release
       id: create_release
       uses: actions/create-release@latest
@@ -249,6 +264,9 @@ jobs:
         body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
+        continue-on-error: true
+        id-output: true
+
     - name: Upload release asset
       uses: dwenegar/upload-release-assets@v1
       env:
@@ -260,6 +278,7 @@ jobs:
 
     - name: Send telegram message (release informations)
       uses: appleboy/telegram-action@master
+      if: ${{ steps.create_release.outcome == 'success' }}
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
