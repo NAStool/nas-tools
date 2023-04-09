@@ -245,12 +245,13 @@ class SiteUserInfo(object):
                                    f"下载量：{StringUtils.str_filesize(download)}\n"
                                    f"\n————————————")
 
-        string_list.insert(0, f"【今日汇总】\n"
-                              f"总上传：{StringUtils.str_filesize(incUploads)}\n"
-                              f"总下载：{StringUtils.str_filesize(incDownloads)}\n"
-                              f"\n————————————")
+        if incDownloads and incUploads:
+            string_list.insert(0, f"【今日汇总】\n"
+                                  f"总上传：{StringUtils.str_filesize(incUploads)}\n"
+                                  f"总下载：{StringUtils.str_filesize(incDownloads)}\n"
+                                  f"\n————————————")
 
-        self.message.send_user_statistics_message(string_list)
+            self.message.send_user_statistics_message(string_list)
 
     def get_site_data(self, specify_sites=None, force=False):
         """
