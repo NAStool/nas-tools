@@ -70,8 +70,10 @@ class IYUUAutoSeed(_IPluginModule):
     # 待校全种子hash清单
     _recheck_torrents = {}
     _is_recheck_running = False
-    # 辅助缓存，出错的种子不再重复辅种
+    # 辅种缓存，出错的种子不再重复辅种，可清除
     _error_caches = []
+    # 辅种缓存，出错的种子不再重复辅种，且无法清除。种子被删除404等情况
+    _permanent_error_caches = []
     # 辅种计数
     total = 0
     realtotal = 0
@@ -218,6 +220,7 @@ class IYUUAutoSeed(_IPluginModule):
             self._notify = config.get("notify")
             self._nolabels = config.get("nolabels")
             self._clearcache = config.get("clearcache")
+            self._permanent_error_caches = config.get("permanent_error_caches")
             self._error_caches = [] if self._clearcache else config.get("error_caches") or []
         # 停止现有任务
         self.stop_service()
@@ -265,7 +268,8 @@ class IYUUAutoSeed(_IPluginModule):
             "sites": self._sites,
             "notify": self._notify,
             "nolabels": self._nolabels,
-            "error_caches": self._error_caches
+            "error_caches": self._error_caches,
+            "permanent_error_caches": self._permanent_error_caches
         })
 
     def auto_seed(self):
@@ -297,7 +301,7 @@ class IYUUAutoSeed(_IPluginModule):
                     return
                 # 获取种子hash
                 hash_str = self.__get_hash(torrent, downloader_type)
-                if hash_str in self._error_caches:
+                if hash_str in self._error_caches or hash_str in self._permanent_error_caches:
                     self.info(f"种子 {hash_str} 辅种失败且已缓存，跳过 ...")
                     continue
                 save_path = self.__get_save_path(torrent, downloader_type)
@@ -419,7 +423,7 @@ class IYUUAutoSeed(_IPluginModule):
                 if seed.get("info_hash") in hashs:
                     self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
                     continue
-                if seed.get("info_hash") in self._error_caches:
+                if seed.get("info_hash") in self._error_caches or seed.get("info_hash") in self._permanent_error_caches:
                     self.info(f"种子 {seed.get('info_hash')} 辅种失败且已缓存，跳过 ...")
                     continue
                 # 添加任务
@@ -495,6 +499,12 @@ class IYUUAutoSeed(_IPluginModule):
                       f"错误原因：{retmsg or '下载器添加任务失败'}，"
                       f"种子链接：{torrent_url}")
             self.fail += 1
+            # 加入失败缓存
+            if retmsg and ('无法打开链接' in retmsg or '触发站点流控' in retmsg):
+                self._error_caches.append(seed.get("info_hash"))
+            else:
+                # 种子不存在的情况
+                self._permanent_error_caches.append(seed.get("info_hash"))
             return
         else:
             self.success += 1
