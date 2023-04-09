@@ -6,6 +6,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 import pytz
+
+import log
 from app.helper import DbHelper, IndexerHelper
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
@@ -243,6 +245,7 @@ class CookieCloud(_IPluginModule):
         self.info(f"同步服务开始 ...")
         contents, msg, _ = self.__download_data()
         if not contents:
+            log.error(msg)
             self.__send_message(msg)
             return
         # 整理数据,使用domain域名的最后两级作为分组依据

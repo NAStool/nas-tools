@@ -133,19 +133,19 @@ class TorrentTransfer(_IPluginModule):
                             'content': [
                                 {
                                     'id': 'fromtorrentpath',
-                                    'placeholder': 'BT_backup|torrents',
+                                    'placeholder': 'xxx/BT_backup、xxx/torrents',
                                 }
                             ]
                         },
                         {
                             'title': '数据文件根路径',
                             'required': "required",
-                            'tooltip': '源下载器中的种子数据文件保存根目录路径，必须是下载器能访问的路径，用于转移时替换种子数据文件路径使用',
+                            'tooltip': '源下载器中的种子数据文件保存根目录路径，必须是下载器能访问的路径，用于转移时转换种子数据文件路径使用；留空不进行路径转换，使用种子的数据文件保存目录',
                             'type': 'text',
                             'content': [
                                 {
                                     'id': 'frompath',
-                                    'placeholder': '根路径',
+                                    'placeholder': '根路径，留空不进行路径转换',
                                 }
                             ]
                         }
@@ -170,12 +170,12 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '数据文件根路径',
                             'required': "required",
-                            'tooltip': '目的下载器的种子数据文件保存目录根路径，必须是下载器能访问的路径，将会使用该路径替换源下载器中种子数据文件保存路径中的源目录根路径，替换后的新路径做为目的下载器种子数据文件的保存路径，需要准确填写，否则可能导致移转做种后找不到数据文件，从而触发重新下载',
+                            'tooltip': '目的下载器的种子数据文件保存目录根路径，必须是下载器能访问的路径，将会使用该路径替换源下载器中种子数据文件保存路径中的源目录根路径，替换后的新路径做为目的下载器种子数据文件的保存路径，需要准确填写，否则可能导致移转做种后找不到数据文件无法做种；留空不进行路径转换，使用种子的数据文件保存路径',
                             'type': 'text',
                             'content': [
                                 {
                                     'id': 'topath',
-                                    'placeholder': '根路径',
+                                    'placeholder': '根路径，留空不进行路径转换',
                                 }
                             ]
                         }
@@ -287,6 +287,7 @@ class TorrentTransfer(_IPluginModule):
                     "todownloader": self._todownloader,
                     "deletesource": self._deletesource,
                     "fromtorrentpath": self._fromtorrentpath,
+                    "nopaths": self._nopaths
                 })
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
@@ -300,8 +301,6 @@ class TorrentTransfer(_IPluginModule):
                        and self._cron \
                        and self._fromdownloader \
                        and self._todownloader \
-                       and self._frompath \
-                       and self._topath \
                        and self._fromtorrentpath else False
 
     def transfer(self):
@@ -311,8 +310,6 @@ class TorrentTransfer(_IPluginModule):
         if not self._enable \
                 or not self._fromdownloader \
                 or not self._todownloader \
-                or not self._frompath \
-                or not self._topath \
                 or not self._fromtorrentpath:
             self.warn("移转做种服务未启用或未配置")
             return
@@ -535,9 +532,9 @@ class TorrentTransfer(_IPluginModule):
             # 没有保存目录，以目的根目录为准
             if not save_path:
                 return to_root
-            # 没有设置根目录时返回None
+            # 没有设置根目录时返回save_path
             if not to_root or not from_root:
-                return None
+                return save_path
             # 统一目录格式
             save_path = os.path.normpath(save_path).replace("\\", "/")
             from_root = os.path.normpath(from_root).replace("\\", "/")
