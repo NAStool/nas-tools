@@ -332,11 +332,11 @@ class IYUUAutoSeed(_IPluginModule):
         if self._notify:
             self.message.send_custom_message(
                 title="【IYUU自动辅种任务完成】",
-                text=f"服务器返回可辅种总数：{self.total}，"
-                     f"实际可辅种数：{self.realtotal}，"
-                     f"已存在：{self.exist}, "
-                     f"成功：{self.success}，"
-                     f"失败：{self.fail}，"
+                text=f"服务器返回可辅种总数：{self.total}\n"
+                     f"实际可辅种数：{self.realtotal}\n"
+                     f"已存在：{self.exist}\n"
+                     f"成功：{self.success}\n"
+                     f"失败：{self.fail}\n"
                      f"{self.cached} 条失败记录已加入缓存"
             )
         self.info("辅种任务执行完成")
@@ -449,7 +449,7 @@ class IYUUAutoSeed(_IPluginModule):
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
         if not site_info:
-            self.warn(f"没有维护种子对应的站点：{site_url}")
+            self.debug(f"没有维护种子对应的站点：{site_url}")
             return
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")

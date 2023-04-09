@@ -7,6 +7,7 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from app.message import Message
 from app.plugins import EventManager
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, RequestUtils, IpUtils
@@ -38,6 +39,7 @@ class CloudflareSpeedTest(_IPluginModule):
 
     # 私有属性
     eventmanager = None
+    message = None
     _customhosts = False
     _cf_ip = None
     _scheduler = None
@@ -48,6 +50,7 @@ class CloudflareSpeedTest(_IPluginModule):
     _version = None
     _additional_args = None
     _re_install = False
+    _notify = False
     _cf_path = 'cloudflarespeedtest'
     _cf_ipv4 = 'cloudflarespeedtest/ip.txt'
     _cf_ipv6 = 'cloudflarespeedtest/ipv6.txt'
@@ -106,6 +109,19 @@ class CloudflareSpeedTest(_IPluginModule):
                             'tooltip': '优选测速ipv6；v4和v6必须其一，都不选择则默认ipv4。选择ipv6会大大加长测速时间。',
                             'type': 'switch',
                             'id': 'ipv6',
+                        },
+                        {
+                            'title': '',
+                            'required': "",
+                            'tooltip': '',
+                            'type': 'text',
+                            'hidden': True,
+                            'content': [
+                                {
+                                    'id': 'version',
+                                    'placeholder': 'CloudflareSpeedTest版本',
+                                }
+                            ]
                         }
                     ],
                     [
@@ -122,7 +138,14 @@ class CloudflareSpeedTest(_IPluginModule):
                             'tooltip': '开启后，每次会重新下载CloudflareSpeedTest，网络不好慎选',
                             'type': 'switch',
                             'id': 're_install',
-                        }
+                        },
+                        {
+                            'title': '运行时通知',
+                            'required': "",
+                            'tooltip': '运行任务后会发送通知（需要打开自定义消息通知）',
+                            'type': 'switch',
+                            'id': 'notify',
+                        },
                     ]
                 ]
             },
@@ -141,19 +164,6 @@ class CloudflareSpeedTest(_IPluginModule):
                                     'placeholder': '-dd'
                                 }
                             ]
-                        },
-                        {
-                            'title': '',
-                            'required': "",
-                            'tooltip': '',
-                            'type': 'text',
-                            'hidden': True,
-                            'content': [
-                                {
-                                    'id': 'version',
-                                    'placeholder': 'CloudflareSpeedTest版本',
-                                }
-                            ]
                         }
                     ]
                 ]
@@ -162,6 +172,7 @@ class CloudflareSpeedTest(_IPluginModule):
 
     def init_config(self, config=None):
         self.eventmanager = EventManager()
+        self.message = Message()
 
         # 读取配置
         if config:
@@ -173,6 +184,7 @@ class CloudflareSpeedTest(_IPluginModule):
             self._ipv6 = config.get("ipv6")
             self._re_install = config.get("re_install")
             self._additional_args = config.get("additional_args")
+            self._notify = config.get("notify")
 
         # 停止现有任务
         self.stop_service()
@@ -267,9 +279,10 @@ class CloudflareSpeedTest(_IPluginModule):
                     }, "CustomHosts")
 
                     # 更新优选ip
+                    old_ip = self._cf_ip
                     self._cf_ip = best_ip
                     self.__update_config()
-                    self.info(f"CLoudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
+                    self.info(f"Cloudflare CDN优选ip [{best_ip}] 已替换自定义Hosts插件")
 
                     # 解发自定义hosts插件重载
                     self.info("通知CustomHosts插件重载 ...")
@@ -277,6 +290,12 @@ class CloudflareSpeedTest(_IPluginModule):
                                                  {
                                                      "plugin_id": "CustomHosts"
                                                  })
+                    if self._notify:
+                        self.message.send_custom_message(
+                            title="【Cloudflare优选任务完成】",
+                            text=f"原ip：{old_ip}\n"
+                                 f"新ip：{best_ip}"
+                        )
         else:
             self.error("获取到最优ip格式错误，请重试")
             self._onlyonce = False
@@ -412,7 +431,8 @@ class CloudflareSpeedTest(_IPluginModule):
             "ipv4": self._ipv4,
             "ipv6": self._ipv6,
             "re_install": self._re_install,
-            "additional_args": self._additional_args
+            "additional_args": self._additional_args,
+            "notify": self._notify
         })
 
     @staticmethod
