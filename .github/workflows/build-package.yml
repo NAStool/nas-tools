@@ -266,10 +266,11 @@ jobs:
         body: ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
+        skipIfReleaseExists: true
 
     - name: Send telegram message (release informations)
       uses: appleboy/telegram-action@master
-      if: ${{ steps.create_release.outcome == 'success' }}
+      if: ${{ steps.create_release.output.id }}
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
