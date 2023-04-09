@@ -258,7 +258,14 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         tag: v${{ env.app_version }}
-        artifacts: "/home/runner/work/nas-tools/nas-tools/releases/"
+        artifacts: |
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_amd64_v${{ env.app_version }}
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_arm64_v${{ env.app_version }}
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_amd64_v${{ env.app_version }}
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_arm64_v${{ env.app_version }}
+          /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
+
         token: ${{ secrets.GITHUB_TOKEN }}
         replacesArtifacts: true
         removeArtifacts: false
