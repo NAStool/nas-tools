@@ -117,7 +117,8 @@ class Sites:
                 self._limiters[site.ID] = SiteRateLimiter(
                     limit_interval=int(site_note.get("limit_interval")) * 60,
                     limit_count=int(site_note.get("limit_count")),
-                    limit_seconds=int(site_note.get("limit_seconds"))
+                    limit_seconds=int(site_note.get("limit_seconds")) if site_note.get("limit_seconds") and str(
+                        site_note.get("limit_seconds")).isdigit() else None
                 )
 
     def init_favicons(self):
