@@ -1,11 +1,12 @@
 import os
+import time
 
 from app.helper import DbHelper
 from app.media import Media
 from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.utils.types import EventType, MediaServerType, MediaType
+from app.utils.types import EventType, MediaType
 from web.action import WebAction
 
 
@@ -33,6 +34,7 @@ class MediaSyncDel(_IPluginModule):
 
     # 私有属性
     dbhelper = None
+    message = None
     _enable = False
     _del_source = False
     _exclude_path = None
@@ -64,7 +66,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开媒体服务通知）',
+                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开自定义消息通知）',
                             'type': 'switch',
                             'id': 'send_notify',
                         }
@@ -94,6 +96,8 @@ class MediaSyncDel(_IPluginModule):
 
     def init_config(self, config=None):
         self.dbhelper = DbHelper()
+        self.message = Message()
+
         # 读取配置
         if config:
             self._enable = config.get("enable")
@@ -159,18 +163,13 @@ class MediaSyncDel(_IPluginModule):
             self.info(f"媒体路径 {media_path} 已被排除，暂不处理")
             return
 
-        # 消息推送消息体
-        event_info = {'event': 'media.del', 'item_type': 'MOV' if media_type == "Movie" else 'TV'}
-
         # 删除电影
         if media_type == "Movie":
-            event_info['item_name'] = media_name
             msg = f'电影 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
         # 删除电视剧
         elif media_type == "Series":
-            event_info['item_name'] = media_name
             msg = f'剧集 {media_name} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id)
@@ -179,7 +178,6 @@ class MediaSyncDel(_IPluginModule):
             if not season_num or not str(season_num).isdigit():
                 self.error(f"{media_name} 季同步删除失败，未获取到具体季")
                 return
-            event_info['item_name'] = f'{media_name} S{season_num}'
             msg = f'剧集 {media_name} S{season_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id, season=f'S{season_num}')
@@ -188,7 +186,6 @@ class MediaSyncDel(_IPluginModule):
             if not season_num or not str(season_num).isdigit() or not episode_num or not str(episode_num).isdigit():
                 self.error(f"{media_name} 集同步删除失败，未获取到具体集")
                 return
-            event_info['item_name'] = f'{media_name} S{season_num}E{episode_num}'
             msg = f'剧集 {media_name} S{season_num}E{episode_num} {tmdb_id}'
             self.info(f"正在同步删除{msg}")
             transfer_history = self.dbhelper.get_transfer_info_by(tmdbid=tmdb_id,
@@ -230,9 +227,14 @@ class MediaSyncDel(_IPluginModule):
                 image_url = Media().get_tmdb_backdrop(mtype=MediaType.MOVIE if media_type == "Movie" else MediaType.TV,
                                                       tmdbid=tmdb_id)
             # 发送通知
-            Message().send_mediaserver_message(event_info=event_info,
-                                               channel=MediaServerType.EMBY.value,
-                                               image_url=image_url)
+            self.message.send_custom_message(
+                title="【Emby同步删除任务完成】",
+                image=image_url or 'https://emby.media/notificationicon.png',
+                text=f"{msg}\n"
+                     f"数量 {len(logids)}\n"
+                     f"时间 {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}"
+            )
+
         self.info(f"同步删除 {msg} 完成！")
 
     def get_state(self):

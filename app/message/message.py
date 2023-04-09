@@ -531,8 +531,7 @@ class Message(object):
             "media.stop": "停止播放",
             "PlaybackStart": "开始播放",
             "PlaybackStop": "停止播放",
-            "item.rate": "标记了",
-            "media.del": "Emby同步删除"
+            "item.rate": "标记了"
         }
         _webhook_images = {
             "Emby": "https://emby.media/notificationicon.png",
