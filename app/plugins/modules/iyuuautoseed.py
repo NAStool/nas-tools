@@ -495,6 +495,8 @@ class IYUUAutoSeed(_IPluginModule):
                       f"错误原因：{retmsg or '下载器添加任务失败'}，"
                       f"种子链接：{torrent_url}")
             self.fail += 1
+            # 加入失败缓存
+            self._error_caches.append(seed.get("info_hash"))
             return
         else:
             self.success += 1
