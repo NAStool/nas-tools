@@ -183,6 +183,8 @@ class Sites:
         """
         获取最大站点优先级
         """
+        if not self._siteByIds:
+            return 0
         return max([int(site.get("pri")) for site in self._siteByIds.values()])
 
     def get_site_dict(self,
