@@ -258,12 +258,11 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         tag: v${{ env.app_version }}
-        artifacts: |
-              /home/runner/work/nas-tools/nas-tools/releases/
+        artifacts: "/home/runner/work/nas-tools/nas-tools/releases/"
         token: ${{ secrets.GITHUB_TOKEN }}
         replacesArtifacts: true
-        removeArtifacts: true
-        allowUpdates: true
+        removeArtifacts: false
+        allowUpdates: false
         body: ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
