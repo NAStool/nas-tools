@@ -130,6 +130,8 @@ class Torrent:
                 f.write(file_content)
         elif req is None:
             return None, None, "无法打开链接：%s" % url
+        elif req.status_code == 429:
+            return None, None, "触发站点流控，请稍后重试"
         else:
             return None, None, "下载种子出错，状态码：%s" % req.status_code
 
