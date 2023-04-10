@@ -137,7 +137,7 @@ class DiskSpaceSaver(_IPluginModule):
         self.update_config(config)
 
         # 如果没有配置信息， 则不处理
-        if not path_list or not file_size or not ext_list or not result_path:
+        if not path_list or not file_size or not ext_list:
             self.info(f"磁盘空间释放配置信息不完整，不进行处理")
             return
 
