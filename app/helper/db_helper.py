@@ -2731,4 +2731,3 @@ class DbHelper:
                           else_=0)).label("SUCCESS"),
             func.avg(INDEXERSTATISTICS.SECONDS).label("AVG"),
         ).group_by(INDEXERSTATISTICS.INDEXER).all()
-
