@@ -64,7 +64,34 @@ class _IIndexClient(metaclass=ABCMeta):
         """
         根据关键字多线程检索
         """
-        pass
+        if not indexer or not key_word:
+            return None
+        if filter_args is None:
+            filter_args = {}
+        # 不在设定搜索范围的站点过滤掉
+        if filter_args.get("site") and indexer.name not in filter_args.get("site"):
+            return []
+        # 计算耗时
+        start_time = datetime.datetime.now()
+        log.info(f"【{self.client_type}】开始检索Indexer：{indexer.name} ...")
+        # 特殊符号处理
+        search_word = StringUtils.handler_special_chars(text=key_word,
+                                                        replace_word=" ",
+                                                        allow_space=True)
+        api_url = f"{indexer.domain}?apikey={self.api_key}&t=search&q={search_word}"
+        result_array = self.__parse_torznabxml(api_url)
+        if len(result_array) == 0:
+            log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")
+            self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")
+            return []
+        else:
+            log.warn(f"【{self.index_type}】{indexer.name} 返回数据：{len(result_array)}")
+            return self.filter_search_results(result_array=result_array,
+                                              order_seq=order_seq,
+                                              indexer=indexer,
+                                              filter_args=filter_args,
+                                              match_media=match_media,
+                                              start_time=start_time)
 
     def filter_search_results(self, result_array: list,
                               order_seq,
