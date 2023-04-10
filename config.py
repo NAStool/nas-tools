@@ -183,7 +183,7 @@ class Config(object):
         return os.path.join(self.get_inner_config_path(), "scripts")
 
     def get_plugin_path(self):
-        return os.path.join(self.get_config_path(), "plugin")
+        return os.path.join(self.get_config_path(), "plugins")
 
     def get_domain(self):
         domain = (self.get_config('app') or {}).get('domain')

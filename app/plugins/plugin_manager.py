@@ -30,12 +30,14 @@ class PluginManager:
     _thread = None
     # 开关
     _active = False
+    # 插件配置目录
+    _plugins_path = ""
 
     def __init__(self):
-        user_plugin_path = Config().get_plugin_path()
+        self._plugins_path = Config().get_plugin_path()
         system_plugin_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "modules")
-        if os.path.exists(user_plugin_path):
-            for plugin_file in PathUtils.get_dir_level1_files(user_plugin_path, [".py"]):
+        if os.path.exists(self._plugins_path):
+            for plugin_file in PathUtils.get_dir_level1_files(self._plugins_path, [".py"]):
                 SystemUtils.copy(plugin_file, system_plugin_path)
         self.init_config()
 
@@ -135,7 +137,14 @@ class PluginManager:
             return
         if hasattr(self._running_plugins[pid], "init_config"):
             try:
-                self._running_plugins[pid].init_config(self.get_plugin_config(pid))
+                plugin_config_path = os.path.join(self._plugins_path, pid)
+                if not os.path.exists(plugin_config_path):
+                    os.makedirs(plugin_config_path)
+                plugin_config = self.get_plugin_config(pid)
+                plugin_config.update({
+                    "plugin_config_path": plugin_config_path,
+                })
+                self._running_plugins[pid].init_config(plugin_config)
                 log.debug(f"生效插件配置：{pid}")
             except Exception as err:
                 print(str(err))
