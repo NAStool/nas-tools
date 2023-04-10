@@ -404,14 +404,14 @@ class TorrentTransfer(_IPluginModule):
                         continue
                     # 读取trackers
                     try:
-                        torrent = bdecode(content)
-                        announce = torrent.get('announce')
+                        torrent_main = bdecode(content)
+                        main_announce = torrent_main.get('announce')
                     except Exception as err:
                         self.error(f"解析种子文件 {torrent_file} 失败：{err}")
                         fail += 1
                         continue
 
-                    if not announce:
+                    if not main_announce:
                         self.info(f"{hash_item.get('hash')} 未发现tracker信息，尝试补充tracker信息...")
                         # 读取fastresume文件
                         fastresume_file = os.path.join(self._fromtorrentpath,
@@ -427,18 +427,18 @@ class TorrentTransfer(_IPluginModule):
                             # 解析fastresume文件
                             torrent_fastresume = bdecode(fastresume)
                             # 读取trackers
-                            trackers = torrent_fastresume.get('trackers')
-                            if isinstance(trackers, list) \
-                                    and len(trackers) > 0 \
-                                    and trackers[0]:
+                            fastresume_trackers = torrent_fastresume.get('trackers')
+                            if isinstance(fastresume_trackers, list) \
+                                    and len(fastresume_trackers) > 0 \
+                                    and fastresume_trackers[0]:
                                 # 重新赋值
-                                torrent['announce'] = trackers[0][0]
+                                torrent_main['announce'] = fastresume_trackers[0][0]
                                 # 替换种子文件路径
                                 torrent_file = os.path.join(Config().get_temp_path(),
                                                             f"{hash_item.get('hash')}.torrent")
                                 # 编码并保存到临时文件
                                 with open(torrent_file, 'wb') as f:
-                                    f.write(bencode(torrent))
+                                    f.write(bencode(torrent_main))
                         except Exception as err:
                             self.error(f"解析fastresume文件 {fastresume_file} 失败：{err}")
                             fail += 1
