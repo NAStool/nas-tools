@@ -210,7 +210,7 @@ class RssChecker(object):
 
                 log.info("【RssChecker】开始处理：%s" % title)
 
-                # 检查是不是处理过
+                # 检查是否已处理过
                 meta_name = "%s %s" % (title, year) if year else title
                 if self.dbhelper.is_userrss_finished(meta_name, enclosure):
                     log.info("【RssChecker】%s 已处理过" % title)
