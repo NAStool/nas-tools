@@ -528,7 +528,7 @@ class IYUUAutoSeed(_IPluginModule):
         获取种子标签
         """
         try:
-            return torrent.get("tags") or [] if dl_type == DownloaderType.QB else torrent.labels or []
+            return torrent.get("tags").split(',') or [] if dl_type == DownloaderType.QB else torrent.labels or []
         except Exception as e:
             print(str(e))
             return []
