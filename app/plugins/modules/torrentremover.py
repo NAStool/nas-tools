@@ -105,18 +105,21 @@ class TorrentRemover(_IPluginModule):
                 download = info.DOWNLOADER
                 download_id = info.DOWNLOAD_ID
 
-                # 查询是否有自动转移做种记录
-                torrent_transfer = self.dbhelper.get_torrent_transfer_history(from_download=download,
-                                                                              from_download_id=download_id)
-                # 如果有转种则删除转种后的种子任务
-                if torrent_transfer:
-                    download = torrent_transfer.TO_DOWNLOAD
-                    download_id = torrent_transfer.TO_DOWNLOAD_ID
-                    if not bool(torrent_transfer.DELETE_SOURCE):
-                        # 转种后未删除源种时，同步删除源种
-                        self.info(f"删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
-                        DownloaderHandler.delete_torrents(downloader_id=info.DOWNLOADER,
-                                                          ids=info.DOWNLOAD_ID)
+                # 处理转种 只在开启转种插件时处理 如果有转种则删除转种后的种子任务
+                torrent_transfer_config = self.get_config(plugin_id="TorrentTransfer")
+                if torrent_transfer_config and torrent_transfer_config.get('enable') and torrent_transfer_config.get(
+                        'transfer_history'):
+                    transfer_history = torrent_transfer_config.get('transfer_history')
+                    if isinstance(transfer_history, dict):
+                        transfer_info = transfer_history["%s-%s" % (download, download_id)]
+                        if transfer_info and isinstance(transfer_info, dict):
+                            download = transfer_info['to_download']
+                            download_id = transfer_info['to_download_id']
+                            if not bool(transfer_info['delete_source']):
+                                # 转种后未删除源种时，同步删除源种
+                                self.info(f"删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
+                                DownloaderHandler.delete_torrents(downloader_id=info.DOWNLOADER,
+                                                                  ids=info.DOWNLOAD_ID)
                 self.info(f"删除下载任务：{download} - {download_id}")
                 DownloaderHandler.delete_torrents(downloader_id=download,
                                                   ids=download_id)

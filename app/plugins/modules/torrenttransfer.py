@@ -9,7 +9,6 @@ from apscheduler.triggers.cron import CronTrigger
 from bencode import bdecode, bencode
 
 from app.downloader import Downloader
-from app.helper import DbHelper
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
@@ -42,7 +41,6 @@ class TorrentTransfer(_IPluginModule):
 
     # 私有属性
     _scheduler = None
-    _dbhelper = None
     downloader = None
     sites = None
     message = None
@@ -66,6 +64,8 @@ class TorrentTransfer(_IPluginModule):
     _is_recheck_running = False
     # 任务标签
     _torrent_tags = ["已整理", "转移做种"]
+    # 转种历史
+    _transfer_history = {}
 
     @staticmethod
     def get_fields():
@@ -237,7 +237,6 @@ class TorrentTransfer(_IPluginModule):
 
     def init_config(self, config=None):
         self.downloader = Downloader()
-        self._dbhelper = DbHelper()
         self.message = Message()
         # 读取配置
         if config:
@@ -253,6 +252,7 @@ class TorrentTransfer(_IPluginModule):
             self._deletesource = config.get("deletesource")
             self._fromtorrentpath = config.get("fromtorrentpath")
             self._nopaths = config.get("nopaths")
+            self._transfer_history = config.get("transfer_history") or {}
 
         # 停止现有任务
         self.stop_service()
@@ -280,20 +280,8 @@ class TorrentTransfer(_IPluginModule):
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
-                self.update_config({
-                    "enable": self._enable,
-                    "onlyonce": self._onlyonce,
-                    "cron": self._cron,
-                    "notify": self._notify,
-                    "nolabels": self._nolabels,
-                    "frompath": self._frompath,
-                    "topath": self._topath,
-                    "fromdownloader": self._fromdownloader,
-                    "todownloader": self._todownloader,
-                    "deletesource": self._deletesource,
-                    "fromtorrentpath": self._fromtorrentpath,
-                    "nopaths": self._nopaths
-                })
+                # 保存配置
+                self.__update_config()
             if self._scheduler.get_jobs():
                 # 追加种子校验服务
                 self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
@@ -484,15 +472,17 @@ class TorrentTransfer(_IPluginModule):
                                                         ids=[download_id],
                                                         delete_file=False)
                     # 插入转种记录
-                    self._dbhelper.insert_torrent_transfer_history(from_download=self._fromdownloader,
-                                                                   from_download_id=hash_item.get('hash'),
-                                                                   to_download=self._todownloader,
-                                                                   to_download_id=download_id,
-                                                                   delete_source=self._deletesource)
+                    self._transfer_history["%s-%s" % (self._fromdownloader, hash_item.get('hash'))] = {
+                        "to_download": self._todownloader,
+                        "to_download_id": download_id,
+                        "delete_source": self._deletesource,
+                    }
                     success += 1
             # 触发校验任务
             if success > 0:
                 self.check_recheck()
+            # 保存缓存
+            self.__update_config()
             # 发送通知
             if self._notify:
                 self.message.send_custom_message(
@@ -502,6 +492,23 @@ class TorrentTransfer(_IPluginModule):
         else:
             self.info(f"没有需要移转的种子")
         self.info("移转做种任务执行完成")
+
+    def __update_config(self):
+        self.update_config({
+            "enable": self._enable,
+            "onlyonce": self._onlyonce,
+            "cron": self._cron,
+            "notify": self._notify,
+            "nolabels": self._nolabels,
+            "frompath": self._frompath,
+            "topath": self._topath,
+            "fromdownloader": self._fromdownloader,
+            "todownloader": self._todownloader,
+            "deletesource": self._deletesource,
+            "fromtorrentpath": self._fromtorrentpath,
+            "nopaths": self._nopaths,
+            "transfer_history": self._transfer_history
+        })
 
     def check_recheck(self):
         """

@@ -2732,32 +2732,3 @@ class DbHelper:
             func.avg(INDEXERSTATISTICS.SECONDS).label("AVG"),
         ).group_by(INDEXERSTATISTICS.INDEXER).all()
 
-    @DbPersist(_db)
-    def insert_torrent_transfer_history(self,
-                                        from_download,
-                                        from_download_id,
-                                        to_download,
-                                        to_download_id,
-                                        delete_source):
-        """
-        插入转种记录
-        """
-        self._db.insert(TORRENTTRANSFERHISTORY(
-            FROM_DOWNLOAD=from_download,
-            FROM_DOWNLOAD_ID=from_download_id,
-            TO_DOWNLOAD=to_download,
-            TO_DOWNLOAD_ID=to_download_id,
-            DELETE_SOURCE=delete_source,
-            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        ))
-
-    def get_torrent_transfer_history(self,
-                                     from_download,
-                                     from_download_id):
-        """
-        查询转种记录
-        """
-        return self._db.query(TORRENTTRANSFERHISTORY).filter(
-            TORRENTTRANSFERHISTORY.FROM_DOWNLOAD == int(from_download),
-            TORRENTTRANSFERHISTORY.FROM_DOWNLOAD_ID == from_download_id
-        ).first()
