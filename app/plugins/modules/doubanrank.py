@@ -297,6 +297,8 @@ class DoubanRank(_IPluginModule):
                         self.info(
                             f"{media_info.get_title_string()}{media_info.get_season_string()} 已订阅过")
                         continue
+                    # 添加处理历史
+                    self.dbhelper.insert_rss_torrents(media_info)
                     # 添加订阅
                     code, msg, rss_media = self.subscribe.add_rss_subscribe(
                         mtype=media_info.type,

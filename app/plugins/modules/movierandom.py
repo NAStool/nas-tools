@@ -267,6 +267,8 @@ class MovieRandom(_IPluginModule):
             self.info(
                 f"{media_info.get('title')} 已订阅过")
             return
+        # 添加处理历史
+        self.dbhelper.insert_rss_torrents(media_info)
         # 添加订阅
         code, msg, rss_media = self.subscribe.add_rss_subscribe(
             mtype=MediaType.MOVIE,
