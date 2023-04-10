@@ -227,7 +227,8 @@ class WebAction:
             "get_plugin_apps": self.get_plugin_apps,
             "get_plugin_page": self.get_plugin_page,
             "get_plugin_state": self.get_plugin_state,
-            "get_plugins_conf": self.get_plugins_conf
+            "get_plugins_conf": self.get_plugins_conf,
+            "update_category_config": self.update_category_config
         }
 
     def action(self, cmd, data=None):
@@ -5004,3 +5005,17 @@ class WebAction:
         """
         # 触发事件
         EventManager().send_event(EventType.DoubanSync, {})
+
+    @staticmethod
+    def update_category_config(data):
+        """
+        保存二级分类配置
+        """
+        text = data.get("config") or ''
+        # 保存配置
+        category_path = Config().get_category_path()
+        if category_path:
+            with open(category_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            Category().init_config()
+        return {"code": 0, "msg": "保存成功"}

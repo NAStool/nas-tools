@@ -916,7 +916,16 @@ def indexer():
 @App.route('/library', methods=['POST', 'GET'])
 @login_required
 def library():
-    return render_template("setting/library.html", Config=Config().get_config())
+    # 读取category配置文件数据
+    category_text = ""
+    category = Config().get_category_path()
+    if category and os.path.exists(category):
+        with open(category, "r", encoding="utf-8") as f:
+            category_text = f.read()
+    return render_template("setting/library.html",
+                           Config=Config().get_config(),
+                           CategoryPath=category,
+                           CategoryText=category_text)
 
 
 # 媒体服务器页面
