@@ -2,7 +2,7 @@ import datetime
 from abc import ABCMeta, abstractmethod
 
 import log
-from app.utils import StringUtils
+from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils
 from app.filter import Filter
 from app.helper import ProgressHelper
 from app.media import Media
