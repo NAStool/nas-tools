@@ -1,13 +1,13 @@
 name: NAStool Package
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths:
-      - version.py
-      - .github/workflows/build-package.yml
-      - requirements.txt
+#  push:
+#    branches:
+#      - master
+#    paths:
+#      - version.py
+#      - .github/workflows/build-package.yml
+#      - requirements.txt
 
 jobs:
   Windows-build:

@@ -1,16 +1,16 @@
 name: NAStool Docker Dev
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths:
-      - version.py
-      - .github/workflows/build-dev.yml
-      - package_list.txt
-      - requirements.txt
-      - docker/dev.Dockerfile
-      - docker/entrypoint.sh
+#  push:
+#    branches:
+#      - dev
+#    paths:
+#      - version.py
+#      - .github/workflows/build-dev.yml
+#      - package_list.txt
+#      - requirements.txt
+#      - docker/dev.Dockerfile
+#      - docker/entrypoint.sh
 jobs:
   build:
     runs-on: ubuntu-latest
