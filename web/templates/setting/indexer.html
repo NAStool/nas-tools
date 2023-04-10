@@ -128,16 +128,16 @@
                 <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'indexer_sites_public')">全选</a>
               </div>
               <div class="form-selectgroup">
-              {% for Indexer in Indexers %}
-                {% if Indexer.public %}
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
-                          class="form-selectgroup-input"
-                          {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
-                  <span class="form-selectgroup-label">{{ Indexer.name }}</span>
-                </label>
-                {% endif %}
-              {% endfor %}
+                  {% for Indexer in Indexers %}
+                    {% if Indexer.public %}
+                      <label class="form-selectgroup-item">
+                        <input type="checkbox" name="indexer_sites_public" value="{{ Indexer.id }}"
+                               class="form-selectgroup-input"
+                               {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
+                        <span class="form-selectgroup-label">{{ Indexer.name }}</span>
+                      </label>
+                    {% endif %}
+                  {% endfor %}
               </div>
             </div>
             {% endif %}
@@ -209,6 +209,10 @@
     let params = {};
     if (type !== "builtin") {
       params = input_select_GetVal(`modal-${type}`);
+      $(`#modal-${type} textarea`).each(function () {
+        const key = $(this).attr("id");
+        params[key] = $(this).val();
+      });
     } else {
       let sites = select_GetSelectedVAL("^indexer_sites");
       params['pt.indexer_sites'] = sites

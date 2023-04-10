@@ -51,7 +51,7 @@ class WebUtils:
             version_res = RequestUtils(proxies=Config().get_proxies()).get_res(
                 "https://api.github.com/repos/NAStool/nas-tools/releases/latest")
             commit_res = RequestUtils(proxies=Config().get_proxies()).get_res(
-                "https://api.github.com/repos/NAStool/nas-tools/commits/master")
+                "https://api.github.com/repos/bxb100/nas-tools-remove-auth/commits/master")
             if version_res and commit_res:
                 ver_json = version_res.json()
                 commit_json = commit_res.json()
