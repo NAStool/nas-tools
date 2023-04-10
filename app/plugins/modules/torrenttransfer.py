@@ -9,6 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 from bencode import bdecode, bencode
 
 from app.downloader import Downloader
+from app.helper import DbHelper
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
@@ -41,6 +42,7 @@ class TorrentTransfer(_IPluginModule):
 
     # 私有属性
     _scheduler = None
+    _dbhelper = None
     downloader = None
     sites = None
     message = None
@@ -235,6 +237,7 @@ class TorrentTransfer(_IPluginModule):
 
     def init_config(self, config=None):
         self.downloader = Downloader()
+        self._dbhelper = DbHelper()
         self.message = Message()
         # 读取配置
         if config:
@@ -476,6 +479,12 @@ class TorrentTransfer(_IPluginModule):
                         self.downloader.delete_torrents(downloader_id=downloader,
                                                         ids=[download_id],
                                                         delete_file=False)
+                    else:
+                        # 插入转种记录
+                        self._dbhelper.insert_torrent_transfer_history(from_download=self._fromdownloader,
+                                                               from_download_id=hash_item.get('hash'),
+                                                               to_download=self._todownloader,
+                                                               to_download_id=download_id)
                     success += 1
             # 触发校验任务
             if success > 0:

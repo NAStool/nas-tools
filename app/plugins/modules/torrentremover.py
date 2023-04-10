@@ -1,7 +1,7 @@
 import os
 
 from app.downloader import Downloader
-from app.helper import DbHelper
+from app.helper import DbHelper, IyuuHelper
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils.types import EventType
@@ -102,6 +102,42 @@ class TorrentRemover(_IPluginModule):
                     delete_flag = True
                     break
             if delete_flag:
-                self.info(f"删除下载任务：{info.DOWNLOADER} - {info.DOWNLOAD_ID}")
-                DownloaderHandler.delete_torrents(downloader_id=info.DOWNLOADER,
-                                                  ids=info.DOWNLOAD_ID)
+                # 查询是否有转种记录
+                download = info.DOWNLOADER
+                download_id = info.DOWNLOAD_ID
+                torrent_transfer = self.dbhelper.get_torrent_transfer_history(from_download=download,
+                                                                              from_download_id=download_id)
+                if not torrent_transfer:
+                    download = torrent_transfer.TO_DOWNLOAD
+                    download_id = torrent_transfer.TO_DOWNLOAD_ID
+                self.info(f"删除下载任务：{download} - {download_id}")
+                DownloaderHandler.delete_torrents(downloader_id=download,
+                                                  ids=download_id)
+                # 处理辅种
+                auto_seed_config = self.get_config(plugin_id="IYUUAutoSeed")
+                if auto_seed_config and auto_seed_config.get('enable') and auto_seed_config.get('token'):
+                    # 查询可辅种数据
+                    seed_list, msg = IyuuHelper(token=auto_seed_config.get('token')).get_seed_info([download_id])
+                    if isinstance(seed_list, dict):
+                        # 遍历
+                        for current_hash, seed_info in seed_list.items():
+                            if not seed_info:
+                                continue
+                            seed_torrents = seed_info.get("torrent")
+                            if not isinstance(seed_torrents, list):
+                                seed_torrents = [seed_torrents]
+                            for seed in seed_torrents:
+                                if not seed:
+                                    continue
+                                if not isinstance(seed, dict):
+                                    continue
+                                if not seed.get("sid") or not seed.get("info_hash"):
+                                    continue
+                                download_id = seed.get("info_hash")
+                                # 查询hash值是否已经在目的下载器中
+                                torrent_info = DownloaderHandler.get_torrents(downloader_id=download,
+                                                                              ids=download_id)
+                                if torrent_info:
+                                    self.info(f"删除辅种：{download} - {download_id}")
+                                    DownloaderHandler.delete_torrents(downloader_id=download,
+                                                                      ids=download_id)
