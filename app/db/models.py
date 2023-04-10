@@ -596,3 +596,15 @@ class MEDIASYNCSTATISTIC(BaseMedia):
     MOVIE_COUNT = Column(Text)
     TV_COUNT = Column(Text)
     UPDATE_TIME = Column(Text)
+
+
+class TORRENTTRANSFERHISTORY(BaseMedia):
+    __tablename__ = 'TORRENT_TRANSFER_HISTORY'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    FROM_DOWNLOAD = Column(Text, index=True)
+    FROM_DOWNLOAD_ID = Column(Text, index=True)
+    TO_DOWNLOAD = Column(Text)
+    TO_DOWNLOAD_ID = Column(Text)
+    DELETE_SOURCE = Column(Text)
+    DATE = Column(Text)
