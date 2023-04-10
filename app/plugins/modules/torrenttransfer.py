@@ -6,11 +6,13 @@ from threading import Event
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from bencode import bdecode, bencode
 
 from app.downloader import Downloader
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins.modules._base import _IPluginModule
+from app.utils import Torrent
 from app.utils.types import DownloaderType
 from config import Config
 
@@ -349,11 +351,15 @@ class TorrentTransfer(_IPluginModule):
                     continue
             # 获取种子标签
             torrent_labels = self.__get_label(torrent, downloader_type)
-            if self._nolabels \
-                    and torrent_labels \
-                    and set(self._nolabels.split(',')).intersection(set(torrent_labels)):
-                self.info(f"种子 {hash_str} 含有不转移标签，跳过 ...")
-                continue
+            if torrent_labels and self._nolabels:
+                is_skip = False
+                for label in self._nolabels.split(','):
+                    if label in torrent_labels:
+                        self.info(f"种子 {hash_str} 含有不转移标签 {label}，跳过 ...")
+                        is_skip = True
+                        break
+                if is_skip:
+                    continue
             hash_strs.append({
                 "hash": hash_str,
                 "save_path": save_path
@@ -367,7 +373,8 @@ class TorrentTransfer(_IPluginModule):
             fail = 0
             for hash_item in hash_strs:
                 # 检查种子文件是否存在
-                torrent_file = os.path.join(self._fromtorrentpath, f"{hash_item.get('hash')}.torrent")
+                torrent_file = os.path.join(self._fromtorrentpath,
+                                            f"{hash_item.get('hash')}.torrent")
                 if not os.path.exists(torrent_file):
                     self.error(f"种子文件不存在：{torrent_file}")
                     fail += 1
@@ -386,6 +393,57 @@ class TorrentTransfer(_IPluginModule):
                     self.error(f"转换保存路径失败：{hash_item.get('save_path')}")
                     fail += 1
                     continue
+
+                # 如果是QB检查是否有Tracker，没有的话补充解析
+                if downloader_type == DownloaderType.QB:
+                    # 读取种子内容、解析种子文件
+                    content, _, _, retmsg = Torrent().read_torrent_content(torrent_file)
+                    if not content:
+                        self.error(f"读取种子文件失败：{retmsg}")
+                        fail += 1
+                        continue
+                    # 读取trackers
+                    try:
+                        torrent = bdecode(content)
+                        announce = torrent.get('announce')
+                    except Exception as err:
+                        self.error(f"解析种子文件 {torrent_file} 失败：{err}")
+                        fail += 1
+                        continue
+
+                    if not announce:
+                        self.info(f"{hash_item.get('hash')} 未发现tracker信息，尝试补充tracker信息...")
+                        # 读取fastresume文件
+                        fastresume_file = os.path.join(self._fromtorrentpath,
+                                                       f"{hash_item.get('hash')}.fastresume")
+                        if not os.path.exists(fastresume_file):
+                            self.error(f"fastresume文件不存在：{fastresume_file}")
+                            fail += 1
+                            continue
+                        # 尝试补充trackers
+                        try:
+                            with open(fastresume_file, 'rb') as f:
+                                fastresume = f.read()
+                            # 解析fastresume文件
+                            torrent_fastresume = bdecode(fastresume)
+                            # 读取trackers
+                            trackers = torrent_fastresume.get('trackers')
+                            if isinstance(trackers, list) \
+                                    and len(trackers) > 0 \
+                                    and trackers[0]:
+                                # 重新赋值
+                                torrent['announce'] = trackers[0][0]
+                                # 替换种子文件路径
+                                torrent_file = os.path.join(Config().get_temp_path(),
+                                                            f"{hash_item.get('hash')}.torrent")
+                                # 编码并保存到临时文件
+                                with open(torrent_file, 'wb') as f:
+                                    f.write(bencode(torrent))
+                        except Exception as err:
+                            self.error(f"解析fastresume文件 {fastresume_file} 失败：{err}")
+                            fail += 1
+                            continue
+
                 # 发送到另一个下载器中下载：默认暂停、传输下载路径、关闭自动管理模式
                 _, download_id, retmsg = self.downloader.download(
                     media_info=MetaInfo("自动转移做种"),

@@ -1141,9 +1141,9 @@
 
     {% if not TMDBFlag %}
       // 检查tmdb配置
-      show_fail_modal("请先配置TMDB API Key，并修改登录密码！", function () {
-        navmenu('basic');
-      });
+      show_init_alert_modal();
+    {% elif current_user.level == 1 %}
+      show_user_auth_modal();
     {% endif %}
 
   });
