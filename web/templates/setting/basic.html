@@ -207,7 +207,7 @@
                   <label class="form-label required">TMDB API Key <span class="form-help"
                                                                         title="在themoviedb.org网站申请API Key，该项必须配置，否则所有功能无法正常运行"
                                                                         data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control"
+                  <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control {% if not Config.app.rmt_tmdbkey %}is-invalid{% endif %}"
                          id="app.rmt_tmdbkey" placeholder="" autocomplete="off">
                 </div>
               </div>
@@ -1154,6 +1154,7 @@
     ajax_post("update_config", params, function (ret) {
       if (flag) {
         $("#" + type + "_btn").text("保存").attr("disabled", false);
+        window_history_refresh()
       }
     });
   }

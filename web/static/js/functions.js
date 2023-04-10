@@ -23,6 +23,8 @@ let default_path;
 let NavPageLoading = false;
 // 加载中页面的字柄
 let NavPageXhr;
+// 是否允许打断弹窗
+let GlobalModalAbort = true;
 
 /**
  * 公共函数区
@@ -67,7 +69,9 @@ function navmenu(page, newflag = false) {
         window.location.reload();
       } else {
         // 关掉已经打开的弹窗
-        $(".modal").modal("hide");
+        if (GlobalModalAbort) {
+          $(".modal").modal("hide");
+        }
         // 刷新tooltip
         fresh_tooltip();
         // 刷新filetree控件
@@ -318,8 +322,18 @@ function update(version) {
   });
 }
 
+// 显示配置不完整提示
+function show_init_alert_modal() {
+  GlobalModalAbort = false;
+  show_fail_modal("请先配置TMDB API Key，并修改登录密码！", function () {
+    GlobalModalAbort = true;
+    navmenu('basic');
+  });
+}
+
 // 显示用户认证对话框
 function show_user_auth_modal() {
+  GlobalModalAbort = false;
   $("#modal-user-auth").modal("show");
 }
 
@@ -329,6 +343,7 @@ function user_auth() {
   let siteid = $("#user_auth_site").val();
   let params = input_select_GetVal(`user_auth_${siteid}_params`, `${siteid}_`);
   ajax_post("auth_user_level", {site: siteid, params: params}, function (ret) {
+    GlobalModalAbort = true;
     $("#modal-user-auth").modal("hide");
     $("#user_auth_btn").prop("disabled", false).text("认证");
     if (ret.code === 0) {
