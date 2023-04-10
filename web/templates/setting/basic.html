@@ -242,7 +242,7 @@
               <div class="col-lg">
                 <div class="mb-3">
                   <label class="form-label">二级分类策略 <span class="form-help"
-                                                               title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空"
+                                                               title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫媒体库目录下按二级分类名建立子目录；此处配置分类的策略名，保存后会自动生成默认配置，可通过设置->媒体库->二级分类编辑分类配置；如不需要启动分类，则该项配置为空"
                                                                data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category"
                          placeholder="default-category" autocomplete="off">
