@@ -1,4 +1,5 @@
 import datetime
+import xml.dom.minidom
 from abc import ABCMeta, abstractmethod
 
 import log
