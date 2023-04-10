@@ -286,7 +286,7 @@ class DoubanRank(_IPluginModule):
                         continue
                     if self._vote and media_info.vote_average \
                             and media_info.vote_average < self._vote:
-                        self.info(f"评分低于限制：{media_info.get_title_string()}，跳过 ．．．")
+                        self.info(f"{media_info.get_title_string()} 评分 {media_info.vote_average} 低于限制 {self._vote}，跳过 ．．．")
                         continue
                     # 检查媒体服务器是否存在
                     item_id = self.mediaserver.check_item_exists(mtype=media_info.type,
