@@ -255,31 +255,37 @@ class MovieRandom(_IPluginModule):
             self.warn("本次未随机出满足条件的电影")
             return
 
+        title = media_info.get('title')
+        year = media_info.get('year')
+        tmdb_id = media_info.get('id')
+        unique_flag = f"movierandom: {title} (DB:{tmdb_id})"
         log.info(
-            f"电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('id')}未入库，开始订阅")
+            f"电影 {title}-{year}（tmdbid:{tmdb_id}）未入库，开始订阅")
 
         # 检查是否已订阅过
         if self.dbhelper.check_rss_history(
                 type_str="MOV",
-                name=media_info.get('title'),
-                year=media_info.get('year'),
+                name=title,
+                year=year,
                 season=None):
             self.info(
-                f"{media_info.get('title')} 已订阅过")
+                f"{title} 已订阅过")
             return
+        # 添加处理历史
+        self.dbhelper.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
         # 添加订阅
         code, msg, rss_media = self.subscribe.add_rss_subscribe(
             mtype=MediaType.MOVIE,
-            name=media_info.get('title'),
-            year=media_info.get('year'),
+            name=title,
+            year=year,
             season=None,
             channel=RssType.Auto,
             in_from=SearchType.PLUGIN
         )
         if not rss_media or code != 0:
-            self.warn("%s 添加订阅失败：%s" % (media_info.get('title'), msg))
+            self.warn("%s 添加订阅失败：%s" % (title, msg))
         else:
-            self.info("%s 添加订阅成功" % media_info.get('title'))
+            self.info("%s 添加订阅成功" % title)
 
     def __random_check(self, movie_list):
         """
@@ -288,17 +294,27 @@ class MovieRandom(_IPluginModule):
         """
         # 随机一个电影
         media_info = random.choice(movie_list)
-        log.info(f"随机出电影 {media_info.get('title')} {media_info.get('year')} tmdbid:{media_info.get('id')}")
+
+        title = media_info.get('title')
+        year = media_info.get('year')
+        tmdb_id = media_info.get('id')
+        unique_flag = f"movierandom: {title} (DB:{tmdb_id})"
+        # 检查是否已处理过
+        if self.dbhelper.is_userrss_finished(torrent_name=unique_flag, enclosure=None):
+            self.info(f"已处理过：{title} （tmdbid：{tmdb_id}）")
+            return
+
+        log.info(f"随机出电影 {title} {year} tmdbid:{tmdb_id}")
         # 删除该电影，防止再次random到
         movie_list.remove(media_info)
 
         # 检查媒体服务器是否存在
         item_id = self.mediaserver.check_item_exists(mtype=MediaType.MOVIE,
-                                                     title=media_info.get('title'),
-                                                     year=media_info.get('year'),
-                                                     tmdbid=media_info.get('id'))
+                                                     title=title,
+                                                     year=year,
+                                                     tmdbid=tmdb_id)
         if item_id:
-            self.info(f"媒体服务器已存在：{media_info.get('title')}")
+            self.info(f"媒体服务器已存在：{title}")
             if len(movie_list) == 0:
                 return None
             self.__random_check(movie_list)
