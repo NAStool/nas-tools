@@ -220,7 +220,7 @@ class IYUUAutoSeed(_IPluginModule):
             self._notify = config.get("notify")
             self._nolabels = config.get("nolabels")
             self._clearcache = config.get("clearcache")
-            self._permanent_error_caches = config.get("permanent_error_caches")
+            self._permanent_error_caches = config.get("permanent_error_caches") or []
             self._error_caches = [] if self._clearcache else config.get("error_caches") or []
         # 停止现有任务
         self.stop_service()
