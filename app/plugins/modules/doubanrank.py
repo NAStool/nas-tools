@@ -70,7 +70,7 @@ class DoubanRank(_IPluginModule):
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
             self._cron = config.get("cron")
-            self._vote = int(config.get("vote")) if config.get("vote") else 0
+            self._vote = float(config.get("vote")) if config.get("vote") else 0
             rss_addrs = config.get("rss_addrs")
             if rss_addrs:
                 if isinstance(rss_addrs, str):
@@ -155,7 +155,7 @@ class DoubanRank(_IPluginModule):
                         {
                             'title': '评分',
                             'required': "",
-                            'tooltip': '大于该评分的才会被订阅，不填则不限制',
+                            'tooltip': '大于该评分的才会被订阅（以TMDB评分为准），不填则不限制',
                             'type': 'text',
                             'content': [
                                 {
