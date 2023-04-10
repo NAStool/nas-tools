@@ -57,6 +57,7 @@ class TorrentTransfer(_IPluginModule):
     _nopaths = None
     _deletesource = False
     _fromtorrentpath = None
+    _autostart = False
     # 退出事件
     _event = Event()
     # 待检查种子清单
@@ -222,6 +223,13 @@ class TorrentTransfer(_IPluginModule):
                             'id': 'notify',
                         },
                         {
+                            'title': '校验成功后开始',
+                            'required': "",
+                            'tooltip': '自动开始目的下载器中处于校验成功且暂停状态的种子',
+                            'type': 'switch',
+                            'id': 'autostart',
+                        },
+                        {
                             'title': '立即运行一次',
                             'required': "",
                             'tooltip': '打开后立即运行一次（点击此对话框的确定按钮后即会运行，周期未设置也会运行），关闭后将仅按照周期运行（同时上次触发运行的任务如果在运行中也会停止）',
@@ -250,6 +258,7 @@ class TorrentTransfer(_IPluginModule):
             self._deletesource = config.get("deletesource")
             self._fromtorrentpath = config.get("fromtorrentpath")
             self._nopaths = config.get("nopaths")
+            self._autostart = config.get("autostart")
 
         # 停止现有任务
         self.stop_service()
@@ -292,8 +301,9 @@ class TorrentTransfer(_IPluginModule):
                     "nopaths": self._nopaths
                 })
             if self._scheduler.get_jobs():
-                # 追加种子校验服务
-                self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
+                if self._autostart:
+                    # 追加种子校验服务
+                    self._scheduler.add_job(self.check_recheck, 'interval', minutes=3)
                 # 启动服务
                 self._scheduler.print_jobs()
                 self._scheduler.start()
@@ -483,7 +493,7 @@ class TorrentTransfer(_IPluginModule):
                                                         delete_file=False)
                     success += 1
             # 触发校验任务
-            if success > 0:
+            if success > 0 and self._autostart:
                 self.check_recheck()
             # 发送通知
             if self._notify:
@@ -576,8 +586,8 @@ class TorrentTransfer(_IPluginModule):
         判断种子是否可以做种并处于暂停状态
         """
         try:
-            return torrent.get("state") == "pausedUP" if dl_type == DownloaderType.QB \
-                else (torrent.status.stopped and torrent.percent_done == 1)
+            return torrent.get("state") == "pausedUP" and torrent.get("tracker") if dl_type == DownloaderType.QB \
+                else (torrent.status.stopped and torrent.percent_done == 1 and torrent.trackers)
         except Exception as e:
             print(str(e))
             return False
