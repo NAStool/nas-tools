@@ -307,11 +307,15 @@ class IYUUAutoSeed(_IPluginModule):
                 save_path = self.__get_save_path(torrent, downloader_type)
                 # 获取种子标签
                 torrent_labels = self.__get_label(torrent, downloader_type)
-                if self._nolabels \
-                        and torrent_labels \
-                        and set(self._nolabels.split(',')).intersection(set(torrent_labels)):
-                    self.info(f"种子 {hash_str} 含有不辅种标签，跳过 ...")
-                    continue
+                if torrent_labels and self._nolabels:
+                    is_skip = False
+                    for label in self._nolabels.split(','):
+                        if label in torrent_labels:
+                            self.info(f"种子 {hash_str} 含有不转移标签 {label}，跳过 ...")
+                            is_skip = True
+                            break
+                    if is_skip:
+                        continue
                 hash_strs.append({
                     "hash": hash_str,
                     "save_path": save_path
