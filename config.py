@@ -213,3 +213,9 @@ class Config(object):
         if tmdb_image_url:
             return tmdb_image_url + f"/t/p/{prefix}{path}"
         return f"https://{TMDB_IMAGE_DOMAIN}/t/p/{prefix}{path}"
+
+    def get_category_path(self):
+        category = self.get_config('media').get("category")
+        if category:
+            return os.path.join(Config().get_config_path(), f"{category}.yaml")
+        return None
