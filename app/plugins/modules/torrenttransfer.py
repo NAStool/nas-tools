@@ -318,10 +318,12 @@ class TorrentTransfer(_IPluginModule):
         self.info("开始移转做种任务 ...")
         # 源下载器
         downloader = self._fromdownloader[0]
+        # 源下载器类型
+        downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
         # 目的下载器
         todownloader = self._todownloader[0]
-        # 下载器类型
-        downloader_type = self.downloader.get_downloader_type(downloader_id=downloader)
+        # 目的下载器类型
+        to_downloader_type = self.downloader.get_downloader_type(downloader_id=todownloader)
         # 获取下载器中已完成的种子
         torrents = self.downloader.get_completed_torrents(downloader_id=downloader)
         if torrents:
@@ -471,8 +473,7 @@ class TorrentTransfer(_IPluginModule):
                     # 下载成功
                     self.info(f"成功添加转移做种任务，种子文件：{torrent_file}")
                     # TR会自动校验
-                    downloader_type = self.downloader.get_downloader_type(downloader_id=todownloader)
-                    if downloader_type == DownloaderType.QB:
+                    if to_downloader_type == DownloaderType.QB:
                         # 开始校验种子
                         self.downloader.recheck_torrents(downloader_id=todownloader, ids=[download_id])
                     # 删除源种子，不能删除文件！
