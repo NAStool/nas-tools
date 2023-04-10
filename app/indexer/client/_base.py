@@ -281,3 +281,106 @@ class _IIndexClient(metaclass=ABCMeta):
                                   f"有效 {index_sucess}，"
                                   f"耗时 {(end_time - start_time).seconds} 秒")
         return ret_array
+    
+    @staticmethod
+    def __parse_torznabxml(url):
+        """
+        从torznab xml中解析种子信息
+        :param url: URL地址
+        :return: 解析出来的种子信息列表
+        """
+        if not url:
+            return []
+        try:
+            ret = RequestUtils(timeout=10).get_res(url)
+        except Exception as e2:
+            ExceptionUtils.exception_traceback(e2)
+            return []
+        if not ret:
+            return []
+        xmls = ret.text
+        if not xmls:
+            return []
+
+        torrents = []
+        try:
+            # 解析XML
+            dom_tree = xml.dom.minidom.parseString(xmls)
+            root_node = dom_tree.documentElement
+            items = root_node.getElementsByTagName("item")
+            for item in items:
+                try:
+                    # indexer id
+                    indexer_id = DomUtils.tag_value(item, "jackettindexer", "id",
+                                                    default=DomUtils.tag_value(item, "prowlarrindexer", "id", ""))
+                    # indexer
+                    indexer = DomUtils.tag_value(item, "jackettindexer",
+                                                 default=DomUtils.tag_value(item, "prowlarrindexer", default=""))
+
+                    # 标题
+                    title = DomUtils.tag_value(item, "title", default="")
+                    if not title:
+                        continue
+                    # 种子链接
+                    enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
+                    if not enclosure:
+                        continue
+                    # 描述
+                    description = DomUtils.tag_value(item, "description", default="")
+                    # 种子大小
+                    size = DomUtils.tag_value(item, "size", default=0)
+                    # 种子页面
+                    page_url = DomUtils.tag_value(item, "comments", default="")
+
+                    # 做种数
+                    seeders = 0
+                    # 下载数
+                    peers = 0
+                    # 是否免费
+                    freeleech = False
+                    # 下载因子
+                    downloadvolumefactor = 1.0
+                    # 上传因子
+                    uploadvolumefactor = 1.0
+                    # imdbid
+                    imdbid = ""
+
+                    torznab_attrs = item.getElementsByTagName("torznab:attr")
+                    for torznab_attr in torznab_attrs:
+                        name = torznab_attr.getAttribute('name')
+                        value = torznab_attr.getAttribute('value')
+                        if name == "seeders":
+                            seeders = value
+                        if name == "peers":
+                            peers = value
+                        if name == "downloadvolumefactor":
+                            downloadvolumefactor = value
+                            if float(downloadvolumefactor) == 0:
+                                freeleech = True
+                        if name == "uploadvolumefactor":
+                            uploadvolumefactor = value
+                        if name == "imdbid":
+                            imdbid = value
+
+                    tmp_dict = {'indexer_id': indexer_id,
+                                'indexer': indexer,
+                                'title': title,
+                                'enclosure': enclosure,
+                                'description': description,
+                                'size': size,
+                                'seeders': seeders,
+                                'peers': peers,
+                                'freeleech': freeleech,
+                                'downloadvolumefactor': downloadvolumefactor,
+                                'uploadvolumefactor': uploadvolumefactor,
+                                'page_url': page_url,
+                                'imdbid': imdbid}
+                    torrents.append(tmp_dict)
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    continue
+        except Exception as e2:
+            ExceptionUtils.exception_traceback(e2)
+            pass
+
+        return torrents
