@@ -13,6 +13,7 @@ class User(UserMixin):
     dbhelper = None
     admin_users = []
     level = 2
+    admin = 1
 
     def __init__(self, user=None):
         self.dbhelper = DbHelper()
@@ -143,17 +144,6 @@ class User(UserMixin):
         '''
         SchedulerTasks['sync'] =  {'name': '目录同步', 'time': '实时监控', 'state': None, 'id': 'sync', 'svg': svg,
              'color': "orange"}
-
-        # 豆瓣同步
-        svg = '''
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bookmarks" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M13 7a2 2 0 0 1 2 2v12l-5 -3l-5 3v-12a2 2 0 0 1 2 -2h6z"></path>
-               <path d="M9.265 4a2 2 0 0 1 1.735 -1h6a2 2 0 0 1 2 2v12l-1 -.6"></path>
-            </svg>
-            '''
-        SchedulerTasks['douban'] = {'name': '豆瓣想看', 'time': None, 'state': None, 'id': 'douban', 'svg': svg,
-                'color': "pink"}
         
         # 清理文件整理缓存
         svg = '''
