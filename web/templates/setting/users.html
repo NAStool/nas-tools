@@ -1,4 +1,5 @@
 {% import 'macro/svg.html' as SVG %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -23,59 +24,36 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
+{% if Users %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body border-bottom py-3">
-            <div class="d-flex">
-              <div class="text-muted">
-                共 {{ UserCount }} 条记录
-              </div>
+    <div class="d-grid gap-3 grid-normal-card">
+      {% for User in Users %}
+        <div class="card card-link-pop">
+          <div class="card-body pt-4 text-center">
+            <span class="avatar avatar-xl mb-3 rounded-circle">{{ User.name|first }}</span>
+            <h3 class="m-0 mb-1"><a href="#">{{ User.name }}</a></h3>
+            <div class="text-muted">{% if "系统设置" in User.pris %}<strong>管理员</strong>{% else %}普通用户{% endif %}</div>
+            <div class="mt-3">
+              {% for pri in User.pris %}
+                <span class="badge mb-1">{{ pri }}</span>
+              {% endfor %}
             </div>
           </div>
-          <div class="table-responsive table-page-body">
-            <table class="table table-vcenter card-table table-hover table-striped">
-              <thead>
-              <tr>
-                <th>用户名</th>
-                <th>权限</th>
-                <th class="w-3"></th>
-              </tr>
-              </thead>
-              <tbody>
-              {% if Users %}
-                {% for User in Users %}
-                  <tr>
-                    <td>{{ User.name or '' }}</td>
-                    <td>
-                      <div class="form-selectgroup">
-                        {% for pri in User.pris %}
-                          <span class="form-selectgroup-label form-selectgroup-item">{{ pri }}</span>
-                        {% endfor %}
-                      </div>
-                    </td>
-                    <td>
-                      <a href="javascript:delete_user('{{ User.name }}')" title="删除用户">
-                        {{ SVG.x() }}
-                      </a>
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="3" align="center">没有数据</td>
-                </tr>
-              {% endif %}
-              </tbody>
-            </table>
+          <div class="d-flex">
+            <a href="javascript: delete_user('{{ User.name }}')" class="card-btn text-danger">
+              {{ SVG.eraser("me-2") }}
+               删除
+            </a>
           </div>
         </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </div>
+{% else %}
+  {{ OOPS.nodatafound('没有用户', '没有添加任何用户，请点击”新增用户“按钮。') }}
+{% endif %}
 <div class="modal modal-blur fade" id="modal-user" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
