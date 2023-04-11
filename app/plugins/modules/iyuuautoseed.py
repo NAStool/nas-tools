@@ -422,6 +422,7 @@ class IYUUAutoSeed(_IPluginModule):
             if not isinstance(seed_torrents, list):
                 seed_torrents = [seed_torrents]
 
+            # 查询当前Hash的辅种历史
             success_torrents = self.get_history(key=current_hash,
                                                 plugin_id=self.__class__.__name__) or []
             for seed in seed_torrents:
@@ -446,6 +447,7 @@ class IYUUAutoSeed(_IPluginModule):
                                                   save_path=save_paths.get(current_hash))
                 if success:
                     success_torrents.append(seed.get("info_hash"))
+
             # 辅种成功的去重放入历史
             if len(success_torrents) > 0:
                 self.history(key=current_hash,

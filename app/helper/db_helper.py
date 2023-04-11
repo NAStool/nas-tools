@@ -2759,7 +2759,7 @@ class DbHelper:
         查询插件运行记录
         """
         return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
-                                                    PLUGINHISTORY.KEY == key).all()
+                                                    PLUGINHISTORY.KEY == key).first()
 
     def delete_plugin_history(self, plugin_id, key):
         """

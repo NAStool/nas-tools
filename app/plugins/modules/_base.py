@@ -1,3 +1,4 @@
+import json
 import os
 from abc import ABCMeta, abstractmethod
 
@@ -76,6 +77,13 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         pass
 
+    @staticmethod
+    def __is_obj(obj):
+        if isinstance(obj, list) or isinstance(obj, dict):
+            return True
+        else:
+            return str(obj).startswith("{") or str(obj).startswith("[")
+
     def update_config(self, config: dict, plugin_id=None):
         """
         更新配置信息
@@ -108,30 +116,44 @@ class _IPluginModule(metaclass=ABCMeta):
 
     def history(self, key, value):
         """
-        记录插件运行数据
+        记录插件运行数据，key需要唯一，value为对象是自动转换为str，
         """
         if not key or not value:
             return
+        if self.__is_obj(value):
+            value = json.dumps(value)
         DbHelper().insert_plugin_history(plugin_id=self.__class__.__name__,
                                          key=key,
                                          value=value)
 
     def get_history(self, key, plugin_id=None):
         """
-        获取插件运行数据
+        获取插件运行数据，只返回一条，自动识别转换为对象
         """
         if not key:
-            return []
+            return None
+
         if not plugin_id:
             plugin_id = self.__class__.__name__
-        return DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
+
+        history = DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
+        if history:
+            if self.__is_obj(history.VALUE):
+                try:
+                    return json.loads(history.VALUE)
+                except Exception as err:
+                    print(str(err))
+                    return history.VALUE
+            else:
+                return history.VALUE
+        return {}
 
     def delete_history(self, key, plugin_id=None):
         """
         删除插件运行数据
         """
         if not key:
-            return []
+            return False
         if not plugin_id:
             plugin_id = self.__class__.__name__
         return DbHelper().delete_plugin_history(plugin_id=plugin_id, key=key)
