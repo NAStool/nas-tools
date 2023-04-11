@@ -536,6 +536,9 @@ class IYUUAutoSeed(_IPluginModule):
             if downloader_type == DownloaderType.QB:
                 # 开始校验种子
                 self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
+
+            # 成功也加入缓存，有一些改了路径校验不通过的，手动删除后，下一次又会辅上
+            self._error_caches.append(seed.get("info_hash"))
             return True
 
     @staticmethod
