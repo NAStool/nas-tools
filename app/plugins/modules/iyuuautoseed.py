@@ -417,6 +417,9 @@ class IYUUAutoSeed(_IPluginModule):
             seed_torrents = seed_info.get("torrent")
             if not isinstance(seed_torrents, list):
                 seed_torrents = [seed_torrents]
+
+            success_torrents = self.get_history(key=current_hash,
+                                                plugin_id=self.__class__.__name__) or []
             for seed in seed_torrents:
                 if not seed:
                     continue
@@ -431,9 +434,18 @@ class IYUUAutoSeed(_IPluginModule):
                     self.info(f"种子 {seed.get('info_hash')} 辅种失败且已缓存，跳过 ...")
                     continue
                 # 添加任务
-                self.__download_torrent(seed=seed,
-                                        downloader=downloader,
-                                        save_path=save_paths.get(current_hash))
+                success = self.__download_torrent(seed=seed,
+                                                  downloader=downloader,
+                                                  save_path=save_paths.get(current_hash))
+                if success:
+                    success_torrents.append(seed.get("info_hash"))
+            # 辅种成功的去重放入历史
+            if len(success_torrents) > 0:
+                self.history(key=current_hash,
+                             value={
+                                 "downloader": downloader,
+                                 "torrents": list(set(success_torrents))
+                             })
         self.info(f"下载器 {downloader} 辅种完成")
 
     def __download_torrent(self, seed, downloader, save_path):
@@ -453,15 +465,15 @@ class IYUUAutoSeed(_IPluginModule):
             self._error_caches.append(seed.get("info_hash"))
             self.fail += 1
             self.cached += 1
-            return
+            return False
         # 查询站点
         site_info = self.sites.get_sites(siteurl=site_url)
         if not site_info:
             self.debug(f"没有维护种子对应的站点：{site_url}")
-            return
+            return False
         if self._sites and str(site_info.get("id")) not in self._sites:
             self.info("当前站点不在选择的辅助站点范围，跳过 ...")
-            return
+            return False
         self.realtotal += 1
         # 查询hash值是否已经在下载器中
         torrent_info = self.downloader.get_torrents(downloader_id=downloader,
@@ -469,11 +481,11 @@ class IYUUAutoSeed(_IPluginModule):
         if torrent_info:
             self.debug(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
             self.exist += 1
-            return
+            return False
         # 站点流控
         if self.sites.check_ratelimit(site_info.get("id")):
             self.fail += 1
-            return
+            return False
         # 下载种子
         torrent_url = self.__get_download_url(seed=seed,
                                               site=site_info,
@@ -483,7 +495,7 @@ class IYUUAutoSeed(_IPluginModule):
             self._error_caches.append(seed.get("info_hash"))
             self.fail += 1
             self.cached += 1
-            return
+            return False
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
@@ -509,7 +521,7 @@ class IYUUAutoSeed(_IPluginModule):
             else:
                 # 种子不存在的情况
                 self._permanent_error_caches.append(seed.get("info_hash"))
-            return
+            return False
         else:
             self.success += 1
             # 追加校验任务
@@ -524,6 +536,7 @@ class IYUUAutoSeed(_IPluginModule):
             if downloader_type == DownloaderType.QB:
                 # 开始校验种子
                 self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
+            return True
 
     @staticmethod
     def __get_hash(torrent, dl_type):
