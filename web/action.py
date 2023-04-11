@@ -227,7 +227,8 @@ class WebAction:
             "get_plugin_page": self.get_plugin_page,
             "get_plugin_state": self.get_plugin_state,
             "get_plugins_conf": self.get_plugins_conf,
-            "update_category_config": self.update_category_config
+            "update_category_config": self.update_category_config,
+            "get_category_config": self.get_category_config
         }
 
     def action(self, cmd, data=None):
@@ -3238,11 +3239,11 @@ class WebAction:
     @staticmethod
     def get_categories(data):
         if data.get("type") == "电影":
-            categories = Category().get_movie_categorys()
+            categories = Category().movie_categorys
         elif data.get("type") == "电视剧":
-            categories = Category().get_tv_categorys()
+            categories = Category().tv_categorys
         else:
-            categories = Category().get_anime_categorys()
+            categories = Category().anime_categorys
         return {"code": 0, "category": list(categories), "id": data.get("id"), "value": data.get("value")}
 
     def __delete_rss_history(self, data):
@@ -5026,9 +5027,26 @@ class WebAction:
         """
         text = data.get("config") or ''
         # 保存配置
-        category_path = Config().get_category_path()
+        category_path = Config().category_path
         if category_path:
             with open(category_path, "w", encoding="utf-8") as f:
                 f.write(text)
-            Category().init_config()
         return {"code": 0, "msg": "保存成功"}
+
+    @staticmethod
+    def get_category_config(data):
+        """
+        获取二级分类配置
+        """
+        category_name = data.get("category_name")
+        if not category_name:
+            return {"code": 1, "msg": "请输入二级分类策略名称"}
+        if category_name == "config":
+            return {"code": 1, "msg": "非法二级分类策略名称"}
+        category_path = os.path.join(Config().get_config_path(), f"{category_name}.yaml")
+        if not os.path.exists(category_path):
+            return {"code": 1, "msg": "请保存生成配置文件"}
+        # 读取category配置文件数据
+        with open(category_path, "r", encoding="utf-8") as f:
+            category_text = f.read()
+        return {"code": 0, "text": category_text}
