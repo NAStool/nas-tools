@@ -1628,7 +1628,7 @@ class DbHelper:
             return False
 
     @DbPersist(_db)
-    def insert_download_history(self, media_info, downloader, download_id):
+    def insert_download_history(self, media_info, downloader, download_id, save_dir):
         """
         新增下载历史
         """
@@ -1649,6 +1649,7 @@ class DbHelper:
                     "SITE": media_info.site,
                     "DOWNLOADER": downloader,
                     "DOWNLOAD_ID": download_id,
+                    "SAVE_PATH": save_dir,
                     "DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                 }
             )
@@ -1668,6 +1669,7 @@ class DbHelper:
                 SITE=media_info.site,
                 DOWNLOADER=downloader,
                 DOWNLOAD_ID=download_id,
+                SAVE_PATH=save_dir
             ))
 
     def get_download_history(self, date=None, hid=None, num=30, page=1):
@@ -1699,6 +1701,14 @@ class DbHelper:
         根据标题查找下载历史
         """
         return self._db.query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.TITLE == title).all()
+
+    def get_download_history_by_path(self, path):
+        """
+        根据路径查找下载历史
+        """
+        return self._db.query(DOWNLOADHISTORY).filter(
+            DOWNLOADHISTORY.SAVE_PATH == os.path.normpath(path)
+        ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
 
     @DbPersist(_db)
     def insert_brushtask(self, brush_id, item):

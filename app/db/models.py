@@ -183,6 +183,7 @@ class DOWNLOADHISTORY(Base):
     DESC = Column(Text)
     DOWNLOADER = Column(Text)
     DOWNLOAD_ID = Column(Text, index=True)
+    SAVE_PATH = Column(Text, index=True)
     DATE = Column(Text, index=True)
 
     def as_dict(self):

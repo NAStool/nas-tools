@@ -8,12 +8,12 @@ from watchdog.observers.polling import PollingObserver
 
 import log
 from app.conf import ModuleConf
-from app.helper import DbHelper
-from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
-from app.utils.commons import singleton
+from app.helper import DbHelper
 from app.utils import PathUtils, ExceptionUtils
+from app.utils.commons import singleton
 from app.utils.types import SyncType, OsType
+from config import RMT_MEDIAEXT, Config
 
 lock = threading.Lock()
 

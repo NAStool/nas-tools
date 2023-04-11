@@ -6,7 +6,6 @@ import os.path
 import re
 import shutil
 import signal
-from collections import defaultdict
 from urllib.parse import unquote
 
 import cn2an
