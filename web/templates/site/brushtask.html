@@ -148,7 +148,7 @@
                 <div class="datagrid-item">
                   <div class="datagrid-title">保种体积</div>
                   <div class="datagrid-content">
-                    {% if Task.seed_size %}{{ Task.seed_size }} GB{% else %}无限制{% endif %}</div>
+                    {% if Task.seed_size %}{{ Task.total_size }} GB / {{ Task.seed_size }} GB{% else %}无限制{% endif %}</div>
                 </div>
                 <div class="datagrid-item">
                   <div class="datagrid-title">刷新间隔</div>
