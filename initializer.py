@@ -253,17 +253,16 @@ class ConfigMonitor(FileSystemEventHandler):
     def on_modified(self, event):
         if event.is_directory:
             return
-        file_name = os.path.basename(event.src_path)
+        src_path = event.src_path
+        file_name = os.path.basename(src_path)
         file_head, file_ext = os.path.splitext(os.path.basename(file_name))
         if file_ext != ".yaml":
             return
-        log.error(hex(id(ConfigLoadCache)))
         # 配置文件10秒内只能加载一次
-        if file_name == "config.yaml" and not ConfigLoadCache.get(event.src_path):
-            ConfigLoadCache.set(event.src_path, True)
-            ConfigLoadCache.set("CategoryBlock", True)
-            log.error(hex(id(ConfigLoadCache)))
-            log.info(f"【System】进程 {os.getpid()} 检测到配置文件已修改，正在重新加载...")
+        if file_name == "config.yaml" and not ConfigLoadCache.get(src_path):
+            ConfigLoadCache.set(src_path, True)
+            CategoryLoadCache.set("CategoryBlock", True, ConfigLoadCache.ttl)
+            log.warn(f"【System】进程 {os.getpid()} 检测到系统配置文件已修改，正在重新加载...")
             time.sleep(1)
             # 重新加载配置
             Config().init_config()
@@ -271,12 +270,12 @@ class ConfigMonitor(FileSystemEventHandler):
             for instance in INSTANCES.values():
                 if hasattr(instance, "init_config"):
                     instance.init_config()
-        # 正在使用的二级分类策略文件3秒内只能加载一次
+        # 正在使用的二级分类策略文件3秒内只能加载一次，配置文件加载时，二级分类策略文件不加载
         elif file_name == os.path.basename(Config().category_path) \
-                and not CategoryLoadCache.get(event.src_path) \
-                and not ConfigLoadCache.get("CategoryBlock"):
-            CategoryLoadCache.set(event.src_path, True)
-            log.info(f"【System】进程 {os.getpid()} 检测到二级分类策略 {file_head} 配置文件已修改，正在重新加载...")
+                and not CategoryLoadCache.get(src_path) \
+                and not CategoryLoadCache.get("CategoryBlock"):
+            CategoryLoadCache.set(src_path, True)
+            log.warn(f"【System】进程 {os.getpid()} 检测到二级分类策略 {file_head} 配置文件已修改，正在重新加载...")
             time.sleep(1)
             # 重新加载二级分类策略
             Category().init_config()
