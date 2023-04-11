@@ -1173,6 +1173,10 @@
   // 保存基础设置
   function save_basic_config(type, flag=true) {
     let params = input_select_GetVal(type);
+    if (params["media.category"] === "config") {
+      show_warning_modal("非法二级分类策略名称");
+      return;
+    }
     if (flag) {
       $("#" + type + "_btn").text("保存中...").attr("disabled", true);
     }
@@ -1218,9 +1222,11 @@
     let category_name = $("[name=category_name]").val();
     if (!category_name) {
       show_warning_modal("请先输入二级分类策略名称");
+      return;
     }
     if (category_name === "config") {
       show_warning_modal("非法二级分类策略名称");
+      return;
     }
     ajax_post("get_category_config", {"category_name": category_name}, function (ret) {
       if (ret.code === 0) {

@@ -24,29 +24,33 @@ class Category:
         self._category_path = Config().category_path
         if not self._category_path:
             return
-        category_file = os.path.basename(self._category_path)
+        category_name, _ = os.path.splitext(os.path.basename(self._category_path))
+        if category_name == "config":
+            log.warn(f"【Config】二级分类策略 {category_name} 名称非法")
+            return
         try:
             if not os.path.exists(self._category_path):
                 shutil.copy(os.path.join(Config().get_inner_config_path(), "default-category.yaml"),
                             self._category_path)
-                log.console(f"【Config】分类配置文件 {category_file} 不存在，已将配置文件模板复制到配置目录...")
+                log.warn(f"【Config】二级分类策略 {category_name} 配置文件不存在，已按模板生成...")
             with open(self._category_path, mode='r', encoding='utf-8') as f:
                 try:
                     yaml = ruamel.yaml.YAML()
                     self._categorys = yaml.load(f)
                 except Exception as e:
                     ExceptionUtils.exception_traceback(e)
-                    log.console(f"【Config】分类配置文件 {category_file} 格式出现严重错误！请检查：{str(e)}")
+                    log.warn(f"【Config】二级分类策略 {category_name} 配置文件格式出现严重错误！请检查：{str(e)}")
                     self._categorys = {}
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.console(f"【Config】分类配置文件 {category_file} 加载出错：{str(e)}")
+            log.warn(f"【Config】二级分类策略 {category_name} 配置文件加载出错：{str(e)}")
             return False
 
         if self._categorys:
             self._movie_categorys = self._categorys.get('movie')
             self._tv_categorys = self._categorys.get('tv')
             self._anime_categorys = self._categorys.get('anime')
+        log.info(f"【Config】已加载二级分类策略 {category_name}")
 
     @property
     def movie_category_flag(self):
