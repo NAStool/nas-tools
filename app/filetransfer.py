@@ -75,7 +75,7 @@ class FileTransfer:
                 else:
                     self._movie_path = []
             # 电影分类
-            self._movie_category_flag = self.category.get_movie_category_flag()
+            self._movie_category_flag = self.category.movie_category_flag
             # 电视剧目录
             self._tv_path = media.get('tv_path')
             if not isinstance(self._tv_path, list):
@@ -84,7 +84,7 @@ class FileTransfer:
                 else:
                     self._tv_path = []
             # 电视剧分类
-            self._tv_category_flag = self.category.get_tv_category_flag()
+            self._tv_category_flag = self.category.tv_category_flag
             # 动漫目录
             self._anime_path = media.get('anime_path')
             if not isinstance(self._anime_path, list):
@@ -93,7 +93,7 @@ class FileTransfer:
                 else:
                     self._anime_path = []
             # 动漫分类
-            self._anime_category_flag = self.category.get_anime_category_flag()
+            self._anime_category_flag = self.category.anime_category_flag
             # 没有动漫目漫切换为电视剧目录和分类
             if not self._anime_path:
                 self._anime_path = self._tv_path
