@@ -20,6 +20,7 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("DOWNLOAD_HISTORY") as batch_op:
             batch_op.add_column(sa.Column('SAVE_PATH', sa.Text, nullable=True))
+            batch_op.add_column(sa.Column('SE', sa.Text, nullable=True))
             batch_op.create_index('ix_DOWNLOAD_HISTORY_SAVE_PATH', ['SAVE_PATH'])
     except Exception as e:
         print(str(e))

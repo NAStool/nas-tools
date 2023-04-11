@@ -1650,6 +1650,7 @@ class DbHelper:
                     "DOWNLOADER": downloader,
                     "DOWNLOAD_ID": download_id,
                     "SAVE_PATH": save_dir,
+                    "SE": media_info.get_season_episode_string(),
                     "DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                 }
             )
@@ -1669,7 +1670,8 @@ class DbHelper:
                 SITE=media_info.site,
                 DOWNLOADER=downloader,
                 DOWNLOAD_ID=download_id,
-                SAVE_PATH=save_dir
+                SAVE_PATH=save_dir,
+                SE=media_info.get_season_episode_string()
             ))
 
     def get_download_history(self, date=None, hid=None, num=30, page=1):
@@ -1708,6 +1710,15 @@ class DbHelper:
         """
         return self._db.query(DOWNLOADHISTORY).filter(
             DOWNLOADHISTORY.SAVE_PATH == os.path.normpath(path)
+        ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
+
+    def get_download_history_by_downloader(self, downloader, download_id):
+        """
+        根据下载器查找下载历史
+        """
+        return self._db.query(DOWNLOADHISTORY).filter(
+            DOWNLOADHISTORY.DOWNLOADER == downloader,
+            DOWNLOADHISTORY.DOWNLOAD_ID == download_id
         ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
 
     @DbPersist(_db)

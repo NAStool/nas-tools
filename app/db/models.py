@@ -174,6 +174,7 @@ class DOWNLOADHISTORY(Base):
     YEAR = Column(Text)
     TYPE = Column(Text)
     TMDBID = Column(Text)
+    SE = Column(Text)
     VOTE = Column(Text)
     POSTER = Column(Text)
     OVERVIEW = Column(Text)
