@@ -126,6 +126,16 @@ class _IPluginModule(metaclass=ABCMeta):
             plugin_id = self.__class__.__name__
         return DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
 
+    def delete_history(self, key, plugin_id=None):
+        """
+        删除插件运行数据
+        """
+        if not key:
+            return []
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        return DbHelper().delete_plugin_history(plugin_id=plugin_id, key=key)
+
     def info(self, msg):
         """
         记录INFO日志
