@@ -261,7 +261,7 @@ class ConfigMonitor(FileSystemEventHandler):
         # 配置文件10秒内只能加载一次
         if file_name == "config.yaml" and not ConfigLoadCache.get(src_path):
             ConfigLoadCache.set(src_path, True)
-            CategoryLoadCache.set("CategoryBlock", True, ConfigLoadCache.ttl)
+            CategoryLoadCache.set("ConfigLoadBlock", True, ConfigLoadCache.ttl)
             log.warn(f"【System】进程 {os.getpid()} 检测到系统配置文件已修改，正在重新加载...")
             time.sleep(1)
             # 重新加载配置
@@ -273,7 +273,7 @@ class ConfigMonitor(FileSystemEventHandler):
         # 正在使用的二级分类策略文件3秒内只能加载一次，配置文件加载时，二级分类策略文件不加载
         elif file_name == os.path.basename(Config().category_path) \
                 and not CategoryLoadCache.get(src_path) \
-                and not CategoryLoadCache.get("CategoryBlock"):
+                and not CategoryLoadCache.get("ConfigLoadBlock"):
             CategoryLoadCache.set(src_path, True)
             log.warn(f"【System】进程 {os.getpid()} 检测到二级分类策略 {file_head} 配置文件已修改，正在重新加载...")
             time.sleep(1)
