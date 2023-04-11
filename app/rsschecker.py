@@ -210,13 +210,14 @@ class RssChecker(object):
 
                 log.info("【RssChecker】开始处理：%s" % title)
 
-                # 检查是否已处理过
+                task_type = taskinfo.get("uses")
                 meta_name = "%s %s" % (title, year) if year else title
-                if self.dbhelper.is_userrss_finished(meta_name, enclosure):
+                # 检查是否已处理过
+                if self.is_article_processed(task_type, title, year, enclosure):
                     log.info("【RssChecker】%s 已处理过" % title)
                     continue
 
-                if taskinfo.get("uses") == "D":
+                if task_type == "D":
                     # 识别种子名称，开始检索TMDB
                     media_info = MetaInfo(title=meta_name,
                                           mtype=mediatype)
@@ -299,7 +300,8 @@ class RssChecker(object):
                     if media_info not in rss_download_torrents:
                         rss_download_torrents.append(media_info)
                         res_num = res_num + 1
-                elif taskinfo.get("uses") == "R":
+                elif task_type == "R":
+                    # 识别种子名称，开始检索TMDB
                     media_info = MetaInfo(title=meta_name, mtype=mediatype)
                     # 检查种子是否匹配过滤条件
                     filter_args = {
@@ -321,6 +323,8 @@ class RssChecker(object):
                         log.info(
                             f"【RssChecker】{media_info.get_title_string()}{media_info.get_season_string()} 已订阅过")
                         continue
+                    # 订阅meta_name存enclosure与下载区别
+                    media_info.set_torrent_info(enclosure=meta_name)
                     # 添加处理历史
                     self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
@@ -520,8 +524,7 @@ class RssChecker(object):
                 if year and len(year) > 4:
                     year = year[:4]
                 # 检查是不是处理过
-                meta_name = "%s %s" % (title, year) if year else title
-                finish_flag = self.dbhelper.is_userrss_finished(meta_name, enclosure)
+                finish_flag = self.is_article_processed(taskinfo.get("uses"), title, year, enclosure)
                 # 信息聚合
                 params = {
                     "title": title,
@@ -531,6 +534,7 @@ class RssChecker(object):
                     "description": description,
                     "date": date,
                     "finish_flag": finish_flag,
+                    "year": year
                 }
                 if params not in rss_articles:
                     rss_articles.append(params)
@@ -604,22 +608,36 @@ class RssChecker(object):
                              % (media_info.get_title_string(), no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
-    def check_rss_articles(self, flag, articles):
+    def check_rss_articles(self, taskid, flag, articles):
         """
         RSS报文处理设置
+        :param taskid: 自定义RSS的ID
         :param flag: set_finished/set_unfinish
         :param articles: 报文(title/enclosure)
         """
         try:
+            task_type = self.get_rsstask_info(taskid).get("uses")
             if flag == "set_finished":
                 for article in articles:
                     title = article.get("title")
                     enclosure = article.get("enclosure")
-                    if not self.dbhelper.is_userrss_finished(title, enclosure):
-                        self.dbhelper.simple_insert_rss_torrents(title, enclosure)
+                    year = article.get("year")
+                    meta_name = f"{title} {year}" if year else title
+                    if not self.is_article_processed(task_type, title, enclosure, year):
+                        if task_type == "D":
+                            self.dbhelper.simple_insert_rss_torrents(meta_name, enclosure)
+                        elif task_type == "R":
+                            self.dbhelper.simple_insert_rss_torrents(meta_name, meta_name)
             elif flag == "set_unfinish":
                 for article in articles:
-                    self.dbhelper.simple_delete_rss_torrents(article.get("title"), article.get("enclosure"))
+                    title = article.get("title")
+                    enclosure = article.get("enclosure")
+                    year = article.get("year")
+                    meta_name = f"{title} {year}" if year else title
+                    if task_type == "D":
+                        self.dbhelper.simple_delete_rss_torrents(meta_name, enclosure)
+                    elif task_type == "R":
+                        self.dbhelper.simple_delete_rss_torrents(meta_name, meta_name)
             else:
                 return False
             return True
@@ -681,3 +699,21 @@ class RssChecker(object):
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+
+    def is_article_processed(self, task_type, title, year, enclosure):
+        """
+        检查报文是否已处理
+        :param task_type: 订阅任务类型
+        :param title: 报文标题
+        :param year: 报文年份
+        :param enclosure: 报文链接
+        :return:
+        """
+        meta_name = f"{title} {year}" if year else title
+        match task_type:
+            case "D":
+                return self.dbhelper.is_userrss_finished(meta_name, enclosure)
+            case "R":
+                return self.dbhelper.is_userrss_finished(meta_name, meta_name)
+            case _:
+                return False

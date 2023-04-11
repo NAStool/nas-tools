@@ -2849,7 +2849,10 @@ class WebAction:
         if not data.get("articles"):
             return {"code": 2}
         res = RssChecker().check_rss_articles(
-            flag=data.get("flag"), articles=data.get("articles"))
+            taskid=data.get("taskid"),
+            flag=data.get("flag"),
+            articles=data.get("articles")
+        )
         if res:
             return {"code": 0}
         else:
