@@ -382,6 +382,15 @@ class Jellyfin(_IMediaClient):
             return None
         return None
 
+    def get_audio_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询有声书图片地址
+        :param item_id: 在Emby中的ID
+        """
+        if not IpUtils.is_internal(self._play_host):
+            return "%sItems/%s/Images/Primary?maxHeight=225&maxWidth=400&quality=90" % (
+                self._play_host, item_id)
+
     def refresh_root_library(self):
         """
         通知Jellyfin刷新整个媒体库

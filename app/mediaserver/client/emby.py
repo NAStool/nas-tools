@@ -388,6 +388,15 @@ class Emby(_IMediaClient):
             return None
         return None
 
+    def get_audio_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询有声书图片地址
+        :param item_id: 在Emby中的ID
+        """
+        if not IpUtils.is_internal(self._play_host):
+            return "%sItems/%s/Images/Primary?maxHeight=225&maxWidth=400&quality=90" % (
+                self._play_host, item_id)
+
     def __refresh_emby_library_by_id(self, item_id):
         """
         通知Emby刷新一个项目的媒体库
@@ -602,6 +611,13 @@ class Emby(_IMediaClient):
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
+            elif message.get('Item', {}).get('Type') == 'Audio':
+                eventItem['item_type'] = "AUD"
+                album = message.get('Item', {}).get('Album')
+                file_name = message.get('Item', {}).get('FileName')
+                eventItem['item_name'] = album
+                eventItem['overview'] = file_name
+                eventItem['item_id'] = message.get('Item', {}).get('AlbumId')
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (

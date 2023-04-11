@@ -259,6 +259,13 @@ class Plex(_IMediaClient):
             log.error(f"【{self.client_name}】获取封面出错：" + str(e))
         return None
 
+    def get_audio_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询有声书图片地址
+        :param item_id: 在Emby中的ID
+        """
+        return None
+
     def refresh_root_library(self):
         """
         通知Plex刷新整个媒体库

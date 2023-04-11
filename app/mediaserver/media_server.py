@@ -132,6 +132,17 @@ class MediaServer:
             return None
         return self.server.get_image_by_id(item_id, image_type)
 
+    def get_audio_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询有声书图片地址
+        :param item_id: 在Emby中的ID
+        """
+        if not self.server:
+            return None
+        if not item_id:
+            return None
+        return self.server.get_audio_image_by_id(item_id)
+
     def get_no_exists_episodes(self, meta_info,
                                season_number,
                                episode_count):
@@ -355,10 +366,14 @@ class MediaServer:
                 image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
                                                          season_id=event_info.get('season_id'),
                                                          episode_id=event_info.get('episode_id'))
-            else:
+            elif event_info.get("item_type") == "MOV":
                 # 根据返回的item_id去调用媒体服务器获取
                 image_url = self.get_image_by_id(item_id=event_info.get('item_id'),
                                                  image_type="Backdrop")
+            elif event_info.get("item_type") == "AUD":
+                image_url = self.get_audio_image_by_id(item_id=event_info.get('item_id'))
+            else:
+                image_url = None
             self.message.send_mediaserver_message(event_info=event_info,
                                                   channel=channel.value,
                                                   image_url=image_url)
