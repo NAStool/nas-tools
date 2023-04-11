@@ -81,8 +81,8 @@ class TorrentRemover(_IPluginModule):
         event_info = event.event_data
         if not event_info:
             return
-        # 删除下载记录
 
+        # 删除下载记录
         source_path = event_info.get("path")
         source_filename = event_info.get("filename")
         media_title = event_info.get("media_info", {}).get("title")
