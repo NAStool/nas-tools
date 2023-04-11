@@ -271,6 +271,7 @@ class IYUUAutoSeed(_IPluginModule):
             "sites": self._sites,
             "notify": self._notify,
             "nolabels": self._nolabels,
+            "success_caches": self._success_caches,
             "error_caches": self._error_caches,
             "permanent_error_caches": self._permanent_error_caches
         })
