@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 import log
 from app.conf import SystemConfig
+from app.helper import DbHelper
 from config import Config
 
 
@@ -104,6 +105,26 @@ class _IPluginModule(metaclass=ABCMeta):
         if not os.path.exists(data_path):
             os.makedirs(data_path)
         return data_path
+
+    def history(self, key, value):
+        """
+        记录插件运行数据
+        """
+        if not key or not value:
+            return
+        DbHelper().insert_plugin_history(plugin_id=self.__class__.__name__,
+                                         key=key,
+                                         value=value)
+
+    def get_history(self, key, plugin_id=None):
+        """
+        获取插件运行数据
+        """
+        if not key:
+            return []
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        return DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
 
     def info(self, msg):
         """

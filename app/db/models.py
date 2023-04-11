@@ -566,6 +566,16 @@ class USERRSSTASKHISTORY(Base):
     DATE = Column(Text)
 
 
+class PLUGINHISTORY(Base):
+    __tablename__ = 'PLUGIN_HISTORY'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    PLUGIN_ID = Column(Text, index=True)
+    KEY = Column(Text, index=True)
+    VALUE = Column(Text)
+    DATE = Column(Text)
+
+
 class MEDIASYNCITEMS(BaseMedia):
     __tablename__ = 'MEDIASYNC_ITEMS'
     __table_args__ = (

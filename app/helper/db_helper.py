@@ -2731,3 +2731,22 @@ class DbHelper:
                           else_=0)).label("SUCCESS"),
             func.avg(INDEXERSTATISTICS.SECONDS).label("AVG"),
         ).group_by(INDEXERSTATISTICS.INDEXER).all()
+
+    @DbPersist(_db)
+    def insert_plugin_history(self, plugin_id, key, value):
+        """
+        新增插件运行记录
+        """
+        self._db.insert(PLUGINHISTORY(
+            PLUGIN_ID=plugin_id,
+            KEY=key,
+            VALUE=value,
+            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))
+
+    def get_plugin_history(self, plugin_id, key):
+        """
+        查询插件运行记录
+        """
+        return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                                    PLUGINHISTORY.KEY == key).all()
