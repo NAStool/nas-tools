@@ -72,6 +72,8 @@ class IYUUAutoSeed(_IPluginModule):
     _is_recheck_running = False
     # 辅种缓存，出错的种子不再重复辅种，可清除
     _error_caches = []
+    # 辅种缓存，辅种成功的种子，可清除
+    _success_caches = []
     # 辅种缓存，出错的种子不再重复辅种，且无法清除。种子被删除404等情况
     _permanent_error_caches = []
     # 辅种计数
@@ -222,6 +224,7 @@ class IYUUAutoSeed(_IPluginModule):
             self._clearcache = config.get("clearcache")
             self._permanent_error_caches = config.get("permanent_error_caches") or []
             self._error_caches = [] if self._clearcache else config.get("error_caches") or []
+            self._success_caches = [] if self._clearcache else config.get("success_caches") or []
         # 停止现有任务
         self.stop_service()
 
@@ -430,6 +433,9 @@ class IYUUAutoSeed(_IPluginModule):
                 if seed.get("info_hash") in hashs:
                     self.info(f"{seed.get('info_hash')} 已在下载器中，跳过 ...")
                     continue
+                if seed.get("info_hash") in self._success_caches:
+                    self.info(f"{seed.get('info_hash')} 已处理过辅种，跳过 ...")
+                    continue
                 if seed.get("info_hash") in self._error_caches or seed.get("info_hash") in self._permanent_error_caches:
                     self.info(f"种子 {seed.get('info_hash')} 辅种失败且已缓存，跳过 ...")
                     continue
@@ -538,7 +544,7 @@ class IYUUAutoSeed(_IPluginModule):
                 self.downloader.recheck_torrents(downloader_id=downloader, ids=[download_id])
 
             # 成功也加入缓存，有一些改了路径校验不通过的，手动删除后，下一次又会辅上
-            self._error_caches.append(seed.get("info_hash"))
+            self._success_caches.append(seed.get("info_hash"))
             return True
 
     @staticmethod
