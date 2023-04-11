@@ -128,7 +128,7 @@ class _IPluginModule(metaclass=ABCMeta):
 
     def delete_history(self, key, plugin_id=None):
         """
-        获取插件运行数据
+        删除插件运行数据
         """
         if not key:
             return []
