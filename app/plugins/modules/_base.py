@@ -1,7 +1,9 @@
+import os
 from abc import ABCMeta, abstractmethod
 
 import log
 from app.conf import SystemConfig
+from config import Config
 
 
 class _IPluginModule(metaclass=ABCMeta):
@@ -81,7 +83,7 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         if not plugin_id:
             plugin_id = self.__class__.__name__
-        return SystemConfig().set_system_config("plugin.%s" % plugin_id, config)
+        return SystemConfig().set("plugin.%s" % plugin_id, config)
 
     def get_config(self, plugin_id=None):
         """
@@ -90,7 +92,18 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         if not plugin_id:
             plugin_id = self.__class__.__name__
-        return SystemConfig().get_system_config("plugin.%s" % plugin_id)
+        return SystemConfig().get("plugin.%s" % plugin_id)
+
+    def get_data_path(self, plugin_id=None):
+        """
+        获取插件数据保存目录
+        """
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        data_path = os.path.join(Config().get_user_plugin_path(), plugin_id)
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+        return data_path
 
     def info(self, msg):
         """

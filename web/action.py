@@ -2617,7 +2617,7 @@ class WebAction:
         开始媒体库同步
         """
         librarys = data.get("librarys") or []
-        SystemConfig().set_system_config(key=SystemConfigKey.SyncLibrary, value=librarys)
+        SystemConfig().set(key=SystemConfigKey.SyncLibrary, value=librarys)
         ThreadHelper().start_thread(MediaServer().sync_mediaserver, ())
         return {"code": 0}
 
@@ -4280,12 +4280,12 @@ class WebAction:
         twostepcode = data.get("two_step_code")
         ocrflag = data.get("ocrflag")
         # 保存设置
-        SystemConfig().set_system_config(key=SystemConfigKey.CookieUserInfo,
-                                         value={
-                                             "username": username,
-                                             "password": password,
-                                             "two_step_code": twostepcode
-                                         })
+        SystemConfig().set(key=SystemConfigKey.CookieUserInfo,
+                           value={
+                               "username": username,
+                               "password": password,
+                               "two_step_code": twostepcode
+                           })
         retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
                                                                 username=username,
                                                                 password=password,
@@ -4407,7 +4407,7 @@ class WebAction:
         if not key or not value:
             return {"code": 1}
         try:
-            SystemConfig().set_system_config(key=key, value=value)
+            SystemConfig().set(key=key, value=value)
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -4591,11 +4591,11 @@ class WebAction:
         """
         script = data.get("javascript") or ""
         css = data.get("css") or ""
-        SystemConfig().set_system_config(key=SystemConfigKey.CustomScript,
-                                         value={
-                                             "css": css,
-                                             "javascript": script
-                                         })
+        SystemConfig().set(key=SystemConfigKey.CustomScript,
+                           value={
+                               "css": css,
+                               "javascript": script
+                           })
         return {"code": 0, "msg": "保存成功"}
 
     @staticmethod
@@ -4719,7 +4719,7 @@ class WebAction:
             site = data.get("site")
             params = data.get("params")
         else:
-            UserSiteAuthParams = SystemConfig().get_system_config(SystemConfigKey.UserSiteAuthParams)
+            UserSiteAuthParams = SystemConfig().get(SystemConfigKey.UserSiteAuthParams)
             if UserSiteAuthParams:
                 site = UserSiteAuthParams.get("site")
                 params = UserSiteAuthParams.get("params")
@@ -4728,11 +4728,11 @@ class WebAction:
         state, msg = User().check_user(site, params)
         if state:
             # 保存认证数据
-            SystemConfig().set_system_config(key=SystemConfigKey.UserSiteAuthParams,
-                                             value={
-                                                 "site": site,
-                                                 "params": params
-                                             })
+            SystemConfig().set(key=SystemConfigKey.UserSiteAuthParams,
+                               value={
+                                   "site": site,
+                                   "params": params
+                               })
             return {"code": 0, "msg": "认证成功"}
         return {"code": 1, "msg": f"{msg or '认证失败，请检查合作站点账号是否正常！'}"}
 
@@ -4937,11 +4937,11 @@ class WebAction:
         if not module_id:
             return {"code": -1, "msg": "参数错误"}
         # 用户已安装插件列表
-        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        user_plugins = SystemConfig().get(SystemConfigKey.UserInstalledPlugins) or []
         if module_id not in user_plugins:
             user_plugins.append(module_id)
         # 保存配置
-        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        SystemConfig().set(SystemConfigKey.UserInstalledPlugins, user_plugins)
         # 重新加载插件
         PluginManager().init_config()
         return {"code": 0, "msg": "插件安装成功"}
@@ -4955,11 +4955,11 @@ class WebAction:
         if not module_id:
             return {"code": -1, "msg": "参数错误"}
         # 用户已安装插件列表
-        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        user_plugins = SystemConfig().get(SystemConfigKey.UserInstalledPlugins) or []
         if module_id in user_plugins:
             user_plugins.remove(module_id)
         # 保存配置
-        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        SystemConfig().set(SystemConfigKey.UserInstalledPlugins, user_plugins)
         # 重新加载插件
         PluginManager().init_config()
         return {"code": 0, "msg": "插件卸载功"}

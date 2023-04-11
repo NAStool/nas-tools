@@ -157,7 +157,7 @@ class Downloader:
         """
         获取默认下载器id
         """
-        default_downloader_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloader)
+        default_downloader_id = SystemConfig().get(SystemConfigKey.DefaultDownloader)
         if not default_downloader_id or not self.get_downloader_conf(default_downloader_id):
             default_downloader_id = ""
         return default_downloader_id
@@ -168,7 +168,7 @@ class Downloader:
         获取默认下载设置
         :return: 默认下载设置id
         """
-        default_download_setting_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloadSetting) or "-1"
+        default_download_setting_id = SystemConfig().get(SystemConfigKey.DefaultDownloadSetting) or "-1"
         if not self._download_settings.get(default_download_setting_id):
             default_download_setting_id = "-1"
         return default_download_setting_id

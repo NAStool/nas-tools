@@ -215,7 +215,7 @@ class MediaServer:
             self.progress.start(ProgressKey.MediaSync)
             self.progress.update(ptype=ProgressKey.MediaSync, text="请稍候...")
             # 获取需同步的媒体库
-            librarys = self.systemconfig.get_system_config(SystemConfigKey.SyncLibrary) or []
+            librarys = self.systemconfig.get(SystemConfigKey.SyncLibrary) or []
             # 汇总统计
             medias_count = self.get_medias_count()
             total_media_count = medias_count.get("MovieCount") + medias_count.get("SeriesCount")
