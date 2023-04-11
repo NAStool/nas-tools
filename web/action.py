@@ -5031,7 +5031,6 @@ class WebAction:
         if category_path:
             with open(category_path, "w", encoding="utf-8") as f:
                 f.write(text)
-            Category().init_config()
         return {"code": 0, "msg": "保存成功"}
 
     @staticmethod
@@ -5042,6 +5041,8 @@ class WebAction:
         category_name = data.get("category_name")
         if not category_name:
             return {"code": 1, "msg": "请输入二级分类策略名称"}
+        if category_name == "config":
+            return {"code": 1, "msg": "非法二级分类策略名称"}
         category_path = os.path.join(Config().get_config_path(), f"{category_name}.yaml")
         if not os.path.exists(category_path):
             return {"code": 1, "msg": "请保存生成配置文件"}

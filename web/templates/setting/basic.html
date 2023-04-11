@@ -1219,6 +1219,9 @@
     if (!category_name) {
       show_warning_modal("请先输入二级分类策略名称");
     }
+    if (category_name === "config") {
+      show_warning_modal("非法二级分类策略名称");
+    }
     ajax_post("get_category_config", {"category_name": category_name}, function (ret) {
       if (ret.code === 0) {
         category_editor.setValue(ret.text);

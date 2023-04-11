@@ -9,7 +9,8 @@ from werkzeug.security import generate_password_hash
 import log
 from app.helper import DbHelper
 from app.plugins import PluginManager
-from app.utils import ConfigLoadCache, ExceptionUtils, StringUtils
+from app.media import  Category
+from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
 from config import Config
 
@@ -250,11 +251,14 @@ class ConfigMonitor(FileSystemEventHandler):
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
-        if not event.is_directory \
-                and os.path.basename(event.src_path) == "config.yaml":
-            # 10秒内只能加载一次
-            if ConfigLoadCache.get(event.src_path):
-                return
+        if event.is_directory:
+            return
+        file_name = os.path.basename(event.src_path)
+        _, file_ext = os.path.splitext(os.path.basename(file_name))
+        if file_ext != ".yaml":
+            return
+        # 配置文件10秒内只能加载一次
+        if file_name == "config.yaml" and not ConfigLoadCache.get(event.src_path):
             ConfigLoadCache.set(event.src_path, True)
             log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
             time.sleep(1)
@@ -264,6 +268,13 @@ class ConfigMonitor(FileSystemEventHandler):
             for instance in INSTANCES.values():
                 if hasattr(instance, "init_config"):
                     instance.init_config()
+        # 正在使用的二级分类策略文件3秒内只能加载一次
+        elif file_name == os.path.basename(Config().category_path) and not CategoryLoadCache.get(event.src_path):
+            CategoryLoadCache.set(event.src_path, True)
+            log.console(f"进程 %s 检测到二级分类策略文件 {file_name} 已修改，正在重新加载..." % os.getpid())
+            time.sleep(1)
+            # 重新加载二级分类策略
+            Category().init_config()
 
 
 def start_config_monitor():
