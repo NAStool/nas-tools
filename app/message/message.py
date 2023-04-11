@@ -547,6 +547,8 @@ class Message(object):
             message_title = f"{_webhook_actions.get(event_info.get('event'))}剧集 {event_info.get('item_name')}"
         elif event_info.get('item_type') == "MOV":
             message_title = f"{_webhook_actions.get(event_info.get('event'))}电影 {event_info.get('item_name')}"
+        elif event_info.get('item_type') == "AUD":
+            message_title = f"{_webhook_actions.get(event_info.get('event'))}有声书 {event_info.get('item_name')}"
         else:
             message_title = f"{_webhook_actions.get(event_info.get('event'))}"
 
