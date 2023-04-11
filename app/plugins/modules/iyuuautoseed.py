@@ -600,11 +600,14 @@ class IYUUAutoSeed(_IPluginModule):
                 ).replace(
                     "/{}",
                     "/{id}"
+                ).replace(
+                    "/{torrent_key}",
+                    ""
                 ).format(
                     **{
                         "id": seed.get("torrent_id"),
                         "passkey": site.get("passkey") or '',
-                        "uid": site.get("uid") or ''
+                        "uid": site.get("uid") or '',
                     }
                 )
                 if download_url.count("{"):
