@@ -9,3 +9,4 @@
 /cloudflarespeedtest/**
 config/media.db
 config/user.db
+dev/
