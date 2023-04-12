@@ -667,15 +667,15 @@ class AutoSub(_IPluginModule):
         for index, stream in enumerate(audio_stream):
             if not audio_index:
                 audio_index = index
-                audio_lang = stream.get('tags', {}).get('language')
+                audio_lang = stream.get('tags', {}).get('language', 'und')
             # 获取默认音轨
             if stream.get('disposition', {}).get('default'):
                 audio_index = index
-                audio_lang = stream.get('tags', {}).get('language')
+                audio_lang = stream.get('tags', {}).get('language', 'und')
             # 获取指定语言音轨
             if prefer_lang and stream.get('tags', {}).get('language') in prefer_lang:
                 audio_index = index
-                audio_lang = stream.get('tags', {}).get('language')
+                audio_lang = stream.get('tags', {}).get('language', 'und')
                 break
 
         # 如果没有音轨， 则不处理
@@ -692,6 +692,36 @@ class AutoSub(_IPluginModule):
         :param video_meta:
         :return:
         """
+        # from https://wiki.videolan.org/Subtitles_codecs/
+        """
+        https://trac.ffmpeg.org/wiki/ExtractSubtitles
+        ffmpeg -codecs | grep subtitle
+         DES... ass                  ASS (Advanced SSA) subtitle (decoders: ssa ass ) (encoders: ssa ass )
+         DES... dvb_subtitle         DVB subtitles (decoders: dvbsub ) (encoders: dvbsub )
+         DES... dvd_subtitle         DVD subtitles (decoders: dvdsub ) (encoders: dvdsub )
+         D.S... hdmv_pgs_subtitle    HDMV Presentation Graphic Stream subtitles (decoders: pgssub )
+         ..S... hdmv_text_subtitle   HDMV Text subtitle
+         D.S... jacosub              JACOsub subtitle
+         D.S... microdvd             MicroDVD subtitle
+         D.S... mpl2                 MPL2 subtitle
+         D.S... pjs                  PJS (Phoenix Japanimation Society) subtitle
+         D.S... realtext             RealText subtitle
+         D.S... sami                 SAMI subtitle
+         ..S... srt                  SubRip subtitle with embedded timing
+         ..S... ssa                  SSA (SubStation Alpha) subtitle
+         D.S... stl                  Spruce subtitle format
+         DES... subrip               SubRip subtitle (decoders: srt subrip ) (encoders: srt subrip )
+         D.S... subviewer            SubViewer subtitle
+         D.S... subviewer1           SubViewer v1 subtitle
+         D.S... vplayer              VPlayer subtitle
+         DES... webvtt               WebVTT subtitle
+        """
+        image_based_subtitle_codecs = (
+            'dvd_subtitle',
+            'dvb_subtitle',
+            'hdmv_pgs_subtitle',
+        )
+
         if type(prefer_lang) == str and prefer_lang:
             prefer_lang = [prefer_lang]
 
@@ -704,7 +734,12 @@ class AutoSub(_IPluginModule):
             # 如果是强制字幕，则跳过
             if stream.get('disposition', {}).get('forced'):
                 continue
-
+            # image-based 字幕，跳过
+            if (
+                    'width' in stream
+                    or stream.get('codec_name') in image_based_subtitle_codecs
+            ):
+                continue
             if not subtitle_index:
                 subtitle_index = index
                 subtitle_lang = stream.get('tags', {}).get('language')
