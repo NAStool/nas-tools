@@ -2817,11 +2817,13 @@ class WebAction:
 
     @staticmethod
     def __list_rss_articles(data):
-        uses = RssChecker().get_rsstask_info(taskid=data.get("id")).get("uses")
+        task_info = RssChecker().get_rsstask_info(taskid=data.get("id"))
+        uses = task_info.get("uses")
+        address_count = len(task_info.get("address"))
         articles = RssChecker().get_rss_articles(data.get("id"))
         count = len(articles)
         if articles:
-            return {"code": 0, "data": articles, "count": count, "uses": uses}
+            return {"code": 0, "data": articles, "count": count, "uses": uses, "address_count": address_count}
         else:
             return {"code": 1, "msg": "未获取到报文"}
 
