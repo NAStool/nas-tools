@@ -259,7 +259,7 @@
         <details class="mb-3" open>
           <summary class="summary required">地址及解析器
             <span class="form-help" title="RSS订阅的链接地址及对应使用的解析器" data-bs-toggle="tooltip">?</span>
-            <a href="javascript:add_address_parser()" class="btn-icon" title="增加目录">{{ SVG.folder_plus() }}</a>
+            <span class="ms-2"><a href="javascript:add_address_parser()" class="btn-icon" title="增加目录">{{ SVG.folder_plus() }}</a></span>
           </summary>
           <div class="row mt-2" id="userrss_address_parser_div"></div>
         </details>
@@ -498,12 +498,13 @@
       </div>
       <div class="collapse" id="search-bar">
         <div class="input-group p-1">
-          <select id="filter-status" class="form-select w-25" onchange="filterReport()">
-            <option value="">全部</option>
-            <option value="已处理">已处理</option>
-            <option value="未处理">未处理</option>
+          <select id="filter_finish_flag" class="form-select" onchange="filter_articles()">
+            <option value="">全部状态</option>
+            <option value="1">已处理</option>
+            <option value="0">未处理</option>
           </select>
-          <input type="text" id="filter-title" class="form-control w-75" placeholder="搜索" onkeyup="filterReport()">
+          <select id="filter_address_index" class="form-select" onchange="filter_articles()"></select>
+          <input type="text" id="filter_keyword" class="form-control w-50" placeholder="搜索" onkeyup="filter_articles()">
         </div>
       </div>
       <div class="table-responsive table-modal-body">
@@ -784,7 +785,8 @@
             input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="year_${i}" value="${article.year}">
-                              <input type="hidden" id="title_${i}" value="${title_param}">`;
+                              <input type="hidden" id="title_${i}" value="${title_param}">
+                              <input type="hidden" id="filter_flag_${i}" name="filter_flag" value= "${article.finish_flag ? 1: 0}_${article.address_index}">`;
             title = `<span style="word-break: keep-all">${article.year ? `${article.title} (${article.year})` : article.title}</span>`;
             recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                               {{ SVG.text_recognition() }}
@@ -824,6 +826,13 @@
         $(".rss_articles_download_btn").show();
       }
       $("#article_check_id").val(id);
+      let filter_address_index_content = `<option value="">全部RSS地址</option>`;
+      if (ret.address_count > 1) {
+        for (let i = 0; i < ret.address_count; i++) {
+          filter_address_index_content = `${filter_address_index_content}<option value="${i + 1}">RSS地址${i + 1}</option>`;
+        }
+      }
+      $("#filter_address_index").empty().append(filter_address_index_content);
       $("#modal-rss-articles").modal('show');
     });
   }
@@ -1006,20 +1015,25 @@
   }
 
   //筛选
-  function filterReport() {
-    let filterStatus = $("#filter-status").val();
-    let filterTitle = $("#filter-title").val().toLowerCase();
-    let tableRows = $("tr");
-    for (let i = 1; i < tableRows.length; i++) {
-      let reportData = $(tableRows[i]).find("td");
-      let title = $(reportData[1]).text().toLowerCase();
-      let status = $(reportData[2]).text();
-      if ((filterStatus == "" || status == filterStatus) && (title.includes(filterTitle))) {
-        $(tableRows[i]).show();
+  function filter_articles() {
+    let filter_finish_flag = $("#filter_finish_flag").val();
+    let filter_address_index = $("#filter_address_index").val();
+    let filter_keyword = $("#filter_keyword").val().toLowerCase();
+    let tableRows = $("#table-rss-articles tr");
+    $('input[type=hidden][name=filter_flag]').each(function () {
+      const index = Number($(this).attr("id").replace('filter_flag_', ''));
+      const fliter_flag = $(this).val().split('_');
+      const finish_flag = fliter_flag[0]
+      const address_index = fliter_flag[1]
+      const title = $(`#title_${index}`).val().toLowerCase();
+      if ((!filter_finish_flag || filter_finish_flag === finish_flag)
+      && (!filter_address_index || filter_address_index === address_index)
+      &&(title.includes(filter_keyword)) ) {
+        tableRows.eq(index + 1).show();
       } else {
-        $(tableRows[i]).hide();
+        tableRows.eq(index + 1).hide();
       }
-    }
+    });
   }
 
   var CURRENT_ADDDIV_LEVEL = 0;
@@ -1034,13 +1048,22 @@
       $(`#userrss_parser_${CURRENT_ADDDIV_LEVEL}`).val(parser);
     }
     CURRENT_ADDDIV_LEVEL = CURRENT_ADDDIV_LEVEL + 1;
+    refresh_userrss_address_index();
   }
 
-  //删除下载目录
+  // 删除下载目录
   function del_address_parser(id) {
     if (id) {
       $(`#adddiv_${id}`).remove();
+      refresh_userrss_address_index();
     }
+  }
+
+  // 刷新rss地址序号
+  function refresh_userrss_address_index() {
+    $("span[id^='userrss_adress_index_']").each(function (index) {
+      $(this).text(`${index + 1}`);
+    });
   }
 
 </script>
@@ -1049,7 +1072,10 @@
   <div class="col-lg-12">
     <div class="row">
       <div class="col-12 col-lg-8 mb-1">
-        <input type="text" value="" name="userrss_address" id="userrss_address_{ADDDIV_LEVEL}" class="form-control" placeholder="RSS地址" autocomplete="off">
+        <div class="input-group input-group-flat">
+          <span id="userrss_adress_index_{ADDDIV_LEVEL}" class="badge bg-blue ps-1 pe-1 pt-2" style="min-width: 2rem;"></span>
+          <input type="text" value="" name="userrss_address" id="userrss_address_{ADDDIV_LEVEL}" class="form-control" placeholder="RSS地址" autocomplete="off">
+        </div>
       </div>
       <div class="col-12 col-lg-3 mb-1">
         <select class="form-select" id="userrss_parser_{ADDDIV_LEVEL}">

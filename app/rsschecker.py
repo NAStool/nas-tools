@@ -469,6 +469,7 @@ class RssChecker(object):
                                 continue
                             if value:
                                 rss_item.update({key: value[0]})
+                        rss_item.update({"address_index": i+1})
                         rss_result.append(rss_item)
                 except Exception as err:
                     ExceptionUtils.exception_traceback(err)
@@ -496,6 +497,7 @@ class RssChecker(object):
                             continue
                         if value:
                             rss_item.update({key: value[0]})
+                    rss_item.update({"address_index": i+1})
                     rss_result.append(rss_item)
         return rss_result
 
@@ -555,7 +557,8 @@ class RssChecker(object):
                     "description": description,
                     "date": date,
                     "finish_flag": finish_flag,
-                    "year": year
+                    "year": year,
+                    "address_index": res.get("address_index")
                 }
                 if params not in rss_articles:
                     rss_articles.append(params)
