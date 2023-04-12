@@ -392,9 +392,12 @@ class TorrentSpider(feapder.AirSpider):
         # details
         if 'details' not in self.fields:
             return
-        details = torrent(self.fields.get('details', {}).get('selector', ''))
-        items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
+        selector = self.fields.get('details', {})
+        details = torrent(selector.get('selector', ''))
+        items = [item.attr(selector.get('attribute')) for item in details.items()]
         if items:
+            if 'filters' in selector:
+                items[0] = self.__filter_text(items[0], selector.get('filters'))
             if not items[0].startswith("http"):
                 if items[0].startswith("//"):
                     self.torrents_info['page_url'] = self.domain.split(":")[0] + ":" + items[0]
@@ -404,31 +407,33 @@ class TorrentSpider(feapder.AirSpider):
                     self.torrents_info['page_url'] = self.domain + items[0]
             else:
                 self.torrents_info['page_url'] = items[0]
-            if 'filters' in self.fields.get('details', {}):
-                self.torrents_info['page_url'] = self.__filter_text(self.torrents_info.get('page_url'),
-                                                                    self.fields.get('details',
-                                                                                    {}).get('filters'))
 
     def Getdownload(self, torrent):
         # download link
         if 'download' not in self.fields:
             return
-        if "detail" in self.fields.get('download', {}):
-            selector = self.fields.get('download', {}).get("detail", {})
-            if "xpath" in selector:
-                self.torrents_info['enclosure'] = f'[{selector.get("xpath", "")}' \
+        selector = self.fields.get('download', {})
+        if "detail" in selector:
+            detail = selector.get("detail", {})
+            if "xpath" in detail:
+                self.torrents_info['enclosure'] = f'[{detail.get("xpath", "")}' \
                                                   f'|{self.cookie or ""}' \
                                                   f'|{self.ua or ""}' \
                                                   f'|{self.referer or ""}]'
-            elif "hash" in selector:
-                self.torrents_info['enclosure'] = f'#{selector.get("hash", "")}' \
+            elif "hash" in detail:
+                self.torrents_info['enclosure'] = f'#{detail.get("hash", "")}' \
                                                   f'|{self.cookie or ""}' \
                                                   f'|{self.ua or ""}' \
                                                   f'|{self.referer or ""}#'
         else:
-            download = torrent(self.fields.get('download', {}).get('selector', ''))
-            items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
+            download = torrent(selector.get('selector', ''))
+            if "attribute" in selector:
+                items = [item.attr(selector.get('attribute')) for item in download.items() if item]
+            else:
+                items = [item.text() for item in download.items() if item]
             if items:
+                if 'filters' in selector:
+                    items[0] = self.__filter_text(items[0], selector.get('filters'))
                 if not items[0].startswith("http") and not items[0].startswith("magnet"):
                     self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
                         "/") else self.domain + items[0]

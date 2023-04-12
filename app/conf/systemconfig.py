@@ -33,7 +33,7 @@ class SystemConfig:
         else:
             return str(obj).startswith("{") or str(obj).startswith("[")
 
-    def set_system_config(self, key: [SystemConfigKey, str], value):
+    def set(self, key: [SystemConfigKey, str], value):
         """
         设置系统设置
         """
@@ -49,7 +49,7 @@ class SystemConfig:
                 value = ''
         self.dicthelper.set("SystemConfig", key, value)
 
-    def get_system_config(self, key: [SystemConfigKey, str] = None):
+    def get(self, key: [SystemConfigKey, str] = None):
         """
         获取系统设置
         """

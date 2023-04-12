@@ -202,7 +202,7 @@ class MovieLike(_IPluginModule):
         movie_type = os.path.basename(os.path.dirname(movie_dir))
         if movie_type == self._dir_name:
             return
-        if movie_type not in self.category.get_movie_categorys():
+        if movie_type not in self.category.movie_categorys:
             return
         # 电影名
         movie_name = os.path.basename(movie_dir)

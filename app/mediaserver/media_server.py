@@ -119,7 +119,7 @@ class MediaServer:
             return None
         return self.server.get_episode_image_by_id(item_id, season_id, episode_id)
 
-    def get_image_by_id(self, item_id, image_type):
+    def get_remote_image_by_id(self, item_id, image_type):
         """
         根据ItemId从媒体服务器查询图片地址
         :param item_id: 在Emby中的ID
@@ -130,7 +130,18 @@ class MediaServer:
             return None
         if not item_id:
             return None
-        return self.server.get_image_by_id(item_id, image_type)
+        return self.server.get_remote_image_by_id(item_id, image_type)
+
+    def get_local_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询有声书图片地址
+        :param item_id: 在Emby中的ID
+        """
+        if not self.server:
+            return None
+        if not item_id:
+            return None
+        return self.server.get_local_image_by_id(item_id)
 
     def get_no_exists_episodes(self, meta_info,
                                season_number,
@@ -215,7 +226,7 @@ class MediaServer:
             self.progress.start(ProgressKey.MediaSync)
             self.progress.update(ptype=ProgressKey.MediaSync, text="请稍候...")
             # 获取需同步的媒体库
-            librarys = self.systemconfig.get_system_config(SystemConfigKey.SyncLibrary) or []
+            librarys = self.systemconfig.get(SystemConfigKey.SyncLibrary) or []
             # 汇总统计
             medias_count = self.get_medias_count()
             total_media_count = medias_count.get("MovieCount") + medias_count.get("SeriesCount")
@@ -355,10 +366,14 @@ class MediaServer:
                 image_url = self.get_episode_image_by_id(item_id=event_info.get('item_id'),
                                                          season_id=event_info.get('season_id'),
                                                          episode_id=event_info.get('episode_id'))
-            else:
+            elif event_info.get("item_type") == "MOV":
                 # 根据返回的item_id去调用媒体服务器获取
-                image_url = self.get_image_by_id(item_id=event_info.get('item_id'),
-                                                 image_type="Backdrop")
+                image_url = self.get_remote_image_by_id(item_id=event_info.get('item_id'),
+                                                        image_type="Backdrop")
+            elif event_info.get("item_type") == "AUD":
+                image_url = self.get_local_image_by_id(item_id=event_info.get('item_id'))
+            else:
+                image_url = None
             self.message.send_mediaserver_message(event_info=event_info,
                                                   channel=channel.value,
                                                   image_url=image_url)

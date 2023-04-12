@@ -35,7 +35,7 @@
               </div>
             </div>
           </div>
-          <div class="table-responsive table-page-body">
+          <div class="table-responsive">
             <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
@@ -102,7 +102,7 @@
 </div>
 <div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="directory_modal_title"></h5>
@@ -111,29 +111,35 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-9">
+          <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">同步目录 <span class="form-help"
-                                                                title="源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录；只有源目录必须配置；目的目录未配置时将自动识别分类并转移到媒体库对应目录中；未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体整理->手动识别功能下处理"
+              <label class="form-label required">源目录 <span class="form-help"
+                                                                title="源目录为需要同步的目录，源目录必须配置"
                                                                 data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-4 mb-1">
-                  <input type="text" value="" id="from_path" class="form-control filetree-folders-only"
-                         placeholder="源目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-4 mb-1">
-                  <input type="text" value="" id="to_path" class="form-control filetree-folders-only"
-                         placeholder="目的目录"
-                         autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-4">
-                  <input type="text" value="" id="unknown_path" class="form-control filetree-folders-only"
-                         placeholder="未识别目录" autocomplete="off">
-                </div>
-              </div>
+              <input type="text" value="" id="from_path" class="form-control filetree-folders-only"
+                         placeholder="需要监控的目录" autocomplete="off">
             </div>
           </div>
-          <div class="col-lg-3">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">目的目录 <span class="form-help"
+                                                                title="目的目录为识别和改名后存放的目录，目的目录未配置时将自动识别分类并转移到媒体库对应目录中"
+                                                                data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="to_path" class="form-control filetree-folders-only"
+                         placeholder="留空使用媒体库目录"
+                         autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">未识别目录 <span class="form-help"
+                                                                title="未识别目录为无法识别时转移的目录，未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体整理->手动识别功能下处理"
+                                                                data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="unknown_path" class="form-control filetree-folders-only"
+                         placeholder="留空不转移未识别文件" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">同步方式 <span class="form-help"
                                                                 title="目录同步使用的文件转移方式，根据不同的程序版本可选项会有所不同。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；Rclone针对网盘场景，需要自行映射rclone配置目录到容器中（/nt/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL，可自行通过Docker添加环境变量传递参数优化传输，参考：https://rclone.org/docs/#environment-variables；Minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"

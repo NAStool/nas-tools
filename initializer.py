@@ -9,7 +9,8 @@ from werkzeug.security import generate_password_hash
 import log
 from app.helper import DbHelper
 from app.plugins import PluginManager
-from app.utils import ConfigLoadCache, ExceptionUtils, StringUtils
+from app.media import  Category
+from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
 from config import Config
 
@@ -24,46 +25,46 @@ def check_config():
     if Config().get_config('app'):
         logtype = Config().get_config('app').get('logtype')
         if logtype:
-            print("日志输出类型为：%s" % logtype)
+            log.info(f"日志输出类型为：{logtype}")
         if logtype == "server":
             logserver = Config().get_config('app').get('logserver')
             if not logserver:
-                print("【Config】日志中心地址未配置，无法正常输出日志")
+                log.warn("【Config】日志中心地址未配置，无法正常输出日志")
             else:
-                print("日志将上送到服务器：%s" % logserver)
+                log.info("日志将上送到服务器：{logserver}")
         elif logtype == "file":
             logpath = Config().get_config('app').get('logpath')
             if not logpath:
-                print("【Config】日志文件路径未配置，无法正常输出日志")
+                log.warn("【Config】日志文件路径未配置，无法正常输出日志")
             else:
-                print("日志将写入文件：%s" % logpath)
+                log.info(f"日志将写入文件：{logpath}")
 
         # 检查WEB端口
         web_port = Config().get_config('app').get('web_port')
         if not web_port:
-            print("WEB服务端口未设置，将使用默认3000端口")
+            log.warn("【Config】WEB服务端口未设置，将使用默认3000端口")
 
         # 检查登录用户和密码
         login_user = Config().get_config('app').get('login_user')
         login_password = Config().get_config('app').get('login_password')
         if not login_user or not login_password:
-            print("WEB管理用户或密码未设置，将使用默认用户：admin，密码：password")
+            log.warn("【Config】WEB管理用户或密码未设置，将使用默认用户：admin，密码：password")
         else:
-            print("WEB管理页面用户：%s" % str(login_user))
+            log.info(f"WEB管理页面用户：{str(login_user)}")
 
         # 检查HTTPS
         ssl_cert = Config().get_config('app').get('ssl_cert')
         ssl_key = Config().get_config('app').get('ssl_key')
         if not ssl_cert or not ssl_key:
-            print("未启用https，请使用 http://IP:%s 访问管理页面" % str(web_port))
+            log.info(f"未启用https，请使用 http://IP:{str(web_port)} 访问管理页面")
         else:
             if not os.path.exists(ssl_cert):
-                print("ssl_cert文件不存在：%s" % ssl_cert)
+                log.warn(f"【Config】ssl_cert文件不存在：{ssl_cert}")
             if not os.path.exists(ssl_key):
-                print("ssl_key文件不存在：%s" % ssl_key)
-            print("已启用https，请使用 https://IP:%s 访问管理页面" % str(web_port))
+                log.warn(f"【Config】ssl_key文件不存在：{ssl_key}")
+            log.info(f"已启用https，请使用 https://IP:{str(web_port)} 访问管理页面")
     else:
-        print("配置文件格式错误，找不到app配置项！")
+        log.error("【Config】配置文件格式错误，找不到app配置项！")
 
 
 def update_config():
@@ -250,13 +251,18 @@ class ConfigMonitor(FileSystemEventHandler):
         FileSystemEventHandler.__init__(self)
 
     def on_modified(self, event):
-        if not event.is_directory \
-                and os.path.basename(event.src_path) == "config.yaml":
-            # 10秒内只能加载一次
-            if ConfigLoadCache.get(event.src_path):
-                return
-            ConfigLoadCache.set(event.src_path, True)
-            log.console("进程 %s 检测到配置文件已修改，正在重新加载..." % os.getpid())
+        if event.is_directory:
+            return
+        src_path = event.src_path
+        file_name = os.path.basename(src_path)
+        file_head, file_ext = os.path.splitext(os.path.basename(file_name))
+        if file_ext != ".yaml":
+            return
+        # 配置文件10秒内只能加载一次
+        if file_name == "config.yaml" and not ConfigLoadCache.get(src_path):
+            ConfigLoadCache.set(src_path, True)
+            CategoryLoadCache.set("ConfigLoadBlock", True, ConfigLoadCache.ttl)
+            log.warn(f"【System】进程 {os.getpid()} 检测到系统配置文件已修改，正在重新加载...")
             time.sleep(1)
             # 重新加载配置
             Config().init_config()
@@ -264,6 +270,15 @@ class ConfigMonitor(FileSystemEventHandler):
             for instance in INSTANCES.values():
                 if hasattr(instance, "init_config"):
                     instance.init_config()
+        # 正在使用的二级分类策略文件3秒内只能加载一次，配置文件加载时，二级分类策略文件不加载
+        elif file_name == os.path.basename(Config().category_path) \
+                and not CategoryLoadCache.get(src_path) \
+                and not CategoryLoadCache.get("ConfigLoadBlock"):
+            CategoryLoadCache.set(src_path, True)
+            log.warn(f"【System】进程 {os.getpid()} 检测到二级分类策略 {file_head} 配置文件已修改，正在重新加载...")
+            time.sleep(1)
+            # 重新加载二级分类策略
+            Category().init_config()
 
 
 def start_config_monitor():

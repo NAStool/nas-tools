@@ -174,6 +174,7 @@ class DOWNLOADHISTORY(Base):
     YEAR = Column(Text)
     TYPE = Column(Text)
     TMDBID = Column(Text)
+    SE = Column(Text)
     VOTE = Column(Text)
     POSTER = Column(Text)
     OVERVIEW = Column(Text)
@@ -183,6 +184,7 @@ class DOWNLOADHISTORY(Base):
     DESC = Column(Text)
     DOWNLOADER = Column(Text)
     DOWNLOAD_ID = Column(Text, index=True)
+    SAVE_PATH = Column(Text, index=True)
     DATE = Column(Text, index=True)
 
     def as_dict(self):
@@ -563,6 +565,16 @@ class USERRSSTASKHISTORY(Base):
     TASK_ID = Column(Text, index=True)
     TITLE = Column(Text)
     DOWNLOADER = Column(Text)
+    DATE = Column(Text)
+
+
+class PLUGINHISTORY(Base):
+    __tablename__ = 'PLUGIN_HISTORY'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    PLUGIN_ID = Column(Text, index=True)
+    KEY = Column(Text, index=True)
+    VALUE = Column(Text)
     DATE = Column(Text)
 
 

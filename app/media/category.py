@@ -21,36 +21,39 @@ class Category:
         self.init_config()
 
     def init_config(self):
-        media = Config().get_config('media')
-        if media:
-            category = media.get('category')
-            if not category:
-                return
-            self._category_path = os.path.join(Config().get_config_path(), "%s.yaml" % category)
-            try:
-                if not os.path.exists(self._category_path):
-                    shutil.copy(os.path.join(Config().get_inner_config_path(), "default-category.yaml"),
-                                self._category_path)
-                    log.console("【Config】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
-                with open(self._category_path, mode='r', encoding='utf-8') as f:
-                    try:
-                        yaml = ruamel.yaml.YAML()
-                        self._categorys = yaml.load(f)
-                    except Exception as e:
-                        ExceptionUtils.exception_traceback(e)
-                        log.console("【Config】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
-                        self._categorys = {}
-            except Exception as err:
-                ExceptionUtils.exception_traceback(err)
-                log.console("【Config】加载 %s.yaml 配置出错：%s" % (category, str(err)))
-                return False
+        self._category_path = Config().category_path
+        if not self._category_path:
+            return
+        category_name, _ = os.path.splitext(os.path.basename(self._category_path))
+        if category_name == "config":
+            log.warn(f"【Config】二级分类策略 {category_name} 名称非法")
+            return
+        try:
+            if not os.path.exists(self._category_path):
+                shutil.copy(os.path.join(Config().get_inner_config_path(), "default-category.yaml"),
+                            self._category_path)
+                log.warn(f"【Config】二级分类策略 {category_name} 配置文件不存在，已按模板生成...")
+            with open(self._category_path, mode='r', encoding='utf-8') as f:
+                try:
+                    yaml = ruamel.yaml.YAML()
+                    self._categorys = yaml.load(f)
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    log.warn(f"【Config】二级分类策略 {category_name} 配置文件格式出现严重错误！请检查：{str(e)}")
+                    self._categorys = {}
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            log.warn(f"【Config】二级分类策略 {category_name} 配置文件加载出错：{str(e)}")
+            return False
 
-            if self._categorys:
-                self._movie_categorys = self._categorys.get('movie')
-                self._tv_categorys = self._categorys.get('tv')
-                self._anime_categorys = self._categorys.get('anime')
+        if self._categorys:
+            self._movie_categorys = self._categorys.get('movie')
+            self._tv_categorys = self._categorys.get('tv')
+            self._anime_categorys = self._categorys.get('anime')
+        log.info(f"【Config】已加载二级分类策略 {category_name}")
 
-    def get_movie_category_flag(self):
+    @property
+    def movie_category_flag(self):
         """
         获取电影分类标志
         """
@@ -58,7 +61,8 @@ class Category:
             return True
         return False
 
-    def get_tv_category_flag(self):
+    @property
+    def tv_category_flag(self):
         """
         获取电视剧分类标志
         """
@@ -66,7 +70,8 @@ class Category:
             return True
         return False
 
-    def get_anime_category_flag(self):
+    @property
+    def anime_category_flag(self):
         """
         获取动漫分类标志
         """
@@ -74,7 +79,8 @@ class Category:
             return True
         return False
 
-    def get_movie_categorys(self):
+    @property
+    def movie_categorys(self):
         """
         获取电影分类清单
         """
@@ -82,7 +88,8 @@ class Category:
             return []
         return self._movie_categorys.keys()
 
-    def get_tv_categorys(self):
+    @property
+    def tv_categorys(self):
         """
         获取电视剧分类清单
         """
@@ -90,7 +97,8 @@ class Category:
             return []
         return self._tv_categorys.keys()
 
-    def get_anime_categorys(self):
+    @property
+    def anime_categorys(self):
         """
         获取动漫分类清单
         """

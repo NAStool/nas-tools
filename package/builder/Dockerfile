@@ -19,7 +19,7 @@ RUN cp ./package/rely/hook-cn2an.py ${py_site_packages}/PyInstaller/hooks/ && \
     cp ./package/rely/template.jinja2 ${py_site_packages}/setuptools/_vendor/pyparsing/diagram/ && \
     cp -r ./web/. ${py_site_packages}/web/ && \
     cp -r ./config/. ${py_site_packages}/config/ && \
-    cp -r ./db_scripts/. ${py_site_packages}/db_scripts/
+    cp -r ./scripts/. ${py_site_packages}/scripts/
 WORKDIR /nas-tools/package
 RUN pyinstaller nas-tools.spec
 RUN ls -al /nas-tools/package/dist/

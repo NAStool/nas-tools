@@ -6,7 +6,6 @@ import os.path
 import re
 import shutil
 import signal
-from collections import defaultdict
 from urllib.parse import unquote
 
 import cn2an
@@ -228,7 +227,8 @@ class WebAction:
             "get_plugin_page": self.get_plugin_page,
             "get_plugin_state": self.get_plugin_state,
             "get_plugins_conf": self.get_plugins_conf,
-            "update_category_config": self.update_category_config
+            "update_category_config": self.update_category_config,
+            "get_category_config": self.get_category_config
         }
 
     def action(self, cmd, data=None):
@@ -2617,7 +2617,7 @@ class WebAction:
         开始媒体库同步
         """
         librarys = data.get("librarys") or []
-        SystemConfig().set_system_config(key=SystemConfigKey.SyncLibrary, value=librarys)
+        SystemConfig().set(key=SystemConfigKey.SyncLibrary, value=librarys)
         ThreadHelper().start_thread(MediaServer().sync_mediaserver, ())
         return {"code": 0}
 
@@ -2850,7 +2850,10 @@ class WebAction:
         if not data.get("articles"):
             return {"code": 2}
         res = RssChecker().check_rss_articles(
-            flag=data.get("flag"), articles=data.get("articles"))
+            taskid=data.get("taskid"),
+            flag=data.get("flag"),
+            articles=data.get("articles")
+        )
         if res:
             return {"code": 0}
         else:
@@ -3236,11 +3239,11 @@ class WebAction:
     @staticmethod
     def get_categories(data):
         if data.get("type") == "电影":
-            categories = Category().get_movie_categorys()
+            categories = Category().movie_categorys
         elif data.get("type") == "电视剧":
-            categories = Category().get_tv_categorys()
+            categories = Category().tv_categorys
         else:
-            categories = Category().get_anime_categorys()
+            categories = Category().anime_categorys
         return {"code": 0, "category": list(categories), "id": data.get("id"), "value": data.get("value")}
 
     def __delete_rss_history(self, data):
@@ -3673,39 +3676,50 @@ class WebAction:
         mtype = data.get("type")
         return {"code": 0, "result": [rec.as_dict() for rec in self.dbhelper.get_rss_history(rtype=mtype)]}
 
-    @staticmethod
-    def get_downloading(data=None):
+    def get_downloading(self, data=None):
         """
         查询正在下载的任务
         """
-        torrents = Downloader().get_downloading_progress()
         MediaHander = Media()
+        DownloaderHandler = Downloader()
+        torrents = DownloaderHandler.get_downloading_progress()
         for torrent in torrents:
-            # 识别
+            # 先查询下载记录，没有再识别
             name = torrent.get("name")
-            media_info = MediaHander.get_media_info(title=name)
-            if not media_info:
-                torrent.update({
-                    "title": name,
-                    "image": ""
-                })
-                continue
-            if not media_info.tmdb_info:
-                year = media_info.year
-                if year:
-                    title = "%s (%s) %s" % (media_info.get_name(),
-                                            year, media_info.get_season_episode_string())
-                else:
-                    title = "%s %s" % (media_info.get_name(),
-                                       media_info.get_season_episode_string())
+            download_info = self.dbhelper.get_download_history_by_downloader(
+                downloader=DownloaderHandler.default_downloader_id,
+                download_id=torrent.get("id")
+            )
+            if download_info:
+                name = download_info.TITLE
+                year = download_info.YEAR
+                poster_path = download_info.POSTER
+                se = download_info.SE
             else:
-                title = "%s %s" % (media_info.get_title_string(
-                ), media_info.get_season_episode_string())
-            poster_path = media_info.get_poster_image()
+                media_info = MediaHander.get_media_info(title=name)
+                if not media_info:
+                    torrent.update({
+                        "title": name,
+                        "image": ""
+                    })
+                    continue
+                year = media_info.year
+                name = media_info.title or media_info.get_name()
+                se = media_info.get_season_episode_string()
+                poster_path = media_info.get_poster_image()
+            # 拼装标题
+            if year:
+                title = "%s (%s) %s" % (name,
+                                        year,
+                                        se)
+            else:
+                title = "%s %s" % (name, se)
+
             torrent.update({
                 "title": title,
                 "image": poster_path or ""
             })
+
         return {"code": 0, "result": torrents}
 
     def get_transfer_history(self, data):
@@ -4280,12 +4294,12 @@ class WebAction:
         twostepcode = data.get("two_step_code")
         ocrflag = data.get("ocrflag")
         # 保存设置
-        SystemConfig().set_system_config(key=SystemConfigKey.CookieUserInfo,
-                                         value={
-                                             "username": username,
-                                             "password": password,
-                                             "two_step_code": twostepcode
-                                         })
+        SystemConfig().set(key=SystemConfigKey.CookieUserInfo,
+                           value={
+                               "username": username,
+                               "password": password,
+                               "two_step_code": twostepcode
+                           })
         retcode, messages = SiteCookie().update_sites_cookie_ua(siteid=siteid,
                                                                 username=username,
                                                                 password=password,
@@ -4407,7 +4421,7 @@ class WebAction:
         if not key or not value:
             return {"code": 1}
         try:
-            SystemConfig().set_system_config(key=key, value=value)
+            SystemConfig().set(key=key, value=value)
             return {"code": 0}
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
@@ -4591,11 +4605,11 @@ class WebAction:
         """
         script = data.get("javascript") or ""
         css = data.get("css") or ""
-        SystemConfig().set_system_config(key=SystemConfigKey.CustomScript,
-                                         value={
-                                             "css": css,
-                                             "javascript": script
-                                         })
+        SystemConfig().set(key=SystemConfigKey.CustomScript,
+                           value={
+                               "css": css,
+                               "javascript": script
+                           })
         return {"code": 0, "msg": "保存成功"}
 
     @staticmethod
@@ -4719,7 +4733,7 @@ class WebAction:
             site = data.get("site")
             params = data.get("params")
         else:
-            UserSiteAuthParams = SystemConfig().get_system_config(SystemConfigKey.UserSiteAuthParams)
+            UserSiteAuthParams = SystemConfig().get(SystemConfigKey.UserSiteAuthParams)
             if UserSiteAuthParams:
                 site = UserSiteAuthParams.get("site")
                 params = UserSiteAuthParams.get("params")
@@ -4728,11 +4742,11 @@ class WebAction:
         state, msg = User().check_user(site, params)
         if state:
             # 保存认证数据
-            SystemConfig().set_system_config(key=SystemConfigKey.UserSiteAuthParams,
-                                             value={
-                                                 "site": site,
-                                                 "params": params
-                                             })
+            SystemConfig().set(key=SystemConfigKey.UserSiteAuthParams,
+                               value={
+                                   "site": site,
+                                   "params": params
+                               })
             return {"code": 0, "msg": "认证成功"}
         return {"code": 1, "msg": f"{msg or '认证失败，请检查合作站点账号是否正常！'}"}
 
@@ -4937,11 +4951,11 @@ class WebAction:
         if not module_id:
             return {"code": -1, "msg": "参数错误"}
         # 用户已安装插件列表
-        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        user_plugins = SystemConfig().get(SystemConfigKey.UserInstalledPlugins) or []
         if module_id not in user_plugins:
             user_plugins.append(module_id)
         # 保存配置
-        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        SystemConfig().set(SystemConfigKey.UserInstalledPlugins, user_plugins)
         # 重新加载插件
         PluginManager().init_config()
         return {"code": 0, "msg": "插件安装成功"}
@@ -4955,11 +4969,11 @@ class WebAction:
         if not module_id:
             return {"code": -1, "msg": "参数错误"}
         # 用户已安装插件列表
-        user_plugins = SystemConfig().get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        user_plugins = SystemConfig().get(SystemConfigKey.UserInstalledPlugins) or []
         if module_id in user_plugins:
             user_plugins.remove(module_id)
         # 保存配置
-        SystemConfig().set_system_config(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        SystemConfig().set(SystemConfigKey.UserInstalledPlugins, user_plugins)
         # 重新加载插件
         PluginManager().init_config()
         return {"code": 0, "msg": "插件卸载功"}
@@ -5013,9 +5027,26 @@ class WebAction:
         """
         text = data.get("config") or ''
         # 保存配置
-        category_path = Config().get_category_path()
+        category_path = Config().category_path
         if category_path:
             with open(category_path, "w", encoding="utf-8") as f:
                 f.write(text)
-            Category().init_config()
         return {"code": 0, "msg": "保存成功"}
+
+    @staticmethod
+    def get_category_config(data):
+        """
+        获取二级分类配置
+        """
+        category_name = data.get("category_name")
+        if not category_name:
+            return {"code": 1, "msg": "请输入二级分类策略名称"}
+        if category_name == "config":
+            return {"code": 1, "msg": "非法二级分类策略名称"}
+        category_path = os.path.join(Config().get_config_path(), f"{category_name}.yaml")
+        if not os.path.exists(category_path):
+            return {"code": 1, "msg": "请保存生成配置文件"}
+        # 读取category配置文件数据
+        with open(category_path, "r", encoding="utf-8") as f:
+            category_text = f.read()
+        return {"code": 0, "text": category_text}

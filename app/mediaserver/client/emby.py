@@ -350,7 +350,7 @@ class Emby(_IMediaClient):
                     # 查询当前剧集的itemid
                     if res_item.get("IndexNumber") == episode_id:
                         # 查询当前剧集的图片
-                        img_url = self.get_image_by_id(res_item.get("Id"), "Primary")
+                        img_url = self.get_remote_image_by_id(res_item.get("Id"), "Primary")
                         # 没查到tmdb图片则判断播放地址是不是外网，使用emby刮削的图片（直接挂载网盘场景）
                         if not img_url and not IpUtils.is_internal(self._play_host) \
                                 and res_item.get('ImageTags', {}).get('Primary'):
@@ -362,7 +362,7 @@ class Emby(_IMediaClient):
             log.error(f"【{self.client_name}】连接Shows/Id/Episodes出错：" + str(e))
             return None
 
-    def get_image_by_id(self, item_id, image_type):
+    def get_remote_image_by_id(self, item_id, image_type):
         """
         根据ItemId从Emby查询图片地址
         :param item_id: 在Emby中的ID
@@ -386,6 +386,18 @@ class Emby(_IMediaClient):
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Items/Id/RemoteImages出错：" + str(e))
             return None
+        return None
+
+    def get_local_image_by_id(self, item_id):
+        """
+        根据ItemId从媒体服务器查询本地图片地址
+        :param item_id: 在Emby中的ID
+        """
+        if not self._host or not self._apikey:
+            return None
+        if self._play_host and not IpUtils.is_internal(self._play_host):
+            return "%sItems/%s/Images/Primary?maxHeight=225&maxWidth=400&quality=90" % (
+                self._play_host, item_id)
         return None
 
     def __refresh_emby_library_by_id(self, item_id):
@@ -602,6 +614,13 @@ class Emby(_IMediaClient):
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['season_id'] = message.get('Item', {}).get('ParentIndexNumber')
                 eventItem['episode_id'] = message.get('Item', {}).get('IndexNumber')
+            elif message.get('Item', {}).get('Type') == 'Audio':
+                eventItem['item_type'] = "AUD"
+                album = message.get('Item', {}).get('Album')
+                file_name = message.get('Item', {}).get('FileName')
+                eventItem['item_name'] = album
+                eventItem['overview'] = file_name
+                eventItem['item_id'] = message.get('Item', {}).get('AlbumId')
             else:
                 eventItem['item_type'] = "MOV"
                 eventItem['item_name'] = "%s %s" % (

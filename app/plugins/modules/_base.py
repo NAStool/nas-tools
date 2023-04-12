@@ -1,7 +1,11 @@
+import json
+import os
 from abc import ABCMeta, abstractmethod
 
 import log
 from app.conf import SystemConfig
+from app.helper import DbHelper
+from config import Config
 
 
 class _IPluginModule(metaclass=ABCMeta):
@@ -73,6 +77,13 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         pass
 
+    @staticmethod
+    def __is_obj(obj):
+        if isinstance(obj, list) or isinstance(obj, dict):
+            return True
+        else:
+            return str(obj).startswith("{") or str(obj).startswith("[")
+
     def update_config(self, config: dict, plugin_id=None):
         """
         更新配置信息
@@ -81,7 +92,7 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         if not plugin_id:
             plugin_id = self.__class__.__name__
-        return SystemConfig().set_system_config("plugin.%s" % plugin_id, config)
+        return SystemConfig().set("plugin.%s" % plugin_id, config)
 
     def get_config(self, plugin_id=None):
         """
@@ -90,7 +101,62 @@ class _IPluginModule(metaclass=ABCMeta):
         """
         if not plugin_id:
             plugin_id = self.__class__.__name__
-        return SystemConfig().get_system_config("plugin.%s" % plugin_id)
+        return SystemConfig().get("plugin.%s" % plugin_id)
+
+    def get_data_path(self, plugin_id=None):
+        """
+        获取插件数据保存目录
+        """
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        data_path = os.path.join(Config().get_user_plugin_path(), plugin_id)
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+        return data_path
+
+    def history(self, key, value):
+        """
+        记录插件运行数据，key需要唯一，value为对象是自动转换为str，
+        """
+        if not key or not value:
+            return
+        if self.__is_obj(value):
+            value = json.dumps(value)
+        DbHelper().insert_plugin_history(plugin_id=self.__class__.__name__,
+                                         key=key,
+                                         value=value)
+
+    def get_history(self, key, plugin_id=None):
+        """
+        获取插件运行数据，只返回一条，自动识别转换为对象
+        """
+        if not key:
+            return None
+
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+
+        history = DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
+        if history:
+            if self.__is_obj(history.VALUE):
+                try:
+                    return json.loads(history.VALUE)
+                except Exception as err:
+                    print(str(err))
+                    return history.VALUE
+            else:
+                return history.VALUE
+        return {}
+
+    def delete_history(self, key, plugin_id=None):
+        """
+        删除插件运行数据
+        """
+        if not key:
+            return False
+        if not plugin_id:
+            plugin_id = self.__class__.__name__
+        return DbHelper().delete_plugin_history(plugin_id=plugin_id, key=key)
 
     def info(self, msg):
         """

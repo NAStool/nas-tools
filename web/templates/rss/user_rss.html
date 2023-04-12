@@ -806,8 +806,9 @@
             const title_param = article.title.replace(/\'/g, "&#39;");
             input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
+                              <input type="hidden" id="year_${i}" value="${article.year}">
                               <input type="hidden" id="title_${i}" value="${title_param}">`;
-            title = `<span style="word-break: keep-all">${article.title}</span>`;
+            title = `<span style="word-break: keep-all">${article.year ? `${article.title} (${article.year})` : article.title}</span>`;
             recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                               {{ SVG.text_recognition() }}
                               </a>`;
@@ -856,9 +857,11 @@
     let articles_id = select_GetSelectedVAL("rss_articles_item");
     for (let id of articles_id) {
       let enclosure = $(`#enclosure_${id}`).val();
+      let year = $(`#year_${id}`).val();
       articles.push({
         "title": $(`#title_${id}`).val(),
-        "enclosure": enclosure === "null" ? "" : enclosure
+        "enclosure": enclosure === "null" ? "" : enclosure,
+        "year": year === "null" ? "" : year
       });
     }
     return articles;
@@ -883,7 +886,7 @@
   // 报文处理设置
   function articles_check(id, flag, articles) {
     $("#modal-rss-articles").modal('hide');
-    ajax_post("rss_articles_check", { "articles": articles, "flag": flag }, function (ret) {
+    ajax_post("rss_articles_check", { "taskid": id, "articles": articles, "flag": flag }, function (ret) {
       show_rss_articles_modal(id);
     });
   }
