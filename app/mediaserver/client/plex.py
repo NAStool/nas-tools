@@ -237,7 +237,7 @@ class Plex(_IMediaClient):
             log.error(f"【{self.client_name}】获取剧集封面出错：" + str(e))
             return None
 
-    def get_image_by_id(self, item_id, image_type):
+    def get_remote_image_by_id(self, item_id, image_type):
         """
         根据ItemId从Plex查询图片地址
         :param item_id: 在Emby中的ID
@@ -259,7 +259,7 @@ class Plex(_IMediaClient):
             log.error(f"【{self.client_name}】获取封面出错：" + str(e))
         return None
 
-    def get_audio_image_by_id(self, item_id):
+    def get_local_image_by_id(self, item_id):
         """
         根据ItemId从媒体服务器查询有声书图片地址
         :param item_id: 在Emby中的ID

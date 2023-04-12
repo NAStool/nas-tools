@@ -1159,7 +1159,7 @@ def wechat():
                 # 文本消息
                 content = DomUtils.tag_value(root_node, "Content", default="")
             if content:
-                log.info(f"收到微信消息：username={user_id}, text={content}")
+                log.info(f"收到微信消息：userid={user_id}, text={content}")
                 # 处理消息内容
                 WebAction().handle_message_job(msg=content,
                                                in_from=SearchType.WX,
@@ -1270,7 +1270,7 @@ def telegram():
         # 获取用户名
         user_name = message.get("from", {}).get("username")
         if text:
-            log.info(f"收到Telegram消息：username={user_name}, text={text}")
+            log.info(f"收到Telegram消息：userid={user_id}, username={user_name}, text={text}")
             # 检查权限
             if text.startswith("/"):
                 if str(user_id) not in interactive_client.get("client").get_admin():
@@ -1322,7 +1322,7 @@ def synology():
         # 获取用户名
         user_name = msg_data.get("username")
         if text:
-            log.info(f"收到Synology Chat消息：username={user_name}, text={text}")
+            log.info(f"收到Synology Chat消息：userid={user_id}, username={user_name}, text={text}")
             WebAction().handle_message_job(msg=text,
                                            in_from=SearchType.SYNOLOGY,
                                            user_id=user_id,
@@ -1456,7 +1456,7 @@ def slack():
             username = msg_json.get("user", {}).get("username")
         else:
             return "Error"
-        log.info(f"收到Slack消息：username={username}, text={text}")
+        log.info(f"收到Slack消息：userid={userid}, username={username}, text={text}")
         WebAction().handle_message_job(msg=text,
                                        in_from=SearchType.SLACK,
                                        user_id=userid,
