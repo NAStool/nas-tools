@@ -286,6 +286,13 @@ class IYUUAutoSeed(_IPluginModule):
         if not self.iyuuhelper:
             return
         self.info("开始辅种任务 ...")
+        # 计数器初始化
+        self.total = 0
+        self.realtotal = 0
+        self.success = 0
+        self.exist = 0
+        self.fail = 0
+        self.cached = 0
         # 扫描下载器辅种
         for downloader in self._downloaders:
             self.info(f"开始扫描下载器 {downloader} ...")
