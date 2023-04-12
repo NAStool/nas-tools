@@ -2692,11 +2692,22 @@ class WebAction:
         新增或修改自定义订阅
         """
         uses = data.get("uses")
+        address_parser = data.get("address_parser")
+        if not address_parser:
+            return {"code": 1}
+        address = list(dict(sorted(
+            {k.replace("address_", ""): y for k, y in address_parser.items() if k.startswith("address_")}.items(),
+            key=lambda x: int(x[0])
+        )).values())
+        parser = list(dict(sorted(
+            {k.replace("parser_", ""): y for k, y in address_parser.items() if k.startswith("parser_")}.items(),
+            key=lambda x: int(x[0])
+        )).values())
         params = {
             "id": data.get("id"),
             "name": data.get("name"),
-            "address": data.get("address"),
-            "parser": data.get("parser"),
+            "address": address,
+            "parser": parser,
             "interval": data.get("interval"),
             "uses": uses,
             "include": data.get("include"),
@@ -2705,7 +2716,7 @@ class WebAction:
             "state": data.get("state"),
             "save_path": data.get("save_path"),
             "download_setting": data.get("download_setting"),
-            "note": data.get("note"),
+            "note": {"proxy": data.get("proxy")},
         }
         if uses == "D":
             params.update({
@@ -2734,7 +2745,7 @@ class WebAction:
         检测自定义订阅
         """
         try:
-            flag_dict = {"enable": "Y", "disable": "N"}
+            flag_dict = {"enable": True, "disable": False}
             taskids = data.get("ids")
             state = flag_dict.get(data.get("flag"))
             if state is not None:
