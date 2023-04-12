@@ -145,9 +145,9 @@ class TorrentRemover(_IPluginModule):
             self.delete_history(key=history_key, plugin_id=plugin_id)
 
         # 处理辅种
-        self.__del_seed(download_id=download_id)
+        self.__del_seed(download=download, download_id=download_id)
 
-    def __del_seed(self, download_id):
+    def __del_seed(self, download, download_id):
         """
         删除辅种
         """
@@ -155,21 +155,34 @@ class TorrentRemover(_IPluginModule):
         history_key = download_id
         plugin_id = "IYUUAutoSeed"
         seed_history = self.get_history(key=history_key,
-                                        plugin_id=plugin_id)
+                                        plugin_id=plugin_id) or []
 
         # 有辅种记录则处理辅种
-        if seed_history and isinstance(seed_history, dict):
-            download = seed_history['downloader']
-            torrents = seed_history['torrents']
-            if not download or not torrents:
-                return
-            if not isinstance(torrents, list):
-                torrents = [torrents]
-            for torrent in torrents:
-                # 删除辅种
-                self.info(f"删除辅种：{download} - {torrent}")
-                self.downloader.delete_torrents(downloader_id=download,
-                                                ids=torrent)
-            # 删除辅种历史
-            self.delete_history(key=history_key,
-                                plugin_id=plugin_id)
+        if seed_history and isinstance(seed_history, list):
+            for history in seed_history:
+                downloader = history['downloader']
+                torrents = history['torrents']
+                if not downloader or not torrents:
+                    return
+                if not isinstance(torrents, list):
+                    torrents = [torrents]
+
+                # 删除辅种历史中与本下载器相同的辅种记录
+                if int(downloader) == download:
+                    for torrent in torrents:
+                        # 删除辅种
+                        self.info(f"删除辅种：{downloader} - {torrent}")
+                        self.downloader.delete_torrents(downloader_id=downloader,
+                                                        ids=torrent)
+                    # 删除本下载器辅种历史
+                    del history
+                    break
+
+            # 更新辅种历史
+            if len(seed_history) > 0:
+                self.update_history(key=history_key,
+                                    value=seed_history,
+                                    plugin_id=plugin_id)
+            else:
+                self.delete_history(key=history_key,
+                                    plugin_id=plugin_id)

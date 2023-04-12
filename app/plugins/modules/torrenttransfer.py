@@ -245,6 +245,7 @@ class TorrentTransfer(_IPluginModule):
         self.downloader = Downloader()
         self.message = Message()
         # 读取配置
+
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
