@@ -245,6 +245,7 @@ class TorrentTransfer(_IPluginModule):
         self.downloader = Downloader()
         self.message = Message()
         # 读取配置
+
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
@@ -298,7 +299,8 @@ class TorrentTransfer(_IPluginModule):
                     "todownloader": self._todownloader,
                     "deletesource": self._deletesource,
                     "fromtorrentpath": self._fromtorrentpath,
-                    "nopaths": self._nopaths
+                    "nopaths": self._nopaths,
+                    "autostart": self._autostart
                 })
             if self._scheduler.get_jobs():
                 if self._autostart:
