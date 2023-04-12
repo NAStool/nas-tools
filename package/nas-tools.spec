@@ -31,7 +31,7 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
 
 pkg_data1 = collect_pkg_data('web')
 pkg_data2 = collect_pkg_data('config')
-pkg_data3 = collect_pkg_data('db_scripts', include_py_files=True)  # <<< Put the name of your package here
+pkg_data3 = collect_pkg_data('scripts', include_py_files=True)  # <<< Put the name of your package here
 # <<< END ADDED PART
 
 
