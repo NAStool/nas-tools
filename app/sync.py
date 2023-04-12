@@ -158,20 +158,25 @@ class Sync(object):
                         is_monitor_file = True
                         break
                 if not is_monitor_file:
+                    log.debug(f"【Sync】{event_path} 不在监控目录下，不处理 ...")
                     return
                 # 目的目录的子文件不处理
                 for tpath in self.sync_dir_config.values():
                     if not tpath:
                         continue
                     if PathUtils.is_path_in_path(tpath.get('target'), event_path):
+                        log.error(f"【Sync】{event_path} -> {tpath.get('target')} 目的目录存在嵌套，无法同步！")
                         return
                     if PathUtils.is_path_in_path(tpath.get('unknown'), event_path):
+                        log.error(f"【Sync】{event_path} -> {tpath.get('unknown')} 未识别目录存在嵌套，无法同步！")
                         return
                 # 媒体库目录及子目录不处理
                 if self.filetransfer.is_target_dir_path(event_path):
+                    log.error(f"【Sync】{event_path} 是媒体库子目录，无法同步！")
                     return
                 # 回收站及隐藏的文件不处理
                 if PathUtils.is_invalid_path(event_path):
+                    log.debug(f"【Sync】{event_path} 是回收站或隐藏的文件，不处理 ...")
                     return
                 # 上级目录
                 from_dir = os.path.dirname(event_path)
