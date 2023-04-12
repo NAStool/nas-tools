@@ -4,6 +4,7 @@ import json
 import os
 
 from app.plugins.modules._base import _IPluginModule
+from app.utils import SystemUtils
 
 
 class DiskSpaceSaver(_IPluginModule):
@@ -39,21 +40,6 @@ class DiskSpaceSaver(_IPluginModule):
             {
                 'type': 'div',
                 'content': [
-                    # 同一行
-                    [
-                        {
-                            'title': '文件SHA1信息存储路径(文件路径)',
-                            'required': "required",
-                            'tooltip': '如果是docker写容器内的路径，如果是宿主机写宿主机的路径，如 /config/result.json',
-                            'type': 'text',
-                            'content': [
-                                {
-                                    'id': 'result_path',
-                                    'placeholder': '文件SHA1信息存储路径'
-                                }
-                            ]
-                        }
-                    ],
                     # 文件后缀
                     [
                         {
@@ -66,10 +52,7 @@ class DiskSpaceSaver(_IPluginModule):
                                     'id': 'ext_list',
                                     'placeholder': '文件后缀, 多个后缀用英文逗号隔开'
                                 }]
-                        }
-                    ],
-                    # 文件大小
-                    [
+                        },
                         {
                             'title': '文件大小（MB）',
                             'required': "required",
@@ -134,7 +117,12 @@ class DiskSpaceSaver(_IPluginModule):
         file_size = config.get('file_size')
         # config.get('ext_list') 用 , 分割为 list 并去除重复值
         ext_list = list(set(config.get('ext_list').split(',')))
-        result_path = config.get('result_path')
+        result_path = os.path.join(self.get_data_path(), "sha1.json")
+        # 兼容旧配置
+        old_result_path = config.get("result_path")
+        if old_result_path and os.path.exists(old_result_path):
+            SystemUtils.move(old_result_path, result_path)
+
         dry_run = config.get('dry_run', False)
         fast = config.get('fast', False)
 

@@ -157,7 +157,7 @@ class Downloader:
         """
         获取默认下载器id
         """
-        default_downloader_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloader)
+        default_downloader_id = SystemConfig().get(SystemConfigKey.DefaultDownloader)
         if not default_downloader_id or not self.get_downloader_conf(default_downloader_id):
             default_downloader_id = ""
         return default_downloader_id
@@ -168,7 +168,7 @@ class Downloader:
         获取默认下载设置
         :return: 默认下载设置id
         """
-        default_download_setting_id = SystemConfig().get_system_config(SystemConfigKey.DefaultDownloadSetting) or "-1"
+        default_download_setting_id = SystemConfig().get(SystemConfigKey.DefaultDownloadSetting) or "-1"
         if not self._download_settings.get(default_download_setting_id):
             default_download_setting_id = "-1"
         return default_download_setting_id
@@ -470,33 +470,41 @@ class Downloader:
                 download_id = ret
             # 添加下载成功
             if ret:
-                # 登记下载历史
+                # 计算数据文件保存的路径
+                save_dir = subtitle_dir = None
+                visit_dir = self.get_download_visit_dir(download_dir)
+                if visit_dir:
+                    if dl_files_folder:
+                        # 种子文件带目录
+                        save_dir = os.path.join(visit_dir, dl_files_folder)
+                        subtitle_dir = save_dir
+                    elif dl_files:
+                        # 种子文件为单独文件
+                        save_dir = os.path.join(visit_dir, dl_files[0])
+                        subtitle_dir = visit_dir
+                    else:
+                        save_dir = None
+                        subtitle_dir = visit_dir
+                # 登记下载历史，记录下载目录
                 self.dbhelper.insert_download_history(media_info=media_info,
                                                       downloader=downloader_id,
-                                                      download_id=download_id)
+                                                      download_id=download_id,
+                                                      save_dir=save_dir)
                 # 下载站点字幕文件
                 if page_url \
-                        and download_dir \
-                        and dl_files \
+                        and subtitle_dir \
                         and site_info \
                         and site_info.get("subtitle"):
-                    # 下载访问目录
-                    visit_dir = self.get_download_visit_dir(download_dir)
-                    if visit_dir:
-                        if dl_files_folder:
-                            subtitle_dir = os.path.join(visit_dir, dl_files_folder)
-                        else:
-                            subtitle_dir = visit_dir
-                        ThreadHelper().start_thread(
-                            self.sitesubtitle.download,
-                            (
-                                media_info,
-                                site_info.get("id"),
-                                site_info.get("cookie"),
-                                site_info.get("ua"),
-                                subtitle_dir
-                            )
+                    ThreadHelper().start_thread(
+                        self.sitesubtitle.download,
+                        (
+                            media_info,
+                            site_info.get("id"),
+                            site_info.get("cookie"),
+                            site_info.get("ua"),
+                            subtitle_dir
                         )
+                    )
                 # 发送下载消息
                 if in_from:
                     media_info.user_name = user_name

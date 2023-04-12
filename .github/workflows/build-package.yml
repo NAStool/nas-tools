@@ -41,7 +41,7 @@ jobs:
         copy .\package\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.10\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\web\ /e
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\config\ /e
-        xcopy .\db_scripts c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\db_scripts\ /e
+        xcopy .\scripts c:\hostedtoolcache\windows\python\3.10.10\x64\lib\site-packages\scripts\ /e
         cd package
         pyinstaller nas-tools.spec
         dir  D:/a/nas-tools/nas-tools/nas-tools/package/dist
@@ -84,7 +84,7 @@ jobs:
           cp ./package/rely/template.jinja2 /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/web/
           cp -r ./config/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/config/
-          cp -r ./db_scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/db_scripts/
+          cp -r ./scripts/. /opt/hostedtoolcache/Python/3.10.10/x64/lib/python3.10/site-packages/scripts/
           cd package
           pwd
           ls -all
@@ -209,7 +209,7 @@ jobs:
           cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
           cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
           cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
-          cp -r ./db_scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/db_scripts/
+          cp -r ./scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/scripts/
           cd package
           pyinstaller nas-tools.spec
           mv ./dist/nas-tools ./dist/nas-tools.macos

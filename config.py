@@ -180,10 +180,10 @@ class Config(object):
         return os.path.join(self.get_root_path(), "config")
 
     def get_script_path(self):
-        return os.path.join(self.get_inner_config_path(), "scripts")
+        return os.path.join(self.get_root_path(), "scripts", "sqls")
 
-    def get_plugin_path(self):
-        return os.path.join(self.get_config_path(), "plugin")
+    def get_user_plugin_path(self):
+        return os.path.join(self.get_config_path(), "plugins")
 
     def get_domain(self):
         domain = (self.get_config('app') or {}).get('domain')
@@ -214,7 +214,8 @@ class Config(object):
             return tmdb_image_url + f"/t/p/{prefix}{path}"
         return f"https://{TMDB_IMAGE_DOMAIN}/t/p/{prefix}{path}"
 
-    def get_category_path(self):
+    @property
+    def category_path(self):
         category = self.get_config('media').get("category")
         if category:
             return os.path.join(Config().get_config_path(), f"{category}.yaml")

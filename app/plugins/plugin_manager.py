@@ -20,6 +20,11 @@ class PluginManager:
     systemconfig = None
     eventmanager = None
 
+    # 用户插件目录
+    user_plugin_path = None
+    # 内部插件目录
+    system_plugin_path = None
+
     # 插件列表
     _plugins = {}
     # 运行态插件列表
@@ -32,11 +37,14 @@ class PluginManager:
     _active = False
 
     def __init__(self):
-        user_plugin_path = Config().get_plugin_path()
-        system_plugin_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "modules")
-        if os.path.exists(user_plugin_path):
-            for plugin_file in PathUtils.get_dir_level1_files(user_plugin_path, [".py"]):
-                SystemUtils.copy(plugin_file, system_plugin_path)
+        # config/plugins 是插件py文件目录，config/plugins/xxx是插件数据目录
+        self.user_plugin_path = Config().get_user_plugin_path()
+        if not os.path.exists(self.user_plugin_path):
+            os.makedirs(self.user_plugin_path)
+        self.system_plugin_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "modules")
+        if os.path.exists(self.user_plugin_path):
+            for plugin_file in PathUtils.get_dir_level1_files(self.user_plugin_path, [".py"]):
+                SystemUtils.copy(plugin_file, self.system_plugin_path)
         self.init_config()
 
     def init_config(self):
@@ -98,7 +106,7 @@ class PluginManager:
         # 排序
         plugins.sort(key=lambda x: x.module_order if hasattr(x, "module_order") else 0)
         # 用户已安装插件列表
-        user_plugins = self.systemconfig.get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        user_plugins = self.systemconfig.get(SystemConfigKey.UserInstalledPlugins) or []
         self._running_plugins = {}
         self._plugins = {}
         for plugin in plugins:
@@ -154,7 +162,7 @@ class PluginManager:
         """
         if not self._plugins.get(pid):
             return {}
-        return self.systemconfig.get_system_config(self._config_key % pid) or {}
+        return self.systemconfig.get(self._config_key % pid) or {}
 
     def get_plugin_page(self, pid):
         """
@@ -193,7 +201,7 @@ class PluginManager:
         """
         if not self._plugins.get(pid):
             return False
-        return self.systemconfig.set_system_config(self._config_key % pid, conf)
+        return self.systemconfig.set(self._config_key % pid, conf)
 
     def get_plugins_conf(self, auth_level):
         """
@@ -241,7 +249,7 @@ class PluginManager:
         获取所有插件
         """
         all_confs = {}
-        installed_apps = self.systemconfig.get_system_config(SystemConfigKey.UserInstalledPlugins) or []
+        installed_apps = self.systemconfig.get(SystemConfigKey.UserInstalledPlugins) or []
         for pid, plugin in self._plugins.items():
             # 基本属性
             conf = {}

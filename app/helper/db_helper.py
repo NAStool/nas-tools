@@ -1628,7 +1628,7 @@ class DbHelper:
             return False
 
     @DbPersist(_db)
-    def insert_download_history(self, media_info, downloader, download_id):
+    def insert_download_history(self, media_info, downloader, download_id, save_dir):
         """
         新增下载历史
         """
@@ -1649,6 +1649,8 @@ class DbHelper:
                     "SITE": media_info.site,
                     "DOWNLOADER": downloader,
                     "DOWNLOAD_ID": download_id,
+                    "SAVE_PATH": save_dir,
+                    "SE": media_info.get_season_episode_string(),
                     "DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                 }
             )
@@ -1668,6 +1670,8 @@ class DbHelper:
                 SITE=media_info.site,
                 DOWNLOADER=downloader,
                 DOWNLOAD_ID=download_id,
+                SAVE_PATH=save_dir,
+                SE=media_info.get_season_episode_string()
             ))
 
     def get_download_history(self, date=None, hid=None, num=30, page=1):
@@ -1699,6 +1703,23 @@ class DbHelper:
         根据标题查找下载历史
         """
         return self._db.query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.TITLE == title).all()
+
+    def get_download_history_by_path(self, path):
+        """
+        根据路径查找下载历史
+        """
+        return self._db.query(DOWNLOADHISTORY).filter(
+            DOWNLOADHISTORY.SAVE_PATH == os.path.normpath(path)
+        ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
+
+    def get_download_history_by_downloader(self, downloader, download_id):
+        """
+        根据下载器查找下载历史
+        """
+        return self._db.query(DOWNLOADHISTORY).filter(
+            DOWNLOADHISTORY.DOWNLOADER == downloader,
+            DOWNLOADHISTORY.DOWNLOAD_ID == download_id
+        ).order_by(DOWNLOADHISTORY.DATE.desc()).first()
 
     @DbPersist(_db)
     def insert_brushtask(self, brush_id, item):
@@ -2731,3 +2752,29 @@ class DbHelper:
                           else_=0)).label("SUCCESS"),
             func.avg(INDEXERSTATISTICS.SECONDS).label("AVG"),
         ).group_by(INDEXERSTATISTICS.INDEXER).all()
+
+    @DbPersist(_db)
+    def insert_plugin_history(self, plugin_id, key, value):
+        """
+        新增插件运行记录
+        """
+        self._db.insert(PLUGINHISTORY(
+            PLUGIN_ID=plugin_id,
+            KEY=key,
+            VALUE=value,
+            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))
+
+    def get_plugin_history(self, plugin_id, key):
+        """
+        查询插件运行记录
+        """
+        return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                                    PLUGINHISTORY.KEY == key).first()
+
+    def delete_plugin_history(self, plugin_id, key):
+        """
+        删除插件运行记录
+        """
+        return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                                    PLUGINHISTORY.KEY == key).delete()

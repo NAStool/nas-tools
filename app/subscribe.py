@@ -47,11 +47,11 @@ class Subscribe:
 
     @property
     def default_rss_setting_tv(self):
-        return SystemConfig().get_system_config(SystemConfigKey.DefaultRssSettingTV) or {}
+        return SystemConfig().get(SystemConfigKey.DefaultRssSettingTV) or {}
 
     @property
     def default_rss_setting_mov(self):
-        return SystemConfig().get_system_config(SystemConfigKey.DefaultRssSettingMOV) or {}
+        return SystemConfig().get(SystemConfigKey.DefaultRssSettingMOV) or {}
 
     def add_rss_subscribe(self, mtype, name, year,
                           channel=None,

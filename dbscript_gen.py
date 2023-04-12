@@ -5,7 +5,7 @@ from alembic.command import revision as alembic_revision
 
 db_version = input("请输入版本号：")
 db_location = os.path.join(Config().get_config_path(), 'user.db').replace('\\', '/')
-script_location = os.path.join(os.path.dirname(__file__), 'db_scripts').replace('\\', '/')
+script_location = os.path.join(os.path.dirname(__file__), 'scripts').replace('\\', '/')
 alembic_cfg = AlembicConfig()
 alembic_cfg.set_main_option('script_location', script_location)
 alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")

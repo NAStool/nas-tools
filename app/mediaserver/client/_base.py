@@ -88,11 +88,20 @@ class _IMediaClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_image_by_id(self, item_id, image_type):
+    def get_remote_image_by_id(self, item_id, image_type):
         """
-        根据ItemId查询图片地址
+        根据ItemId查询远程图片地址
         :param item_id: 在服务器中的ID
         :param image_type: 图片的类弄地，poster或者backdrop等
+        :return: 图片对应在TMDB中的URL
+        """
+        pass
+
+    @abstractmethod
+    def get_local_image_by_id(self, item_id):
+        """
+        根据ItemId查询本地图片地址，需要有外网地址
+        :param item_id: 在服务器中的ID
         :return: 图片对应在TMDB中的URL
         """
         pass

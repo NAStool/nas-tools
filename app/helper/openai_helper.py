@@ -143,7 +143,7 @@ class OpenAiHelper:
                 self.__save_session(userid, text)
             return result
         except openai.error.RateLimitError as e:
-            return "提问太快啦，请休息一下再问我吧"
+            return f"请求被ChatGPT拒绝了，{str(e)}"
         except openai.error.APIConnectionError as e:
             return "ChatGPT网络连接失败！"
         except openai.error.Timeout as e:
