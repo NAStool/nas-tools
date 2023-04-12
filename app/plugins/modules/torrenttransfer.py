@@ -493,10 +493,10 @@ class TorrentTransfer(_IPluginModule):
                                                         delete_file=False)
                     success += 1
                     # 插入转种记录
-                    history_key = "%s-%s" % (self._fromdownloader, hash_item.get('hash'))
+                    history_key = "%s-%s" % (int(self._fromdownloader[0]), hash_item.get('hash'))
                     self.history(key=history_key,
                                  value={
-                                     "to_download": self._todownloader,
+                                     "to_download": int(self._todownloader[0]),
                                      "to_download_id": download_id,
                                      "delete_source": self._deletesource,
                                  })
