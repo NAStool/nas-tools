@@ -2053,8 +2053,8 @@ class DbHelper:
             self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(item.get("id"))).update(
                 {
                     "NAME": item.get("name"),
-                    "ADDRESS": item.get("address"),
-                    "PARSER": item.get("parser"),
+                    "ADDRESS": json.dumps(item.get("address")),
+                    "PARSER": json.dumps(item.get("parser")),
                     "INTERVAL": item.get("interval"),
                     "USES": item.get("uses"),
                     "INCLUDE": item.get("include"),
