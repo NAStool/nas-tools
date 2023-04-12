@@ -484,8 +484,7 @@ class IYUUAutoSeed(_IPluginModule):
         """
         try:
             # 查询当前Hash的辅种历史
-            seed_history = self.get_history(key=current_hash,
-                                            plugin_id=self.__class__.__name__) or []
+            seed_history = self.get_history(key=current_hash) or []
 
             new_history = True
             if len(seed_history) > 0:

@@ -2772,6 +2772,7 @@ class DbHelper:
         return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
                                                     PLUGINHISTORY.KEY == key).first()
 
+    @DbPersist(_db)
     def update_plugin_history(self, plugin_id, key, value):
         """
         更新插件运行记录
