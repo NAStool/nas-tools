@@ -179,7 +179,7 @@
       const params = {
         "files": torrent_dropzone.files,
         "urls": urls.split("\n"),
-        "dl_dir": $("#search_download_dir").val(),
+        "dl_dir": get_savepath("search_download_dir", "search_download_dir_manual"),
         "dl_setting": $("#search_download_setting").val()
       }
       ajax_post("download_torrent", params, function (ret) {

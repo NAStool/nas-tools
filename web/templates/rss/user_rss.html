@@ -421,7 +421,8 @@
               <div class="col-lg-6">
                 <div class="mb-3">
                   <label class="form-label">保存路径</label>
-                  <select class="form-select" id="userrss_rss_save_path" aria-label="保存目录">
+                  <select class="form-select" id="userrss_rss_save_path" aria-label="保存目录"  onchange="check_manual_input_path('userrss_rss_save_path','userrss_rss_save_path_manual')">
+                  <input type="text" value="" id="userrss_rss_save_path_manual" class="form-control" style="display: none" placeholder="留空自动选择保存路径">
                   </select>
                 </div>
               </div>
@@ -582,6 +583,8 @@
       $("#userrss_rss_team").val('');
       $("#userrss_rss_rule").val('');
       $("#userrss_rss_download_setting").val('');
+      $("#userrss_rss_save_path").val('');
+      $("#userrss_rss_save_path_manual").val('');
       $("#userrss_rss_over_edition").val('0');
       select_SelectALL(false, 'userrss_rss_rss_sites');
       select_SelectALL(false, 'userrss_rss_search_sites')
@@ -602,7 +605,7 @@
       $("#userrss_rss_rule").val(detail.filter);
       $("#userrss_rss_download_setting").val(detail.download_setting);
       refresh_savepath_select('userrss_rss_save_path', false, detail.download_setting)
-      $("#userrss_rss_save_path").val(detail.save_path);
+      check_manual_input_path("userrss_rss_save_path", "userrss_rss_save_path_manual", detail.save_path)
       $("#userrss_rss_over_edition").val(detail.over_edition);
       if (detail.sites.rss_sites.length === 0) {
         select_SelectALL(true, 'userrss_rss_rss_sites')
@@ -721,6 +724,7 @@
       userrss_detail = input_select_GetVal('userrss_download_div', 'userrss_download_');
     } else if (uses === "R") {
       userrss_detail = input_select_GetVal('userrss_rss_div', 'userrss_rss_');
+      userrss_detail.save_path = get_savepath('userrss_rss_save_path', 'userrss_rss_save_path_manual');
       let rss_sites = select_GetSelectedVAL('userrss_rss_rss_sites');
       let search_sites = select_GetSelectedVAL('userrss_rss_search_sites');
       userrss_detail.sites = {
@@ -758,7 +762,6 @@
   function show_rss_articles_modal(id) {
     ajax_post("list_rss_articles", { "id": id }, function (ret) {
       let content;
-      $("#table-rss-articles").empty();
       if (ret.code === 0) {
         const articles = ret.data;
         let content_th = `<thead><tr>
@@ -815,11 +818,10 @@
           let content_tb = `<tbody>${content_td}</tbody>`;
           content = `${content_th}${content_tb}`;
         }
-        $("#table-rss-articles").append(content);
       } else {
         content= `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
-        $("#table-rss-articles").append(content);
       }
+      $("#table-rss-articles").empty().append(content);
       if (ret.uses !== "D") {
         $(".rss_articles_download_btn").hide();
       } else {
