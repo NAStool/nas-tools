@@ -15,7 +15,7 @@ class AutoBackup(_IPluginModule):
     # 插件名称
     module_name = "自动备份"
     # 插件描述
-    module_desc = "自动备份nas-tools。"
+    module_desc = "自动备份NAStool数据和配置文件。"
     # 插件图标
     module_icon = "backup.png"
     # 主题色
