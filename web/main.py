@@ -3,9 +3,6 @@ import datetime
 import mimetypes
 import os.path
 import re
-import shutil
-import sqlite3
-import time
 import traceback
 import urllib
 import xml.dom.minidom
@@ -1558,42 +1555,8 @@ def backup():
     备份用户设置文件
     :return: 备份文件.zip_file
     """
-    try:
-        # 创建备份文件夹
-        config_path = Path(Config().get_config_path())
-        backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
-        backup_path = config_path / "backup_file" / backup_file
-        backup_path.mkdir(parents=True)
-        # 把现有的相关文件进行copy备份
-        shutil.copy(f'{config_path}/config.yaml', backup_path)
-        shutil.copy(f'{config_path}/default-category.yaml', backup_path)
-        shutil.copy(f'{config_path}/user.db', backup_path)
-        conn = sqlite3.connect(f'{backup_path}/user.db')
-        cursor = conn.cursor()
-        # 执行操作删除不需要备份的表
-        table_list = [
-            'SEARCH_RESULT_INFO',
-            'RSS_TORRENTS',
-            'DOUBAN_MEDIAS',
-            'TRANSFER_HISTORY',
-            'TRANSFER_UNKNOWN',
-            'TRANSFER_BLACKLIST',
-            'SYNC_HISTORY',
-            'DOWNLOAD_HISTORY',
-            'alembic_version'
-        ]
-        for table in table_list:
-            cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
-        conn.commit()
-        cursor.close()
-        conn.close()
-        zip_file = str(backup_path) + '.zip'
-        if os.path.exists(zip_file):
-            zip_file = str(backup_path) + '.zip'
-        shutil.make_archive(str(backup_path), 'zip', str(backup_path))
-        shutil.rmtree(str(backup_path))
-    except Exception as e:
-        ExceptionUtils.exception_traceback(e)
+    zip_file = WebAction().backup()
+    if not zip_file:
         return make_response("创建备份失败", 400)
     return send_file(zip_file)
 
