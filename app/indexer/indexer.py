@@ -132,7 +132,7 @@ class Indexer(object):
 
         indexers = self.get_indexers()
         if not indexers:
-            log.error(f"没有有效的索引器配置！")
+            log.error("没有有效的索引器配置！")
             return []
         # 计算耗时
         start_time = datetime.datetime.now()
