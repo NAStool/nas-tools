@@ -135,28 +135,22 @@ class ScheduledTasks(_IPluginModule):
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
 
         # 启动服务
-        if self._reboot_enabled:
-            # 周期运行
-            if self._reboot_cron:
-                self.info(f"定时重启服务启动，周期：{self._reboot_cron}")
-                self._scheduler.add_job(self.__reboot,
-                                        CronTrigger.from_crontab(self._reboot_cron))
+        if self._reboot_enabled and self._reboot_cron:
+            self.info(f"定时重启服务启动，周期：{self._reboot_cron}")
+            self._scheduler.add_job(self.__reboot,
+                                    CronTrigger.from_crontab(self._reboot_cron))
 
         # 启动服务
-        if self._update_enabled:
-            # 周期运行
-            if self._update_cron:
-                self.info(f"定时更新服务启动，周期：{self._update_cron}")
-                self._scheduler.add_job(self.__update,
-                                        CronTrigger.from_crontab(self._update_cron))
+        if self._update_enabled and self._update_cron:
+            self.info(f"定时更新服务启动，周期：{self._update_cron}")
+            self._scheduler.add_job(self.__update,
+                                    CronTrigger.from_crontab(self._update_cron))
 
         # 启动服务
-        if self._backup_enabled:
-            # 周期运行
-            if self._backup_cron:
-                self.info(f"定时备份服务启动，周期：{self._backup_cron}")
-                self._scheduler.add_job(self.__backup,
-                                        CronTrigger.from_crontab(self._backup_cron))
+        if self._backup_enabled and self._backup_cron:
+            self.info(f"定时备份服务启动，周期：{self._backup_cron}")
+            self._scheduler.add_job(self.__backup,
+                                    CronTrigger.from_crontab(self._backup_cron))
 
         # 启动任务
         if self._scheduler.get_jobs():
