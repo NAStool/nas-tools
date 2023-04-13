@@ -1439,7 +1439,7 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            userid = msg_json.get("user") or msg_json.get('event', {}).get('user')
+            userid = msg_json.get("user")
             text = msg_json.get("text")
             username = msg_json.get("user")
         elif msg_json.get("type") == "block_actions":
@@ -1447,7 +1447,7 @@ def slack():
             text = msg_json.get("actions")[0].get("value")
             username = msg_json.get("user", {}).get("name")
         elif msg_json.get("type") == "event_callback":
-            userid = msg_json.get("user", {}).get("id")
+            userid = msg_json.get('event', {}).get('user')
             text = re.sub(r"<@[0-9A-Z]+>", "", msg_json.get("event", {}).get("text"), flags=re.IGNORECASE).strip()
             username = ""
         elif msg_json.get("type") == "shortcut":
