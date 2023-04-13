@@ -229,7 +229,8 @@ class BrushTask(object):
                     continue
                 # 检查能否添加当前种子，判断是否超过保种体积大小
                 if not self.__is_allow_new_torrent(taskinfo=taskinfo,
-                                                   dlcount=rss_rule.get("dlcount"), torrent_size=size):
+                                                   dlcount=rss_rule.get("dlcount"),
+                                                   torrent_size=size):
                     continue
                 # 开始下载
                 log.debug("【Brush】%s 符合条件，开始下载..." % torrent_name)
