@@ -1158,7 +1158,7 @@ function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = fal
   let savepath_input_manual = $(`#${obj_id}_manual`);
   let savepath_select_content = `<option value="" selected>自动</option>`;
   if (!sid && !is_default && !site) {
-    savepath_select_content += `<option value="manual">手动输入</option>`;
+    savepath_select_content += `<option value="manual">--手动输入--</option>`;
     savepath_select.empty().append(savepath_select_content);
     savepath_input_manual.hide();
     savepath_select.show();
@@ -1168,7 +1168,7 @@ function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = fal
         for (let path of ret.paths) {
           savepath_select_content += `<option value="${path}">${path}</option>`;
         }
-        savepath_select_content += `<option value="manual">手动输入</option>`;
+        savepath_select_content += `<option value="manual">--手动输入--</option>`;
         savepath_select.empty().append(savepath_select_content);
         savepath_input_manual.hide();
         savepath_select.show();
