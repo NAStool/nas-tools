@@ -337,7 +337,7 @@ class Transmission(_IDownloadClient):
             remove_torrents.append({
                 "id": torrent.hashString,
                 "name": torrent.name,
-                "site": torrent.trackers[0].get("sitename"),
+                "site": torrent.trackers[0].get("sitename") if torrent.trackers else "",
                 "size": torrent.total_size
             })
             remove_torrents_ids.append(torrent.hashString)

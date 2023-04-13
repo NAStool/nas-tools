@@ -55,7 +55,7 @@
             <input class="form-check-input m-0 align-middle" name="userrss_task" value="{{ Task.id }}" type="checkbox">
           </div>
           <div>
-            {% if Task.state == 'Y' %}
+            {% if Task.state %}
             <span class="badge bg-green ms-3"></span>
             {% else %}
             <span class="badge bg-red ms-3"></span>
@@ -117,20 +117,6 @@
         <div class="card-body" id="detail_{{ Task.id }}"
           style="display: {% if Count > 2 %}none{% else %}block{% endif %};">
           <div class="datagrid">
-            <div class="datagrid-item">
-              <div class="datagrid-title">地址</div>
-              <div class="datagrid-content">
-                <div class="d-flex align-items-center" style="word-break: break-all;">
-                  {{ Task.address|split('?', 0) }}
-                </div>
-              </div>
-            </div>
-            <div class="datagrid-item">
-              <div class="datagrid-title">解析器</div>
-              <div class="datagrid-content">
-                <span class="badge me-2">{{ Task.parser_name }}</span>
-              </div>
-            </div>
             <div class="datagrid-item">
               <div class="datagrid-title">刷新周期</div>
               <div class="datagrid-content">
@@ -234,21 +220,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" style="overflow-x: hidden">
-        <div id="userrss_common_div">
+        <div id="userrss_common_div_1">
           <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-8">
               <div class="mb-3">
                 <label class="form-label required">名称</label>
                 <input type="text" id="userrss_name" class="form-control" placeholder="别名">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label required">状态</label>
-                <select class="form-select" id="userrss_state">
-                  <option value="Y" selected>正常</option>
-                  <option value="N">停用</option>
-                </select>
               </div>
             </div>
             <div class="col-lg-4">
@@ -262,30 +239,44 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">地址 <span class="form-help" title="RSS订阅的链接地址"
-                    data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_address" class="form-control" placeholder="RSS地址">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="userrss_state">
+                  <span class="form-check-label">启用 </span>
+                </label>
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">解析器 <span class="form-help" title="使用RSS解析器中配置的解析格式解析RSS报文"
-                    data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="userrss_parser">
-                  {% for RssParser in RssParsers %}
-                  <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
-                  {% endfor %}
-                </select>
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="userrss_proxy">
+                  <span class="form-check-label">使用代理服务器 <span class="form-help" title="开启后该自定义订阅将使用代理服务器，代理需在基础设置->系统->代理服务器中设置"
+                                                            data-bs-toggle="tooltip">?</span></span>
+                </label>
               </div>
             </div>
-            <div class="col-lg-4">
+          </div>
+        </div>
+        <details class="mb-3" open>
+          <summary class="summary required">地址及解析器
+            <span class="form-help" title="RSS订阅的链接地址及对应使用的解析器" data-bs-toggle="tooltip">?</span>
+          </summary>
+          <div class="row mt-2" id="userrss_address_parser_div"></div>
+          <div class="ms-2 mt-2"><a href="javascript:add_address_parser()" class="btn-icon" title="增加目录">{{ SVG.folder_plus() }}</a></div>
+        </details>
+        <div id="userrss_common_div_2">
+          <div class="row">
+            <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">使用代理服务器 <span class="form-help" title="开启后该自定义订阅将使用代理服务器，代理需在基础设置->系统->代理服务器中设置"
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
                     data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="userrss_note_proxy">
-                  <option value="Y">是</option>
-                  <option value="N" selected>否</option>
-                </select>
+                <input type="text" id="userrss_include" class="form-control" placeholder="关键字/正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
+                    data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="userrss_exclude" class="form-control" placeholder="关键字/正则表达式">
               </div>
             </div>
           </div>
@@ -327,39 +318,17 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
-                    data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_download_include" class="form-control" placeholder="关键字/正则表达式">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
-                    data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_download_exclude" class="form-control" placeholder="关键字/正则表达式">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
                 <label class="form-label">过滤规则 <span class="form-help" title="只有符合过滤规则的才会被处理"
                     data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="userrss_download_rule">
-                  <option value="" selected>请选择</option>
+                  <option value="" selected>默认</option>
                   {% for Id, Attr in RuleGroups.items() %}
                   <option value="{{ Id }}">{{ Attr }}</option>
                   {% endfor %}
                 </select>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">保存路径</label>
-                <input type="text" id="userrss_download_save_path" class="form-control" placeholder="留空自动选择保存路径">
-              </div>
-            </div>
-            <div class="col-lg-3">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">下载设置</label>
                 <select class="form-select" id="userrss_download_download_setting">
@@ -370,7 +339,7 @@
                 </select>
               </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">识别 <span class="form-help" title="RSS报文中title能识别到媒体信息的才会被处理"
                     data-bs-toggle="tooltip">?</span></label>
@@ -381,24 +350,14 @@
               </div>
             </div>
           </div>
-        </div>
-        <div id="userrss_rss_div">
           <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理"
-                    data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_rss_include" class="form-control" placeholder="关键字/正则表达式">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理"
-                    data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="userrss_rss_exclude" class="form-control" placeholder="关键字/正则表达式">
-              </div>
+            <div class="mb-3">
+              <label class="form-label">保存路径</label>
+              <input type="text" id="userrss_download_save_path" class="form-control" placeholder="留空自动选择保存路径">
             </div>
           </div>
+        </div>
+        <div id="userrss_rss_div">
           <details class="mb-2">
             <summary class="summary">
               订阅设置 <span class="form-help" title="订阅设置将在添加电影/电视剧订阅时同步" data-bs-toggle="tooltip">?</span>
@@ -539,12 +498,13 @@
       </div>
       <div class="collapse" id="search-bar">
         <div class="input-group p-1">
-          <select id="filter-status" class="form-select w-25" onchange="filterReport()">
-            <option value="">全部</option>
-            <option value="已处理">已处理</option>
-            <option value="未处理">未处理</option>
+          <select id="filter_finish_flag" class="form-select" onchange="filter_articles()">
+            <option value="">全部状态</option>
+            <option value="1">已处理</option>
+            <option value="0">未处理</option>
           </select>
-          <input type="text" id="filter-title" class="form-control w-75" placeholder="搜索" onkeyup="filterReport()">
+          <select id="filter_address_index" class="form-select" onchange="filter_articles()"></select>
+          <input type="text" id="filter_keyword" class="form-control w-50" placeholder="搜索" onkeyup="filter_articles()">
         </div>
       </div>
       <div class="table-responsive table-modal-body">
@@ -610,8 +570,6 @@
   function recover_userrss_setting(uses) {
     if (uses.includes("R")) {
       // 下载
-      $("#userrss_download_include").val('');
-      $("#userrss_download_exclude").val('');
       $("#userrss_download_rule").val('');
       $("#userrss_download_save_path").val('');
       $("#userrss_download_download_setting").val('');
@@ -619,8 +577,6 @@
     }
     if (uses.includes("D")) {
       // 订阅
-      $("#userrss_rss_include").val('');
-      $("#userrss_rss_exclude").val('');
       $("#userrss_rss_restype").val('');
       $("#userrss_rss_pix").val('');
       $("#userrss_rss_team").val('');
@@ -635,15 +591,11 @@
   // 设置自定义订阅
   function set_userrss_setting(detail) {
     if (detail.uses === "D") {
-      $("#userrss_download_include").val(detail.include);
-      $("#userrss_download_exclude").val(detail.exclude);
       $("#userrss_download_rule").val(detail.filter);
       $("#userrss_download_save_path").val(detail.save_path);
       $("#userrss_download_download_setting").val(detail.download_setting);
       $("#userrss_download_recognization").val(detail.recognization);
     } else if (detail.uses === "R") {
-      $("#userrss_rss_include").val(detail.include);
-      $("#userrss_rss_exclude").val(detail.exclude);
       $("#userrss_rss_restype").val(detail.filter_args.restype);
       $("#userrss_rss_pix").val(detail.filter_args.pix);
       $("#userrss_rss_team").val(detail.filter_args.team);
@@ -673,9 +625,13 @@
     // 公共
     $("#userrss_name").val('');
     $("#userrss_interval").val('');
-    $("#userrss_address").val('');
-    $("#userrss_parser").val('1');
-    $("#userrss_state").val('N');
+    CURRENT_ADDDIV_LEVEL = 0;
+    $("#userrss_address_parser_div").empty();
+    add_address_parser();
+    $("#userrss_state").prop("checked", false);
+    $("#userrss_proxy").prop("checked", false);
+    $("#userrss_include").val('');
+    $("#userrss_exclude").val('');
     show_userrss_uses('D');
     $("#modal-userrss").modal('show');
   }
@@ -691,10 +647,18 @@
       // 公共
       $("#userrss_name").val(detail.name);
       $("#userrss_interval").val(detail.interval);
+      CURRENT_ADDDIV_LEVEL = 0;
+      $("#userrss_address_parser_div").empty();
+      const address_parser = Math.min(detail.address.length, detail.parser.length);
+      for (let i=0; i<address_parser; i++) {
+        add_address_parser(detail.address[i], detail.parser[i]);
+      }
       $("#userrss_address").val(detail.address);
       $("#userrss_parser").val(detail.parser);
-      $("#userrss_state").val(detail.state);
-      $("#userrss_note_proxy").val(detail.proxy);
+      $("#userrss_state").prop("checked", detail.state);
+      $("#userrss_proxy").prop("checked", detail.proxy);
+      $("#userrss_include").val(detail.include);
+      $("#userrss_exclude").val(detail.exclude);
       show_userrss_uses(detail.uses);
       set_userrss_setting(detail)
       $("#modal-userrss").modal('show');
@@ -714,7 +678,10 @@
 
   // 新增/编辑任务保存
   function add_or_edit_userrss_task() {
-    const userrss_common = input_select_GetVal('userrss_common_div', 'userrss_');
+    const userrss_common = {
+      ...input_select_GetVal('userrss_common_div_1', 'userrss_'),
+      ...input_select_GetVal('userrss_common_div_2', 'userrss_')
+    };
     if (!userrss_common.name) {
       $("#userrss_name").addClass("is-invalid");
       return;
@@ -731,17 +698,22 @@
     } else {
       $("#userrss_interval").removeClass("is-invalid");
     }
-    if (!userrss_common.address) {
-      $("#userrss_address").addClass("is-invalid");
+    let address_flag = true;
+    $('input[name=userrss_address]').each(function () {
+      if (!$(this).val()) {
+        $(this).addClass("is-invalid");
+        address_flag = false;
+      } else {
+        $(this).removeClass("is-invalid");
+      }
+    });
+    if (!address_flag) {
       return;
-    } else {
-      $("#userrss_address").removeClass("is-invalid");
     }
-    if (!userrss_common.parser) {
-      $("#userrss_parser").addClass("is-invalid");
+    const address_parser = input_select_GetVal('userrss_address_parser_div', 'userrss_');
+    if (!address_parser) {
+      show_warning_modal("未设置RSS地址及解析器")
       return;
-    } else {
-      $("#userrss_parser").removeClass("is-invalid");
     }
     const uses = $('input:radio[name=userrss_uses]:checked').val();
     let userrss_detail = {};
@@ -758,7 +730,13 @@
     } else {
       return;
     }
-    const params = {...userrss_common, ...userrss_detail, uses: uses, id: $("#userrss_id").val(), "note": {"proxy": $("#userrss_note_proxy").val()}};
+    const params = {
+      id: $("#userrss_id").val(),
+      uses: uses,
+      ...userrss_common,
+      ...userrss_detail,
+      address_parser: address_parser
+    };
     $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     ajax_post("update_userrss_task", params, function (ret) {
       $("#modal-userrss").modal('hide');
@@ -807,7 +785,8 @@
             input_checkbox = `<input class="form-check-input m-0 align-middle" name="rss_articles_item" value="${i}" type="checkbox">
                               <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
                               <input type="hidden" id="year_${i}" value="${article.year}">
-                              <input type="hidden" id="title_${i}" value="${title_param}">`;
+                              <input type="hidden" id="title_${i}" value="${title_param}">
+                              <input type="hidden" id="filter_flag_${i}" name="filter_flag" value= "${article.finish_flag ? 1: 0}_${article.address_index}">`;
             title = `<span style="word-break: keep-all">${article.year ? `${article.title} (${article.year})` : article.title}</span>`;
             recognization = `<a title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                               {{ SVG.text_recognition() }}
@@ -847,6 +826,13 @@
         $(".rss_articles_download_btn").show();
       }
       $("#article_check_id").val(id);
+      let filter_address_index_content = `<option value="">全部RSS地址</option>`;
+      if (ret.address_count > 1) {
+        for (let i = 0; i < ret.address_count; i++) {
+          filter_address_index_content = `${filter_address_index_content}<option value="${i + 1}">RSS地址${i + 1}</option>`;
+        }
+      }
+      $("#filter_address_index").empty().append(filter_address_index_content);
       $("#modal-rss-articles").modal('show');
     });
   }
@@ -983,8 +969,12 @@
         let detail = ret.detail;
         recover_userrss_setting(detail.uses);
         $("#userrss_interval").val(detail.interval);
-        $("#userrss_parser").val(detail.parser);
-        $("#userrss_state").val(detail.state);
+        CURRENT_ADDDIV_LEVEL = 0;
+        $("#userrss_address_parser_div").empty();
+        const address_parser = Math.min(detail.address.length, detail.parser.length);
+        for (let i=0; i<address_parser; i++) {
+          add_address_parser(detail.address[i], detail.parser[i]);
+        }
         show_userrss_uses(detail.uses);
         set_userrss_setting(detail);
       }
@@ -1025,19 +1015,82 @@
   }
 
   //筛选
-  function filterReport() {
-    let filterStatus = $("#filter-status").val();
-    let filterTitle = $("#filter-title").val().toLowerCase();
-    let tableRows = $("tr");
-    for (let i = 1; i < tableRows.length; i++) {
-      let reportData = $(tableRows[i]).find("td");
-      let title = $(reportData[1]).text().toLowerCase();
-      let status = $(reportData[2]).text();
-      if ((filterStatus == "" || status == filterStatus) && (title.includes(filterTitle))) {
-        $(tableRows[i]).show();
+  function filter_articles() {
+    let filter_finish_flag = $("#filter_finish_flag").val();
+    let filter_address_index = $("#filter_address_index").val();
+    let filter_keyword = $("#filter_keyword").val().toLowerCase();
+    let tableRows = $("#table-rss-articles tr");
+    $('input[type=hidden][name=filter_flag]').each(function () {
+      const index = Number($(this).attr("id").replace('filter_flag_', ''));
+      const fliter_flag = $(this).val().split('_');
+      const finish_flag = fliter_flag[0]
+      const address_index = fliter_flag[1]
+      const title = $(`#title_${index}`).val().toLowerCase();
+      if ((!filter_finish_flag || filter_finish_flag === finish_flag)
+      && (!filter_address_index || filter_address_index === address_index)
+      &&(title.includes(filter_keyword)) ) {
+        tableRows.eq(index + 1).show();
       } else {
-        $(tableRows[i]).hide();
+        tableRows.eq(index + 1).hide();
       }
+    });
+  }
+
+  var CURRENT_ADDDIV_LEVEL = 0;
+  // 增加地址及解析器
+  function add_address_parser(address, parser) {
+    let html = $("#div_userrss_address_parser_template").text();
+    $("#userrss_address_parser_div").append(html.replaceAll('{ADDDIV_LEVEL}', CURRENT_ADDDIV_LEVEL));
+    if (address) {
+      $(`#userrss_address_${CURRENT_ADDDIV_LEVEL}`).val(address);
+    }
+    if (parser) {
+      $(`#userrss_parser_${CURRENT_ADDDIV_LEVEL}`).val(parser);
+    }
+    CURRENT_ADDDIV_LEVEL = CURRENT_ADDDIV_LEVEL + 1;
+    refresh_userrss_address_index();
+  }
+
+  // 删除下载目录
+  function del_address_parser(id) {
+    if (id) {
+      $(`#adddiv_${id}`).remove();
+      refresh_userrss_address_index();
     }
   }
+
+  // 刷新rss地址序号
+  function refresh_userrss_address_index() {
+    $("span[id^='userrss_adress_index_']").each(function (index) {
+      $(this).text(`${index + 1}`);
+    });
+  }
+
+</script>
+<script id="div_userrss_address_parser_template" type="text/html">
+<div class="row mt-2" id="adddiv_{ADDDIV_LEVEL}">
+  <div class="col-lg-12">
+    <div class="row">
+      <div class="col-12 col-lg-8 mb-1">
+        <div class="input-group input-group-flat">
+          <span id="userrss_adress_index_{ADDDIV_LEVEL}" class="badge bg-blue ps-1 pe-1 pt-2" style="min-width: 2rem;"></span>
+          <input type="text" value="" name="userrss_address" id="userrss_address_{ADDDIV_LEVEL}" class="form-control" placeholder="RSS地址" autocomplete="off">
+        </div>
+      </div>
+      <div class="col-12 col-lg-3 mb-1">
+        <select class="form-select" id="userrss_parser_{ADDDIV_LEVEL}">
+          {% for RssParser in RssParsers %}
+          <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-lg-1 mb-1 align-self-center" style="text-align: center">
+        <a href="javascript:del_address_parser('{ADDDIV_LEVEL}')" class="btn-icon text-red" title="删除目录">
+        {{ SVG.circle_minus() }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
 </script>

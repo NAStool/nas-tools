@@ -429,9 +429,9 @@ class IYUUAutoSeed(_IPluginModule):
             if not isinstance(seed_torrents, list):
                 seed_torrents = [seed_torrents]
 
-            # 查询当前Hash的辅种历史
-            success_torrents = self.get_history(key=current_hash,
-                                                plugin_id=self.__class__.__name__) or []
+            # 本次辅种成功的种子
+            success_torrents = []
+
             for seed in seed_torrents:
                 if not seed:
                     continue
@@ -457,12 +457,63 @@ class IYUUAutoSeed(_IPluginModule):
 
             # 辅种成功的去重放入历史
             if len(success_torrents) > 0:
-                self.history(key=current_hash,
-                             value={
-                                 "downloader": downloader,
-                                 "torrents": list(set(success_torrents))
-                             })
+                self.__save_history(current_hash=current_hash,
+                                    downloader=downloader,
+                                    success_torrents=success_torrents)
+
         self.info(f"下载器 {downloader} 辅种完成")
+
+    def __save_history(self, current_hash, downloader, success_torrents):
+        """
+        [
+            {
+                "downloader":"2",
+                "torrents":[
+                    "248103a801762a66c201f39df7ea325f8eda521b",
+                    "bd13835c16a5865b01490962a90b3ec48889c1f0"
+                ]
+            },
+            {
+                "downloader":"3",
+                "torrents":[
+                    "248103a801762a66c201f39df7ea325f8eda521b",
+                    "bd13835c16a5865b01490962a90b3ec48889c1f0"
+                ]
+            }
+        ]
+        """
+        try:
+            # 查询当前Hash的辅种历史
+            seed_history = self.get_history(key=current_hash) or []
+
+            new_history = True
+            if len(seed_history) > 0:
+                for history in seed_history:
+                    if not history:
+                        continue
+                    if not isinstance(history, dict):
+                        continue
+                    if not history.get("downloader"):
+                        continue
+                    # 如果本次辅种下载器之前有过记录则继续添加
+                    if int(history.get("downloader")) == downloader:
+                        history_torrents = history.get("torrents") or []
+                        history["torrents"] = list(set(history_torrents + success_torrents))
+                        new_history = False
+                        break
+
+            # 本次辅种下载器之前没有成功记录则新增
+            if new_history:
+                seed_history.append({
+                    "downloader": downloader,
+                    "torrents": list(set(success_torrents))
+                })
+
+            # 保存历史
+            self.history(key=current_hash,
+                         value=seed_history)
+        except Exception as e:
+            print(str(e))
 
     def __download_torrent(self, seed, downloader, save_path):
         """

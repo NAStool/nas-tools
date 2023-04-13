@@ -96,6 +96,7 @@ class BrushTask(object):
             else:
                 site_url = ""
             downloader_info = self.downloader.get_downloader_conf(task.DOWNLOADER)
+            total_size = round(int(self.dbhelper.get_brushtask_totalsize(task.ID)) / (1024 ** 3), 1)
             _brush_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -113,6 +114,7 @@ class BrushTask(object):
                 "rss_rule": eval(task.RSS_RULE),
                 "remove_rule": eval(task.REMOVE_RULE),
                 "seed_size": task.SEED_SIZE,
+                "total_size": total_size,
                 "rss_url": task.RSSURL if task.RSSURL else site_info.get("rssurl"),
                 "rss_url_show": task.RSSURL,
                 "cookie": site_info.get("cookie"),
@@ -224,6 +226,11 @@ class BrushTask(object):
                                              cookie=cookie,
                                              ua=ua,
                                              proxy=site_proxy):
+                    continue
+                # 检查能否添加当前种子，判断是否超过保种体积大小
+                if not self.__is_allow_new_torrent(taskinfo=taskinfo,
+                                                   dlcount=rss_rule.get("dlcount"),
+                                                   torrent_size=size):
                     continue
                 # 开始下载
                 log.debug("【Brush】%s 符合条件，开始下载..." % torrent_name)
@@ -424,7 +431,7 @@ class BrushTask(object):
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
 
-    def __is_allow_new_torrent(self, taskinfo, dlcount):
+    def __is_allow_new_torrent(self, taskinfo, dlcount, torrent_size=None):
         """
         检查是否还能添加新的下载
         """
@@ -436,6 +443,12 @@ class BrushTask(object):
         downloader_id = taskinfo.get("downloader")
         downloader_name = taskinfo.get("downloader_name")
         total_size = self.dbhelper.get_brushtask_totalsize(taskinfo.get("id"))
+        if torrent_size:
+            if float(torrent_size) + int(total_size) >= (float(seed_size) + 5) * 1024 ** 3:
+                log.warn("【Brush】刷流任务 %s 当前保种体积 %sGB，种子大小 %sGB，不添加刷流任务"
+                         % (task_name, round(int(total_size) / (1024 ** 3), 1),
+                            round(int(torrent_size) / (1024 ** 3), 1)))
+                return False
         if seed_size:
             if float(seed_size) * 1024 ** 3 <= int(total_size):
                 log.warn("【Brush】刷流任务 %s 当前保种体积 %sGB，不再新增下载"

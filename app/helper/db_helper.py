@@ -2053,8 +2053,8 @@ class DbHelper:
             self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(item.get("id"))).update(
                 {
                     "NAME": item.get("name"),
-                    "ADDRESS": item.get("address"),
-                    "PARSER": item.get("parser"),
+                    "ADDRESS": json.dumps(item.get("address")),
+                    "PARSER": json.dumps(item.get("parser")),
                     "INTERVAL": item.get("interval"),
                     "USES": item.get("uses"),
                     "INCLUDE": item.get("include"),
@@ -2772,9 +2772,21 @@ class DbHelper:
         return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
                                                     PLUGINHISTORY.KEY == key).first()
 
+    @DbPersist(_db)
+    def update_plugin_history(self, plugin_id, key, value):
+        """
+        更新插件运行记录
+        """
+        self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                             PLUGINHISTORY.KEY == key).update(
+            {
+                "VALUE": value
+            }
+        )
+
     def delete_plugin_history(self, plugin_id, key):
         """
         删除插件运行记录
         """
-        return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
-                                                    PLUGINHISTORY.KEY == key).delete()
+        self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                             PLUGINHISTORY.KEY == key).delete()

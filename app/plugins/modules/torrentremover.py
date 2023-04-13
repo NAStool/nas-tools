@@ -92,23 +92,12 @@ class TorrentRemover(_IPluginModule):
         for info in downloadinfos:
             if not info.DOWNLOADER or not info.DOWNLOAD_ID:
                 continue
-            # 删除标志
-            delete_flag = False
-            dl_files = self.downloader.get_files(tid=info.DOWNLOAD_ID,
-                                                 downloader_id=info.DOWNLOADER)
-            if not dl_files:
-                continue
-            for dl_file in dl_files:
-                dl_file_name = dl_file.get("name")
-                if os.path.normpath(source_file).endswith(os.path.normpath(dl_file_name)):
-                    delete_flag = True
-                    break
-            if delete_flag:
-                # 删除下载任务
-                self.__del_torrent(from_download=info.DOWNLOADER,
-                                   from_download_id=info.DOWNLOAD_ID)
+            # 删除下载任务
+            self.__del_torrent(source_file=source_file,
+                               from_download=info.DOWNLOADER,
+                               from_download_id=info.DOWNLOAD_ID)
 
-    def __del_torrent(self, from_download, from_download_id):
+    def __del_torrent(self, source_file, from_download, from_download_id):
         """
         删除下载任务
         """
@@ -120,6 +109,7 @@ class TorrentRemover(_IPluginModule):
         plugin_id = "TorrentTransfer"
         transfer_history = self.get_history(key=history_key,
                                             plugin_id=plugin_id)
+        self.info(f"查询到 {history_key} 转种历史 {transfer_history}")
 
         del_history = False
         # 如果有转种记录，则删除转种后的下载任务
@@ -130,24 +120,56 @@ class TorrentRemover(_IPluginModule):
             del_history = True
 
             # 转种后未删除源种时，同步删除源种
-            if not bool(delete_source):
-                self.info(f"删除下载任务：{from_download} - {from_download_id}")
-                self.downloader.delete_torrents(downloader_id=from_download,
-                                                ids=from_download_id)
+            if not delete_source:
+                self.info(f"{history_key} 转种时未删除源下载任务，开始删除源下载任务…")
+                # 删除标志
+                delete_flag = False
+                try:
+                    dl_files = self.downloader.get_files(tid=from_download_id,
+                                                         downloader_id=from_download)
+                    if not dl_files:
+                        return
+                    for dl_file in dl_files:
+                        dl_file_name = dl_file.get("name")
+                        if os.path.normpath(source_file).endswith(os.path.normpath(dl_file_name)):
+                            delete_flag = True
+                            break
+                    if delete_flag:
+                        self.info(f"删除下载任务：{from_download} - {from_download_id}")
+                        self.downloader.delete_torrents(downloader_id=from_download,
+                                                        ids=from_download_id)
+                except Exception as e:
+                    self.error(f"删除源下载任务 {history_key} 失败: {str(e)}")
 
-        # 删除源下载任务或转种后下载任务
-        self.info(f"删除下载任务：{download} - {download_id}")
-        self.downloader.delete_torrents(downloader_id=download,
-                                        ids=download_id)
+        # 删除标志
+        delete_flag = False
+        self.info(f"开始删除下载任务 {download} {download_id}")
+        try:
+            dl_files = self.downloader.get_files(tid=download_id,
+                                                 downloader_id=download)
+            if not dl_files:
+                return
+            for dl_file in dl_files:
+                dl_file_name = dl_file.get("name")
+                if os.path.normpath(source_file).endswith(os.path.normpath(dl_file_name)):
+                    delete_flag = True
+                    break
+            if delete_flag:
+                # 删除源下载任务或转种后下载任务
+                self.info(f"删除下载任务：{download} - {download_id}")
+                self.downloader.delete_torrents(downloader_id=download,
+                                                ids=download_id)
 
-        # 删除转种记录
-        if del_history:
-            self.delete_history(key=history_key, plugin_id=plugin_id)
+                # 删除转种记录
+                if del_history:
+                    self.delete_history(key=history_key, plugin_id=plugin_id)
 
-        # 处理辅种
-        self.__del_seed(download_id=download_id)
+                # 处理辅种
+                self.__del_seed(download=download, download_id=download_id)
+        except Exception as e:
+            self.error(f"删除转种辅种下载任务失败: {str(e)}")
 
-    def __del_seed(self, download_id):
+    def __del_seed(self, download, download_id):
         """
         删除辅种
         """
@@ -155,21 +177,35 @@ class TorrentRemover(_IPluginModule):
         history_key = download_id
         plugin_id = "IYUUAutoSeed"
         seed_history = self.get_history(key=history_key,
-                                        plugin_id=plugin_id)
+                                        plugin_id=plugin_id) or []
+        self.info(f"查询到 {history_key} 辅种历史 {seed_history}")
 
         # 有辅种记录则处理辅种
-        if seed_history and isinstance(seed_history, dict):
-            download = seed_history['downloader']
-            torrents = seed_history['torrents']
-            if not download or not torrents:
-                return
-            if not isinstance(torrents, list):
-                torrents = [torrents]
-            for torrent in torrents:
-                # 删除辅种
-                self.info(f"删除辅种：{download} - {torrent}")
-                self.downloader.delete_torrents(downloader_id=download,
-                                                ids=torrent)
-            # 删除辅种历史
-            self.delete_history(key=history_key,
-                                plugin_id=plugin_id)
+        if seed_history and isinstance(seed_history, list):
+            for history in seed_history:
+                downloader = history['downloader']
+                torrents = history['torrents']
+                if not downloader or not torrents:
+                    return
+                if not isinstance(torrents, list):
+                    torrents = [torrents]
+
+                # 删除辅种历史中与本下载器相同的辅种记录
+                if int(downloader) == download:
+                    for torrent in torrents:
+                        # 删除辅种
+                        self.info(f"删除辅种：{downloader} - {torrent}")
+                        self.downloader.delete_torrents(downloader_id=downloader,
+                                                        ids=torrent)
+                    # 删除本下载器辅种历史
+                    del history
+                    break
+
+            # 更新辅种历史
+            if len(seed_history) > 0:
+                self.update_history(key=history_key,
+                                    value=seed_history,
+                                    plugin_id=plugin_id)
+            else:
+                self.delete_history(key=history_key,
+                                    plugin_id=plugin_id)

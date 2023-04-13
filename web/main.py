@@ -1439,7 +1439,7 @@ def slack():
     msg_json = request.get_json()
     if msg_json:
         if msg_json.get("type") == "message":
-            userid = msg_json.get("user")
+            userid = msg_json.get("user") or msg_json.get('event', {}).get('user')
             text = msg_json.get("text")
             username = msg_json.get("user")
         elif msg_json.get("type") == "block_actions":
