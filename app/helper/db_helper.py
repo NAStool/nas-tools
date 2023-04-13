@@ -2074,8 +2074,8 @@ class DbHelper:
         else:
             self._db.insert(CONFIGUSERRSS(
                 NAME=item.get("name"),
-                ADDRESS=item.get("address"),
-                PARSER=item.get("parser"),
+                ADDRESS=json.dumps(item.get("address")),
+                PARSER=json.dumps(item.get("parser")),
                 INTERVAL=item.get("interval"),
                 USES=item.get("uses"),
                 INCLUDE=item.get("include"),
