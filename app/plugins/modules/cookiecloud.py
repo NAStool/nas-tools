@@ -134,7 +134,7 @@ class CookieCloud(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '运行任务后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '运行任务后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'notify',
                         },
@@ -318,7 +318,7 @@ class CookieCloud(_IPluginModule):
         """
         发送通知
         """
-        self._message.send_custom_message(
+        self._message.send_plugin_message(
             title="【CookieCloud同步任务执行完成】",
             text=f"{msg}"
         )

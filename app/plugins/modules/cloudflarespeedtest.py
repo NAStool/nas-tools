@@ -142,7 +142,7 @@ class CloudflareSpeedTest(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '运行任务后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '运行任务后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'notify',
                         },
@@ -291,7 +291,7 @@ class CloudflareSpeedTest(_IPluginModule):
                                                      "plugin_id": "CustomHosts"
                                                  })
                     if self._notify:
-                        self.message.send_custom_message(
+                        self.message.send_plugin_message(
                             title="【Cloudflare优选任务完成】",
                             text=f"原ip：{old_ip}\n"
                                  f"新ip：{best_ip}"

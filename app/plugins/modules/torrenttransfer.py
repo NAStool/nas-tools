@@ -218,7 +218,7 @@ class TorrentTransfer(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '运行任务后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '运行任务后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'notify',
                         },
@@ -507,7 +507,7 @@ class TorrentTransfer(_IPluginModule):
                 self.check_recheck()
             # 发送通知
             if self._notify:
-                self.message.send_custom_message(
+                self.message.send_plugin_message(
                     title="【移转做种任务执行完成】",
                     text=f"总数：{total}，成功：{success}，失败：{fail}"
                 )

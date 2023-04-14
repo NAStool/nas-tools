@@ -184,7 +184,7 @@ class IYUUAutoSeed(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '运行辅助任务后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '运行辅助任务后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'notify',
                         },
@@ -349,7 +349,7 @@ class IYUUAutoSeed(_IPluginModule):
         self.__update_config()
         # 发送消息
         if self._notify:
-            self.message.send_custom_message(
+            self.message.send_plugin_message(
                 title="【IYUU自动辅种任务完成】",
                 text=f"服务器返回可辅种总数：{self.total}\n"
                      f"实际可辅种数：{self.realtotal}\n"

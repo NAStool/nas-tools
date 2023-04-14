@@ -66,7 +66,7 @@ class MediaSyncDel(_IPluginModule):
                         {
                             'title': '运行时通知',
                             'required': "",
-                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开自定义消息通知）',
+                            'tooltip': '打开后Emby触发同步删除后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'send_notify',
                         }
@@ -227,7 +227,7 @@ class MediaSyncDel(_IPluginModule):
                 image_url = Media().get_tmdb_backdrop(mtype=MediaType.MOVIE if media_type == "Movie" else MediaType.TV,
                                                       tmdbid=tmdb_id)
             # 发送通知
-            self.message.send_custom_message(
+            self.message.send_plugin_message(
                 title="【Emby同步删除任务完成】",
                 image=image_url or 'https://emby.media/notificationicon.png',
                 text=f"{msg}\n"

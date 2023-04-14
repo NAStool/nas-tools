@@ -199,7 +199,7 @@ class WebAction:
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
             "get_site_user_statistics": self.get_site_user_statistics,
-            "send_custom_message": self.send_custom_message,
+            "send_plugin_message": self.send_plugin_message,
             "media_detail": self.media_detail,
             "media_similar": self.__media_similar,
             "media_recommendations": self.__media_recommendations,
@@ -4465,14 +4465,14 @@ class WebAction:
         return {"code": 0, "data": statistics}
 
     @staticmethod
-    def send_custom_message(data):
+    def send_plugin_message(data):
         """
-        发送自定义消息
+        发送插件消息
         """
         title = data.get("title")
         text = data.get("text") or ""
         image = data.get("image") or ""
-        Message().send_custom_message(title=title, text=text, image=image)
+        Message().send_plugin_message(title=title, text=text, image=image)
         return {"code": 0}
 
     @staticmethod

@@ -585,9 +585,9 @@ class Message(object):
                     image=image_url
                 )
 
-    def send_custom_message(self, title, text="", image=""):
+    def send_plugin_message(self, title, text="", image=""):
         """
-        发送自定义消息
+        发送插件消息
         """
         if not title:
             return
