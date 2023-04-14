@@ -104,7 +104,7 @@ class Downloader:
                 "name": "预设",
                 "category": '',
                 "tags": PT_TAG,
-                "content_layout": 0,
+                "content_layout": 1,
                 "is_paused": 0,
                 "upload_limit": 0,
                 "download_limit": 0,
@@ -126,12 +126,15 @@ class Downloader:
                 downloader_name = ""
                 downloader_type = ""
                 downloader_id = ""
+            content_layout = download_setting.CONTENT_LAYOUT
+            if content_layout == 0:
+                content_layout = 1
             self._download_settings[str(download_setting.ID)] = {
                 "id": download_setting.ID,
                 "name": download_setting.NAME,
                 "category": download_setting.CATEGORY,
                 "tags": download_setting.TAGS,
-                "content_layout": download_setting.CONTENT_LAYOUT,
+                "content_layout": content_layout,
                 "is_paused": download_setting.IS_PAUSED,
                 "upload_limit": download_setting.UPLOAD_LIMIT,
                 "download_limit": download_setting.DOWNLOAD_LIMIT,
@@ -384,15 +387,16 @@ class Downloader:
                     else:
                         tags = [tag]
             # 布局
-            content_layout = download_attr.get("content_layout")
-            if content_layout == 1:
-                content_layout = "Original"
-            elif content_layout == 2:
-                content_layout = "Subfolder"
-            elif content_layout == 3:
-                content_layout = "NoSubfolder"
-            else:
-                content_layout = ""
+            match download_attr.get("content_layout"):
+                case 1:
+                    content_layout = "Original"
+                case 2:
+                    content_layout = "Subfolder"
+                case 3:
+                    content_layout = "NoSubfolder"
+                case _:
+                    content_layout = "Original"
+
             # 暂停
             if is_paused is None:
                 is_paused = StringUtils.to_bool(download_attr.get("is_paused"))

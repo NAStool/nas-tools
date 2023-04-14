@@ -255,11 +255,10 @@ class Qbittorrent(_IDownloadClient):
                 continue
             if qb_category and torrent.category not in qb_category:
                 continue
-            site = parse.urlparse(torrent.tracker).netloc.split(".") if torrent.tracker else [""]
             remove_torrents.append({
                 "id": torrent.hash,
                 "name": torrent.name,
-                "site": site[-2] if len(site) >= 2 else site[0],
+                "site": StringUtils.get_url_sld(torrent.tracker),
                 "size": torrent.size
             })
             remove_torrents_ids.append(torrent.hash)
@@ -270,11 +269,10 @@ class Qbittorrent(_IDownloadClient):
                 size = remove_torrent.get("size")
                 for torrent in torrents:
                     if torrent.name == name and torrent.size == size and torrent.hash not in remove_torrents_ids:
-                        site = parse.urlparse(torrent.tracker).netloc.split(".") if torrent.tracker else [""]
                         remove_torrents_plus.append({
                             "id": torrent.hash,
                             "name": torrent.name,
-                            "site": site[-2] if len(site) >= 2 else site[0],
+                            "site": StringUtils.get_url_sld(torrent.tracker),
                             "size": torrent.size
                         })
             remove_torrents_plus += remove_torrents
