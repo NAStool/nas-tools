@@ -647,21 +647,3 @@ class Message(object):
                     title=title,
                     text=text
                 )
-
-    def send_rss_expired_message(self, text: ""):
-        """
-        发送RSS过期消息
-        """
-        if not text:
-            return
-        title = "【RSS链接过期，请更换】"
-        # 插入消息中心
-        self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
-        # 发送消息
-        for client in self._active_clients:
-            if "rss_expired_message" in client.get("switchs"):
-                self.__sendmsg(
-                    client=client,
-                    title=title,
-                    text=text
-                )
