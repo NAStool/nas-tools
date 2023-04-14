@@ -719,7 +719,7 @@ def service():
 
     # 系统进程
     if "processes" in Services:
-        if not SystemUtils.get_all_processes():
+        if not SystemUtils.is_docker() or not SystemUtils.get_all_processes():
             Services.pop('processes')
 
     return render_template("service.html",
