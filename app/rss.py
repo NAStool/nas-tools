@@ -8,6 +8,7 @@ from app.filter import Filter
 from app.helper import DbHelper
 from app.media import Media
 from app.media.meta import MetaInfo
+from app.message import Message
 from app.sites import Sites, SiteConf
 from app.subscribe import Subscribe
 from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils, RssTitleUtils, Torrent
@@ -320,6 +321,11 @@ class Rss:
             'pt.keepfrds.com': RssTitleUtils.keepfriends_title
         }
 
+        _rss_expired_msg = [
+            "RSS 链接已过期, 您需要获得一个新的!",
+            "RSS Link has expired, You need to get a new one!"
+        ]
+
         # 开始处理
         ret_array = []
         if not url:
@@ -336,6 +342,12 @@ class Rss:
             return []
         if ret:
             ret_xml = ret.text
+            # RSS过期 观众RSS 链接已过期，您需要获得一个新的！  pthome RSS Link has expired, You need to get a new one!
+            if ret_xml in _rss_expired_msg:
+                log.warn(f"RSS链接 {url} 已过期，请重新获取！")
+                # 发送消息
+                Message().send_rss_expired_message(text=url)
+                return []
             try:
                 # 解析XML
                 dom_tree = xml.dom.minidom.parseString(ret_xml)

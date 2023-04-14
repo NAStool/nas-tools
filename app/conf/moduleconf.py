@@ -441,6 +441,10 @@ class ModuleConf(object):
             "ptrefresh_date_message": {
                 "name": "数据统计",
                 "fuc_name": "ptrefresh_date_message"
+            },
+            "rss_expired_message": {
+                "name": "RSS过期",
+                "fuc_name": "rss_expired_message"
             }
         }
     }
