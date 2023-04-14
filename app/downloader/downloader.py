@@ -104,7 +104,6 @@ class Downloader:
                 "name": "预设",
                 "category": '',
                 "tags": PT_TAG,
-                "content_layout": 1,
                 "is_paused": 0,
                 "upload_limit": 0,
                 "download_limit": 0,
@@ -126,15 +125,11 @@ class Downloader:
                 downloader_name = ""
                 downloader_type = ""
                 downloader_id = ""
-            content_layout = download_setting.CONTENT_LAYOUT
-            if content_layout == 0:
-                content_layout = 1
             self._download_settings[str(download_setting.ID)] = {
                 "id": download_setting.ID,
                 "name": download_setting.NAME,
                 "category": download_setting.CATEGORY,
                 "tags": download_setting.TAGS,
-                "content_layout": content_layout,
                 "is_paused": download_setting.IS_PAUSED,
                 "upload_limit": download_setting.UPLOAD_LIMIT,
                 "download_limit": download_setting.DOWNLOAD_LIMIT,
@@ -386,16 +381,6 @@ class Downloader:
                         tags = tag
                     else:
                         tags = [tag]
-            # 布局
-            match download_attr.get("content_layout"):
-                case 1:
-                    content_layout = "Original"
-                case 2:
-                    content_layout = "Subfolder"
-                case 3:
-                    content_layout = "NoSubfolder"
-                case _:
-                    content_layout = "Original"
 
             # 暂停
             if is_paused is None:
@@ -450,13 +435,14 @@ class Downloader:
                     tags += [torrent_tag]
                 else:
                     tags = [torrent_tag]
+                # 布局默认原始
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,
                                              is_auto=is_auto,
                                              download_dir=download_dir,
                                              tag=tags,
                                              category=category,
-                                             content_layout=content_layout,
+                                             content_layout="Original",
                                              upload_limit=upload_limit,
                                              download_limit=download_limit,
                                              ratio_limit=ratio_limit,
