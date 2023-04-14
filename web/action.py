@@ -230,7 +230,8 @@ class WebAction:
             "get_plugin_state": self.get_plugin_state,
             "get_plugins_conf": self.get_plugins_conf,
             "update_category_config": self.update_category_config,
-            "get_category_config": self.get_category_config
+            "get_category_config": self.get_category_config,
+            "get_system_processes": self.get_system_processes
         }
 
     def action(self, cmd, data=None):
@@ -5106,3 +5107,10 @@ class WebAction:
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
             return None
+
+    @staticmethod
+    def get_system_processes(data=None):
+        """
+        获取系统进程
+        """
+        return {"code": 0, "data": SystemUtils.get_all_processes()}
