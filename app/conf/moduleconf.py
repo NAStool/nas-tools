@@ -430,6 +430,10 @@ class ModuleConf(object):
                 "name": "自动删种",
                 "fuc_name": "auto_remove_torrents"
             },
+            "ptrefresh_date_message": {
+                "name": "数据统计",
+                "fuc_name": "ptrefresh_date_message"
+            },
             "mediaserver_message": {
                 "name": "媒体服务",
                 "fuc_name": "mediaserver_message"
@@ -437,10 +441,6 @@ class ModuleConf(object):
             "custom_message": {
                 "name": "插件消息",
                 "fuc_name": "custom_message"
-            },
-            "ptrefresh_date_message": {
-                "name": "数据统计",
-                "fuc_name": "ptrefresh_date_message"
             }
         }
     }
