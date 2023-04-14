@@ -236,7 +236,14 @@ class SiteUserInfo(object):
         incDownloads = 0
         _, _, site, upload, download = SiteUserInfo().get_pt_site_statistics_history(2)
 
-        for site, upload, download in zip(site, upload, download):
+        # 按照上传降序排序
+        data_list = list(zip(site, upload, download))
+        data_list = sorted(data_list, key=lambda x: x[1], reverse=True)
+
+        for data in data_list:
+            site = data[0]
+            upload = int(data[1])
+            download = int(data[2])
             if upload > 0 or download > 0:
                 incUploads += int(upload)
                 incDownloads += int(download)
