@@ -394,11 +394,12 @@ class Rss:
             except Exception as e2:
                 # RSS过期 观众RSS 链接已过期，您需要获得一个新的！  pthome RSS Link has expired, You need to get a new one!
                 if ret_xml in _rss_expired_msg:
-                    log.warn(f"站点 {site_name} RSS链接已过期，请重新获取！")
-                    # 发送消息
-                    Message().send_site_message(title="【RSS链接过期提醒】",
-                                                text=f"站点：{site_name}\n"
-                                                     f"链接：{url}")
+                    log.error(f"站点 {site_name} RSS链接已过期，请重新获取！")
+                    if site_name:
+                        # 发送消息
+                        Message().send_site_message(title="【RSS链接过期提醒】",
+                                                    text=f"站点：{site_name}\n"
+                                                         f"链接：{url}")
                     return []
                 ExceptionUtils.exception_traceback(e2)
                 return ret_array
