@@ -56,6 +56,8 @@ class CookieCloud(_IPluginModule):
     _notify = False
     # 退出事件
     _event = Event()
+    # 需要忽略的Cookie
+    _ignore_cookies = ['CookieAutoDeleteBrowsingDataCleanup']
 
     @staticmethod
     def get_fields():
@@ -280,7 +282,9 @@ class CookieCloud(_IPluginModule):
                 continue
             # Cookie
             cookie_str = ";".join(
-                [f"{content['name']}={content['value']}" for content in content_list]
+                [f"{content.get('name')}={content.get('value')}"
+                 for content in content_list
+                 if content.get("name") and content.get("name") not in self._ignore_cookies]
             )
             # 查询站点
             site_info = self._site.get_sites_by_suffix(domain_url)
