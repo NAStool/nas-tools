@@ -348,7 +348,7 @@ class Rss:
                 log.warn(f"RSS链接 {url} 已过期，请重新获取！")
                 # 发送消息
                 Message().send_rss_expired_message(text=f"站点：{site_name}\n"
-                                                        f"rss：{url}")
+                                                        f"链接：{url}")
                 return []
             try:
                 # 解析XML
