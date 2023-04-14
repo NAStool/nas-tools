@@ -118,9 +118,6 @@
             <div class="datagrid-item">
               <div class="datagrid-title">布局</div>
               <div class="datagrid-content">
-                {% if Attr.content_layout == 0 %}
-                <span class="badge me-2">全局</span>
-                {% endif %}
                 {% if Attr.content_layout == 1 %}
                 <span class="badge me-2">原始</span>
                 {% endif %}
@@ -240,8 +237,7 @@
             <div class="mb-3">
               <label class="form-label">布局 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="download_setting_content_layout">
-                <option value="0" selected>全局</option>
-                <option value="1">原始</option>
+                <option value="1" selected>原始</option>
                 <option value="2">创建子文件夹</option>
                 <option value="3">不建子文件夹</option>
               </select>
@@ -292,7 +288,7 @@
     $("#download_setting_name").val('');
     $("#download_setting_category").val('');
     $("#download_setting_tags").val('');
-    $("#download_setting_content_layout").val('0');
+    $("#download_setting_content_layout").val('1');
     $("#download_setting_is_paused").val('0');
     $("#download_setting_upload_limit").val('');
     $("#download_setting_download_limit").val('');
