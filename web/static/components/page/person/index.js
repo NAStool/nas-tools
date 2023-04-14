@@ -14,6 +14,7 @@ export class PagePerson extends CustomElement {
   constructor() {
     super();
     this.person_list = [];
+    this.result = false;
   }
 
   // 仅执行一次  界面首次刷新后
@@ -22,6 +23,7 @@ export class PagePerson extends CustomElement {
       (ret) => {
         if (ret.code === 0) {
           this.person_list = ret.data;
+          this.result = true;
         }
       }
     );
@@ -41,8 +43,10 @@ export class PagePerson extends CustomElement {
       </div>
       <div class="page-body">
         <div class="container-xl">
-          <div class="d-grid gap-3 grid-media-card">
-            ${this.person_list.length != 0
+          <div ${this.result && !this.person_list ? 
+                  html`class="container-xl d-flex flex-column justify-content-center"` 
+                  : html`class="d-grid gap-3 grid-media-card"`}>
+            ${this.person_list.length !== 0
             ? this.person_list.map((item, index) => ( html`
               <person-card
                 person-id=${item.id}
@@ -54,6 +58,12 @@ export class PagePerson extends CustomElement {
                 }}
               ></person-card>
               ` ) )
+            : this.result ? html`
+              <div class="empty">
+                <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+                </div>
+                <p class="empty-title">没有数据。</p>
+              </div>` 
             : Array(20).fill(html`<person-card lazy="1"></person-card>`)
             }
           </div>            
