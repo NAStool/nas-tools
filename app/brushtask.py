@@ -438,12 +438,12 @@ class BrushTask(object):
         if not taskinfo:
             return False
         # 判断大小
-        seed_size = taskinfo.get("seed_size")
+        seed_size = taskinfo.get("seed_size") or None
         task_name = taskinfo.get("name")
         downloader_id = taskinfo.get("downloader")
         downloader_name = taskinfo.get("downloader_name")
         total_size = self.dbhelper.get_brushtask_totalsize(taskinfo.get("id"))
-        if torrent_size:
+        if torrent_size and seed_size:
             if float(torrent_size) + int(total_size) >= (float(seed_size) + 5) * 1024 ** 3:
                 log.warn("【Brush】刷流任务 %s 当前保种体积 %sGB，种子大小 %sGB，不添加刷流任务"
                          % (task_name, round(int(total_size) / (1024 ** 3), 1),
