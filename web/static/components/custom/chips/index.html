@@ -42,6 +42,7 @@
             break;
           case "title":
             data_dict.title = (!data_dict.tmdbid) ? "未匹配TMDB" : data_dict.title;
+            href = data_dict.tmdblink;
             break;
         }
         // console.log("正在新增chips: ", key, data_dict[key], href);
@@ -105,7 +106,7 @@
             label_element.appendChild(span_element);
           } else {
             for (let custom_word of chips_content) {
-            let child_element = document.createElement("span");
+            let child_element = document.createElement(chips_type === "ignored_words" ? "del": "span");
             child_element.setAttribute("class", `badge me-1 ${color[chips_type]}`);
             child_element.innerHTML = custom_word;
             label_element.appendChild(child_element);

@@ -435,7 +435,7 @@ class ModuleConf(object):
                 "fuc_name": "mediaserver_message"
             },
             "custom_message": {
-                "name": "自定义消息",
+                "name": "插件消息",
                 "fuc_name": "custom_message"
             },
             "ptrefresh_date_message": {

@@ -6,13 +6,15 @@ import os.path
 import re
 import shutil
 import signal
+import sqlite3
+import time
 from urllib.parse import unquote
 
 import cn2an
 from flask_login import logout_user, current_user
 from math import floor
 from werkzeug.security import generate_password_hash
-
+from pathlib import Path
 import log
 from app.brushtask import BrushTask
 from app.conf import SystemConfig, ModuleConf
@@ -197,7 +199,7 @@ class WebAction:
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
             "get_site_user_statistics": self.get_site_user_statistics,
-            "send_custom_message": self.send_custom_message,
+            "send_plugin_message": self.send_plugin_message,
             "media_detail": self.media_detail,
             "media_similar": self.__media_similar,
             "media_recommendations": self.__media_recommendations,
@@ -228,7 +230,8 @@ class WebAction:
             "get_plugin_state": self.get_plugin_state,
             "get_plugins_conf": self.get_plugins_conf,
             "update_category_config": self.update_category_config,
-            "get_category_config": self.get_category_config
+            "get_category_config": self.get_category_config,
+            "get_system_processes": self.get_system_processes
         }
 
     def action(self, cmd, data=None):
@@ -4462,14 +4465,14 @@ class WebAction:
         return {"code": 0, "data": statistics}
 
     @staticmethod
-    def send_custom_message(data):
+    def send_plugin_message(data):
         """
-        发送自定义消息
+        发送插件消息
         """
         title = data.get("title")
         text = data.get("text") or ""
         image = data.get("image") or ""
-        Message().send_custom_message(title=title, text=text, image=image)
+        Message().send_plugin_message(title=title, text=text, image=image)
         return {"code": 0}
 
     @staticmethod
@@ -5063,3 +5066,51 @@ class WebAction:
         with open(category_path, "r", encoding="utf-8") as f:
             category_text = f.read()
         return {"code": 0, "text": category_text}
+
+    @staticmethod
+    def backup():
+        try:
+            # 创建备份文件夹
+            config_path = Path(Config().get_config_path())
+            backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
+            backup_path = config_path / "backup_file" / backup_file
+            backup_path.mkdir(parents=True)
+            # 把现有的相关文件进行copy备份
+            shutil.copy(f'{config_path}/config.yaml', backup_path)
+            shutil.copy(f'{config_path}/default-category.yaml', backup_path)
+            shutil.copy(f'{config_path}/user.db', backup_path)
+            conn = sqlite3.connect(f'{backup_path}/user.db')
+            cursor = conn.cursor()
+            # 执行操作删除不需要备份的表
+            table_list = [
+                'SEARCH_RESULT_INFO',
+                'RSS_TORRENTS',
+                'DOUBAN_MEDIAS',
+                'TRANSFER_HISTORY',
+                'TRANSFER_UNKNOWN',
+                'TRANSFER_BLACKLIST',
+                'SYNC_HISTORY',
+                'DOWNLOAD_HISTORY',
+                'alembic_version'
+            ]
+            for table in table_list:
+                cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
+            conn.commit()
+            cursor.close()
+            conn.close()
+            zip_file = str(backup_path) + '.zip'
+            if os.path.exists(zip_file):
+                zip_file = str(backup_path) + '.zip'
+            shutil.make_archive(str(backup_path), 'zip', str(backup_path))
+            shutil.rmtree(str(backup_path))
+            return zip_file
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            return None
+
+    @staticmethod
+    def get_system_processes(data=None):
+        """
+        获取系统进程
+        """
+        return {"code": 0, "data": SystemUtils.get_all_processes()}

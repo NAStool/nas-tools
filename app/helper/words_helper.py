@@ -8,169 +8,142 @@ from app.utils.exception_utils import ExceptionUtils
 @singleton
 class WordsHelper:
     dbhelper = None
-    ignored_words_info = []
-    ignored_words_noregex_info = []
-    replaced_words_info = []
-    replaced_words_noregex_info = []
-    replaced_offset_words_info = []
-    offset_words_info = []
+    # 识别词
+    words_info = []
+    # 标题
+    title = ""
+    # 错误信息
+    msg = []
+    # 应用自定义识别
+    used_ignored_words = []
+    # 应用替换
+    used_replaced_words = []
+    # 应用集偏移
+    used_offset_words = []
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
+        self.reset()
         self.dbhelper = DbHelper()
-        self.ignored_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
-        self.ignored_words_noregex_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
-        self.replaced_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)
-        self.replaced_words_noregex_info = self.dbhelper.get_custom_words(enabled=1, wtype=2, regex=0)
-        self.replaced_offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=3, regex=1)
-        self.offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
+        self.words_info = self.dbhelper.get_custom_words(enabled=1)
 
     def process(self, title):
-        # 错误信息
-        msg = []
-        # 应用自定义识别
-        used_ignored_words = []
-        # 应用替换
-        used_replaced_words = []
-        # 应用集偏移
-        used_offset_words = []
-        # 屏蔽
-        if self.ignored_words_info:
-            for ignored_word_info in self.ignored_words_info:
-                ignored = ignored_word_info.REPLACED
-                ignored_word = ignored
-                title, ignore_msg, ignore_flag = self.replace_regex(replaced=ignored,
-                                                                    replace="",
-                                                                    title=title)
-                if ignore_flag:
-                    used_ignored_words.append(ignored_word)
-                elif ignore_msg:
-                    msg.append(f"自定义屏蔽词 {ignored_word} 设置有误：{ignore_msg}")
-        if self.ignored_words_noregex_info:
-            for ignored_word_noregex_info in self.ignored_words_noregex_info:
-                ignored = ignored_word_noregex_info.REPLACED
-                ignored_word = ignored
-                title, ignore_msg, ignore_flag = self.replace_noregex(replaced=ignored,
-                                                                      replace="",
-                                                                      title=title)
-                if ignore_flag:
-                    used_ignored_words.append(ignored_word)
-                elif ignore_msg:
-                    msg.append(f"自定义屏蔽词 {ignored_word} 设置有误：{ignore_msg}")
+        # 初始化
+        self.reset()
+        self.title = title
+        # 应用识别词
+        for word_info in self.words_info:
+            match word_info.TYPE:
+                case 1:
+                    # 屏蔽
+                    self.check_ignore(word_info.REPLACED, word_info.REGEX)
+                case 2:
+                    # 替换
+                    self.check_replace(word_info.REPLACED, word_info.REPLACE, word_info.REGEX)
+                case 3:
+                    # 替换+集偏移
+                    self.check_replace_offset(word_info.REPLACED,
+                                              word_info.REPLACE,
+                                              word_info.FRONT,
+                                              word_info.BACK,
+                                              word_info.OFFSET)
+                case 4:
+                    # 集数偏移
+                    self.check_offset(word_info.FRONT, word_info.BACK, word_info.OFFSET)
+                case _:
+                    pass
+        # # 应用识别词信息
+        used_info = {
+            "ignored": self.used_ignored_words,
+            "replaced": self.used_replaced_words,
+            "offset": self.used_offset_words}
+        return self.title, self.msg, used_info
+
+    def check_ignore(self, ignored, regex=0):
+        ignored_word = ignored
+        ignore_msg, ignore_flag = self.replace_regex(ignored, "") \
+            if regex else self.replace_noregex(ignored, "")
+        if ignore_flag:
+            self.used_ignored_words.append(ignored_word)
+        elif ignore_msg:
+            self.msg.append(f"自定义屏蔽词 {ignored_word} 设置有误：{ignore_msg}")
+
+    def check_replace(self, replaced, replace, regex=0):
+        replaced_word = f"{replaced} ⇒ {replace}"
+        replace_msg, replace_flag = self.replace_regex(replaced, replace) \
+            if regex else self.replace_noregex(replaced, replace)
+        if replace_flag:
+            self.used_replaced_words.append(replaced_word)
+        elif replace_msg:
+            self.msg.append(f"自定义替换词 {replaced_word} 格式有误：{replace_msg}")
+
+    def check_replace_offset(self, replaced, replace, front, back, offset):
+        replaced_word = f"{replaced} ⇒ {replace}"
+        offset_word = f"{front} + {back} >> {offset}"
+        replaced_offset_word = f"{replaced_word} @@@ {offset_word}"
+        # 记录替换前title
+        title_cache = self.title
         # 替换
-        if self.replaced_words_info:
-            for replaced_word_info in self.replaced_words_info:
-                replaced = replaced_word_info.REPLACED
-                replace = replaced_word_info.REPLACE
-                replaced_word = f"{replaced}@{replace}"
-                title, replace_msg, replace_flag = self.replace_regex(replaced=replaced,
-                                                                      replace=replace,
-                                                                      title=title)
-                if replace_flag:
-                    used_replaced_words.append(replaced_word)
-                elif replace_msg:
-                    msg.append(f"自定义替换词 {replaced_word} 格式有误：{replace_msg}")
-        if self.replaced_words_noregex_info:
-            for replaced_word_noregex_info in self.replaced_words_noregex_info:
-                replaced = replaced_word_noregex_info.REPLACED
-                replace = replaced_word_noregex_info.REPLACE
-                replaced_word = f"{replaced}@{replace}"
-                title, replace_msg, replace_flag = self.replace_noregex(replaced=replaced,
-                                                                        replace=replace,
-                                                                        title=title)
-                if replace_flag:
-                    used_replaced_words.append(replaced_word)
-                elif replace_msg:
-                    msg.append(f"自定义替换词 {replaced_word} 格式有误：{replace_msg}")
-        # 替换+集偏移
-        if self.replaced_offset_words_info:
-            for replaced_offset_word_info in self.replaced_offset_words_info:
-                replaced = replaced_offset_word_info.REPLACED
-                replace = replaced_offset_word_info.REPLACE
-                front = replaced_offset_word_info.FRONT
-                back = replaced_offset_word_info.BACK
-                offset = replaced_offset_word_info.OFFSET
-                replaced_word = f"{replaced}@{replace}"
-                offset_word = f"{front}@{back}@{offset}"
-                replaced_offset_word = f"{replaced}@{replace}@{front}@{back}@{offset}"
-                # 替换
-                title_replace, replace_msg, replace_flag = self.replace_regex(replaced=replaced,
-                                                                              replace=replace,
-                                                                              title=title)
-                # 替换应用成功进行集数偏移
-                if replace_flag:
-                    title_offset, offset_msg, offset_flag = self.episode_offset(front=front,
-                                                                                back=back,
-                                                                                offset=offset,
-                                                                                title=title_replace)
-                    # 集数偏移应用成功
-                    if offset_flag:
-                        used_replaced_words.append(replaced_word)
-                        used_offset_words.append(offset_word)
-                        title = title_offset
-                    elif offset_msg:
-                        msg.append(f"自定义替换+集偏移词 {replaced_offset_word} 集偏移部分格式有误：{offset_msg}")
-                elif replace_msg:
-                    msg.append(f"自定义替换+集偏移词 {replaced_offset_word} 替换部分格式有误：{replace_msg}")
-        # 集数偏移
-        if self.offset_words_info:
-            for offset_word_info in self.offset_words_info:
-                front = offset_word_info.FRONT
-                back = offset_word_info.BACK
-                offset = offset_word_info.OFFSET
-                offset_word = f"{front}@{back}@{offset}"
-                title, offset_msg, offset_flag = self.episode_offset(front, back, offset, title)
-                if offset_flag:
-                    used_offset_words.append(offset_word)
-                elif offset_msg:
-                    msg.append(f"自定义集偏移词 {offset_word} 格式有误：{offset_msg}")
+        replace_msg, replace_flag = self.replace_regex(replaced, replace)
+        # 替换应用成功进行集数偏移
+        if replace_flag:
+            offset_msg, offset_flag = self.episode_offset(front, back, offset)
+            # 集数偏移应用成功
+            if offset_flag:
+                self.used_replaced_words.append(replaced_word)
+                self.used_offset_words.append(offset_word)
+            elif offset_msg:
+                # 还原title
+                self.title = title_cache
+                self.msg.append(f"自定义替换+集偏移词 {replaced_offset_word} 集偏移部分格式有误：{offset_msg}")
+        elif replace_msg:
+            self.msg.append(f"自定义替换+集偏移词 {replaced_offset_word} 替换部分格式有误：{replace_msg}")
 
-        return title, msg, {"ignored": used_ignored_words,
-                            "replaced": used_replaced_words,
-                            "offset": used_offset_words}
+    def check_offset(self, front, back, offset):
+        offset_word = f"{front} + {back} >> {offset}"
+        offset_msg, offset_flag = self.episode_offset(front, back, offset)
+        if offset_flag:
+            self.used_offset_words.append(offset_word)
+        elif offset_msg:
+            self.msg.append(f"自定义集偏移词 {offset_word} 格式有误：{offset_msg}")
 
-    @staticmethod
-    def replace_regex(replaced, replace, title):
-        msg = ""
+    def replace_regex(self, replaced, replace) -> (str, bool):
+        title = self.title
         try:
             if not re.findall(r'%s' % replaced, title):
-                return title, msg, False
+                return "", False
             else:
-                title = re.sub(r'%s' % replaced, r'%s' % replace, title)
-                return title, msg, True
+                self.title = re.sub(r'%s' % replaced, r'%s' % replace, title)
+                return "", True
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            msg = str(err)
-            return title, msg, False
+            return str(err), False
 
-    @staticmethod
-    def replace_noregex(replaced, replace, title):
-        msg = ""
+    def replace_noregex(self, replaced, replace) -> (str, bool):
+        title = self.title
         try:
             if title.find(replaced) == -1:
-                return title, msg, False
+                return "", False
             else:
-                title = title.replace(replaced, replace)
-                return title, msg, True
+                self.title = title.replace(replaced, replace)
+                return "", True
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            msg = str(err)
-            return title, msg, False
+            return str(err), False
 
-    @staticmethod
-    def episode_offset(front, back, offset, title):
-        msg = ""
+    def episode_offset(self, front, back, offset) -> (str, bool):
+        title = self.title
         try:
             if back and not re.findall(r'%s' % back, title):
-                return title, msg, False
+                return "", False
             if front and not re.findall(r'%s' % front, title):
-                return title, msg, False
+                return "", False
             offset_word_info_re = re.compile(r'(?<=%s.*?)[0-9]+(?=.*?%s)' % (front, back))
             episode_nums_str = re.findall(offset_word_info_re, title)
             if not episode_nums_str:
-                return title, msg, False
+                return "", False
             episode_nums_offset_int = []
             offset_order_flag = False
             for episode_num_str in episode_nums_str:
@@ -194,9 +167,15 @@ class WordsHelper:
             for episode_num in episode_nums_list:
                 episode_offset_re = re.compile(
                     r'(?<=%s.*?)%s(?=.*?%s)' % (front, episode_num[0], back))
-                title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
-            return title, msg, True
+                self.title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
+            return "", True
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            msg = str(err)
-            return title, msg, False
+            return str(err), False
+
+    def reset(self):
+        self.title = ""
+        self.msg = []
+        self.used_ignored_words = []
+        self.used_replaced_words = []
+        self.used_offset_words = []

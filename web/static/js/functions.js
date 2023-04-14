@@ -707,7 +707,7 @@ function add_rss_manual(flag) {
   const filter_rule = $("#rss_rule").val();
   const filter_include = $("#rss_include").val();
   const filter_exclude = $("#rss_exclude").val();
-  const save_path = $("#rss_save_path").val();
+  const save_path = get_savepath("rss_save_path", "rss_save_path_manual");
   const download_setting = $("#rss_download_setting").val();
   const total_ep = $("#rss_total_ep").val();
   const current_ep = $("#rss_current_ep").val();
@@ -879,15 +879,15 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_include").val(rss_setting.filter_include);
     $("#rss_exclude").val(rss_setting.filter_exclude);
     $("#rss_download_setting").val(rss_setting.download_setting);
-    refresh_savepath_select('rss_save_path', false, rss_setting.download_setting)
-    $("#rss_save_path").val(rss_setting.save_path);
+    refresh_savepath_select('rss_save_path', false, rss_setting.download_setting);
+    check_manual_input_path("rss_save_path", "rss_save_path_manual", rss_setting.save_path);
     if (rss_setting.search_sites.length === 0) {
-      select_SelectALL(true, 'search_sites')
+      select_SelectALL(true, 'search_sites');
     } else {
       select_SelectPart(rss_setting.search_sites, 'search_sites');
     }
     if (rss_setting.rss_sites.length === 0) {
-      select_SelectALL(true, 'rss_sites')
+      select_SelectALL(true, 'rss_sites');
     } else {
       select_SelectPart(rss_setting.rss_sites, 'rss_sites');
     }
@@ -899,6 +899,7 @@ function show_add_rss_media_modal(mtype) {
     $("#rss_include").val('');
     $("#rss_exclude").val('');
     $("#rss_save_path").val('');
+    $("#rss_save_path_manual").val('');
     $("#rss_download_setting").val('');
     select_SelectALL(false, "rss_sites");
     select_SelectALL(false, "search_sites");
@@ -1034,8 +1035,8 @@ function show_edit_rss_media_modal(rssid, type) {
       $("#rss_include").val(ret.detail.filter_include);
       $("#rss_exclude").val(ret.detail.filter_exclude);
       $("#rss_download_setting").val(ret.detail.download_setting);
-      refresh_savepath_select('rss_save_path', false, ret.detail.download_setting)
-      $("#rss_save_path").val(ret.detail.save_path);
+      refresh_savepath_select('rss_save_path', false, ret.detail.download_setting);
+      check_manual_input_path("rss_save_path", "rss_save_path_manual", ret.detail.save_path);
       if (ret.detail.rss_sites.length === 0) {
         select_SelectALL(true, 'rss_sites');
       } else {
@@ -1154,18 +1155,55 @@ function refresh_site_options(obj_id, show_all = false) {
 // 刷新保存路径
 function refresh_savepath_select(obj_id, aync = true, sid = "", is_default = false, site = "") {
   let savepath_select = $(`#${obj_id}`);
+  let savepath_input_manual = $(`#${obj_id}_manual`);
+  let savepath_select_content = `<option value="" selected>自动</option>`;
   if (!sid && !is_default && !site) {
-    savepath_select.empty().append(`<option value="" selected>自动</option>`);
+    savepath_select_content += `<option value="manual">--手动输入--</option>`;
+    savepath_select.empty().append(savepath_select_content);
+    savepath_input_manual.hide();
+    savepath_select.show();
   } else {
     ajax_post("get_download_dirs", {sid: sid, site: site}, function (ret) {
       if (ret.code === 0) {
-        let savepath_select_content = `<option value="" selected>自动</option>`;
         for (let path of ret.paths) {
           savepath_select_content += `<option value="${path}">${path}</option>`;
         }
+        savepath_select_content += `<option value="manual">--手动输入--</option>`;
         savepath_select.empty().append(savepath_select_content);
+        savepath_input_manual.hide();
+        savepath_select.show();
       }
     }, aync);
+  }
+
+}
+
+// 切换手动输入
+function check_manual_input_path(select_id, input_id, manual_path=null) {
+  let savepath_select = $(`#${select_id}`);
+  let savepath_input_manual = $(`#${input_id}`);
+  if (manual_path !== null) {
+    savepath_select.val(manual_path)
+    if (manual_path !== "" && savepath_select.val() === null) {
+      savepath_input_manual.val(manual_path);
+      savepath_select.hide();
+      savepath_input_manual.show();
+    } else {
+      savepath_input_manual.val("");
+    }
+  } else if (savepath_select.val() === "manual") {
+    savepath_select.hide();
+    savepath_input_manual.show();
+  }
+}
+
+// 获取保存路径
+function get_savepath(select_id, input_id) {
+  let savepath = $(`#${select_id}`).val();
+  if (savepath === "manual") {
+    return $(`#${input_id}`).val();
+  } else {
+    return savepath;
   }
 }
 
@@ -1245,7 +1283,7 @@ function show_download_modal(id, name, site = undefined, func = undefined, show_
 function download_link() {
   const id = $("#search_download_id").val();
   const name = $("#search_download_name").val();
-  const dir = $("#search_download_dir").val();
+  const dir = get_savepath("search_download_dir", "search_download_dir_manual");
   const setting = $("#search_download_setting").val();
   $("#modal-search-download").modal('hide');
   ajax_post("download", {"id": id, "dir": dir, "setting": setting}, function (ret) {
