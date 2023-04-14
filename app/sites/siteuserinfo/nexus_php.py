@@ -241,6 +241,8 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
 
         self.__get_user_level(html)
 
+        self.__fixup_traffic_info(html)
+
         # 加入日期
         join_at_text = html.xpath(
             '//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()'
@@ -390,3 +392,10 @@ class NexusPhpSiteUserInfo(_ISiteUserInfo):
             message_content_text = message_content[0].xpath("string(.)").strip()
 
         return message_head_text, message_date_text, message_content_text
+
+    def __fixup_traffic_info(self, html):
+        # fixup bonus
+        if not self.bonus:
+            bonus_text = html.xpath('//tr/td[text()="魔力值" or text()="猫粮"]/following-sibling::td[1]/text()')
+            if bonus_text:
+                self.bonus = StringUtils.str_float(bonus_text[0].strip())

@@ -200,6 +200,7 @@ function select_GetHiddenVAL(name) {
 /**
  * 获取元素下input设置
  * @param: id 元素id
+ * @param: prefix 配置前缀
  **/
 function input_select_GetVal(id, prefix = null) {
   let params = {};

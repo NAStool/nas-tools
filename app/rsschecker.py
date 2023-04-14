@@ -74,7 +74,6 @@ class RssChecker(object):
         rsstasks = self.dbhelper.get_userrss_tasks()
         self._rss_tasks = []
         for task in rsstasks:
-            parser = self.get_userrss_parser(task.PARSER)
             if task.FILTER:
                 filterrule = self.filter.get_rule_groups(groupid=task.FILTER)
             else:
@@ -89,14 +88,28 @@ class RssChecker(object):
                     note = {}
             save_path = note.get("save_path") or ""
             recognization = note.get("recognization") or "Y"
-            proxy = note.get("proxy") or "N"
+            proxy = True if note.get("proxy") in ["Y", "1", True] else False
+            try:
+                addresses = json.loads(task.ADDRESS)
+                if not isinstance(addresses, list):
+                    addresses = [addresses]
+            except Exception as e:
+                print(str(e))
+                addresses = [task.ADDRESS]
+            try:
+                parsers = json.loads(task.PARSER)
+                if not isinstance(parsers, list):
+                    parsers = [task.PARSER]
+            except Exception as e:
+                print(str(e))
+                parsers = [task.PARSER]
+            state = True if task.STATE in ["Y", "1", True] else False
             self._rss_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
-                "address": task.ADDRESS,
+                "address": addresses,
                 "proxy": proxy,
-                "parser": task.PARSER,
-                "parser_name": parser.get("name") if parser else "",
+                "parser": parsers,
                 "interval": task.INTERVAL,
                 "uses": task.USES if task.USES != "S" else "R",
                 "uses_text": self._site_users.get(task.USES),
@@ -106,7 +119,7 @@ class RssChecker(object):
                 "filter_name": filterrule.get("name") if filterrule else "",
                 "update_time": task.UPDATE_TIME,
                 "counter": task.PROCESS_COUNT,
-                "state": task.STATE,
+                "state": state,
                 "save_path": task.SAVE_PATH or save_path,
                 "download_setting": task.DOWNLOAD_SETTING or "",
                 "recognization": task.RECOGNIZATION or recognization,
@@ -124,7 +137,7 @@ class RssChecker(object):
                                               })
         rss_flag = False
         for task in self._rss_tasks:
-            if task.get("state") == "Y" and task.get("interval"):
+            if task.get("state") and task.get("interval"):
                 cron = str(task.get("interval")).strip()
                 if cron.isdigit():
                     # 分钟
@@ -389,93 +402,103 @@ class RssChecker(object):
         """
         获取RSS链接数据，根据PARSER进行解析获取返回结果
         """
-        rss_parser = self.get_userrss_parser(taskinfo.get("parser"))
-        if not rss_parser:
-            log.error("【RssChecker】任务 %s 的解析配置不存在" % taskinfo.get("name"))
-            return []
-        if not rss_parser.get("format"):
-            log.error("【RssChecker】任务 %s 的解析配置不正确" % taskinfo.get("name"))
-            return []
-        try:
-            rss_parser_format = json.loads(rss_parser.get("format"))
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-            log.error("【RssChecker】任务 %s 的解析配置不是合法的Json格式" % taskinfo.get("name"))
-            return []
-        # 拼装链接
-        rss_url = taskinfo.get("address")
-        if not rss_url:
-            return []
-        if rss_parser.get("params"):
-            _dict = {
-                "TMDBKEY": Config().get_config("app").get("rmt_tmdbkey")
-            }
+        task_name = taskinfo.get("name")
+        rss_urls = taskinfo.get("address")
+        rss_parsers = taskinfo.get("parser")
+        count = min(len(rss_urls), len(rss_parsers))
+        rss_result = []
+        for i in range(count):
+            rss_url = rss_urls[i]
+            if not rss_url:
+                continue
+            # 检查解析器有效性
+            rss_parser = self.get_userrss_parser(rss_parsers[i])
+            if not rss_parser:
+                log.error(f"【RssChecker】任务 {task_name} RSS地址 {rss_url} 配置解析器不存在")
+                continue
+            parser_name = rss_parser.get("name")
+            if not rss_parser.get("format"):
+                log.error(f"【RssChecker】任务 {task_name} 配置解析器 {parser_name} 格式不正确")
+                continue
             try:
-                param_url = rss_parser.get("params").format(**_dict)
+                rss_parser_format = json.loads(rss_parser.get("format"))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
-                log.error("【RssChecker】任务 %s 的解析配置附加参数不合法" % taskinfo.get("name"))
-                return []
-            rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
-        # 请求数据
-        try:
-            ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") == "Y" else None
-                               ).get_res(rss_url)
-            if not ret:
-                return []
-            ret.encoding = ret.apparent_encoding
-        except Exception as e2:
-            ExceptionUtils.exception_traceback(e2)
-            return []
-        # 解析数据 XPATH
-        rss_result = []
-        if rss_parser.get("type") == "XML":
+                log.error(f"【RssChecker】任务 {task_name} 配置解析器 {parser_name} 不是合法的Json格式")
+                continue
+
+            # 拼装链接
+            if rss_parser.get("params"):
+                _dict = {
+                    "TMDBKEY": Config().get_config("app").get("rmt_tmdbkey")
+                }
+                try:
+                    param_url = rss_parser.get("params").format(**_dict)
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    log.error(f"【RssChecker】任务 {task_name} 配置解析器 {parser_name} 附加参数不合法")
+                    continue
+                rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
+            # 请求数据
             try:
-                result_tree = etree.XML(ret.text.encode("utf-8"))
-                item_list = result_tree.xpath(rss_parser_format.get("list")) or []
+                ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") else None
+                                   ).get_res(rss_url)
+                if not ret:
+                    continue
+                ret.encoding = ret.apparent_encoding
+            except Exception as e2:
+                ExceptionUtils.exception_traceback(e2)
+                continue
+            # 解析数据 XPATH
+            if rss_parser.get("type") == "XML":
+                try:
+                    result_tree = etree.XML(ret.text.encode("utf-8"))
+                    item_list = result_tree.xpath(rss_parser_format.get("list")) or []
+                    for item in item_list:
+                        rss_item = {}
+                        for key, attr in rss_parser_format.get("item", {}).items():
+                            if attr.get("path"):
+                                if attr.get("namespaces"):
+                                    value = item.xpath("//ns:%s" % attr.get("path"),
+                                                       namespaces={"ns": attr.get("namespaces")})
+                                else:
+                                    value = item.xpath(attr.get("path"))
+                            elif attr.get("value"):
+                                value = attr.get("value")
+                            else:
+                                continue
+                            if value:
+                                rss_item.update({key: value[0]})
+                        rss_item.update({"address_index": i+1})
+                        rss_result.append(rss_item)
+                except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
+                    log.error(f"【RssChecker】任务 {task_name} RSS地址 {rss_url} 获取的订阅报文无法解析：{str(err)}")
+                    continue
+            elif rss_parser.get("type") == "JSON":
+                try:
+                    result_json = json.loads(ret.text)
+                except Exception as err:
+                    ExceptionUtils.exception_traceback(err)
+                    log.error(f"【RssChecker】任务 {task_name} RSS地址 {rss_url} 获取的订阅报文不是合法的Json格式：{str(err)}")
+                    continue
+                item_list = jsonpath.jsonpath(result_json, rss_parser_format.get("list"))[0]
+                if not isinstance(item_list, list):
+                    log.error(f"【RssChecker】任务 {task_name} RSS地址 {rss_url} 获取的订阅报文list后不是列表")
+                    continue
                 for item in item_list:
                     rss_item = {}
                     for key, attr in rss_parser_format.get("item", {}).items():
                         if attr.get("path"):
-                            if attr.get("namespaces"):
-                                value = item.xpath("//ns:%s" % attr.get("path"),
-                                                   namespaces={"ns": attr.get("namespaces")})
-                            else:
-                                value = item.xpath(attr.get("path"))
+                            value = jsonpath.jsonpath(item, attr.get("path"))
                         elif attr.get("value"):
                             value = attr.get("value")
                         else:
                             continue
                         if value:
                             rss_item.update({key: value[0]})
+                    rss_item.update({"address_index": i+1})
                     rss_result.append(rss_item)
-            except Exception as err:
-                ExceptionUtils.exception_traceback(err)
-                log.error("【RssChecker】任务 %s 获取的订阅报文无法解析：%s" % (taskinfo.get("name"), str(err)))
-                return []
-        elif rss_parser.get("type") == "JSON":
-            try:
-                result_json = json.loads(ret.text)
-            except Exception as err:
-                ExceptionUtils.exception_traceback(err)
-                log.error("【RssChecker】任务 %s 获取的订阅报文不是合法的Json格式：%s" % (taskinfo.get("name"), str(err)))
-                return []
-            item_list = jsonpath.jsonpath(result_json, rss_parser_format.get("list"))[0]
-            if not isinstance(item_list, list):
-                log.error("【RssChecker】任务 %s 获取的订阅报文list后不是列表" % taskinfo.get("name"))
-                return []
-            for item in item_list:
-                rss_item = {}
-                for key, attr in rss_parser_format.get("item", {}).items():
-                    if attr.get("path"):
-                        value = jsonpath.jsonpath(item, attr.get("path"))
-                    elif attr.get("value"):
-                        value = attr.get("value")
-                    else:
-                        continue
-                    if value:
-                        rss_item.update({key: value[0]})
-                rss_result.append(rss_item)
         return rss_result
 
     def get_userrss_parser(self, pid=None):
@@ -518,7 +541,7 @@ class RssChecker(object):
                 # 种子大小
                 size = StringUtils.str_filesize(res.get('size'))
                 # 发布日期
-                date = StringUtils.unify_datetime_str(res.get('date'))
+                date = StringUtils.unify_datetime_str(res.get('date')) or ""
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
@@ -534,14 +557,15 @@ class RssChecker(object):
                     "description": description,
                     "date": date,
                     "finish_flag": finish_flag,
-                    "year": year
+                    "year": year,
+                    "address_index": res.get("address_index")
                 }
                 if params not in rss_articles:
                     rss_articles.append(params)
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 log.error("【RssChecker】获取RSS报文发生错误：%s - %s" % (str(e), traceback.format_exc()))
-        return rss_articles
+        return sorted(rss_articles, key=lambda x: x['date'], reverse=True)
 
     def test_rss_articles(self, taskid, title):
         """

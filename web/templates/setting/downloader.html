@@ -246,17 +246,13 @@
           </div>
         </div>
         <details class="mb-3">
-          <summary class="summary required">下载目录设置 <span class="form-help"
-                                                           title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类"
-                                                           data-bs-toggle="tooltip">?</span>
+          <summary class="summary required">下载目录设置
+          <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类"
+                data-bs-toggle="tooltip">?</span>
           </summary>
           <div class="row mt-2" id="div_downloader_downloaddir"></div>
-          <div class="row">
-            <div class="mt-2">
-              <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
-                {{ SVG.folder_plus() }}
-              </a>
-            </div>
+          <div class="ms-2 mt-2">
+            <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">{{ SVG.folder_plus() }}</a>
           </div>
         </details>
       </div>
@@ -592,7 +588,7 @@
 
 </script>
 <script id="div_downloader_downloaddir_template" type="text/html">
-<div class="row mb-2" id="dirdiv_{DIRDIV_LEVEL}">
+<div class="row mt-2" id="dirdiv_{DIRDIV_LEVEL}">
   <div class="col-lg-12">
     <div class="row">
       <div class="col-12 col-lg mb-1">

@@ -164,7 +164,7 @@
     $("#modal-userrss-parser").modal('show');
   }
 
-  // 新增下载器
+  // 新增解析器
   function add_or_edit_rssparser() {
     if (!$("#rssparser_name").val()) {
       $("#rssparser_name").addClass("is-invalid");
@@ -189,7 +189,7 @@
     }
   }
 
-  // 删除下载器
+  // 删除解析器
   function delete_rssparser(id) {
     show_ask_modal("是否确认删除该解析器？ ", function () {
       hide_ask_modal();
@@ -200,7 +200,7 @@
     });
   }
 
-  // 编辑下载器
+  // 编辑解析器
   function show_edit_rssparser_modal(id) {
     $("#rssparser_id").val(id);
     ajax_post("get_rssparser", {id: id}, function (ret) {
