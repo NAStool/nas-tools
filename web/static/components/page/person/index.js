@@ -14,6 +14,7 @@ export class PagePerson extends CustomElement {
   constructor() {
     super();
     this.person_list = [];
+    this.result = false;
   }
 
   // 仅执行一次  界面首次刷新后
@@ -22,6 +23,7 @@ export class PagePerson extends CustomElement {
       (ret) => {
         if (ret.code === 0) {
           this.person_list = ret.data;
+          this.result = true;
         }
       }
     );
@@ -41,9 +43,9 @@ export class PagePerson extends CustomElement {
       </div>
       <div class="page-body">
         <div class="container-xl">
-          <div class="d-grid gap-3 grid-media-card">
-            ${this.person_list.length != 0
-            ? this.person_list.map((item, index) => ( html`
+          ${this.person_list.length !== 0
+          ? html`<div class="d-grid gap-3 grid-media-card">
+            ${this.person_list.map((item, index) => ( html`
               <person-card
                 person-id=${item.id}
                 person-image=${item.image}
@@ -52,10 +54,18 @@ export class PagePerson extends CustomElement {
                 @click=${() => {
                   navmenu("recommend?type="+this.media_type+"&subtype=person&personid="+item.id+"&title=参演作品&subtitle="+item.name)
                 }}
-              ></person-card>
-              ` ) )
-            : Array(20).fill(html`<person-card lazy="1"></person-card>`)
-            }
+              ></person-card>`))
+            }</div>`
+          : this.result ? html`
+            <div class="container-xl d-flex flex-column justify-content-center">
+              <div class="empty">
+                <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
+                </div>
+                <p class="empty-title">没有数据。</p>
+              </div>
+            </div>` 
+          : html`<div class="d-grid gap-3 grid-media-card">${Array(20).fill(html`<person-card lazy="1"></person-card>`)}</div>`
+          }
           </div>            
         </div>
       </div>

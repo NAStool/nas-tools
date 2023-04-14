@@ -2312,22 +2312,25 @@ class DbHelper:
                 }
             )
 
-    def get_custom_words(self, wid=None, gid=None, enabled=None, wtype=None, regex=None):
+    def get_custom_words(self, wid=None, gid=None, enabled=None):
         """
         查询自定义识别词
         """
         if wid:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)) \
-                .order_by(CUSTOMWORDS.GROUP_ID).all()
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
         elif gid:
             return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)) \
-                .order_by(CUSTOMWORDS.GROUP_ID).all()
-        elif wtype and enabled is not None and regex is not None:
-            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
-                                                      CUSTOMWORDS.TYPE == int(wtype),
-                                                      CUSTOMWORDS.REGEX == int(regex)) \
-                .order_by(CUSTOMWORDS.GROUP_ID).all()
-        return self._db.query(CUSTOMWORDS).order_by(CUSTOMWORDS.GROUP_ID).all()
+                .order_by(CUSTOMWORDS.ENABLED.desc(), CUSTOMWORDS.TYPE, CUSTOMWORDS.REGEX, CUSTOMWORDS.ID).all()
+        elif enabled is not None:
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled)) \
+                .order_by(CUSTOMWORDS.GROUP_ID, CUSTOMWORDS.TYPE, CUSTOMWORDS.REGEX, CUSTOMWORDS.ID).all()
+        return self._db.query(CUSTOMWORDS)\
+            .order_by(CUSTOMWORDS.GROUP_ID,
+                      CUSTOMWORDS.ENABLED.desc(),
+                      CUSTOMWORDS.TYPE,
+                      CUSTOMWORDS.REGEX,
+                      CUSTOMWORDS.ID)\
+            .all()
 
     def is_custom_words_existed(self, replaced=None, front=None, back=None):
         """
@@ -2784,6 +2787,7 @@ class DbHelper:
             }
         )
 
+    @DbPersist(_db)
     def delete_plugin_history(self, plugin_id, key):
         """
         删除插件运行记录

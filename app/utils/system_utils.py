@@ -6,8 +6,8 @@ import subprocess
 
 import psutil
 
-from app.utils.path_utils import PathUtils
 from app.utils.exception_utils import ExceptionUtils
+from app.utils.path_utils import PathUtils
 from app.utils.types import OsType
 from config import WEBDRIVER_PATH
 
@@ -350,3 +350,63 @@ class SystemUtils:
                 total_space += SystemUtils.get_total_space(dir_path)
                 total_free_space += SystemUtils.get_free_space(dir_path)
         return total_space, total_free_space
+
+    @staticmethod
+    def get_all_processes():
+
+        def seconds_to_str(seconds):
+            hours, remainder = divmod(seconds, 3600)
+            minutes = remainder // 60
+            ret_str = f'{hours}小时{minutes}分钟' if hours > 0 else f'{minutes}分钟'
+            return ret_str
+
+        processes = []
+        system = platform.system()
+        if system == 'Windows':
+            for proc in psutil.process_iter(['pid', 'name', 'create_time', 'memory_info', 'status']):
+                try:
+                    if proc.status() != psutil.STATUS_ZOMBIE:
+                        runtime = datetime.datetime.now() - datetime.datetime.fromtimestamp(
+                            int(getattr(proc, 'create_time', 0)()))
+                        runtime_str = seconds_to_str(runtime.seconds)
+                        mem_info = getattr(proc, 'memory_info', None)()
+                        if mem_info is not None:
+                            mem_mb = round(mem_info.rss / (1024 * 1024), 1)
+                            processes.append({
+                                "id": proc.pid, "name": proc.name(), "time": runtime_str, "memory": mem_mb
+                            })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
+        elif system == 'Linux':
+            for proc in psutil.process_iter(['pid', 'name', 'create_time', 'memory_info', 'status']):
+                try:
+                    if proc.status() != psutil.STATUS_ZOMBIE:
+                        runtime = datetime.datetime.now() - datetime.datetime.fromtimestamp(
+                            int(getattr(proc, 'create_time', 0)()))
+                        runtime_str = seconds_to_str(runtime.seconds)
+                        mem_info = getattr(proc, 'memory_info', None)()
+                        if mem_info is not None:
+                            mem_mb = round(mem_info.rss / (1024 * 1024), 1)
+                            processes.append({
+                                "id": proc.pid, "name": proc.name(), "time": runtime_str, "memory": mem_mb
+                            })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
+        elif system == 'Darwin':
+            for proc in psutil.process_iter(['pid', 'name', 'create_time', 'memory_info', 'status']):
+                try:
+                    if proc.status() != psutil.STATUS_ZOMBIE:
+                        runtime = datetime.datetime.now() - datetime.datetime.fromtimestamp(
+                            int(getattr(proc, 'create_time', 0)()))
+                        runtime_str = seconds_to_str(runtime.seconds)
+                        mem_info = getattr(proc, 'memory_info', None)()
+                        if mem_info is not None:
+                            mem_mb = round(mem_info.rss / (1024 * 1024), 1)
+                            processes.append({
+                                "id": proc.pid, "name": proc.name(), "time": runtime_str, "memory": mem_mb
+                            })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
+        else:
+            print(f"Unsupported system: {system}")
+        return processes
