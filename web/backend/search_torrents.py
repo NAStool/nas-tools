@@ -456,8 +456,6 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
     """
     开始添加订阅和发送消息
     """
-    # 操作用户
-    media_info.user_name = user_name
     # 添加订阅
     mediaid = f"DB:{media_info.douban_id}" if media_info.douban_id else media_info.tmdb_id
     code, msg, media_info = Subscribe().add_rss_subscribe(mtype=media_info.type,
@@ -470,7 +468,8 @@ def __rss_media(in_from, media_info, user_id=None, state='D', user_name=None):
                                                           rss_sites=media_info.rss_sites,
                                                           search_sites=media_info.search_sites,
                                                           download_setting=media_info.download_setting,
-                                                          in_from=in_from)
+                                                          in_from=in_from,
+                                                          user_name=user_name)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
     else:
