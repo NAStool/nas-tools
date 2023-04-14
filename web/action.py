@@ -4151,7 +4151,6 @@ class WebAction:
         name = data.get("name")
         category = data.get("category")
         tags = data.get("tags")
-        content_layout = data.get("content_layout")
         is_paused = data.get("is_paused")
         upload_limit = data.get("upload_limit")
         download_limit = data.get("download_limit")
@@ -4162,7 +4161,6 @@ class WebAction:
                                               name=name,
                                               category=category,
                                               tags=tags,
-                                              content_layout=content_layout,
                                               is_paused=is_paused,
                                               upload_limit=upload_limit or 0,
                                               download_limit=download_limit or 0,
