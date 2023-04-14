@@ -2787,6 +2787,7 @@ class DbHelper:
             }
         )
 
+    @DbPersist(_db)
     def delete_plugin_history(self, plugin_id, key):
         """
         删除插件运行记录
