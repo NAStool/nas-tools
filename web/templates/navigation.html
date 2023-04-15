@@ -63,11 +63,11 @@
   </layout-searchbar>
   <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
   <div class="btn-list">
-    <a id="scroll_top_btn" href="javascript:scroll_to_element('page_top')" class="btn btn-secondary scroll-top-btn">
-      {{ SVG.arrow_big_up_lines() }}
+    <a id="scroll_top_btn" href="javascript:scroll_to_element('page_top')" class="btn btn-secondary btn-icon scroll-top-btn">
+      {{ SVG.chevron_up() }}
     </a>
-    <a id="scroll_bottom_btn" href="javascript:scroll_to_element('page_bottom')" class="btn btn-secondary scroll-bottom-btn">
-      {{ SVG.arrow_big_down_lines() }}
+    <a id="scroll_bottom_btn" href="javascript:scroll_to_element('page_bottom')" class="btn btn-secondary btn-icon scroll-bottom-btn">
+      {{ SVG.chevron_down() }}
     </a>
   </div>
   <div class="h-1" id="page_top"></div>
@@ -1211,27 +1211,21 @@
 
 <!-- 可视监控 -->
 <script type="text/javascript">
-  const observer = new IntersectionObserver(control_scroll_btn, { threshold: [0, 1.0] });
+  const observer = new IntersectionObserver(control_scroll_btn, { threshold: [0] });
   observer.observe($('#page_top')[0]);
   observer.observe($('#page_bottom')[0]);
 
-  function display_control(id, ratio) {
-    let obj = $(`#${id}`);
-    if (ratio <= 0 && obj.css("display") === "none") {
-      obj.show();
-    } else if (obj.css("display") !== "none") {
-      obj.hide();
-    }
-  }
+  let scroll_top_btn = $('#scroll_top_btn');
+  let scroll_bottom_btn = $('#scroll_bottom_btn');
 
   function control_scroll_btn (entries, observer) {
     entries.forEach(entry => {
       switch (entry.target.id) {
         case "page_top":
-          display_control("scroll_top_btn", entry.intersectionRatio);
+          entry.intersectionRatio <= 0 ? scroll_top_btn.css("display",'inline-flex'): scroll_top_btn.hide();
           break;
         case "page_bottom":
-          display_control("scroll_bottom_btn", entry.intersectionRatio);
+          entry.intersectionRatio <= 0 ? scroll_bottom_btn.css("display",'inline-flex'): scroll_bottom_btn.hide();
           break;
       }
     });
