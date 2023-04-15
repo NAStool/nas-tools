@@ -62,8 +62,20 @@
       >
   </layout-searchbar>
   <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
-  <div class="page-wrapper" id="page_content" hidden="">
+  <div class="btn-list">
+    <a id="scroll_top_btn" href="javascript:scroll_to_element('page_top')" class="btn btn-secondary scroll-top-btn">
+      {{ SVG.arrow_big_up_lines() }}
+    </a>
+    <a id="scroll_bottom_btn" href="javascript:scroll_to_element('page_bottom')" class="btn btn-secondary scroll-bottom-btn">
+      {{ SVG.arrow_big_down_lines() }}
+    </a>
+  </div>
+  <div class="h-1" id="page_top"></div>
+  <div class="page-wrapper" >
+    <div id="page_content" hidden="">
     {{ OOPS.loading() }}
+    </div>
+    <div class="h-1" id="page_bottom"></div>
   </div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
@@ -1197,5 +1209,34 @@
   {{ CustomScriptCfg.javascript|safe or "" }}
 </script>
 
+<!-- 可视监控 -->
+<script type="text/javascript">
+  const observer = new IntersectionObserver(control_scroll_btn, { threshold: [0, 1.0] });
+  observer.observe($('#page_top')[0]);
+  observer.observe($('#page_bottom')[0]);
+
+  function display_control(id, ratio) {
+    let obj = $(`#${id}`);
+    if (ratio <= 0 && obj.css("display") === "none") {
+      obj.show();
+    } else if (obj.css("display") !== "none") {
+      obj.hide();
+    }
+  }
+
+  function control_scroll_btn (entries, observer) {
+    entries.forEach(entry => {
+      switch (entry.target.id) {
+        case "page_top":
+          display_control("scroll_top_btn", entry.intersectionRatio);
+          break;
+        case "page_bottom":
+          display_control("scroll_bottom_btn", entry.intersectionRatio);
+          break;
+      }
+    });
+  }
+
+</script>
 </body>
 </html>

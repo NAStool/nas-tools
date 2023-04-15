@@ -414,3 +414,10 @@ function check_selectgroup_raido(obj) {
   select_SelectALL(false, btn_obj.attr("name"));
   btn_obj.prop("checked", status);
 }
+
+// 滑到指定元素位置
+function scroll_to_element(id) {
+  if (id) {
+    $("html,body").animate({scrollTop: $(`#${id}`).offset().top}, 300);
+  }
+}
