@@ -185,3 +185,21 @@ body, .page {
     display: inline-block;
     text-align: center;
 }
+
+.scroll-top-btn {
+    opacity: 0.8;
+    position: fixed;
+    bottom: 20%;
+    right: 5%;
+    z-index: 2;
+    display: none;
+}
+
+.scroll-bottom-btn {
+    opacity: 0.8;
+    position: fixed;
+    bottom: 10%;
+    right: 5%;
+    z-index: 2;
+    display: none;
+}
