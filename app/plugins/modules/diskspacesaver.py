@@ -120,8 +120,10 @@ class DiskSpaceSaver(_IPluginModule):
         result_path = os.path.join(self.get_data_path(), "sha1.json")
         # 兼容旧配置
         old_result_path = config.get("result_path")
-        if old_result_path and os.path.exists(old_result_path) and not os.path.exists(result_path):
-            SystemUtils.move(old_result_path, result_path)
+        if old_result_path:
+            del config["result_path"]
+            if os.path.exists(old_result_path) and not os.path.exists(result_path):
+                SystemUtils.move(old_result_path, result_path)
 
         dry_run = config.get('dry_run', False)
         fast = config.get('fast', False)
