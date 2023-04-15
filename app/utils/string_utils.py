@@ -239,6 +239,21 @@ class StringUtils:
         return ""
 
     @staticmethod
+    def get_url_sld(url):
+        """
+        获取URL的二级域名部分，不含端口，若为IP则返回IP
+        """
+        if not url:
+            return ""
+        _, netloc = StringUtils.get_url_netloc(url)
+        if not netloc:
+            return ""
+        netloc = netloc.split(":")[0].split(".")
+        if len(netloc) >= 2:
+            return netloc[-2]
+        return netloc[0]
+
+    @staticmethod
     def get_base_url(url):
         """
         获取URL根地址

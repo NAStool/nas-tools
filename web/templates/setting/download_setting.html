@@ -116,23 +116,6 @@
               </div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">布局</div>
-              <div class="datagrid-content">
-                {% if Attr.content_layout == 0 %}
-                <span class="badge me-2">全局</span>
-                {% endif %}
-                {% if Attr.content_layout == 1 %}
-                <span class="badge me-2">原始</span>
-                {% endif %}
-                {% if Attr.content_layout == 2 %}
-                <span class="badge me-2">创建子文件夹</span>
-                {% endif %}
-                {% if Attr.content_layout == 3 %}
-                <span class="badge me-2">不建子文件夹</span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="datagrid-item">
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
                 {% if Attr.is_paused %}
@@ -190,13 +173,13 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label required">名称</label>
               <input type="text" id="download_setting_name" class="form-control" placeholder="别名">
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md">
             <div class="mb-3">
               <label class="form-label required">下载器</label>
               <select class="form-select" id="download_setting_downloader">
@@ -204,6 +187,15 @@
                 {% for Id, Attr in Downloaders.items() %}
                 <option value="{{ Id }}">{{ Attr.name }}</option>
                 {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="mb-3">
+              <label class="form-label">动作 </label>
+              <select class="form-select" id="download_setting_is_paused">
+                <option value="0" selected>添加后开始</option>
+                <option value="1">添加后暂停</option>
               </select>
             </div>
           </div>
@@ -222,6 +214,12 @@
               <input type="text" id="download_setting_tags" class="form-control" placeholder="多个标签用;分隔">
             </div>
           </div>
+          <div class="col-md">
+            <div class="mb-3">
+              <label class="form-label">做种时间限制 </label>
+              <input type="text" id="download_setting_seeding_time_limit" class="form-control" placeholder="分钟，留空或0为无限制">
+            </div>
+          </div>
         </div>
         <div class="row">
           <div class="col-md">
@@ -238,36 +236,8 @@
           </div>
           <div class="col-md">
             <div class="mb-3">
-              <label class="form-label">布局 <span class="form-help" title="仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span></label>
-              <select class="form-select" id="download_setting_content_layout">
-                <option value="0" selected>全局</option>
-                <option value="1">原始</option>
-                <option value="2">创建子文件夹</option>
-                <option value="3">不建子文件夹</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md">
-            <div class="mb-3">
               <label class="form-label">分享率限制 </label>
               <input type="text" id="download_setting_ratio_limit" class="form-control" placeholder="留空或0为无限制">
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="mb-3">
-              <label class="form-label">做种时间限制 </label>
-              <input type="text" id="download_setting_seeding_time_limit" class="form-control" placeholder="分钟，留空或0为无限制">
-            </div>
-          </div>
-          <div class="col-md">
-            <div class="mb-3">
-              <label class="form-label">动作 </label>
-              <select class="form-select" id="download_setting_is_paused">
-                <option value="0" selected>添加后开始</option>
-                <option value="1">添加后暂停</option>
-              </select>
             </div>
           </div>
         </div>
@@ -292,7 +262,6 @@
     $("#download_setting_name").val('');
     $("#download_setting_category").val('');
     $("#download_setting_tags").val('');
-    $("#download_setting_content_layout").val('0');
     $("#download_setting_is_paused").val('0');
     $("#download_setting_upload_limit").val('');
     $("#download_setting_download_limit").val('');
@@ -311,7 +280,6 @@
         $("#download_setting_name").val(ret.data.name);
         $("#download_setting_category").val(ret.data.category);
         $("#download_setting_tags").val(ret.data.tags);
-        $("#download_setting_content_layout").val(ret.data.content_layout);
         $("#download_setting_is_paused").val(ret.data.is_paused);
         $("#download_setting_upload_limit").val(ret.data.upload_limit);
         $("#download_setting_download_limit").val(ret.data.download_limit);

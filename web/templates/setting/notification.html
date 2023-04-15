@@ -18,6 +18,15 @@
           <a href="javascript:show_add_message_client_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.plus() }}
           </a>
+          {% if MessageClients %}
+          <a href="javascript:show_send_custom_message_modal()" class="btn btn-twitter d-none d-sm-inline-block">
+            {{ SVG.send() }}
+            发送自定义消息
+          </a>
+          <a href="javascript:show_send_custom_message_modal()" class="btn btn-twitter d-sm-none btn-icon">
+            {{ SVG.send() }}
+          </a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -215,6 +224,64 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-send-custom-message" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">发送自定义消息</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class='row'>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label required">标题</label>
+              <input type="text" value="" id="custom_message_title" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">图片</label>
+              <input type="text" value="" id="custom_message_image" class="form-control"  placeholder="url">
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">内容</label>
+              <textarea class="form-control" id="custom_message_text" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row rss_sites_container">
+          <div class="mb-3">
+            <div class="btn-list">
+              <label class="form-label">消息服务</label>
+              <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'custom_message_client')">全选</a>
+            </div>
+            <div class="form-selectgroup">
+              {% if MessageClients %}
+                {% for Id, Attr in MessageClients.items() %}
+                  {% if Attr.enabled == 1 %}
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="custom_message_client" value="{{ Id }}" class="form-selectgroup-input">
+                    <span class="form-selectgroup-label">{{ Attr.name }}</span>
+                  </label>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="send_custom_message_btn" onclick="send_custom_message()" class="btn btn-primary">
+          发送
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 
   // 恢复输入项为默认值
@@ -402,6 +469,46 @@
       default:
         break;
     }
+  }
+
+  // 显示自定义消息
+  function show_send_custom_message_modal() {
+    $("#custom_message_title").val("");
+    $("#custom_message_text").val("");
+    $("#custom_message_image").val("");
+    select_SelectALL(false, "custom_message_client")
+    $("#modal-send-custom-message").modal("show");
+  }
+
+    // 发送自定义消息
+  function send_custom_message(){
+    $("#send_custom_message_btn").text("发送中").attr("disabled", true);
+    let custom_message_title_obj = $("#custom_message_title");
+    let title = custom_message_title_obj.val();
+    if (!title) {
+      custom_message_title_obj.addClass("is-invalid");
+      return;
+    } else {
+      custom_message_title_obj.removeClass("is-invalid");
+    }
+    let message_clients = select_GetSelectedVAL("custom_message_client");
+    if (!message_clients.length) {
+      show_warning_modal("请选择要发送的消息服务");
+      return;
+    }
+    let params = {
+      title: title,
+      text: $("#custom_message_text").val(),
+      image: $("#custom_message_image").val(),
+      message_clients: select_GetSelectedVAL("custom_message_client"),
+    };
+    ajax_post("send_custom_message", params, function (ret) {
+      if (ret.code === 0) {
+        $("#modal-send-custom-message").modal("hide");
+        show_success_modal("自定义消息已发送");
+        $("#send_custom_message_btn").text("发送").attr("disabled", false);
+      }
+    });
   }
 
 </script>
