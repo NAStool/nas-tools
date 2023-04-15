@@ -104,7 +104,6 @@ class Downloader:
                 "name": "预设",
                 "category": '',
                 "tags": PT_TAG,
-                "content_layout": 0,
                 "is_paused": 0,
                 "upload_limit": 0,
                 "download_limit": 0,
@@ -131,7 +130,6 @@ class Downloader:
                 "name": download_setting.NAME,
                 "category": download_setting.CATEGORY,
                 "tags": download_setting.TAGS,
-                "content_layout": download_setting.CONTENT_LAYOUT,
                 "is_paused": download_setting.IS_PAUSED,
                 "upload_limit": download_setting.UPLOAD_LIMIT,
                 "download_limit": download_setting.DOWNLOAD_LIMIT,
@@ -383,16 +381,7 @@ class Downloader:
                         tags = tag
                     else:
                         tags = [tag]
-            # 布局
-            content_layout = download_attr.get("content_layout")
-            if content_layout == 1:
-                content_layout = "Original"
-            elif content_layout == 2:
-                content_layout = "Subfolder"
-            elif content_layout == 3:
-                content_layout = "NoSubfolder"
-            else:
-                content_layout = ""
+
             # 暂停
             if is_paused is None:
                 is_paused = StringUtils.to_bool(download_attr.get("is_paused"))
@@ -446,13 +435,14 @@ class Downloader:
                     tags += [torrent_tag]
                 else:
                     tags = [torrent_tag]
+                # 布局默认原始
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,
                                              is_auto=is_auto,
                                              download_dir=download_dir,
                                              tag=tags,
                                              category=category,
-                                             content_layout=content_layout,
+                                             content_layout="Original",
                                              upload_limit=upload_limit,
                                              download_limit=download_limit,
                                              ratio_limit=ratio_limit,

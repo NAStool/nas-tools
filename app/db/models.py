@@ -198,7 +198,6 @@ class DOWNLOADSETTING(Base):
     NAME = Column(Text)
     CATEGORY = Column(Text)
     TAGS = Column(Text)
-    CONTENT_LAYOUT = Column(Integer)
     IS_PAUSED = Column(Integer)
     UPLOAD_LIMIT = Column(Integer)
     DOWNLOAD_LIMIT = Column(Integer)
