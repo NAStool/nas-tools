@@ -140,7 +140,7 @@ class SiteUserInfo(object):
         if not site_schema:
             log.error("【Sites】站点 %s 无法识别站点类型" % site_name)
             return None
-        return site_schema(site_name, url, site_cookie, html_text, session=session, ua=ua)
+        return site_schema(site_name, url, site_cookie, html_text, session=session, ua=ua, emulate=emulate, proxy=proxy)
 
     def __refresh_site_data(self, site_info):
         """
