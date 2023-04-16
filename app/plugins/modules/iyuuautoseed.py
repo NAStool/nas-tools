@@ -703,8 +703,8 @@ class IYUUAutoSeed(_IPluginModule):
                                       flags=re.IGNORECASE)
                 return f"{site.get('strict_url')}/{download_url}"
         except Exception as e:
-            self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{str(e)}")
-            return None
+            self.warn(f"站点 {site.get('name')} Url转换失败：{str(e)}，尝试通过详情页面获取种子下载链接 ...")
+            return self.__get_torrent_url_from_page(seed=seed, site=site)
 
     def __get_torrent_url_from_page(self, seed, site):
         """
@@ -742,6 +742,7 @@ class IYUUAutoSeed(_IPluginModule):
                 self.warn(f"获取种子下载链接失败，未找到下载链接：{page_url}")
                 return None
             else:
+                self.error(f"获取种子下载链接失败，请求失败：{page_url}，{res.status_code if res else ''}")
                 return None
         except Exception as e:
             self.warn(f"获取种子下载链接失败：{str(e)}")
