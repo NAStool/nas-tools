@@ -10,6 +10,9 @@ function __fixuser {
     usermod -o -u "$PUID" nt
 
     # 创建目录、权限设置
+    if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+        chown -R nt:nt /usr/bin/chromedriver
+    fi
     chown -R nt:nt "${WORKDIR}" "${HOME}" /config /usr/lib/chromium /etc/hosts
 
 }
