@@ -229,7 +229,7 @@ class BrushTask(object):
                     continue
                 # 检查能否添加当前种子，判断是否超过保种体积大小
                 if not self.__is_allow_new_torrent(taskinfo=taskinfo,
-                                                   dlcount=rss_rule.get("dlcount"),
+                                                   dlcount=max_dlcount,
                                                    torrent_size=size):
                     continue
                 # 开始下载
@@ -248,7 +248,7 @@ class BrushTask(object):
 
                     # 再判断一次
                     if not self.__is_allow_new_torrent(taskinfo=taskinfo,
-                                                       dlcount=rss_rule.get("dlcount")):
+                                                       dlcount=max_dlcount):
                         break
             except Exception as err:
                 ExceptionUtils.exception_traceback(err)
@@ -266,7 +266,7 @@ class BrushTask(object):
             """
             发送删种消息
             """
-            _msg_title = "【刷流任务 {} 删除做种】".format(_task_name)
+            _msg_title = f"【刷流任务 {_task_name} 删除做种】"
             _msg_text = f"下载器名：{_download_name}\n" \
                         f"种子名称：{_torrent_name}\n" \
                         f"种子大小：{_torrent_size}\n" \
@@ -348,24 +348,40 @@ class BrushTask(object):
                     torrent_ratio = torrent_info.get("ratio")
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
+                    # 做种时间
+                    seeding_time = torrent_info.get("seeding_time")
+                    # 上传量
+                    uploaded = torrent_info.get("uploaded")
+                    # 下载量
+                    downloaded = torrent_info.get("downloaded")
+                    # 平均上传速度
+                    avg_upspeed = torrent_info.get("avg_upspeed")
+                    # 未活跃时间
+                    iatime = torrent_info.get("iatime")
                     # 判断是否符合删除条件
                     need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
-                                                                        seeding_time=torrent_info.get("seeding_time"),
+                                                                        seeding_time=seeding_time,
                                                                         ratio=torrent_ratio,
-                                                                        uploaded=torrent_info.get("uploaded"),
-                                                                        avg_upspeed=torrent_info.get("avg_upspeed"),
-                                                                        iatime=torrent_info.get("iatime"))
+                                                                        uploaded=uploaded,
+                                                                        avg_upspeed=avg_upspeed,
+                                                                        iatime=iatime)
                     if need_delete:
                         log.info(
                             "【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent_name, delete_type.value))
                         if sendmessage:
-                            __send_message(task_name, delete_type, torrent_name, downlaod_name, torrent_size,
-                                           download_size, upload_size, torrent_ratio, add_time)
+                            __send_message(_task_name=task_name,
+                                           _delete_type=delete_type,
+                                           _torrent_name=torrent_name,
+                                           _download_name=downlaod_name,
+                                           _torrent_size=torrent_size,
+                                           _download_size=download_size,
+                                           _upload_size=upload_size,
+                                           _ratio=torrent_ratio,
+                                           _add_time=add_time)
 
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append(("%s,%s" % (torrent_info.get("uploaded"),
-                                                               torrent_info.get("downloaded")),
+                            update_torrents.append(("%s,%s" % (uploaded, downloaded),
                                                     taskid,
                                                     torrent_id))
                 # 检查下载中状态的
@@ -407,23 +423,39 @@ class BrushTask(object):
                     torrent_ratio = torrent_info.get("ratio")
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
+                    # 下载耗时
+                    dltime = torrent_info.get("dltime")
+                    # 平均上传速度
+                    avg_upspeed = torrent_info.get("avg_upspeed")
+                    # 未活跃时间
+                    iatime = torrent_info.get("iatime")
+                    # 上传量
+                    uploaded = torrent_info.get("uploaded")
+                    # 下载量
+                    downloaded = torrent_info.get("downloaded")
                     # 判断是否符合删除条件
                     need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
                                                                         ratio=ratio,
-                                                                        dltime=torrent_info.get("dltime"),
-                                                                        avg_upspeed=torrent_info.get("avg_upspeed"),
-                                                                        iatime=torrent_info.get("iatime"))
+                                                                        dltime=dltime,
+                                                                        avg_upspeed=avg_upspeed,
+                                                                        iatime=iatime)
                     if need_delete:
                         log.info(
                             "【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent_name, delete_type.value))
                         if sendmessage:
-                            __send_message(task_name, delete_type, torrent_name, downlaod_name, torrent_size,
-                                           download_size, upload_size, torrent_ratio, add_time)
+                            __send_message(_task_name=task_name,
+                                           _delete_type=delete_type,
+                                           _torrent_name=torrent_name,
+                                           _download_name=downlaod_name,
+                                           _torrent_size=torrent_size,
+                                           _download_size=download_size,
+                                           _upload_size=upload_size,
+                                           _ratio=torrent_ratio,
+                                           _add_time=add_time)
 
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append(("%s,%s" % (torrent_info.get("uploaded"),
-                                                               torrent_info.get("downloaded")),
+                            update_torrents.append(("%s,%s" % (uploaded, downloaded),
                                                     taskid,
                                                     torrent_id))
 
@@ -574,8 +606,8 @@ class BrushTask(object):
             # 下载成功
             log.info("【Brush】成功添加下载：%s" % title)
             if sendmessage:
-                msg_title = "【刷流任务 {} 新增下载】".format(taskname)
-                msg_text = "种子名称：{}\n种子大小：{}".format(title, StringUtils.str_filesize(size))
+                msg_title = f"【刷流任务 {taskname} 新增下载】"
+                msg_text = f"种子名称：{title}\n种子大小：{StringUtils.str_filesize(size)}"
                 self.message.send_brushtask_added_message(title=msg_title, text=msg_text)
 
         # 插入种子数据
