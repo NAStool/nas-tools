@@ -40,10 +40,13 @@ def sigal_handler(num, stack):
     """
     log.warn('捕捉到退出信号：%s，开始退出...' % num)
     # 关闭配置文件监控
+    log.info('关闭配置文件监控...')
     stop_config_monitor()
     # 关闭服务
+    log.info('关闭服务...')
     WebAction.stop_service()
     # 退出主进程
+    log.info('退出主进程...')
     sys.exit(0)
 
 
