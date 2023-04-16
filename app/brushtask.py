@@ -261,12 +261,21 @@ class BrushTask(object):
         由定时服务调用
         """
 
-        def __send_message(_task_name, _delete_type, _torrent_name):
+        def __send_message(_task_name, _delete_type, _torrent_name, _download_name, _torrent_size,
+                           _download_size, _upload_size, _ratio, _add_time):
             """
             发送删种消息
             """
             _msg_title = "【刷流任务 {} 删除做种】".format(_task_name)
-            _msg_text = "删除原因：{}\n种子名称：{}".format(_delete_type.value, _torrent_name)
+            _msg_text = f"下载器名：{_download_name}\n" \
+                        f"种子名称：{_torrent_name}\n" \
+                        f"种子大小：{_torrent_size}\n" \
+                        f"已下载量：{_download_size}\n" \
+                        f"已上传量：{_upload_size}\n" \
+                        f"分享比率：{_ratio}\n" \
+                        f"添加时间：{_add_time}\n" \
+                        f"删除时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}\n" \
+                        f"删除规则：{_delete_type.value}"
             self.message.send_brushtask_remove_message(title=_msg_title, text=_msg_text)
 
         # 遍历所有任务
@@ -325,18 +334,33 @@ class BrushTask(object):
                     total_uploaded += torrent_info.get("uploaded")
                     # 总下载量
                     total_downloaded += torrent_info.get("downloaded")
+                    # 种子名称
+                    torrent_name = torrent.get('name')
+                    # 下载器名称
+                    downlaod_name = downloader_cfg.get("name")
+                    # 种子大小
+                    torrent_size = StringUtils.str_filesize(torrent_info.get("total_size"))
+                    # 已下载
+                    download_size = StringUtils.str_filesize(torrent_info.get("downloaded"))
+                    # 已上传
+                    upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
+                    # 分享率
+                    torrent_ratio = torrent_info.get("ratio")
+                    # 种子添加时间
+                    add_time = torrent_info.get("add_time")
                     # 判断是否符合删除条件
                     need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
                                                                         seeding_time=torrent_info.get("seeding_time"),
-                                                                        ratio=torrent_info.get("ratio"),
+                                                                        ratio=torrent_ratio,
                                                                         uploaded=torrent_info.get("uploaded"),
                                                                         avg_upspeed=torrent_info.get("avg_upspeed"),
                                                                         iatime=torrent_info.get("iatime"))
                     if need_delete:
                         log.info(
-                            "【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent.get('name'), delete_type.value))
+                            "【Brush】%s 做种达到删种条件：%s，删除任务..." % (torrent_name, delete_type.value))
                         if sendmessage:
-                            __send_message(task_name, delete_type, torrent.get('name'))
+                            __send_message(task_name, delete_type, torrent_name, downlaod_name, torrent_size,
+                                           download_size, upload_size, torrent_ratio, add_time)
 
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
@@ -369,6 +393,20 @@ class BrushTask(object):
                     total_downloaded += torrent_info.get("downloaded")
                     # 分享率 上传量 / 种子大小
                     ratio = float(torrent_info.get("uploaded")) / float(torrent_info.get("total_size"))
+                    # 种子名称
+                    torrent_name = torrent.get('name')
+                    # 下载器名称
+                    downlaod_name = downloader_cfg.get("name")
+                    # 种子大小
+                    torrent_size = StringUtils.str_filesize(torrent_info.get("total_size"))
+                    # 已下载
+                    download_size = StringUtils.str_filesize(torrent_info.get("downloaded"))
+                    # 已上传
+                    upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
+                    # 分享率
+                    torrent_ratio = torrent_info.get("ratio")
+                    # 种子添加时间
+                    add_time = torrent_info.get("add_time")
                     # 判断是否符合删除条件
                     need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
                                                                         ratio=ratio,
@@ -377,9 +415,10 @@ class BrushTask(object):
                                                                         iatime=torrent_info.get("iatime"))
                     if need_delete:
                         log.info(
-                            "【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent.get('name'), delete_type.value))
+                            "【Brush】%s 达到删种条件：%s，删除下载任务..." % (torrent_name, delete_type.value))
                         if sendmessage:
-                            __send_message(task_name, delete_type, torrent.get('name'))
+                            __send_message(task_name, delete_type, torrent_name, downlaod_name, torrent_size,
+                                           download_size, upload_size, torrent_ratio, add_time)
 
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
@@ -769,6 +808,8 @@ class BrushTask(object):
             downloaded = torrent.get("downloaded")
             # 种子大小
             total_size = torrent.get("total_size")
+            # 添加时间
+            add_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(torrent.get("added_on")))
         else:
             # ID
             torrent_id = torrent.hashString
@@ -789,6 +830,8 @@ class BrushTask(object):
             iatime = date_now - int(time.mktime(torrent.date_active.timetuple()))
             # 种子大小
             total_size = torrent.total_size
+            # 添加时间
+            add_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(torrent.date_added))
 
         return {
             "id": torrent_id,
@@ -799,7 +842,8 @@ class BrushTask(object):
             "avg_upspeed": avg_upspeed,
             "iatime": iatime,
             "dltime": dltime,
-            "total_size": total_size
+            "total_size": total_size,
+            "add_time": add_time
         }
 
     def stop_service(self):
