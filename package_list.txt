@@ -2,7 +2,6 @@ git
 python3-dev
 py3-pip
 tzdata
-su-exec
 zip
 curl
 bash
