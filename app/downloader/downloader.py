@@ -83,14 +83,15 @@ class Downloader:
             rmt_mode = downloader_conf.RMT_MODE
             rmt_mode_name = ModuleConf.RMT_MODES.get(rmt_mode).value if rmt_mode else ""
             # 输出日志
-            log_content = ""
-            if only_nastool:
-                log_content += "启用标签隔离，"
-            if match_path:
-                log_content += "启用目录隔离，"
-            log.info(f"【Downloader】读取到监控下载器：{name}{log_content}转移方式：{rmt_mode_name}")
-            if not enabled:
-                log.info(f"【Downloader】下载器：{name} 未启用，不进行监控")
+            if transfer:
+                log_content = ""
+                if only_nastool:
+                    log_content += "启用标签隔离，"
+                if match_path:
+                    log_content += "启用目录隔离，"
+                log.info(f"【Downloader】读取到监控下载器：{name}{log_content}转移方式：{rmt_mode_name}")
+                if not enabled:
+                    log.info(f"【Downloader】下载器：{name} 不进行监控：下载器未启用")
             # 下载器登录配置
             config = json.loads(downloader_conf.CONFIG)
             dtype = downloader_conf.TYPE
