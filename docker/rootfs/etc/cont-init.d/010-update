@@ -32,6 +32,24 @@ function __update {
 
         if [ $? -eq 0 ]; then
             echo "主程序更新成功"
+            # 服务脚本更新
+            source_dir="/nas-tools/docker/rootfs/etc"
+            target_dir="/etc"
+            for file in "$source_dir"/*; do
+            file_name="$(basename "$file")"
+            if [ -e "$target_dir/$file_name" ]; then
+                if ! diff -q "$file" "$target_dir/$file_name" >/dev/null 2>&1; then
+                echo "Copying $file_name from $source_dir to $target_dir."
+                cp -r "$file" "$target_dir"
+                fi
+            else
+                echo "Creating $file_name in $target_dir."
+                cp -r "$file" "$target_dir"
+            fi
+            done
+            chmod -R +x \
+                /etc/cont-init.d \
+                /etc/services.d
             # 系统软件包更新
             hash_old=$(cat /tmp/package_list.txt.sha256sum)
             hash_new=$(sha256sum package_list.txt)
