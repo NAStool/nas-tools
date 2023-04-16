@@ -345,7 +345,7 @@ class BrushTask(object):
                     # 已上传
                     upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
                     # 分享率
-                    torrent_ratio = torrent_info.get("ratio")
+                    torrent_ratio = round(torrent_info.get("ratio") or 0, 2)
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
                     # 做种时间
@@ -420,7 +420,7 @@ class BrushTask(object):
                     # 已上传
                     upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
                     # 分享率
-                    torrent_ratio = torrent_info.get("ratio")
+                    torrent_ratio = round(torrent_info.get("ratio") or 0, 2)
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
                     # 下载耗时
@@ -606,8 +606,15 @@ class BrushTask(object):
             # 下载成功
             log.info("【Brush】成功添加下载：%s" % title)
             if sendmessage:
+                # 下载器参数
+                downloader_cfg = self.downloader.get_downloader_conf(downloader_id)
+                # 下载器名称
+                downlaod_name = downloader_cfg.get("name")
                 msg_title = f"【刷流任务 {taskname} 新增下载】"
-                msg_text = f"种子名称：{title}\n种子大小：{StringUtils.str_filesize(size)}"
+                msg_text = f"下载器名：{downlaod_name}\n" \
+                           f"种子名称：{title}\n" \
+                           f"种子大小：{StringUtils.str_filesize(size)}\n" \
+                           f"添加时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}"
                 self.message.send_brushtask_added_message(title=msg_title, text=msg_text)
 
         # 插入种子数据
