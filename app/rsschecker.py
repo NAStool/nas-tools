@@ -356,6 +356,7 @@ class RssChecker(object):
                 downloader_id, ret, ret_msg = self.downloader.download(
                     media_info=media,
                     download_dir=taskinfo.get("save_path"),
+                    is_auto=False if taskinfo.get("save_path") else None,
                     download_setting=taskinfo.get("download_setting"),
                     in_from=SearchType.USERRSS)
                 if ret:
@@ -688,6 +689,7 @@ class RssChecker(object):
             downloader_id, ret, ret_msg = self.downloader.download(
                 media_info=media,
                 download_dir=taskinfo.get("save_path"),
+                is_auto=False if taskinfo.get("save_path") else None,
                 download_setting=taskinfo.get("download_setting"),
                 in_from=SearchType.USERRSS)
             downloader_name = self.downloader.get_downloader_conf(downloader_id).get("name")

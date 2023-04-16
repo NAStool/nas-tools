@@ -325,8 +325,8 @@ class SpeedLimiter(_IPluginModule):
         for downloader_conf in downloader_confs:
             self._downloader.set_speed_limit(
                 downloader_id=downloader_conf.get("id"),
-                download_limit=upload_limit,
-                upload_limit=download_limit
+                download_limit=download_limit,
+                upload_limit=upload_limit
             )
             self.info(f"下载器 {downloader_conf.get('name')} {limit_info}")
         self._limit_flag = False
