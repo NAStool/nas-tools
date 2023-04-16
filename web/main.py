@@ -710,7 +710,7 @@ def service():
 
     # 目录同步
     if "sync" in Services:
-        if Sync().get_sync_dirs():
+        if Sync().sync_dirs:
             Services['sync'].update({
                 'state': 'ON'
             })
@@ -856,7 +856,7 @@ def customwords():
 @login_required
 def directorysync():
     RmtModeDict = WebAction().get_rmt_modes()
-    SyncPaths = WebAction().get_directorysync().get("result")
+    SyncPaths = Sync().get_sync_path_conf()
     return render_template("setting/directorysync.html",
                            SyncPaths=SyncPaths,
                            SyncCount=len(SyncPaths),

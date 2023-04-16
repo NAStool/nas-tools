@@ -12,8 +12,8 @@ from app.filetransfer import FileTransfer
 from app.helper import DbHelper
 from app.utils import PathUtils, ExceptionUtils
 from app.utils.commons import singleton
-from app.utils.types import SyncType, OsType
-from config import RMT_MEDIAEXT, Config
+from app.utils.types import SyncType
+from config import RMT_MEDIAEXT
 
 lock = threading.Lock()
 
@@ -46,9 +46,9 @@ class Sync(object):
     dbhelper = None
 
     sync_dir_config = {}
+    sync_paths_config = {}
     _observer = []
     _sync_paths = []
-    _sync_sys = OsType.LINUX
     _synced_files = []
     _need_sync_paths = {}
 
@@ -58,73 +58,109 @@ class Sync(object):
     def init_config(self):
         self.dbhelper = DbHelper()
         self.filetransfer = FileTransfer()
-        sync = Config().get_config('sync')
-        sync_paths = self.dbhelper.get_config_sync_paths()
-        if sync and sync_paths:
-            if sync.get('nas_sys') == "windows":
-                self._sync_sys = OsType.WINDOWS
-            self._sync_paths = sync_paths
-            self.init_sync_dirs()
-
-    def init_sync_dirs(self):
-        """
-        初始化监控文件配置
-        """
+        sync_paths_config = {}
         self.sync_dir_config = {}
-        if self._sync_paths:
-            for sync_item in self._sync_paths:
-                if not sync_item:
-                    continue
-                # ID
-                sync_id = sync_item.ID
-                # 启用标志
-                enabled = True if sync_item.ENABLED else False
-                # 仅硬链接标志
-                only_link = False if sync_item.RENAME else True
-                # 转移方式
-                path_syncmode = ModuleConf.RMT_MODES.get(sync_item.MODE)
-                # 源目录|目的目录|未知目录
-                monpath = sync_item.SOURCE
-                target_path = sync_item.DEST
-                unknown_path = sync_item.UNKNOWN
-                if target_path and unknown_path:
-                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
-                        monpath, target_path, unknown_path, path_syncmode.value))
-                elif target_path:
-                    log.info(
-                        "【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
-                else:
-                    log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
-                if not enabled:
-                    log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
-                    continue
-                if only_link:
-                    log.info("【Sync】%s 不进行识别和重命名" % monpath)
-                if target_path and not os.path.exists(target_path):
-                    log.info("【Sync】目的目录不存在，正在创建：%s" % target_path)
-                    os.makedirs(target_path)
-                if unknown_path and not os.path.exists(unknown_path):
-                    log.info("【Sync】未识别目录不存在，正在创建：%s" % unknown_path)
-                    os.makedirs(unknown_path)
-                # 登记关系
-                if os.path.exists(monpath):
+        for sync_item in self.dbhelper.get_config_sync_paths():
+            if not sync_item:
+                continue
+            # ID
+            sync_id = sync_item.ID
+            # 启用标志
+            enabled = True if sync_item.ENABLED else False
+            # 仅硬链接标志
+            only_link = False if sync_item.RENAME else True
+            # 兼容模式
+            compatibility = True if sync_item.COMPATIBILITY else False
+            # 转移方式
+            syncmode = sync_item.MODE
+            syncmode_enum = ModuleConf.RMT_MODES.get(syncmode)
+            # 源目录|目的目录|未知目录
+            monpath = sync_item.SOURCE
+            target_path = sync_item.DEST
+            unknown_path = sync_item.UNKNOWN
+            # 输出日志
+            log_content1, log_content2 = "", ""
+            if target_path:
+                log_content1 += f"目的目录：{target_path}，"
+            if unknown_path:
+                log_content1 += f"未识别目录：{unknown_path}，"
+            if not only_link:
+                log_content2 += "，启用识别和重命名"
+            if compatibility:
+                log_content2 += "，启用兼容模式"
+            log.info(f"【Sync】读取到监控目录：{monpath}，{log_content1}转移方式：{syncmode_enum.value}{log_content2}")
+            if not enabled:
+                log.info(f"【Sync】{monpath} 不进行监控和同步：手动关闭")
+
+            if target_path and not os.path.exists(target_path):
+                log.info(f"【Sync】目的目录不存在，正在创建：{target_path}")
+                os.makedirs(target_path)
+            if unknown_path and not os.path.exists(unknown_path):
+                log.info(f"【Sync】未识别目录不存在，正在创建：{unknown_path}")
+                os.makedirs(unknown_path)
+            # 登记关系
+            sync_paths_config[str(sync_id)] = {
+                'id': sync_id,
+                'from': monpath,
+                'to': target_path or "",
+                'unknown': unknown_path or "",
+                'syncmod': sync_item.MODE,
+                'syncmod_name': syncmode_enum.value,
+                "compatibility": compatibility,
+                'rename': not only_link,
+                'enabled': enabled
+            }
+            if monpath and os.path.exists(monpath):
+                if enabled:
                     self.sync_dir_config[monpath] = {
                         'id': sync_id,
                         'target': target_path,
                         'unknown': unknown_path,
                         'onlylink': only_link,
-                        'syncmod': path_syncmode
+                        'syncmod': syncmode_enum,
+                        'compatibility': compatibility
                     }
-                else:
-                    log.error("【Sync】%s 目录不存在！" % monpath)
+            else:
+                log.error(f"【Sync】{monpath} 目录不存在！")
+        # 目录同步配置按源目录排序
+        sync_paths_config = sorted(sync_paths_config.items(), key=lambda x: x[1]["from"]) if sync_paths_config else {}
+        sync_paths_config = dict(sync_paths_config)
+        self.sync_paths_config = sync_paths_config
+        # 启动监控服务
+        self.run_service()
 
-    def get_sync_dirs(self):
+    @property
+    def sync_dirs(self):
         """
-        返回所有的同步监控目录
+        所有的同步监控目录
         """
         if not self.sync_dir_config:
             return []
         return [os.path.normpath(key) for key in self.sync_dir_config.keys()]
+
+    def get_sync_path_conf(self, sid=None):
+        """
+        获取目录同步配置
+        """
+        if sid:
+            return self.sync_paths_config.get(str(sid)) or {}
+        return self.sync_paths_config
+
+    def check_source(self, source=None, sid=None):
+        """
+        检查关闭其他源目录相同或为父目录或为子目录的同步目录
+        """
+        if source:
+            check_monpath = source
+        elif sid:
+            check_monpath = self.get_sync_path_conf(sid).get("from")
+        else:
+            return
+        check_monpath = os.path.normpath(check_monpath)
+        for sid, config in self.sync_paths_config.items():
+            monpath = os.path.normpath(config.get("from"))
+            if check_monpath in monpath or monpath in check_monpath and config.get("enabled"):
+                self.dbhelper.check_config_sync_paths(sid=sid, enabled=0)
 
     def file_change_handler(self, event, text, event_path):
         """
@@ -300,24 +336,23 @@ class Sync(object):
         """
         启动监控服务
         """
-        self._observer = []
-        for monpath in self.sync_dir_config.keys():
-            if monpath and os.path.exists(monpath):
-                try:
-                    if self._sync_sys == OsType.WINDOWS:
-                        # 考虑到windows的docker需要直接指定才能生效(修改配置文件为windows)
-                        observer = PollingObserver(timeout=10)
-                    else:
-                        # 内部处理系统操作类型选择最优解
-                        observer = Observer(timeout=10)
-                    self._observer.append(observer)
-                    observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
-                    observer.daemon = True
-                    observer.start()
-                    log.info("%s 的监控服务启动" % monpath)
-                except Exception as e:
-                    ExceptionUtils.exception_traceback(e)
-                    log.error("%s 启动目录监控失败：%s" % (monpath, str(e)))
+        self.stop_service()
+        for monpath, config in self.sync_dir_config.items():
+            try:
+                if config.get("compatibility"):
+                    # 兼容模式，目录同步性能降低且NAS不能休眠，但可以兼容挂载的远程共享目录如SMB
+                    observer = PollingObserver(timeout=10)
+                else:
+                    # 内部处理系统操作类型选择最优解
+                    observer = Observer(timeout=10)
+                self._observer.append(observer)
+                observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
+                observer.daemon = True
+                observer.start()
+                log.info("%s 的监控服务启动" % monpath)
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+                log.error("%s 启动目录监控失败：%s" % (monpath, str(e)))
 
     def stop_service(self):
         """
@@ -328,13 +363,6 @@ class Sync(object):
                 observer.stop()
                 observer.join()
         self._observer = []
-
-    def restart_service(self):
-        """
-        重启监控服务
-        """
-        self.stop_service()
-        self.run_service()
 
     def transfer_all_sync(self, sid=None):
         """
