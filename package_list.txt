@@ -1,10 +1,6 @@
 git
-gcc
-musl-dev
 python3-dev
 py3-pip
-libxml2-dev
-libxslt-dev
 tzdata
 su-exec
 zip

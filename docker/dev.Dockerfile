@@ -1,5 +1,10 @@
 FROM alpine AS Builder
-RUN apk add --no-cache libffi-dev \
+RUN apk add --no-cache --virtual .build-deps \
+        libffi-dev \
+        gcc \
+        musl-dev \
+        libxml2-dev \
+        libxslt-dev \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/DDS-Derek/nas-tools/dev/package_list.txt)) \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
@@ -9,6 +14,7 @@ RUN apk add --no-cache libffi-dev \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/dev/requirements.txt \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 COPY --chmod=755 ./rootfs /
 FROM scratch AS APP
