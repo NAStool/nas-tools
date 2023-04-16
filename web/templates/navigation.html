@@ -63,20 +63,22 @@
   </layout-searchbar>
   <div class="spinner-border" role="status" id="logo_animation" style="position:absolute;top:30%;left:calc(50% - 40px);width:80px;height:80px;"></div>
   <div class="btn-list">
-    <a id="scroll_top_btn" href="javascript:scroll_to_element('page_top')" class="btn btn-secondary btn-icon scroll-top-btn">
+    <a id="scroll_top_btn" href="javascript:scroll_to_element('page_top_anchor')" class="btn btn-secondary btn-icon scroll-top-btn">
       {{ SVG.chevron_up() }}
     </a>
-    <a id="scroll_bottom_btn" href="javascript:scroll_to_element('page_bottom')" class="btn btn-secondary btn-icon scroll-bottom-btn">
+    <a id="scroll_bottom_btn" href="javascript:scroll_to_element('page_bottom_anchor')" class="btn btn-secondary btn-icon scroll-bottom-btn">
       {{ SVG.chevron_down() }}
     </a>
   </div>
-  <div class="h-1" id="page_top"></div>
+  <div id="page_top_anchor"></div>
   <div class="page-wrapper" >
+    <div class="h-1" id="page_top"></div>
     <div id="page_content" hidden="">
     {{ OOPS.loading() }}
     </div>
     <div class="h-1" id="page_bottom"></div>
   </div>
+  <div id="page_bottom_anchor"></div>
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
   <div class="offcanvas-header">
