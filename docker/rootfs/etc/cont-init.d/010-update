@@ -40,15 +40,19 @@ function package_update {
     hash_new=$(sha256sum package_list.txt)
     if [ "${hash_old}" != "${hash_new}" ]; then
         echo "检测到package_list.txt有变化，更新软件包..."
-        if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
-            package_cn
-        fi
-        apk add --no-cache $(echo $(cat package_list.txt))
-        if [ $? -ne 0 ]; then
-            echo "无法更新软件包，请更新镜像！"
+        if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+            echo "Debian 镜像目前不支持软件包重启更新，请更新镜像"
         else
-            echo "软件包安装成功"
-            sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
+            if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
+                package_cn
+            fi
+            apk add --no-cache $(echo $(cat package_list.txt))
+            if [ $? -ne 0 ]; then
+                echo "无法更新软件包，请更新镜像！"
+            else
+                echo "软件包安装成功"
+                sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
+            fi
         fi
     fi
 
@@ -138,11 +142,7 @@ function __main {
                 /etc/cont-init.d \
                 /etc/services.d
             # 系统软件包更新
-            if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
-                echo "Debian 镜像目前不支持软件包重启更新，请更新镜像"
-            else
-                package_update
-            fi
+            package_update
             # Python依赖包更新
             requirements_update
             # third_party 更新
