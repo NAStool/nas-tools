@@ -10,7 +10,7 @@ on:
       - package_list.txt
       - requirements.txt
       - docker/Dockerfile
-      - docker/entrypoint.sh
+
 jobs:
   build:
     runs-on: ubuntu-latest
