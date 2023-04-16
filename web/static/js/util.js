@@ -38,7 +38,7 @@ function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
       if (xhr && xhr.status === 200) {
         handler({code: 0});
       } else {
-        handler({code: -99, msg: "网络中断，如设置了反向代理，请检查代理的超时时间设置！"});
+        handler({code: -99, msg: "网络中断！如设置了反向代理，请检查代理的超时时间设置。"});
       }
     }
   });

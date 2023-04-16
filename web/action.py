@@ -22,7 +22,7 @@ from app.downloader import Downloader
 from app.filetransfer import FileTransfer
 from app.filter import Filter
 from app.helper import DbHelper, ProgressHelper, ThreadHelper, \
-    MetaHelper, DisplayHelper, WordsHelper, IndexerHelper
+    MetaHelper, DisplayHelper, WordsHelper, IndexerHelper, IyuuHelper
 from app.indexer import Indexer
 from app.media import Category, Media, Bangumi, DouBan, Scraper
 from app.media.meta import MetaInfo, MetaBase
@@ -232,7 +232,8 @@ class WebAction:
             "get_plugins_conf": self.get_plugins_conf,
             "update_category_config": self.update_category_config,
             "get_category_config": self.get_category_config,
-            "get_system_processes": self.get_system_processes
+            "get_system_processes": self.get_system_processes,
+            "iyuu_bind_site": self.iyuu_bind_site
         }
 
     def action(self, cmd, data=None):
@@ -5023,8 +5024,8 @@ class WebAction:
         plugin_id = data.get("id")
         if not plugin_id:
             return {"code": 1, "msg": "参数错误"}
-        title, content = PluginManager().get_plugin_page(pid=plugin_id)
-        return {"code": 0, "title": title, "content": content}
+        title, content, func = PluginManager().get_plugin_page(pid=plugin_id)
+        return {"code": 0, "title": title, "content": content, "func": func}
 
     @staticmethod
     def get_plugin_state(data):
@@ -5128,3 +5129,16 @@ class WebAction:
         获取系统进程
         """
         return {"code": 0, "data": SystemUtils.get_all_processes()}
+
+    @staticmethod
+    def iyuu_bind_site(data):
+        """
+        IYUU绑定合作站点
+        """
+        if not data.get('token'):
+            return {"code": -1, "msg": "请先填写IYUU token并保存后再进行IYUU认证！"}
+        iyuuhelper = IyuuHelper(token=data.get('token'))
+        state, msg = iyuuhelper.bind_site(site=data.get('site'),
+                                          passkey=data.get('passkey'),
+                                          uid=data.get('uid'))
+        return {"code": 0 if state else 1, "msg": msg}
