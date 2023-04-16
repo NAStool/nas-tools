@@ -346,7 +346,7 @@ class WebAction:
             "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desp": "删种"},
             "/ptt": {"func": Downloader().transfer, "desp": "下载文件转移"},
             "/pts": {"func": SiteSignin().signin, "desp": "站点签到"},
-            "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
+            "/rst": {"func": Sync().transfer_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": WebAction().douban_sync, "desp": "豆瓣同步"},
             "/ssa": {"func": Subscribe().subscribe_search_all, "desp": "订阅搜索"},
@@ -498,7 +498,7 @@ class WebAction:
             "autoremovetorrents": TorrentRemover().auto_remove_torrents,
             "pttransfer": Downloader().transfer,
             "ptsignin": SiteSignin().signin,
-            "sync": Sync().transfer_all_sync,
+            "sync": Sync().transfer_sync,
             "rssdownload": Rss().rssdownload,
             "douban": WebAction().douban_sync,
             "subscribe_search_all": Subscribe().subscribe_search_all,
@@ -4634,7 +4634,7 @@ class WebAction:
         """
         执行单个目录的目录同步
         """
-        Sync().transfer_all_sync(sid=data.get("sid"))
+        Sync().transfer_sync(sid=data.get("sid"))
         return {"code": 0, "msg": "执行成功"}
 
     @staticmethod

@@ -2427,7 +2427,7 @@ class DbHelper:
         """
         if sid:
             return self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).all()
-        return self._db.query(CONFIGSYNCPATHS).all()
+        return self._db.query(CONFIGSYNCPATHS).order_by(CONFIGSYNCPATHS.SOURCE).all()
 
     @DbPersist(_db)
     def check_config_sync_paths(self, sid=None, compatibility=None, rename=None, enabled=None):

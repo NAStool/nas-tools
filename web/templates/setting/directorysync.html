@@ -39,6 +39,7 @@
             <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
+                <th class="w-3"></th>
                 <th>源目录</th>
                 <th>目的目录</th>
                 <th class="w-5 text-nowrap">同步方式</th>
@@ -52,6 +53,12 @@
               {% if SyncPaths %}
                 {% for Id, Attr in SyncPaths.items() %}
                   <tr>
+                    <td>
+                      <a href="javascript:run_sync_now('{{ Id }}')" class="btn-icon" title="立即运行"
+                      data-bs-toggle="tooltip">
+                        {{ SVG.bolt('icon-filled') }}
+                      </a>
+                    </td>
                     <td>{{ Attr.from or '' }}</td>
                     <td>
                       {{ Attr.to or '' }}
@@ -267,6 +274,15 @@
     ajax_post("check_sync_path", {flag: flag, sid: sid, checked: checked}, function (ret) {
       if (ret.code === 0) {
         window_history_refresh();
+      }
+    });
+  }
+
+  // 立即运行
+  function run_sync_now(sid) {
+    ajax_post("run_directory_sync", {sid: sid}, function (ret) {
+      if (ret.code === 0) {
+        show_success_modal(ret.msg)
       }
     });
   }

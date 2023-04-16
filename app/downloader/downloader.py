@@ -34,6 +34,7 @@ class Downloader:
     _download_order = None
     _download_settings = {}
     _downloader_confs = {}
+    _monitor_downloader_ids = []
     # 下载器ID-名称枚举类
     _DownloaderEnum = None
     _scheduler = None
@@ -70,6 +71,7 @@ class Downloader:
         self.clients = {}
         # 下载器配置，生成实例
         self._downloader_confs = {}
+        self._monitor_downloader_ids = []
         for downloader_conf in self.dbhelper.get_downloaders():
             if not downloader_conf:
                 continue
@@ -90,7 +92,9 @@ class Downloader:
                 if match_path:
                     log_content += "启用目录隔离，"
                 log.info(f"【Downloader】读取到监控下载器：{name}{log_content}转移方式：{rmt_mode_name}")
-                if not enabled:
+                if enabled:
+                    self._monitor_downloader_ids.append(did)
+                else:
                     log.info(f"【Downloader】下载器：{name} 不进行监控：下载器未启用")
             # 下载器登录配置
             config = json.loads(downloader_conf.CONFIG)
@@ -209,11 +213,7 @@ class Downloader:
         """
         获取监控下载器ID列表
         """
-        ret_list = []
-        for downloader_conf in self.get_downloader_conf().values():
-            if downloader_conf.get("enabled") and downloader_conf.get("transfer") and downloader_conf.get("rmt_mode"):
-                ret_list.append(downloader_conf.get("id"))
-        return ret_list
+        return self._monitor_downloader_ids
 
     def start_service(self):
         """
@@ -222,10 +222,10 @@ class Downloader:
         # 移出现有任务
         self.stop_service()
         # 启动转移任务
-        if not self.monitor_downloader_ids:
+        if not self._monitor_downloader_ids:
             return
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
-        for downloader_id in self.monitor_downloader_ids:
+        for downloader_id in self._monitor_downloader_ids:
             self._scheduler.add_job(func=self.transfer,
                                     args=[downloader_id],
                                     trigger='interval',
@@ -528,7 +528,7 @@ class Downloader:
         转移下载完成的文件，进行文件识别重命名到媒体库目录
         """
         downloader_ids = [downloader_id] if downloader_id \
-            else self.monitor_downloader_ids
+            else self._monitor_downloader_ids
         for downloader_id in downloader_ids:
             with lock:
                 # 获取下载器配置

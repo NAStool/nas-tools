@@ -710,7 +710,7 @@ def service():
 
     # 目录同步
     if "sync" in Services:
-        if Sync().sync_dirs:
+        if Sync().monitor_sync_path_ids:
             Services['sync'].update({
                 'state': 'ON'
             })
