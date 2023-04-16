@@ -283,4 +283,4 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         format: markdown
         message: |
-            ${{ github.event.head_commit.message }}
+            ${{ github.event.commits[0].message }}
