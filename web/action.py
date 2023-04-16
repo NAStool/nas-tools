@@ -165,7 +165,6 @@ class WebAction:
             "get_unknown_list": self.get_unknown_list,
             "get_unknown_list_by_page": self.get_unknown_list_by_page,
             "get_customwords": self.get_customwords,
-            "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
             "get_filterrules": self.get_filterrules,
             "get_downloading": self.get_downloading,
@@ -1346,15 +1345,15 @@ class WebAction:
         return {"code": 0, "msg": ""}
 
     @staticmethod
-    def get_sync_path(data):
+    def get_sync_path(data=None):
         """
         查询同步目录
         """
-        sid = data.get("sid")
-        sync_path = Sync().get_sync_path_conf(sid=sid)
-        if sync_path:
-            return {"code": 0, "data": sync_path}
-        return {"code": 1, "msg": "查询识别词失败"}
+        if data:
+            sync_path = Sync().get_sync_path_conf(sid=data.get("sid"))
+        else:
+            sync_path = Sync().get_sync_path_conf()
+        return {"code": 0, "result": sync_path}
 
     def __delete_sync_path(self, data):
         """
@@ -3916,12 +3915,6 @@ class WebAction:
             "code": 0,
             "result": groups
         }
-    @staticmethod
-    def get_directorysync(data=None):
-        """
-        查询所有同步目录
-        """
-        return {"code": 0, "result": Sync().get_sync_path_conf()}
 
     def get_users(self, data=None):
         """

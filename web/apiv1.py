@@ -2099,7 +2099,7 @@ class SyncDirectoryList(ClientResource):
         """
         查询所有同步目录
         """
-        return WebAction().api_action(cmd='get_directorysync')
+        return WebAction().api_action(cmd='get_sync_path')
 
 
 @sync.route('/directory/run')

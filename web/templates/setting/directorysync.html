@@ -213,8 +213,8 @@
   // 打开编辑窗口
   function show_edit_sync_path_modal(sid) {
     ajax_post("get_sync_path", {sid: sid}, function (ret) {
-      if (ret.code == 0) {
-        let sync_item = ret.data;
+      if (ret.code === 0) {
+        let sync_item = ret.result;
         $("#directory_modal_title").text('编辑同步目录');
         $("#sync_path_sid").val(sid);
         $("#sync_path_from").val(sync_item.from);
@@ -223,10 +223,8 @@
         $("#sync_path_syncmod").val(sync_item.syncmod);
         $("#sync_path_compatibility").prop("checked", sync_item.compatibility);
         $("#sync_path_rename").prop("checked", sync_item.rename);
-        $("#sync_path_enable").prop("checked", sync_item.enabled);
+        $("#sync_path_enabled").prop("checked", sync_item.enabled);
         $("#modal-directory").modal('show');
-      } else {
-        show_fail_modal(ret.msg);
       }
     });
   }
