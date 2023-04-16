@@ -4,14 +4,12 @@
 if [ -f ${NASTOOL_CONFIG} ]; then
     NT_LOG=$(awk -F"[' ]+" '/loglevel/{print $3}' /config/config.yaml)
     if [[ "${NT_LOG}" == "debug" ]]; then
-        REDIS_LOG="> /dev/null 2>&1"
-    else
-        REDIS_LOG=
+        exec \
+        s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 6379" \
+        s6-setuidgid root $(which redis-server)
     fi
-else
-    REDIS_LOG=
 fi
 
 exec \
     s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 6379" \
-    s6-setuidgid root $(which redis-server) ${REDIS_LOG}
+    s6-setuidgid root $(which redis-server) > /dev/null 2>&1
