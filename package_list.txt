@@ -14,8 +14,7 @@ fuse3
 xvfb
 inotify-tools
 chromium-chromedriver
-npm
-dumb-init
+s6-overlay
 ffmpeg
 redis
 wget

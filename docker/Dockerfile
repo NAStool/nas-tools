@@ -1,5 +1,5 @@
-FROM alpine
-RUN apk update  \
+FROM alpine AS Builder
+RUN apk update \
     && apk add --no-cache libffi-dev \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NAStool/nas-tools/master/package_list.txt)) \
     && ln -sf /usr/bin/python3 /usr/bin/python \
@@ -10,9 +10,15 @@ RUN apk update  \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/master/requirements.txt \
-    && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
-ENV LANG="C.UTF-8" \
+COPY --chmod=755 ./rootfs /
+FROM scratch
+COPY --from=Builder / /
+ENV S6_SERVICES_GRACETIME=30000 \
+    S6_KILL_GRACETIME=60000 \
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0 \
+    S6_SYNC_DISKS=1 \
+    LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
@@ -42,4 +48,4 @@ RUN mkdir ${NT_HOME} \
     && chmod +x ${WORKDIR}/docker/entrypoint.sh
 EXPOSE 3000
 VOLUME ["/config"]
-ENTRYPOINT ["/nas-tools/docker/entrypoint.sh"]
+ENTRYPOINT [ "/init" ]
