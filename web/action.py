@@ -284,6 +284,8 @@ class WebAction:
         RssChecker().stop_service()
         # 关闭自动删种
         TorrentRemover().stop_service()
+        # 关闭下载器监控
+        Downloader().stop_service()
         # 关闭插件
         PluginManager().stop_service()
 

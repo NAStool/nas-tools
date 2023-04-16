@@ -139,7 +139,8 @@ class Downloader:
                 "downloader_name": downloader_name,
                 "downloader_type": downloader_type
             }
-        self.transfer_scheduler()
+        # 启动下载器监控服务
+        self.start_service()
 
     def __build_class(self, ctype, conf=None):
         for downloader_schema in self._downloader_schema:
@@ -197,19 +198,12 @@ class Downloader:
                 ret_list.append(downloader_conf.get("id"))
         return ret_list
 
-    def transfer_scheduler(self):
+    def start_service(self):
         """
         转移任务调度
         """
         # 移出现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        self.stop_service()
         # 启动转移任务
         if not self.monitor_downloader_ids:
             return
@@ -1338,3 +1332,16 @@ class Downloader:
         if not _client:
             return False
         return _client.recheck_torrents(ids)
+
+    def stop_service(self):
+        """
+        停止服务
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))

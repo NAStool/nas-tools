@@ -36,7 +36,6 @@ class Scheduler:
     def init_config(self):
         self._pt = Config().get_config('pt')
         self._media = Config().get_config('media')
-        self._douban = Config().get_config('douban')
 
     def run_service(self):
         """
