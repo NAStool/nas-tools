@@ -47,7 +47,7 @@ def sigal_handler(num, stack):
     WebAction.stop_service()
     # 退出主进程
     log.info('退出主进程...')
-    sys.exit(0)
+    os._exit(0)
 
 
 def get_run_config(forcev4=False):
