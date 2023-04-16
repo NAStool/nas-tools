@@ -23,6 +23,8 @@ ENV S6_SERVICES_GRACETIME=30000 \
     S6_KILL_GRACETIME=60000 \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0 \
     S6_SYNC_DISKS=1 \
+    HOME="/nt" \
+    TERM="xterm" \
     PATH=${PATH}:/usr/lib/chromium \
     LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
@@ -37,12 +39,11 @@ ENV S6_SERVICES_GRACETIME=30000 \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
-    WORKDIR="/nas-tools" \
-    NT_HOME="/nt"
+    WORKDIR="/nas-tools"
 WORKDIR ${WORKDIR}
-RUN mkdir ${NT_HOME} \
+RUN mkdir ${HOME} \
     && addgroup -S nt -g 911 \
-    && adduser -S nt -G nt -h ${NT_HOME} -s /bin/bash -u 911 \
+    && adduser -S nt -G nt -h ${HOME} -s /bin/bash -u 911 \
     && python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=5242880' >> /etc/sysctl.conf \
