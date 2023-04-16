@@ -67,7 +67,7 @@ class Sync(object):
             # 启用标志
             enabled = True if sync_conf.ENABLED else False
             # 仅硬链接标志
-            only_link = False if sync_conf.RENAME else True
+            rename = False if sync_conf.RENAME else True
             # 兼容模式
             compatibility = True if sync_conf.COMPATIBILITY else False
             # 转移方式
@@ -83,7 +83,7 @@ class Sync(object):
                 log_content1 += f"目的目录：{target_path}，"
             if unknown_path:
                 log_content1 += f"未识别目录：{unknown_path}，"
-            if not only_link:
+            if rename:
                 log_content2 += "，启用识别和重命名"
             if compatibility:
                 log_content2 += "，启用兼容模式"
@@ -105,7 +105,7 @@ class Sync(object):
                 'syncmod': syncmode,
                 'syncmod_name': syncmode_enum.value,
                 "compatibility": compatibility,
-                'rename': not only_link,
+                'rename': rename,
                 'enabled': enabled
             }
             if monpath and os.path.exists(monpath):
