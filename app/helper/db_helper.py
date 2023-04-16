@@ -2397,7 +2397,7 @@ class DbHelper:
             return False
 
     @DbPersist(_db)
-    def insert_config_sync_path(self, source, dest, unknown, mode, rename, enabled, note=None):
+    def insert_config_sync_path(self, source, dest, unknown, mode, compatibility, rename, enabled, note=None):
         """
         增加目录同步
         """
@@ -2406,6 +2406,7 @@ class DbHelper:
             DEST=dest,
             UNKNOWN=unknown,
             MODE=mode,
+            COMPATIBILITY=int(compatibility),
             RENAME=int(rename),
             ENABLED=int(enabled),
             NOTE=note
@@ -2426,10 +2427,10 @@ class DbHelper:
         """
         if sid:
             return self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).all()
-        return self._db.query(CONFIGSYNCPATHS).all()
+        return self._db.query(CONFIGSYNCPATHS).order_by(CONFIGSYNCPATHS.SOURCE).all()
 
     @DbPersist(_db)
-    def check_config_sync_paths(self, sid=None, source=None, rename=None, enabled=None):
+    def check_config_sync_paths(self, sid=None, compatibility=None, rename=None, enabled=None):
         """
         设置目录同步状态
         """
@@ -2445,10 +2446,10 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-        elif source and enabled is not None:
-            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.SOURCE == source).update(
+        elif sid and compatibility is not None:
+            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).update(
                 {
-                    "ENABLED": int(enabled)
+                    "COMPATIBILITY": int(compatibility)
                 }
             )
 

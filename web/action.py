@@ -79,7 +79,7 @@ class WebAction:
             "update_config": self.__update_config,
             "update_directory": self.__update_directory,
             "add_or_edit_sync_path": self.__add_or_edit_sync_path,
-            "get_sync_path": self.__get_sync_path,
+            "get_sync_path": self.get_sync_path,
             "delete_sync_path": self.__delete_sync_path,
             "check_sync_path": self.__check_sync_path,
             "remove_rss_media": self.__remove_rss_media,
@@ -165,7 +165,6 @@ class WebAction:
             "get_unknown_list": self.get_unknown_list,
             "get_unknown_list_by_page": self.get_unknown_list_by_page,
             "get_customwords": self.get_customwords,
-            "get_directorysync": self.get_directorysync,
             "get_users": self.get_users,
             "get_filterrules": self.get_filterrules,
             "get_downloading": self.get_downloading,
@@ -300,7 +299,7 @@ class WebAction:
         # 启动定时服务
         Scheduler().run_service()
         # 启动监控服务
-        Sync().run_service()
+        Sync()
         # 启动刷流服务
         BrushTask()
         # 启动自定义订阅服务
@@ -346,7 +345,7 @@ class WebAction:
             "/ptr": {"func": TorrentRemover().auto_remove_torrents, "desp": "删种"},
             "/ptt": {"func": Downloader().transfer, "desp": "下载文件转移"},
             "/pts": {"func": SiteSignin().signin, "desp": "站点签到"},
-            "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
+            "/rst": {"func": Sync().transfer_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": WebAction().douban_sync, "desp": "豆瓣同步"},
             "/ssa": {"func": Subscribe().subscribe_search_all, "desp": "订阅搜索"},
@@ -498,7 +497,7 @@ class WebAction:
             "autoremovetorrents": TorrentRemover().auto_remove_torrents,
             "pttransfer": Downloader().transfer,
             "ptsignin": SiteSignin().signin,
-            "sync": Sync().transfer_all_sync,
+            "sync": Sync().transfer_sync,
             "rssdownload": Rss().rssdownload,
             "douban": WebAction().douban_sync,
             "subscribe_search_all": Subscribe().subscribe_search_all,
@@ -1304,8 +1303,9 @@ class WebAction:
         dest = data.get("to")
         unknown = data.get("unknown")
         mode = data.get("syncmod")
-        rename = 1 if StringUtils.to_bool(data.get("rename"), False) else 0
-        enabled = 1 if StringUtils.to_bool(data.get("enabled"), False) else 0
+        compatibility = data.get("compatibility")
+        rename = data.get("rename")
+        enabled = data.get("enabled")
         # 源目录检查
         if not source:
             return {"code": 1, "msg": f'源目录不能为空'}
@@ -1332,36 +1332,28 @@ class WebAction:
             self.dbhelper.delete_config_sync_path(sid)
         # 若启用，则关闭其他相同源目录的同步目录
         if enabled == 1:
-            self.dbhelper.check_config_sync_paths(source=source,
-                                                  enabled=0)
+            Sync().check_source(source=source)
         # 插入数据库
         self.dbhelper.insert_config_sync_path(source=source,
                                               dest=dest,
                                               unknown=unknown,
                                               mode=mode,
+                                              compatibility=compatibility,
                                               rename=rename,
                                               enabled=enabled)
         Sync().init_config()
         return {"code": 0, "msg": ""}
 
-    def __get_sync_path(self, data):
+    @staticmethod
+    def get_sync_path(data=None):
         """
         查询同步目录
         """
-        try:
-            sid = data.get("sid")
-            sync_item = self.dbhelper.get_config_sync_paths(sid=sid)[0]
-            syncpath = {'id': sync_item.ID,
-                        'from': sync_item.SOURCE,
-                        'to': sync_item.DEST or "",
-                        'unknown': sync_item.UNKNOWN or "",
-                        'syncmod': sync_item.MODE,
-                        'rename': sync_item.RENAME,
-                        'enabled': sync_item.ENABLED}
-            return {"code": 0, "data": syncpath}
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-            return {"code": 1, "msg": "查询识别词失败"}
+        if data:
+            sync_path = Sync().get_sync_path_conf(sid=data.get("sid"))
+        else:
+            sync_path = Sync().get_sync_path_conf()
+        return {"code": 0, "result": sync_path}
 
     def __delete_sync_path(self, data):
         """
@@ -1379,19 +1371,19 @@ class WebAction:
         flag = data.get("flag")
         sid = data.get("sid")
         checked = data.get("checked")
-        if flag == "rename":
-            self.dbhelper.check_config_sync_paths(sid=sid,
-                                                  rename=1 if checked else 0)
+        if flag == "compatibility":
+            self.dbhelper.check_config_sync_paths(sid=sid, compatibility=1 if checked else 0)
+            Sync().init_config()
+            return {"code": 0}
+        elif flag == "rename":
+            self.dbhelper.check_config_sync_paths(sid=sid, rename=1 if checked else 0)
             Sync().init_config()
             return {"code": 0}
         elif flag == "enable":
             # 若启用，则关闭其他相同源目录的同步目录
             if checked:
-                sync_item = self.dbhelper.get_config_sync_paths(sid=sid)[0]
-                self.dbhelper.check_config_sync_paths(source=sync_item.SOURCE,
-                                                      enabled=0)
-            self.dbhelper.check_config_sync_paths(sid=sid,
-                                                  enabled=1 if checked else 0)
+                Sync().check_source(sid=sid)
+            self.dbhelper.check_config_sync_paths(sid=sid, enabled=1 if checked else 0)
             Sync().init_config()
             return {"code": 0}
         else:
@@ -3924,26 +3916,6 @@ class WebAction:
             "result": groups
         }
 
-    def get_directorysync(self, data=None):
-        """
-        查询所有同步目录
-        """
-        sync_paths = self.dbhelper.get_config_sync_paths()
-        SyncPaths = []
-        if sync_paths:
-            for sync_item in sync_paths:
-                SyncPath = {'id': sync_item.ID,
-                            'from': sync_item.SOURCE,
-                            'to': sync_item.DEST or "",
-                            'unknown': sync_item.UNKNOWN or "",
-                            'syncmod': sync_item.MODE,
-                            'syncmod_name': RmtMode[sync_item.MODE.upper()].value,
-                            'rename': sync_item.RENAME,
-                            'enabled': sync_item.ENABLED}
-                SyncPaths.append(SyncPath)
-        SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
-        return {"code": 0, "result": SyncPaths}
-
     def get_users(self, data=None):
         """
         查询所有用户
@@ -4655,7 +4627,7 @@ class WebAction:
         """
         执行单个目录的目录同步
         """
-        Sync().transfer_all_sync(sid=data.get("sid"))
+        Sync().transfer_sync(sid=data.get("sid"))
         return {"code": 0, "msg": "执行成功"}
 
     @staticmethod

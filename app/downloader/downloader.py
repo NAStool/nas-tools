@@ -34,6 +34,7 @@ class Downloader:
     _download_order = None
     _download_settings = {}
     _downloader_confs = {}
+    _monitor_downloader_ids = []
     # 下载器ID-名称枚举类
     _DownloaderEnum = None
     _scheduler = None
@@ -70,22 +71,42 @@ class Downloader:
         self.clients = {}
         # 下载器配置，生成实例
         self._downloader_confs = {}
-        downloaders_conf = self.dbhelper.get_downloaders()
-        for downloader_conf in downloaders_conf:
+        self._monitor_downloader_ids = []
+        for downloader_conf in self.dbhelper.get_downloaders():
+            if not downloader_conf:
+                continue
             did = downloader_conf.ID
+            name = downloader_conf.NAME
+            enabled = downloader_conf.ENABLED
+            # 下载器监控配置
+            transfer = downloader_conf.TRANSFER
+            only_nastool = downloader_conf.ONLY_NASTOOL
+            match_path = downloader_conf.MATCH_PATH
             rmt_mode = downloader_conf.RMT_MODE
             rmt_mode_name = ModuleConf.RMT_MODES.get(rmt_mode).value if rmt_mode else ""
-            enabled = downloader_conf.ENABLED
+            # 输出日志
+            if transfer:
+                log_content = ""
+                if only_nastool:
+                    log_content += "启用标签隔离，"
+                if match_path:
+                    log_content += "启用目录隔离，"
+                log.info(f"【Downloader】读取到监控下载器：{name}{log_content}转移方式：{rmt_mode_name}")
+                if enabled:
+                    self._monitor_downloader_ids.append(did)
+                else:
+                    log.info(f"【Downloader】下载器：{name} 不进行监控：下载器未启用")
+            # 下载器登录配置
             config = json.loads(downloader_conf.CONFIG)
             dtype = downloader_conf.TYPE
             self._downloader_confs[str(did)] = {
                 "id": did,
-                "name": downloader_conf.NAME,
+                "name": name,
                 "type": dtype,
                 "enabled": enabled,
-                "transfer": downloader_conf.TRANSFER,
-                "only_nastool": downloader_conf.ONLY_NASTOOL,
-                "match_path": downloader_conf.MATCH_PATH,
+                "transfer": transfer,
+                "only_nastool": only_nastool,
+                "match_path": match_path,
                 "rmt_mode": rmt_mode,
                 "rmt_mode_name": rmt_mode_name,
                 "config": config,
@@ -192,11 +213,7 @@ class Downloader:
         """
         获取监控下载器ID列表
         """
-        ret_list = []
-        for downloader_conf in self.get_downloader_conf().values():
-            if downloader_conf.get("enabled") and downloader_conf.get("transfer") and downloader_conf.get("rmt_mode"):
-                ret_list.append(downloader_conf.get("id"))
-        return ret_list
+        return self._monitor_downloader_ids
 
     def start_service(self):
         """
@@ -205,17 +222,17 @@ class Downloader:
         # 移出现有任务
         self.stop_service()
         # 启动转移任务
-        if not self.monitor_downloader_ids:
+        if not self._monitor_downloader_ids:
             return
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
-        for downloader_id in self.monitor_downloader_ids:
+        for downloader_id in self._monitor_downloader_ids:
             self._scheduler.add_job(func=self.transfer,
                                     args=[downloader_id],
                                     trigger='interval',
                                     seconds=PT_TRANSFER_INTERVAL)
         self._scheduler.print_jobs()
         self._scheduler.start()
-        log.info("下载文件转移服务启动")
+        log.info("下载文件转移服务启动，目的目录：媒体库")
 
     def __get_client(self, did=None):
         if not did:
@@ -511,7 +528,7 @@ class Downloader:
         转移下载完成的文件，进行文件识别重命名到媒体库目录
         """
         downloader_ids = [downloader_id] if downloader_id \
-            else self.monitor_downloader_ids
+            else self._monitor_downloader_ids
         for downloader_id in downloader_ids:
             with lock:
                 # 获取下载器配置
@@ -520,15 +537,11 @@ class Downloader:
                 only_nastool = downloader_conf.get("only_nastool")
                 match_path = downloader_conf.get("match_path")
                 rmt_mode = ModuleConf.RMT_MODES.get(downloader_conf.get("rmt_mode"))
-                if only_nastool:
-                    tag = [PT_TAG]
-                else:
-                    tag = None
                 # 获取下载器实例
                 _client = self.__get_client(downloader_id)
                 if not _client:
                     continue
-                trans_tasks = _client.get_transfer_task(tag=tag, match_path=match_path)
+                trans_tasks = _client.get_transfer_task(tag=PT_TAG if only_nastool else None, match_path=match_path)
                 if trans_tasks:
                     log.info(f"【Downloader】下载器 {name} 开始转移下载文件...")
                 else:

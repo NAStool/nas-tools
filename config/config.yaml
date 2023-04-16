@@ -180,12 +180,6 @@ scraper_pic:
     # 开启后，读取视频文件生成缩略图
     episode_thumb_ffmpeg: false
 
-# 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
-sync:
-  # 监控目录配置已转移至数据库
-  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录或者是windows的docker，否则建议设置为linux
-  nas_sys: linux
-
 # 【配置站点检索信息】
 pt:
   #【聚合检索使用的检索器】：builtin

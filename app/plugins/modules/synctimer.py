@@ -87,7 +87,7 @@ class SyncTimer(_IPluginModule):
         开始同步
         """
         self.info("开始定时同步 ...")
-        self._sync.transfer_all_sync()
+        self._sync.transfer_sync()
         self.info("定时同步完成")
 
     def stop_service(self):
