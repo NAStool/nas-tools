@@ -138,7 +138,11 @@ function __main {
                 /etc/cont-init.d \
                 /etc/services.d
             # 系统软件包更新
-            package_update
+            if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+                echo "Debian 镜像目前不支持软件包重启更新，请更新镜像"
+            else
+                package_update
+            fi
             # Python依赖包更新
             requirements_update
             # third_party 更新
