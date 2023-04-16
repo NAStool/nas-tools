@@ -70,8 +70,9 @@ class Downloader:
         self.clients = {}
         # 下载器配置，生成实例
         self._downloader_confs = {}
-        downloaders_conf = self.dbhelper.get_downloaders()
-        for downloader_conf in downloaders_conf:
+        for downloader_conf in self.dbhelper.get_downloaders():
+            if not downloader_conf:
+                continue
             did = downloader_conf.ID
             name = downloader_conf.NAME
             enabled = downloader_conf.ENABLED
