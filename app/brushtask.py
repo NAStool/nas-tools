@@ -345,7 +345,7 @@ class BrushTask(object):
                     # 已上传
                     upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
                     # 分享率
-                    torrent_ratio = round(torrent_info.get("ratio"), 2)
+                    torrent_ratio = round(torrent_info.get("ratio") or 0, 2)
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
                     # 做种时间
@@ -420,7 +420,7 @@ class BrushTask(object):
                     # 已上传
                     upload_size = StringUtils.str_filesize(torrent_info.get("uploaded"))
                     # 分享率
-                    torrent_ratio = round(torrent_info.get("ratio"), 2)
+                    torrent_ratio = round(torrent_info.get("ratio") or 0, 2)
                     # 种子添加时间
                     add_time = torrent_info.get("add_time")
                     # 下载耗时
