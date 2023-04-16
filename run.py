@@ -47,6 +47,8 @@ def sigal_handler(num, stack):
     WebAction.stop_service()
     # 退出主进程
     log.info('退出主进程...')
+    # sys.exit(0) -> os._exit(0)
+    # fix s6下python进程无法退出的问题
     os._exit(0)
 
 
