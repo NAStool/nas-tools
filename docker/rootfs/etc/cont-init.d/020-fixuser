@@ -10,7 +10,7 @@ function __fixuser {
     usermod -o -u "$PUID" nt
 
     # 创建目录、权限设置
-    chown -R nt:nt "${WORKDIR}" "${NT_HOME}" /config /usr/lib/chromium /etc/hosts
+    chown -R nt:nt "${WORKDIR}" "${HOME}" /config /usr/lib/chromium /etc/hosts
 
 }
 
