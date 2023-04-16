@@ -134,7 +134,7 @@ class _IDownloadClient(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def get_replace_path(path, downloaddir) -> [str, bool]:
+    def get_replace_path(path, downloaddir) -> (str, bool):
         """
         对目录路径进行转换
         :param path: 需要转换的路径
@@ -155,7 +155,7 @@ class _IDownloadClient(metaclass=ABCMeta):
                 container_path = save_path
             else:
                 container_path = os.path.normpath(container_path)
-            if PathUtils.is_path_in_path(path, save_path):
+            if PathUtils.is_path_in_path(save_path, path):
                 return path.replace(save_path, container_path), True
         return path, False
 
