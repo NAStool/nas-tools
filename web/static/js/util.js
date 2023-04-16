@@ -38,7 +38,7 @@ function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
       if (xhr && xhr.status === 200) {
         handler({code: 0});
       } else {
-        handler({code: -99, msg: "网络中断，如设置了反向代理，请检查代理的超时时间设置！"});
+        handler({code: -99, msg: "网络中断！如设置了反向代理，请检查代理的超时时间设置。"});
       }
     }
   });
@@ -413,4 +413,11 @@ function check_selectgroup_raido(obj) {
   // 当前项未选中则选中,已选中则取消选中
   select_SelectALL(false, btn_obj.attr("name"));
   btn_obj.prop("checked", status);
+}
+
+// 滑到指定元素位置
+function scroll_to_element(id) {
+  if (id) {
+    $("html,body").animate({scrollTop: $(`#${id}`).offset().top}, 300);
+  }
 }

@@ -202,7 +202,7 @@ class MovieRandom(_IPluginModule):
         """
         params = {}
         if self._date:
-            params['release_date.gte'] = self._date
+            params['primary_release_date.gte'] = f"{self._date}-01-01"
         if self._vote:
             params['vote_average.gte'] = self._vote
         if self._language:
