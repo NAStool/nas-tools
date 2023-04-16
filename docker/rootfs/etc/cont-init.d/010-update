@@ -7,16 +7,16 @@ function compare {
         if [[ -d "$entry" ]]; then
             if [[ ! -d "$2/$(basename "$entry")" ]]; then
                 mkdir "$2/$(basename "$entry")"
-                echo "create $2/$(basename "$entry")"
+                echo "创建 $2/$(basename "$entry") 文件夹"
             fi
             compare "$entry" "$2/$(basename "$entry")"
         elif [[ -f "$entry" ]]; then
             if [[ ! -f "$2/$(basename "$entry")" ]]; then
                 cp "$entry" "$2/$(basename "$entry")"
-                echo "create $2/$(basename "$entry")"
+                echo "创建 $2/$(basename "$entry") 文件"
             elif [[ "$(diff "$entry" "$2/$(basename "$entry")")" ]]; then
                 cp "$entry" "$2/$(basename "$entry")"
-                echo "update $2/$(basename "$entry")"
+                echo "更新 $2/$(basename "$entry") 文件"
             fi
         fi
     done
