@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+kill -n 9 $(ps -ef | grep "python3 run.py" | grep -v "grep" | awk '{print $1}')
