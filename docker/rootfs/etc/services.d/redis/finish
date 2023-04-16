@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
-pkill -f 'python3 run.py'
+pkill -f 'redis-server'
