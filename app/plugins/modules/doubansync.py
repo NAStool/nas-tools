@@ -250,6 +250,7 @@ class DoubanSync(_IPluginModule):
     def get_page(self):
         """
         插件的额外页面，返回页面标题和页面内容
+        :return: 标题，页面内容，确定按钮响应函数
         """
         results = self.dbhelper.get_douban_history()
         template = """
@@ -314,7 +315,7 @@ class DoubanSync(_IPluginModule):
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                           <a class="dropdown-item text-danger"
-                             href='javascript:delete_douban_history("{{ Item.ID }}")'>
+                             href='javascript:DoubanSync_delete_douban_history("{{ Item.ID }}")'>
                             删除
                           </a>
                         </div>
@@ -330,17 +331,24 @@ class DoubanSync(_IPluginModule):
               </tbody>
             </table>
           </div>
-          <script type="text/javascript">
-              // 删除豆瓣历史记录
-              function delete_douban_history(id){
-                ajax_post("delete_douban_history", {"id": id}, function (ret) {
-                  $("#douban_history_" + id).remove();
-                });
-            
-              }
-          </script>
         """
-        return "同步历史", Template(template).render(HistoryCount=len(results), DoubanHistory=results)
+        return "同步历史", Template(template).render(HistoryCount=len(results),
+                                                     DoubanHistory=results), None
+
+    @staticmethod
+    def get_script():
+        """
+        删除豆瓣历史记录的JS脚本
+        """
+        return """
+          // 删除豆瓣历史记录
+          function DoubanSync_delete_douban_history(id){
+            ajax_post("delete_douban_history", {"id": id}, function (ret) {
+              $("#douban_history_" + id).remove();
+            });
+        
+          }
+        """
 
     def stop_service(self):
         """

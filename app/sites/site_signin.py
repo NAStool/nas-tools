@@ -9,6 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import log
 from app.helper import ChromeHelper, SubmoduleHelper, DbHelper, SiteHelper
+from app.helper.cloudflare_helper import under_challenge
 from app.message import Message
 from app.sites.siteconf import SiteConf
 from app.sites.sites import Sites
@@ -148,10 +149,16 @@ class SiteSignin(object):
                                    headers=ua,
                                    proxies=Config().get_proxies() if site_info.get("proxy") else None
                                    ).get_res(url=site_url)
-                if res and res.status_code == 200:
+                if res and res.status_code in [200, 500, 403]:
                     if not SiteHelper.is_logged_in(res.text):
-                        log.warn(f"【Sites】{site} {checkin_text}失败，请检查Cookie")
-                        return f"【{site}】{checkin_text}失败，请检查Cookie！"
+                        if under_challenge(res.text):
+                            msg = "站点被Cloudflare防护，请开启浏览器仿真"
+                        elif res.status_code == 200:
+                            msg = "Cookie已失效"
+                        else:
+                            msg = f"状态码：{res.status_code}"
+                        log.warn(f"【Sites】{site} {checkin_text}失败，{msg}")
+                        return f"【{site}】{checkin_text}失败，{msg}！"
                     else:
                         log.info(f"【Sites】{site} {checkin_text}成功")
                         return f"【{site}】{checkin_text}成功"

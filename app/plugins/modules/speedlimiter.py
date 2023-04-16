@@ -47,6 +47,8 @@ class SpeedLimiter(_IPluginModule):
     # 限速设置
     _download_limit = 0
     _upload_limit = 0
+    _download_unlimit = 0
+    _upload_unlimit = 0
     # 不限速地址
     _unlimited_ips = {"ipv4": "0.0.0.0/0", "ipv6": "::/0"}
     # 自动限速
@@ -54,7 +56,7 @@ class SpeedLimiter(_IPluginModule):
     _auto_upload_limit = 0
     # 总速宽
     _bandwidth = 0
-    _residual_ratio = 0
+    _allocation_ratio = 0
     # 限速下载器
     _limited_downloader_ids = []
 
@@ -70,7 +72,7 @@ class SpeedLimiter(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '上传下载限速',
+                            'title': '播放时限速',
                             'required': "",
                             'tooltip': '媒体服务器播放时对选取的下载器进行限速，不限速地址范围除外，0或留空不启用',
                             'type': 'text',
@@ -84,12 +86,51 @@ class SpeedLimiter(_IPluginModule):
                                     'placeholder': '下载限速，KB/s'
                                 }
                             ]
-
                         },
+                        {
+                            'title': '未播放时限速',
+                            'required': "",
+                            'tooltip': '媒体服务器未播放时对选取的下载器进行限速，0或留空不启用',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'upload_unlimit',
+                                    'placeholder': '上传限速，KB/s'
+                                },
+                                {
+                                    'id': 'download_unlimit',
+                                    'placeholder': '下载限速，KB/s'
+                                }
+                            ]
+                        },
+                        {
+                            'title': '智能上传限速设置',
+                            'required': "",
+                            'tooltip': '设置上行带宽后，媒体服务器播放时根据上行带宽和媒体播放占用带宽计算上传限速数值。多个下载器设置分配比例，如两个下载器设置1:2,留空均分',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'bandwidth',
+                                    'placeholder': '上行带宽，Mbps'
+                                },
+                                {
+                                    'id': 'allocation_ratio',
+                                    'placeholder': '分配比例，1:1:1'
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                'type': 'div',
+                'content': [
+                    # 同一行
+                    [
                         {
                             'title': '不限速地址范围',
                             'required': 'required',
-                            'tooltip': '以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制',
+                            'tooltip': '以下地址范围不进行限速处理，一般配置为局域网地址段；多个地址段用,号分隔，留空或配置为0.0.0.0/0,::/0则不做限制',
                             'type': 'text',
                             'content': [
                                 {
@@ -102,22 +143,6 @@ class SpeedLimiter(_IPluginModule):
                                 }
                             ]
                         },
-                        {
-                            'title': '自动限速设置',
-                            'required': "",
-                            'tooltip': '设置后根据上行带宽及剩余比例自动计算限速数值,默认下载器占据3/4',
-                            'type': 'text',
-                            'content': [
-                                {
-                                    'id': 'bandwidth',
-                                    'placeholder': 'Mbps，留空不启用自动限速'
-                                },
-                                {
-                                    'id': 'residual_ratio',
-                                    'placeholder': '0.5'
-                                }
-                            ]
-                        }
                     ]
                 ]
             },
@@ -166,27 +191,21 @@ class SpeedLimiter(_IPluginModule):
             try:
                 # 总带宽
                 self._bandwidth = int(float(config.get("bandwidth") or 0)) * 1000000
-                # 剩余比例
-                residual_ratio = float(config.get("residual_ratio") or 1)
-                if residual_ratio > 1:
-                    residual_ratio = 1
-                self._residual_ratio = residual_ratio
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 self._bandwidth = 0
-                self._residual_ratio = 0
             # 自动限速开关
-            self._auto_limit = True if self._bandwidth and self._residual_ratio else False
+            self._auto_limit = True if self._bandwidth else False
 
             try:
-                # 下载限速
+                # 播放下载限速
                 self._download_limit = int(float(config.get("download_limit") or 0))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
                 self._download_limit = 0
             
             try:
-                # 上传限速
+                # 播放上传限速
                 self._upload_limit = int(float(config.get("upload_limit") or 0))
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
@@ -195,15 +214,43 @@ class SpeedLimiter(_IPluginModule):
             # 限速服务开关
             self._limit_enabled = True if self._download_limit or self._upload_limit or self._auto_limit else False
 
+            # 下载器
+            self._limited_downloader_ids = config.get("downloaders") or []
+            if not self._limited_downloader_ids:
+                self._limit_enabled = False
+
             # 不限速地址
             self._unlimited_ips["ipv4"] = config.get("ipv4") or "0.0.0.0/0"
             self._unlimited_ips["ipv6"] = config.get("ipv6") or "::/0"
+            if "0.0.0.0/0" in self._unlimited_ips["ipv4"] and "::/0" in self._unlimited_ips["ipv6"]:
+                self._limit_enabled = False
+
+            try:
+                # 未播放下载限速
+                self._download_unlimit = int(float(config.get("download_unlimit") or 0))
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+                self._download_unlimit = 0
+
+            try:
+                # 未播放上传限速
+                self._upload_unlimit = int(float(config.get("upload_unlimit") or 0))
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+                self._upload_unlimit = 0
 
             # 任务时间间隔
             self._interval = int(config.get("interval") or "300")
 
-            # 下载器
-            self._limited_downloader_ids = config.get("downloaders") or []
+            # 下载器限速分配比例
+            self._allocation_ratio = config.get("allocation_ratio").split(":") or []
+            try:
+                self._allocation_ratio = [int(i) for i in self._allocation_ratio]
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+                self.warn("分配比例含有:外非数字字符，执行均分")
+                self._allocation_ratio = []
+
         else:
             # 限速关闭
             self._limit_enabled = False
@@ -225,50 +272,63 @@ class SpeedLimiter(_IPluginModule):
     def get_state(self):
         return self._limit_enabled
 
-    def __start(self, limited_downloader_confs, limited_default_downloader_id):
+    def __start(self, downloader_confs, allocation_ratio):
         """
-        开始限速
+        播放限速
         """
-        if not limited_downloader_confs:
+        if not downloader_confs:
             return
-        count = len(limited_downloader_confs)
+        allocation_count = sum(allocation_ratio) if allocation_ratio else len(downloader_confs)
         upload_limit = self._upload_limit
         download_limit = self._download_limit
-        for limited_downloader_conf in limited_downloader_confs:
-            did = str(limited_downloader_conf.get("id"))
+        for i in range(len(downloader_confs)):
+            downloader_conf = downloader_confs[i]
             if self._auto_limit:
-                if limited_default_downloader_id:
-                    if did == str(limited_default_downloader_id):
-                        upload_limit = int(self._auto_upload_limit * 0.75)
-                    else:
-                        upload_limit = int(self._auto_upload_limit * 0.25 / (count - 1))
+                if not allocation_ratio:
+                    upload_limit = int(self._auto_upload_limit / allocation_count)
                 else:
-                    upload_limit = int(self._auto_upload_limit / count)
-                if upload_limit < 10:
-                    upload_limit = 10
+                    upload_limit = int(self._auto_upload_limit * allocation_ratio[i] / allocation_count)
+            if upload_limit < 10:
+                upload_limit = 10
             self._downloader.set_speed_limit(
-                downloader_id=limited_downloader_conf.get("id"),
+                downloader_id=downloader_conf.get("id"),
                 download_limit=download_limit,
                 upload_limit=upload_limit
             )
-            if not self._limit_flag:
-                self.info(f"下载器 {limited_downloader_conf.get('name')} 开始限速")
+            if upload_limit and download_limit:
+                limit_info = f"上传：{upload_limit}KB/s 下载：{download_limit}KB/s"
+            elif upload_limit:
+                limit_info = f"上传：{upload_limit}KB/s"
+            elif download_limit:
+                limit_info = f"下载：{download_limit}KB/s"
+            else:
+                limit_info = "不限速"
+            self.info(f"下载器 {downloader_conf.get('name')} {limit_info}")
         self._limit_flag = True
 
-    def __stop(self, limited_downloader_confs=None):
+    def __stop(self, downloader_confs):
         """
-        停止限速
+        未播放限速
         """
-        if not limited_downloader_confs:
+        if not downloader_confs:
             return
-        for limited_downloader_conf in limited_downloader_confs:
+        upload_limit = self._upload_unlimit
+        download_limit = self._download_unlimit
+        if upload_limit and download_limit:
+            limit_info = f"上传：{upload_limit}KB/s 下载：{download_limit}KB/s"
+        elif upload_limit:
+            limit_info = f"上传：{upload_limit}KB/s"
+        elif download_limit:
+            limit_info = f"下载：{download_limit}KB/s"
+        else:
+            limit_info = "不限速"
+        for downloader_conf in downloader_confs:
             self._downloader.set_speed_limit(
-                downloader_id=limited_downloader_conf.get("id"),
-                download_limit=0,
-                upload_limit=0
+                downloader_id=downloader_conf.get("id"),
+                download_limit=upload_limit,
+                upload_limit=download_limit
             )
-            if self._limit_flag:
-                self.info(f"下载器 {limited_downloader_conf.get('name')} 停止限速")
+            self.info(f"下载器 {downloader_conf.get('name')} {limit_info}")
         self._limit_flag = False
 
     @EventHandler.register(EventType.EmbyWebhook)
@@ -307,11 +367,11 @@ class SpeedLimiter(_IPluginModule):
             if not _total_bit_rate:
                 return False
             if self._auto_limit:
-                residual__bandwidth = (self._bandwidth - _total_bit_rate)
-                if residual__bandwidth < 0:
+                residual_bandwidth = (self._bandwidth - _total_bit_rate)
+                if residual_bandwidth < 0:
                     self._auto_upload_limit = 10
                 else:
-                    self._auto_upload_limit = residual__bandwidth / 8 / 1024 * self._residual_ratio
+                    self._auto_upload_limit = residual_bandwidth / 8 / 1024
             return True
 
         if _mediaserver_type != self._mediaserver.get_type():
@@ -349,26 +409,33 @@ class SpeedLimiter(_IPluginModule):
         _limit_flag = __calc_limit(total_bit_rate)
 
         # 限速下载器
-        downloader_confs = self._downloader.get_downloader_conf_simple()
-        default_downloader_id = self._downloader.default_downloader_id
         limited_downloader_confs = []
-        limited_default_downloader_id = 0
-        for downloader_conf in downloader_confs.values():
-            did = downloader_conf.get("id")
-            if str(did) in self._limited_downloader_ids:
-                limited_downloader_confs.append(downloader_conf)
-            if str(did) == str(default_downloader_id):
-                limited_default_downloader_id = did
+        limited_allocation_ratio = []
+        # 检查分配比例配置
+        if self._allocation_ratio and len(self._allocation_ratio) != len(self._limited_downloader_ids):
+            self._allocation_ratio = []
+            self.warn("分配比例配置错误，与限速下载器数量不一致，执行均分")
+
+        downloader_confs_dict = self._downloader.get_downloader_conf_simple()
+        for i in range(len(self._limited_downloader_ids)):
+            did = self._limited_downloader_ids[i]
+            if downloader_confs_dict.get(did) and downloader_confs_dict.get(did).get("enabled"):
+                limited_downloader_confs.append(downloader_confs_dict.get(self._limited_downloader_ids[i]))
+                if self._allocation_ratio:
+                    limited_allocation_ratio.append(self._allocation_ratio[i])
+        if not limited_downloader_confs:
+            self.warn("未有启用的限速下载器")
+            return
 
         # 启动限速
         if time_check or self._auto_limit:
             if _limit_flag:
-                self.__start(limited_downloader_confs, limited_default_downloader_id)
+                self.__start(limited_downloader_confs, limited_allocation_ratio)
             else:
                 self.__stop(limited_downloader_confs)
         else:
             if not self._limit_flag and _limit_flag:
-                self.__start(limited_downloader_confs, limited_default_downloader_id)
+                self.__start(limited_downloader_confs, limited_allocation_ratio)
             elif self._limit_flag and not _limit_flag:
                 self.__stop(limited_downloader_confs)
             else:

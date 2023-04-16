@@ -50,6 +50,26 @@ def resolve_challenge(driver: WebDriver, timeout=30):
         return False
 
 
+def under_challenge(html_text: str):
+    """
+    Check if the page is under challenge
+    :param html_text:
+    :return:
+    """
+    # get the page title
+    if not html_text:
+        return False
+    page_title = PyQuery(html_text)('title').text()
+    for title in CHALLENGE_TITLES:
+        if page_title == title:
+            return True
+    for selector in CHALLENGE_SELECTORS:
+        html_doc = PyQuery(html_text)
+        if html_doc(selector):
+            return True
+    return False
+
+
 def _until_title_changes(driver: WebDriver, titles):
     WebDriverWait(driver, SHORT_TIMEOUT).until_not(lambda x: _any_match_titles(x, titles))
 

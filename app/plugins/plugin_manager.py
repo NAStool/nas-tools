@@ -167,13 +167,13 @@ class PluginManager:
     def get_plugin_page(self, pid):
         """
         获取插件额外页面数据
+        :return: 标题，页面内容，确定按钮响应函数
         """
         if not self._running_plugins.get(pid):
-            return None
+            return None, None, None
         if not hasattr(self._running_plugins[pid], "get_page"):
-            return None
-        title, html = self._running_plugins[pid].get_page()
-        return title, html
+            return None, None, None
+        return self._running_plugins[pid].get_page()
 
     def get_plugin_script(self, pid):
         """
@@ -229,7 +229,7 @@ class PluginManager:
                 conf.update({"prefix": plugin.module_config_prefix})
             # 插件额外的页面
             if hasattr(plugin, "get_page"):
-                title, _ = plugin.get_page()
+                title, _, _ = plugin.get_page()
                 conf.update({"page": title})
             # 插件额外的脚本
             if hasattr(plugin, "get_script"):

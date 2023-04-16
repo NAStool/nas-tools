@@ -6,6 +6,7 @@ from threading import Event
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from jinja2 import Template
 from lxml import etree
 
 from app.downloader import Downloader
@@ -108,7 +109,7 @@ class IYUUAutoSeed(_IPluginModule):
                         {
                             'title': 'IYUU Token',
                             'required': "required",
-                            'tooltip': '登录IYUU使用的Token，用于调用IYUU官方Api',
+                            'tooltip': '登录IYUU使用的Token，用于调用IYUU官方Api；需要完成IYUU认证，填写token并保存后，可通过左下角按钮完成认证（已通过IYUU其它渠道认证过的无需再认证）',
                             'type': 'text',
                             'content': [
                                 {
@@ -259,6 +260,89 @@ class IYUUAutoSeed(_IPluginModule):
 
     def get_state(self):
         return True if self._enable and self._cron and self._token and self._downloaders else False
+
+    def get_page(self):
+        """
+        IYUU认证页面
+        :return: 标题，页面内容，确定按钮响应函数
+        """
+        if not self._token:
+            return None, None, None
+        if not self.iyuuhelper:
+            self.iyuuhelper = IyuuHelper(token=self._token)
+        auth_sites = self.iyuuhelper.get_auth_sites()
+        template = """
+                  <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label required">IYUU合作站点</label>
+                                <select class="form-control" id="iyuuautoseed_site" onchange="">
+                                    {% for Site in AuthSites %}
+                                    <option value="{{ Site.site }}">{{ Site.site }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg">
+                            <div class="mb-3">
+                                <label class="form-label required">用户ID</label>
+                                <input class="form-control" autocomplete="off" type="text" id="iyuuautoseed_uid" placeholder="uid">
+                            </div>
+                        </div>
+                        <div class="col-lg">
+                            <div class="mb-3">
+                                <label class="form-label required">PassKey</label>
+                                <input class="form-control" autocomplete="off" type="text" id="iyuuautoseed_passkey" placeholder="passkey">
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                """
+        return "IYUU认证",  Template(template).render(AuthSites=auth_sites,
+                                                      IyuuToken = self._token),  "IYUUAutoSeed_user_bind_site()"
+
+    @staticmethod
+    def get_script():
+        """
+        页面JS脚本
+        """
+        return """
+          // IYUU站点认证
+          function IYUUAutoSeed_user_bind_site(){
+            let site = $("#iyuuautoseed_site").val();
+            let uid = $("#iyuuautoseed_uid").val();
+            let passkey = $("#iyuuautoseed_passkey").val();
+            let token = '{{ IyuuToken }}';
+            if (!uid) {
+                $("#iyuuautoseed_uid").addClass("is-invalid");
+                return;
+            } else {
+                $("#iyuuautoseed_uid").removeClass("is-invalid");
+            }
+            if (!passkey) {
+                $("#iyuuautoseed_passkey").addClass("is-invalid");
+                return;
+            } else {
+                $("#iyuuautoseed_passkey").removeClass("is-invalid");
+            }
+            // 认证
+            ajax_post("iyuu_bind_site", {"token": token, "site": site, "uid": uid, "passkey": passkey}, function (ret) {
+                $("#modal-plugin-page").modal('hide');
+                if (ret.code === 0) {
+                    show_success_modal("IYUU用户认证成功！", function () {
+                        $("#modal-plugin-IYUUAutoSeed").modal('show');
+                    });
+                } else {
+                    show_fail_modal(ret.msg, function(){
+                        $("#modal-plugin-page").modal('show');
+                    });
+                }
+            });
+          }
+        """
 
     def __update_config(self):
         self.update_config({
@@ -703,8 +787,8 @@ class IYUUAutoSeed(_IPluginModule):
                                       flags=re.IGNORECASE)
                 return f"{site.get('strict_url')}/{download_url}"
         except Exception as e:
-            self.warn(f"当前不支持该站点的辅助任务，Url转换失败：{str(e)}")
-            return None
+            self.warn(f"站点 {site.get('name')} Url转换失败：{str(e)}，尝试通过详情页面获取种子下载链接 ...")
+            return self.__get_torrent_url_from_page(seed=seed, site=site)
 
     def __get_torrent_url_from_page(self, seed, site):
         """
@@ -742,6 +826,7 @@ class IYUUAutoSeed(_IPluginModule):
                 self.warn(f"获取种子下载链接失败，未找到下载链接：{page_url}")
                 return None
             else:
+                self.error(f"获取种子下载链接失败，请求失败：{page_url}，{res.status_code if res else ''}")
                 return None
         except Exception as e:
             self.warn(f"获取种子下载链接失败：{str(e)}")
