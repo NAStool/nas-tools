@@ -3,8 +3,6 @@
 
 umask ${UMASK}
 
-
-
 if [ -f ${NASTOOL_CONFIG} ]; then
     NT_PORT=$(awk -F"[' ]+" '/web_port/{print $3}' /config/config.yaml)
 else
