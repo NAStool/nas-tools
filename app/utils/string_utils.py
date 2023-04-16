@@ -130,6 +130,8 @@ class StringUtils:
         :return:
         """
         int_val = 0
+        if not text:
+            return int_val
         try:
             int_val = int(text.strip().replace(',', ''))
         except Exception as e:
@@ -145,6 +147,8 @@ class StringUtils:
         :return:
         """
         float_val = 0.0
+        if not text:
+            return 0.0
         try:
             float_val = float(text.strip().replace(',', ''))
         except Exception as e:
