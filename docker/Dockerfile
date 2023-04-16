@@ -50,8 +50,7 @@ RUN mkdir ${NT_HOME} \
     && echo "nt ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     && git config --global pull.ff only \
     && git clone -b master ${REPO_URL} ${WORKDIR} --depth=1 --recurse-submodule \
-    && git config --global --add safe.directory ${WORKDIR} \
-    && chmod +x ${WORKDIR}/docker/entrypoint.sh
+    && git config --global --add safe.directory ${WORKDIR}
 EXPOSE 3000
 VOLUME ["/config"]
 ENTRYPOINT [ "/init" ]

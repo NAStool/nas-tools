@@ -323,10 +323,10 @@ class WebAction:
             os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
         elif SystemUtils.is_synology():
             os.system(
-                "ps -ef | grep -v grep | grep 'python  run.py' | awk '{print $2}'| xargs kill -9")
+                "ps -ef | grep -v grep | grep 'python run.py' | awk '{print $2}' | xargs kill -9")
         else:
             os.system(
-                "ps -ef | grep -v grep | grep "python3 run.py" | awk '{print $1}'| xargs kill -9")
+                "ps -ef | grep -v grep | grep 'python3 run.py' | awk '{print $1}' | xargs kill -9")
 
     @staticmethod
     def handle_message_job(msg, in_from=SearchType.OT, user_id=None, user_name=None):

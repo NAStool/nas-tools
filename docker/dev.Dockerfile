@@ -31,7 +31,7 @@ ENV S6_SERVICES_GRACETIME=30000 \
     NASTOOL_CN_UPDATE=true \
     NASTOOL_VERSION=dev \
     PS1="\u@\h:\w \$ " \
-    REPO_URL="https://github.com/NAStool/nas-tools.git" \
+    REPO_URL="https://github.com/DDS-Derek/nas-tools.git" \
     PYPI_MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple" \
     ALPINE_MIRROR="mirrors.ustc.edu.cn" \
     PUID=0 \
@@ -50,8 +50,7 @@ RUN mkdir ${NT_HOME} \
     && echo "nt ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     && git config --global pull.ff only \
     && git clone -b dev ${REPO_URL} ${WORKDIR} --depth=1 --recurse-submodule \
-    && git config --global --add safe.directory ${WORKDIR} \
-    && chmod +x ${WORKDIR}/docker/entrypoint.sh
+    && git config --global --add safe.directory ${WORKDIR}
 EXPOSE 3000
 VOLUME ["/config"]
 ENTRYPOINT [ "/init" ]
