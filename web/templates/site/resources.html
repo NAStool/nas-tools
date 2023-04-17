@@ -110,7 +110,7 @@
                           {{ SVG.text_recognition() }}
                         </a>
                       </div>
-                      <div class="">
+                      <div>
                         {% if Result.imdbid %}
                           <a href="https://www.imdb.com/title/{{ Result.imdbid }}/" target="_blank"><img
                                   src="../static/img/icon-imdb.png"></a>
@@ -132,7 +132,7 @@
                     <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
                     <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
                     <td>
-                      <a href='javascript:download_site_resource({{ loop.index0 }}, "{{ Result.title }}")'
+                      <a href='javascript:download_site_resource({{ loop.index0 }})'
                          title="下载">
                         {{ SVG.download() }}
                       </a>
@@ -202,8 +202,8 @@
   }
 
   //下载按钮
-  function download_site_resource(id, name) {
-    show_download_modal(id, name, "{{ Title }}", function(){
+  function download_site_resource(id) {
+    show_download_modal(id, $(`#title_${id}`).val(), "{{ Title }}", function(){
       $("#modal-search-download").modal('hide');
       download_resource(id, false);
     })
