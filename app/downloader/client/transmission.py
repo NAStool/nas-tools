@@ -280,7 +280,6 @@ class Transmission(_IDownloadClient):
             # 开启目录隔离，未进行目录替换的不处理
             if match_path and not replace_flag:
                 continue
-            true_path = self.get_replace_path(path, self.download_dir)
             trans_tasks.append({
                 'path': os.path.join(true_path, torrent.name).replace("\\", "/"),
                 'id': torrent.hashString,

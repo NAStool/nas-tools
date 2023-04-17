@@ -1,7 +1,7 @@
 import os.path
 from abc import ABCMeta, abstractmethod
 
-from app.utils import ExceptionUtils, PathUtils
+from app.utils import PathUtils
 
 
 class _IDownloadClient(metaclass=ABCMeta):

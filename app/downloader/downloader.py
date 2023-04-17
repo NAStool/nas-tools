@@ -1184,7 +1184,8 @@ class Downloader:
         _client = self.__get_client(downloader_id)
         if not _client:
             return ""
-        return _client.get_replace_path(download_dir, downloader_conf.get("download_dir"))
+        true_path, _ = _client.get_replace_path(download_dir, downloader_conf.get("download_dir"))
+        return true_path
 
     @staticmethod
     def __get_download_dir_info(media, downloaddir):
