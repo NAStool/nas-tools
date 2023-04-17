@@ -157,7 +157,7 @@ class ModuleConf(object):
             "serverchan": {
                 "name": "Server酱",
                 "img_url": "../static/img/message/serverchan.png",
-                "color": "#01A4FF",
+                "color": "#FEE6DB",
                 "config": {
                     "sckey": {
                         "id": "serverchan_sckey",
@@ -172,7 +172,7 @@ class ModuleConf(object):
             "bark": {
                 "name": "Bark",
                 "img_url": "../static/img/message/bark.webp",
-                "color": "#FF0000",
+                "color": "#FF3B30",
                 "config": {
                     "server": {
                         "id": "bark_server",
