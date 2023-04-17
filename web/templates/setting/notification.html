@@ -51,7 +51,7 @@
             {% endif %}
           </div>
           <div class="text-muted mt-1">
-            {% if Attr.interactive == 1 %}
+            {% if Channels[Attr.type].search_type and Attr.interactive == 1 %}
               <span class="badge bg-green me-1 mb-1" title="已开启交互">
                 交互
               </span>
