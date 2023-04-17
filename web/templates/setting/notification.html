@@ -44,7 +44,7 @@
             </div>
           </div>
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive overflow-visible">
           <table class="table table-vcenter card-table table-hover table-striped">
             <thead>
             <tr>
@@ -106,14 +106,20 @@
                     </label>
                   </td>
                   <td>
-                    <div class="d-flex">
-                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑消息服务">
-                        {{ SVG.edit() }}
+                    <div class="dropdown">
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ SVG.dots_vertical() }}
                       </a>
-                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除消息服务"
-                         class="ms-2">
-                        {{ SVG.x() }}
-                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item"
+                           href="javascript:show_edit_message_client_modal('{{ Id }}')">
+                          编辑
+                        </a>
+                        <a class="dropdown-item text-danger"
+                           href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')">
+                          删除
+                        </a>
+                      </div>
                     </div>
                   </td>
                 </tr>

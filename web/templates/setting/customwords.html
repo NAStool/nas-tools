@@ -78,7 +78,7 @@
               {% endif %}
             </div>
           </div>
-          <div id="div_group{{ Group.id }}" class="table-responsive" {% if GroupsCount> 8 %}style="display: none;"{%
+          <div id="div_group{{ Group.id }}" class="table-responsive overflow-visible" {% if GroupsCount> 8 %}style="display: none;"{%
             endif %}>
             <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
@@ -87,7 +87,7 @@
                   <th class="w-1">
                     <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="全选"
                            onclick="select_SelectALL($(this).prop('checked'), 'custom_words_{{ Group.id }}')">
-                 </th>
+                  </th>
                   {% endif %}
                   <th class="w-1"></th>
                   <th>被替换词</th>
@@ -113,7 +113,7 @@
                   <td>{{ Word.replace }}</td>
                   <td>
                     {% if Word.offset %}
-                    <span class="badge badge-outline text-cyan mb-1" style="vertical-align: middle;">{{ Word.offset
+                    <span class="badge badge-outline text-cyan" style="vertical-align: middle;">{{ Word.offset
                       }}</span>
                     {% endif %}
                   </td>
@@ -121,38 +121,44 @@
                   <td>{{ Word.back }}</td>
                   <td>
                     {% if Word.regex == 1 %}
-                    <span class="badge bg-blue mb-1" style="vertical-align: middle;">RegEx</span>
+                    <span class="badge bg-blue" style="vertical-align: middle;">RegEx</span>
                     {% endif %}
                   </td>
-                  <td>
+                  <td class="text-nowrap">
                     {% if Word.season != -2 %}
-                    {% if Word.season == -1 %}
-                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">全部季</span>
-                    {% else %}
-                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">第{{
-                      Word.season }}季</span>
-                    {% endif %}
+                      {% if Word.season == -1 %}
+                      <span class="badge badge-outline text-orange me-1" style="vertical-align: middle;">全部季</span>
+                      {% else %}
+                      <span class="badge badge-outline text-orange me-1" style="vertical-align: middle;">第{{
+                        Word.season }}季</span>
+                      {% endif %}
                     {% endif %}
                     {% if Word.help %}
-                    <span class="form-help" title="{{ Word.help }}" data-bs-toggle="tooltip">?</span>
+                      <span class="form-help" title="{{ Word.help }}" data-bs-toggle="tooltip">!</span>
                     {% endif %}
                   </td>
                   <td>
-                    <div class="d-flex">
-                      <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
-                        title="编辑替换词" class='ms-1'>
-                        {{ SVG.edit() }}
+                    <div class="dropdown">
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ SVG.dots_vertical() }}
                       </a>
-                      <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词" class="ms-2">
-                        {{ SVG.x() }}
-                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item"
+                           href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})">
+                          编辑
+                        </a>
+                        <a class="dropdown-item text-danger"
+                        href="javascript:delete_custom_word('{{ Word.id }}')">
+                          删除
+                        </a>
+                      </div>
                     </div>
                   </td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                  <td colspan="8" align="center">未配置</td>
+                  <td colspan="9" align="center">未配置</td>
                 </tr>
                 {% endif %}
               </tbody>

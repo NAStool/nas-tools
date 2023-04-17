@@ -35,7 +35,7 @@
               </div>
             </div>
           </div>
-          <div class="table-responsive">
+          <div class="table-responsive overflow-visible">
             <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
               <tr>
@@ -90,13 +90,20 @@
                       </label>
                     </td>
                     <td>
-                      <div class="d-flex">
-                        <a href="javascript:show_edit_sync_path_modal('{{ Id }}')" title="编辑目录">
-                          {{ SVG.edit() }}
+                      <div class="dropdown">
+                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ SVG.dots_vertical() }}
                         </a>
-                        <a href="javascript:delete_sync_path('{{ Id }}')" title="删除目录" class="ms-2">
-                          {{ SVG.x() }}
-                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item"
+                             href="javascript:show_edit_sync_path_modal('{{ Id }}')">
+                            编辑
+                          </a>
+                          <a class="dropdown-item text-danger"
+                             href="javascript:delete_sync_path('{{ Id }}')">
+                            删除
+                          </a>
+                        </div>
                       </div>
                     </td>
                   </tr>
