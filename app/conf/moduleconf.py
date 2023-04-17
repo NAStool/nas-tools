@@ -48,6 +48,7 @@ class ModuleConf(object):
             "telegram": {
                 "name": "Telegram",
                 "img_url": "../static/img/message/telegram.png",
+                "color": "#22A7E7",
                 "search_type": SearchType.TG,
                 "config": {
                     "token": {
@@ -92,6 +93,7 @@ class ModuleConf(object):
             "wechat": {
                 "name": "微信",
                 "img_url": "../static/img/message/wechat.png",
+                "color": "#00D20B",
                 "search_type": SearchType.WX,
                 "max_length": 2048,
                 "config": {
@@ -155,6 +157,7 @@ class ModuleConf(object):
             "serverchan": {
                 "name": "Server酱",
                 "img_url": "../static/img/message/serverchan.png",
+                "color": "#01A4FF",
                 "config": {
                     "sckey": {
                         "id": "serverchan_sckey",
@@ -169,6 +172,7 @@ class ModuleConf(object):
             "bark": {
                 "name": "Bark",
                 "img_url": "../static/img/message/bark.webp",
+                "color": "#FF0000",
                 "config": {
                     "server": {
                         "id": "bark_server",
@@ -199,6 +203,7 @@ class ModuleConf(object):
             "pushdeer": {
                 "name": "PushDeer",
                 "img_url": "../static/img/message/pushdeer.png",
+                "color": "#444E98",
                 "config": {
                     "server": {
                         "id": "pushdeer_server",
@@ -221,6 +226,7 @@ class ModuleConf(object):
             "pushplus": {
                 "name": "PushPlus",
                 "img_url": "../static/img/message/pushplus.jpg",
+                "color": "#047AEB",
                 "config": {
                     "token": {
                         "id": "pushplus_token",
@@ -260,6 +266,7 @@ class ModuleConf(object):
             "iyuu": {
                 "name": "爱语飞飞",
                 "img_url": "../static/img/message/iyuu.png",
+                "color": "#F5BD08",
                 "config": {
                     "token": {
                         "id": "iyuumsg_token",
@@ -274,6 +281,7 @@ class ModuleConf(object):
             "slack": {
                 "name": "Slack",
                 "img_url": "../static/img/message/slack.png",
+                "color": "#E01D5A",
                 "search_type": SearchType.SLACK,
                 "config": {
                     "bot_token": {
@@ -305,6 +313,7 @@ class ModuleConf(object):
             "gotify": {
                 "name": "Gotify",
                 "img_url": "../static/img/message/gotify.png",
+                "color": "#72CAEE",
                 "config": {
                     "server": {
                         "id": "gotify_server",
@@ -334,6 +343,7 @@ class ModuleConf(object):
             "chanify": {
                 "name": "Chanify",
                 "img_url": "../static/img/message/chanify.png",
+                "color": "#0B84FF",
                 "config": {
                     "server": {
                         "id": "chanify_server",
@@ -364,6 +374,7 @@ class ModuleConf(object):
             "synologychat": {
                 "name": "Synology Chat",
                 "img_url": "../static/img/message/synologychat.png",
+                "color": "#26C07A",
                 "search_type": SearchType.SYNOLOGY,
                 "config": {
                     "webhook_url": {
