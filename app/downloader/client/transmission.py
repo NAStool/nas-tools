@@ -253,13 +253,18 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    def get_transfer_task(self, tag=None, match_path=None):
+    def get_transfer_task(self, tag=None, match_path=None) -> (list, str):
         """
         获取下载文件转移任务种子
         """
         # 处理下载完成的任务
         torrents = self.get_completed_torrents() or []
         trans_tasks = []
+        tag_filtered_count = 0
+        no_path_count = 0
+        path_filtered_count = 0
+        unprocessed_count = 0
+        msg = ""
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
             if not hasattr(torrent, "labels"):
@@ -269,23 +274,38 @@ class Transmission(_IDownloadClient):
             # 含"已整理"tag的不处理
             if "已整理" in torrent_tags:
                 continue
+            # 未处理计数
+            unprocessed_count += 1
             # 开启标签隔离，未包含指定标签的不处理
             if tag and tag not in torrent_tags:
+                tag_filtered_count += 1
                 continue
             path = torrent.download_dir
             # 无法获取下载路径的不处理
             if not path:
+                no_path_count += 1
                 continue
             true_path, replace_flag = self.get_replace_path(path, self.download_dir)
             # 开启目录隔离，未进行目录替换的不处理
             if match_path and not replace_flag:
+                path_filtered_count += 1
                 continue
             trans_tasks.append({
                 'path': os.path.join(true_path, torrent.name).replace("\\", "/"),
                 'id': torrent.hashString,
                 'tags': torrent.labels
             })
-        return trans_tasks
+        if unprocessed_count:
+            msg += f"获取未处理转移任务：{unprocessed_count}"
+            if no_path_count:
+                msg += f"，无路径过滤：{no_path_count}"
+            if tag_filtered_count:
+                msg += f"，标签过滤：{tag_filtered_count}"
+            if path_filtered_count:
+                msg += f"，目录过滤：{path_filtered_count}"
+            if trans_tasks:
+                msg += f"，待处理：{len(trans_tasks)}"
+        return trans_tasks, msg
 
     def get_remove_torrents(self, config=None):
         """

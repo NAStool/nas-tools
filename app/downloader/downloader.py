@@ -541,7 +541,9 @@ class Downloader:
                 _client = self.__get_client(downloader_id)
                 if not _client:
                     continue
-                trans_tasks = _client.get_transfer_task(tag=PT_TAG if only_nastool else None, match_path=match_path)
+                trans_tasks, msg = _client.get_transfer_task(tag=PT_TAG if only_nastool else None, match_path=match_path)
+                if msg:
+                    log.info(f"【Downloader】下载器 {name} {msg}")
                 if trans_tasks:
                     log.info(f"【Downloader】下载器 {name} 开始转移下载文件...")
                 else:

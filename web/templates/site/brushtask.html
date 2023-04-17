@@ -48,8 +48,12 @@
                 <input class="form-check-input m-0 align-middle" name="burshtask" value="{{ Task.id }}" type="checkbox">
               </div>
               <div>
-                {% if Task.state %}
-                <span class="badge bg-green ms-3"></span>
+                {% if Task.state  %}
+                  {% if Task.download_state %}
+                  <span class="badge bg-green ms-3"></span>
+                  {% else %}
+                  <span class="badge bg-orange ms-3"></span>
+                  {% endif %}
                 {% else %}
                 <span class="badge bg-red ms-3"></span>
                 {% endif %}
@@ -223,10 +227,14 @@
                 <div class="datagrid-item">
                   <div class="datagrid-title">状态</div>
                   <div class="datagrid-content">
-                    {% if Task.state %}
+                    {% if Task.state  %}
+                      {% if Task.download_state %}
                       <span class="badge bg-green">正在运行</span>
+                      {% else %}
+                      <span class="badge bg-orange">停增新种</span>
+                      {% endif %}
                     {% else %}
-                      <span class="badge bg-red">已停用</span>
+                    <span class="badge bg-red">已停用</span>
                     {% endif %}
                   </div>
                 </div>
@@ -294,9 +302,9 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">保种体积(GB) <span class="form-help"
-                                                           title="该任务所有下载任务的保种体积超过设定值时不再新增下载，冗余量5GB，即实际最多超过设定保种体积5GB"
+                                                           title="该任务所有下载任务的保种体积超过设定值时不再新增下载，冗余量5GB，即实际最多超过设定保种体积5GB，留空不启用"
                                                            data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="brushtask_totalsize" class="form-control" placeholder="">
+              <input type="text" id="brushtask_totalsize" class="form-control" placeholder="0为停止增加新种">
             </div>
           </div>
           <div class="col-lg-4">

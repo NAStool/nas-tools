@@ -55,8 +55,7 @@ class BrushTask(object):
         task_flag = False
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for task in self._brush_tasks:
-            if task.get("state") \
-                    and task.get("interval"):
+            if task.get("state") and task.get("download_state") and task.get("interval"):
                 cron = str(task.get("interval")).strip()
                 if cron.isdigit():
                     task_flag = True
@@ -97,6 +96,8 @@ class BrushTask(object):
                 site_url = ""
             downloader_info = self.downloader.get_downloader_conf(task.DOWNLOADER)
             total_size = round(int(self.dbhelper.get_brushtask_totalsize(task.ID)) / (1024 ** 3), 1)
+            seed_size = task.SEED_SIZE
+            download_state = False if seed_size and round(float(seed_size), 1) == 0 else True
             _brush_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -106,6 +107,7 @@ class BrushTask(object):
                 "label": task.LABEL,
                 "savepath": task.SAVEPATH,
                 "state": True if task.STATE == "Y" else False,
+                "download_state": download_state,
                 "downloader": task.DOWNLOADER,
                 "downloader_name": downloader_info.get("name") if downloader_info else None,
                 "transfer": True if task.TRANSFER == "Y" else False,
@@ -113,7 +115,7 @@ class BrushTask(object):
                 "free": task.FREELEECH,
                 "rss_rule": eval(task.RSS_RULE),
                 "remove_rule": eval(task.REMOVE_RULE),
-                "seed_size": task.SEED_SIZE,
+                "seed_size": seed_size,
                 "total_size": total_size,
                 "rss_url": task.RSSURL if task.RSSURL else site_info.get("rssurl"),
                 "rss_url_show": task.RSSURL,
@@ -163,7 +165,11 @@ class BrushTask(object):
         site_id = site_info.get("id")
         site_name = site_info.get("name")
         site_proxy = site_info.get("proxy")
-
+        site_brush_enable = site_info.get("brush_enable")
+        
+        if not site_brush_enable:
+            log.error("【Brush】站点 %s 未开启刷流功能，无法刷流！" % site_name)
+            return
         if not rss_url:
             log.error("【Brush】站点 %s 未配置RSS订阅地址，无法刷流！" % site_name)
             return
