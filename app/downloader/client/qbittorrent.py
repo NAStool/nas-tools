@@ -194,14 +194,17 @@ class Qbittorrent(_IDownloadClient):
                 continue
             # 开启标签隔离，未包含指定标签的不处理
             if tag and tag not in torrent_tags:
+                log.debug(f"【{self.client_name}】开启标签隔离，但 {torrent.get('name')} 未包含指定标签：{tag}")
                 continue
             path = torrent.get("save_path")
             # 无法获取下载路径的不处理
             if not path:
+                log.debug(f"【{self.client_name}】{torrent.get('name')} 未获取到下载保存路径")
                 continue
             true_path, replace_flag = self.get_replace_path(path, self.download_dir)
             # 开启目录隔离，未进行目录替换的不处理
             if match_path and not replace_flag:
+                log.debug(f"【{self.client_name}】开启目录隔离，但 {torrent.get('name')} 未匹配下载目录范围")
                 continue
             content_path = torrent.get("content_path")
             if content_path:

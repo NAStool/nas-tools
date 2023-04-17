@@ -52,36 +52,40 @@ class BrushTask(object):
         if not self._brush_tasks:
             return
         # 启动RSS任务
-        task_flag = False
         self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
         for task in self._brush_tasks:
-            if task.get("state") \
+            # 任务状态：Y-正常，S-停止下载新种，N-完全停止
+            if task.get("state") in ['Y', 'S'] \
                     and task.get("interval"):
                 cron = str(task.get("interval")).strip()
                 if cron.isdigit():
-                    task_flag = True
-                    self._scheduler.add_job(func=self.check_task_rss,
-                                            args=[task.get("id")],
-                                            trigger='interval',
-                                            seconds=int(cron) * 60)
-                elif cron.count(" ") == 4:
-                    try:
+                    if task.get("state") == 'Y':
                         self._scheduler.add_job(func=self.check_task_rss,
                                                 args=[task.get("id")],
-                                                trigger=CronTrigger.from_crontab(cron))
-                        task_flag = True
-                    except Exception as err:
-                        log.error(f"任务 {task.get('name')} 运行周期格式不正确：{str(err)}")
-
+                                                trigger='interval',
+                                                seconds=int(cron) * 60)
+                elif cron.count(" ") == 4:
+                    if task.get("state") == 'Y':
+                        try:
+                            self._scheduler.add_job(func=self.check_task_rss,
+                                                    args=[task.get("id")],
+                                                    trigger=CronTrigger.from_crontab(cron))
+                        except Exception as err:
+                            log.error(f"任务 {task.get('name')} 运行周期格式不正确：{str(err)}")
+                else:
+                    log.error(f"任务 {task.get('name')} 运行周期格式不正确")
+        # 正常运行任务数
+        running_task = len(self._scheduler.get_jobs())
         # 启动删种任务
-        if task_flag:
+        if running_task > 0:
             self._scheduler.add_job(func=self.remove_tasks_torrents,
                                     trigger='interval',
                                     seconds=BRUSH_REMOVE_TORRENTS_INTERVAL)
             # 启动
             self._scheduler.print_jobs()
             self._scheduler.start()
-            log.info("刷流服务启动")
+
+            log.info(f"{running_task} 个刷流服务正常启动")
 
     def get_brushtask_info(self, taskid=None):
         """
@@ -105,7 +109,7 @@ class BrushTask(object):
                 "interval": task.INTEVAL,
                 "label": task.LABEL,
                 "savepath": task.SAVEPATH,
-                "state": True if task.STATE == "Y" else False,
+                "state": task.STATE,
                 "downloader": task.DOWNLOADER,
                 "downloader_name": downloader_info.get("name") if downloader_info else None,
                 "transfer": True if task.TRANSFER == "Y" else False,
@@ -154,6 +158,10 @@ class BrushTask(object):
         rss_free = taskinfo.get("free")
         downloader_id = taskinfo.get("downloader")
         ua = taskinfo.get("ua")
+        state = taskinfo.get("state")
+        if state != 'Y':
+            log.info("【Brush】刷流任务 %s 已停止下载新种！" % task_name)
+            return
         # 查询站点信息
         site_info = self.sites.get_sites(siteid=site_id)
         if not site_info:
@@ -163,7 +171,10 @@ class BrushTask(object):
         site_id = site_info.get("id")
         site_name = site_info.get("name")
         site_proxy = site_info.get("proxy")
-
+        site_brush_enable = site_info.get("brush_enable")
+        if not site_brush_enable:
+            log.error("【Brush】站点 %s 未开启刷流功能，无法刷流！" % site_name)
+            return
         if not rss_url:
             log.error("【Brush】站点 %s 未配置RSS订阅地址，无法刷流！" % site_name)
             return
@@ -280,7 +291,7 @@ class BrushTask(object):
 
         # 遍历所有任务
         for taskinfo in self._brush_tasks:
-            if not taskinfo.get("state"):
+            if not taskinfo.get("state") == 'N':
                 continue
             try:
                 # 总上传量

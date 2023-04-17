@@ -48,8 +48,10 @@
                 <input class="form-check-input m-0 align-middle" name="burshtask" value="{{ Task.id }}" type="checkbox">
               </div>
               <div>
-                {% if Task.state %}
+                {% if Task.state == 'Y' %}
                 <span class="badge bg-green ms-3"></span>
+                {% elif Task.state == 'S' %}
+                <span class="badge bg-orange ms-3"></span>
                 {% else %}
                 <span class="badge bg-red ms-3"></span>
                 {% endif %}
@@ -223,8 +225,10 @@
                 <div class="datagrid-item">
                   <div class="datagrid-title">状态</div>
                   <div class="datagrid-content">
-                    {% if Task.state %}
+                    {% if Task.state == 'Y' %}
                       <span class="badge bg-green">正在运行</span>
+                    {% elif Task.state == 'S' %}
+                      <span class="badge bg-orange">停止下载新种</span>
                     {% else %}
                       <span class="badge bg-red">已停用</span>
                     {% endif %}
@@ -304,7 +308,8 @@
               <label class="form-label required">状态</label>
               <select class="form-select" id="brushtask_state">
                 <option value="Y">正常</option>
-                <option value="N">暂停</option>
+                <option value="S">停止下载新种</option>
+                <option value="N">停用</option>
               </select>
             </div>
           </div>
@@ -724,11 +729,7 @@
         $("#brushtask_rssurl").val(ret.task.rss_url_show);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
-        if (ret.task.state) {
-          $("#brushtask_state").val("Y");
-        } else {
-          $("#brushtask_state").val("N");
-        }
+        $("#brushtask_state").val(ret.task.state);
         if (ret.task.transfer) {
           $("#brushtask_transfer").prop("checked", true);
         } else {
