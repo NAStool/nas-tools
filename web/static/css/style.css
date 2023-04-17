@@ -166,7 +166,11 @@ body, .page {
 }
 
 .table-page-body {
-    min-height: 300px;
+    min-height: 20rem;
+}
+
+.table-page-mini-body {
+    min-height: 15rem;
 }
 
 .div-media-detail-margin {

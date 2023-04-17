@@ -526,6 +526,7 @@ class ModuleConf(object):
         "qbittorrent": {
             "name": "Qbittorrent",
             "img_url": "../static/img/downloader/qbittorrent.png",
+            "color": "#3872C2",
             "monitor_enable": True,
             "speedlimit_enable": True,
             "config": {
@@ -578,6 +579,7 @@ class ModuleConf(object):
         "transmission": {
             "name": "Transmission",
             "img_url": "../static/img/downloader/transmission.png",
+            "color": "#B30100",
             "monitor_enable": True,
             "speedlimit_enable": True,
             "config": {
