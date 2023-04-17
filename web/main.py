@@ -54,6 +54,7 @@ ConfigLock = Lock()
 App = Flask(__name__)
 App.wsgi_app = ProxyFix(App.wsgi_app)
 App.config['JSON_AS_ASCII'] = False
+App.config['JSON_SORT_KEYS'] = False
 App.secret_key = os.urandom(24)
 App.permanent_session_lifetime = datetime.timedelta(days=30)
 
