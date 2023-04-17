@@ -747,12 +747,28 @@ class BrushTask(object):
             if rss_rule.get("pubdate") and pubdate:
                 rule_pubdates = rss_rule.get("pubdate").split("#")
                 if len(rule_pubdates) >= 2 and rule_pubdates[1]:
+                    min_max_pubdates = rule_pubdates[1].split(',')
+                    min_pubdate = min_max_pubdates[0]
+                    max_pubdate = min_max_pubdates[1] if len(min_max_pubdates) > 1 else None
                     localtz = pytz.timezone(Config().get_timezone())
                     localnowtime = datetime.now().astimezone(localtz)
                     localpubdate = pubdate.astimezone(localtz)
-                    log.debug('【Brush】发布时间：%s，当前时间：%s' % (localpubdate.isoformat(), localnowtime.isoformat()))
-                    if (localnowtime - localpubdate).seconds / 3600 > float(rule_pubdates[1]):
-                        log.debug("【Brush】发布时间不符合条件。")
+                    pudate_hour = (localnowtime - localpubdate).seconds / 3600
+                    log.debug('【Brush】发布时间：%s，当前时间：%s，时间间隔：%f hour' % (
+                        localpubdate.isoformat(), localnowtime.isoformat(), pudate_hour))
+                    if rule_pubdates[0] == "lt" and pudate_hour >= float(min_pubdate):
+                        log.debug("【Brush】%s `判断发布时间, 判断条件: pubdate: %s %d" % (
+                            title, rule_pubdates[0], float(min_pubdate)))
+                        return False
+                    if rule_pubdates[0] == "gt" and pudate_hour <= float(min_pubdate):
+                        log.debug("【Brush】%s `判断发布时间, 判断条件: pubdate: %s %d" % (
+                            title, rule_pubdates[0], float(min_pubdate)))
+                        return False
+                    if rule_pubdates[0] == "bw" and (
+                            not max_pubdate or not (
+                            float(min_pubdate) <= pudate_hour <= float(max_pubdate))):
+                        log.debug("【Brush】%s `判断发布时间, 判断条件: pubdate: %s %d %d" % (
+                            title, rule_pubdates[0], float(min_pubdate), float(max_pubdate or 0)))
                         return False
 
         except Exception as err:
