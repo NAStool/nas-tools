@@ -59,6 +59,7 @@ class Sync(object):
         self.dbhelper = DbHelper()
         self.filetransfer = FileTransfer()
         self._sync_path_confs = {}
+        self._monitor_sync_path_ids = []
         for sync_conf in self.dbhelper.get_config_sync_paths():
             if not sync_conf:
                 continue
@@ -67,7 +68,7 @@ class Sync(object):
             # 启用标志
             enabled = True if sync_conf.ENABLED else False
             # 仅硬链接标志
-            rename = False if sync_conf.RENAME else True
+            rename = True if sync_conf.RENAME else False
             # 兼容模式
             compatibility = True if sync_conf.COMPATIBILITY else False
             # 转移方式
@@ -315,6 +316,8 @@ class Sync(object):
         self.stop_service()
         for sid in self._monitor_sync_path_ids:
             sync_path_conf = self.get_sync_path_conf(sid)
+            if not sync_path_conf:
+                continue
             mon_path = sync_path_conf.get("from")
             try:
                 if sync_path_conf.get("compatibility"):
@@ -338,15 +341,23 @@ class Sync(object):
         """
         if self._observer:
             for observer in self._observer:
-                observer.stop()
-                observer.join()
+                try:
+                    observer.stop()
+                    observer.join()
+                except Exception as e:
+                    print(str(e))
         self._observer = []
 
     def transfer_sync(self, sid=None):
         """
         全量转移Sync目录下的文件，WEB界面点击目录同步时获发
         """
-        sids = [sid] if sid else self._monitor_sync_path_ids
+        if not sid:
+            sids = self._monitor_sync_path_ids
+        elif isinstance(sid ,list):
+            sids = sid
+        else:
+            sids = [sid]
         for sid in sids:
             sync_path_conf = self.get_sync_path_conf(sid)
             mon_path = sync_path_conf.get("from")
@@ -377,12 +388,16 @@ class Sync(object):
         if self.dbhelper.is_sync_in_history(event_path, target_path):
             return
         log.info("【Sync】开始同步 %s" % event_path)
-        ret, msg = self.filetransfer.link_sync_file(src_path=mon_path,
-                                                    in_file=event_path,
-                                                    target_dir=target_path,
-                                                    sync_transfer_mode=sync_mode)
-        if ret != 0:
-            log.warn("【Sync】%s 同步失败，错误码：%s" % (event_path, ret))
-        elif not msg:
-            self.dbhelper.insert_sync_history(event_path, mon_path, target_path)
-            log.info("【Sync】%s 同步完成" % event_path)
+        try:
+            ret, msg = self.filetransfer.link_sync_file(src_path=mon_path,
+                                                        in_file=event_path,
+                                                        target_dir=target_path,
+                                                        sync_transfer_mode=sync_mode)
+            if ret != 0:
+                log.warn("【Sync】%s 同步失败，错误码：%s" % (event_path, ret))
+            elif not msg:
+                self.dbhelper.insert_sync_history(event_path, mon_path, target_path)
+                log.info("【Sync】%s 同步完成" % event_path)
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            log.error("【Sync】%s 同步失败：%s" % (event_path, str(err)))

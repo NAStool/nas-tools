@@ -4628,7 +4628,7 @@ class WebAction:
         """
         执行单个目录的目录同步
         """
-        Sync().transfer_sync(sid=data.get("sid"))
+        ThreadHelper().start_thread(Sync().transfer_sync, (data.get("sid"),))
         return {"code": 0, "msg": "执行成功"}
 
     @staticmethod

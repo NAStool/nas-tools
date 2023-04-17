@@ -243,41 +243,85 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-service-sync" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">选择目录同步范围</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">源目录 <span class="form-help"
+                                                    title="不选择时默认全部运行"
+                                                    data-bs-toggle="tooltip">?</span></label>
+              <div class="form-selectgroup" id="service_sync_dirs">
+                {% for SyncId, SyncPath in SyncPaths.items() %}
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="service_sync_dir" value="{{ SyncId }}" class="form-selectgroup-input">
+                    <span class="form-selectgroup-label">{{ SyncPath.from }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:run_sync_now()" id="service_sync_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 
   // 显示服务提示框
   function show_service_modal(id, name) {
-    if (id === "nametest") {
-      $('#modal-nametest').modal('show');
-    } else if (id === "ruletest") {
-      $('#modal-ruletest').modal('show');
-    } else if (id === "nettest") {
-      $('[id^="nettest_item_res"]').empty();
-      $('#modal-nettest').modal('show');
-    } else if (id === "processes") {
-      $('#modal-system-processes').modal('show');
-      setTimeout(refresh_system_process, 1000);
-    } else if (id === "blacklist") {
-      show_confirm_modal("清理文件整理缓存后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function () {
-        hide_confirm_modal();
-        ajax_post("truncate_blacklist", {}, function (ret) {
-          show_success_modal("文件缓存清理完成！");
+    switch(id) {
+      case "nametest":
+        $('#modal-nametest').modal('show');
+        break;
+      case "ruletest":
+        $('#modal-ruletest').modal('show');
+        break;
+      case "nettest":
+        $('[id^="nettest_item_res"]').empty();
+        $('#modal-nettest').modal('show');
+        break;
+      case "processes":
+        $('#modal-system-processes').modal('show');
+        setTimeout(refresh_system_process, 1000);
+        break;
+      case "blacklist":
+        show_confirm_modal("清理文件整理缓存后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function () {
+          hide_confirm_modal();
+          ajax_post("truncate_blacklist", {}, function (ret) {
+            show_success_modal("清理文件整理缓存成功");
+          });
         });
-      });
-    } else if (id === "rsshistory") {
-      show_confirm_modal("清理RSS缓存后，已订阅下载但未入库的资源可能会被重新下载，是否确认？", function () {
-        hide_confirm_modal();
-        ajax_post("truncate_rsshistory", {}, function (ret) {
-          show_success_modal("RSS缓存清理完成！");
+        break;
+      case "rsshistory":
+        show_confirm_modal("清理RSS历史记录后，已转移过的文件允许重新转移（包括识别错误的文件），是否确认？", function () {
+          hide_confirm_modal();
+          ajax_post("truncate_rss_history", {}, function (ret) {
+            show_success_modal("清理RSS历史记录成功");
+          });
         });
-      });
-    } else if (id === "backup") {
-      $('#modal-backup').modal('show');
-    } else {
-      show_ask_modal("是否立即运行 " + name + "？", function () {
-        hide_ask_modal();
-        run_scheduler(id, name);
-      });
+        break;
+      case "backup":
+        $('#modal-backup').modal('show');
+        break;
+      case "sync":
+        $('#modal-service-sync').modal('show');
+        break;
+      default:
+        show_ask_modal("是否立即运行 " + name + "？", function () {
+          hide_ask_modal();
+          run_scheduler(id, name);
+        });
     }
   }
 
@@ -449,6 +493,19 @@
         }
       }
     }, true, false);
+  }
+
+  // 立即运行目录同步
+  function run_sync_now() {
+    let sids = select_GetSelectedVAL("service_sync_dir");
+    ajax_post("run_directory_sync", {sid: sids}, function (ret) {
+      $("#modal-service-sync").modal('hide');
+      if (ret.code === 0) {
+        show_success_modal("目录同步已启动，正在后台运行");
+      } else {
+        show_fail_modal(ret.msg);
+      }
+    });
   }
 
   // 初始化DropZone
