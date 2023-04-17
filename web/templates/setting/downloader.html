@@ -152,6 +152,16 @@
           </div>
           <div class="col-lg">
             <div class="mb-3">
+              <label class="form-label required">转移方式</label>
+              <select class="form-select" id="downloader_rmt_mode">
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}">{{ mode.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
               <label class="form-label required">标签隔离 <span class="form-help" data-bs-toggle="tooltip"
                                                         data-bs-original-title="启用后只有含NASTOOL标签的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></label>
               <select class="form-select" id="downloader_only_nastool">
@@ -166,16 +176,6 @@
               <select class="form-select" id="downloader_match_path">
                 <option value="1">是</option>
                 <option value="0" selected>否</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-lg">
-            <div class="mb-3">
-              <label class="form-label required">转移方式</label>
-              <select class="form-select" id="downloader_rmt_mode">
-                {% for mode in RmtModeDict %}
-                  <option value="{{ mode.value }}">{{ mode.name }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
