@@ -133,8 +133,8 @@ class Tjupt(_ISiteSigninHandler):
                             # 获取签到后返回html，判断是否签到成功
                             sign_status = self.__sign_in_result(html_res=sign_in_res.text)
                             if sign_status:
-                                log.info(f"【Sites】{site}已签到")
-                                return f'【{site}】已签到'
+                                log.info(f"【Sites】{site}签到成功")
+                                return f'【{site}】签到成功'
 
             log.error(f"【Sites】{site}签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
