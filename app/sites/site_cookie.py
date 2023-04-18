@@ -301,7 +301,7 @@ class SiteCookie(object):
     @staticmethod
     def get_captcha_base64(chrome, image_url):
         """
-        根据图片地址，获取验证码图片base64编码
+        根据图片地址，使用浏览器获取验证码图片base64编码
         """
         if not image_url:
             return ""

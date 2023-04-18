@@ -209,25 +209,29 @@ class TorrentTransfer(_IPluginModule):
                     # 同一行
                     [
                         {
+                            'title': '校验完成后自动开始',
+                            'required': "",
+                            'tooltip': '自动开始目的下载器中校验完成且100%完整的种子，校验不完整的不会处理',
+                            'type': 'switch',
+                            'default': True,
+                            'id': 'autostart',
+                        },
+                        {
                             'title': '删除源种子',
                             'required': "",
                             'tooltip': '转移成功后删除源下载器中的种子，首次运行请不要打开，避免种子丢失',
                             'type': 'switch',
                             'id': 'deletesource',
-                        },
+                        }
+
+                    ],
+                    [
                         {
                             'title': '运行时通知',
                             'required': "",
                             'tooltip': '运行任务后会发送通知（需要打开插件消息通知）',
                             'type': 'switch',
                             'id': 'notify',
-                        },
-                        {
-                            'title': '校验成功后开始',
-                            'required': "",
-                            'tooltip': '自动开始目的下载器中处于校验成功且暂停状态的种子',
-                            'type': 'switch',
-                            'id': 'autostart',
                         },
                         {
                             'title': '立即运行一次',

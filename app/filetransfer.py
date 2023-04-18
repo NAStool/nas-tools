@@ -434,7 +434,7 @@ class FileTransfer:
         识别并转移一个文件、多个文件或者目录
         :param in_from: 来源，即调用该功能的渠道
         :param in_path: 转移的路径，可能是一个文件也可以是一个目录
-        :param files: 文件清单，非空时以该文件清单为准，为空时从in_path中按后缀和大小限制检索需要处理的文件清单
+        :param files: 文件清单，非空时以该文件清单为准，为空时从in_path中按后缀和大小限制搜索需要处理的文件清单
         :param target_dir: 目的文件夹，非空的转移到该文件夹，为空时则按类型转移到配置文件中的媒体库文件夹
         :param unknown_dir: 未识别文件夹，非空时未识别的媒体文件转移到该文件夹，为空时则使用配置文件中的未识别文件夹
         :param rmt_mode: 文件转移方式
@@ -559,11 +559,11 @@ class FileTransfer:
                 log.info("【Rmt】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
                 return __finish_transfer(True, "没有新文件需要处理")
 
-        # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
+        # API搜索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
         Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0])
         if not Medias:
-            log.error("【Rmt】检索媒体信息出错！")
-            return __finish_transfer(False, "检索媒体信息出错")
+            log.error("【Rmt】搜索媒体信息出错！")
+            return __finish_transfer(False, "搜索媒体信息出错")
 
         # 更新进度
         self.progress.update(ptype=ProgressKey.FileTransfer, text=f"共 {len(Medias)} 个文件需要处理...")

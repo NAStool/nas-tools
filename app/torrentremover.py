@@ -32,14 +32,7 @@ class TorrentRemover(object):
         self.downloader = Downloader()
         self.dbhelper = DbHelper()
         # 移出现有任务
-        try:
-            if self._scheduler:
-                self._scheduler.remove_all_jobs()
-                if self._scheduler.running:
-                    self._scheduler.shutdown()
-                self._scheduler = None
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
+        self.stop_service()
         # 读取任务任务列表
         removetasks = self.dbhelper.get_torrent_remove_tasks()
         self._remove_tasks = {}
@@ -315,3 +308,16 @@ class TorrentRemover(object):
                 config=task.get("config")
             )
             return True, torrents
+
+    def stop_service(self):
+        """
+        停止服务
+        """
+        try:
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                if self._scheduler.running:
+                    self._scheduler.shutdown()
+                self._scheduler = None
+        except Exception as e:
+            print(str(e))

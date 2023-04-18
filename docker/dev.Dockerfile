@@ -1,6 +1,10 @@
-FROM alpine
-RUN apk update  \
-    && apk add --no-cache libffi-dev \
+FROM alpine AS Builder
+RUN apk add --no-cache --virtual .build-deps \
+        libffi-dev \
+        gcc \
+        musl-dev \
+        libxml2-dev \
+        libxslt-dev \
     && apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NAStool/nas-tools/dev/package_list.txt)) \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
@@ -10,9 +14,19 @@ RUN apk update  \
     && pip install --upgrade pip setuptools wheel \
     && pip install cython \
     && pip install -r https://raw.githubusercontent.com/NAStool/nas-tools/dev/requirements.txt \
-    && npm install pm2 -g \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
-ENV LANG="C.UTF-8" \
+COPY --chmod=755 ./rootfs /
+FROM scratch AS APP
+COPY --from=Builder / /
+ENV S6_SERVICES_GRACETIME=30000 \
+    S6_KILL_GRACETIME=60000 \
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0 \
+    S6_SYNC_DISKS=1 \
+    HOME="/nt" \
+    TERM="xterm" \
+    PATH=${PATH}:/usr/lib/chromium \
+    LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
@@ -25,12 +39,11 @@ ENV LANG="C.UTF-8" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
-    WORKDIR="/nas-tools" \
-    NT_HOME="/nt"
+    WORKDIR="/nas-tools"
 WORKDIR ${WORKDIR}
-RUN mkdir ${NT_HOME} \
+RUN mkdir ${HOME} \
     && addgroup -S nt -g 911 \
-    && adduser -S nt -G nt -h ${NT_HOME} -s /bin/bash -u 911 \
+    && adduser -S nt -G nt -h ${HOME} -s /bin/bash -u 911 \
     && python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=5242880' >> /etc/sysctl.conf \
@@ -39,7 +52,7 @@ RUN mkdir ${NT_HOME} \
     && git config --global pull.ff only \
     && git clone -b dev ${REPO_URL} ${WORKDIR} --depth=1 --recurse-submodule \
     && git config --global --add safe.directory ${WORKDIR} \
-    && chmod +x ${WORKDIR}/docker/entrypoint.sh
+    && chmod +x /nas-tools/docker/entrypoint.sh
 EXPOSE 3000
 VOLUME ["/config"]
-ENTRYPOINT ["/nas-tools/docker/entrypoint.sh"]
+ENTRYPOINT [ "/init" ]

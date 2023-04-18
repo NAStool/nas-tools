@@ -47,11 +47,11 @@
               <a href="javascript:reidentification_all()" class="btn-action d-md-none" title="重新识别">
                 {{ SVG.refresh() }}
               </a>
-              <a href="javascript:delete_checked_unknown()" class="btn d-none d-md-inline-block" title="批量删除">
+              <a href="javascript:delete_checked_unknown()" class="btn text-danger d-none d-md-inline-block" title="批量删除">
                 {{ SVG.trash() }}
                 批量删除
               </a>
-              <a href="javascript:delete_checked_unknown()" class="btn-action d-md-none" title="批量删除">
+              <a href="javascript:delete_checked_unknown()" class="btn-action text-danger d-md-none" title="批量删除">
                 {{ SVG.trash() }}
               </a>
             </div>
@@ -103,7 +103,6 @@
                              href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}", "{{ Path.rmt_mode }}")'>
                             手动识别
                           </a>
-                          <div class="dropdown-divider"></div>
                           <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
                             删除
                           </a>

@@ -41,7 +41,7 @@ class Searcher:
                       in_from: SearchType = None):
         """
         根据关键字调用索引器检查媒体
-        :param key_word: 检索的关键字，不能为空
+        :param key_word: 搜索的关键字，不能为空
         :param filter_args: 过滤条件
         :param match_media: 区配的媒体信息
         :param in_from: 搜索渠道
@@ -70,11 +70,11 @@ class Searcher:
                          filters: dict = None,
                          user_name=None):
         """
-        只检索和下载一个资源，用于精确检索下载，由微信、Telegram或豆瓣调用
+        只搜索和下载一个资源，用于精确搜索下载，由微信、Telegram或豆瓣调用
         :param media_info: 已识别的媒体信息
         :param in_from: 搜索渠道
         :param no_exists: 缺失的剧集清单
-        :param sites: 检索哪些站点
+        :param sites: 搜索哪些站点
         :param filters: 过滤条件，为空则不过滤
         :param user_name: 用户名
         :return: 请求的资源是否全部下载完整，如完整则返回媒体信息
@@ -139,7 +139,7 @@ class Searcher:
                 if search_en_name:
                     second_search_name = search_en_name
         # 开始搜索
-        log.info("【Searcher】开始检索 %s ..." % first_search_name)
+        log.info("【Searcher】开始搜索 %s ..." % first_search_name)
         media_list = self.search_medias(key_word=first_search_name,
                                         filter_args=filter_args,
                                         match_media=media_info,
@@ -148,7 +148,7 @@ class Searcher:
         if len(media_list) == 0 \
                 and second_search_name \
                 and second_search_name != first_search_name:
-            log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+            log.info("【Searcher】%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (first_search_name, second_search_name))
             media_list = self.search_medias(key_word=second_search_name,
                                             filter_args=filter_args,
                                             match_media=media_info,

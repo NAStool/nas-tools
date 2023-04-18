@@ -2039,6 +2039,7 @@ class SyncDirectoryUpdate(ClientResource):
     parser.add_argument('to', type=str, help='目的目录', location='form')
     parser.add_argument('unknown', type=str, help='未知目录', location='form')
     parser.add_argument('syncmod', type=str, help='同步模式', location='form')
+    parser.add_argument('compatibility', type=str, help='兼容模式', location='form')
     parser.add_argument('rename', type=str, help='重命名', location='form')
     parser.add_argument('enabled', type=str, help='开启', location='form')
 
@@ -2098,7 +2099,7 @@ class SyncDirectoryList(ClientResource):
         """
         查询所有同步目录
         """
-        return WebAction().api_action(cmd='get_directorysync')
+        return WebAction().api_action(cmd='get_sync_path')
 
 
 @sync.route('/directory/run')

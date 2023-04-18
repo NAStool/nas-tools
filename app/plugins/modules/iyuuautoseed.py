@@ -301,7 +301,7 @@ class IYUUAutoSeed(_IPluginModule):
                     </div>
                   </div>
                 """
-        return "IYUU认证",  Template(template).render(AuthSites=auth_sites,
+        return "IYUU站点绑定",  Template(template).render(AuthSites=auth_sites,
                                                       IyuuToken = self._token),  "IYUUAutoSeed_user_bind_site()"
 
     @staticmethod

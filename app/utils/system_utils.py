@@ -61,8 +61,10 @@ class SystemUtils:
         """
         if not pname:
             return False
-        text = subprocess.Popen('ps -ef | grep -v grep | grep %s' % pname, shell=True).communicate()
-        return True if text else False
+        for process in psutil.process_iter():
+            if process.name() == pname:
+                return True
+        return False
 
     @staticmethod
     def execute(cmd):

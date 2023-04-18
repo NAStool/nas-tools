@@ -63,6 +63,7 @@ class CONFIGSYNCPATHS(Base):
     DEST = Column(Text)
     UNKNOWN = Column(Text)
     MODE = Column(Text)
+    COMPATIBILITY = Column(Integer)
     RENAME = Column(Integer)
     ENABLED = Column(Integer)
     NOTE = Column(Text)

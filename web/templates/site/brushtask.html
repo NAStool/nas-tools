@@ -48,8 +48,10 @@
                 <input class="form-check-input m-0 align-middle" name="burshtask" value="{{ Task.id }}" type="checkbox">
               </div>
               <div>
-                {% if Task.state %}
+                {% if Task.state == 'Y' %}
                 <span class="badge bg-green ms-3"></span>
+                {% elif Task.state == 'S' %}
+                <span class="badge bg-orange ms-3"></span>
                 {% else %}
                 <span class="badge bg-red ms-3"></span>
                 {% endif %}
@@ -223,8 +225,10 @@
                 <div class="datagrid-item">
                   <div class="datagrid-title">状态</div>
                   <div class="datagrid-content">
-                    {% if Task.state %}
+                    {% if Task.state == 'Y' %}
                       <span class="badge bg-green">正在运行</span>
+                    {% elif Task.state == 'S' %}
+                      <span class="badge bg-orange">停止下载新种</span>
                     {% else %}
                       <span class="badge bg-red">已停用</span>
                     {% endif %}
@@ -304,7 +308,8 @@
               <label class="form-label required">状态</label>
               <select class="form-select" id="brushtask_state">
                 <option value="Y">正常</option>
-                <option value="N">暂停</option>
+                <option value="S">停止下载新种</option>
+                <option value="N">停用</option>
               </select>
             </div>
           </div>
@@ -488,7 +493,7 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">发布时间（小时） <span class="form-help"
-                                                             title="种子的发布时间在选定范围内时才会下载"
+                                                             title="种子的发布时间在选定范围内时才会下载，介于时使用英文逗号,分隔两个值，比较值时均包括边界值本身"
                                                              data-bs-toggle="tooltip">?</span></label>
               <div class="input-group">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
@@ -501,9 +506,17 @@
                      onclick="filter_item_change('', 'brushtask_pubdate',$(this))">
                     全部
                   </a>
+                  <a class="dropdown-item" id="brushtask_pubdate_do_gt" href="javascript:void(0)"
+                     onclick="filter_item_change('gt', 'brushtask_pubdate',$(this))">
+                    大于
+                  </a>
                   <a class="dropdown-item" id="brushtask_pubdate_do_lt" href="javascript:void(0)"
                      onclick="filter_item_change('lt', 'brushtask_pubdate',$(this))">
                     小于
+                  </a>
+                  <a class="dropdown-item" id="brushtask_pubdate_do_bw" href="javascript:void(0)"
+                     onclick="filter_item_change('bw', 'brushtask_pubdate',$(this))">
+                    介于
                   </a>
                 </div>
                 <input type="text" id="brushtask_pubdate" class="form-control" placeholder="" readonly/>
@@ -716,11 +729,7 @@
         $("#brushtask_rssurl").val(ret.task.rss_url_show);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
-        if (ret.task.state) {
-          $("#brushtask_state").val("Y");
-        } else {
-          $("#brushtask_state").val("N");
-        }
+        $("#brushtask_state").val(ret.task.state);
         if (ret.task.transfer) {
           $("#brushtask_transfer").prop("checked", true);
         } else {

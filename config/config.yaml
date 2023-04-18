@@ -180,15 +180,9 @@ scraper_pic:
     # 开启后，读取视频文件生成缩略图
     episode_thumb_ffmpeg: false
 
-# 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
-sync:
-  # 监控目录配置已转移至数据库
-  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录或者是windows的docker，否则建议设置为linux
-  nas_sys: linux
-
-# 【配置站点检索信息】
+# 【配置站点搜索信息】
 pt:
-  #【聚合检索使用的检索器】：builtin
+  #【聚合搜索使用的检索器】：builtin
   search_indexer: builtin
   # 【内建索引器使用的站点】：只有在该站点列表中内建索引器搜索时才会使用
   indexer_sites:
@@ -249,6 +243,6 @@ laboratory:
   # 【默认搜索豆瓣资源】：开启将使用豆瓣进行电影电视剧的名称搜索，否则使用TMDB的数据
   use_douban_titles: false
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
-  search_en_title: true
+  search_en_title: false
   # 【使用TMDB代理】
   tmdb_proxy: false
