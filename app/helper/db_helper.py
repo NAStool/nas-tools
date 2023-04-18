@@ -2527,7 +2527,7 @@ class DbHelper:
         """
         if cid:
             return self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).all()
-        return self._db.query(MESSAGECLIENT).order_by(MESSAGECLIENT.TYPE).all()
+        return self._db.query(MESSAGECLIENT).all()
 
     @DbPersist(_db)
     def insert_message_client(self,
@@ -2721,7 +2721,7 @@ class DbHelper:
         """
         查询下载器
         """
-        return self._db.query(DOWNLOADER).order_by(DOWNLOADER.TYPE.desc()).all()
+        return self._db.query(DOWNLOADER).all()
 
     @DbPersist(_db)
     def insert_indexer_statistics(self,
