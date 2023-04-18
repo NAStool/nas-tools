@@ -452,7 +452,7 @@ class SpeedLimiter(_IPluginModule):
 
     def check_limited_downloader(self):
         """
-        检查限速下载器及计算上传限速
+        检查限速下载器
         """
         # 限速下载器
         limited_downloader_confs = []
