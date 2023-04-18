@@ -1,4 +1,5 @@
 import json
+import re
 import time
 
 import log
@@ -14,6 +15,9 @@ class HDSky(_ISiteSigninHandler):
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
     site_url = "hdsky.me"
+
+    # 已签到
+    _sign_regex = ['[已签到]']
 
     @classmethod
     def match(cls, url):
@@ -33,6 +37,21 @@ class HDSky(_ISiteSigninHandler):
         site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
+
+        # 判断今日是否已签到
+        index_res = RequestUtils(cookies=site_cookie,
+                                 headers=ua,
+                                 proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                 ).get_res(url='https://hdsky.me')
+        if not index_res or index_res.status_code != 200:
+            log.error(f"【Sites】{site}签到失败，请检查站点连通性")
+            return f'【{site}】签到失败，请检查站点连通性'
+
+        sign_status = self.__sign_in_result(html_res=index_res.text,
+                                            regexs=self._sign_regex)
+        if sign_status:
+            log.info(f"【Sites】{site}今日已签到")
+            return f'【{site}】今日已签到'
 
         # 获取验证码请求，考虑到网络问题获取失败，多获取几次试试
         res_times = 0
@@ -101,3 +120,20 @@ class HDSky(_ISiteSigninHandler):
                         return f'【{site}】{site}签到失败：验证码错误'
 
         return f'【Sites】{site}签到失败：未获取到验证码'
+
+    def __sign_in_result(self, html_res, regexs):
+        """
+        判断是否签到成功
+        """
+        html_text = self._prepare_html_text(html_res)
+        for regex in regexs:
+            if re.search(str(regex), html_text):
+                return True
+        return False
+
+    @staticmethod
+    def _prepare_html_text(html_text):
+        """
+        处理掉HTML中的干扰部分
+        """
+        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
