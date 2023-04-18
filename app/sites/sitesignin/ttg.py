@@ -1,7 +1,5 @@
 import re
 
-from lxml import etree
-
 import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
@@ -17,6 +15,7 @@ class TTG(_ISiteSigninHandler):
 
     # 已签到
     _sign_regex = ['<b style="color:green;">已签到</b>']
+
     # 签到成功
     _success_regex = ['您已连续签到\\d+天，奖励\\d+积分，明天继续签到将获得\\d+积分奖励。']
 
@@ -55,22 +54,20 @@ class TTG(_ISiteSigninHandler):
             log.info(f"【Sites】{site}已签到")
             return f'【{site}】已签到'
 
-        # 没有签到则解析html
-        html = etree.HTML(html_res.text)
-        if not html:
-            return
-        signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html).group()
-        signed_token = re.search('(?<=signed_token: ").*(?=")', html).group()
+        # 获取签到参数
+        signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
+        signed_token = re.search('(?<=signed_token: ").*(?=")', html_res.text).group()
         log.debug(f"【Sites】{site} signed_timestamp={signed_timestamp} signed_token={signed_token}")
+
         data = {
             'signed_timestamp': signed_timestamp,
             'signed_token': signed_token
         }
+        # 签到
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
-                                content_type="text/html",
                                 proxies=Config().get_proxies() if site_info.get("proxy") else None
-                                ).post_res(url="https://totheglory.im/attendance.php",
+                                ).post_res(url="https://totheglory.im/signed.php",
                                            data=data)
         if not sign_res or sign_res.status_code != 200:
             log.error(f"【Sites】{site}签到失败，签到接口请求失败")
