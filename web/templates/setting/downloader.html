@@ -36,19 +36,19 @@
     <div class="d-grid gap-3 grid-normal-card">
     {% for Id, Attr in Downloaders.items() %}
       <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_downloader_modal('{{ Id }}')">
-        <span onclick="event.stopPropagation();set_default_downloader('{{ Attr.id }}')"
-          class="btn-action position-absolute p-1"
-          title="设置默认" style="top:5px;right:5px;z-index:1;"
-          data-bs-toggle="tooltip"
-          >
-          {% if DefaultDownloader == Id %}
-            {{ SVG.star('icon-filled w-100 h-100 text-purple') }}
-          {% else %}
-            {{ SVG.star('w-100 h-100 text-muted') }}
-          {% endif %}
-        </span>
         <div class="card-cover card-cover-blurred text-center"
           {% if DownloaderConf[Attr.type].color %}style="background-color: {{ DownloaderConf[Attr.type].color }}"{% endif %}>
+          <span onclick="event.stopPropagation();set_default_downloader('{{ Attr.id }}')"
+            class="btn-action p-1"
+            title="设置默认" style="position:absolute;top:5px;right:5px;z-index:1;"
+            data-bs-toggle="tooltip"
+            >
+            {% if DefaultDownloader == Id %}
+              {{ SVG.star('icon-filled w-100 h-100 text-purple') }}
+            {% else %}
+              {{ SVG.star('w-100 h-100 text-muted') }}
+            {% endif %}
+          </span>
           <span class="avatar avatar-xl avatar-thumb avatar-rounded"
                 style="background-image: url('{{ DownloaderConf[Attr.type].img_url }}')"></span>
         </div>
