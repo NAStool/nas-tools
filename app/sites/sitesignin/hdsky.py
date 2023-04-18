@@ -49,14 +49,14 @@ class HDSky(_ISiteSigninHandler):
                     img_hash = image_json["code"]
                     break
                 res_times += 1
-                log.debug(f"【Sites】获取天空验证码失败，正在进行重试，目前重试次数 {res_times}")
+                log.debug(f"【Sites】获取{site}验证码失败，正在进行重试，目前重试次数 {res_times}")
                 time.sleep(1)
 
         # 获取到二维码hash
         if img_hash:
             # 完整验证码url
             img_get_url = 'https://hdsky.me/image.php?action=regimage&imagehash=%s' % img_hash
-            log.debug(f"【Sites】获取到天空验证码连接 {img_get_url}")
+            log.debug(f"【Sites】获取到{site}验证码连接 {img_get_url}")
             # ocr识别多次，获取6位验证码
             times = 0
             ocr_result = None
@@ -66,13 +66,13 @@ class HDSky(_ISiteSigninHandler):
                 ocr_result = OcrHelper().get_captcha_text(image_url=img_get_url,
                                                           cookie=site_cookie,
                                                           ua=ua)
-                log.debug(f"【Sites】orc识别天空验证码 {ocr_result}")
+                log.debug(f"【Sites】orc识别{site}验证码 {ocr_result}")
                 if ocr_result:
                     if len(ocr_result) == 6:
-                        log.info(f"【Sites】orc识别天空验证码成功 {ocr_result}")
+                        log.info(f"【Sites】orc识别{site}验证码成功 {ocr_result}")
                         break
                 times += 1
-                log.debug(f"【Sites】orc识别天空验证码失败，正在进行重试，目前重试次数 {times}")
+                log.debug(f"【Sites】orc识别{site}验证码失败，正在进行重试，目前重试次数 {times}")
                 time.sleep(1)
 
             if ocr_result:
@@ -89,15 +89,15 @@ class HDSky(_ISiteSigninHandler):
                                    ).post_res(url='https://hdsky.me/showup.php', data=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
-                        log.info(f"【Sites】天空签到成功")
+                        log.info(f"【Sites】{site}签到成功")
                         return f'【{site}】签到成功'
                     elif str(json.loads(res.text)["message"]) == "date_unmatch":
                         # 重复签到
-                        log.warn(f"【Sites】天空重复成功")
+                        log.warn(f"【Sites】{site}重复成功")
                         return f'【{site}】今日已签到'
                     elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
                         # 验证码错误
-                        log.warn(f"【Sites】天空签到失败：验证码错误")
-                        return f'【{site}】天空签到失败：验证码错误'
+                        log.warn(f"【Sites】{site}签到失败：验证码错误")
+                        return f'【{site}】{site}签到失败：验证码错误'
 
-        return '【Sites】天空签到失败：未获取到验证码'
+        return f'【Sites】{site}签到失败：未获取到验证码'
