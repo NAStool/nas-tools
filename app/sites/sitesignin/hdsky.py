@@ -30,6 +30,7 @@ class HDSky(_ISiteSigninHandler):
         :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
         :return: 签到结果信息
         """
+        site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
 
@@ -89,14 +90,14 @@ class HDSky(_ISiteSigninHandler):
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
                         log.info(f"【Sites】天空签到成功")
-                        return '【天空】签到成功'
+                        return f'【{site}】签到成功'
                     elif str(json.loads(res.text)["message"]) == "date_unmatch":
                         # 重复签到
                         log.warn(f"【Sites】天空重复成功")
-                        return '【天空】今日已签到'
+                        return f'【{site}】今日已签到'
                     elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
                         # 验证码错误
                         log.warn(f"【Sites】天空签到失败：验证码错误")
-                        return '【Sites】天空签到失败：验证码错误'
+                        return f'【{site}】天空签到失败：验证码错误'
 
         return '【Sites】天空签到失败：未获取到验证码'
