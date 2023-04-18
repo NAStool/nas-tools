@@ -877,11 +877,20 @@ class BrushTask(object):
         else:
             # ID
             torrent_id = torrent.hashString
-            # 做种时间
+            # 当前时间
+            date_now = int(time.mktime(datetime.now().timetuple()))
+            # 完成时间
             date_done = torrent.date_done or torrent.date_added
+            # 做种时间
+            if not date_done or date_done.timestamp() < 1:
+                seeding_time = 0
+            else:
+                seeding_time = date_now - int(time.mktime(date_done.timetuple()))
             # 下载耗时
-            dltime = date_now - int(time.mktime(torrent.date_added.timetuple()))
-            seeding_time = date_now - int(time.mktime(date_done.timetuple()))
+            if not torrent.date_added or torrent.date_added.timestamp() < 1:
+                dltime = 0
+            else:
+                dltime = date_now - int(time.mktime(torrent.date_added.timetuple()))
             # 下载量
             downloaded = int(torrent.total_size * torrent.progress / 100)
             # 分享率
