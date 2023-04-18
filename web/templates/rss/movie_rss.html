@@ -39,7 +39,7 @@
 {% if Count > 0 %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="d-grid gap-3 grid-normal-card">
+      <div class="d-grid gap-3 grid-normal-card align-items-start">
         {% for Id, Attr in Items.items() %}
           <a class="card card-link-pop p-0"
              href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("MOV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "movie_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "MOV"){% endif %}'>
