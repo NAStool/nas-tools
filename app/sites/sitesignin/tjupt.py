@@ -6,7 +6,7 @@ from lxml import etree
 from PIL import Image
 import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
-from app.utils import StringUtils, RequestUtils
+from app.utils import StringUtils, RequestUtils, ExceptionUtils
 from config import Config
 
 
@@ -36,10 +36,10 @@ class Tjupt(_ISiteSigninHandler):
 
     def signin(self, site_info: dict):
         """
-        执行签到操作
-        :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
-        :return: 签到结果信息
-        """
+                执行签到操作
+                :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
+                :return: 签到结果信息
+                """
         site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
@@ -51,7 +51,7 @@ class Tjupt(_ISiteSigninHandler):
                                 ).get_res(url=self._sign_in_url)
 
         # 获取签到后返回html，判断是否签到成功
-        if not html_res:
+        if not html_res or html_res.status_code != 200:
             log.error("【Sites】北洋签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
         self.__sign_in_result(html_res=html_res.text,
@@ -139,11 +139,11 @@ class Tjupt(_ISiteSigninHandler):
         """
         判断是否签到成功
         """
-        html_text = self._prepare_html_text(html_res.text)
+        html_text = self._prepare_html_text(html_res)
         for regex in self._succeed_regex:
             if re.search(str(regex), html_text):
-                log.info(f"【Sites】北洋签到成功")
-                return f'【{site}】签到成功'
+                log.info(f"【Sites】北洋已签到")
+                return f'【{site}】已签到'
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):
