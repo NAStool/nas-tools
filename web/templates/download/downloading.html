@@ -42,7 +42,7 @@
             <div class="card-body">
               <div class="row align-items-center">
                 {% if Torrent.image %}
-                  <div class="col-3">
+                  <div class="col-auto p-0">
                     <img src="{{ Torrent.image }}" class="rounded" alt="" style="max-width: 80px;">
                   </div>
                 {% endif %}
@@ -73,7 +73,7 @@
                     </div>
                   {% endif %}
                 </div>
-                <div class="col-auto">
+                <div class="col-auto p-0">
                   <div class="dropdown">
                     {% if not Torrent.nomenu %}
                       <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">

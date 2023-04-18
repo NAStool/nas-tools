@@ -146,7 +146,7 @@ body, .page {
 }
 
 .grid-large-card {
-    grid-template-columns: repeat(auto-fill,minmax(25rem,1fr));
+    grid-template-columns: repeat(auto-fill,minmax(24rem,1fr));
 }
 
 .offcanvas-backdrop.show {
