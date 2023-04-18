@@ -1,4 +1,5 @@
 #!/bin/sh
+# 仅用于兼容v3.1.5及之前的docker镜像
 
 cd ${WORKDIR}
 

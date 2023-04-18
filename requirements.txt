@@ -55,6 +55,7 @@ parsel==1.6.0
 parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
+pillow==9.5.0
 proces==0.1.2
 prompt-toolkit==3.0.31
 psutil==5.9.4

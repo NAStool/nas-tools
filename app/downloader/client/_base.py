@@ -1,7 +1,7 @@
 import os.path
 from abc import ABCMeta, abstractmethod
 
-from app.utils import ExceptionUtils
+from app.utils import PathUtils
 
 
 class _IDownloadClient(metaclass=ABCMeta):
@@ -134,37 +134,30 @@ class _IDownloadClient(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def get_replace_path(path, downloaddir):
+    def get_replace_path(path, downloaddir) -> (str, bool):
         """
         对目录路径进行转换
+        :param path: 需要转换的路径
+        :param downloaddir: 下载目录清单
+        :return: 转换后的路径, 是否进行转换
         """
         if not path or not downloaddir:
-            return ""
+            return "", False
         path = os.path.normpath(path)
         for attr in downloaddir:
-            if not attr.get("save_path") or not attr.get("container_path"):
+            save_path = attr.get("save_path")
+            if not save_path:
                 continue
-            save_path = os.path.normpath(attr.get("save_path"))
-            container_path = os.path.normpath(attr.get("container_path"))
-            if path.startswith(save_path):
-                return path.replace(save_path, container_path)
-        return path
-
-    @staticmethod
-    def is_download_dir(path, download_dir):
-        """
-        检查下载器中获取的任务保存路径是否为下载目录或者下载目录的子路径
-        """
-        try:
-            for directory in download_dir:
-                if path \
-                        and directory['save_path'] \
-                        and os.path.commonpath([directory['save_path'], path]) == directory['save_path']:
-                    return True
-            return False
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-            return False
+            save_path = os.path.normpath(save_path)
+            container_path = attr.get("container_path")
+            # 没有访问目录，视为与下载保存目录相同
+            if not container_path:
+                container_path = save_path
+            else:
+                container_path = os.path.normpath(container_path)
+            if PathUtils.is_path_in_path(save_path, path):
+                return path.replace(save_path, container_path), True
+        return path, False
 
     @abstractmethod
     def change_torrent(self, **kwargs):

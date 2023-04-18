@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/form.html' as FORM %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -33,103 +34,67 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
+{% if MessageClients %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body border-bottom py-3">
-          <div class="d-flex">
-            <div class="text-muted">
-              共 {{ ClientCount }} 条记录
-            </div>
+    <div class="d-grid gap-3 grid-normal-card">
+    {% for Id, Attr in MessageClients.items() %}
+      <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_message_client_modal('{{ Id }}')">
+        <div class="card-cover card-cover-blurred text-center"
+          {% if Channels[Attr.type].color %}style="background-color: {{ Channels[Attr.type].color }}"{% endif %}>
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url('{{ Channels[Attr.type].img_url }}')"></span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green" title="已启用" data-bs-toggle="tooltip"></span>{% endif %} {{ Attr.name }}</div>
+          <div class="text-muted">
+            {% if Attr.config.get("host")  %}
+              {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
+            {% endif %}
+          </div>
+          <div class="text-muted mt-1">
+            {% if Channels[Attr.type].search_type and Attr.interactive == 1 %}
+              <span class="badge bg-green me-1 mb-1" title="已开启交互">
+                交互
+              </span>
+            {% endif %}
+          </div>
+          <div class="text-muted">
+            <small>
+               {% for swid in Attr.switchs %}
+                <span class="badge
+                  {% if "download" in swid %}
+                  bg-blue-lt
+                  {% elif "transfer" in swid %}
+                  bg-azure-lt
+                  {% elif "rss" in swid %}
+                  bg-indigo-lt
+                  {% elif "site" in swid %}
+                  bg-purple-lt
+                  {% elif "brushtask" in swid %}
+                  bg-pink-lt
+                  {% elif "mediaserver" in swid %}
+                  bg-orange-lt
+                  {% elif "torrent" in swid %}
+                  bg-green-lt
+                  {% elif "ptrefresh" in swid %}
+                  bg-teal-lt
+                  {% else %}
+                  bg-muted-lt
+                  {% endif %}
+                  me-1 mb-0">{{ Switchs[swid].name }}</span>
+              {% endfor %}
+            </small>
           </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-vcenter card-table table-hover table-striped">
-            <thead>
-            <tr>
-              <th class="w-5 text-nowrap">类型</th>
-              <th>名称</th>
-              <th>推送内容</th>
-              <th class="w-5 text-nowrap">交互</th>
-              <th class="w-5 text-nowrap">启用</th>
-              <th class="w-3"></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% if MessageClients %}
-              {% for Id, Attr in MessageClients.items() %}
-                <tr>
-                  <td>
-                  <span class="avatar avatar-sm avatar-thumb avatar-rounded"
-                        style="background-image: url({{ Channels[Attr.type].img_url }})"></span>
-                  </td>
-                  <td>{{ Attr.name }}</td>
-                  <td>
-                    <small>
-                      {% for swid in Attr.switchs %}
-                        <span class="badge
-                          {% if "download" in swid %}
-                          bg-blue-lt
-                          {% elif "transfer" in swid %}
-                          bg-azure-lt
-                          {% elif "rss" in swid %}
-                          bg-indigo-lt
-                          {% elif "site" in swid %}
-                          bg-purple-lt
-                          {% elif "brushtask" in swid %}
-                          bg-pink-lt
-                          {% elif "mediaserver" in swid %}
-                          bg-orange-lt
-                          {% elif "torrent" in swid %}
-                          bg-green-lt
-                          {% elif "ptrefresh" in swid %}
-                          bg-teal-lt
-                          {% endif %}
-                          me-1 mb-0">{{ Switchs[swid].name }}</span>
-                      {% endfor %}
-                    </small>
-                  </td>
-                  <td>
-                    {% if Channels[Attr.type].search_type %}
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.interactive == 1 %}
-                               checked {% endif %}
-                               onclick="check_message_client('interactive', '{{ Id }}', this.checked, '{{ Attr.type }}')">
-                      </label>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <label class="form-check form-switch mb-0">
-                      <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %} checked {% endif %}
-                             onclick="check_message_client('enable', '{{ Id }}', this.checked, '{{ Attr.type }}')">
-                    </label>
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <a href="javascript:show_edit_message_client_modal('{{ Id }}')" title="编辑消息服务">
-                        {{ SVG.edit() }}
-                      </a>
-                      <a href="javascript:delete_message_client('{{ Id }}', '{{ Attr.name }}')" title="删除消息服务"
-                         class="ms-2">
-                        {{ SVG.x() }}
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="6" align="center">未配置</td>
-              </tr>
-            {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </a>
+    {% endfor %}
     </div>
   </div>
 </div>
+{% else %}
+  {{ OOPS.empty('没有通知渠道', '没有添加任何消息通知渠道，请点击”新增消息通知“按钮。') }}
+{% endif %}
 <div class="modal modal-blur fade" id="modal-message-client" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -195,9 +160,9 @@
         </div>
         {% endfor %}
         <details>
-          <summary class="summary">
+          <summary class="summary inline-flex">
             推送设置
-            <a href="javascript:void(0)" class="ms-2" onclick="select_btn_SelectALL(this, 'message_switchs')">全选</a>
+            <a href="javascript:void(0)" class="float-end" onclick="select_btn_SelectALL(this, 'message_switchs')">全选</a>
           </summary>
           <div class="row mt-2">
             <div class="form-selectgroup">
@@ -215,6 +180,10 @@
         <button onclick="add_or_edit_or_test_message_client('test')" id="test_message_client_btn"
            class="btn me-auto">
           测试
+        </button>
+        <button onclick="delete_message_client()" id="delete_message_client_btn"
+           class="btn btn-link text-danger">
+          删除
         </button>
         <button onclick="add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
            class="btn btn-primary">
@@ -313,6 +282,7 @@
     show_client_type("{{ Channels.keys()|first }}");
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     select_SelectALL(true, "message_switchs")
+    $("#delete_message_client_btn").hide();
     $("#modal-message-client").modal("show");
   }
 
@@ -350,6 +320,7 @@
         } else {
           select_SelectPart(ret.detail.switchs, "message_switchs");
         }
+        $("#delete_message_client_btn").show();
         $("#modal-message-client").modal("show");
       }
     });
@@ -433,7 +404,10 @@
   }
 
   // 打开推送设置框
-  function delete_message_client(cid, name) {
+  function delete_message_client() {
+    let cid = $("#client_id").val();
+    let name = $("#client_name").val();
+    $("#modal-message-client").modal('hide');
     show_confirm_modal("删除消息服务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_message_client", {"cid": cid}, function (ret) {

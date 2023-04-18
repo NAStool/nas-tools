@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/form.html' as FORM %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -31,124 +32,63 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
+{% if Downloaders %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body border-bottom py-3">
-          <div class="d-flex">
-            <div class="text-muted">
-              共 {{ DownloadersCount }} 条记录
-            </div>
+    <div class="d-grid gap-3 grid-normal-card">
+    {% for Id, Attr in Downloaders.items() %}
+      <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_downloader_modal('{{ Id }}')">
+        <div class="card-cover card-cover-blurred text-center"
+          {% if DownloaderConf[Attr.type].color %}style="background-color: {{ DownloaderConf[Attr.type].color }}"{% endif %}>
+          <span onclick="event.stopPropagation();set_default_downloader('{{ Attr.id }}')"
+            class="btn-action p-1"
+            title="设置默认" style="position:absolute;top:5px;right:5px;z-index:1;"
+            data-bs-toggle="tooltip"
+            >
+            {% if DefaultDownloader == Id %}
+              {{ SVG.star('icon-filled w-100 h-100 text-purple') }}
+            {% else %}
+              {{ SVG.star('w-100 h-100 text-muted') }}
+            {% endif %}
+          </span>
+          <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+                style="background-image: url('{{ DownloaderConf[Attr.type].img_url }}')"></span>
+        </div>
+        <div class="card-body text-center">
+          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green" title="已启用" data-bs-toggle="tooltip"></span>{% endif %} {{ Attr.name }}</div>
+          <div class="text-muted">
+            {% if Attr.config.get("host")  %}
+              {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
+            {% endif %}
+          </div>
+          <div class="text-muted mt-2">
+            <small>
+              {% if Attr.transfer == 1 %}
+                <span class="badge bg-green me-1 mb-1" title="转移方式">
+                  {{ Attr.rmt_mode_name }}
+                </span>
+              {% endif %}
+              {% if Attr.only_nastool == 1 %}
+                <span class="badge badge-outline text-orange me-1 mb-1" title="标签隔离">
+                  标签隔离
+                </span>
+              {% endif %}
+              {% if Attr.match_path == 1 %}
+                <span class="badge badge-outline text-yellow me-1 mb-1" title="目录隔离">
+                  目录隔离
+                </span>
+              {% endif %}
+            </small>
           </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-vcenter card-table table-hover table-striped">
-            <thead>
-            <tr>
-              <th class="w-3 text-nowrap">默认</th>
-              <th class="w-5 text-nowrap">类型</th>
-              <th>名称</th>
-              <th><span class="d-none d-md-inline-block">地址</span></th>
-              <th class="w-5 text-nowrap">监控</th>
-              <th class="w-5 text-nowrap">标签隔离</th>
-              <th class="w-5 text-nowrap">目录隔离</th>
-              <th class="w-5 text-nowrap">转移方式</th>
-              <th class="w-5 text-nowrap">状态</th>
-              <th class="w-3"></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% if Downloaders %}
-              {% for Id, Attr in Downloaders.items() %}
-                <tr>
-                  <td>
-                    <div class="">
-                      <a href="javascript:set_default_downloader('{{ Attr.id }}')" class="btn-action" title="设置默认">
-                        {% if DefaultDownloader == Id %}
-                          <span class="text-purple">{{ SVG.star('icon-filled') }}</span>
-                        {% else %}
-                          {{ SVG.star() }}
-                        {% endif %}
-                      </a>
-                    </div>
-                  </td>
-                  <td>
-                  <span class="avatar avatar-sm avatar-thumb avatar-rounded"
-                        style="background-image: url({{ DownloaderConf[Attr.type].img_url }})"></span>
-                  </td>
-                  <td><span class="text-nowrap">{{ Attr.name }}</span></td>
-                  <td>
-                    <div class="d-none d-md-inline-block">
-                    {% if Attr.config.get("host")  %}
-                      {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
-                    {% endif %}
-                    </div>
-                  </td>
-                  <td>
-                    {% if DownloaderConf[Attr.type].monitor_enable %}
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.transfer == 1 %}
-                               checked {% endif %}
-                               onclick="check_downloader('transfer', '{{ Id }}', this.checked)">
-                      </label>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if DownloaderConf[Attr.type].monitor_enable %}
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.only_nastool == 1 %}
-                               checked {% endif %}
-                               onclick="check_downloader('only_nastool', '{{ Id }}', this.checked)">
-                      </label>
-                    {% endif %}
-                  </td>
-                 <td>
-                    {% if DownloaderConf[Attr.type].monitor_enable %}
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.match_path == 1 %}
-                               checked {% endif %}
-                               onclick="check_downloader('match_path', '{{ Id }}', this.checked)">
-                      </label>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if DownloaderConf[Attr.type].monitor_enable and Attr.transfer %}
-                      <span class="badge">{{ Attr.rmt_mode_name }}</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <label class="form-check form-switch mb-0">
-                      <input class="form-check-input" type="checkbox" {% if Attr.enabled == 1 %}
-                             checked {% endif %}
-                             onclick="check_downloader('enabled', '{{ Id }}', this.checked)">
-                    </label>
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <a href="javascript:show_edit_downloader_modal('{{ Id }}')" title="编辑下载器">
-                        {{ SVG.edit() }}
-                      </a>
-                      <a href="javascript:delete_downloader('{{ Id }}', '{{ Attr.name }}')" title="删除下载器"
-                         class="ms-2">
-                        {{ SVG.x() }}
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="9" align="center">未配置</td>
-              </tr>
-            {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </a>
+    {% endfor %}
     </div>
   </div>
 </div>
+{% else %}
+  {{ OOPS.empty('没有下载器', '没有添加任何下载器，请点击”新增下载器“按钮，并设置默认下载器。') }}
+{% endif %}
 <div class="modal modal-blur fade" id="modal-downloader" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -217,6 +157,16 @@
           </div>
           <div class="col-lg">
             <div class="mb-3">
+              <label class="form-label required">转移方式</label>
+              <select class="form-select" id="downloader_rmt_mode">
+                {% for mode in RmtModeDict %}
+                  <option value="{{ mode.value }}">{{ mode.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div class="mb-3">
               <label class="form-label required">标签隔离 <span class="form-help" data-bs-toggle="tooltip"
                                                         data-bs-original-title="启用后只有含NASTOOL标签的下载任务才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></label>
               <select class="form-select" id="downloader_only_nastool">
@@ -231,16 +181,6 @@
               <select class="form-select" id="downloader_match_path">
                 <option value="1">是</option>
                 <option value="0" selected>否</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-lg">
-            <div class="mb-3">
-              <label class="form-label required">转移方式</label>
-              <select class="form-select" id="downloader_rmt_mode">
-                {% for mode in RmtModeDict %}
-                  <option value="{{ mode.value }}">{{ mode.name }}</option>
-                {% endfor %}
               </select>
             </div>
           </div>
@@ -259,6 +199,10 @@
       <div class="modal-footer">
         <button onclick="add_or_edit_or_test_downloader('test')" id="test_downloader_btn" class="btn me-auto">
           测试
+        </button>
+        <button onclick="delete_downloader()" id="delete_downloader_client_btn"
+           class="btn btn-link text-danger">
+          删除
         </button>
         <button onclick="add_or_edit_or_test_downloader('save')" id="add_or_edit_downloader_btn" class="btn btn-primary">
           确定
@@ -303,6 +247,7 @@
     $("#div_downloader_downloaddir").empty();
     add_downloaddir();
     $("#test_downloader_btn").text("测试").attr("disabled", false);
+    $("#delete_downloader_client_btn").hide();
     $("#modal-downloader").modal("show");
   }
 
@@ -349,6 +294,7 @@
         for (let download_dir of download_dirs) {
           add_downloaddir(download_dir.type, download_dir.category, download_dir.save_path, download_dir.container_path, download_dir.label);
         }
+        $("#delete_downloader_client_btn").show();
         $("#modal-downloader").modal("show");
       }
     });
@@ -364,7 +310,10 @@
   }
 
   // 删除下载器
-  function delete_downloader(did, name){
+  function delete_downloader(){
+    let did = $("#downloader_id").val();
+    let name = $("#downloader_name").val();
+    $("#modal-downloader").modal('hide');
     show_confirm_modal("删除下载器 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("del_downloader", { "did": did }, function (ret) {

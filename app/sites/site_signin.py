@@ -68,8 +68,11 @@ class SiteSignin(object):
         签到一个站点
         """
         site_module = self.__build_class(site_info.get("signurl"))
-        if site_module:
-            return site_module.signin(site_info)
+        if site_module and hasattr(site_module, "signin"):
+            try:
+                return site_module().signin(site_info)
+            except Exception as e:
+                return f"【{site_info.get('name')}】签到失败：{str(e)}"
         else:
             return self.__signin_base(site_info)
 

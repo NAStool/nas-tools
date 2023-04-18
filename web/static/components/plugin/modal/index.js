@@ -120,8 +120,9 @@ export class PluginModal extends CustomElement {
     let tooltip = field_content["tooltip"];
     let id = field_content["id"];
     let onclick = field_content["onclick"];
+    let default_value = field_content["default"];
     let checkbox;
-    if (this.config[id]) {
+    if (this.config[id] || (this.config[id] === undefined && default_value)) {
       checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}" onclick="${onclick}" checked>`
     } else {
       checkbox = html`<input class="form-check-input" type="checkbox" id="${this.prefix}${id}" onclick="${onclick}">`

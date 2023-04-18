@@ -26,78 +26,100 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body border-bottom py-3">
-            <div class="d-flex">
-              <div class="text-muted">
-                共 {{ SyncCount }} 条记录
+        {% for Id, Attr in SyncPaths.items() %}
+          <div class="card">
+            <div class="card-header">
+              <div>
+                {% if Attr.enabled %}
+                <span class="badge bg-green"></span>
+                {% else %}
+                <span class="badge bg-red"></span>
+                {% endif %}
+              </div>
+              <h3 class="card-title ms-3">{{ Attr.from }}</h3>
+              <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ SVG.dots() }}
+              </a>
+              <div class="dropdown-menu dropdown-menu-end">
+                <button class="dropdown-item" onclick="show_edit_sync_path_modal('{{ Id }}')">
+                  编辑
+                </button>
+                <button class="dropdown-item text-danger" onclick="delete_sync_path('{{ Id }}')">
+                  删除
+                </button>
+              </div>
+              <div class="card-actions btn-actions d-none d-sm-block">
+                <a href="javascript:show_edit_sync_path_modal('{{ Id }}')" class="btn-action"
+                  title="编辑" data-bs-toggle="tooltip">
+                  {{ SVG.edit() }}
+                </a>
+                <a href="javascript:delete_sync_path('{{ Id }}')" class="btn-action"
+                   title="删除" data-bs-toggle="tooltip">
+                  {{ SVG.x() }}
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="datagrid">
+                <div class="datagrid-item">
+                  <div class="datagrid-title">源目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.from or '' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">目的目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.to or '自动' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">未识别目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.unknown or '未设置' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">同步方式</div>
+                  <div class="datagrid-content">
+                    <span class="badge">{{ Attr.syncmod_name }}</span>
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">兼容模式</div>
+                  <div class="datagrid-content">
+                    {% if Attr.compatibility %}
+                      <span class="badge bg-cyan">开</span>
+                    {% else %}
+                      <span class="badge bg-orange">关</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">识别重命名</div>
+                  <div class="datagrid-content">
+                    {% if Attr.rename %}
+                      <span class="badge bg-cyan">开</span>
+                    {% else %}
+                      <span class="badge bg-orange">关</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">状态</div>
+                  <div class="datagrid-content">
+                    {% if Attr.enabled %}
+                      <span class="badge bg-green">正常</span>
+                    {% else %}
+                      <span class="badge bg-red">停用</span>
+                    {% endif %}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="table-responsive">
-            <table class="table table-vcenter card-table table-hover table-striped">
-              <thead>
-              <tr>
-                <th>源目录</th>
-                <th>目的目录</th>
-                <th class="w-5 text-nowrap">同步方式</th>
-                <th class="w-5 text-nowrap">识别重命名</th>
-                <th class="w-5 text-nowrap">状态</th>
-                <th class="w-5"></th>
-              </tr>
-              </thead>
-              <tbody>
-              {% if SyncPaths %}
-                {% for SyncPath in SyncPaths %}
-                  <tr>
-                    <td>{{ SyncPath.from or '' }}</td>
-                    <td>
-                      {{ SyncPath.to or '' }}
-                      {% if SyncPath.unknown and SyncPath.rename %}
-                        <div class="text-muted">
-                          未识别：{{ SyncPath.unknown }}
-                        </div>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <span class="badge">{{ SyncPath.syncmod_name }}</span>
-                    </td>
-                    <td>
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if SyncPath.rename==1 %} checked {% endif %}
-                               onclick="check_sync_path('rename', '{{ SyncPath.id }}', this.checked)">
-                      </label>
-                    </td>
-                    <td>
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if SyncPath.enabled==1 %} checked {% endif %}
-                               onclick="check_sync_path('enable', '{{ SyncPath.id }}', this.checked)">
-                      </label>
-                    </td>
-                    <td>
-                      <div class="d-flex">
-                        <a href="javascript:show_edit_sync_path_modal('{{ SyncPath.id }}')" title="编辑目录">
-                          {{ SVG.edit() }}
-                        </a>
-                        <a href="javascript:delete_sync_path('{{ SyncPath.id }}')" title="删除目录" class="ms-2">
-                          {{ SVG.x() }}
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="6" align="center">未配置</td>
-                </tr>
-              {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {% endfor %}
       </div>
-    </div>
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true"
@@ -106,7 +128,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="directory_modal_title"></h5>
-        <input type="hidden" id="sync_path_id">
+        <input type="hidden" id="sync_path_sid">
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -116,7 +138,7 @@
               <label class="form-label required">源目录 <span class="form-help"
                                                                 title="源目录为需要同步的目录，源目录必须配置"
                                                                 data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="from_path" class="form-control filetree-folders-only"
+              <input type="text" value="" id="sync_path_from" class="form-control filetree-folders-only"
                          placeholder="需要监控的目录" autocomplete="off">
             </div>
           </div>
@@ -125,7 +147,7 @@
               <label class="form-label">目的目录 <span class="form-help"
                                                                 title="目的目录为识别和改名后存放的目录，目的目录未配置时将自动识别分类并转移到媒体库对应目录中"
                                                                 data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="to_path" class="form-control filetree-folders-only"
+              <input type="text" value="" id="sync_path_to" class="form-control filetree-folders-only"
                          placeholder="留空使用媒体库目录"
                          autocomplete="off">
             </div>
@@ -135,7 +157,7 @@
               <label class="form-label">未识别目录 <span class="form-help"
                                                                 title="未识别目录为无法识别时转移的目录，未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体整理->手动识别功能下处理"
                                                                 data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="unknown_path" class="form-control filetree-folders-only"
+              <input type="text" value="" id="sync_path_unknown" class="form-control filetree-folders-only"
                          placeholder="留空不转移未识别文件" autocomplete="off">
             </div>
           </div>
@@ -144,7 +166,7 @@
               <label class="form-label required">同步方式 <span class="form-help"
                                                                 title="目录同步使用的文件转移方式，根据不同的程序版本可选项会有所不同。硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；Rclone针对网盘场景，需要自行映射rclone配置目录到容器中（/nt/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL，可自行通过Docker添加环境变量传递参数优化传输，参考：https://rclone.org/docs/#environment-variables；Minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)"
                                                                 data-bs-toggle="tooltip">?</span></label>
-              <select id="syncmod_flag" class="form-select">
+              <select id="sync_path_syncmod" class="form-select">
                 {% for mode in RmtModeDict %}
                 <option value="{{ mode.value }}">{{ mode.name }}</option>
                 {% endfor %}
@@ -155,13 +177,21 @@
         <div class="row">
           <div class="col-lg-4 mb-1">
             <label class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="rename_flag" checked>
+              <input class="form-check-input" type="checkbox" id="sync_path_compatibility" checked>
+              <span class="form-check-label">兼容模式 <span class="form-help"
+                                                                title="开启兼容模式后，目录同步可以实时监控挂载网盘、跨系统SMB共享等场景，但监控性能会降低，会增加对磁盘的访问量"
+                                                                data-bs-toggle="tooltip">?</span></span>
+            </label>
+          </div>
+          <div class="col-lg-4 mb-1">
+            <label class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="sync_path_rename" checked>
               <span class="form-check-label">识别并重命名</span>
             </label>
           </div>
           <div class="col-lg-4 mb-1">
             <label class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="enable_flag" checked>
+              <input class="form-check-input" type="checkbox" id="sync_path_enabled" checked>
               <span class="form-check-label">开启同步</span>
             </label>
           </div>
@@ -178,76 +208,55 @@
   // 打开新增窗口
   function show_add_sync_path_modal() {
     $("#directory_modal_title").text('新增同步目录');
-    $("#sync_path_id").val('');
-    $("#from_path").val('');
-    $("#to_path").val('');
-    $("#unknown_path").val('');
+    $("#sync_path_sid").val('');
+    $("#sync_path_from").val('');
+    $("#sync_path_to").val('');
+    $("#sync_path_unknown").val('');
+    $("#sync_path_compatibility").prop("checked", false);
+    $("#sync_path_rename").prop("checked", true);
+    $("#sync_path_enabled").prop("checked", true);
     $("#modal-directory").modal('show');
   }
 
   // 打开编辑窗口
   function show_edit_sync_path_modal(sid) {
     ajax_post("get_sync_path", {sid: sid}, function (ret) {
-      if (ret.code == 0) {
-        let sync_item = ret.data;
+      if (ret.code === 0) {
+        let sync_item = ret.result;
         $("#directory_modal_title").text('编辑同步目录');
-        $("#sync_path_id").val(sid);
-        $("#from_path").val(sync_item.from);
-        $("#to_path").val(sync_item.to);
-        $("#unknown_path").val(sync_item.unknown);
-        $("#syncmod_flag").val(sync_item.syncmod);
-        if (sync_item.rename == 1) {
-          $("#rename_flag").prop("checked", true);
-        } else {
-          $("#rename_flag").prop("checked", false);
-        }
-        if (sync_item.enabled == 1) {
-          $("#enable_flag").prop("checked", true);
-        } else {
-          $("#enable_flag").prop("checked", false);
-        }
+        $("#sync_path_sid").val(sid);
+        $("#sync_path_from").val(sync_item.from);
+        $("#sync_path_to").val(sync_item.to);
+        $("#sync_path_unknown").val(sync_item.unknown);
+        $("#sync_path_syncmod").val(sync_item.syncmod);
+        $("#sync_path_compatibility").prop("checked", sync_item.compatibility);
+        $("#sync_path_rename").prop("checked", sync_item.rename);
+        $("#sync_path_enabled").prop("checked", sync_item.enabled);
         $("#modal-directory").modal('show');
-      } else {
-        show_fail_modal(ret.msg);
       }
     });
   }
 
   // 新增目录
   function add_or_edit_sync_path() {
-    const sid = $("#sync_path_id").val();
-    const syncmod = $("#syncmod_flag").val();
-    const from = $("#from_path").val();
-    if (!from) {
-      $("#from_path").addClass("is-invalid");
+    const params = input_select_GetVal("modal-directory", "sync_path_");
+    if (!params.from) {
+      $("#sync_path_from").addClass("is-invalid");
       return;
     } else {
-      $("#from_path").removeClass("is-invalid");
+      $("#sync_path_from").removeClass("is-invalid");
     }
-    const to = $("#to_path").val();
-    const rename = $("#rename_flag").prop("checked");
-    if (!rename) {
-      if (!to) {
-        $("#to_path").addClass("is-invalid");
+    if (!params.rename) {
+      if (!params.to) {
+        $("#sync_path_to").addClass("is-invalid");
         return;
       } else {
-        $("#to_path").removeClass("is-invalid");
+        $("#sync_path_to").removeClass("is-invalid");
       }
     }
-    const unknown = $("#unknown_path").val();
-    const enabled = $("#enable_flag").prop("checked");
-    const params = {
-      "sid": sid,
-      "from": from,
-      "to": to,
-      "unknown": unknown,
-      "syncmod": syncmod,
-      "rename": rename,
-      "enabled": enabled
-    };
     $("#modal-directory").modal('hide');
     ajax_post("add_or_edit_sync_path", params, function (ret) {
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         window_history_refresh();
       } else {
         show_fail_modal(ret.msg, function () {
@@ -260,7 +269,7 @@
   // 删除目录
   function delete_sync_path(sid) {
     ajax_post("delete_sync_path", {sid: sid}, function (ret) {
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         window_history_refresh();
       }
     });
@@ -269,10 +278,11 @@
   // 更新目录
   function check_sync_path(flag, sid, checked) {
     ajax_post("check_sync_path", {flag: flag, sid: sid, checked: checked}, function (ret) {
-      if (ret.code == 0) {
+      if (ret.code === 0) {
         window_history_refresh();
       }
     });
   }
+
 
 </script>

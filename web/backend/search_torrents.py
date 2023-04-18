@@ -32,7 +32,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     """
     mtype, key_word, season_num, episode_num, year, content = StringUtils.get_keyword_from_string(content)
     if not key_word:
-        log.info("【Web】%s 检索关键字有误！" % content)
+        log.info("【Web】%s 搜索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
     # 类型
     if media_type:
@@ -128,8 +128,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     # 整合高级查询条件
     if filters:
         filter_args.update(filters)
-    # 开始检索
-    log.info("【Web】开始检索 %s ..." % content)
+    # 开始搜索
+    log.info("【Web】开始搜索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=first_search_name,
                                           filter_args=filter_args,
                                           match_media=media_info,
@@ -141,8 +141,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and second_search_name != first_search_name:
         search_process.start(ProgressKey.Search)
         search_process.update(ptype=ProgressKey.Search,
-                              text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
-        log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+                              text="%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (first_search_name, second_search_name))
+        log.info("【Searcher】%s 未搜索到资源,尝试通过 %s 重新搜索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
                                               match_media=media_info,
@@ -153,10 +153,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     # 结束进度
     search_process.end(ProgressKey.Search)
     if len(media_list) == 0:
-        log.info("【Web】%s 未检索到任何资源" % content)
-        return 1, "%s 未检索到任何资源" % content
+        log.info("【Web】%s 未搜索到任何资源" % content)
+        return 1, "%s 未搜索到任何资源" % content
     else:
-        log.info("【Web】共检索到 %s 个有效资源" % len(media_list))
+        log.info("【Web】共搜索到 %s 个有效资源" % len(media_list))
         # 插入数据库
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
@@ -169,7 +169,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
 
 def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=None):
     """
-    输入字符串，解析要求并进行资源检索
+    输入字符串，解析要求并进行资源搜索
     :param input_str: 输入字符串，可以包括标题、年份、季、集的信息，使用空格隔开
     :param in_from: 搜索下载的请求来源
     :param user_id: 需要发送消息的，传入该参数，则只给对应用户发送交互消息
@@ -180,7 +180,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id, user_name=N
     global SEARCH_MEDIA_CACHE
 
     if not input_str:
-        log.info("【Searcher】检索关键字有误！")
+        log.info("【Searcher】搜索关键字有误！")
         return
     else:
         input_str = str(input_str).strip()
@@ -412,9 +412,9 @@ def __search_media(in_from, media_info, user_id, user_name=None):
     if exist_flag:
         return
 
-    # 开始检索
+    # 开始搜索
     Message().send_channel_msg(channel=in_from,
-                               title="开始检索 %s ..." % media_info.title,
+                               title="开始搜索 %s ..." % media_info.title,
                                user_id=user_id)
     search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
                                                                                          in_from=in_from,

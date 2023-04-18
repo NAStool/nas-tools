@@ -44,7 +44,7 @@ class Rss:
 
     def rssdownload(self):
         """
-        RSS订阅检索下载入口，由定时服务调用
+        RSS订阅搜索下载入口，由定时服务调用
         """
 
         if not self._sites:
@@ -104,7 +104,7 @@ class Rss:
                     continue
                 # 站点名称
                 site_name = site_info.get("name")
-                # 没有订阅的站点中的不检索
+                # 没有订阅的站点中的不搜索
                 if check_sites and site_name not in check_sites:
                     continue
                 # 站点rss链接
@@ -152,7 +152,7 @@ class Rss:
                         if self.dbhelper.is_torrent_rssd(enclosure):
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
-                        # 识别种子名称，开始检索TMDB
+                        # 识别种子名称，开始搜索TMDB
                         media_info = MetaInfo(title=title)
                         cache_info = self.media.get_cache_info(media_info)
                         if cache_info.get("id"):

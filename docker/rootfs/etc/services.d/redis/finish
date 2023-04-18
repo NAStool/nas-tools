@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+pkill -f 'redis-server'

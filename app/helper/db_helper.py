@@ -67,13 +67,13 @@ class DbHelper:
 
     def get_search_result_by_id(self, dl_id):
         """
-        根据ID从数据库中查询检索结果的一条记录
+        根据ID从数据库中查询搜索结果的一条记录
         """
         return self._db.query(SEARCHRESULTINFO).filter(SEARCHRESULTINFO.ID == dl_id).all()
 
     def get_search_results(self, ):
         """
-        查询检索结果的所有记录
+        查询搜索结果的所有记录
         """
         return self._db.query(SEARCHRESULTINFO).all()
 
@@ -193,7 +193,7 @@ class DbHelper:
 
     def get_douban_search_state(self, title, year=None):
         """
-        查询未检索的豆瓣数据
+        查询未搜索的豆瓣数据
         """
         if not year:
             return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title).first()
@@ -2397,7 +2397,7 @@ class DbHelper:
             return False
 
     @DbPersist(_db)
-    def insert_config_sync_path(self, source, dest, unknown, mode, rename, enabled, note=None):
+    def insert_config_sync_path(self, source, dest, unknown, mode, compatibility, rename, enabled, note=None):
         """
         增加目录同步
         """
@@ -2406,6 +2406,7 @@ class DbHelper:
             DEST=dest,
             UNKNOWN=unknown,
             MODE=mode,
+            COMPATIBILITY=int(compatibility),
             RENAME=int(rename),
             ENABLED=int(enabled),
             NOTE=note
@@ -2426,10 +2427,10 @@ class DbHelper:
         """
         if sid:
             return self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).all()
-        return self._db.query(CONFIGSYNCPATHS).all()
+        return self._db.query(CONFIGSYNCPATHS).order_by(CONFIGSYNCPATHS.SOURCE).all()
 
     @DbPersist(_db)
-    def check_config_sync_paths(self, sid=None, source=None, rename=None, enabled=None):
+    def check_config_sync_paths(self, sid=None, compatibility=None, rename=None, enabled=None):
         """
         设置目录同步状态
         """
@@ -2445,10 +2446,10 @@ class DbHelper:
                     "ENABLED": int(enabled)
                 }
             )
-        elif source and enabled is not None:
-            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.SOURCE == source).update(
+        elif sid and compatibility is not None:
+            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).update(
                 {
-                    "ENABLED": int(enabled)
+                    "COMPATIBILITY": int(compatibility)
                 }
             )
 
@@ -2526,7 +2527,7 @@ class DbHelper:
         """
         if cid:
             return self._db.query(MESSAGECLIENT).filter(MESSAGECLIENT.ID == int(cid)).all()
-        return self._db.query(MESSAGECLIENT).order_by(MESSAGECLIENT.TYPE).all()
+        return self._db.query(MESSAGECLIENT).all()
 
     @DbPersist(_db)
     def insert_message_client(self,
@@ -2720,7 +2721,7 @@ class DbHelper:
         """
         查询下载器
         """
-        return self._db.query(DOWNLOADER).order_by(DOWNLOADER.TYPE.desc()).all()
+        return self._db.query(DOWNLOADER).all()
 
     @DbPersist(_db)
     def insert_indexer_statistics(self,

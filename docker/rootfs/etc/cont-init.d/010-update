@@ -1,0 +1,159 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# 使用递归函数比较两个目录
+function compare {
+    for entry in "$1"/*; do
+        if [[ -d "$entry" ]]; then
+            if [[ ! -d "$2/$(basename "$entry")" ]]; then
+                mkdir "$2/$(basename "$entry")"
+                echo "创建 $2/$(basename "$entry") 文件夹"
+            fi
+            compare "$entry" "$2/$(basename "$entry")"
+        elif [[ -f "$entry" ]]; then
+            if [[ ! -f "$2/$(basename "$entry")" ]]; then
+                cp "$entry" "$2/$(basename "$entry")"
+                echo "创建 $2/$(basename "$entry") 文件"
+            elif [[ "$(diff "$entry" "$2/$(basename "$entry")")" ]]; then
+                cp "$entry" "$2/$(basename "$entry")"
+                echo "更新 $2/$(basename "$entry") 文件"
+            fi
+        fi
+    done
+}
+
+# 更换国内软件源
+function package_cn {
+
+    sed -i "s/dl-cdn.alpinelinux.org/${ALPINE_MIRROR}/g" /etc/apk/repositories
+    apk update -f
+    if [ $? -ne 0 ]; then
+        echo "无法更换软件源，请更新镜像！"
+    fi
+
+}
+
+# 软件包更新
+function package_update {
+
+    hash_old=$(cat /tmp/package_list.txt.sha256sum)
+    hash_new=$(sha256sum package_list.txt)
+    if [ "${hash_old}" != "${hash_new}" ]; then
+        echo "检测到package_list.txt有变化，更新软件包..."
+        if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+            echo "Debian 镜像目前不支持软件包重启更新，请更新镜像"
+        else
+            if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
+                package_cn
+            fi
+            apk add --no-cache $(echo $(cat package_list.txt))
+            if [ $? -ne 0 ]; then
+                echo "无法更新软件包，请更新镜像！"
+            else
+                echo "软件包安装成功"
+                sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
+            fi
+        fi
+    fi
+
+}
+
+# python库更新
+function requirements_update {
+
+    hash_old=$(cat /tmp/requirements.txt.sha256sum)
+    hash_new=$(sha256sum requirements.txt)
+    if [ "${hash_old}" != "${hash_new}" ]; then
+        echo "检测到requirements.txt有变化，重新安装依赖..."
+        if [ "${NASTOOL_CN_UPDATE}" = "true" ]; then
+            package_cn
+            apk add --no-cache libffi-dev gcc musl-dev libxml2-dev libxslt-dev
+            pip install --upgrade pip setuptools wheel -i "${PYPI_MIRROR}"
+            pip install -r requirements.txt -i "${PYPI_MIRROR}"
+        else
+            apk add --no-cache libffi-dev gcc musl-dev libxml2-dev libxslt-dev
+            pip install --upgrade pip setuptools wheel
+            pip install -r requirements.txt
+        fi
+        if [ $? -ne 0 ]; then
+            echo "无法安装依赖，请更新镜像！"
+            exit 1
+        else
+            echo "依赖安装成功"
+            sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
+        fi
+    fi
+
+}
+
+# third_party更新
+function third_party_update {
+
+    hash_old=$(cat /tmp/third_party.txt.sha256sum)
+    hash_new=$(sha256sum third_party.txt)
+    if [ "${hash_old}" != "${hash_new}" ]; then
+        echo "检测到third_party.txt有变化，更新第三方组件..."
+        git submodule update --init --recursive
+        if [ $? -ne 0 ]; then
+            echo "无法更新第三方组件，请更新镜像！"
+            exit 1
+        else
+            echo "第三方组件安装成功"
+            sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
+        fi
+    fi
+
+}
+
+function __main {
+
+    cd ${WORKDIR}
+
+    # 自动更新
+    if [ "${NASTOOL_AUTO_UPDATE}" = "true" ]; then
+        if [ ! -s /tmp/requirements.txt.sha256sum ]; then
+            sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
+        fi
+        if [ ! -s /tmp/third_party.txt.sha256sum ]; then
+            sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
+        fi
+        if [ ! -s /tmp/package_list.txt.sha256sum ]; then
+            sha256sum package_list.txt > /tmp/package_list.txt.sha256sum
+        fi
+        echo "更新主程序..."
+        git remote set-url origin "${REPO_URL}" &> /dev/null
+        echo "windows/" > .gitignore
+        # 更新分支
+        if [[ "${NASTOOL_VERSION}" == "dev" ]]; then
+        branch="dev"
+        else
+        branch="master"
+        fi
+
+        git clean -dffx
+        git fetch --depth 1 origin ${branch}
+        git reset --hard origin/${branch}
+
+        if [ $? -eq 0 ]; then
+            echo "主程序更新成功"
+            # 服务脚本更新
+            compare "/nas-tools/docker/rootfs/etc" "/etc"
+            chmod -R +x \
+                /etc/cont-init.d \
+                /etc/services.d
+            # 系统软件包更新
+            package_update
+            # Python依赖包更新
+            requirements_update
+            # third_party 更新
+            third_party_update
+        else
+            echo "更新失败，继续使用旧的程序来启动..."
+        fi
+    else
+        echo "程序自动升级已关闭，如需自动升级请在创建容器时设置环境变量：NASTOOL_AUTO_UPDATE=true"
+    fi
+
+}
+
+__main 2>&1 | sed "s#^#cont-init: info: $(realpath $0): &#g"

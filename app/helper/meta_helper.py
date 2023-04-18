@@ -71,7 +71,7 @@ class MetaHelper(object):
     def dump_meta_data(self, search, page, num):
         """
         分页获取当前缓存列表
-        @param search: 检索的缓存key
+        @param search: 搜索的缓存key
         @param page: 页码
         @param num: 单页大小
         @return: 总数, 缓存列表
@@ -113,7 +113,7 @@ class MetaHelper(object):
 
     def delete_unknown_meta(self):
         """
-        清除未识别的缓存记录，以便重新检索TMDB
+        清除未识别的缓存记录，以便重新搜索TMDB
         """
         for key in list(self._meta_data):
             if str(self._meta_data.get(key, {}).get("id")) == '0':

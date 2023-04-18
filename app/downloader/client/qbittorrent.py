@@ -2,7 +2,6 @@ import os
 import re
 import time
 from datetime import datetime
-from urllib import parse
 
 import log
 import qbittorrentapi
@@ -181,33 +180,43 @@ class Qbittorrent(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    def get_transfer_task(self, tag, match_path=None):
+    def get_transfer_task(self, tag=None, match_path=False):
         """
         获取下载文件转移任务种子
         """
         # 处理下载完成的任务
-        torrents = self.get_completed_torrents(tag=tag) or []
+        torrents = self.get_completed_torrents() or []
         trans_tasks = []
         for torrent in torrents:
-            # 判断标签是否包含"已整理"
-            if torrent.get("tags") and "已整理" in torrent.get("tags"):
+            torrent_tags = torrent.get("tags") or ""
+            # 含"已整理"tag的不处理
+            if "已整理" in torrent_tags:
+                continue
+            # 开启标签隔离，未包含指定标签的不处理
+            if tag and tag not in torrent_tags:
+                log.debug(f"【{self.client_name}】开启标签隔离，但 {torrent.get('name')} 未包含指定标签：{tag}")
                 continue
             path = torrent.get("save_path")
+            # 无法获取下载路径的不处理
             if not path:
+                log.debug(f"【{self.client_name}】{torrent.get('name')} 未获取到下载保存路径")
                 continue
-            # 判断路径是否已经在下载目录中指定
-            if match_path and not self.is_download_dir(path, self.download_dir):
+            true_path, replace_flag = self.get_replace_path(path, self.download_dir)
+            # 开启目录隔离，未进行目录替换的不处理
+            if match_path and not replace_flag:
+                log.debug(f"【{self.client_name}】开启目录隔离，但 {torrent.get('name')} 未匹配下载目录范围")
                 continue
             content_path = torrent.get("content_path")
             if content_path:
-                trans_name = content_path.replace(path, "")
-                if trans_name.startswith('/') or trans_name.startswith('\\'):
+                trans_name = content_path.replace(path, "").replace("\\", "/")
+                if trans_name.startswith('/'):
                     trans_name = trans_name[1:]
             else:
                 trans_name = torrent.get('name')
-            true_path = self.get_replace_path(path, self.download_dir)
-            trans_tasks.append(
-                {'path': os.path.join(true_path, trans_name).replace("\\", "/"), 'id': torrent.get('hash')})
+            trans_tasks.append({
+                'path': os.path.join(true_path, trans_name).replace("\\", "/"),
+                'id': torrent.get('hash')
+            })
         return trans_tasks
 
     def get_remove_torrents(self, config=None):

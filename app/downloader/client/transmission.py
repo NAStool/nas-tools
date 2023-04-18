@@ -19,7 +19,7 @@ class Transmission(_IDownloadClient):
     # 下载器名称
     client_name = DownloaderType.TR.value
 
-    # 参考transmission web，仅查询需要的参数，加速种子检索
+    # 参考transmission web，仅查询需要的参数，加速种子搜索
     _trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
@@ -253,27 +253,36 @@ class Transmission(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
-    def get_transfer_task(self, tag, match_path=None):
+    def get_transfer_task(self, tag=None, match_path=None):
         """
-        获取下载文件转移任务
+        获取下载文件转移任务种子
         """
-        # 处理所有任务
-        torrents = self.get_completed_torrents(tag=tag) or []
+        # 处理下载完成的任务
+        torrents = self.get_completed_torrents() or []
         trans_tasks = []
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
             if not hasattr(torrent, "labels"):
                 log.error(f"【{self.client_name}】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
                 break
-            if torrent.labels and "已整理" in torrent.labels:
+            torrent_tags = torrent.labels or ""
+            # 含"已整理"tag的不处理
+            if "已整理" in torrent_tags:
+                continue
+            # 开启标签隔离，未包含指定标签的不处理
+            if tag and tag not in torrent_tags:
+                log.debug(f"【{self.client_name}】开启标签隔离，但 {torrent.name} 未包含指定标签：{tag}")
                 continue
             path = torrent.download_dir
+            # 无法获取下载路径的不处理
             if not path:
+                log.debug(f"【{self.client_name}】{torrent.name} 未获取到下载保存路径")
                 continue
-            # 判断路径是否已经在下载目录中指定
-            if match_path and not self.is_download_dir(path, self.download_dir):
+            true_path, replace_flag = self.get_replace_path(path, self.download_dir)
+            # 开启目录隔离，未进行目录替换的不处理
+            if match_path and not replace_flag:
+                log.debug(f"【{self.client_name}】开启目录隔离，但 {torrent.name} 未匹配下载目录范围")
                 continue
-            true_path = self.get_replace_path(path, self.download_dir)
             trans_tasks.append({
                 'path': os.path.join(true_path, torrent.name).replace("\\", "/"),
                 'id': torrent.hashString,

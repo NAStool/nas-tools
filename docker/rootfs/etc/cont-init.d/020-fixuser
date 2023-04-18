@@ -1,0 +1,20 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+function __fixuser {
+
+    echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
+
+    # 更改 nt userid 和 groupid
+    groupmod -o -g "$PGID" nt
+    usermod -o -u "$PUID" nt
+
+    # 创建目录、权限设置
+    if grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/os-release; then
+        chown -R nt:nt /usr/bin/chromedriver
+    fi
+    chown -R nt:nt "${WORKDIR}" "${HOME}" /config /usr/lib/chromium /etc/hosts
+
+}
+
+__fixuser 2>&1 | sed "s#^#cont-init: info: $(realpath $0): &#g"

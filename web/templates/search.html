@@ -113,7 +113,7 @@
                   <!-- 媒体属性 -->
                   <div class="row mt-2 d-md-none">
                     <div class="col-md">
-                      {% if Item.tmdbid and Item.tmdbid!= '0' %}
+                      {% if Item.tmdbid and Item.tmdbid != '0' %}
                       <div class="list-inline list-inline-dots mb-0 text-muted">
                         <div class="list-inline-item">
                           {{ SVG.video() }}
@@ -184,6 +184,9 @@
                                   data-video="{{ torrent.video_encode }}"
                                   data-group="{{ group_key }}"
                                   data-season="{{ SE_key.replace(' ', '') }}">
+                                  <input type="hidden" id="title_{{ torrent.id }}" value="{{ torrent.torrent_name }}">
+                                  <input type="hidden" id="description_{{ torrent.id }}" value="{{ torrent.description }}">
+                                  <input type="hidden" id="site_{{ torrent.id }}" value="{{ torrent.site }}">
                                   <div class="row g-2 align-items-center">
                                     <div class="col-auto">
                                       <a  href="{{ torrent.pageurl }}" target="_blank">
@@ -199,7 +202,14 @@
                                       </a>
                                     </div>
                                     <div class="col">
-                                      <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")'>{{ torrent.torrent_name }}</a>
+                                      <a href='javascript:download_search_resource("{{ torrent.id }}")'>
+                                        {{ torrent.torrent_name }}
+                                      </a>
+                                      {% if Item.tmdbid == '0' or not Item.tmdbid %}
+                                      <a class="ms-2 mb-1" title="名称测试" href='javascript:nametest("{{ torrent.id }}")' data-bs-toggle="tooltip">
+                                        {{ SVG.text_recognition() }}
+                                      </a>
+                                      {% endif %}
                                       <div class="mb-1">
                                         {% for label in torrent.labels %}
                                           <span class="badge badge-outline text-purple">{{ label }}</span>
@@ -234,9 +244,12 @@
                                         <span class="badge text-white mb-1">{{ torrent.seeders }}{{ UPCHAR }}</span>
                                         {% endif %}
                                       </div>
+                                      {% if Item.tmdbid == '0' or not Item.tmdbid %}
+                                      <custom-chips class="mt-1" id="testresults_{{ torrent.id }}"></custom-chips>
+                                      {% endif %}
                                     </div>
                                     <div class="col-auto ms-2 d-none d-md-inline-block">
-                                      <a href='javascript:show_download_modal("{{ torrent.id }}","【{{ torrent.site }}】{{ torrent.torrent_name }}","{{ torrent.site }}")' class="link-secondary" title="下载">
+                                      <a href='javascript:download_search_resource("{{ torrent.id }}")' class="link-secondary" title="下载">
                                         {{ SVG.download() }}
                                       </a>
                                     </div>
@@ -489,6 +502,20 @@
   // 显示过滤器弹窗
   function show_search_filter_modal(key) {
     $(`#search-filter-modal-${key}`).modal("show");
+  }
+
+  //下载按钮
+  function download_search_resource(id) {
+    const title = $(`#title_${id}`).val();
+    const site = $(`#site_${id}`).val();
+    show_download_modal(id, `【${site}】${title}`, site)
+  }
+
+  //名称测试
+  function nametest(id) {
+    let title = $(`#title_${id}`).val();
+    let subtitle = $(`#description_${id}`).val();
+    media_name_test(title, `testresults_${id}`, function () {}, subtitle);
   }
 
 </script>
