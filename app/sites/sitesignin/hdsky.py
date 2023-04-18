@@ -38,7 +38,7 @@ class HDSky(_ISiteSigninHandler):
         # 获取验证码请求，考虑到网络问题获取失败，多获取几次试试
         res_times = 0
         img_hash = None
-        while not img_hash and res_times <= 5:
+        while not img_hash and res_times <= 3:
             image_res = RequestUtils(cookies=site_cookie,
                                      headers=ua,
                                      proxies=Config().get_proxies() if site_info.get("proxy") else None
@@ -62,7 +62,7 @@ class HDSky(_ISiteSigninHandler):
             times = 0
             ocr_result = None
             # 识别几次
-            while times <= 5:
+            while times <= 3:
                 # 图片转为base64
                 code_b64 = cls.get_captcha_base64(chrome=ChromeHelper(),
                                                   image_url=img_get_url)
