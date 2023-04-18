@@ -51,8 +51,8 @@ class TTG(_ISiteSigninHandler):
         sign_status = self.__sign_in_result(html_res=html_res.text,
                                             regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}已签到")
-            return f'【{site}】已签到'
+            log.info(f"【Sites】{site}今日已签到")
+            return f'【{site}】今日已签到'
 
         # 获取签到参数
         signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()

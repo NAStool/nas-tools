@@ -20,6 +20,9 @@ class Tjupt(_ISiteSigninHandler):
     # 签到地址
     _sign_in_url = 'https://www.tjupt.org/attendance.php'
 
+    # 已签到
+    _sign_regex = ['[<a href="attendance.php">今日已签到</a>]']
+
     # 签到成功
     _succeed_regex = ['这是您的首次签到，本次签到获得.*?个魔力值。',
                       '签到成功，这是您的第.*?次签到，已连续签到.*?天，本次签到获得.*?个魔力值。',
@@ -55,10 +58,11 @@ class Tjupt(_ISiteSigninHandler):
             log.error(f"【Sites】{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
-        sign_status = self.__sign_in_result(html_res=html_res.text)
+        sign_status = self.__sign_in_result(html_res=html_res.text,
+                                            regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}已签到")
-            return f'【{site}】已签到'
+            log.info(f"【Sites】{site}今日已签到")
+            return f'【{site}】今日已签到'
 
         # 没有签到则解析html
         html = etree.HTML(html_res.text)
@@ -131,7 +135,8 @@ class Tjupt(_ISiteSigninHandler):
                                 return f'【{site}】签到失败，签到接口请求失败'
 
                             # 获取签到后返回html，判断是否签到成功
-                            sign_status = self.__sign_in_result(html_res=sign_in_res.text)
+                            sign_status = self.__sign_in_result(html_res=sign_in_res.text,
+                                                                regexs=self._succeed_regex)
                             if sign_status:
                                 log.info(f"【Sites】{site}签到成功")
                                 return f'【{site}】签到成功'
@@ -140,15 +145,22 @@ class Tjupt(_ISiteSigninHandler):
             # 没有匹配签到成功，则签到失败
             return f'【{site}】签到失败，未获取到匹配答案'
 
-    def __sign_in_result(self, html_res):
+    def __sign_in_result(self, html_res, regexs):
         """
         判断是否签到成功
         """
         html_text = self._prepare_html_text(html_res)
-        for regex in self._succeed_regex:
+        for regex in regexs:
             if re.search(str(regex), html_text):
                 return True
         return False
+
+    @staticmethod
+    def _prepare_html_text(html_text):
+        """
+        处理掉HTML中的干扰部分
+        """
+        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):
@@ -184,10 +196,3 @@ class Tjupt(_ISiteSigninHandler):
             if hash1[i] == hash2[i]:
                 n = n + 1
         return n / (shape[0] * shape[1])
-
-    @staticmethod
-    def _prepare_html_text(html_text):
-        """
-        处理掉HTML中的干扰部分
-        """
-        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
