@@ -142,7 +142,7 @@ class WebAction:
             "delete_custom_word_group": self.__delete_custom_word_group,
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "get_custom_word": self.__get_custom_word,
-            "delete_custom_word": self.__delete_custom_word,
+            "delete_custom_words": self.__delete_custom_words,
             "check_custom_words": self.__check_custom_words,
             "export_custom_words": self.__export_custom_words,
             "analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
@@ -3066,10 +3066,15 @@ class WebAction:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": "查询识别词失败"}
 
-    def __delete_custom_word(self, data):
+    def __delete_custom_words(self, data):
         try:
-            wid = data.get("id")
-            self.dbhelper.delete_custom_word(wid)
+            ids_info = data.get("ids_info")
+            if not ids_info:
+                self.dbhelper.delete_custom_word()
+            else:
+                ids = [id_info.split("_")[1] for id_info in ids_info]
+                for wid in ids:
+                    self.dbhelper.delete_custom_word(wid=wid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
