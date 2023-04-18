@@ -58,9 +58,7 @@ class SiteSignin(object):
         sites = self.sites.get_sites(signin=True)
         if not sites:
             return
-        size = min(len(sites), self._MAX_CONCURRENCY)
-        log.error(f"size = {size}")
-        with ThreadPool(size) as p:
+        with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
             status = p.map(self.__signin_site, sites)
         if status:
             self.message.send_site_signin_message(status)
@@ -74,6 +72,8 @@ class SiteSignin(object):
             try:
                 return site_module().signin(site_info)
             except Exception as e:
+                log.error(str(e))
+                ExceptionUtils.exception_traceback(e)
                 return f"【{site_info.get('name')}】签到失败：{str(e)}"
         else:
             return self.__signin_base(site_info)
