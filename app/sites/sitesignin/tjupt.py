@@ -70,7 +70,7 @@ class Tjupt(_ISiteSigninHandler):
                 log.error(f"【Sites】北洋签到图片 {img_url} 请求失败")
                 return '【北洋】签到失败，未获取到签到图片'
             captcha_img = Image.open(BytesIO(captcha_img_res.content))
-            captcha_img_hash = Tjupt()._tohash(captcha_img)
+            captcha_img_hash = self._tohash(captcha_img)
             log.info(f"【Sites】北洋签到图片hash {captcha_img_hash}")
 
             # 签到答案选项
@@ -100,11 +100,11 @@ class Tjupt(_ISiteSigninHandler):
                             log.error(f"【Sites】北洋签到答案 {answer_title} {answer_img_url} 请求失败")
                             return '【北洋】签到失败，获取签到答案图片失败'
                         answer_img = Image.open(BytesIO(answer_img_res.content))
-                        answer_img_hash = Tjupt()._tohash(answer_img)
+                        answer_img_hash = self._tohash(answer_img)
                         log.info(f"【Sites】北洋签到答案图片hash {answer_title} {answer_img_hash}")
 
                         # 获取选项图片与签到图片相似度，大于0.9默认是正确答案
-                        score = Tjupt()._comparehash(captcha_img_hash, answer_img_hash)
+                        score = self._comparehash(captcha_img_hash, answer_img_hash)
                         log.info(f"【Sites】北洋签到图片与选项 {answer} 豆瓣图片相似度 {score}")
                         if score > 0.9:
                             # 确实是答案
