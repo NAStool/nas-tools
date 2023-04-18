@@ -53,7 +53,7 @@
                 style="background-image: url('{{ DownloaderConf[Attr.type].img_url }}')"></span>
         </div>
         <div class="card-body text-center">
-          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green"></span>{% endif %} {{ Attr.name }}</div>
+          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green" title="已启用" data-bs-toggle="tooltip"></span>{% endif %} {{ Attr.name }}</div>
           <div class="text-muted">
             {% if Attr.config.get("host")  %}
               {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
@@ -195,6 +195,10 @@
         <button onclick="add_or_edit_or_test_downloader('test')" id="test_downloader_btn" class="btn me-auto">
           测试
         </button>
+        <button onclick="delete_downloader()" id="delete_downloader_client_btn"
+           class="btn btn-link text-danger">
+          删除
+        </button>
         <button onclick="add_or_edit_or_test_downloader('save')" id="add_or_edit_downloader_btn" class="btn btn-primary">
           确定
         </button>
@@ -238,6 +242,7 @@
     $("#div_downloader_downloaddir").empty();
     add_downloaddir();
     $("#test_downloader_btn").text("测试").attr("disabled", false);
+    $("#delete_downloader_client_btn").hide();
     $("#modal-downloader").modal("show");
   }
 
@@ -284,6 +289,7 @@
         for (let download_dir of download_dirs) {
           add_downloaddir(download_dir.type, download_dir.category, download_dir.save_path, download_dir.container_path, download_dir.label);
         }
+        $("#delete_downloader_client_btn").show();
         $("#modal-downloader").modal("show");
       }
     });
@@ -299,7 +305,10 @@
   }
 
   // 删除下载器
-  function delete_downloader(did, name){
+  function delete_downloader(){
+    let did = $("#downloader_id").val();
+    let name = $("#downloader_name").val();
+    $("#modal-downloader").modal('hide');
     show_confirm_modal("删除下载器 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("del_downloader", { "did": did }, function (ret) {

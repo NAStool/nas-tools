@@ -44,7 +44,7 @@
                 style="background-image: url('{{ Channels[Attr.type].img_url }}')"></span>
         </div>
         <div class="card-body text-center">
-          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green"></span>{% endif %} {{ Attr.name }}</div>
+          <div class="card-title mb-1">{% if Attr.enabled == 1 %}<span class="badge bg-green" title="已启用" data-bs-toggle="tooltip"></span>{% endif %} {{ Attr.name }}</div>
           <div class="text-muted">
             {% if Attr.config.get("host")  %}
               {{ Attr.config.get("host") }}:{{ Attr.config.get("port") }}
@@ -176,6 +176,10 @@
            class="btn me-auto">
           测试
         </button>
+        <button onclick="delete_message_client()" id="delete_message_client_btn"
+           class="btn btn-link text-danger">
+          删除
+        </button>
         <button onclick="add_or_edit_or_test_message_client('save')" id="add_or_edit_message_client_btn"
            class="btn btn-primary">
           确定
@@ -273,6 +277,7 @@
     show_client_type("{{ Channels.keys()|first }}");
     $("#test_message_client_btn").text("测试").attr("disabled", false);
     select_SelectALL(true, "message_switchs")
+    $("#delete_message_client_btn").hide();
     $("#modal-message-client").modal("show");
   }
 
@@ -310,6 +315,7 @@
         } else {
           select_SelectPart(ret.detail.switchs, "message_switchs");
         }
+        $("#delete_message_client_btn").show();
         $("#modal-message-client").modal("show");
       }
     });
@@ -393,7 +399,10 @@
   }
 
   // 打开推送设置框
-  function delete_message_client(cid, name) {
+  function delete_message_client() {
+    let cid = $("#client_id").val();
+    let name = $("#client_name").val();
+    $("#modal-message-client").modal('hide');
     show_confirm_modal("删除消息服务 " + name + " ？", function () {
       hide_confirm_modal();
       ajax_post("delete_message_client", {"cid": cid}, function (ret) {
