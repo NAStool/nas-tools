@@ -1,9 +1,8 @@
-import base64
 import json
 import time
 
 import log
-from app.helper import OcrHelper, ChromeHelper
+from app.helper import OcrHelper
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
@@ -25,8 +24,7 @@ class HDSky(_ISiteSigninHandler):
         """
         return True if StringUtils.url_equal(url, cls.site_url) else False
 
-    @classmethod
-    def signin(cls, site_info: dict):
+    def signin(self, site_info: dict):
         """
         执行签到操作
         :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
@@ -63,14 +61,11 @@ class HDSky(_ISiteSigninHandler):
             ocr_result = None
             # 识别几次
             while times <= 3:
-                # 图片转为base64
-                code_b64 = cls.get_captcha_base64(chrome=ChromeHelper(),
-                                                  image_url=img_get_url)
-                log.debug(f"【Sites】获取到天空验证码base64 {code_b64}")
-                if code_b64:
-                    # ocr二维码识别
-                    ocr_result = OcrHelper().get_captcha_text(image_b64=code_b64)
-                    log.debug(f"【Sites】orc识别天空验证码 {ocr_result}")
+                # ocr二维码识别
+                ocr_result = OcrHelper().get_captcha_text(image_url=img_get_url,
+                                                          cookie=site_cookie,
+                                                          ua=ua)
+                log.debug(f"【Sites】orc识别天空验证码 {ocr_result}")
                 if ocr_result:
                     if len(ocr_result) == 6:
                         log.info(f"【Sites】orc识别天空验证码成功 {ocr_result}")
@@ -105,16 +100,3 @@ class HDSky(_ISiteSigninHandler):
                         return '【Sites】天空签到失败：验证码错误'
 
         return '【Sites】天空签到失败：未获取到验证码'
-
-    @staticmethod
-    def get_captcha_base64(chrome, image_url):
-        """
-        根据图片地址，获取验证码图片base64编码
-        """
-        if not image_url:
-            return ""
-        ret = RequestUtils(headers=chrome.get_ua(),
-                           cookies=chrome.get_cookies()).get_res(image_url)
-        if ret:
-            return base64.b64encode(ret.content).decode()
-        return ""
