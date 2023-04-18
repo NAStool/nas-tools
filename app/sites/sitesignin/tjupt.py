@@ -129,7 +129,9 @@ class Tjupt(_ISiteSigninHandler):
             return '【北洋】签到失败，未获取到匹配答案'
 
     def __sign_in_result(self, html_res):
-        # 判断是否签到成功
+        """
+        判断是否签到成功
+        """
         html_text = self._prepare_html_text(html_res.text)
         for regex in self._succeed_regex:
             if re.search(str(regex), html_text):
@@ -138,6 +140,9 @@ class Tjupt(_ISiteSigninHandler):
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):
+        """
+        获取图片hash
+        """
         img = img.resize(shape)
         gray = img.convert('L')
         s = 0
@@ -156,6 +161,10 @@ class Tjupt(_ISiteSigninHandler):
 
     @staticmethod
     def _comparehash(hash1, hash2, shape=(10, 10)):
+        """
+        比较图片hash
+        返回相似度
+        """
         n = 0
         if len(hash1) != len(hash2):
             return -1
