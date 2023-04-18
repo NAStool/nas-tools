@@ -26,92 +26,100 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body border-bottom py-3">
-            <div class="d-flex">
-              <div class="text-muted">
-                共 {{ SyncCount }} 条记录
+        {% for Id, Attr in SyncPaths.items() %}
+          <div class="card">
+            <div class="card-header">
+              <div>
+                {% if Attr.enabled %}
+                <span class="badge bg-green"></span>
+                {% else %}
+                <span class="badge bg-red"></span>
+                {% endif %}
+              </div>
+              <h3 class="card-title ms-3">{{ Attr.from }}</h3>
+              <a href="#" class="link-secondary ms-auto d-sm-none" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ SVG.dots() }}
+              </a>
+              <div class="dropdown-menu dropdown-menu-end">
+                <button class="dropdown-item" onclick="show_edit_sync_path_modal('{{ Id }}')">
+                  编辑
+                </button>
+                <button class="dropdown-item text-danger" onclick="delete_sync_path('{{ Id }}')">
+                  删除
+                </button>
+              </div>
+              <div class="card-actions btn-actions d-none d-sm-block">
+                <a href="javascript:show_edit_sync_path_modal('{{ Id }}')" class="btn-action"
+                  title="编辑" data-bs-toggle="tooltip">
+                  {{ SVG.edit() }}
+                </a>
+                <a href="javascript:delete_sync_path('{{ Id }}')" class="btn-action"
+                   title="删除" data-bs-toggle="tooltip">
+                  {{ SVG.x() }}
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="datagrid">
+                <div class="datagrid-item">
+                  <div class="datagrid-title">源目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.from or '' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">目的目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.to or '自动' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">未识别目录</div>
+                  <div class="datagrid-content">
+                    {{ Attr.unknown or '未设置' }}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">同步方式</div>
+                  <div class="datagrid-content">
+                    <span class="badge">{{ Attr.syncmod_name }}</span>
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">兼容模式</div>
+                  <div class="datagrid-content">
+                    {% if Attr.compatibility %}
+                      <span class="badge bg-cyan">开</span>
+                    {% else %}
+                      <span class="badge bg-orange">关</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">识别重命名</div>
+                  <div class="datagrid-content">
+                    {% if Attr.rename %}
+                      <span class="badge bg-cyan">开</span>
+                    {% else %}
+                      <span class="badge bg-orange">关</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="datagrid-item">
+                  <div class="datagrid-title">状态</div>
+                  <div class="datagrid-content">
+                    {% if Attr.enabled %}
+                      <span class="badge bg-green">正常</span>
+                    {% else %}
+                      <span class="badge bg-red">停用</span>
+                    {% endif %}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="table-responsive {% if SyncCount > 0 %}table-page-mini-body{% endif %}">
-            <table class="table table-vcenter card-table table-hover table-striped">
-              <thead>
-              <tr>
-                <th>源目录</th>
-                <th>目的目录</th>
-                <th class="w-5 text-nowrap">同步方式</th>
-                <th class="w-5 text-nowrap">兼容模式</th>
-                <th class="w-5 text-nowrap">识别重命名</th>
-                <th class="w-5 text-nowrap">状态</th>
-                <th class="w-5"></th>
-              </tr>
-              </thead>
-              <tbody>
-              {% if SyncPaths %}
-                {% for Id, Attr in SyncPaths.items() %}
-                  <tr>
-                    <td>{{ Attr.from or '' }}</td>
-                    <td>
-                      {{ Attr.to or '' }}
-                      {% if Attr.unknown and Attr.rename %}
-                        <div class="text-muted">
-                          未识别：{{ Attr.unknown }}
-                        </div>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <span class="badge">{{ Attr.syncmod_name }}</span>
-                    </td>
-                    <td>
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.compatibility %} checked {% endif %}
-                               onclick="check_sync_path('compatibility', '{{ Id }}', this.checked)">
-                      </label>
-                    </td>
-                    <td>
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.rename %} checked {% endif %}
-                               onclick="check_sync_path('rename', '{{ Id }}', this.checked)">
-                      </label>
-                    </td>
-                    <td>
-                      <label class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" {% if Attr.enabled %} checked {% endif %}
-                               onclick="check_sync_path('enable', '{{ Id }}', this.checked)">
-                      </label>
-                    </td>
-                    <td>
-                      <div class="dropdown">
-                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                          {{ SVG.dots_vertical() }}
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                          <a class="dropdown-item"
-                             href="javascript:show_edit_sync_path_modal('{{ Id }}')">
-                            编辑
-                          </a>
-                          <a class="dropdown-item text-danger"
-                             href="javascript:delete_sync_path('{{ Id }}')">
-                            删除
-                          </a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="7" align="center">未配置</td>
-                </tr>
-              {% endif %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {% endfor %}
       </div>
-    </div>
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true"
