@@ -6,7 +6,7 @@ from lxml import etree
 from PIL import Image
 import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
-from app.utils import StringUtils, RequestUtils, ExceptionUtils
+from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
@@ -36,10 +36,10 @@ class Tjupt(_ISiteSigninHandler):
 
     def signin(self, site_info: dict):
         """
-                执行签到操作
-                :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
-                :return: 签到结果信息
-                """
+        执行签到操作
+        :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
+        :return: 签到结果信息
+        """
         site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
