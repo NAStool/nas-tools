@@ -41,6 +41,7 @@
     <div class="container-xl">
       <div class="d-grid gap-3 grid-normal-card">
         {% for Id, Attr in Items.items() %}
+        <div class="">
           <a class="card card-link-pop p-0"
              href='javascript:{% if Attr.tmdbid %}show_mediainfo_modal("TV", "{{ Attr.name }}", "{{ Attr.year }}", "{{ Attr.tmdbid }}", "tv_rss", "{{ Attr.id }}"){% else %}show_edit_rss_media_modal("{{ Attr.id }}", "TV"){% endif %}'>
             <div class="text-center" style="overflow:hidden">
@@ -145,6 +146,7 @@
               </div>
             </div>
           </a>
+        </div>
         {% endfor %}
       </div>
     </div>
