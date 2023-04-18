@@ -40,6 +40,7 @@ class Tjupt(_ISiteSigninHandler):
         :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
         :return: 签到结果信息
         """
+        site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
 
@@ -50,7 +51,11 @@ class Tjupt(_ISiteSigninHandler):
                                 ).get_res(url=self._sign_in_url)
 
         # 获取签到后返回html，判断是否签到成功
-        self.__sign_in_result(html_res=html_res.text)
+        if not html_res:
+            log.error("【Sites】北洋签到失败，请检查站点连通性")
+            return f'【{site}】签到失败，请检查站点连通性'
+        self.__sign_in_result(html_res=html_res.text,
+                              site=site)
 
         # 没有签到则解析html
         html = etree.HTML(html_res.text)
@@ -68,7 +73,7 @@ class Tjupt(_ISiteSigninHandler):
                                            ).get_res(url=img_url)
             if not captcha_img_res or captcha_img_res.status_code != 200:
                 log.error(f"【Sites】北洋签到图片 {img_url} 请求失败")
-                return '【北洋】签到失败，未获取到签到图片'
+                return f'【{site}】签到失败，未获取到签到图片'
             captcha_img = Image.open(BytesIO(captcha_img_res.content))
             captcha_img_hash = self._tohash(captcha_img)
             log.info(f"【Sites】北洋签到图片hash {captcha_img_hash}")
@@ -98,7 +103,7 @@ class Tjupt(_ISiteSigninHandler):
                         answer_img_res = RequestUtils().get_res(url=answer_img_url)
                         if not answer_img_res or answer_img_res.status_code != 200:
                             log.error(f"【Sites】北洋签到答案 {answer_title} {answer_img_url} 请求失败")
-                            return '【北洋】签到失败，获取签到答案图片失败'
+                            return f'【{site}】签到失败，获取签到答案图片失败'
                         answer_img = Image.open(BytesIO(answer_img_res.content))
                         answer_img_hash = self._tohash(answer_img)
                         log.info(f"【Sites】北洋签到答案图片hash {answer_title} {answer_img_hash}")
@@ -120,16 +125,17 @@ class Tjupt(_ISiteSigninHandler):
                                                        ).post_res(url=self._sign_in_url, data=data)
                             if not sign_in_res or sign_in_res.status_code != 200:
                                 log.error(f"【Sites】北洋签到失败，签到接口请求失败")
-                                return '【北洋】签到失败，签到接口请求失败'
+                                return f'【{site}】签到失败，签到接口请求失败'
 
                             # 获取签到后返回html，判断是否签到成功
-                            self.__sign_in_result(html_res=sign_in_res.text)
+                            self.__sign_in_result(html_res=sign_in_res.text,
+                                                  site=site)
 
             log.error(f"【Sites】北洋签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
-            return '【北洋】签到失败，未获取到匹配答案'
+            return f'【{site}】签到失败，未获取到匹配答案'
 
-    def __sign_in_result(self, html_res):
+    def __sign_in_result(self, html_res, site):
         """
         判断是否签到成功
         """
@@ -137,7 +143,7 @@ class Tjupt(_ISiteSigninHandler):
         for regex in self._succeed_regex:
             if re.search(str(regex), html_text):
                 log.info(f"【Sites】北洋签到成功")
-                return '【北洋】签到成功'
+                return f'【{site}】签到成功'
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):
