@@ -103,6 +103,7 @@ class Tjupt(_ISiteSigninHandler):
                         answer_img_hash = Tjupt()._tohash(answer_img)
                         log.info(f"【Sites】北洋签到答案图片hash {answer_title} {answer_img_hash}")
 
+                        # 获取选项图片与签到图片相似度，大于0.9默认是正确答案
                         score = Tjupt()._comparehash(captcha_img_hash, answer_img_hash)
                         log.info(f"【Sites】北洋签到图片与选项 {answer} 豆瓣图片相似度 {score}")
                         if score > 0.9:
