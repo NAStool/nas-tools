@@ -17,7 +17,7 @@ class SpeedLimiter(_IPluginModule):
     # 插件名称
     module_name = "下载器限速"
     # 插件描述
-    module_desc = "媒体服务器播放或未播放时时，自动对下载器进行限速。"
+    module_desc = "媒体服务器播状态改变时，根据设置对下载器进行限速。"
     # 插件图标
     module_icon = "SpeedLimiter.jpg"
     # 主题色
@@ -78,7 +78,7 @@ class SpeedLimiter(_IPluginModule):
                         {
                             'title': '播放限速',
                             'required': "",
-                            'tooltip': '媒体服务器播放时对选取的下载器进行限速，不限速地址范围除外，0或留空不启用',
+                            'tooltip': '媒体服务器有媒体播放时对选取的下载器进行限速，不限速地址范围除外，0或留空不启用',
                             'type': 'text',
                             'content': [
                                 {
@@ -94,7 +94,7 @@ class SpeedLimiter(_IPluginModule):
                         {
                             'title': '未播放限速',
                             'required': "",
-                            'tooltip': '媒体服务器未播放时对选取的下载器进行限速，0或留空不启用',
+                            'tooltip': '媒体服务器无媒体播放时对选取的下载器进行限速，0或留空不启用',
                             'type': 'text',
                             'content': [
                                 {
@@ -110,7 +110,7 @@ class SpeedLimiter(_IPluginModule):
                         {
                             'title': '智能上传限速设置',
                             'required': "",
-                            'tooltip': '设置上行带宽后，媒体服务器播放时根据上行带宽和媒体播放占用带宽计算上传限速数值。多个下载器设置分配比例，如两个下载器设置1:2,留空均分',
+                            'tooltip': '设置上行带宽后，媒体服务器有媒体播放时根据上行带宽和媒体播放占用带宽计算上传限速数值。多个下载器设置分配比例，如两个下载器设置1:2,留空均分',
                             'type': 'text',
                             'content': [
                                 {
@@ -152,7 +152,7 @@ class SpeedLimiter(_IPluginModule):
                         {
                             'title': '消息通知',
                             'required': "",
-                            'tooltip': '开启后，媒体播放器webhook触发限速时，发送通知',
+                            'tooltip': '开启后，下载器限速状态改变时，发送通知',
                             'type': 'switch',
                             'id': 'notify',
                         },
@@ -417,6 +417,11 @@ class SpeedLimiter(_IPluginModule):
             # 非定时检查，且进行过未播放限速
             if not time_check and _playing_flag == self._playing_flag:
                 return
+        # 发送通知标记
+        _notify = self._notify
+        # 定时检查时，如播放状态未改变，不发送通知
+        if time_check and _playing_flag == self._playing_flag:
+            _notify = False
 
         # 获取限速下载器
         limited_downloader_confs, limited_allocation_ratio = self.check_limited_downloader()
@@ -431,10 +436,11 @@ class SpeedLimiter(_IPluginModule):
         )
 
         # 发送消息
-        if not time_check and self._notify:
+        if _notify:
             limit_log = "\n".join(limit_log)
+            title = f"【{'定时检查'if time_check else mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】"
             self._message.send_plugin_message(
-                title=f"【{mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】",
+                title=title,
                 text=f"{message}\n{limit_log}"
             )
 
