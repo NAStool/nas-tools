@@ -14,23 +14,6 @@
             {{ SVG.plus() }}
             新增
           </a>
-          <a href="javascript:show_add_custom_word_group_modal()" class="btn btn-primary d-sm-none btn-icon">
-            {{ SVG.plus() }}
-          </a>
-          <a href="javascript:batch_check_action('enable')" class="btn btn-success ms-auto d-none d-sm-inline-block">
-            {{ SVG.player_play() }}
-            启用
-          </a>
-          <a href="javascript:batch_check_action('enable')" class="btn btn-success d-sm-none btn-icon">
-            {{ SVG.player_play() }}
-          </a>
-          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
-            {{ SVG.player_stop() }}
-            停用
-          </a>
-          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary d-sm-none btn-icon">
-            {{ SVG.player_stop() }}
-          </a>
           <a href="javascript:show_import_custom_words_modal()"
             class="btn btn-twitter ms-auto d-none d-sm-inline-block">
             {{ SVG.transfer_in() }}
@@ -39,18 +22,35 @@
           <a href="javascript:show_import_custom_words_modal()" class="btn btn-twitter d-sm-none btn-icon">
             {{ SVG.transfer_in() }}
           </a>
-          <a href="javascript:batch_check_action('export')" class="btn btn-info btn-twitter d-none d-sm-inline-block">
-            {{ SVG.transfer_out() }}
-            导出
-          </a>
-          <a href="javascript:batch_check_action('export')" class="btn btn-twitter d-sm-none btn-icon">
-            {{ SVG.transfer_out() }}
-          </a>
+          <div class="dropdown">
+            <a href="#" class="btn btn-danger ms-auto d-none d-sm-inline-block dropdown-toggle"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              {{ SVG.trash() }}
+              批量管理
+            </a>
+            <a href="#" class="btn btn-danger d-sm-none btn-icon"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              {{ SVG.trash() }}
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item text-mute" href="javascript:batch_check_action('enable')" >
+                启用
+              </a>
+              <a class="dropdown-item text-mute" href="javascript:batch_check_action('disable')">
+                停用
+              </a>
+              <a class="dropdown-item text-mute" href="javascript:batch_check_action('export')">
+                导出
+              </a>
+              <a class="dropdown-item text-danger" href="javascript:batch_check_action('delete')">
+                删除
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </div>
 <!-- 业务页面代码 -->
 <div class="page-body">
@@ -78,7 +78,7 @@
               {% endif %}
             </div>
           </div>
-          <div id="div_group{{ Group.id }}" class="table-responsive {% if Group.words %}table-page-mini-body{% endif %}" {% if GroupsCount> 8 %}style="display: none;"{% endif %}>
+          <div id="div_group{{ Group.id }}" class="table-responsive" {% if GroupsCount> 8 %}style="display: none;"{% endif %}>
             <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
                 <tr>
@@ -137,20 +137,11 @@
                     {% endif %}
                   </td>
                   <td>
-                    <div class="dropdown">
-                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ SVG.dots_vertical() }}
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})"
+                        title="编辑" class='ms-1'>
+                        {{ SVG.edit() }}
                       </a>
-                      <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item"
-                           href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})">
-                          编辑
-                        </a>
-                        <a class="dropdown-item text-danger"
-                        href="javascript:delete_custom_word('{{ Word.id }}')">
-                          删除
-                        </a>
-                      </div>
                     </div>
                   </td>
                 </tr>
@@ -482,28 +473,31 @@
     // 批量启用/停用/导出
     function batch_check_action(flag) {
       let ids_info = select_GetSelectedVAL("^custom_words");
-      if (flag == "disable" || flag == "enable") {
+      if (flag === "disable" || flag === "enable") {
         ajax_post("check_custom_words", { flag: flag, ids_info: ids_info }, function (ret) {
-          if (ret.code == 0) {
+          if (ret.code === 0) {
             window_history_refresh();
           } else {
             show_fail_modal(ret.msg);
           }
         });
-      } else if (flag == "export") {
+      } else if (flag === "export") {
         $("#export_ids_info").val(ids_info.join("@"));
         show_export_custom_words_modal();
+      } else if (flag === "export") {
+        $("#export_ids_info").val(ids_info.join("@"));
+        show_export_custom_words_modal();
+      } else if (flag === "delete") {
+        show_confirm_modal(`确定要删除${ids_info.length ? "选中": "所有"}的自定义识别词吗？`, function () {
+          ajax_post("delete_custom_words", { ids_info: ids_info }, function (ret) {
+            if (ret.code === 0) {
+              window_history_refresh();
+            } else {
+              show_fail_modal(ret.msg);
+            }
+          });
+        });
       }
-    }
-
-    // 删除自定义识别词
-    function delete_custom_word(id) {
-      ajax_post("delete_custom_word", { id: id }, function (ret) {
-        if (ret.code == 0) {
-          // window.history.go(0);
-          window_history_refresh();
-        }
-      });
     }
 
     // 显示导出自定义识别词框

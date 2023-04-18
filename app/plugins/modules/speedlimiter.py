@@ -5,6 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.downloader import Downloader
 from app.helper.security_helper import SecurityHelper
 from app.mediaserver import MediaServer
+from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import ExceptionUtils
@@ -14,9 +15,9 @@ from config import Config
 
 class SpeedLimiter(_IPluginModule):
     # 插件名称
-    module_name = "播放限速"
+    module_name = "下载器限速"
     # 插件描述
-    module_desc = "媒体服务器开始播放时，自动对下载器进行限速。"
+    module_desc = "媒体服务器播状态改变时，根据设置对下载器进行限速。"
     # 插件图标
     module_icon = "SpeedLimiter.jpg"
     # 主题色
@@ -37,13 +38,15 @@ class SpeedLimiter(_IPluginModule):
     # 私有属性
     _downloader = None
     _mediaserver = None
+    _message = None
     _scheduler = None
     # 任务执行间隔
     _interval = 300
 
     # 限速开关
     _limit_enabled = False
-    _limit_flag = False
+    # 限速状态，True为播放限速，False为未播放限速
+    _playing_flag = False
     # 限速设置
     _download_limit = 0
     _upload_limit = 0
@@ -51,14 +54,15 @@ class SpeedLimiter(_IPluginModule):
     _upload_unlimit = 0
     # 不限速地址
     _unlimited_ips = {"ipv4": "0.0.0.0/0", "ipv6": "::/0"}
-    # 自动限速
+    # 智能上传限速标志
     _auto_limit = False
-    _auto_upload_limit = 0
     # 总速宽
     _bandwidth = 0
     _allocation_ratio = 0
     # 限速下载器
     _limited_downloader_ids = []
+    # 发送消息标志
+    _notify = False
 
     @staticmethod
     def get_fields():
@@ -72,9 +76,9 @@ class SpeedLimiter(_IPluginModule):
                     # 同一行
                     [
                         {
-                            'title': '播放时限速',
+                            'title': '播放限速',
                             'required': "",
-                            'tooltip': '媒体服务器播放时对选取的下载器进行限速，不限速地址范围除外，0或留空不启用',
+                            'tooltip': '媒体服务器有媒体播放时对选取的下载器进行限速，不限速地址范围除外，0或留空不启用',
                             'type': 'text',
                             'content': [
                                 {
@@ -88,9 +92,9 @@ class SpeedLimiter(_IPluginModule):
                             ]
                         },
                         {
-                            'title': '未播放时限速',
+                            'title': '未播放限速',
                             'required': "",
-                            'tooltip': '媒体服务器未播放时对选取的下载器进行限速，0或留空不启用',
+                            'tooltip': '媒体服务器无媒体播放时对选取的下载器进行限速，0或留空不启用',
                             'type': 'text',
                             'content': [
                                 {
@@ -106,7 +110,7 @@ class SpeedLimiter(_IPluginModule):
                         {
                             'title': '智能上传限速设置',
                             'required': "",
-                            'tooltip': '设置上行带宽后，媒体服务器播放时根据上行带宽和媒体播放占用带宽计算上传限速数值。多个下载器设置分配比例，如两个下载器设置1:2,留空均分',
+                            'tooltip': '设置上行带宽后，媒体服务器有媒体播放时根据上行带宽和媒体播放占用带宽计算上传限速数值。多个下载器设置分配比例，如两个下载器设置1:2,留空均分',
                             'type': 'text',
                             'content': [
                                 {
@@ -142,6 +146,15 @@ class SpeedLimiter(_IPluginModule):
                                     'placeholder': 'FE80::/10',
                                 }
                             ]
+                        },
+                    ],
+                    [
+                        {
+                            'title': '消息通知',
+                            'required': "",
+                            'tooltip': '开启后，下载器限速状态改变时，发送通知',
+                            'type': 'switch',
+                            'id': 'notify',
                         },
                     ]
                 ]
@@ -185,6 +198,7 @@ class SpeedLimiter(_IPluginModule):
     def init_config(self, config=None):
         self._downloader = Downloader()
         self._mediaserver = MediaServer()
+        self._message = Message()
 
         # 读取配置
         if config:
@@ -243,13 +257,19 @@ class SpeedLimiter(_IPluginModule):
             self._interval = int(config.get("interval") or "300")
 
             # 下载器限速分配比例
-            self._allocation_ratio = config.get("allocation_ratio").split(":") or []
-            try:
-                self._allocation_ratio = [int(i) for i in self._allocation_ratio]
-            except Exception as e:
-                ExceptionUtils.exception_traceback(e)
-                self.warn("分配比例含有:外非数字字符，执行均分")
+            self._allocation_ratio = config.get("allocation_ratio")
+            if self._allocation_ratio:
+                try:
+                    self._allocation_ratio = [int(i) for i in self._allocation_ratio.split(":")]
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    self.warn("分配比例含有:外非数字字符，执行均分")
+                    self._allocation_ratio = []
+            else:
                 self._allocation_ratio = []
+
+            # 发送消息
+            self._notify = True if config.get("notify") else False
 
         else:
             # 限速关闭
@@ -272,64 +292,56 @@ class SpeedLimiter(_IPluginModule):
     def get_state(self):
         return self._limit_enabled
 
-    def __start(self, downloader_confs, allocation_ratio):
+    def __speed_limit(self, downloader_confs, allocation_ratio, playing_flag):
         """
-        播放限速
+        下载器限速
         """
         if not downloader_confs:
             return
+        limit_log = []
         allocation_count = sum(allocation_ratio) if allocation_ratio else len(downloader_confs)
-        upload_limit = self._upload_limit
-        download_limit = self._download_limit
         for i in range(len(downloader_confs)):
             downloader_conf = downloader_confs[i]
-            if self._auto_limit:
-                if not allocation_ratio:
-                    upload_limit = int(self._auto_upload_limit / allocation_count)
+            downloader_name = downloader_conf.get("name")
+            # 播放限速
+            if playing_flag:
+                # 智能上传限速
+                if self._auto_limit:
+                    if not allocation_ratio:
+                        upload_limit = int(self._upload_limit / allocation_count)
+                    else:
+                        upload_limit = int(self._upload_limit * allocation_ratio[i] / allocation_count)
+                    # 不能为0
+                    if upload_limit < 10:
+                        upload_limit = 10
+                # 非智能上传限速
                 else:
-                    upload_limit = int(self._auto_upload_limit * allocation_ratio[i] / allocation_count)
-            if upload_limit < 10:
-                upload_limit = 10
-            self._downloader.set_speed_limit(
-                downloader_id=downloader_conf.get("id"),
-                download_limit=download_limit,
-                upload_limit=upload_limit
-            )
-            if upload_limit and download_limit:
-                limit_info = f"上传：{upload_limit}KB/s 下载：{download_limit}KB/s"
-            elif upload_limit:
-                limit_info = f"上传：{upload_limit}KB/s"
-            elif download_limit:
-                limit_info = f"下载：{download_limit}KB/s"
+                    upload_limit = self._upload_limit
+                # 下载限速
+                download_limit = self._download_limit
+            # 未播放限速
             else:
-                limit_info = "不限速"
-            self.info(f"下载器 {downloader_conf.get('name')} {limit_info}")
-        self._limit_flag = True
-
-    def __stop(self, downloader_confs):
-        """
-        未播放限速
-        """
-        if not downloader_confs:
-            return
-        upload_limit = self._upload_unlimit
-        download_limit = self._download_unlimit
-        if upload_limit and download_limit:
-            limit_info = f"上传：{upload_limit}KB/s 下载：{download_limit}KB/s"
-        elif upload_limit:
-            limit_info = f"上传：{upload_limit}KB/s"
-        elif download_limit:
-            limit_info = f"下载：{download_limit}KB/s"
-        else:
-            limit_info = "不限速"
-        for downloader_conf in downloader_confs:
+                upload_limit = self._upload_unlimit
+                download_limit = self._download_unlimit
             self._downloader.set_speed_limit(
                 downloader_id=downloader_conf.get("id"),
                 download_limit=download_limit,
                 upload_limit=upload_limit
             )
-            self.info(f"下载器 {downloader_conf.get('name')} {limit_info}")
-        self._limit_flag = False
+            # 发送日志
+            log_info = f"{downloader_name}"
+            if upload_limit:
+                log_info += f" 上传：{upload_limit}KB/s"
+            if download_limit:
+                log_info += f" 下载：{download_limit}KB/s"
+            if not upload_limit and not download_limit:
+                log_info += " 不限速"
+            self.info(f"{'' if playing_flag else '未'}播放限速：{log_info}")
+            limit_log.append(log_info)
+        # 设置限速状态
+        self._playing_flag = playing_flag
+        # 返回限速日志
+        return limit_log
 
     @EventHandler.register(EventType.EmbyWebhook)
     def emby_action(self, event):
@@ -337,7 +349,9 @@ class SpeedLimiter(_IPluginModule):
         检查emby Webhook消息
         """
         if self._limit_enabled and event.event_data.get("Event") in ["playback.start", "playback.stop"]:
-            self.__check_playing_sessions(_mediaserver_type=MediaServerType.EMBY, time_check=False)
+            self.__check_playing_sessions(_mediaserver_type=MediaServerType.EMBY,
+                                          time_check=False,
+                                          message=event.event_data.get("Title"))
 
     @EventHandler.register(EventType.JellyfinWebhook)
     def jellyfin_action(self, event):
@@ -355,34 +369,18 @@ class SpeedLimiter(_IPluginModule):
         if self._limit_enabled and event.event_data.get("event") in ["media.play", "media.stop"]:
             self.__check_playing_sessions(_mediaserver_type=MediaServerType.PLEX, time_check=False)
 
-    def __check_playing_sessions(self, _mediaserver_type, time_check=False):
+    def __check_playing_sessions(self, _mediaserver_type, time_check=False, message=""):
         """
         检查是否限速
         """
-
-        def __calc_limit(_total_bit_rate):
-            """
-            计算限速
-            """
-            if not _total_bit_rate:
-                return False
-            if self._auto_limit:
-                residual_bandwidth = (self._bandwidth - _total_bit_rate)
-                if residual_bandwidth < 0:
-                    self._auto_upload_limit = 10
-                else:
-                    self._auto_upload_limit = residual_bandwidth / 8 / 1024
-            return True
-
-        if _mediaserver_type != self._mediaserver.get_type():
+        mediaserver_type = self._mediaserver.get_type()
+        if _mediaserver_type != mediaserver_type:
             return
         # plex的webhook时尝试sleep一段时间,以保证get_playing_sessions获取到正确的值
         if not time_check and _mediaserver_type == MediaServerType.PLEX:
             time.sleep(3)
         # 当前播放的会话
         playing_sessions = self._mediaserver.get_playing_sessions()
-        # 本次是否限速
-        _limit_flag = False
         # 当前播放的总比特率
         total_bit_rate = 0
         if _mediaserver_type == MediaServerType.EMBY:
@@ -405,9 +403,63 @@ class SpeedLimiter(_IPluginModule):
         else:
             return
 
-        # 计算限速标志及速率
-        _limit_flag = __calc_limit(total_bit_rate)
+        # 限速状态
+        _playing_flag = True if total_bit_rate else False
+        # 限速检查
+        if _playing_flag:
+            # 非定时检查，非智能上传限速，且进行过播放限速
+            if not time_check and not self._auto_limit and _playing_flag == self._playing_flag:
+                return
+            # 智能上传限速计算上传限速
+            if self._auto_limit:
+                self.calc_limit(total_bit_rate)
+        else:
+            # 非定时检查，且进行过未播放限速
+            if not time_check and _playing_flag == self._playing_flag:
+                return
+        # 发送通知标记
+        _notify = self._notify
+        # 定时检查时，如播放状态未改变，不发送通知
+        if time_check and _playing_flag == self._playing_flag:
+            _notify = False
 
+        # 获取限速下载器
+        limited_downloader_confs, limited_allocation_ratio = self.check_limited_downloader()
+        if not limited_downloader_confs:
+            self.warn("未有启用的限速下载器")
+
+        # 启动限速
+        limit_log = self.__speed_limit(
+            downloader_confs=limited_downloader_confs,
+            allocation_ratio=limited_allocation_ratio,
+            playing_flag=_playing_flag
+        )
+
+        # 发送消息
+        if _notify:
+            limit_log = "\n".join(limit_log)
+            title = f"【{'定时检查'if time_check else mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】"
+            self._message.send_plugin_message(
+                title=title,
+                text=f"{message}\n{limit_log}"
+            )
+
+    def calc_limit(self, total_bit_rate):
+        """
+        计算智能上传限速
+        """
+        if not total_bit_rate:
+            return
+        residual_bandwidth = (self._bandwidth - total_bit_rate)
+        if residual_bandwidth < 0:
+            self._upload_limit = 10
+        else:
+            self._upload_limit = residual_bandwidth / 8 / 1024
+
+    def check_limited_downloader(self):
+        """
+        检查限速下载器
+        """
         # 限速下载器
         limited_downloader_confs = []
         limited_allocation_ratio = []
@@ -415,31 +467,16 @@ class SpeedLimiter(_IPluginModule):
         if self._allocation_ratio and len(self._allocation_ratio) != len(self._limited_downloader_ids):
             self._allocation_ratio = []
             self.warn("分配比例配置错误，与限速下载器数量不一致，执行均分")
-
+        # 检查限速下载器配置
         downloader_confs_dict = self._downloader.get_downloader_conf_simple()
         for i in range(len(self._limited_downloader_ids)):
             did = self._limited_downloader_ids[i]
-            if downloader_confs_dict.get(did) and downloader_confs_dict.get(did).get("enabled"):
-                limited_downloader_confs.append(downloader_confs_dict.get(self._limited_downloader_ids[i]))
+            downloader_conf = downloader_confs_dict.get(did)
+            if downloader_conf and downloader_conf.get("enabled"):
+                limited_downloader_confs.append(downloader_conf)
                 if self._allocation_ratio:
                     limited_allocation_ratio.append(self._allocation_ratio[i])
-        if not limited_downloader_confs:
-            self.warn("未有启用的限速下载器")
-            return
-
-        # 启动限速
-        if time_check or self._auto_limit:
-            if _limit_flag:
-                self.__start(limited_downloader_confs, limited_allocation_ratio)
-            else:
-                self.__stop(limited_downloader_confs)
-        else:
-            if not self._limit_flag and _limit_flag:
-                self.__start(limited_downloader_confs, limited_allocation_ratio)
-            elif self._limit_flag and not _limit_flag:
-                self.__stop(limited_downloader_confs)
-            else:
-                pass
+        return limited_downloader_confs, limited_allocation_ratio
 
     def stop_service(self):
         """
