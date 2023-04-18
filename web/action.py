@@ -374,7 +374,7 @@ class WebAction:
             message.send_channel_msg(
                 channel=in_from, title="正在运行 %s ..." % command.get("desp"), user_id=user_id)
         else:
-            # 站点检索或者添加订阅
+            # 站点搜索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message,
                                         (msg, in_from, user_id, user_name))
 
@@ -510,7 +510,7 @@ class WebAction:
     @staticmethod
     def __search(data):
         """
-        WEB检索资源
+        WEB搜索资源
         """
         search_word = data.get("search_word")
         ident_flag = False if data.get("unident") else True

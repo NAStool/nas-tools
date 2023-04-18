@@ -77,7 +77,7 @@ class Scheduler:
                     self.SCHEDULER.add_job(Rss().rssdownload, 'interval', seconds=pt_check_interval)
                     log.info("RSS订阅服务启动")
 
-            # RSS订阅定时检索
+            # RSS订阅定时搜索
             search_rss_interval = self._pt.get('search_rss_interval')
             if search_rss_interval:
                 if isinstance(search_rss_interval, str) and search_rss_interval.isdigit():
@@ -117,7 +117,7 @@ class Scheduler:
         # 定时把队列中的监控文件转移走
         self.SCHEDULER.add_job(Sync().transfer_mon_files, 'interval', seconds=SYNC_TRANSFER_INTERVAL)
 
-        # RSS队列中检索
+        # RSS队列中搜索
         self.SCHEDULER.add_job(Subscribe().subscribe_search, 'interval', seconds=RSS_CHECK_INTERVAL)
 
         # 豆瓣RSS转TMDB，定时更新TMDB数据

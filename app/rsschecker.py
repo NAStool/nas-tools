@@ -231,7 +231,7 @@ class RssChecker(object):
                     continue
 
                 if task_type == "D":
-                    # 识别种子名称，开始检索TMDB
+                    # 识别种子名称，开始搜索TMDB
                     media_info = MetaInfo(title=meta_name,
                                           mtype=mediatype)
                     cache_info = self.media.get_cache_info(media_info)
@@ -314,7 +314,7 @@ class RssChecker(object):
                         rss_download_torrents.append(media_info)
                         res_num = res_num + 1
                 elif task_type == "R":
-                    # 识别种子名称，开始检索TMDB
+                    # 识别种子名称，开始搜索TMDB
                     media_info = MetaInfo(title=meta_name, mtype=mediatype)
                     # 检查种子是否匹配过滤条件
                     filter_args = {
@@ -578,7 +578,7 @@ class RssChecker(object):
         taskinfo = self.get_rsstask_info(taskid)
         if not taskinfo:
             return
-        # 识别种子名称，开始检索TMDB
+        # 识别种子名称，开始搜索TMDB
         media_info = MetaInfo(title=title)
         cache_info = self.media.get_cache_info(media_info)
         if cache_info.get("id"):

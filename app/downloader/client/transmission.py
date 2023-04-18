@@ -19,7 +19,7 @@ class Transmission(_IDownloadClient):
     # 下载器名称
     client_name = DownloaderType.TR.value
 
-    # 参考transmission web，仅查询需要的参数，加速种子检索
+    # 参考transmission web，仅查询需要的参数，加速种子搜索
     _trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",

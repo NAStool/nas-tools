@@ -67,13 +67,13 @@ class DbHelper:
 
     def get_search_result_by_id(self, dl_id):
         """
-        根据ID从数据库中查询检索结果的一条记录
+        根据ID从数据库中查询搜索结果的一条记录
         """
         return self._db.query(SEARCHRESULTINFO).filter(SEARCHRESULTINFO.ID == dl_id).all()
 
     def get_search_results(self, ):
         """
-        查询检索结果的所有记录
+        查询搜索结果的所有记录
         """
         return self._db.query(SEARCHRESULTINFO).all()
 
@@ -193,7 +193,7 @@ class DbHelper:
 
     def get_douban_search_state(self, title, year=None):
         """
-        查询未检索的豆瓣数据
+        查询未搜索的豆瓣数据
         """
         if not year:
             return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title).first()

@@ -276,7 +276,7 @@ class StringUtils:
     @staticmethod
     def get_keyword_from_string(content):
         """
-        从检索关键字中拆分中年份、季、集、类型
+        从搜索关键字中拆分中年份、季、集、类型
         """
         if not content:
             return None, None, None, None, None

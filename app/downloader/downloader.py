@@ -920,7 +920,7 @@ class Downloader:
         """
         检查媒体库，查询是否存在，对于剧集同时返回不存在的季集信息
         :param meta_info: 已识别的媒体信息，包括标题、年份、季、集信息
-        :param no_exists: 在调用该方法前已经存储的不存在的季集信息，有传入时该函数检索的内容将会叠加后输出
+        :param no_exists: 在调用该方法前已经存储的不存在的季集信息，有传入时该函数搜索的内容将会叠加后输出
         :param total_ep: 各季的总集数
         :return: 当前媒体是否缺失，各标题总的季集和缺失的季集，需要发送的消息
         """
@@ -943,7 +943,7 @@ class Downloader:
         if meta_info.type != MediaType.MOVIE:
             # 是否存在的标志
             return_flag = False
-            # 检索电视剧的信息
+            # 搜索电视剧的信息
             tv_info = self.media.get_tmdb_info(mtype=MediaType.TV, tmdbid=meta_info.tmdb_id)
             if tv_info:
                 # 传入检查季

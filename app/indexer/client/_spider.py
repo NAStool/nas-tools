@@ -45,7 +45,7 @@ class TorrentSpider(feapder.AirSpider):
             custom_argument=["--ignore-certificate-errors"],
         )
     )
-    # 是否检索完成标志
+    # 是否搜索完成标志
     is_complete = False
     # 是否出现错误
     is_error = False
@@ -65,13 +65,13 @@ class TorrentSpider(feapder.AirSpider):
     render = False
     # Referer
     referer = None
-    # 检索关键字
+    # 搜索关键字
     keyword = None
     # 媒体类型
     mtype = None
-    # 检索路径、方式配置
+    # 搜索路径、方式配置
     search = {}
-    # 批量检索配置
+    # 批量搜索配置
     batch = {}
     # 浏览配置
     browse = {}
@@ -83,7 +83,7 @@ class TorrentSpider(feapder.AirSpider):
     fields = {}
     # 页码
     page = 0
-    # 检索条数
+    # 搜索条数
     result_num = 100
     # 单个种子信息
     torrents_info = {}
@@ -98,7 +98,7 @@ class TorrentSpider(feapder.AirSpider):
         """
         设置查询参数
         :param indexer: 索引器
-        :param keyword: 检索关键字，如果数组则为批量检索
+        :param keyword: 搜索关键字，如果数组则为批量搜索
         :param page: 页码
         :param referer: Referer
         :param mtype: 媒体类型
@@ -181,7 +181,7 @@ class TorrentSpider(feapder.AirSpider):
                 # 查询模式与
                 search_mode = "0"
 
-            # 检索URL
+            # 搜索URL
             if self.search.get("params"):
                 # 变量字典
                 inputs_dict = {
@@ -243,7 +243,7 @@ class TorrentSpider(feapder.AirSpider):
                     })
             elif self.page:
                 torrentspath = torrentspath + f"?page={self.page}"
-            # 检索Url
+            # 搜索Url
             searchurl = self.domain + str(torrentspath).format(**inputs_dict)
 
         log.info(f"【Spider】开始请求：{searchurl}")
@@ -623,7 +623,7 @@ class TorrentSpider(feapder.AirSpider):
             self.Getlabels(torrent)
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.error("【Spider】%s 检索出现错误：%s" % (self.indexername, str(err)))
+            log.error("【Spider】%s 搜索出现错误：%s" % (self.indexername, str(err)))
         return self.torrents_info
 
     @staticmethod

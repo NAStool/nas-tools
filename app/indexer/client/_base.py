@@ -62,7 +62,7 @@ class _IIndexClient(metaclass=ABCMeta):
                match_media,
                in_from: SearchType):
         """
-        根据关键字多线程检索
+        根据关键字多线程搜索
         """
         pass
 
@@ -73,7 +73,7 @@ class _IIndexClient(metaclass=ABCMeta):
                               match_media,
                               start_time):
         """
-        从检索结果中匹配符合资源条件的记录
+        从搜索结果中匹配符合资源条件的记录
         """
         ret_array = []
         index_sucess = 0

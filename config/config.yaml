@@ -180,9 +180,9 @@ scraper_pic:
     # 开启后，读取视频文件生成缩略图
     episode_thumb_ffmpeg: false
 
-# 【配置站点检索信息】
+# 【配置站点搜索信息】
 pt:
-  #【聚合检索使用的检索器】：builtin
+  #【聚合搜索使用的检索器】：builtin
   search_indexer: builtin
   # 【内建索引器使用的站点】：只有在该站点列表中内建索引器搜索时才会使用
   indexer_sites:
