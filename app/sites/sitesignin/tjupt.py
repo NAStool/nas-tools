@@ -80,7 +80,7 @@ class Tjupt(_ISiteSigninHandler):
 
             # 签到答案选项
             values = html.xpath("//input[@name='answer']/@value")
-            options = html.xpath("//input[@name='answer']/text()")
+            options = html.xpath("//input[@name='answer']/following-sibling::text()")
             # value+选项
             answers = list(zip(values, options))
             for value, answer in answers:
