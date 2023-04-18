@@ -54,8 +54,11 @@ class Tjupt(_ISiteSigninHandler):
         if not html_res or html_res.status_code != 200:
             log.error("【Sites】北洋签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
-        self.__sign_in_result(html_res=html_res.text,
-                              site=site)
+
+        sign_status = self.__sign_in_result(html_res=html_res.text)
+        if sign_status:
+            log.info(f"【Sites】北洋已签到")
+            return f'【{site}】已签到'
 
         # 没有签到则解析html
         html = etree.HTML(html_res.text)
@@ -128,22 +131,24 @@ class Tjupt(_ISiteSigninHandler):
                                 return f'【{site}】签到失败，签到接口请求失败'
 
                             # 获取签到后返回html，判断是否签到成功
-                            self.__sign_in_result(html_res=sign_in_res.text,
-                                                  site=site)
+                            sign_status = self.__sign_in_result(html_res=sign_in_res.text)
+                            if sign_status:
+                                log.info(f"【Sites】北洋已签到")
+                                return f'【{site}】已签到'
 
             log.error(f"【Sites】北洋签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
             return f'【{site}】签到失败，未获取到匹配答案'
 
-    def __sign_in_result(self, html_res, site):
+    def __sign_in_result(self, html_res):
         """
         判断是否签到成功
         """
         html_text = self._prepare_html_text(html_res)
         for regex in self._succeed_regex:
             if re.search(str(regex), html_text):
-                log.info(f"【Sites】北洋已签到")
-                return f'【{site}】已签到'
+                return True
+        return False
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):

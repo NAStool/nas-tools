@@ -72,8 +72,6 @@ class SiteSignin(object):
             try:
                 return site_module().signin(site_info)
             except Exception as e:
-                log.error(str(e))
-                ExceptionUtils.exception_traceback(e)
                 return f"【{site_info.get('name')}】签到失败：{str(e)}"
         else:
             return self.__signin_base(site_info)
