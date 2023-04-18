@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/form.html' as FORM %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -31,6 +32,7 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
+{% if Downloaders %}
 <div class="page-body">
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
@@ -84,6 +86,9 @@
     </div>
   </div>
 </div>
+{% else %}
+  {{ OOPS.empty('没有下载器', '没有添加任何下载器，请点击”新增下载器“按钮，并设置默认下载器。') }}
+{% endif %}
 <div class="modal modal-blur fade" id="modal-downloader" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">

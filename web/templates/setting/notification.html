@@ -1,5 +1,6 @@
 {% import 'macro/svg.html' as SVG %}
 {% import 'macro/form.html' as FORM %}
+{% import 'macro/oops.html' as OOPS %}
 <div class="container-xl">
   <!-- Page title -->
   <div class="page-header d-print-none">
@@ -33,6 +34,7 @@
   </div>
 </div>
 <!-- 业务页面代码 -->
+{% if MessageClients %}
 <div class="page-body">
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
@@ -90,6 +92,9 @@
     </div>
   </div>
 </div>
+{% else %}
+  {{ OOPS.empty('没有通知渠道', '没有添加任何消息通知渠道，请点击”新增消息通知“按钮。') }}
+{% endif %}
 <div class="modal modal-blur fade" id="modal-message-client" tabindex="-1" role="dialog" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
