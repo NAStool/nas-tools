@@ -276,6 +276,39 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-service-signin" tabindex="-1" role="dialog" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">手动站点签到</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="mb-3">
+              <label class="form-label">站点 <span class="form-help"
+                                                    title="不选择时默认全部运行"
+                                                    data-bs-toggle="tooltip">?</span></label>
+              <div class="form-selectgroup" id="service_signin_dirs">
+                {% for SiteInfo in SigninSites %}
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="service_sync_dir" value="{{ SiteInfo.id }}" class="form-selectgroup-input">
+                    <span class="form-selectgroup-label">{{ SiteInfo.name }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:run_signin_now()" id="service_signin_btn" class="btn btn-primary">开始签到</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
 
   // 显示服务提示框
@@ -316,6 +349,9 @@
         break;
       case "sync":
         $('#modal-service-sync').modal('show');
+        break;
+      case "ptsignin":
+        $('#modal-service-signin').modal('show');
         break;
       default:
         show_ask_modal("是否立即运行 " + name + "？", function () {
@@ -502,6 +538,19 @@
       $("#modal-service-sync").modal('hide');
       if (ret.code === 0) {
         show_success_modal("目录同步已启动，正在后台运行");
+      } else {
+        show_fail_modal(ret.msg);
+      }
+    });
+  }
+
+  // 站点签到
+  function run_signin_now() {
+    let sids = select_GetSelectedVAL("service_signin_dir");
+    ajax_post("run_signin", {sids: sids}, function (ret) {
+      $("#modal-signin-sync").modal('hide');
+      if (ret.code === 0) {
+        show_success_modal("站点签到已启动，正在后台运行");
       } else {
         show_fail_modal(ret.msg);
       }

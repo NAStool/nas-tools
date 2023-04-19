@@ -51,11 +51,12 @@ class SiteSignin(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
-    def signin(self):
+    def signin(self, siteids=None):
         """
         站点并发签到
         """
-        sites = self.sites.get_sites(signin=True)
+        sites = self.sites.get_sites(signin=True,
+                                     siteids=siteids)
         if not sites:
             return
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
