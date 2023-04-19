@@ -110,7 +110,7 @@ class AutoBackup(_IPluginModule):
                                     'placeholder': '/config/backup_file',
                                 }
                             ]
-                        },
+                        } if not SystemUtils.is_docker() else {}
                     ]
                 ]
             }
