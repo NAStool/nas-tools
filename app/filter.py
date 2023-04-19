@@ -257,61 +257,70 @@ class Filter:
         :param downloadvolumefactor: 种子的下载因子 传空不过滤
         :return: 是否匹配，匹配的优先值，匹配信息，值越大越优先
         """
+        # 过滤制作组/字幕组使用的文本
+        title = text = meta_info.org_string
+        # 过滤包含，排除，关键字使用的文本
+        if meta_info.labels:
+            text = f"{text} {meta_info.labels}"
+        if meta_info.subtitle:
+            text = f"{text} {meta_info.subtitle}"
         # 过滤质量
-        if filter_args.get("restype"):
-            restype_re = ModuleConf.TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
+        restype = filter_args.get("restype")
+        if restype:
+            restype_re = ModuleConf.TORRENT_SEARCH_PARAMS["restype"].get(restype)
             if not meta_info.get_edtion_string():
-                return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
+                return False, 0, f"{title} 不符合质量 {restype} 要求"
             if restype_re and not re.search(r"%s" % restype_re, meta_info.get_edtion_string(), re.I):
-                return False, 0, f"{meta_info.org_string} 不符合质量 {filter_args.get('restype')} 要求"
+                return False, 0, f"{title} 不符合质量 {restype} 要求"
         # 过滤分辨率
-        if filter_args.get("pix"):
-            pix_re = ModuleConf.TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
+        pix = filter_args.get("pix")
+        if pix:
+            pix_re = ModuleConf.TORRENT_SEARCH_PARAMS["pix"].get(pix)
             if not meta_info.resource_pix:
-                return False, 0, f"{meta_info.org_string} 不符合分辨率 {filter_args.get('pix')} 要求"
+                return False, 0, f"{title} 不符合分辨率 {pix} 要求"
             if pix_re and not re.search(r"%s" % pix_re, meta_info.resource_pix, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合分辨率 {filter_args.get('pix')} 要求"
+                return False, 0, f"{title} 不符合分辨率 {pix} 要求"
         # 过滤制作组/字幕组
-        if filter_args.get("team"):
-            team = filter_args.get("team")
+        team = filter_args.get("team")
+        if team:
             if not meta_info.resource_team:
-                resource_team = self.rg_matcher.match(
-                    title=meta_info.org_string,
-                    groups=team)
+                resource_team = self.rg_matcher.match(title=title, groups=team)
                 if not resource_team:
-                    return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
+                    return False, 0, f"{title} 不符合制作组/字幕组 {team} 要求"
                 else:
                     meta_info.resource_team = resource_team
             elif not re.search(r"%s" % team, meta_info.resource_team, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合制作组/字幕组 {team} 要求"
+                return False, 0, f"{title} 不符合制作组/字幕组 {team} 要求"
         # 过滤促销
-        if filter_args.get("sp_state"):
-            ul_factor, dl_factor = filter_args.get("sp_state").split()
+        sp_state = filter_args.get("sp_state")
+        if sp_state:
+            ul_factor, dl_factor = sp_state.split()
             if uploadvolumefactor and ul_factor not in ("*", str(uploadvolumefactor)):
-                return False, 0, f"{meta_info.org_string} 不符合促销要求"
+                return False, 0, f"{title} 不符合促销要求"
             if downloadvolumefactor and dl_factor not in ("*", str(downloadvolumefactor)):
-                return False, 0, f"{meta_info.org_string} 不符合促销要求"
+                return False, 0, f"{title} 不符合促销要求"
         # 过滤包含
-        if filter_args.get("include"):
-            include = filter_args.get("include")
-            if not re.search(r"%s" % include, meta_info.org_string, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合包含 {include} 要求"
+        include = filter_args.get("include")
+        if include:
+            if not re.search(r"%s" % include, text, re.I):
+                return False, 0, f"{title} 不符合包含 {include} 要求"
         # 过滤排除
-        if filter_args.get("exclude"):
-            exclude = filter_args.get("exclude")
-            if re.search(r"%s" % exclude, meta_info.org_string, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合排除 {exclude} 要求"
+        exclude = filter_args.get("exclude")
+        if exclude:
+            if re.search(r"%s" % exclude, text, re.I):
+                return False, 0, f"{title} 不符合排除 {exclude} 要求"
         # 过滤关键字
-        if filter_args.get("key"):
-            key = filter_args.get("key")
-            if not re.search(r"%s" % key, meta_info.org_string, re.I):
-                return False, 0, f"{meta_info.org_string} 不符合 {key} 要求"
+        key = filter_args.get("key")
+        if key:
+            if not re.search(r"%s" % key, text, re.I):
+                return False, 0, f"{title} 不符合 {key} 要求"
         # 过滤过滤规则，-1表示不使用过滤规则，空则使用默认过滤规则
-        if filter_args.get("rule"):
+        rule = filter_args.get("rule")
+        if rule:
             # 已设置默认规则
-            match_flag, order_seq, rule_name = self.check_rules(meta_info, filter_args.get("rule"))
+            match_flag, order_seq, rule_name = self.check_rules(meta_info, rule)
             match_msg = "%s 大小：%s 促销：%s 不符合订阅/站点过滤规则 %s 要求" % (
-                meta_info.org_string,
+                title,
                 StringUtils.str_filesize(meta_info.size),
                 meta_info.get_volume_factor_string(),
                 rule_name
@@ -321,7 +330,7 @@ class Filter:
             # 默认过滤规则
             match_flag, order_seq, rule_name = self.check_rules(meta_info)
             match_msg = "%s 大小：%s 促销：%s 不符合默认过滤规则 %s 要求" % (
-                meta_info.org_string,
+                title,
                 StringUtils.str_filesize(meta_info.size),
                 meta_info.get_volume_factor_string(),
                 rule_name
