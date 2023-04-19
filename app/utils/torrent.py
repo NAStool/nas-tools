@@ -106,14 +106,15 @@ class Torrent:
                                 # 检查是不是种子文件，如果不是抛出异常
                                 bdecode(req.content)
                                 # 跳过成功
+                                log.info(f"【Downloader】触发了站点首次种子下载，已自动跳过：{url}")
                                 skip_flag = True
                             elif req is not None:
-                                log.warn(f"触发了站点首次种子下载，且无法自动跳过，"
+                                log.warn(f"【Downloader】触发了站点首次种子下载，且无法自动跳过，"
                                          f"返回码：{req.status_code}，错误原因：{req.reason}")
                             else:
-                                log.warn(f"触发了站点首次种子下载，且无法自动跳过：{url}")
+                                log.warn(f"【Downloader】触发了站点首次种子下载，且无法自动跳过：{url}")
                 except Exception as err:
-                    log.warn(f"触发了站点首次种子下载，尝试自动跳过时出现错误：{str(err)}，链接：{url}")
+                    log.warn(f"【Downloader】触发了站点首次种子下载，尝试自动跳过时出现错误：{str(err)}，链接：{url}")
 
                 if not skip_flag:
                     return None, None, "种子数据有误，请确认链接是否正确，如为PT站点则需手工在站点下载一次种子"
