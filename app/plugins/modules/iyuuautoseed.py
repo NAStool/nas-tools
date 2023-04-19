@@ -12,7 +12,6 @@ from lxml import etree
 from app.downloader import Downloader
 from app.helper import IyuuHelper
 from app.media.meta import MetaInfo
-from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
 from app.utils import RequestUtils
@@ -47,7 +46,6 @@ class IYUUAutoSeed(_IPluginModule):
     downloader = None
     iyuuhelper = None
     sites = None
-    message = None
     # 限速开关
     _enable = False
     _cron = None
@@ -211,7 +209,6 @@ class IYUUAutoSeed(_IPluginModule):
     def init_config(self, config=None):
         self.downloader = Downloader()
         self.sites = Sites()
-        self.message = Message()
         # 读取配置
         if config:
             self._enable = config.get("enable")
@@ -433,7 +430,7 @@ class IYUUAutoSeed(_IPluginModule):
         self.__update_config()
         # 发送消息
         if self._notify:
-            self.message.send_plugin_message(
+            self.send_message(
                 title="【IYUU自动辅种任务完成】",
                 text=f"服务器返回可辅种总数：{self.total}\n"
                      f"实际可辅种数：{self.realtotal}\n"
@@ -650,7 +647,7 @@ class IYUUAutoSeed(_IPluginModule):
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
-        # 辅种任务默认暂停，关闭自动管理模式
+        # 辅种任务默认暂停
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
@@ -658,7 +655,6 @@ class IYUUAutoSeed(_IPluginModule):
             downloader_id=downloader,
             download_dir=save_path,
             download_setting="-2",
-            is_auto=False
         )
         if not download_id:
             # 下载失败

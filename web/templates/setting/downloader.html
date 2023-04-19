@@ -35,7 +35,7 @@
 {% if Downloaders %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="d-grid gap-3 grid-normal-card">
+    <div class="d-grid gap-3 grid-normal-card align-items-start">
     {% for Id, Attr in Downloaders.items() %}
       <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_downloader_modal('{{ Id }}')">
         <div class="card-cover card-cover-blurred text-center"

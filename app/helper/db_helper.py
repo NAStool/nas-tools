@@ -2286,10 +2286,12 @@ class DbHelper:
         ))
 
     @DbPersist(_db)
-    def delete_custom_word(self, wid):
+    def delete_custom_word(self, wid=None):
         """
         删除自定义识别词
         """
+        if not wid:
+            self._db.query(CUSTOMWORDS).delete()
         self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).delete()
 
     @DbPersist(_db)

@@ -130,6 +130,7 @@ class Sites:
     def get_sites(self,
                   siteid=None,
                   siteurl=None,
+                  siteids=None,
                   rss=False,
                   brush=False,
                   signin=False,
@@ -151,6 +152,8 @@ class Sites:
             if signin and not site.get('signin_enable'):
                 continue
             if statistic and not site.get('statistic_enable'):
+                continue
+            if siteids and str(site.get('id')) not in siteids:
                 continue
             ret_sites.append(site)
         if siteid or siteurl:

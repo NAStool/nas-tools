@@ -24,7 +24,7 @@
           <div class="card bg-transparent border-0">
             <div class="ribbon g-cyan d-md-none">
               <a class="text-white" href="javascript:show_search_filter_modal('{{ Item.key }}')">
-                筛选
+                {{ SVG.filter() }}
               </a>
             </div>
             {% if Item.fav == "2" %}

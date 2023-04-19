@@ -142,7 +142,7 @@ class WebAction:
             "delete_custom_word_group": self.__delete_custom_word_group,
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "get_custom_word": self.__get_custom_word,
-            "delete_custom_word": self.__delete_custom_word,
+            "delete_custom_words": self.__delete_custom_words,
             "check_custom_words": self.__check_custom_words,
             "export_custom_words": self.__export_custom_words,
             "analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
@@ -232,7 +232,8 @@ class WebAction:
             "update_category_config": self.update_category_config,
             "get_category_config": self.get_category_config,
             "get_system_processes": self.get_system_processes,
-            "iyuu_bind_site": self.iyuu_bind_site
+            "iyuu_bind_site": self.iyuu_bind_site,
+            "run_signin": self.__run_signin
         }
 
     def action(self, cmd, data=None):
@@ -3066,10 +3067,15 @@ class WebAction:
             ExceptionUtils.exception_traceback(e)
             return {"code": 1, "msg": "查询识别词失败"}
 
-    def __delete_custom_word(self, data):
+    def __delete_custom_words(self, data):
         try:
-            wid = data.get("id")
-            self.dbhelper.delete_custom_word(wid)
+            ids_info = data.get("ids_info")
+            if not ids_info:
+                self.dbhelper.delete_custom_word()
+            else:
+                ids = [id_info.split("_")[1] for id_info in ids_info]
+                for wid in ids:
+                    self.dbhelper.delete_custom_word(wid=wid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -5063,36 +5069,46 @@ class WebAction:
         return {"code": 0, "text": category_text}
 
     @staticmethod
-    def backup():
+    def backup(full_backup=False, bk_path=None):
+        """
+        @param full_backup  是否完整备份
+        @param bk_path     自定义备份路径
+        """
         try:
             # 创建备份文件夹
             config_path = Path(Config().get_config_path())
             backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
-            backup_path = config_path / "backup_file" / backup_file
+            if bk_path:
+                backup_path = Path(bk_path) / backup_file
+            else:
+                backup_path = config_path / "backup_file" / backup_file
             backup_path.mkdir(parents=True)
             # 把现有的相关文件进行copy备份
             shutil.copy(f'{config_path}/config.yaml', backup_path)
             shutil.copy(f'{config_path}/default-category.yaml', backup_path)
             shutil.copy(f'{config_path}/user.db', backup_path)
-            conn = sqlite3.connect(f'{backup_path}/user.db')
-            cursor = conn.cursor()
-            # 执行操作删除不需要备份的表
-            table_list = [
-                'SEARCH_RESULT_INFO',
-                'RSS_TORRENTS',
-                'DOUBAN_MEDIAS',
-                'TRANSFER_HISTORY',
-                'TRANSFER_UNKNOWN',
-                'TRANSFER_BLACKLIST',
-                'SYNC_HISTORY',
-                'DOWNLOAD_HISTORY',
-                'alembic_version'
-            ]
-            for table in table_list:
-                cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
-            conn.commit()
-            cursor.close()
-            conn.close()
+
+            # 完整备份不删除表
+            if not full_backup:
+                conn = sqlite3.connect(f'{backup_path}/user.db')
+                cursor = conn.cursor()
+                # 执行操作删除不需要备份的表
+                table_list = [
+                    'SEARCH_RESULT_INFO',
+                    'RSS_TORRENTS',
+                    'DOUBAN_MEDIAS',
+                    'TRANSFER_HISTORY',
+                    'TRANSFER_UNKNOWN',
+                    'TRANSFER_BLACKLIST',
+                    'SYNC_HISTORY',
+                    'DOWNLOAD_HISTORY',
+                    'alembic_version'
+                ]
+                for table in table_list:
+                    cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
+                conn.commit()
+                cursor.close()
+                conn.close()
             zip_file = str(backup_path) + '.zip'
             if os.path.exists(zip_file):
                 zip_file = str(backup_path) + '.zip'
@@ -5122,3 +5138,11 @@ class WebAction:
                                           passkey=data.get('passkey'),
                                           uid=data.get('uid'))
         return {"code": 0 if state else 1, "msg": msg}
+
+    @staticmethod
+    def __run_signin(data):
+        """
+        手动站点签到
+        """
+        ThreadHelper().start_thread(SiteSignin().signin, (data.get("sids"),))
+        return {"code": 0, "msg": "执行成功"}
