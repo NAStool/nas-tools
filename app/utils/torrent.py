@@ -6,6 +6,7 @@ from urllib.parse import unquote
 from bencode import bdecode
 
 import log
+from app.utils import StringUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
 from config import Config
@@ -85,6 +86,10 @@ class Torrent:
                     form = re.findall(r'<form.*?action="(.*?)".*?>(.*?)</form>', req.text, re.S)
                     if form:
                         action = form[0][0]
+                        if not action or action == "?":
+                            action = url
+                        elif not action.startswith('http'):
+                            action = StringUtils.get_base_url(url) + action
                         inputs = re.findall(r'<input.*?name="(.*?)".*?value="(.*?)".*?>', form[0][1], re.S)
                         if action and inputs:
                             data = {}
