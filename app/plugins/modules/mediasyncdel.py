@@ -3,7 +3,6 @@ import time
 
 from app.helper import DbHelper
 from app.media import Media
-from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils.types import EventType, MediaType
@@ -34,7 +33,6 @@ class MediaSyncDel(_IPluginModule):
 
     # 私有属性
     dbhelper = None
-    message = None
     _enable = False
     _del_source = False
     _exclude_path = None
@@ -96,7 +94,6 @@ class MediaSyncDel(_IPluginModule):
 
     def init_config(self, config=None):
         self.dbhelper = DbHelper()
-        self.message = Message()
 
         # 读取配置
         if config:
@@ -227,7 +224,7 @@ class MediaSyncDel(_IPluginModule):
                 image_url = Media().get_tmdb_backdrop(mtype=MediaType.MOVIE if media_type == "Movie" else MediaType.TV,
                                                       tmdbid=tmdb_id)
             # 发送通知
-            self.message.send_plugin_message(
+            self.send_message(
                 title="【Emby同步删除任务完成】",
                 image=image_url or 'https://emby.media/notificationicon.png',
                 text=f"{msg}\n"

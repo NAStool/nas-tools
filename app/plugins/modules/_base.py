@@ -5,13 +5,14 @@ from abc import ABCMeta, abstractmethod
 import log
 from app.conf import SystemConfig
 from app.helper import DbHelper
+from app.message import Message
 from config import Config
 
 
 class _IPluginModule(metaclass=ABCMeta):
     """
     插件模块基类，通过继续该类实现插件功能
-    除内置属性外，还有以下方法可以扩展：
+    除内置属性外，还有以下方法可以扩展或调用：
     - get_fields() 获取配置字典，用于生成插件配置表单
     - get_state() 获取插件启用状态，用于展示运行状态
     - stop_service() 停止插件服务
@@ -24,6 +25,12 @@ class _IPluginModule(metaclass=ABCMeta):
     - debug(msg) 记录插件DEBUG日志
     - get_page() 插件额外页面数据，在插件配置页面左下解按钮展示
     - get_script() 插件额外脚本（Javascript），将会写入插件页面，可在插件元素中绑定使用
+    - send_message() 发送消息
+    - get_data_path() 获取插件数据保存目录
+    - history() 记录插件运行数据，key需要唯一，value为对象
+    - get_history() 获取插件运行数据
+    - update_history() 更新插件运行数据
+    - delete_history() 删除插件运行数据
 
     """
     # 插件名称
@@ -167,6 +174,15 @@ class _IPluginModule(metaclass=ABCMeta):
         if not plugin_id:
             plugin_id = self.__class__.__name__
         return DbHelper().delete_plugin_history(plugin_id=plugin_id, key=key)
+
+    @staticmethod
+    def send_message(title, text=None, image=None):
+        """
+        发送消息
+        """
+        return Message().send_plugin_message(title=title,
+                                             text=text,
+                                             image=image)
 
     def info(self, msg):
         """

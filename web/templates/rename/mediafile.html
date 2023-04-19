@@ -4,7 +4,7 @@
     <div class="card bg-transparent border-0">
       <div class="ribbon ribbon-top g-cyan d-md-none">
         <a class="text-white" href="javascript:js_change_card()">
-          切换
+          {{ SVG.switch_horizontal() }}
         </a>
       </div>
       <div class="row g-0">
@@ -36,11 +36,11 @@
                   {{ SVG.transform() }}
                   转移
                 </a>
-                <a href="javascript:mediafile_findlinks_all()" class="btn btn-success" title="查询所有文件硬链接">
+                <a href="javascript:mediafile_findlinks_all()" class="btn btn-cyan" title="查询所有文件硬链接">
                   {{ SVG.link() }}
                   硬链接
                 </a>
-                <a href="javascript:mediafile_scraper_all()" class="btn btn-cyan" title="刮削当前目录">
+                <a href="javascript:mediafile_scraper_all()" class="btn" title="刮削当前目录">
                   {{ SVG.link() }}
                   刮削
                 </a>

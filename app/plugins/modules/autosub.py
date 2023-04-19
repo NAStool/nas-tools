@@ -14,7 +14,6 @@ from lxml import etree
 
 from app.helper import FfmpegHelper
 from app.helper.openai_helper import OpenAiHelper
-from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils
 from config import RMT_MEDIAEXT
@@ -413,7 +412,7 @@ class AutoSub(_IPluginModule):
                     continue
                 # 生成字幕
                 if self.send_notify:
-                    Message().send_plugin_message(title="自动字幕生成",
+                    self.send_message(title="自动字幕生成",
                                                   text=f" 媒体: {file_name}\n 开始处理文件 ... ")
                 ret, lang = self.__generate_subtitle(video_file, file_path, self.translate_only)
                 if not ret:
@@ -426,14 +425,14 @@ class AutoSub(_IPluginModule):
                         self.fail_count += 1
 
                     if self.send_notify:
-                        Message().send_plugin_message(title="自动字幕生成", text=message)
+                        self.send_message(title="自动字幕生成", text=message)
                     continue
 
                 if self.translate_zh:
                     # 翻译字幕
                     self.info(f"开始翻译字幕为中文 ...")
                     if self.send_notify:
-                        Message().send_plugin_message(title="自动字幕生成",
+                        self.send_message(title="自动字幕生成",
                                                       text=f" 媒体: {file_name}\n 开始翻译字幕为中文 ... ")
                     self.__translate_zh_subtitle(lang, f"{file_path}.{lang}.srt", f"{file_path}.zh.srt")
                     self.info(f"翻译字幕完成：{file_name}.zh.srt")
@@ -445,14 +444,14 @@ class AutoSub(_IPluginModule):
                 message += f"耗时：{round(end_time - start_time, 2)}秒"
                 self.info(f"自动字幕生成 处理完成：{message}")
                 if self.send_notify:
-                    Message().send_plugin_message(title="自动字幕生成", text=message)
+                    self.send_message(title="自动字幕生成", text=message)
                 self.success_count += 1
             except Exception as e:
                 self.error(f"自动字幕生成 处理异常：{e}")
                 end_time = time.time()
                 message = f" 媒体: {file_name}\n 处理失败\n 耗时：{round(end_time - start_time, 2)}秒"
                 if self.send_notify:
-                    Message().send_plugin_message(title="自动字幕生成", text=message)
+                    self.send_message(title="自动字幕生成", text=message)
                 # 打印调用栈
                 traceback.print_exc()
                 self.fail_count += 1

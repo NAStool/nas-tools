@@ -1,14 +1,12 @@
+from collections import defaultdict
 from datetime import datetime
 from threading import Event
-from collections import defaultdict
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-import pytz
-
 from app.helper import DbHelper, IndexerHelper
-from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites
 from app.utils import RequestUtils
@@ -41,7 +39,6 @@ class CookieCloud(_IPluginModule):
     _scheduler = None
     _site = None
     _dbhelper = None
-    _message = None
     _index_helper = None
     # 设置开关
     _req = None
@@ -155,7 +152,6 @@ class CookieCloud(_IPluginModule):
     def init_config(self, config=None):
         self._dbhelper = DbHelper()
         self._site = Sites()
-        self._message = Message()
         self._index_helper = IndexerHelper()
 
         # 读取配置
@@ -322,7 +318,7 @@ class CookieCloud(_IPluginModule):
         """
         发送通知
         """
-        self._message.send_plugin_message(
+        self.send_message(
             title="【CookieCloud同步任务执行完成】",
             text=f"{msg}"
         )
