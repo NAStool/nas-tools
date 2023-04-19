@@ -258,7 +258,7 @@
               <label class="form-label">源目录 <span class="form-help"
                                                     title="不选择时默认全部运行"
                                                     data-bs-toggle="tooltip">?</span></label>
-              <div class="form-selectgroup" id="service_sync_dirs">
+              <div class="form-selectgroup">
                 {% for SyncId, SyncPath in SyncPaths.items() %}
                   <label class="form-selectgroup-item">
                     <input type="checkbox" name="service_sync_dir" value="{{ SyncId }}" class="form-selectgroup-input">
@@ -291,10 +291,10 @@
               <label class="form-label">站点 <span class="form-help"
                                                     title="不选择时默认全部运行"
                                                     data-bs-toggle="tooltip">?</span></label>
-              <div class="form-selectgroup" id="service_signin_dirs">
+              <div class="form-selectgroup">
                 {% for SiteInfo in SigninSites %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="service_sync_dir" value="{{ SiteInfo.id }}" class="form-selectgroup-input">
+                    <input type="checkbox" name="service_site_signin" value="{{ SiteInfo.id }}" class="form-selectgroup-input">
                     <span class="form-selectgroup-label">{{ SiteInfo.name }}</span>
                   </label>
                 {% endfor %}
@@ -546,9 +546,9 @@
 
   // 站点签到
   function run_signin_now() {
-    let sids = select_GetSelectedVAL("service_signin_dir");
+    let sids = select_GetSelectedVAL("service_site_signin");
     ajax_post("run_signin", {sids: sids}, function (ret) {
-      $("#modal-signin-sync").modal('hide');
+      $("#modal-service-signin").modal('hide');
       if (ret.code === 0) {
         show_success_modal("站点签到已启动，正在后台运行");
       } else {

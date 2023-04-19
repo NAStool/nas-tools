@@ -640,7 +640,7 @@ def service():
     # 所有同步目录
     SyncPaths = Sync().get_sync_path_conf()
     # 所有站点
-    SigninSites = Sites().get_sites(signin=True)
+    SigninSites = Sites().get_site_dict(signin=True)
 
     # 所有服务
     Services = current_user.get_services()

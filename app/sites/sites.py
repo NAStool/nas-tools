@@ -153,7 +153,7 @@ class Sites:
                 continue
             if statistic and not site.get('statistic_enable'):
                 continue
-            if siteids and site.get('id') not in siteids:
+            if siteids and str(site.get('id')) not in siteids:
                 continue
             ret_sites.append(site)
         if siteid or siteurl:
