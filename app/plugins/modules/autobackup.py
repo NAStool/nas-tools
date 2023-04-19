@@ -6,6 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.plugins.modules._base import _IPluginModule
+from app.utils import SystemUtils
 from config import Config
 from web.action import WebAction
 
@@ -42,9 +43,6 @@ class AutoBackup(_IPluginModule):
     _cnt = None
     _full = None
     _bk_path = None
-    _default_config_path = Config().get_config_path()
-    _lite_path = "/lite"
-    _full_path = "/full"
 
     @staticmethod
     def get_fields():
@@ -58,14 +56,14 @@ class AutoBackup(_IPluginModule):
                         {
                             'title': '开启定时备份',
                             'required': "",
-                            'tooltip': '开启后会根据周期定时备份nas-tools',
+                            'tooltip': '开启后会根据周期定时备份NAStool',
                             'type': 'switch',
                             'id': 'enabled',
                         },
                         {
                             'title': '是否完整版备份',
                             'required': "",
-                            'tooltip': '开启后会生成两个备份文件，一个精简版，一个完整版',
+                            'tooltip': '开启后会备份完整数据库，保留有历史记录',
                             'type': 'switch',
                             'id': 'full',
                         }
@@ -104,7 +102,7 @@ class AutoBackup(_IPluginModule):
                         {
                             'title': '自定义备份路径',
                             'required': "",
-                            'tooltip': '自定义备份路径，请确保该路径已映射到宿主机，否则会增加容器体积（默认精简版备份路径/config/backup_file/lite；默认完整版备份路径/config/backup_file/full）',
+                            'tooltip': '自定义备份路径（默认备份路径/config/backup_file/）',
                             'type': 'text',
                             'content': [
                                 {
@@ -145,59 +143,39 @@ class AutoBackup(_IPluginModule):
         """
         self.info(f"当前时间 {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} 开始备份")
 
-        # 无自定义路径则用默认
-        self._bk_path = self._bk_path or (self._default_config_path + "/backup_file")
-
-        # 去除末尾/
-        if self._bk_path.endswith('/'):
-            self._bk_path = self._bk_path[:-1]
-
-        # 精简版备份路径
-        lite_path = self._bk_path + self._lite_path
-        # 完整版备份路径
-        full_path = self._bk_path + self._full_path
-
-        # 精简版备份
-        lite_zip_file = WebAction().backup(bk_path=lite_path)
-
-        if lite_zip_file:
-            self.info(f"精简版备份完成 备份文件 {lite_zip_file} ")
+        # docker用默认路径
+        if SystemUtils.is_docker():
+            bk_path = os.path.join(Config().get_config_path(), "backup_file")
         else:
-            self.error("创建精简版备份失败")
+            # 无自定义路径则用默认
+            bk_path = self._bk_path or os.path.join(Config().get_config_path(), "backup_file")
 
-        # 开启完整半备份，则再备份完整版
-        if self._full:
-            # 完整备份
-            full_zip_file = WebAction().backup(full_backup=True,
-                                               bk_path=full_path)
-            if full_zip_file:
-                self.info(f"完整版备份完成 备份文件 {full_zip_file} ")
-            else:
-                self.error("创建完整版备份失败")
+        # 备份
+        zip_file = WebAction().backup(bk_path=bk_path,
+                                      full_backup=self._full)
 
+        if zip_file:
+            self.info(f"备份完成 备份文件 {zip_file} ")
+        else:
+            self.error("创建备份失败")
+
+        # 清理备份
         if self._cnt:
-            # 清理精简版备份
-            self.clean_backup(bk_path=lite_path)
+            # 获取指定路径下所有以"bk"开头的文件，按照创建时间从旧到新排序
+            files = sorted(glob.glob(bk_path + "/bk**"), key=os.path.getctime)
+            # 计算需要删除的文件数
+            del_cnt = len(files) - int(self._cnt)
+            if del_cnt > 0:
+                self.info(
+                    f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 需要删除备份文件数量 {del_cnt}")
 
-            # 清理完整版备份
-            self.clean_backup(bk_path=full_path)
-
-    def clean_backup(self, bk_path):
-        # 获取指定路径下所有以"bk"开头的文件，按照创建时间从旧到新排序
-        files = sorted(glob.glob(bk_path + "/bk**"), key=os.path.getctime)
-        # 计算需要删除的文件数
-        del_cnt = len(files) - int(self._cnt)
-        if del_cnt > 0:
-            self.info(
-                f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 需要删除备份文件数量 {del_cnt}")
-
-            # 遍历并删除最旧的几个备份
-            for i in range(del_cnt):
-                os.remove(files[i])
-                self.debug(f"删除备份文件 {files[i]} 成功")
-        else:
-            self.info(
-                f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 无需删除")
+                # 遍历并删除最旧的几个备份
+                for i in range(del_cnt):
+                    os.remove(files[i])
+                    self.debug(f"删除备份文件 {files[i]} 成功")
+            else:
+                self.info(
+                    f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 无需删除")
 
     def stop_service(self):
         pass
