@@ -17,9 +17,6 @@ class EventManager:
     _handlers = {}
 
     def __init__(self):
-        self.init_config()
-
-    def init_config(self):
         # 事件队列
         self._eventQueue = Queue()
         # 事件响应函数字典
