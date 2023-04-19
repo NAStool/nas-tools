@@ -5,10 +5,10 @@ import random
 import re
 from urllib import parse
 
+import cn2an
 import dateparser
 import dateutil.parser
 
-import cn2an
 from app.utils.exception_utils import ExceptionUtils
 from app.utils.types import MediaType
 
@@ -468,9 +468,6 @@ class StringUtils:
         :param s: 要计算的字符串
         :return: 字符串中包含的单词数量
         """
-        # 初始化单词数量
-        num_words = 0
-
         # 匹配英文单词
         if re.match(r'^[A-Za-z0-9\s]+$', s):
             # 如果是英文字符串，则按空格分隔单词，并计算单词数量
@@ -528,3 +525,21 @@ class StringUtils:
         if buf:
             # 处理文本末尾剩余部分
             yield buf.strip()
+
+    @staticmethod
+    def is_one_month_ago(date_str):
+        """
+        判断日期是否早于一个月前
+        """
+        if not date_str:
+            return False
+        # 将日期字符串解析为日期对象
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        # 计算当前日期和一个月前的日期
+        today = datetime.datetime.today()
+        one_month_ago = today - datetime.timedelta(days=30)
+        # 比较日期对象，判断是否早于一个月前
+        if date_obj < one_month_ago:
+            return True
+        else:
+            return False
