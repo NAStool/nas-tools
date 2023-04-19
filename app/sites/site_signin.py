@@ -51,19 +51,20 @@ class SiteSignin(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
-    def signin(self):
+    def signin(self, siteids=None):
         """
         站点并发签到
         """
-        sites = self.sites.get_sites(signin=True)
+        sites = self.sites.get_sites(signin=True,
+                                     siteids=siteids)
         if not sites:
             return
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
-            status = p.map(self.signin_site, sites)
+            status = p.map(self.__signin_site, sites)
         if status:
             self.message.send_site_signin_message(status)
 
-    def signin_site(self, site_info):
+    def __signin_site(self, site_info):
         """
         签到一个站点
         """

@@ -46,9 +46,6 @@
               </a>
           </h3>
           <div class="card-actions btn-actions">
-            <a href="javascript:signin_site('{{ Site.id }}')" class="btn-action ms-1" title="站点签到">
-              {{ SVG.signin() }}
-            </a>
             <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action ms-1" title="编辑站点">
               {{ SVG.edit() }}
             </a>
@@ -541,17 +538,6 @@
         $("#modal-site").modal("show");
       }
       $("#site_rule").val(ret.site.rule);
-    });
-  }
-
-  //站点签到
-  function signin_site(tid) {
-    ajax_post("signin_site", { "id": tid }, function (ret) {
-       if (ret.code === 0) {
-          show_success_modal(ret.msg, function () {});
-        } else {
-          show_fail_modal(`${ret.msg}！`);
-        }
     });
   }
 

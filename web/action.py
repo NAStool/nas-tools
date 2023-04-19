@@ -233,7 +233,7 @@ class WebAction:
             "get_category_config": self.get_category_config,
             "get_system_processes": self.get_system_processes,
             "iyuu_bind_site": self.iyuu_bind_site,
-            "signin_site": self.__signin_site
+            "run_signin": self.__run_signin
         }
 
     def action(self, cmd, data=None):
@@ -5140,11 +5140,9 @@ class WebAction:
         return {"code": 0 if state else 1, "msg": msg}
 
     @staticmethod
-    def __signin_site(data):
+    def __run_signin(data):
         """
-        单个站点签到
+        手动站点签到
         """
-        tid = data.get("id")
-        site_info = Sites().get_sites(siteid=tid)
-        msg = SiteSignin().signin_site(site_info=site_info)
-        return {"code": 0, "msg": msg}
+        ThreadHelper().start_thread(SiteSignin().signin, (data.get("sids"),))
+        return {"code": 0, "msg": "执行成功"}
