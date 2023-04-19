@@ -5068,16 +5068,19 @@ class WebAction:
         return {"code": 0, "text": category_text}
 
     @staticmethod
-    def backup(all_backup=False, bk_path=None):
+    def backup(full_backup=False, bk_path=None):
         """
-        @param all_backup  是否完整备份
+        @param full_backup  是否完整备份
         @param bk_path     自定义备份路径
         """
         try:
             # 创建备份文件夹
             config_path = Path(Config().get_config_path())
-            backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}" + "_all" if all_backup else ""
-            backup_path = bk_path or (config_path / "backup_file") / backup_file
+            backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
+            if bk_path:
+                backup_path = Path(bk_path) / backup_file
+            else:
+                backup_path = config_path / "backup_file" / backup_file
             backup_path.mkdir(parents=True)
             # 把现有的相关文件进行copy备份
             shutil.copy(f'{config_path}/config.yaml', backup_path)
@@ -5085,7 +5088,7 @@ class WebAction:
             shutil.copy(f'{config_path}/user.db', backup_path)
 
             # 完整备份不删除表
-            if not all_backup:
+            if not full_backup:
                 conn = sqlite3.connect(f'{backup_path}/user.db')
                 cursor = conn.cursor()
                 # 执行操作删除不需要备份的表
