@@ -8,7 +8,6 @@ from apscheduler.triggers.cron import CronTrigger
 from app.plugins.modules._base import _IPluginModule
 from config import Config
 from web.action import WebAction
-from web.backend.web_utils import WebUtils
 
 
 class AutoBackup(_IPluginModule):
@@ -41,6 +40,8 @@ class AutoBackup(_IPluginModule):
     # 任务执行间隔
     _cron = None
     _cnt = None
+    _all = None
+    _bk_path = None
     _config_path = "/config/backup_file"
 
     @staticmethod
@@ -58,6 +59,13 @@ class AutoBackup(_IPluginModule):
                             'tooltip': '开启后会根据周期定时备份nas-tools，默认备份路径/config/backup_file',
                             'type': 'switch',
                             'id': 'enabled',
+                        },
+                        {
+                            'title': '是否完整版备份',
+                            'required': "",
+                            'tooltip': '开启后会生成两个备份文件，一个精简版，一个完整版',
+                            'type': 'switch',
+                            'id': 'all',
                         }
                     ]
                 ]
@@ -91,6 +99,18 @@ class AutoBackup(_IPluginModule):
                                 }
                             ]
                         },
+                        {
+                            'title': '自定义备份路径',
+                            'required': "",
+                            'tooltip': '自定义备份路径，请确保该路径已映射到宿主机，否则会增加容器体积（路径后不要带/号）',
+                            'type': 'text',
+                            'content': [
+                                {
+                                    'id': 'bk_path',
+                                    'placeholder': '/config/backup_file',
+                                }
+                            ]
+                        },
                     ]
                 ]
             }
@@ -102,6 +122,8 @@ class AutoBackup(_IPluginModule):
             self._enabled = config.get("enabled")
             self._cron = config.get("cron")
             self._cnt = config.get("cnt")
+            self._all = config.get("all")
+            self._bk_path = config.get("bk_path")
 
         # 启动服务
         if self._enabled and self._cron:
@@ -120,7 +142,10 @@ class AutoBackup(_IPluginModule):
         自动备份、删除备份
         """
         self.info(f"当前时间 {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} 开始备份")
-        zip_file = WebAction().backup()
+        zip_file = WebAction().backup(bk_path=self._bk_path)
+        if self._all:
+            all_zip_file = WebAction().backup(all_backup=True,
+                                              bk_path=self._bk_path)
         if zip_file:
             self.info(f"备份完成 备份文件 {zip_file} ")
         else:
