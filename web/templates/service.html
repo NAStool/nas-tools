@@ -288,9 +288,12 @@
         <div class="row">
           <div class="col">
             <div class="mb-3">
-              <label class="form-label">站点 <span class="form-help"
-                                                    title="不选择时默认全部运行"
-                                                    data-bs-toggle="tooltip">?</span></label>
+              <div class="btn-list">
+                  <label class="form-label">站点 <span class="form-help"
+                                                        title="不选择时默认全部运行"
+                                                        data-bs-toggle="tooltip">?</span></label>
+                  <a href="javascript:void(0)" class="ms-auto" onclick="select_btn_SelectALL(this, 'service_site_signin')">全选</a>
+              </div>
               <div class="form-selectgroup">
                 {% for SiteInfo in SigninSites %}
                   <label class="form-selectgroup-item">
