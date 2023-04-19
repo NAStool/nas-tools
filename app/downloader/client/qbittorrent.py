@@ -87,13 +87,13 @@ class Qbittorrent(_IDownloadClient):
         try:
             if is_edit:
                 self.qbc.torrent_categories.edit_category(name=name, save_path=save_path)
-                log.info(f"【{self.name}】更新分类：{name}，路径：{save_path}")
+                log.info(f"【{self.client_name}】{self.name} 更新分类：{name}，路径：{save_path}")
             else:
                 self.qbc.torrent_categories.create_category(name=name, save_path=save_path)
-                log.info(f"【{self.name}】创建分类：{name}，路径：{save_path}")
+                log.info(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path}")
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.error(f"【{self.name}】创建分类：{name}，路径：{save_path} 错误：{str(err)}")
+            log.error(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path} 错误：{str(err)}")
 
     def check_category(self, category="", save_path=""):
         """
@@ -164,7 +164,7 @@ class Qbittorrent(_IDownloadClient):
             return qbt
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.error(f"【{self.name}】qBittorrent连接出错：{str(err)}")
+            log.error(f"【{self.client_name}】{self.name} 连接出错：{str(err)}")
             return None
 
     def get_status(self):
@@ -273,17 +273,17 @@ class Qbittorrent(_IDownloadClient):
                 continue
             # 开启标签隔离，未包含指定标签的不处理
             if tag and tag not in torrent_tags:
-                log.debug(f"【{self.name}】开启标签隔离，但 {torrent.get('name')} 未包含指定标签：{tag}")
+                log.debug(f"【{self.client_name}】{self.name} 开启标签隔离， {torrent.get('name')} 未包含指定标签：{tag}")
                 continue
             path = torrent.get("save_path")
             # 无法获取下载路径的不处理
             if not path:
-                log.debug(f"【{self.name}】{torrent.get('name')} 未获取到下载保存路径")
+                log.debug(f"【{self.client_name}】{self.name} 未获取到 {torrent.get('name')} 下载保存路径")
                 continue
             true_path, replace_flag = self.get_replace_path(path, self.download_dir)
             # 开启目录隔离，未进行目录替换的不处理
             if match_path and not replace_flag:
-                log.debug(f"【{self.name}】开启目录隔离，但 {torrent.get('name')} 未匹配下载目录范围")
+                log.debug(f"【{self.client_name}】{self.name} 开启目录隔离， {torrent.get('name')} 未匹配下载目录范围")
                 continue
             content_path = torrent.get("content_path")
             if content_path:
