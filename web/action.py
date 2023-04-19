@@ -232,7 +232,8 @@ class WebAction:
             "update_category_config": self.update_category_config,
             "get_category_config": self.get_category_config,
             "get_system_processes": self.get_system_processes,
-            "iyuu_bind_site": self.iyuu_bind_site
+            "iyuu_bind_site": self.iyuu_bind_site,
+            "signin_site": self.__signin_site
         }
 
     def action(self, cmd, data=None):
@@ -5137,3 +5138,13 @@ class WebAction:
                                           passkey=data.get('passkey'),
                                           uid=data.get('uid'))
         return {"code": 0 if state else 1, "msg": msg}
+
+    @staticmethod
+    def __signin_site(data):
+        """
+        单个站点签到
+        """
+        tid = data.get("id")
+        site_info = Sites().get_sites(siteid=tid)
+        msg = SiteSignin().signin_site(site_info=site_info)
+        return {"code": 0, "msg": msg}
