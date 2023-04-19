@@ -46,7 +46,7 @@ class Qbittorrent(_IDownloadClient):
             self.port = int(self._client_config.get('port')) if str(self._client_config.get('port')).isdigit() else 0
             self.username = self._client_config.get('username')
             self.password = self._client_config.get('password')
-            self.download_dir = self._client_config.get('download_dir')
+            self.download_dir = self._client_config.get('download_dir') or []
             self.name = self._client_config.get('name') or ""
             # 种子管理模式
             self._torrent_management = self._client_config.get('torrent_management')
