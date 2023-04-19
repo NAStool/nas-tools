@@ -381,6 +381,19 @@ class SiteUserInfo(object):
         site_seeding_info["seeding_info"] = json.loads(seeding_info[0])
         return site_seeding_info
 
+    def get_pt_site_min_join_date(self, sites=None):
+        """
+        查询站点加入时间
+        """
+        statistics = self.get_site_user_statistics(sites=sites, encoding="DICT")
+        try:
+            max_date = min([datetime.strptime(d.get("join_at"), '%Y-%m-%d %H:%M:%S')
+                            for d in statistics if d.get("join_at")])
+            return max_date.strftime("%Y-%m-%d")
+        except Exception as err:
+            print(str(err))
+            return ""
+
     @staticmethod
     def __todict(raw_statistics):
         statistics = []
