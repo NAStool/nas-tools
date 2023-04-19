@@ -647,7 +647,7 @@ class IYUUAutoSeed(_IPluginModule):
         meta_info = MetaInfo(title="IYUU自动辅种")
         meta_info.set_torrent_info(site=site_info.get("name"),
                                    enclosure=torrent_url)
-        # 辅种任务默认暂停，关闭自动管理模式
+        # 辅种任务默认暂停
         _, download_id, retmsg = self.downloader.download(
             media_info=meta_info,
             is_paused=True,
@@ -655,7 +655,6 @@ class IYUUAutoSeed(_IPluginModule):
             downloader_id=downloader,
             download_dir=save_path,
             download_setting="-2",
-            is_auto=False
         )
         if not download_id:
             # 下载失败

@@ -467,7 +467,6 @@ class TorrentTransfer(_IPluginModule):
                     downloader_id=todownloader,
                     download_dir=download_dir,
                     download_setting="-2",
-                    is_auto=False
                 )
                 if not download_id:
                     # 下载失败
