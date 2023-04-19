@@ -30,7 +30,7 @@ class EventManager:
         获取事件
         """
         try:
-            event = self._eventQueue.get(block=True, timeout=1)
+            event = self._eventQueue.get(block=True, timeout=7)
             handlerList = self._handlers.get(event.event_type)
             return event, handlerList or []
         except Empty:
