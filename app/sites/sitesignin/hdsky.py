@@ -17,7 +17,7 @@ class HDSky(_ISiteSigninHandler):
     site_url = "hdsky.me"
 
     # 已签到
-    _sign_regex = ['[已签到]']
+    _sign_regex = ['已签到']
 
     @classmethod
     def match(cls, url):

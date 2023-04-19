@@ -21,12 +21,12 @@ class Tjupt(_ISiteSigninHandler):
     _sign_in_url = 'https://www.tjupt.org/attendance.php'
 
     # 已签到
-    _sign_regex = ['[<a href="attendance.php">今日已签到</a>]']
+    _sign_regex = ['<a href="attendance.php">今日已签到</a>']
 
     # 签到成功
-    _succeed_regex = ['这是您的首次签到，本次签到获得.*?个魔力值。',
-                      '签到成功，这是您的第.*?次签到，已连续签到.*?天，本次签到获得.*?个魔力值。',
-                      '重新签到成功，本次签到获得.*?个魔力值'],
+    _succeed_regex = ['这是您的首次签到，本次签到获得\\d+个魔力值。',
+                      '签到成功，这是您的第\\d+次签到，已连续签到\\d+天，本次签到获得\\d+个魔力值。',
+                      '重新签到成功，本次签到获得\\d+个魔力值'],
 
     @classmethod
     def match(cls, url):

@@ -93,13 +93,13 @@ class Qbittorrent(_IDownloadClient):
                 log.info(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path}")
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.error(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path} 错误：{str(err)}")
+            log.error(f"【{self.client_name}】{self.name} 设置分类：{name}，路径：{save_path} 错误：{str(err)}")
 
     def check_category(self, category="", save_path=""):
         """
         检查分类
         """
-        category_name = "默认下载路径"
+        category_name = "默认保存路径"
         # 获取下载器中的分类信息
         categories = self.qbc.torrent_categories.categories
         # 有分类时：

@@ -411,9 +411,9 @@ class Downloader:
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info, downloader_conf.get("download_dir"))
                 download_dir = download_info.get('path')
-                download_label = download_info.get('label')
+                # 下载设置未设置分类且保存路径选择自动时，根据下载目录设置获取分类，依次取分类标签，二级分类，一级分类，下载保存路径
                 if not category:
-                    category = download_label
+                    category = download_info.get('category')
             # 添加下载
             print_url = content if isinstance(content, str) else url
             if is_paused:
@@ -1209,8 +1209,11 @@ class Downloader:
                     StringUtils.num_filesize(media.size)
                 ):
                     continue
-                return {"path": attr.get("save_path"), "label": attr.get("label")}
-        return {"path": None, "label": None}
+                return {
+                    "path": attr.get("save_path"),
+                    "category": attr.get("label") or attr.get("category") or attr.get("type") or attr.get("save_path")
+                }
+        return {"path": None, "category": None}
 
     @staticmethod
     def __get_client_type(type_name):
