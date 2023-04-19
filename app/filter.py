@@ -107,8 +107,6 @@ class Filter:
             return True, 0, "不过滤"
         # 过滤使用的文本
         title = meta_info.org_string
-        if meta_info.labels:
-            title = f"{title} {meta_info.labels}"
         if meta_info.subtitle:
             title = f"{title} {meta_info.subtitle}"
         # 过滤规则组
@@ -259,8 +257,6 @@ class Filter:
         """
         # 过滤包含，排除，关键字使用的文本
         text = meta_info.org_string
-        if meta_info.labels:
-            text = f"{text} {meta_info.labels}"
         if meta_info.subtitle:
             text = f"{text} {meta_info.subtitle}"
         # 过滤质量
