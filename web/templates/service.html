@@ -261,7 +261,7 @@
               <div class="form-selectgroup" id="service_sync_dirs">
                 {% for SyncId, SyncPath in SyncPaths.items() %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="service_signin_dirs" value="{{ SyncId }}" class="form-selectgroup-input">
+                    <input type="checkbox" name="service_sync_dir" value="{{ SyncId }}" class="form-selectgroup-input">
                     <span class="form-selectgroup-label">{{ SyncPath.from }}</span>
                   </label>
                 {% endfor %}
