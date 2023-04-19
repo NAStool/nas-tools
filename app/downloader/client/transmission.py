@@ -34,6 +34,7 @@ class Transmission(_IDownloadClient):
     username = None
     password = None
     download_dir = []
+    name = "测试"
 
     def __init__(self, config):
         self._client_config = config
@@ -47,6 +48,7 @@ class Transmission(_IDownloadClient):
             self.username = self._client_config.get('username')
             self.password = self._client_config.get('password')
             self.download_dir = self._client_config.get('download_dir')
+            self.name = self._client_config.get('name') or ""
 
     @classmethod
     def match(cls, ctype):
@@ -74,7 +76,7 @@ class Transmission(_IDownloadClient):
             return trt
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
-            log.error(f"【{self.client_name}】transmission连接出错：{str(err)}")
+            log.error(f"【{self.name}】transmission连接出错：{str(err)}")
             return None
 
     def get_status(self):
@@ -171,7 +173,7 @@ class Transmission(_IDownloadClient):
         # 打标签
         try:
             self.trc.change_torrent(labels=tags, ids=ids)
-            log.info(f"【{self.client_name}】设置transmission种子标签成功")
+            log.info(f"【{self.name}】设置transmission种子标签成功")
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
 
@@ -263,7 +265,7 @@ class Transmission(_IDownloadClient):
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
             if not hasattr(torrent, "labels"):
-                log.error(f"【{self.client_name}】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
+                log.error(f"【{self.name}】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
                 break
             torrent_tags = torrent.labels or ""
             # 含"已整理"tag的不处理
@@ -271,17 +273,17 @@ class Transmission(_IDownloadClient):
                 continue
             # 开启标签隔离，未包含指定标签的不处理
             if tag and tag not in torrent_tags:
-                log.debug(f"【{self.client_name}】开启标签隔离，但 {torrent.name} 未包含指定标签：{tag}")
+                log.debug(f"【{self.name}】开启标签隔离，但 {torrent.name} 未包含指定标签：{tag}")
                 continue
             path = torrent.download_dir
             # 无法获取下载路径的不处理
             if not path:
-                log.debug(f"【{self.client_name}】{torrent.name} 未获取到下载保存路径")
+                log.debug(f"【{self.name}】{torrent.name} 未获取到下载保存路径")
                 continue
             true_path, replace_flag = self.get_replace_path(path, self.download_dir)
             # 开启目录隔离，未进行目录替换的不处理
             if match_path and not replace_flag:
-                log.debug(f"【{self.client_name}】开启目录隔离，但 {torrent.name} 未匹配下载目录范围")
+                log.debug(f"【{self.name}】开启目录隔离，但 {torrent.name} 未匹配下载目录范围")
                 continue
             trans_tasks.append({
                 'path': os.path.join(true_path, torrent.name).replace("\\", "/"),

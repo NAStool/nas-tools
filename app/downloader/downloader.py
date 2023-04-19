@@ -247,6 +247,7 @@ class Downloader:
         ctype = downloader_conf.get("type")
         config = downloader_conf.get("config")
         config["download_dir"] = downloader_conf.get("download_dir")
+        config["name"] = downloader_conf.get("name")
         with client_lock:
             if not self.clients.get(str(did)):
                 self.clients[str(did)] = self.__build_class(ctype, config)
@@ -263,8 +264,7 @@ class Downloader:
                  download_limit=None,
                  torrent_file=None,
                  in_from=None,
-                 user_name=None,
-                 is_auto=None):
+                 user_name=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
@@ -278,7 +278,6 @@ class Downloader:
         :param torrent_file: 种子文件路径
         :param in_from: 来源
         :param user_name: 用户名
-        :param is_auto: 是否开始自动管理模式
         :return: 下载器类型, 种子ID，错误信息
         """
 
@@ -449,7 +448,6 @@ class Downloader:
                 # 布局默认原始
                 ret = downloader.add_torrent(content,
                                              is_paused=is_paused,
-                                             is_auto=is_auto,
                                              download_dir=download_dir,
                                              tag=tags,
                                              category=category,
