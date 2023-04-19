@@ -7,7 +7,6 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.message import Message
 from app.plugins import EventManager
 from app.plugins.modules._base import _IPluginModule
 from app.utils import SystemUtils, RequestUtils, IpUtils
@@ -39,7 +38,6 @@ class CloudflareSpeedTest(_IPluginModule):
 
     # 私有属性
     eventmanager = None
-    message = None
     _customhosts = False
     _cf_ip = None
     _scheduler = None
@@ -172,7 +170,6 @@ class CloudflareSpeedTest(_IPluginModule):
 
     def init_config(self, config=None):
         self.eventmanager = EventManager()
-        self.message = Message()
 
         # 读取配置
         if config:
@@ -291,7 +288,7 @@ class CloudflareSpeedTest(_IPluginModule):
                                                      "plugin_id": "CustomHosts"
                                                  })
                     if self._notify:
-                        self.message.send_plugin_message(
+                        self.send_message(
                             title="【Cloudflare优选任务完成】",
                             text=f"原ip：{old_ip}\n"
                                  f"新ip：{best_ip}"

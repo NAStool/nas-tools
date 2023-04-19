@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 import log
 from app.conf import SystemConfig
 from app.helper import DbHelper
+from app.message import Message
 from config import Config
 
 
@@ -167,6 +168,15 @@ class _IPluginModule(metaclass=ABCMeta):
         if not plugin_id:
             plugin_id = self.__class__.__name__
         return DbHelper().delete_plugin_history(plugin_id=plugin_id, key=key)
+
+    @staticmethod
+    def send_message(title, text=None, image=None):
+        """
+        发送消息
+        """
+        return Message().send_plugin_message(title=title,
+                                             text=text,
+                                             image=image)
 
     def info(self, msg):
         """

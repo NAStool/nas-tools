@@ -5,7 +5,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.downloader import Downloader
 from app.helper.security_helper import SecurityHelper
 from app.mediaserver import MediaServer
-from app.message import Message
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils import ExceptionUtils
@@ -38,7 +37,6 @@ class SpeedLimiter(_IPluginModule):
     # 私有属性
     _downloader = None
     _mediaserver = None
-    _message = None
     _scheduler = None
     # 任务执行间隔
     _interval = 300
@@ -198,7 +196,6 @@ class SpeedLimiter(_IPluginModule):
     def init_config(self, config=None):
         self._downloader = Downloader()
         self._mediaserver = MediaServer()
-        self._message = Message()
 
         # 读取配置
         if config:
@@ -439,7 +436,7 @@ class SpeedLimiter(_IPluginModule):
         if _notify:
             limit_log = "\n".join(limit_log)
             title = f"【{'定时检查'if time_check else mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】"
-            self._message.send_plugin_message(
+            self.send_message(
                 title=title,
                 text=f"{message}\n{limit_log}"
             )
