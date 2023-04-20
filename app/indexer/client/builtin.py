@@ -145,7 +145,7 @@ class BuiltinIndexer(_IIndexClient):
         try:
             if indexer.parser == "TNodeSpider":
                 error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
-            elif indexer.parser == "Rarbg":
+            elif indexer.parser == "RarBg":
                 error_flag, result_array = Rarbg().search(indexer=indexer,
                                                           keyword=search_word,
                                                           imdb_id=match_media.imdb_id if match_media else None)
