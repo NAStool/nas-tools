@@ -141,7 +141,7 @@ class Qbittorrent(_IDownloadClient):
         """
         if not self.qbc:
             return {}
-        preferences = self.qbc.app_preferences or {}
+        preferences = self.qbc.app_preferences() or {}
         return preferences.get("auto_tmm_enabled")
 
     def __update_category(self, name, save_path, is_edit=False):

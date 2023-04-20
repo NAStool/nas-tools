@@ -255,29 +255,27 @@ jobs:
 
     - name: Create release
       id: create_release
-      uses: ncipollo/release-action@v1
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag: v${{ env.app_version }}
-        artifacts: |
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_amd64_v${{ env.app_version }}
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_arm64_v${{ env.app_version }}
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_amd64_v${{ env.app_version }}
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_arm64_v${{ env.app_version }}
-          /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
-
-        token: ${{ secrets.GITHUB_TOKEN }}
-        replacesArtifacts: true
-        removeArtifacts: false
-        allowUpdates: false
-        body: ${{ github.event.head_commit.message }}
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
+        body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
-        skipIfReleaseExists: true
+
+    - name: Upload release asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: |
+            /home/runner/work/nas-tools/nas-tools/releases/
 
     - name: Send telegram message (release informations)
       uses: appleboy/telegram-action@master
-      if: ${{ steps.create_release.output.id }}
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
