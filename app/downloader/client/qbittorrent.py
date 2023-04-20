@@ -99,7 +99,7 @@ class Qbittorrent(_IDownloadClient):
         """
         检查分类
         """
-        category_name = "默认保存路径"
+        category_name = "默认"
         # 获取下载器中的分类信息
         categories = self.qbc.torrent_categories.categories
         # 有分类时：
