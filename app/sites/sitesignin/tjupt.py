@@ -115,26 +115,11 @@ class Tjupt(_ISiteSigninHandler):
                     for value, answer in answers:
                         if str(captcha_answer) == str(answer):
                             # 确实是答案
-                            data = {
-                                'answer': value,
-                                'submit': '提交'
-                            }
-                            log.debug(f"提交data {data}")
-                            sign_in_res = RequestUtils(cookies=site_cookie,
-                                                       headers=ua,
-                                                       proxies=Config().get_proxies() if site_info.get(
-                                                           "proxy") else None
-                                                       ).post_res(url=self._sign_in_url, data=data)
-                            if not sign_in_res or sign_in_res.status_code != 200:
-                                log.error(f"【Sites】{site}签到失败，签到接口请求失败")
-                                return f'【{site}】签到失败，签到接口请求失败'
-
-                            # 获取签到后返回html，判断是否签到成功
-                            sign_status = self.sign_in_result(html_res=sign_in_res.text,
-                                                              regexs=self._succeed_regex)
-                            if sign_status:
-                                log.info(f"【Sites】{site}签到成功")
-                                return f'【{site}】签到成功'
+                            return self.__signin(answer=value,
+                                                 site_cookie=site_cookie,
+                                                 ua=ua,
+                                                 proxy=proxy,
+                                                 site=site)
             except (FileNotFoundError, IOError, OSError) as e:
                 log.debug("查询本地已知答案失败，继续请求豆瓣查询")
 
@@ -172,34 +157,49 @@ class Tjupt(_ISiteSigninHandler):
                         score = self._comparehash(captcha_img_hash, answer_img_hash)
                         log.info(f"【Sites】{site}签到图片与选项 {answer} 豆瓣图片相似度 {score}")
                         if score > 0.9:
-                            # 提交签到
-                            data = {
-                                'answer': value,
-                                'submit': '提交'
-                            }
-                            log.debug(f"提交data {data}")
-                            sign_in_res = RequestUtils(cookies=site_cookie,
-                                                       headers=ua,
-                                                       proxies=proxy
-                                                       ).post_res(url=self._sign_in_url, data=data)
-                            if not sign_in_res or sign_in_res.status_code != 200:
-                                log.error(f"【Sites】{site}签到失败，签到接口请求失败")
-                                return f'【{site}】签到失败，签到接口请求失败'
-
-                            # 获取签到后返回html，判断是否签到成功
-                            sign_status = self.sign_in_result(html_res=sign_in_res.text,
-                                                              regexs=self._succeed_regex)
-                            if sign_status:
-                                log.info(f"【Sites】{site}签到成功")
-                                # 签到成功写入本地文件
-                                self.__write_local_answer(exits_answers=exits_answers or {},
-                                                          captcha_img_hash=captcha_img_hash,
-                                                          answer=answer)
-                                return f'【{site}】签到成功'
-
+                            # 确实是答案
+                            return self.__signin(answer=value,
+                                                 site_cookie=site_cookie,
+                                                 ua=ua,
+                                                 proxy=proxy,
+                                                 site=site,
+                                                 exits_answers=exits_answers,
+                                                 captcha_img_hash=captcha_img_hash)
             log.error(f"【Sites】{site}签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
             return f'【{site}】签到失败，未获取到匹配答案'
+
+    def __signin(self, answer, site_cookie, ua, proxy, site, exits_answers=None, captcha_img_hash=None):
+        """
+        签到请求
+        """
+        data = {
+            'answer': answer,
+            'submit': '提交'
+        }
+        log.debug(f"提交data {data}")
+        sign_in_res = RequestUtils(cookies=site_cookie,
+                                   headers=ua,
+                                   proxies=proxy
+                                   ).post_res(url=self._sign_in_url, data=data)
+        if not sign_in_res or sign_in_res.status_code != 200:
+            log.error(f"【Sites】{site}签到失败，签到接口请求失败")
+            return f'【{site}】签到失败，签到接口请求失败'
+
+        # 获取签到后返回html，判断是否签到成功
+        sign_status = self.sign_in_result(html_res=sign_in_res.text,
+                                          regexs=self._succeed_regex)
+        if sign_status:
+            log.info(f"【Sites】{site}签到成功")
+            if exits_answers and captcha_img_hash:
+                # 签到成功写入本地文件
+                self.__write_local_answer(exits_answers=exits_answers or {},
+                                          captcha_img_hash=captcha_img_hash,
+                                          answer=answer)
+            return f'【{site}】签到成功'
+        else:
+            log.error(f"【Sites】{site}签到失败，请到页面查看")
+            return f'【{site}】签到失败，请到页面查看'
 
     def __write_local_answer(self, exits_answers, captcha_img_hash, answer):
         """
