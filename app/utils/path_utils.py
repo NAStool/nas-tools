@@ -102,8 +102,8 @@ class PathUtils:
         """
         if not path1 or not path2:
             return False
-        path1 = os.path.normpath(path1)
-        path2 = os.path.normpath(path2)
+        path1 = os.path.normpath(path1).replace("\\", "/")
+        path2 = os.path.normpath(path2).replace("\\", "/")
         if path1 == path2:
             return True
         path = os.path.dirname(path2)
