@@ -262,6 +262,9 @@ class Sites:
         site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
         if not site_url:
             return False, "未配置站点地址", 0
+        # 站点特殊处理...
+        if '1ptba' in site_url:
+            site_url = site_url + '/index.php'
         chrome = ChromeHelper()
         if site_info.get("chrome") and chrome.get_status():
             # 计时
