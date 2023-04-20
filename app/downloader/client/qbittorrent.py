@@ -69,8 +69,22 @@ class Qbittorrent(_IDownloadClient):
             category = dir_item.get("category")
             label = dir_item.get("label")
             save_path = dir_item.get("save_path")
-            # 分类名中不能行 \\ 和 / ，替换为 >
-            category_name = (label or category or dtype or save_path).replace("\\", ">").replace("/", ">")
+            if label:
+                # 有分类标签直接使用
+                category_name = label
+            elif category:
+                # 使用二级分类名，NT_标识自动创建
+                category_name = f"NT_{category}"
+            elif dtype:
+                # 使用一级分类名，NT_标识自动创建
+                category_name = f"NT_{dtype}"
+            elif save_path:
+                # 使用保存路径最后一级，NT_标识自动创建
+                category_name = f"NT_{os.path.basename(save_path)}"
+            else:
+                # 没有设置任何信息，不处理分类
+                continue
+            # 查询分类是否存在
             category_item = categories.get(category_name)
             if not category_item:
                 # 分类不存在，则创建
@@ -97,23 +111,22 @@ class Qbittorrent(_IDownloadClient):
 
     def check_category(self, category="", save_path=""):
         """
-        检查分类
+        自动种子管理模式下检查和设置分类
         """
-        category_name = "默认"
+        category_name = "NT_默认"
         # 获取下载器中的分类信息
         categories = self.qbc.torrent_categories.categories
         # 有分类时：
         if category:
-            # 分类名中不能行 \\ 和 / ，替换为 >
-            category_name = category.replace("\\", ">").replace("/", ">")
+            # 传入分类时直接使用
+            category_name = category
             category_item = categories.get(category_name)
             # 查找分类是否存在
             if category_item:
                 # 分类存在
                 if save_path and os.path.normpath(category_item.get("savePath")) != os.path.normpath(save_path):
-                    # 如果存在，但是路径不一致，则创建新分类
-                    extra = save_path.replace('\\', '/').replace("/", ">")
-                    category_name = f"{category_name}>{extra}"
+                    # 存在但路径不一致，则创建新分类，NT_标识自动创建
+                    category_name = f"NT_{category_name}"
                     self.update_category(name=category_name, save_path=save_path)
                 return category_name
             else:
@@ -122,8 +135,8 @@ class Qbittorrent(_IDownloadClient):
                 return category_name
         # 无分类，有路径时
         if save_path:
-            # 以保存路径为分类名
-            category_name = save_path.replace("\\", ">").replace("/", ">")
+            # 以保存路径最后一级为分类名，NT_标识自动创建
+            category_name = f"NT_{os.path.basename(save_path)}"
             # 查找分类是否存在
             if categories.get(category_name):
                 return category_name
