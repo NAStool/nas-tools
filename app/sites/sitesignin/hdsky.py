@@ -1,5 +1,4 @@
 import json
-import re
 import time
 
 import log
@@ -47,8 +46,8 @@ class HDSky(_ISiteSigninHandler):
             log.error(f"【Sites】{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
-        sign_status = self.__sign_in_result(html_res=index_res.text,
-                                            regexs=self._sign_regex)
+        sign_status = self.sign_in_result(html_res=index_res.text,
+                                          regexs=self._sign_regex)
         if sign_status:
             log.info(f"【Sites】{site}今日已签到")
             return f'【{site}】今日已签到'
@@ -120,20 +119,3 @@ class HDSky(_ISiteSigninHandler):
                         return f'【{site}】{site}签到失败：验证码错误'
 
         return f'【Sites】{site}签到失败：未获取到验证码'
-
-    def __sign_in_result(self, html_res, regexs):
-        """
-        判断是否签到成功
-        """
-        html_text = self._prepare_html_text(html_res)
-        for regex in regexs:
-            if re.search(str(regex), html_text):
-                return True
-        return False
-
-    @staticmethod
-    def _prepare_html_text(html_text):
-        """
-        处理掉HTML中的干扰部分
-        """
-        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from abc import ABCMeta, abstractmethod
 
 from app.utils import StringUtils
@@ -29,3 +30,14 @@ class _ISiteSigninHandler(metaclass=ABCMeta):
         :return: 签到结果信息
         """
         pass
+
+    @staticmethod
+    def sign_in_result(html_res, regexs):
+        """
+        判断是否签到成功
+        """
+        html_text = re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_res))
+        for regex in regexs:
+            if re.search(str(regex), html_text):
+                return True
+        return False
