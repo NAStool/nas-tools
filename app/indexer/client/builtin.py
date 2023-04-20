@@ -5,6 +5,7 @@ import time
 import log
 from app.helper import IndexerHelper, IndexerConf, ProgressHelper, ChromeHelper, DbHelper
 from app.indexer.client._base import _IIndexClient
+from app.indexer.client._rarbg import Rarbg
 from app.indexer.client._render_spider import RenderSpider
 from app.indexer.client._spider import TorrentSpider
 from app.indexer.client._tnode import TNodeSpider
@@ -85,6 +86,14 @@ class BuiltinIndexer(_IIndexClient):
                     _indexer_domains.append(indexer.domain)
                     indexer.name = site.get("name")
                     ret_indexers.append(indexer)
+        # 公开站点
+        for indexer in IndexerHelper().get_all_indexers():
+            if not indexer.get("public"):
+                continue
+            if indexer.get("domain") not in _indexer_domains:
+                _indexer_domains.append(indexer.get("domain"))
+                ret_indexers.append(IndexerConf(datas=indexer,
+                                                builtin=True))
         return ret_indexers
 
     def search(self, order_seq,
@@ -134,6 +143,10 @@ class BuiltinIndexer(_IIndexClient):
         try:
             if indexer.parser == "TNodeSpider":
                 error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=search_word)
+            elif indexer.parser == "Rarbg":
+                error_flag, result_array = Rarbg().search(indexer=indexer,
+                                                          keyword=search_word,
+                                                          imdb_id=match_media.imdb_id if match_media else None)
             elif indexer.parser == "RenderSpider":
                 error_flag, result_array = RenderSpider().search(
                     keyword=search_word,
