@@ -95,18 +95,23 @@ class CHDBits(_ISiteSigninHandler):
             exits_answers = json.loads(json_str)
             # 查询本地本次验证码hash答案
             question_answer = exits_answers[question_str]
-
+            # question_answer是数组
+            if not isinstance(question_answer, list):
+                question_answer = [question_answer]
             # 本地存在本次hash对应的正确答案再遍历查询
-            if question_answer:
+            choice = []
+            for q in question_answer:
                 for num, answer in answers:
-                    if str(question_answer) == str(num):
-                        # 签到
-                        return self.__signin(questionid=questionid,
-                                             choice=int(question_answer),
-                                             site_cookie=site_cookie,
-                                             ua=ua,
-                                             proxy=proxy,
-                                             site=site)
+                    if str(q) == str(num):
+                        choice.append(int(q))
+            if len(choice) > 0:
+                # 签到
+                return self.__signin(questionid=questionid,
+                                     choice=choice,
+                                     site_cookie=site_cookie,
+                                     ua=ua,
+                                     proxy=proxy,
+                                     site=site)
         except (FileNotFoundError, IOError, OSError) as e:
             self.debug("查询本地已知答案失败，继续请求豆瓣查询")
 
