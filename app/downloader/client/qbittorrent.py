@@ -53,98 +53,6 @@ class Qbittorrent(_IDownloadClient):
             if self._torrent_management not in ["default", "manual", "auto"]:
                 self._torrent_management = "default"
 
-    def init_torrent_management(self):
-        # 手动
-        if self._torrent_management == "manual":
-            return
-        # 默认则查询当前下载器管理模式
-        if self._torrent_management == "default":
-            if not self.qbc.app_preferences().get("auto_tmm_enabled"):
-                return
-        # 获取下载器目前的分类信息
-        categories = self.qbc.torrent_categories.categories
-        # 更新下载器中分类设置
-        for dir_item in self.download_dir:
-            dtype = dir_item.get("type")
-            category = dir_item.get("category")
-            label = dir_item.get("label")
-            save_path = dir_item.get("save_path")
-            if label:
-                # 有分类标签直接使用
-                category_name = label
-            elif category:
-                # 使用二级分类名，NT_标识自动创建
-                category_name = f"NT_{category}"
-            elif dtype:
-                # 使用一级分类名，NT_标识自动创建
-                category_name = f"NT_{dtype}"
-            elif save_path:
-                # 使用保存路径最后一级，NT_标识自动创建
-                category_name = f"NT_{os.path.basename(save_path)}"
-            else:
-                # 没有设置任何信息，不处理分类
-                continue
-            # 查询分类是否存在
-            category_item = categories.get(category_name)
-            if not category_item:
-                # 分类不存在，则创建
-                self.update_category(name=category_name, save_path=save_path)
-            else:
-                # 如果分类存在，但是路径不一致，则更新
-                if os.path.normpath(category_item.get("savePath")) != os.path.normpath(save_path):
-                    self.update_category(name=category_name, save_path=save_path, is_edit=True)
-
-    def update_category(self, name, save_path, is_edit=False):
-        """
-        更新分类
-        """
-        try:
-            if is_edit:
-                self.qbc.torrent_categories.edit_category(name=name, save_path=save_path)
-                log.info(f"【{self.client_name}】{self.name} 更新分类：{name}，路径：{save_path}")
-            else:
-                self.qbc.torrent_categories.create_category(name=name, save_path=save_path)
-                log.info(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path}")
-        except Exception as err:
-            ExceptionUtils.exception_traceback(err)
-            log.error(f"【{self.client_name}】{self.name} 设置分类：{name}，路径：{save_path} 错误：{str(err)}")
-
-    def check_category(self, category="", save_path=""):
-        """
-        自动种子管理模式下检查和设置分类
-        """
-        category_name = "NT_默认"
-        # 获取下载器中的分类信息
-        categories = self.qbc.torrent_categories.categories
-        # 有分类时：
-        if category:
-            # 传入分类时直接使用
-            category_name = category
-            category_item = categories.get(category_name)
-            # 查找分类是否存在
-            if category_item:
-                # 分类存在
-                if save_path and os.path.normpath(category_item.get("savePath")) != os.path.normpath(save_path):
-                    # 存在但路径不一致，则创建新分类，NT_标识自动创建
-                    category_name = f"NT_{category_name}"
-                    self.update_category(name=category_name, save_path=save_path)
-                return category_name
-            else:
-                # 不存在则创建分类
-                self.update_category(name=category_name, save_path=save_path)
-                return category_name
-        # 无分类，有路径时
-        if save_path:
-            # 以保存路径最后一级为分类名，NT_标识自动创建
-            category_name = f"NT_{os.path.basename(save_path)}"
-            # 查找分类是否存在
-            if categories.get(category_name):
-                return category_name
-            # 不存在时，创建分类
-            self.update_category(name=category_name, save_path=save_path)
-            return category_name
-        return category_name
-
     @classmethod
     def match(cls, ctype):
         return True if ctype in [cls.client_id, cls.client_type, cls.client_name] else False
@@ -188,6 +96,85 @@ class Qbittorrent(_IDownloadClient):
         except Exception as err:
             ExceptionUtils.exception_traceback(err)
             return False
+
+    def init_torrent_management(self):
+        """
+        根据设置的标签，自动管理模式下自动创建QB分类
+        """
+        # 手动
+        if self._torrent_management == "manual":
+            return
+        # 默认则查询当前下载器管理模式
+        if self._torrent_management == "default":
+            if not self.__get_qb_auto():
+                return
+        # 获取下载器目前的分类信息
+        categories = self.__get_qb_category()
+        # 更新下载器中分类设置
+        for dir_item in self.download_dir:
+            label = dir_item.get("label")
+            save_path = dir_item.get("save_path")
+            if not label or not save_path:
+                continue
+            # 查询分类是否存在
+            category_item = categories.get(label)
+            if not category_item:
+                # 分类不存在，则创建
+                self.__update_category(name=label, save_path=save_path)
+            else:
+                # 如果分类存在，但是路径不一致，则更新
+                if os.path.normpath(category_item.get("savePath")) != os.path.normpath(save_path):
+                    self.__update_category(name=label, save_path=save_path, is_edit=True)
+                    
+    def __get_qb_category(self):
+        """
+        查询下载器中已设置的分类
+        """
+        if not self.qbc:
+            return {}
+        return self.qbc.torrent_categories.categories or {}
+    
+    def __get_qb_auto(self):
+        """
+        查询下载器是否开启自动管理
+        :return: 
+        """
+        if not self.qbc:
+            return {}
+        preferences = self.qbc.app_preferences or {}
+        return preferences.get("auto_tmm_enabled")
+
+    def __update_category(self, name, save_path, is_edit=False):
+        """
+        更新分类
+        """
+        try:
+            if is_edit:
+                self.qbc.torrent_categories.edit_category(name=name, save_path=save_path)
+                log.info(f"【{self.client_name}】{self.name} 更新分类：{name}，路径：{save_path}")
+            else:
+                self.qbc.torrent_categories.create_category(name=name, save_path=save_path)
+                log.info(f"【{self.client_name}】{self.name} 创建分类：{name}，路径：{save_path}")
+        except Exception as err:
+            ExceptionUtils.exception_traceback(err)
+            log.error(f"【{self.client_name}】{self.name} 设置分类：{name}，路径：{save_path} 错误：{str(err)}")
+
+    def __check_category(self, save_path=""):
+        """
+        自动种子管理模式下检查和设置分类
+        """
+        # 没有保存目录分类为None，不改变现状
+        if not save_path:
+            return None
+        # 获取下载器中的分类信息，查询是否有匹配该目录的分类
+        categories = self.__get_qb_category()
+        for category_name, category_item in categories.items():
+            catetory_path = category_item.get("savePath")
+            if not catetory_path:
+                continue
+            if os.path.normpath(catetory_path) == os.path.normpath(save_path):
+                return category_name
+        return None
 
     def get_torrents(self, ids=None, status=None, tag=None):
         """
@@ -450,8 +437,10 @@ class Qbittorrent(_IDownloadClient):
             torrent_files = content
         if download_dir:
             save_path = download_dir
+            is_auto = False
         else:
             save_path = None
+            is_auto = None
         if not category:
             category = None
         if tag:
@@ -476,22 +465,24 @@ class Qbittorrent(_IDownloadClient):
             seeding_time_limit = int(seeding_time_limit)
         else:
             seeding_time_limit = None
+
         try:
-            is_auto = False
-            match self._torrent_management:
-                case "default":
-                    if self.qbc.app_preferences().get("auto_tmm_enabled"):
+            # 读取设置的管理模式
+            if is_auto is None:
+                match self._torrent_management:
+                    case "default":
+                        if self.__get_qb_auto():
+                            is_auto = True
+                    case "auto":
                         is_auto = True
-                case "auto":
-                    is_auto = True
-                case "manual":
-                    is_auto = False
-                case _:
-                    is_auto = False
-            # 自动管理模式
-            if is_auto:
-                category = self.check_category(category, save_path)
-                save_path = None
+                    case "manual":
+                        is_auto = False
+
+            # 自动管理模式没有分类时，根据保存目录获取
+            if is_auto and not category:
+                category = self.__check_category(save_path)
+
+            # 添加下载
             qbc_ret = self.qbc.torrents_add(urls=urls,
                                             torrent_files=torrent_files,
                                             save_path=save_path,

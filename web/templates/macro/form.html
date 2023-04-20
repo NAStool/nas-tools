@@ -11,14 +11,14 @@
           <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if Config.get(Type) and Config.get(Type).get(FieldId) %}checked{% endif %}>
           <span class="form-check-label">{{ FieldAttr.title }}
             {% if FieldAttr.tooltip %}
-            <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+            <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip" data-bs-html="true">?</span>
             {% endif %}
           </span>
         </label>
         {% else %}
         <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
           {% if FieldAttr.tooltip %}
-          <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+          <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip" data-bs-html="true">?</span>
           {% endif %}
         </label>
           {% if FieldAttr.type == "select" %}
@@ -52,14 +52,14 @@
             <input class="form-check-input" type="checkbox" id="{{ FieldAttr.id }}" {% if FieldAttr.default %}checked{% endif %}>
             <span class="form-check-label">{{ FieldAttr.title }}
               {% if FieldAttr.tooltip %}
-              <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+              <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip" data-bs-html="true">?</span>
               {% endif %}
             </span>
           </label>
           {% else %}
             <label class="form-label {% if FieldAttr.required %}required{% endif %}">{{ FieldAttr.title }}
               {% if FieldAttr.tooltip %}
-              <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip">?</span>
+              <span class="form-help" title="{{ FieldAttr.tooltip }}" data-bs-toggle="tooltip" data-bs-html="true">?</span>
               {% endif %}
             </label>
             {% if FieldAttr.type == "select" %}
