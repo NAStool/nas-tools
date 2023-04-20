@@ -264,7 +264,8 @@ class Downloader:
                  download_limit=None,
                  torrent_file=None,
                  in_from=None,
-                 user_name=None):
+                 user_name=None,
+                 proxy=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
@@ -278,6 +279,7 @@ class Downloader:
         :param torrent_file: 种子文件路径
         :param in_from: 来源
         :param user_name: 用户名
+        :param proxy: 是否使用代理，指定该选项为 True/False 会覆盖 site_info 的设置
         :return: 下载器类型, 种子ID，错误信息
         """
 
@@ -332,7 +334,7 @@ class Downloader:
                     cookie=site_info.get("cookie"),
                     ua=site_info.get("ua"),
                     referer=page_url if site_info.get("referer") else None,
-                    proxy=site_info.get("proxy")
+                    proxy=proxy if proxy is not None else site_info.get("proxy")
                 )
 
         # 解析完成

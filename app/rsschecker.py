@@ -689,7 +689,8 @@ class RssChecker(object):
                 media_info=media,
                 download_dir=taskinfo.get("save_path"),
                 download_setting=taskinfo.get("download_setting"),
-                in_from=SearchType.USERRSS)
+                in_from=SearchType.USERRSS,
+                proxy=taskinfo.get("proxy"))
             downloader_name = self.downloader.get_downloader_conf(downloader_id).get("name")
             if ret:
                 # 插入数据库
