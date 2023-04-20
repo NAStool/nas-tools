@@ -90,6 +90,8 @@ class BuiltinIndexer(_IIndexClient):
         for indexer in IndexerHelper().get_all_indexers():
             if not indexer.get("public"):
                 continue
+            if check and indexer_sites and indexer.get("id") not in indexer_sites:
+                continue
             if indexer.get("domain") not in _indexer_domains:
                 _indexer_domains.append(indexer.get("domain"))
                 ret_indexers.append(IndexerConf(datas=indexer,
