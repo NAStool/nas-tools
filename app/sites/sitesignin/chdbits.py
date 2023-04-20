@@ -111,7 +111,7 @@ class CHDBits(_ISiteSigninHandler):
             self.debug("查询本地已知答案失败，继续请求豆瓣查询")
 
         # 正确答案，默认随机，如果gpt返回则用gpt返回的答案提交
-        choice = option_ids[random.randint(0, len(option_ids) - 1)]
+        choice = [option_ids[random.randint(0, len(option_ids) - 1)]]
 
         # 组装gpt问题
         gpt_options = "{\n" + ",\n".join([f"{num}:{value}" for num, value in answers]) + "\n}"
@@ -133,11 +133,12 @@ class CHDBits(_ISiteSigninHandler):
             if not answer_nums:
                 self.warn(f"{site}无法从chatgpt回复 {answer} 中获取答案, 将采用随机签到")
             else:
-                answer = answer_nums[0]
-                # 如果返回的数字在option_ids范围内，则直接作为答案
-                if str(answer) in option_ids:
-                    choice = int(answer)
-                    self.info(f"{site} chatgpt返回答案id {choice} 在签到选项 {option_ids} 中")
+                choice = []
+                for answer in answer_nums:
+                    # 如果返回的数字在option_ids范围内，则直接作为答案
+                    if str(answer) in option_ids:
+                        choice.append(int(answer))
+                        self.info(f"【Sites】{site} chatgpt返回答案id {choice} 在签到选项 {option_ids} 中")
         # 签到
         return self.__signin(questionid=questionid,
                              choice=choice,
@@ -151,14 +152,22 @@ class CHDBits(_ISiteSigninHandler):
     def __signin(self, questionid, choice, site, site_cookie, ua, proxy, exits_answers=None, question=None):
         """
         签到请求
+        questionid: 450
+        choice[]: 8
+        choice[]: 4
+        usercomment: 此刻心情:无
+        submit: 提交
+        多选会有多个choice[]....
         """
-        data = {
-            'questionid': questionid,
-            'choice[]': choice,
-            'usercomment': '太难了！',
-            'wantskip': '不会'
-        }
-        self.debug(f"{site}签到请求参数 {data}")
+        data = "{ \n" \
+               f"'questionid': {questionid},\n"
+        choice_str = ""
+        for c in choice:
+            choice_str += f"'choice[]': {c} \n"
+        data += choice_str + f"'usercomment': '太难了！,\n" \
+                             f"'wantskip': '不会',\n" \
+                             "}"
+        self.debug(f"【Sites】{site}签到请求参数 {data}")
 
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
