@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import re
 
@@ -27,7 +28,7 @@ class CHDBits(_ISiteSigninHandler):
     _success_regex = ['\\d+点魔力值']
 
     # 存储正确的答案，后续可直接查
-    _answer_path = Config().get_config_path() + "/temp/signin"
+    _answer_path = os.path.join(Config().get_temp_path(), "signin")
     _answer_file = _answer_path + "/chdbits.json"
 
     @classmethod
@@ -124,7 +125,10 @@ class CHDBits(_ISiteSigninHandler):
         log.debug(f"【Sites】{site} chatpgt返回结果 {answer}")
 
         # 处理chatgpt返回的答案信息
-        if answer:
+        if answer is None:
+            log.warn(f"【Sites】{site} ChatGPT未启用, 无法签到")
+            return f"【{site}】签到失败，ChatGPT未启用"
+        elif answer:
             # 正则获取字符串中的数字
             answer_nums = list(map(int, re.findall("\d+", answer)))
             if not answer_nums:
