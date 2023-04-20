@@ -76,10 +76,7 @@ class OpenAiHelper:
     def __get_model(message,
                     prompt=None,
                     user="NAStool",
-                    temperature=None,
-                    top_p=None,
-                    frequency_penalty=None,
-                    presence_penalty=None):
+                    **kwargs):
         """
         获取模型
         """
@@ -105,11 +102,8 @@ class OpenAiHelper:
         return openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             user=user,
-            temperature=temperature,
-            top_p=top_p,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            messages=message
+            messages=message,
+            **kwargs
         )
 
     @staticmethod
