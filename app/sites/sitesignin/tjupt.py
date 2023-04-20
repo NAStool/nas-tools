@@ -3,9 +3,9 @@ import os
 import time
 from io import BytesIO
 
-from lxml import etree
 from PIL import Image
-import log
+from lxml import etree
+
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
@@ -65,13 +65,13 @@ class Tjupt(_ISiteSigninHandler):
 
         # 获取签到后返回html，判断是否签到成功
         if not html_res or html_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，请检查站点连通性")
+            self.error(f"{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
         sign_status = self.sign_in_result(html_res=html_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}今日已签到")
+            self.info(f"{site}今日已签到")
             return f'【{site}】今日已签到'
 
         # 没有签到则解析html
@@ -82,18 +82,18 @@ class Tjupt(_ISiteSigninHandler):
         if img_url:
             # 签到图片
             img_url = "https://www.tjupt.org" + img_url
-            log.info(f"【Sites】获取到{site}签到图片 {img_url}")
+            self.info(f"获取到{site}签到图片 {img_url}")
             # 获取签到图片hash
             captcha_img_res = RequestUtils(cookies=site_cookie,
                                            headers=ua,
                                            proxies=proxy
                                            ).get_res(url=img_url)
             if not captcha_img_res or captcha_img_res.status_code != 200:
-                log.error(f"【Sites】{site}签到图片 {img_url} 请求失败")
+                self.error(f"{site}签到图片 {img_url} 请求失败")
                 return f'【{site}】签到失败，未获取到签到图片'
             captcha_img = Image.open(BytesIO(captcha_img_res.content))
             captcha_img_hash = self._tohash(captcha_img)
-            log.debug(f"【Sites】{site}签到图片hash {captcha_img_hash}")
+            self.debug(f"{site}签到图片hash {captcha_img_hash}")
 
             # 签到答案选项
             values = html.xpath("//input[@name='answer']/@value")
@@ -121,7 +121,7 @@ class Tjupt(_ISiteSigninHandler):
                                                  proxy=proxy,
                                                  site=site)
             except (FileNotFoundError, IOError, OSError) as e:
-                log.debug("查询本地已知答案失败，继续请求豆瓣查询")
+                self.debug("查询本地已知答案失败，继续请求豆瓣查询")
 
             # 本地不存在正确答案则请求豆瓣查询匹配
             for value, answer in answers:
@@ -129,7 +129,7 @@ class Tjupt(_ISiteSigninHandler):
                     # 豆瓣检索
                     db_res = RequestUtils().get_res(url=f'https://movie.douban.com/j/subject_suggest?q={answer}')
                     if not db_res or db_res.status_code != 200:
-                        log.warn(f"【Sites】{site}签到选项 {answer} 未查询到豆瓣数据")
+                        self.warn(f"{site}签到选项 {answer} 未查询到豆瓣数据")
                         continue
 
                     # 间隔5s，防止请求太频繁被豆瓣屏蔽ip
@@ -147,15 +147,15 @@ class Tjupt(_ISiteSigninHandler):
                         # 获取答案hash
                         answer_img_res = RequestUtils().get_res(url=answer_img_url)
                         if not answer_img_res or answer_img_res.status_code != 200:
-                            log.error(f"【Sites】{site}签到答案 {answer_title} {answer_img_url} 请求失败")
+                            self.error(f"{site}签到答案 {answer_title} {answer_img_url} 请求失败")
                             return f'【{site}】签到失败，获取签到答案图片失败'
                         answer_img = Image.open(BytesIO(answer_img_res.content))
                         answer_img_hash = self._tohash(answer_img)
-                        log.debug(f"【Sites】{site}签到答案图片hash {answer_title} {answer_img_hash}")
+                        self.debug(f"{site}签到答案图片hash {answer_title} {answer_img_hash}")
 
                         # 获取选项图片与签到图片相似度，大于0.9默认是正确答案
                         score = self._comparehash(captcha_img_hash, answer_img_hash)
-                        log.info(f"【Sites】{site}签到图片与选项 {answer} 豆瓣图片相似度 {score}")
+                        self.info(f"{site}签到图片与选项 {answer} 豆瓣图片相似度 {score}")
                         if score > 0.9:
                             # 确实是答案
                             return self.__signin(answer=value,
@@ -165,7 +165,7 @@ class Tjupt(_ISiteSigninHandler):
                                                  site=site,
                                                  exits_answers=exits_answers,
                                                  captcha_img_hash=captcha_img_hash)
-            log.error(f"【Sites】{site}签到失败，未获取到匹配答案")
+            self.error(f"{site}签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
             return f'【{site}】签到失败，未获取到匹配答案'
 
@@ -177,20 +177,20 @@ class Tjupt(_ISiteSigninHandler):
             'answer': answer,
             'submit': '提交'
         }
-        log.debug(f"提交data {data}")
+        self.debug(f"提交data {data}")
         sign_in_res = RequestUtils(cookies=site_cookie,
                                    headers=ua,
                                    proxies=proxy
                                    ).post_res(url=self._sign_in_url, data=data)
         if not sign_in_res or sign_in_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，签到接口请求失败")
+            self.error(f"{site}签到失败，签到接口请求失败")
             return f'【{site}】签到失败，签到接口请求失败'
 
         # 获取签到后返回html，判断是否签到成功
         sign_status = self.sign_in_result(html_res=sign_in_res.text,
                                           regexs=self._succeed_regex)
         if sign_status:
-            log.info(f"【Sites】{site}签到成功")
+            self.info(f"{site}签到成功")
             if exits_answers and captcha_img_hash:
                 # 签到成功写入本地文件
                 self.__write_local_answer(exits_answers=exits_answers or {},
@@ -198,7 +198,7 @@ class Tjupt(_ISiteSigninHandler):
                                           answer=answer)
             return f'【{site}】签到成功'
         else:
-            log.error(f"【Sites】{site}签到失败，请到页面查看")
+            self.error(f"{site}签到失败，请到页面查看")
             return f'【{site}】签到失败，请到页面查看'
 
     def __write_local_answer(self, exits_answers, captcha_img_hash, answer):
@@ -212,7 +212,7 @@ class Tjupt(_ISiteSigninHandler):
             with open(self._answer_file, 'w') as f:
                 f.write(formatted_data)
         except (FileNotFoundError, IOError, OSError) as e:
-            log.debug("签到成功写入本地文件失败")
+            self.debug("签到成功写入本地文件失败")
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):

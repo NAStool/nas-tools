@@ -2,6 +2,7 @@
 import re
 from abc import ABCMeta, abstractmethod
 
+import log
 from app.utils import StringUtils
 
 
@@ -41,3 +42,31 @@ class _ISiteSigninHandler(metaclass=ABCMeta):
             if re.search(str(regex), html_text):
                 return True
         return False
+
+    def info(self, msg):
+        """
+        记录INFO日志
+        :param msg: 日志信息
+        """
+        log.info(f"【Sites】{self.__class__.__name__} - {msg}")
+
+    def warn(self, msg):
+        """
+        记录WARN日志
+        :param msg: 日志信息
+        """
+        log.warn(f"【Sites】{self.__class__.__name__} - {msg}")
+
+    def error(self, msg):
+        """
+        记录ERROR日志
+        :param msg: 日志信息
+        """
+        log.error(f"【Sites】{self.__class__.__name__} - {msg}")
+
+    def debug(self, msg):
+        """
+        记录Debug日志
+        :param msg: 日志信息
+        """
+        log.debug(f"【Sites】{self.__class__.__name__} - {msg}")

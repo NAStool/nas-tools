@@ -5,7 +5,6 @@ import re
 
 from lxml import etree
 
-import log
 from app.helper.openai_helper import OpenAiHelper
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
@@ -57,13 +56,13 @@ class CHDBits(_ISiteSigninHandler):
                                  proxies=proxy
                                  ).get_res(url='https://chdbits.co/bakatest.php')
         if not index_res or index_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，请检查站点连通性")
+            self.error(f"{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
         sign_status = self.sign_in_result(html_res=index_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}今日已签到")
+            self.info(f"{site}今日已签到")
             return f'【{site}】今日已签到'
 
         # 没有签到则解析html
@@ -83,9 +82,9 @@ class CHDBits(_ISiteSigninHandler):
         match = re.search(r'请问：(.+)', question_str)
         if match:
             question_str = match.group(1)
-            log.debug(f"【Sites】{site} 获取到签到问题 {question_str}")
+            self.debug(f"{site} 获取到签到问题 {question_str}")
         else:
-            log.error(f"【Sites】{site} 未获取到签到问题")
+            self.error(f"{site} 未获取到签到问题")
             return f"【{site}】签到失败，未获取到签到问题"
 
         # 查询已有答案
@@ -109,7 +108,7 @@ class CHDBits(_ISiteSigninHandler):
                                              proxy=proxy,
                                              site=site)
         except (FileNotFoundError, IOError, OSError) as e:
-            log.debug("查询本地已知答案失败，继续请求豆瓣查询")
+            self.debug("查询本地已知答案失败，继续请求豆瓣查询")
 
         # 正确答案，默认随机，如果gpt返回则用gpt返回的答案提交
         choice = option_ids[random.randint(0, len(option_ids) - 1)]
@@ -118,27 +117,27 @@ class CHDBits(_ISiteSigninHandler):
         gpt_options = "{\n" + ",\n".join([f"{num}:{value}" for num, value in answers]) + "\n}"
         gpt_question = f"题目：{question_str}\n" \
                        f"选项：{gpt_options}"
-        log.debug(f"【Sites】{site}组装chatgpt问题 {gpt_question}")
+        self.debug(f"{site}组装chatgpt问题 {gpt_question}")
 
         # chatgpt获取答案
         answer = OpenAiHelper().get_question_answer(question=gpt_question)
-        log.debug(f"【Sites】{site} chatpgt返回结果 {answer}")
+        self.debug(f"{site} chatpgt返回结果 {answer}")
 
         # 处理chatgpt返回的答案信息
         if answer is None:
-            log.warn(f"【Sites】{site} ChatGPT未启用, 无法签到")
+            self.warn(f"{site} ChatGPT未启用, 无法签到")
             return f"【{site}】签到失败，ChatGPT未启用"
         elif answer:
             # 正则获取字符串中的数字
             answer_nums = list(map(int, re.findall("\d+", answer)))
             if not answer_nums:
-                log.warn(f"【Sites】{site}无法从chatgpt回复 {answer} 中获取答案, 将采用随机签到")
+                self.warn(f"{site}无法从chatgpt回复 {answer} 中获取答案, 将采用随机签到")
             else:
                 answer = answer_nums[0]
                 # 如果返回的数字在option_ids范围内，则直接作为答案
                 if str(answer) in option_ids:
                     choice = int(answer)
-                    log.info(f"【Sites】{site} chatgpt返回答案id {choice} 在签到选项 {option_ids} 中")
+                    self.info(f"{site} chatgpt返回答案id {choice} 在签到选项 {option_ids} 中")
         # 签到
         return self.__signin(questionid=questionid,
                              choice=choice,
@@ -159,21 +158,21 @@ class CHDBits(_ISiteSigninHandler):
             'usercomment': '太难了！',
             'wantskip': '不会'
         }
-        log.debug(f"【Sites】{site}签到请求参数 {data}")
+        self.debug(f"{site}签到请求参数 {data}")
 
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
                                 ).post_res(url='https://chdbits.co/bakatest.php', data=data)
         if not sign_res or sign_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，签到接口请求失败")
+            self.error(f"{site}签到失败，签到接口请求失败")
             return f'【{site}】签到失败，签到接口请求失败'
 
         # 判断是否签到成功
         sign_status = self.sign_in_result(html_res=sign_res.text,
                                           regexs=self._success_regex)
         if sign_status:
-            log.info(f"【Sites】{site}签到成功")
+            self.info(f"{site}签到成功")
             if exits_answers and question:
                 # 签到成功写入本地文件
                 self.__write_local_answer(exits_answers=exits_answers or {},
@@ -184,10 +183,10 @@ class CHDBits(_ISiteSigninHandler):
             sign_status = self.sign_in_result(html_res=sign_res.text,
                                               regexs=self._sign_regex)
             if sign_status:
-                log.info(f"【Sites】{site}今日已签到")
+                self.info(f"{site}今日已签到")
                 return f'【{site}】今日已签到'
 
-            log.error(f"【Sites】{site}签到失败，请到页面查看")
+            self.error(f"{site}签到失败，请到页面查看")
             return f'【{site}】签到失败，请到页面查看'
 
     def __write_local_answer(self, exits_answers, question, answer):
@@ -201,4 +200,4 @@ class CHDBits(_ISiteSigninHandler):
             with open(self._answer_file, 'w') as f:
                 f.write(formatted_data)
         except (FileNotFoundError, IOError, OSError) as e:
-            log.debug("签到成功写入本地文件失败")
+            self.debug("签到成功写入本地文件失败")

@@ -1,6 +1,5 @@
 import re
 
-import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
@@ -44,20 +43,20 @@ class TTG(_ISiteSigninHandler):
                                 proxies=Config().get_proxies() if site_info.get("proxy") else None
                                 ).get_res(url="https://totheglory.im")
         if not html_res or html_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，请检查站点连通性")
+            self.error(f"{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
         # 判断是否已签到
         html_res.encoding = "utf-8"
         sign_status = self.sign_in_result(html_res=html_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}今日已签到")
+            self.info(f"{site}今日已签到")
             return f'【{site}】今日已签到'
 
         # 获取签到参数
         signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
         signed_token = re.search('(?<=signed_token: ").*(?=")', html_res.text).group()
-        log.debug(f"【Sites】{site} signed_timestamp={signed_timestamp} signed_token={signed_token}")
+        self.debug(f"{site} signed_timestamp={signed_timestamp} signed_token={signed_token}")
 
         data = {
             'signed_timestamp': signed_timestamp,
@@ -70,12 +69,12 @@ class TTG(_ISiteSigninHandler):
                                 ).post_res(url="https://totheglory.im/signed.php",
                                            data=data)
         if not sign_res or sign_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，签到接口请求失败")
+            self.error(f"{site}签到失败，签到接口请求失败")
             return f'【{site}】签到失败，签到接口请求失败'
 
         # 判断是否签到成功
         sign_status = self.sign_in_result(html_res=sign_res.text,
                                           regexs=self._success_regex)
         if sign_status:
-            log.info(f"【Sites】{site}签到成功")
+            self.info(f"{site}签到成功")
             return f'【{site}】签到成功'

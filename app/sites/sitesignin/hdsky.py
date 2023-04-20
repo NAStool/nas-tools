@@ -1,7 +1,6 @@
 import json
 import time
 
-import log
 from app.helper import OcrHelper
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
@@ -43,13 +42,13 @@ class HDSky(_ISiteSigninHandler):
                                  proxies=Config().get_proxies() if site_info.get("proxy") else None
                                  ).get_res(url='https://hdsky.me')
         if not index_res or index_res.status_code != 200:
-            log.error(f"【Sites】{site}签到失败，请检查站点连通性")
+            self.error(f"{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
         sign_status = self.sign_in_result(html_res=index_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
-            log.info(f"【Sites】{site}今日已签到")
+            self.info(f"{site}今日已签到")
             return f'【{site}】今日已签到'
 
         # 获取验证码请求，考虑到网络问题获取失败，多获取几次试试
@@ -67,14 +66,14 @@ class HDSky(_ISiteSigninHandler):
                     img_hash = image_json["code"]
                     break
                 res_times += 1
-                log.debug(f"【Sites】获取{site}验证码失败，正在进行重试，目前重试次数 {res_times}")
+                self.debug(f"获取{site}验证码失败，正在进行重试，目前重试次数 {res_times}")
                 time.sleep(1)
 
         # 获取到二维码hash
         if img_hash:
             # 完整验证码url
             img_get_url = 'https://hdsky.me/image.php?action=regimage&imagehash=%s' % img_hash
-            log.debug(f"【Sites】获取到{site}验证码连接 {img_get_url}")
+            self.debug(f"获取到{site}验证码连接 {img_get_url}")
             # ocr识别多次，获取6位验证码
             times = 0
             ocr_result = None
@@ -84,13 +83,13 @@ class HDSky(_ISiteSigninHandler):
                 ocr_result = OcrHelper().get_captcha_text(image_url=img_get_url,
                                                           cookie=site_cookie,
                                                           ua=ua)
-                log.debug(f"【Sites】orc识别{site}验证码 {ocr_result}")
+                self.debug(f"orc识别{site}验证码 {ocr_result}")
                 if ocr_result:
                     if len(ocr_result) == 6:
-                        log.info(f"【Sites】orc识别{site}验证码成功 {ocr_result}")
+                        self.info(f"orc识别{site}验证码成功 {ocr_result}")
                         break
                 times += 1
-                log.debug(f"【Sites】orc识别{site}验证码失败，正在进行重试，目前重试次数 {times}")
+                self.debug(f"orc识别{site}验证码失败，正在进行重试，目前重试次数 {times}")
                 time.sleep(1)
 
             if ocr_result:
@@ -107,15 +106,15 @@ class HDSky(_ISiteSigninHandler):
                                    ).post_res(url='https://hdsky.me/showup.php', data=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
-                        log.info(f"【Sites】{site}签到成功")
+                        self.info(f"{site}签到成功")
                         return f'【{site}】签到成功'
                     elif str(json.loads(res.text)["message"]) == "date_unmatch":
                         # 重复签到
-                        log.warn(f"【Sites】{site}重复成功")
+                        self.warn(f"{site}重复成功")
                         return f'【{site}】今日已签到'
                     elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
                         # 验证码错误
-                        log.warn(f"【Sites】{site}签到失败：验证码错误")
+                        self.warn(f"{site}签到失败：验证码错误")
                         return f'【{site}】{site}签到失败：验证码错误'
 
-        return f'【Sites】{site}签到失败：未获取到验证码'
+        return f'{site}签到失败：未获取到验证码'
