@@ -1,7 +1,9 @@
 import glob
 import os
 import time
+from datetime import datetime
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -43,6 +45,8 @@ class AutoBackup(_IPluginModule):
     _cnt = None
     _full = None
     _bk_path = None
+    _onlyonce = False
+    _notify = False
 
     @staticmethod
     def get_fields():
@@ -66,7 +70,21 @@ class AutoBackup(_IPluginModule):
                             'tooltip': '开启后会备份完整数据库，保留有历史记录',
                             'type': 'switch',
                             'id': 'full',
-                        }
+                        },
+                        {
+                            'title': '运行时通知',
+                            'required': "",
+                            'tooltip': '运行任务后会发送通知（需要打开插件消息通知）',
+                            'type': 'switch',
+                            'id': 'notify',
+                        },
+                        {
+                            'title': '立即运行一次',
+                            'required': "",
+                            'tooltip': '打开后立即运行一次',
+                            'type': 'switch',
+                            'id': 'onlyonce',
+                        },
                     ]
                 ]
             },
@@ -124,13 +142,35 @@ class AutoBackup(_IPluginModule):
             self._cnt = config.get("cnt")
             self._full = config.get("full")
             self._bk_path = config.get("bk_path")
+            self._notify = config.get("notify")
+            self._onlyonce = config.get("onlyonce")
 
         # 启动服务
-        if self._enabled and self._cron:
+        if self._enabled:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
-            self.info(f"定时备份服务启动，周期：{self._cron}")
-            self._scheduler.add_job(self.__backup,
-                                    CronTrigger.from_crontab(self._cron))
+
+            # 运行一次
+            if self._onlyonce:
+                self.info(f"备份服务启动，立即运行一次")
+                self._scheduler.add_job(self.__backup, 'date',
+                                        run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
+                # 关闭一次性开关
+                self._onlyonce = False
+                self.update_config({
+                    "enabled": self._enabled,
+                    "cron": self._cron,
+                    "cnt": self._cnt,
+                    "full": self._full,
+                    "bk_path": self._bk_path,
+                    "notify": self._notify,
+                    "onlyonce": self._onlyonce,
+                })
+
+            # 周期运行
+            if self._cron:
+                self.info(f"定时备份服务启动，周期：{self._cron}")
+                self._scheduler.add_job(self.__backup,
+                                        CronTrigger.from_crontab(self._cron))
 
             # 启动任务
             if self._scheduler.get_jobs():
@@ -160,14 +200,17 @@ class AutoBackup(_IPluginModule):
             self.error("创建备份失败")
 
         # 清理备份
+        bk_cnt = 0
+        del_cnt = 0
         if self._cnt:
             # 获取指定路径下所有以"bk"开头的文件，按照创建时间从旧到新排序
             files = sorted(glob.glob(bk_path + "/bk**"), key=os.path.getctime)
+            bk_cnt = len(files)
             # 计算需要删除的文件数
-            del_cnt = len(files) - int(self._cnt)
+            del_cnt = bk_cnt - int(self._cnt)
             if del_cnt > 0:
                 self.info(
-                    f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 需要删除备份文件数量 {del_cnt}")
+                    f"获取到 {bk_path} 路径下备份文件数量 {bk_cnt} 保留数量 {int(self._cnt)} 需要删除备份文件数量 {del_cnt}")
 
                 # 遍历并删除最旧的几个备份
                 for i in range(del_cnt):
@@ -175,7 +218,14 @@ class AutoBackup(_IPluginModule):
                     self.debug(f"删除备份文件 {files[i]} 成功")
             else:
                 self.info(
-                    f"获取到 {bk_path} 路径下备份文件数量 {len(files)} 保留数量 {int(self._cnt)} 无需删除")
+                    f"获取到 {bk_path} 路径下备份文件数量 {bk_cnt} 保留数量 {int(self._cnt)} 无需删除")
+
+        # 发送通知
+        if self._notify:
+            self.send_message(title="【自动备份任务完成】",
+                              text=f"创建备份{'成功' if zip_file else '失败'}\n"
+                                   f"清理备份数量 {del_cnt}\n"
+                                   f"剩余备份数量 {bk_cnt - del_cnt}")
 
     def stop_service(self):
         pass
