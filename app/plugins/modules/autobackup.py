@@ -146,7 +146,7 @@ class AutoBackup(_IPluginModule):
             self._onlyonce = config.get("onlyonce")
 
         # 启动服务
-        if self._enabled:
+        if self._enabled or self._onlyonce:
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
 
             # 运行一次

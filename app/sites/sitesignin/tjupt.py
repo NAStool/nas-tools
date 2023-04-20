@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import time
 from io import BytesIO
 
@@ -31,7 +30,7 @@ class Tjupt(_ISiteSigninHandler):
                       '重新签到成功，本次签到获得\\d+个魔力值'],
 
     # 存储正确的答案，后续可直接查
-    _answer_path = Config().get_config_path() + "/plugins/signin"
+    _answer_path = Config().get_config_path() + "/temp/signin"
     _answer_file = _answer_path + "/tjupt.json"
 
     @classmethod
@@ -69,8 +68,8 @@ class Tjupt(_ISiteSigninHandler):
             log.error(f"【Sites】{site}签到失败，请检查站点连通性")
             return f'【{site}】签到失败，请检查站点连通性'
 
-        sign_status = self.__sign_in_result(html_res=html_res.text,
-                                            regexs=self._sign_regex)
+        sign_status = self.sign_in_result(html_res=html_res.text,
+                                          regexs=self._sign_regex)
         if sign_status:
             log.info(f"【Sites】{site}今日已签到")
             return f'【{site}】今日已签到'
@@ -131,8 +130,8 @@ class Tjupt(_ISiteSigninHandler):
                                 return f'【{site}】签到失败，签到接口请求失败'
 
                             # 获取签到后返回html，判断是否签到成功
-                            sign_status = self.__sign_in_result(html_res=sign_in_res.text,
-                                                                regexs=self._succeed_regex)
+                            sign_status = self.sign_in_result(html_res=sign_in_res.text,
+                                                              regexs=self._succeed_regex)
                             if sign_status:
                                 log.info(f"【Sites】{site}签到成功")
                                 return f'【{site}】签到成功'
@@ -188,8 +187,8 @@ class Tjupt(_ISiteSigninHandler):
                                 return f'【{site}】签到失败，签到接口请求失败'
 
                             # 获取签到后返回html，判断是否签到成功
-                            sign_status = self.__sign_in_result(html_res=sign_in_res.text,
-                                                                regexs=self._succeed_regex)
+                            sign_status = self.sign_in_result(html_res=sign_in_res.text,
+                                                              regexs=self._succeed_regex)
                             if sign_status:
                                 log.info(f"【Sites】{site}签到成功")
                                 # 签到成功写入本地文件
@@ -210,31 +209,10 @@ class Tjupt(_ISiteSigninHandler):
             exits_answers[captcha_img_hash] = answer
             # 序列化数据
             formatted_data = json.dumps(exits_answers, indent=4)
-
-            # 打开文件，写入数据
             with open(self._answer_file, 'w') as f:
                 f.write(formatted_data)
-            # 关闭文件
-            f.close()
         except (FileNotFoundError, IOError, OSError) as e:
             log.debug("签到成功写入本地文件失败")
-
-    def __sign_in_result(self, html_res, regexs):
-        """
-        判断是否签到成功
-        """
-        html_text = self._prepare_html_text(html_res)
-        for regex in regexs:
-            if re.search(str(regex), html_text):
-                return True
-        return False
-
-    @staticmethod
-    def _prepare_html_text(html_text):
-        """
-        处理掉HTML中的干扰部分
-        """
-        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
 
     @staticmethod
     def _tohash(img, shape=(10, 10)):

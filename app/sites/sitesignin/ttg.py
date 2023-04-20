@@ -48,8 +48,8 @@ class TTG(_ISiteSigninHandler):
             return f'【{site}】签到失败，请检查站点连通性'
         # 判断是否已签到
         html_res.encoding = "utf-8"
-        sign_status = self.__sign_in_result(html_res=html_res.text,
-                                            regexs=self._sign_regex)
+        sign_status = self.sign_in_result(html_res=html_res.text,
+                                          regexs=self._sign_regex)
         if sign_status:
             log.info(f"【Sites】{site}今日已签到")
             return f'【{site}】今日已签到'
@@ -74,25 +74,8 @@ class TTG(_ISiteSigninHandler):
             return f'【{site}】签到失败，签到接口请求失败'
 
         # 判断是否签到成功
-        sign_status = self.__sign_in_result(html_res=sign_res.text,
-                                            regexs=self._success_regex)
+        sign_status = self.sign_in_result(html_res=sign_res.text,
+                                          regexs=self._success_regex)
         if sign_status:
             log.info(f"【Sites】{site}签到成功")
             return f'【{site}】签到成功'
-
-    def __sign_in_result(self, html_res, regexs):
-        """
-        判断是否签到成功
-        """
-        html_text = self._prepare_html_text(html_res)
-        for regex in regexs:
-            if re.search(str(regex), html_text):
-                return True
-        return False
-
-    @staticmethod
-    def _prepare_html_text(html_text):
-        """
-        处理掉HTML中的干扰部分
-        """
-        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
