@@ -6,7 +6,7 @@ import log
 from app.conf import SystemConfig
 from app.helper import SubmoduleHelper
 from app.plugins.event_manager import EventManager
-from app.utils import SystemUtils, PathUtils
+from app.utils import SystemUtils, PathUtils, ImageUtils
 from app.utils.commons import singleton
 from app.utils.types import SystemConfigKey
 from config import Config
@@ -115,6 +115,7 @@ class PluginManager:
             # 未安装的跳过加载
             if module_id not in user_plugins:
                 continue
+            # 生成实例
             self._running_plugins[module_id] = plugin()
             # 初始化配置
             self.reload_plugin(module_id)
@@ -203,6 +204,20 @@ class PluginManager:
             return False
         return self.systemconfig.set(self._config_key % pid, conf)
 
+    @staticmethod
+    def __get_plugin_color(plugin):
+        """
+        获取插件的主题色
+        """
+        if hasattr(plugin, "module_color") and plugin.module_color:
+            return plugin.module_color
+        if hasattr(plugin, "module_icon"):
+            icon_path = os.path.join(Config().get_root_path(),
+                                     "web", "static", "img", "plugins",
+                                     plugin.module_icon)
+            return ImageUtils.calculate_theme_color(icon_path)
+        return ""
+
     def get_plugins_conf(self, auth_level):
         """
         获取所有插件配置
@@ -215,16 +230,19 @@ class PluginManager:
             if hasattr(plugin, "auth_level") \
                     and plugin.auth_level > auth_level:
                 continue
+            # 名称
             if hasattr(plugin, "module_name"):
                 conf.update({"name": plugin.module_name})
+            # 描述
             if hasattr(plugin, "module_desc"):
                 conf.update({"desc": plugin.module_desc})
+            # 版本号
             if hasattr(plugin, "module_version"):
                 conf.update({"version": plugin.module_version})
+            # 图标
             if hasattr(plugin, "module_icon"):
                 conf.update({"icon": plugin.module_icon})
-            if hasattr(plugin, "module_color"):
-                conf.update({"color": plugin.module_color})
+            # ID前缀
             if hasattr(plugin, "module_config_prefix"):
                 conf.update({"prefix": plugin.module_config_prefix})
             # 插件额外的页面
@@ -234,6 +252,8 @@ class PluginManager:
             # 插件额外的脚本
             if hasattr(plugin, "get_script"):
                 conf.update({"script": plugin.get_script()})
+            # 主题色
+            conf.update({"color": self.__get_plugin_color(plugin)})
             # 配置项
             conf.update({"fields": plugin.get_fields() or {}})
             # 配置值
@@ -257,23 +277,30 @@ class PluginManager:
             if hasattr(plugin, "auth_level") \
                     and plugin.auth_level > auth_level:
                 continue
+            # ID
             conf.update({"id": pid})
+            # 安装状态
             if pid in installed_apps:
                 conf.update({"installed": True})
             else:
                 conf.update({"installed": False})
+            # 名称
             if hasattr(plugin, "module_name"):
                 conf.update({"name": plugin.module_name})
+            # 描述
             if hasattr(plugin, "module_desc"):
                 conf.update({"desc": plugin.module_desc})
+            # 版本
             if hasattr(plugin, "module_version"):
                 conf.update({"version": plugin.module_version})
+            # 图标
             if hasattr(plugin, "module_icon"):
                 conf.update({"icon": plugin.module_icon})
-            if hasattr(plugin, "module_color"):
-                conf.update({"color": plugin.module_color})
+            # 主题色
+            conf.update({"color": self.__get_plugin_color(plugin)})
             if hasattr(plugin, "module_author"):
                 conf.update({"author": plugin.module_author})
+            # 作者链接
             if hasattr(plugin, "author_url"):
                 conf.update({"author_url": plugin.author_url})
             # 汇总

@@ -73,6 +73,40 @@ class OpenAiHelper:
         return seasion
 
     @staticmethod
+    def __get_model(message,
+                    prompt=None,
+                    user="NAStool",
+                    **kwargs):
+        """
+        获取模型
+        """
+        if not isinstance(message, list):
+            if prompt:
+                message = [
+                    {
+                        "role": "system",
+                        "content": prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": message
+                    }
+                ]
+            else:
+                message = [
+                    {
+                        "role": "user",
+                        "content": message
+                    }
+                ]
+        return openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            user=user,
+            messages=message,
+            **kwargs
+        )
+
+    @staticmethod
     def __clear_session(session_id):
         """
         清除会话
@@ -95,19 +129,7 @@ class OpenAiHelper:
             _filename_prompt = "I will give you a movie/tvshow file name.You need to return a Json." \
                                "\nPay attention to the correct identification of the film name." \
                                "\n{\"title\":string,\"version\":string,\"part\":string,\"year\":string,\"resolution\":string,\"season\":number|null,\"episode\":number|null}"
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                user="NAStool",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": _filename_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": filename
-                    }
-                ])
+            completion = self.__get_model(prompt=_filename_prompt, message=filename)
             result = completion.choices[0].message.content
             return json.loads(result)
         except Exception as e:
@@ -133,11 +155,7 @@ class OpenAiHelper:
                 return "会话已清除"
             # 获取历史上下文
             messages = self.__get_session(userid, text)
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                user=userid,
-                messages=messages
-            )
+            completion = self.__get_model(message=messages, user=userid)
             result = completion.choices[0].message.content
             if result:
                 self.__save_session(userid, text)
@@ -162,25 +180,32 @@ class OpenAiHelper:
         user_prompt = f"translate to zh-CN:\n\n{text}"
         result = ""
         try:
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                user="NAStool",
-                temperature=0,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": user_prompt
-                    }
-                ])
+            completion = self.__get_model(prompt=system_prompt,
+                                          message=user_prompt,
+                                          temperature=0,
+                                          top_p=1,
+                                          frequency_penalty=0,
+                                          presence_penalty=0)
             result = completion.choices[0].message.content.strip()
             return True, result
         except Exception as e:
             print(f"{str(e)}：{result}")
             return False, str(e)
+
+    def get_question_answer(self, question):
+        """
+        从给定问题和选项中获取正确答案
+        :param question: 问题及选项
+        :return: Json
+        """
+        if not self.get_state():
+            return None
+        result = ""
+        try:
+            _question_prompt = "下面我们来玩一个游戏，你是老师，我是学生，你需要回答我的问题，我会给你一个题目和几个选项，你的回复必须是给定选项中正确答案对应的序号，请直接回复数字"
+            completion = self.__get_model(prompt=_question_prompt, message=question)
+            result = completion.choices[0].message.content
+            return result
+        except Exception as e:
+            print(f"{str(e)}：{result}")
+            return {}

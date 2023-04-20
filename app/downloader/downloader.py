@@ -374,7 +374,7 @@ class Downloader:
 
         # 开始添加下载
         try:
-            # 分类
+            # 下载设置中的分类
             category = download_attr.get("category")
             # 合并TAG
             tags = download_attr.get("tags")
@@ -407,13 +407,13 @@ class Downloader:
             ratio_limit = download_attr.get("ratio_limit")
             # 做种时间
             seeding_time_limit = download_attr.get("seeding_time_limit")
-            # 下载目录
+            # 下载目录设置
             if not download_dir:
                 download_info = self.__get_download_dir_info(media_info, downloader_conf.get("download_dir"))
                 download_dir = download_info.get('path')
-                download_label = download_info.get('label')
+                # 从下载目录中获取分类标签
                 if not category:
-                    category = download_label
+                    category = download_info.get('category')
             # 添加下载
             print_url = content if isinstance(content, str) else url
             if is_paused:
@@ -438,6 +438,7 @@ class Downloader:
                                               download_limit=download_limit,
                                               ratio_limit=ratio_limit,
                                               seeding_time_limit=seeding_time_limit)
+
             elif downloader_type == DownloaderType.QB:
                 # 加标签以获取添加下载后的编号
                 torrent_tag = "NT" + StringUtils.generate_random_str(5)
@@ -1209,8 +1210,11 @@ class Downloader:
                     StringUtils.num_filesize(media.size)
                 ):
                     continue
-                return {"path": attr.get("save_path"), "label": attr.get("label")}
-        return {"path": None, "label": None}
+                return {
+                    "path": attr.get("save_path"),
+                    "category": attr.get("label")
+                }
+        return {"path": None, "category": None}
 
     @staticmethod
     def __get_client_type(type_name):
