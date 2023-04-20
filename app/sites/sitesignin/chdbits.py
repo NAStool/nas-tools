@@ -21,7 +21,7 @@ class CHDBits(_ISiteSigninHandler):
     site_url = "chdbits.co"
 
     # 已签到
-    _sign_regex = ['今天已经签过到了(已连续\\d+天签到)']
+    _sign_regex = ['今天已经签过到了']
 
     # 签到成功，待补充
     _success_regex = ['\\d+点魔力值']
@@ -72,7 +72,7 @@ class CHDBits(_ISiteSigninHandler):
             return
 
         # 获取页面问题、答案
-        questionid = html.xpath("//input[@name='questionid']/@value")
+        questionid = html.xpath("//input[@name='questionid']/@value")[0]
         option_ids = html.xpath("//input[@name='choice[]']/@value")
         option_values = html.xpath("//input[@name='choice[]']/following-sibling::text()")
         question_str = html.xpath("//td[@class='text' and contains(text(),'请问：')]/text()")[0]
@@ -130,8 +130,8 @@ class CHDBits(_ISiteSigninHandler):
 
         # 处理chatgpt返回的答案信息
         if answer is None:
-            self.warn(f"{site} ChatGPT未启用, 无法签到")
-            return f"【{site}】签到失败，ChatGPT未启用"
+            self.warn(f"{site} ChatGPT未启用, 开始随机签到")
+            # return f"【{site}】签到失败，ChatGPT未启用"
         elif answer:
             # 正则获取字符串中的数字
             answer_nums = list(map(int, re.findall("\d+", answer)))
@@ -143,7 +143,7 @@ class CHDBits(_ISiteSigninHandler):
                     # 如果返回的数字在option_ids范围内，则直接作为答案
                     if str(answer) in option_ids:
                         choice.append(int(answer))
-                        self.info(f"【Sites】{site} chatgpt返回答案id {choice} 在签到选项 {option_ids} 中")
+                        self.info(f"【Sites】{site} chatgpt返回答案id {answer} 在签到选项 {option_ids} 中")
         # 签到
         return self.__signin(questionid=questionid,
                              choice=choice,
@@ -165,13 +165,14 @@ class CHDBits(_ISiteSigninHandler):
         多选会有多个choice[]....
         """
         data = "{ \n" \
-               f"'questionid': {questionid},\n"
+               f"'questionid': {int(questionid)},\n"
         choice_str = ""
         for c in choice:
             choice_str += f"'choice[]': {c} \n"
-        data += choice_str + f"'usercomment': '太难了！,\n" \
-                             f"'wantskip': '不会',\n" \
+        data += choice_str + f"'usercomment': 太难了！,\n" \
+                             f"'wantskip': 不会,\n" \
                              "}"
+        data = data.encode('utf-8')
         self.debug(f"【Sites】{site}签到请求参数 {data}")
 
         sign_res = RequestUtils(cookies=site_cookie,
