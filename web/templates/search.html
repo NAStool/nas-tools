@@ -79,7 +79,7 @@
                     <label class="form-selectgroup-item">
                       <input type="checkbox" name="filter_releasegroup" value="{{ filter_releasegroup }}" class="form-selectgroup-input"
                         onclick="filter_medias(this, '{{ Item.key }}', true)">
-                      <span class="form-selectgroup-label">{{ filter_releasegroup }}</span>
+                      <span class="form-selectgroup-label filter_releasegroup_span">{{ filter_releasegroup }}</span>
                     </label>
                     {% endfor %}
                   </div>
@@ -340,7 +340,7 @@
               <label class="form-selectgroup-item">
                 <input type="checkbox" name="filter_releasegroup" value="{{ filter_releasegroup }}" class="form-selectgroup-input"
                   onclick="filter_medias(this, '{{ Item.key }}', true)">
-                <span class="form-selectgroup-label">{{ filter_releasegroup }}</span>
+                <span class="form-selectgroup-label filter_releasegroup_span">{{ filter_releasegroup }}</span>
               </label>
               {% endfor %}
             </div>
