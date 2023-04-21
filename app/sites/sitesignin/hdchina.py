@@ -53,7 +53,7 @@ class HDChina(_ISiteSigninHandler):
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
 
-            # 没有签到则解析html
+        # 没有签到则解析html
         html = etree.HTML(html_res.text)
 
         if not html:
