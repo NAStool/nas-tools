@@ -1,5 +1,5 @@
 from app.utils import ExceptionUtils
-from app.utils.types import MediaServerType
+from app.utils.types import MediaServerType, MediaType
 
 import log
 from config import Config
@@ -296,7 +296,20 @@ class Plex(_IMediaClient):
             return []
         libraries = []
         for library in self._libraries:
-            libraries.append({"id": library.key, "name": library.title})
+            match library.type:
+                case "movie":
+                    library_type = MediaType.MOVIE.value
+                case "show":
+                    library_type = MediaType.TV.value
+                case _:
+                    continue
+            libraries.append({
+                "id": library.key,
+                "name": library.title,
+                "paths": library.locations,
+                "type": library_type,
+                "image": "../static/img/mediaserver/plex_backdrop.png"
+            })
         return libraries
 
     def get_iteminfo(self, itemid):
