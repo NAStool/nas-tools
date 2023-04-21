@@ -207,6 +207,10 @@ class BuiltinIndexer(_IIndexClient):
             error_flag, result_array = RenderSpider().search(keyword=keyword,
                                                              indexer=indexer,
                                                              page=page)
+        elif indexer.parser == "RarBg":
+            error_flag, result_array = Rarbg().search(keyword=keyword,
+                                                      indexer=indexer,
+                                                      page=page)
         elif indexer.parser == "TNodeSpider":
             error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=keyword,
                                                                            page=page)
