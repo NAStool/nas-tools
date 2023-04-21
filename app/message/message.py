@@ -406,7 +406,16 @@ class Message(object):
         if not msgs:
             return
         title = "站点签到"
-        text = "\n".join(msgs)
+        # 按照结果分组，失败的放在前面
+        success_sites = [x for x in msgs if "失败" not in x]
+        failed_sites = [x for x in msgs if "失败" in x]
+
+        # 统计信息
+        text = f"共 {len(success_sites) + len(failed_sites)} ，成功 {len(success_sites)} 个，失败 {len(failed_sites)} 个\n"
+        text += "\n-----失败-----\n"
+        text += "\n".join(failed_sites)
+        text += "\n-----成功-----\n"
+        text += "\n".join(success_sites)
         # 插入消息中心
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         # 发送消息
