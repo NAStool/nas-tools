@@ -76,6 +76,8 @@ class SiteSignin(object):
                 if status:
                     return msg
                 else:
+                    site = site_info.get("name")
+                    log.warn(f"站点{site}签到失败，错误原因 {msg}，尝试模拟登录")
                     return self.__signin_base(site_info)
             except Exception as e:
                 return f"【{site_info.get('name')}】签到失败：{str(e)}"
