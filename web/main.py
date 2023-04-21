@@ -926,10 +926,8 @@ def indexer():
 @App.route('/library', methods=['POST', 'GET'])
 @login_required
 def library():
-    Librarys = MediaServer().get_libraries()
     return render_template("setting/library.html",
-                           Config=Config().get_config(),
-                           Librarys=Librarys)
+                           Config=Config().get_config())
 
 
 # 媒体服务器页面

@@ -446,7 +446,9 @@ class Jellyfin(_IMediaClient):
                 "name": library.get("Name"),
                 "paths": library.get("Locations"),
                 "type": library_type,
-                "image": f'img?url={quote(image)}'
+                "image": f'img?url={quote(image)}',
+                "link": f'{self._play_host or self._host}web/index.html'
+                        f'#!/videos?serverId={self._serverid}&parentId={library.get("ItemId")}'
             })
         return libraries
 
