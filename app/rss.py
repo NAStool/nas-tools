@@ -19,7 +19,6 @@ lock = Lock()
 
 
 class Rss:
-    _sites = []
     filter = None
     media = None
     sites = None
@@ -40,14 +39,13 @@ class Rss:
         self.filter = Filter()
         self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
-        self._sites = self.sites.get_sites(rss=True)
 
     def rssdownload(self):
         """
         RSS订阅搜索下载入口，由定时服务调用
         """
-
-        if not self._sites:
+        rss_sites_info = self.sites.get_sites(rss=True)
+        if not rss_sites_info:
             return
 
         with lock:
@@ -99,7 +97,7 @@ class Rss:
             # 缺失的资源详情
             rss_no_exists = {}
             # 遍历站点资源
-            for site_info in self._sites:
+            for site_info in rss_sites_info:
                 if not site_info:
                     continue
                 # 站点名称
