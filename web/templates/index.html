@@ -28,7 +28,7 @@
     <div class="container-xl">
       <div class="d-grid gap-3 grid-normal-card">
         {% for Library in Librarys %}
-        <a class="card card-link-pop" href="{{ Library.link }}" target="_blank">
+        <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
           <div class="img-responsive img-responsive-21x9 card-img-top" style="background-image: url({{ Library.image }})">
             <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
               {{ Library.type }}
