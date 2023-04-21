@@ -66,18 +66,18 @@ class Tjupt(_ISiteSigninHandler):
         # 获取签到后返回html，判断是否签到成功
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
-            return f'【{site}】签到失败，请检查站点连通性'
+            return False, f'【{site}】签到失败，请检查站点连通性'
 
         sign_status = self.sign_in_result(html_res=html_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
             self.info(f"今日已签到")
-            return f'【{site}】今日已签到'
+            return True, f'【{site}】今日已签到'
 
         # 没有签到则解析html
         html = etree.HTML(html_res.text)
         if not html:
-            return
+            return False, f'【{site}】签到失败'
         img_url = html.xpath('//table[@class="captcha"]//img/@src')[0]
         if img_url:
             # 签到图片
@@ -90,7 +90,7 @@ class Tjupt(_ISiteSigninHandler):
                                            ).get_res(url=img_url)
             if not captcha_img_res or captcha_img_res.status_code != 200:
                 self.error(f"签到图片 {img_url} 请求失败")
-                return f'【{site}】签到失败，未获取到签到图片'
+                return False, f'【{site}】签到失败，未获取到签到图片'
             captcha_img = Image.open(BytesIO(captcha_img_res.content))
             captcha_img_hash = self._tohash(captcha_img)
             self.debug(f"签到图片hash {captcha_img_hash}")
@@ -148,7 +148,7 @@ class Tjupt(_ISiteSigninHandler):
                         answer_img_res = RequestUtils().get_res(url=answer_img_url)
                         if not answer_img_res or answer_img_res.status_code != 200:
                             self.error(f"签到答案 {answer_title} {answer_img_url} 请求失败")
-                            return f'【{site}】签到失败，获取签到答案图片失败'
+                            return False, f'【{site}】签到失败，获取签到答案图片失败'
                         answer_img = Image.open(BytesIO(answer_img_res.content))
                         answer_img_hash = self._tohash(answer_img)
                         self.debug(f"签到答案图片hash {answer_title} {answer_img_hash}")
@@ -167,7 +167,7 @@ class Tjupt(_ISiteSigninHandler):
                                                  captcha_img_hash=captcha_img_hash)
             self.error(f"签到失败，未获取到匹配答案")
             # 没有匹配签到成功，则签到失败
-            return f'【{site}】签到失败，未获取到匹配答案'
+            return False, f'【{site}】签到失败，未获取到匹配答案'
 
     def __signin(self, answer, site_cookie, ua, proxy, site, exits_answers=None, captcha_img_hash=None):
         """
@@ -184,7 +184,7 @@ class Tjupt(_ISiteSigninHandler):
                                    ).post_res(url=self._sign_in_url, data=data)
         if not sign_in_res or sign_in_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
-            return f'【{site}】签到失败，签到接口请求失败'
+            return False, f'【{site}】签到失败，签到接口请求失败'
 
         # 获取签到后返回html，判断是否签到成功
         sign_status = self.sign_in_result(html_res=sign_in_res.text,
@@ -196,10 +196,10 @@ class Tjupt(_ISiteSigninHandler):
                 self.__write_local_answer(exits_answers=exits_answers or {},
                                           captcha_img_hash=captcha_img_hash,
                                           answer=answer)
-            return f'【{site}】签到成功'
+            return True, f'【{site}】签到成功'
         else:
             self.error(f"签到失败，请到页面查看")
-            return f'【{site}】签到失败，请到页面查看'
+            return False, f'【{site}】签到失败，请到页面查看'
 
     def __write_local_answer(self, exits_answers, captcha_img_hash, answer):
         """

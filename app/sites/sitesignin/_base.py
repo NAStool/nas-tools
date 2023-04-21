@@ -28,7 +28,7 @@ class _ISiteSigninHandler(metaclass=ABCMeta):
         """
         执行签到操作
         :param site_info: 站点信息，含有站点Url、站点Cookie、UA等信息
-        :return: 签到结果信息
+        :return: True|False,签到结果信息
         """
         pass
 
