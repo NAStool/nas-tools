@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 import log
 from app.helper import DbHelper
 from app.plugins import PluginManager
-from app.media import  Category
+from app.media import Category
 from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
 from config import Config

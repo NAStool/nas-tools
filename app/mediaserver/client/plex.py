@@ -259,10 +259,11 @@ class Plex(_IMediaClient):
             log.error(f"【{self.client_name}】获取封面出错：" + str(e))
         return None
 
-    def get_local_image_by_id(self, item_id):
+    def get_local_image_by_id(self, item_id, remote=True):
         """
         根据ItemId从媒体服务器查询有声书图片地址
         :param item_id: 在Emby中的ID
+        :param remote: 是否远程使用
         """
         return None
 

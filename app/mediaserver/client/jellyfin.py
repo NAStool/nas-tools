@@ -3,7 +3,7 @@ import re
 import log
 from config import Config
 from app.mediaserver.client._base import _IMediaClient
-from app.utils.types import MediaServerType
+from app.utils.types import MediaServerType, MediaType
 from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
 
 
@@ -22,7 +22,6 @@ class Jellyfin(_IMediaClient):
     _host = None
     _play_host = None
     _user = None
-    _libraries = []
 
     def __init__(self, config=None):
         if config:
@@ -382,17 +381,18 @@ class Jellyfin(_IMediaClient):
             return None
         return None
 
-    def get_local_image_by_id(self, item_id):
+    def get_local_image_by_id(self, item_id, remote=True):
         """
         根据ItemId从媒体服务器查询有声书图片地址
         :param item_id: 在Emby中的ID
+        :param remote: 是否远程使用
         """
         if not self._host or not self._apikey:
             return None
-        if self._play_host and not IpUtils.is_internal(self._play_host):
-            return "%sItems/%s/Images/Primary?maxHeight=225&maxWidth=400&quality=90" % (
-                self._play_host, item_id)
-        return None
+        host = self._play_host or self._host
+        if remote and IpUtils.is_internal(host):
+            return None
+        return "%sItems/%s/Images/Primary" % (host, item_id)
 
     def refresh_root_library(self):
         """
@@ -428,11 +428,24 @@ class Jellyfin(_IMediaClient):
         """
         获取媒体服务器所有媒体库列表
         """
-        if self._host and self._apikey:
-            self._libraries = self.__get_jellyfin_librarys()
+        if not self._host or not self._apikey:
+            return []
         libraries = []
-        for library in self._libraries:
-            libraries.append({"id": library.get("ItemId"), "name": library.get("Name")})
+        for library in self.__get_jellyfin_librarys() or []:
+            match library.get("CollectionType"):
+                case "Movies":
+                    library_type = MediaType.MOVIE.value
+                case "TvShows":
+                    library_type = MediaType.TV.value
+                case _:
+                    continue
+            libraries.append({
+                "id": library.get("ItemId"),
+                "name": library.get("Name"),
+                "paths": library.get("Locations"),
+                "type": library_type,
+                "image": self.get_local_image_by_id(library.get("ItemId"), remote=False)
+            })
         return libraries
 
     def get_iteminfo(self, itemid):
