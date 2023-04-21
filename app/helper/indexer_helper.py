@@ -25,8 +25,10 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
-    def get_indexer_info(self, url):
+    def get_indexer_info(self, url, public=False):
         for indexer in self._indexers:
+            if not public and indexer.get("public"):
+                continue
             if StringUtils.url_equal(indexer.get("domain"), url):
                 return indexer
         return None

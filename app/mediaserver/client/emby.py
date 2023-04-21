@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.parse import quote
 
 import log
 from config import Config
@@ -183,7 +184,7 @@ class Emby(_IMediaClient):
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
-                    if item.get("Type") == "VideoPlayback":
+                    if item.get("Type") in ["VideoPlayback", "VideoPlaybackStopped"]:
                         event_type = "PL"
                         event_date = SystemUtils.get_local_time(item.get("Date"))
                         event_str = item.get("Name")
@@ -541,13 +542,15 @@ class Emby(_IMediaClient):
                     library_type = MediaType.TV.value
                 case _:
                     continue
+            image = self.get_local_image_by_id(library.get("ItemId"), remote=False)
             libraries.append({
                 "id": library.get("ItemId"),
                 "name": library.get("Name"),
                 "paths": library.get("Locations"),
                 "type": library_type,
-                "image": self.get_local_image_by_id(library.get("ItemId"),
-                                                    remote=False) or "../static/img/mediaserver/emby_backdrop.png"
+                "image": f'img?url={quote(image)}',
+                "link": f'{self._play_host or self._host}web/index.html'
+                        f'#!/videos?serverId={self._serverid}&parentId={library.get("ItemId")}'
             })
         return libraries
 

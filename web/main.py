@@ -1627,6 +1627,21 @@ def ical():
     return response
 
 
+@App.route('/img')
+@login_required
+def Img():
+    """
+    图片中换服务
+    """
+    url = request.args.get('url')
+    if not url:
+        return make_response("参数错误", 400)
+    return send_file(WebUtils.get_image_stream(url),
+                     mimetype='image/jpeg',
+                     download_name='image.jpg',
+                     as_attachment=True)
+
+
 # base64模板过滤器
 @App.template_filter('b64encode')
 def b64encode(s):

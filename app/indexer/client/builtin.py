@@ -25,6 +25,7 @@ class BuiltinIndexer(_IIndexClient):
 
     # 私有属性
     _client_config = {}
+    _show_more_sites = False
     progress = None
     sites = None
     dbhelper = None
@@ -38,6 +39,7 @@ class BuiltinIndexer(_IIndexClient):
         self.sites = Sites()
         self.progress = ProgressHelper()
         self.dbhelper = DbHelper()
+        self._show_more_sites = Config().get_config("laboratory").get('show_more_sites')
 
     @classmethod
     def match(cls, ctype):
@@ -87,7 +89,7 @@ class BuiltinIndexer(_IIndexClient):
                     indexer.name = site.get("name")
                     ret_indexers.append(indexer)
         # 公开站点
-        if public:
+        if public and self._show_more_sites:
             for indexer in IndexerHelper().get_all_indexers():
                 if not indexer.get("public"):
                     continue

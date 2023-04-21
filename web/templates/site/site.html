@@ -605,8 +605,26 @@
     let subtitle = $("#site_subtitle").val();
     // 流控规则
     let limit_interval = $("#sitelimit_interval").val();
+    if (limit_interval && isNaN(limit_interval)) {
+      $("#sitelimit_interval").addClass("is-invalid");
+      return;
+    } else {
+      $("#sitelimit_interval").removeClass("is-invalid");
+    }
     let limit_count = $("#sitelimit_count").val();
+    if (limit_count && isNaN(limit_count)) {
+      $("#sitelimit_count").addClass("is-invalid");
+      return;
+    } else {
+      $("#sitelimit_count").removeClass("is-invalid");
+    }
     let limit_seconds = $("#sitelimit_seconds").val();
+    if (limit_seconds && isNaN(limit_seconds)) {
+      $("#sitelimit_seconds").addClass("is-invalid");
+      return;
+    } else {
+      $("#sitelimit_seconds").removeClass("is-invalid");
+    }
     let data = {
       "site_id": site_id,
       "site_name": site_name,
