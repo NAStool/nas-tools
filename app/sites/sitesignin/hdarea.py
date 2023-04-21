@@ -7,6 +7,7 @@ class HDArea(_ISiteSigninHandler):
     """
     好大签到
     """
+    
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
     site_url = "hdarea.co"
 

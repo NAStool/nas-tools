@@ -2814,9 +2814,9 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = Indexer().list_builtin_resources(index_id=data.get("id"),
-                                                     page=data.get("page"),
-                                                     keyword=data.get("keyword"))
+        resources = Indexer().list_resources(index_id=data.get("id"),
+                                             page=data.get("page"),
+                                             keyword=data.get("keyword"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
@@ -4258,7 +4258,7 @@ class WebAction:
         """
         获取索引器
         """
-        return {"code": 0, "indexers": Indexer().get_indexer_dict()}
+        return {"code": 0, "indexers": Indexer().get_user_indexer_dict()}
 
     @staticmethod
     def __get_download_dirs(data):

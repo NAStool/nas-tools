@@ -80,7 +80,7 @@ class BuiltinIndexer(_IIndexClient):
             if indexer:
                 if indexer_id and indexer.id == indexer_id:
                     return indexer
-                if check and indexer_sites and indexer.id not in indexer_sites:
+                if check and (not indexer_sites or indexer.id not in indexer_sites):
                     continue
                 if indexer.domain not in _indexer_domains:
                     _indexer_domains.append(indexer.domain)
@@ -93,7 +93,7 @@ class BuiltinIndexer(_IIndexClient):
                     continue
                 if indexer_id and indexer.get("id") == indexer_id:
                     return IndexerConf(datas=indexer)
-                if check and indexer_sites and indexer.get("id") not in indexer_sites:
+                if check and (not indexer_sites or indexer.get("id") not in indexer_sites):
                     continue
                 if indexer.get("domain") not in _indexer_domains:
                     _indexer_domains.append(indexer.get("domain"))
@@ -111,10 +111,6 @@ class BuiltinIndexer(_IIndexClient):
         """
         if not indexer or not key_word:
             return None
-        # 不是配置的索引站点过滤掉
-        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
-        if indexer_sites and indexer.id not in indexer_sites:
-            return []
         # 站点流控
         if self.sites.check_ratelimit(indexer.siteid):
             self.progress.update(ptype=ProgressKey.Search, text=f"{indexer.name} 触发站点流控，跳过 ...")

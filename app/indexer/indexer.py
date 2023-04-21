@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
 from app.helper import ProgressHelper, SubmoduleHelper
-from app.indexer.client import BuiltinIndexer
 from app.utils import ExceptionUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, IndexerType, ProgressKey
@@ -41,28 +40,28 @@ class Indexer(object):
                 ExceptionUtils.exception_traceback(e)
         return None
 
-    def get_indexers(self):
+    def get_indexers(self, check=False):
         """
         获取当前索引器的索引站点
         """
         if not self._client:
             return []
-        return self._client.get_indexers()
+        return self._client.get_indexers(check=check)
 
-    def get_indexer_dict(self):
+    def get_user_indexer_dict(self):
         """
-        获取索引器字典
+        获取用户已经选择的索引器字典
         """
         return [
             {
                 "id": index.id,
                 "name": index.name
-            } for index in self.get_indexers()
+            } for index in self.get_indexers(check=True)
         ]
 
     def get_indexer_hash_dict(self):
         """
-        获取索引器Hash字典
+        获取全部的索引器Hash字典
         """
         IndexerDict = {}
         for item in self.get_indexers() or []:
@@ -74,28 +73,20 @@ class Indexer(object):
             }
         return IndexerDict
 
-    def get_indexer_names(self):
+    def get_user_indexer_names(self):
         """
-        获取当前索引器的索引站点名称
+        获取当前用户选中的索引器的索引站点名称
         """
-        return [indexer.name for indexer in self.get_indexers()]
+        return [indexer.name for indexer in self.get_indexers(check=True)]
 
-    @staticmethod
-    def get_builtin_indexers(check=True, indexer_id=None, public=True):
-        """
-        获取内置索引器的索引站点
-        """
-        return BuiltinIndexer().get_indexers(check=check, indexer_id=indexer_id, public=public)
-
-    @staticmethod
-    def list_builtin_resources(index_id, page=0, keyword=None):
+    def list_resources(self, index_id, page=0, keyword=None):
         """
         获取内置索引器的资源列表
         :param index_id: 内置站点ID
         :param page: 页码
         :param keyword: 搜索关键字
         """
-        return BuiltinIndexer().list(index_id=index_id, page=page, keyword=keyword)
+        return self._client.list(index_id=index_id, page=page, keyword=keyword)
 
     def __get_client(self, ctype: [IndexerType, str], conf=None):
         return self.__build_class(ctype=ctype, conf=conf)
@@ -130,9 +121,9 @@ class Indexer(object):
         if not key_word:
             return []
 
-        indexers = self.get_indexers()
+        indexers = self.get_indexers(check=True)
         if not indexers:
-            log.error("没有有效的索引器配置！")
+            log.error("没有配置索引器，无法搜索！")
             return []
         # 计算耗时
         start_time = datetime.datetime.now()
