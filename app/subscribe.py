@@ -395,7 +395,7 @@ class Subscribe:
         ret_dict = {}
         rss_movies = self.dbhelper.get_rss_movies(rssid=rid, state=state)
         rss_sites_valid = self.sites.get_site_names(rss=True)
-        search_sites_valid = self.indexer.get_indexer_names()
+        search_sites_valid = self.indexer.get_user_indexer_names()
         for rss_movie in rss_movies:
             desc = rss_movie.DESC
             note = rss_movie.NOTE
@@ -464,7 +464,7 @@ class Subscribe:
         ret_dict = {}
         rss_tvs = self.dbhelper.get_rss_tvs(rssid=rid, state=state)
         rss_sites_valid = self.sites.get_site_names(rss=True)
-        search_sites_valid = self.indexer.get_indexer_names()
+        search_sites_valid = self.indexer.get_user_indexer_names()
         for rss_tv in rss_tvs:
             desc = rss_tv.DESC
             note = rss_tv.NOTE

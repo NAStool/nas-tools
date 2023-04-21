@@ -10,7 +10,7 @@ from config import Config
 
 class HDArea(_ISiteSigninHandler):
     """
-    U2签到 随机
+    好大签到 随机
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
     site_url = "hdarea.co"
