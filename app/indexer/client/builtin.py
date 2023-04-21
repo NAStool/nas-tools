@@ -53,7 +53,7 @@ class BuiltinIndexer(_IIndexClient):
         """
         return True
 
-    def get_indexers(self, check=True, indexer_id=None):
+    def get_indexers(self, check=True, indexer_id=None, public=True):
         ret_indexers = []
         # 选中站点配置
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
@@ -80,23 +80,25 @@ class BuiltinIndexer(_IIndexClient):
             if indexer:
                 if indexer_id and indexer.id == indexer_id:
                     return indexer
-                if check and indexer_sites and indexer.id not in indexer_sites:
+                if check and (not indexer_sites or indexer.id not in indexer_sites):
                     continue
                 if indexer.domain not in _indexer_domains:
                     _indexer_domains.append(indexer.domain)
                     indexer.name = site.get("name")
                     ret_indexers.append(indexer)
         # 公开站点
-        for indexer in IndexerHelper().get_all_indexers():
-            if not indexer.get("public"):
-                continue
-            if check and indexer_sites and indexer.get("id") not in indexer_sites:
-                continue
-            if indexer.get("domain") not in _indexer_domains:
-                _indexer_domains.append(indexer.get("domain"))
-                ret_indexers.append(IndexerConf(datas=indexer,
-                                                builtin=True))
-        return ret_indexers
+        if public:
+            for indexer in IndexerHelper().get_all_indexers():
+                if not indexer.get("public"):
+                    continue
+                if indexer_id and indexer.get("id") == indexer_id:
+                    return IndexerConf(datas=indexer)
+                if check and (not indexer_sites or indexer.get("id") not in indexer_sites):
+                    continue
+                if indexer.get("domain") not in _indexer_domains:
+                    _indexer_domains.append(indexer.get("domain"))
+                    ret_indexers.append(IndexerConf(datas=indexer))
+        return None if indexer_id else ret_indexers
 
     def search(self, order_seq,
                indexer,
@@ -109,10 +111,6 @@ class BuiltinIndexer(_IIndexClient):
         """
         if not indexer or not key_word:
             return None
-        # 不是配置的索引站点过滤掉
-        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
-        if indexer_sites and indexer.id not in indexer_sites:
-            return []
         # 站点流控
         if self.sites.check_ratelimit(indexer.siteid):
             self.progress.update(ptype=ProgressKey.Search, text=f"{indexer.name} 触发站点流控，跳过 ...")
@@ -205,6 +203,10 @@ class BuiltinIndexer(_IIndexClient):
             error_flag, result_array = RenderSpider().search(keyword=keyword,
                                                              indexer=indexer,
                                                              page=page)
+        elif indexer.parser == "RarBg":
+            error_flag, result_array = Rarbg().search(keyword=keyword,
+                                                      indexer=indexer,
+                                                      page=page)
         elif indexer.parser == "TNodeSpider":
             error_flag, result_array = TNodeSpider(indexer=indexer).search(keyword=keyword,
                                                                            page=page)

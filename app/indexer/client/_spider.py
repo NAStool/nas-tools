@@ -238,8 +238,9 @@ class TorrentSpider(feapder.AirSpider):
             if self.browse:
                 torrentspath = self.browse.get("path")
                 if self.browse.get("start"):
+                    start_page = int(self.browse.get("start")) + int(self.page or 0)
                     inputs_dict.update({
-                        "page": self.browse.get("start")
+                        "page": start_page
                     })
             elif self.page:
                 torrentspath = torrentspath + f"?page={self.page}"

@@ -26,14 +26,22 @@ class Rarbg:
         if res and res.json():
             self._token = res.json().get('token')
 
-    def search(self, keyword, indexer, imdb_id=None):
-        if not keyword:
-            return False, []
+    def search(self, keyword, indexer, imdb_id=None, page=1):
+        if not keyword and not imdb_id:
+            mode = "list"
+        else:
+            mode = "search"
         self.__get_token()
         if not self._token:
             log.warn(f"【INDEXER】{indexer.name} 未获取到token，无法搜索")
             return True, []
-        params = {'app_id': self._appid, 'mode': 'search', 'token': self._token, 'format': 'json_extended', 'limit': 100}
+        params = {
+            'app_id': self._appid,
+            'mode': mode,
+            'token': self._token,
+            'format': 'json_extended',
+            'limit': page * 100
+        }
         if imdb_id:
             params['search_imdb'] = imdb_id
         else:

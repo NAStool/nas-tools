@@ -1,4 +1,5 @@
 import re
+import time
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
@@ -71,7 +72,14 @@ class SiteSignin(object):
         site_module = self.__build_class(site_info.get("signurl"))
         if site_module and hasattr(site_module, "signin"):
             try:
-                return site_module().signin(site_info)
+                # 特殊站点签到，失败则模拟登录
+                status, msg = site_module().signin(site_info)
+                if status:
+                    return msg
+                else:
+                    site = site_info.get("name")
+                    log.warn(f"站点{site}签到失败，错误原因 {msg}，尝试模拟登录")
+                    return self.__signin_base(site_info)
             except Exception as e:
                 return f"【{site_info.get('name')}】签到失败：{str(e)}"
         else:
@@ -135,6 +143,13 @@ class SiteSignin(object):
                         es.element_to_be_clickable((By.XPATH, xpath_str)))
                     if checkin_obj:
                         checkin_obj.click()
+                        # 检测是否过cf
+                        time.sleep(3)
+                        if under_challenge(chrome.get_html()):
+                            cloudflare = chrome.pass_cloudflare()
+                            if not cloudflare:
+                                log.info("【Sites】%s 仿真签到失败，无法通过Cloudflare" % site)
+                                return f"【{site}】仿真签到失败，无法通过Cloudflare！"
                         log.info("【Sites】%s 仿真签到成功" % site)
                         return f"【{site}】仿真签到成功"
                 except Exception as e:

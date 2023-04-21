@@ -386,6 +386,8 @@ class SiteUserInfo(object):
         查询站点加入时间
         """
         statistics = self.get_site_user_statistics(sites=sites, encoding="DICT")
+        if not statistics:
+            return ""
         try:
             max_date = min([datetime.strptime(d.get("join_at"), '%Y-%m-%d %H:%M:%S')
                             for d in statistics if d.get("join_at")])

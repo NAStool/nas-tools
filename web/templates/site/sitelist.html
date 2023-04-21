@@ -23,7 +23,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-auto">
-                <span class="avatar rounded siteicon-{{ Site.name|hash }}"></span>
+                <span class="avatar rounded {% if Site.public %}siteicon-{{ Site.id }}{% else %}siteicon-{{ Site.name|hash }}{% endif %}"></span>
               </div>
               <div class="col">
                 <div class="font-weight-medium">{{ Site.name }}</div>

@@ -1,5 +1,5 @@
 from app.utils import ExceptionUtils
-from app.utils.types import MediaServerType
+from app.utils.types import MediaServerType, MediaType
 
 import log
 from config import Config
@@ -259,10 +259,11 @@ class Plex(_IMediaClient):
             log.error(f"【{self.client_name}】获取封面出错：" + str(e))
         return None
 
-    def get_local_image_by_id(self, item_id):
+    def get_local_image_by_id(self, item_id, remote=True):
         """
         根据ItemId从媒体服务器查询有声书图片地址
         :param item_id: 在Emby中的ID
+        :param remote: 是否远程使用
         """
         return None
 
@@ -295,7 +296,20 @@ class Plex(_IMediaClient):
             return []
         libraries = []
         for library in self._libraries:
-            libraries.append({"id": library.key, "name": library.title})
+            match library.type:
+                case "movie":
+                    library_type = MediaType.MOVIE.value
+                case "show":
+                    library_type = MediaType.TV.value
+                case _:
+                    continue
+            libraries.append({
+                "id": library.key,
+                "name": library.title,
+                "paths": library.locations,
+                "type": library_type,
+                "image": "../static/img/mediaserver/plex_backdrop.png"
+            })
         return libraries
 
     def get_iteminfo(self, itemid):

@@ -2814,9 +2814,9 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = Indexer().list_builtin_resources(index_id=data.get("id"),
-                                                     page=data.get("page"),
-                                                     keyword=data.get("keyword"))
+        resources = Indexer().list_resources(index_id=data.get("id"),
+                                             page=data.get("page"),
+                                             keyword=data.get("keyword"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
@@ -3546,6 +3546,11 @@ class WebAction:
                 "value": f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}",
                 "name": MetaBase.get_free_string(item.UPLOAD_VOLUME_FACTOR, item.DOWNLOAD_VOLUME_FACTOR)
             }
+            # 制作组、字幕组
+            if item.OTHERINFO is None:
+                releasegroup = "未知"
+            else:
+                releasegroup = item.OTHERINFO
             # 季
             filter_season = SE_key.split()[0] if SE_key and SE_key not in [
                 "MOV", "TV"] else None
@@ -3596,6 +3601,8 @@ class WebAction:
                 torrent_filter = dict(result_item.get("filter"))
                 if free_item not in torrent_filter.get("free"):
                     torrent_filter["free"].append(free_item)
+                if releasegroup not in torrent_filter.get("releasegroup"):
+                    torrent_filter["releasegroup"].append(releasegroup)
                 if item.SITE not in torrent_filter.get("site"):
                     torrent_filter["site"].append(item.SITE)
                 if video_encode \
@@ -3645,6 +3652,7 @@ class WebAction:
                     "filter": {
                         "site": [item.SITE],
                         "free": [free_item],
+                        "releasegroup": [releasegroup],
                         "video": [video_encode] if video_encode else [],
                         "season": [filter_season] if filter_season else []
                     }
@@ -3660,6 +3668,8 @@ class WebAction:
         for title, item in SearchResults.items():
             # 排序筛选器 季
             item["filter"]["season"].sort(reverse=True)
+            # 排序筛选器 制作组、字幕组.  将未知放到最后
+            item["filter"]["releasegroup"] = sorted(item["filter"]["releasegroup"], key=lambda x: (x == "未知", x))
             # 排序种子列 集
             item["torrent_dict"] = sorted(item["torrent_dict"].items(),
                                           key=se_sort,
@@ -4248,7 +4258,7 @@ class WebAction:
         """
         获取索引器
         """
-        return {"code": 0, "indexers": Indexer().get_indexer_dict()}
+        return {"code": 0, "indexers": Indexer().get_user_indexer_dict()}
 
     @staticmethod
     def __get_download_dirs(data):

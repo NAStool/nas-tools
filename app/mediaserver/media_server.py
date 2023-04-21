@@ -134,7 +134,7 @@ class MediaServer:
 
     def get_local_image_by_id(self, item_id):
         """
-        根据ItemId从媒体服务器查询有声书图片地址
+        根据ItemId从媒体服务器查询图片地址
         :param item_id: 在Emby中的ID
         """
         if not self.server:
