@@ -51,20 +51,26 @@ class Rss:
         with lock:
             log.info("【Rss】开始RSS订阅...")
 
+            rss_titles = []
             # 读取电影订阅
             rss_movies = self.subscribe.get_subscribe_movies(state='R')
             if not rss_movies:
                 log.warn("【Rss】没有正在订阅的电影")
             else:
+                rss_movie_names = [info.get("name") for _, info in rss_movies.items()]
                 log.info("【Rss】电影订阅清单：%s"
-                         % " ".join('%s' % info.get("name") for _, info in rss_movies.items()))
+                         % " ".join(rss_movie_names))
+                rss_titles += rss_movie_names
             # 读取电视剧订阅
             rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
             if not rss_tvs:
                 log.warn("【Rss】没有正在订阅的电视剧")
             else:
+                rss_tv_names = [info.get("name") for _, info in rss_tvs.items()]
                 log.info("【Rss】电视剧订阅清单：%s"
-                         % " ".join('%s' % info.get("name") for _, info in rss_tvs.items()))
+                         % " ".join(rss_tv_names))
+                rss_titles += rss_tv_names
+                rss_titles = list(set(rss_titles))
             # 没有订阅退出
             if not rss_movies and not rss_tvs:
                 return
@@ -151,6 +157,22 @@ class Rss:
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
                         # 识别种子名称，开始搜索TMDB
+                        # 判断是否开启RSS抬头含副标题快速匹配
+                        if Config().get_config('pt').get('pt_check_rss_quick'):
+                            match_flag_pre = False
+                            for rss_title in rss_titles:
+                                if rss_title:
+                                    rss_titlesplit = re.split(r'·|`|，|,|：|:|！|!|？|\?|（|\(|-|—|\$|￥|%|&|=|\+|~', rss_title) #适应标题名中含有符号的处理
+                                    quick_rss_title = ''
+                                    for rtsstr in rss_titlesplit:
+                                        if rtsstr:
+                                            quick_rss_title = rtsstr
+                                            break
+                                    if quick_rss_title and quick_rss_title in title: # 种子名中不含订阅标题关键词
+                                        match_flag_pre = True
+                                        break
+                            if not match_flag_pre:
+                                continue
                         media_info = MetaInfo(title=title)
                         cache_info = self.media.get_cache_info(media_info)
                         if cache_info.get("id"):

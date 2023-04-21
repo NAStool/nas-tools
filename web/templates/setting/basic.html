@@ -511,6 +511,17 @@
                   </label>
                 </div>
               </div>
+              <div class="col-xl">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pt.pt_check_rss_quick" {% if
+                      Config.pt.pt_check_rss_quick %}checked{% endif %}>
+                    <span class="form-check-label">RSS抬头含副标题快速匹配 <span class="form-help"
+                                                                                title="启用后RSS中抬头含中文名称副标题时快速识别匹配，减少重新查询TMDB次数，提升效率和资源，节省大量时间，仅在设置RSS时标题设置勾选副标题时推荐使用"
+                                                                                data-bs-toggle="tooltip">?</span></span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-footer">
