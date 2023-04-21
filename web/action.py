@@ -1143,10 +1143,6 @@ class WebAction:
                                                    rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
-        # 初始化RSS订阅
-        Rss().init_config()
-        # 初始化刷流任务
-        BrushTask().init_config()
         return {"code": ret}
 
     @staticmethod
