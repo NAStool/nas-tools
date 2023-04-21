@@ -42,14 +42,14 @@ class HDSky(_ISiteSigninHandler):
                                  proxies=Config().get_proxies() if site_info.get("proxy") else None
                                  ).get_res(url='https://hdsky.me')
         if not index_res or index_res.status_code != 200:
-            self.error(f"{site}签到失败，请检查站点连通性")
-            return f'【{site}】签到失败，请检查站点连通性'
+            self.error(f"签到失败，请检查站点连通性")
+            return False, f'【{site}】签到失败，请检查站点连通性'
 
         sign_status = self.sign_in_result(html_res=index_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
-            self.info(f"{site}今日已签到")
-            return f'【{site}】今日已签到'
+            self.info(f"今日已签到")
+            return True, f'【{site}】今日已签到'
 
         # 获取验证码请求，考虑到网络问题获取失败，多获取几次试试
         res_times = 0
@@ -106,15 +106,16 @@ class HDSky(_ISiteSigninHandler):
                                    ).post_res(url='https://hdsky.me/showup.php', data=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
-                        self.info(f"{site}签到成功")
-                        return f'【{site}】签到成功'
+                        self.info(f"签到成功")
+                        return True, f'【{site}】签到成功'
                     elif str(json.loads(res.text)["message"]) == "date_unmatch":
                         # 重复签到
-                        self.warn(f"{site}重复成功")
-                        return f'【{site}】今日已签到'
+                        self.warn(f"重复成功")
+                        return True, f'【{site}】今日已签到'
                     elif str(json.loads(res.text)["message"]) == "invalid_imagehash":
                         # 验证码错误
-                        self.warn(f"{site}签到失败：验证码错误")
-                        return f'【{site}】{site}签到失败：验证码错误'
+                        self.warn(f"签到失败：验证码错误")
+                        return False, f'【{site}】{site}签到失败：验证码错误'
 
-        return f'{site}签到失败：未获取到验证码'
+        self.error(f'签到失败：未获取到验证码')
+        return False, f'{site}签到失败：未获取到验证码'

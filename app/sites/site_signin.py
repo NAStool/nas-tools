@@ -71,7 +71,14 @@ class SiteSignin(object):
         site_module = self.__build_class(site_info.get("signurl"))
         if site_module and hasattr(site_module, "signin"):
             try:
-                return site_module().signin(site_info)
+                # 特殊站点签到，失败则模拟登录
+                status, msg = site_module().signin(site_info)
+                if status:
+                    return msg
+                else:
+                    site = site_info.get("name")
+                    log.warn(f"站点{site}签到失败，错误原因 {msg}，尝试模拟登录")
+                    return self.__signin_base(site_info)
             except Exception as e:
                 return f"【{site_info.get('name')}】签到失败：{str(e)}"
         else:

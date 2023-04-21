@@ -1,22 +1,19 @@
-import re
+import json
 
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class TTG(_ISiteSigninHandler):
+class PTerClub(_ISiteSigninHandler):
     """
-    TTG签到
+    猫签到
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "totheglory.im"
+    site_url = "pterclub.com"
 
     # 已签到
-    _sign_regex = ['<b style="color:green;">已签到</b>']
-
-    # 签到成功
-    _success_regex = ['您已连续签到\\d+天，奖励\\d+积分，明天继续签到将获得\\d+积分奖励。']
+    _sign_regex = ['签到已得\\d+']
 
     @classmethod
     def match(cls, url):
@@ -42,7 +39,7 @@ class TTG(_ISiteSigninHandler):
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://totheglory.im")
+                                ).get_res(url="https://pterclub.com/")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -54,28 +51,21 @@ class TTG(_ISiteSigninHandler):
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
 
-        # 获取签到参数
-        signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
-        signed_token = re.search('(?<=signed_token: ").*(?=")', html_res.text).group()
-        self.debug(f"signed_timestamp={signed_timestamp} signed_token={signed_token}")
-
-        data = {
-            'signed_timestamp': signed_timestamp,
-            'signed_token': signed_token
-        }
         # 签到
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).post_res(url="https://totheglory.im/signed.php",
-                                           data=data)
+                                ).get_res(url="https://pterclub.com/attendance-ajax.php")
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'
 
-        # 判断是否签到成功
-        sign_status = self.sign_in_result(html_res=sign_res.text,
-                                          regexs=self._success_regex)
-        if sign_status:
+        sign_dict = json.loads(sign_res.text)
+        if sign_dict['status'] == 1:
+            # {"status":"1","data":" (签到已成功300)","message":"<p>这是您的第<b>237</b>次签到，已连续签到<b>237</b>天。</p><p>本次签到获得<b>300</b>克猫粮。</p>"}
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
+        else:
+            # {"status":"0","data":"抱歉","message":"您今天已经签到过了，请勿重复刷新。"}
+            self.error(f"今日已签到")
+            return True, f'【{site}】今日已签到'
