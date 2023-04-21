@@ -1,4 +1,5 @@
 import re
+from urllib.parse import quote
 
 import log
 from config import Config
@@ -439,13 +440,13 @@ class Jellyfin(_IMediaClient):
                     library_type = MediaType.TV.value
                 case _:
                     continue
+            image = self.get_local_image_by_id(library.get("ItemId"), remote=False)
             libraries.append({
                 "id": library.get("ItemId"),
                 "name": library.get("Name"),
                 "paths": library.get("Locations"),
                 "type": library_type,
-                "image": self.get_local_image_by_id(library.get("ItemId"),
-                                                    remote=False) or "../static/img/mediaserver/jellyfin_backdrop.jpg"
+                "image": f'img?url={quote(image)}'
             })
         return libraries
 

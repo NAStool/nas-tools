@@ -926,8 +926,10 @@ def indexer():
 @App.route('/library', methods=['POST', 'GET'])
 @login_required
 def library():
+    Librarys = MediaServer().get_libraries()
     return render_template("setting/library.html",
-                           Config=Config().get_config())
+                           Config=Config().get_config(),
+                           Librarys=Librarys)
 
 
 # 媒体服务器页面
@@ -1625,6 +1627,21 @@ def ical():
     response = Response(cal.to_ical(), mimetype='text/calendar')
     response.headers['Content-Disposition'] = 'attachment; filename=nastool.ics'
     return response
+
+
+@App.route('/img')
+@login_required
+def Img():
+    """
+    图片中换服务
+    """
+    url = request.args.get('url')
+    if not url:
+        return make_response("参数错误", 400)
+    return send_file(WebUtils.get_image_stream(url),
+                     mimetype='image/jpeg',
+                     download_name='image.jpg',
+                     as_attachment=True)
 
 
 # base64模板过滤器

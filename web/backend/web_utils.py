@@ -1,3 +1,5 @@
+import io
+
 import cn2an
 
 from app.media import Media, Bangumi, DouBan
@@ -187,3 +189,13 @@ class WebUtils:
                 else:
                     EndPage = total_page
         return range(StartPage, EndPage + 1)
+
+    @staticmethod
+    def get_image_stream(url):
+        """
+        根据地址下载图片
+        """
+        ret = RequestUtils().get_res(url)
+        if ret is not None:
+            return io.BytesIO(ret.content)
+        return None
