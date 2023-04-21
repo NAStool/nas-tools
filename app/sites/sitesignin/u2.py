@@ -1,22 +1,29 @@
+import random
 import re
+
+from lxml import etree
 
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class TTG(_ISiteSigninHandler):
+class U2(_ISiteSigninHandler):
     """
-    TTG签到
+    U2签到 随机
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "totheglory.im"
+    site_url = "u2.dmhy.org"
 
     # 已签到
-    _sign_regex = ['<b style="color:green;">已签到</b>']
+    _sign_regex = ['<a href="showup.php">已签到</a>',
+                   '<a href="showup.php">Show Up</a>',
+                   '<a href="showup.php">Показать</a>',
+                   '<a href="showup.php">已簽到</a>',
+                   '<a href="showup.php">已簽到</a>']
 
     # 签到成功
-    _success_regex = ['您已连续签到\\d+天，奖励\\d+积分，明天继续签到将获得\\d+积分奖励。']
+    _success_text = "window.location.href = 'showup.php';</script>"
 
     @classmethod
     def match(cls, url):
@@ -42,7 +49,7 @@ class TTG(_ISiteSigninHandler):
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://totheglory.im")
+                                ).get_res(url="https://u2.dmhy.org/showup.php")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -54,29 +61,44 @@ class TTG(_ISiteSigninHandler):
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
 
-        # 获取签到参数
-        signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
-        signed_token = re.search('(?<=signed_token: ").*(?=")', html_res.text).group()
-        self.debug(f"signed_timestamp={signed_timestamp} signed_token={signed_token}")
+        # 没有签到则解析html
+        html = etree.HTML(html_res.text)
 
+        if not html:
+            return False, f'【{site}】签到失败'
+
+        # 获取签到参数
+        req = html.xpath("//form//td/input[@name='req']/@value")[0]
+        hash_str = html.xpath("//form//td/input[@name='hash']/@value")[0]
+        form = html.xpath("//form//td/input[@name='form']/@value")[0]
+        submit_name = html.xpath("//form//td/input[@type='submit']/@name")
+        submit_value = html.xpath("//form//td/input[@type='submit']/@value")
+        if not re or not hash_str or not form or not submit_name or not submit_value:
+            self.error("签到失败，未获取到相关签到参数")
+            return False, f'【{site}】签到失败'
+
+        # 随机一个答案
+        answer_num = random.randint(0, 3)
         data = {
-            'signed_timestamp': signed_timestamp,
-            'signed_token': signed_token
+            'req': req,
+            'hash': hash_str,
+            'form': form,
+            'message': '一切随缘~',
+            submit_name[answer_num]: submit_value[answer_num]
         }
         # 签到
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).post_res(url="https://totheglory.im/signed.php",
+                                ).post_res(url="https://u2.dmhy.org/showup.php?action=show",
                                            data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'
 
         # 判断是否签到成功
-        sign_status = self.sign_in_result(html_res=sign_res.text,
-                                          regexs=self._success_regex)
-        if sign_status:
+        # sign_res.text = "<script type="text/javascript">window.location.href = 'showup.php';</script>"
+        if self._success_text in sign_res.text:
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
         else:
