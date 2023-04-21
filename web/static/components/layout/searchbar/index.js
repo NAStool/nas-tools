@@ -36,7 +36,7 @@ export class LayoutSearchbar extends CustomElement {
   static properties = {
     layout_systemflag: { attribute: "layout-systemflag" },
     layout_username: { attribute: "layout-username" },
-    layout_userlevel: { attribute: "layout-userlevel" },
+    layout_search: { attribute: "layout-search"},
     layout_useradmin: { attribute: "layout-useradmin" },
     layout_search_source: { attribute: "layout-search-source" },
     _search_source: { state: true },
@@ -123,7 +123,7 @@ export class LayoutSearchbar extends CustomElement {
                 ${search_source_icon[this._search_source]}
               </a>
             </span>
-            <input type="text" class="home_search_bar form-control form-control-rounded" placeholder=${this._search_source === "person" ? "搜索人物" : "搜索电影、电视剧"} autocomplete="new-password" ?readonly=${this.layout_userlevel < 2}
+            <input type="text" class="home_search_bar form-control form-control-rounded" placeholder=${this._search_source === "person" ? "搜索人物" : "搜索电影、电视剧"} autocomplete="new-password" ?readonly=${this.layout_search == 0}
               @keypress=${ (e) => {
                 if(e.which === 13 && this.input.value){
                   if (this._search_source === "person") {
@@ -135,7 +135,7 @@ export class LayoutSearchbar extends CustomElement {
                 }
               }}>
             <span class="input-group-text form-control-rounded">
-              <a href="${this.layout_userlevel > 1 ? "javascript:show_search_advanced_modal()":"javascript:void(0)"}" class="link-secondary">
+              <a href="${this.layout_search > 0 ? "javascript:show_search_advanced_modal()":"javascript:void(0)"}" class="link-secondary">
                 <!-- http://tabler-icons.io/i/adjustments -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
