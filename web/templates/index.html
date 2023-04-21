@@ -26,8 +26,22 @@
 {% if ServerSucess %}
   <div class="page-body">
     <div class="container-xl">
-      <div class="row row-deck row-cards">
-        <div class="col-12 col-md-6 col-lg-3">
+      <div class="d-grid gap-3 grid-normal-card">
+        {% for Library in Librarys %}
+        <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
+          <div class="img-responsive img-responsive-21x9 card-img-top" style="background-image: url({{ Library.image }})">
+            <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+              {{ Library.type }}
+            </span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">{{ Library.name }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-lg-4 mt-3">
           <div class="card">
             <div class="card-body">
               <div class="d-flex align-items-center">
@@ -40,14 +54,14 @@
             <div id="chart-movie-bg" class="chart-sm"></div>
           </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-lg-4 mt-3">
           <div class="card">
             <div class="card-body">
               <div class="d-flex align-items-center">
                 <div class="subheader">电视剧/动漫</div>
               </div>
               <div class="d-flex align-items-baseline">
-                <div class="h1 mb-3 me-2">{{ MediaCount.SeriesCount }}</div>
+                <div class="h1 mb-0 me-2">{{ MediaCount.SeriesCount }}</div>
                 <div class="me-auto">
                 <span class="text-green d-inline-flex align-items-center lh-1">
                   {{ MediaCount.EpisodeCount }}
@@ -58,50 +72,14 @@
             <div id="chart-tv-bg" class="chart-sm"></div>
           </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <div class="card">
-            <div class="card-stamp">
-              <div class="card-stamp-icon" style="background-color: transparent">
-                <img src="../static/img/music.png">
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="subheader">音乐</div>
-              </div>
-              <div class="d-flex align-items-baseline">
-                <div class="h1 mb-3 me-2">{{ MediaCount.SongCount }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <div class="card">
-            <div class="card-stamp">
-              <div class="card-stamp-icon" style="background-color: transparent">
-                <img src="../static/img/users.png">
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="subheader">活跃用户</div>
-              </div>
-              <div class="d-flex align-items-baseline">
-                <div class="h1 mb-3 me-2">{{ UserCount }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row mt-3">
-        <div class="col-12">
+        <div class="col-lg-4 mt-3">
           <div class="card">
             <div class="card-body">
               <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
               <div class="progress progress-separated mb-3">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
               </div>
-              <div class="row">
+              <div class="row mb-2">
                 <div class="col-auto d-flex align-items-center pe-2">
                   <span class="legend me-2 bg-primary"></span>
                   <span>已使用</span>

@@ -308,7 +308,9 @@ class Plex(_IMediaClient):
                 "name": library.title,
                 "paths": library.locations,
                 "type": library_type,
-                "image": "../static/img/mediaserver/plex_backdrop.png"
+                "image": "../static/img/mediaserver/plex_backdrop.png",
+                "link": f"https://app.plex.tv/desktop/#!/media/{self._plex.machineIdentifier}"
+                        f"/com.plexapp.plugins.library?source={library.key}"
             })
         return libraries
 
