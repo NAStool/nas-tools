@@ -162,7 +162,7 @@ class Jellyfin(_IMediaClient):
                         activity = {"type": event_type, "event": event_str,
                                     "date": SystemUtils.get_local_time(event_date)}
                         ret_array.append(activity)
-                    if item.get("Type") == "VideoPlayback":
+                    if item.get("Type") in ["VideoPlayback", "VideoPlaybackStopped"]:
                         event_type = "PL"
                         event_date = re.sub(r'\dZ', 'Z', item.get("Date"))
                         activity = {"type": event_type, "event": item.get("Name"),
