@@ -1,4 +1,5 @@
-from app.utils import ExceptionUtils
+from functools import lru_cache
+from app.utils import ExceptionUtils, ImageUtils
 from app.utils.types import MediaServerType, MediaType
 
 import log
@@ -299,8 +300,10 @@ class Plex(_IMediaClient):
             match library.type:
                 case "movie":
                     library_type = MediaType.MOVIE.value
+                    library_image = self.get_libraries_image(library.key)
                 case "show":
                     library_type = MediaType.TV.value
+                    library_image = self.get_libraries_image(library.key)
                 case _:
                     continue
             libraries.append({
@@ -308,11 +311,26 @@ class Plex(_IMediaClient):
                 "name": library.title,
                 "paths": library.locations,
                 "type": library_type,
-                "image": "../static/img/mediaserver/plex_backdrop.png",
+                "image": library_image,
                 "link": f"https://app.plex.tv/desktop/#!/media/{self._plex.machineIdentifier}"
                         f"/com.plexapp.plugins.library?source={library.key}"
             })
         return libraries
+
+    @lru_cache(maxsize=10)
+    def get_libraries_image(self, library_key):
+        library = self._plex.library.sectionByID(library_key)
+        items = library.recentlyAdded()
+        poster_urls = []
+        for item in items:
+            if item.posterUrl is not None:
+                poster_urls.append(item.posterUrl)
+            if len(poster_urls) == 4:
+                break
+        if len(poster_urls) < 4:
+            return "../static/img/mediaserver/plex_backdrop.png"
+        image = ImageUtils.get_libraries_image(poster_urls)
+        return image
 
     def get_iteminfo(self, itemid):
         """
