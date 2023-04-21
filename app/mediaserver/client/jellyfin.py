@@ -444,7 +444,8 @@ class Jellyfin(_IMediaClient):
                 "name": library.get("Name"),
                 "paths": library.get("Locations"),
                 "type": library_type,
-                "image": self.get_local_image_by_id(library.get("ItemId"), remote=False)
+                "image": self.get_local_image_by_id(library.get("ItemId"),
+                                                    remote=False) or "../static/img/mediaserver/jellyfin_backdrop.jpg"
             })
         return libraries
 

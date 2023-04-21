@@ -201,14 +201,8 @@
                                   <div class="row g-2 align-items-center">
                                     <div class="col-auto">
                                       <a  href="{{ torrent.pageurl }}" target="_blank">
-                                        <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }}" style="overflow: hidden;">
-                                        {% if SiteDict[torrent.site|hash] %}
-                                          {% if SiteDict[torrent.site|hash].public or not SiteDict[torrent.site|hash].builtin %}
-                                          {{ torrent.site|first }}
-                                          {% endif %}
-                                        {% else %}
-                                          {{ torrent.site|first }}
-                                        {% endif %}
+                                        <span class="avatar avatar-sm rounded siteicon-{{ torrent.site|hash }} siteicon-{{ SiteDict[torrent.site|hash].id }}"
+                                              style="overflow: hidden;">
                                         </span>
                                       </a>
                                     </div>
