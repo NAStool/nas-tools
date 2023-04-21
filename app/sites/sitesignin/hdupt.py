@@ -1,19 +1,21 @@
+import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class HDArea(_ISiteSigninHandler):
+class HDUpt(_ISiteSigninHandler):
     """
-    好大签到
+    hdu签到
     """
-    
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "hdarea.co"
+    site_url = "pt.hdupt.com"
+
+    # 已签到
+    _sign_regex = ['<span id="yiqiandao">']
 
     # 签到成功
-    _success_text = "此次签到您获得"
-    _repeat_text = "请不要重复签到哦"
+    _success_text = '本次签到获得魅力'
 
     @classmethod
     def match(cls, url):
@@ -36,23 +38,35 @@ class HDArea(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 获取页面html
-        data = {
-            'action': 'sign_in'
-        }
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).post_res(url="https://www.hdarea.co/sign_in.php", data=data)
-        if not html_res or html_res.status_code != 200:
+        index_res = RequestUtils(cookies=site_cookie,
+                                 headers=ua,
+                                 proxies=proxy
+                                 ).get_res(url="https://pt.hdupt.com")
+        if not index_res or index_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
-        # 判断是否已签到
-        # '已连续签到278天，此次签到您获得了100魔力值奖励!'
-        if self._success_text in html_res.text:
-            self.info(f"签到成功")
-            return True, f'【{site}】签到成功'
-        if self._repeat_text in html_res.text:
+
+        sign_status = self.sign_in_result(html_res=index_res.text,
+                                          regexs=self._sign_regex)
+        if sign_status:
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
-        self.error(f"签到失败，签到接口返回 {html_res.text}")
+
+        # 签到
+        sign_res = RequestUtils(cookies=site_cookie,
+                                headers=ua,
+                                proxies=proxy
+                                ).post_res(url="https://pt.hdupt.com/added.php?action=qiandao")
+        if not sign_res or sign_res.status_code != 200:
+            self.error(f"签到失败，请检查站点连通性")
+            return False, f'【{site}】签到失败，请检查站点连通性'
+
+        log.debug(f"签到接口返回 {sign_res.text}")
+        # todo 判断成功与否
+        # 判断是否已签到
+        if self._success_text in sign_res.text:
+            self.info(f"签到成功")
+            return True, f'【{site}】签到成功'
+
+        self.error(f"签到失败，签到接口返回 {sign_res.text}")
         return False, f'【{site}】签到失败'
