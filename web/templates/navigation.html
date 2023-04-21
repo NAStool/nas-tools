@@ -18,12 +18,47 @@
   <link href="../static/css/style.css" rel="stylesheet"/>
   <!-- 站点图标 -->
   <style>
+  .siteicon-acgrip {
+      background: url(../static/img/sites/acgrip.ico);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-dmhy {
+      background: url(../static/img/sites/dmhy.ico);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-eztv {
+      background: url(../static/img/sites/eztv.ico);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-mikanani {
+      background: url(../static/img/sites/mikanani.ico);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-nyaa {
+      background: url(../static/img/sites/nyaa.png);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-rarbg {
+      background: url(../static/img/sites/rarbg.ico);
+      background-size: cover;
+      border: 0;
+  }
+  .siteicon-torrentgalaxy {
+      background: url(../static/img/sites/torrentgalaxy.png);
+      background-size: cover;
+      border: 0;
+  }
   {% for site_name, site_icon in SiteFavicons.items() %}
-      .siteicon-{{ site_name|hash }} {
-          background-image: url({{ site_icon }});
-          background-size: cover;
-          border: 0;
-      }
+  .siteicon-{{ site_name|hash }} {
+      background-image: url({{ site_icon }});
+      background-size: cover;
+      border: 0;
+  }
   {% endfor %}
   </style>
 </head>

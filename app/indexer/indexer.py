@@ -81,11 +81,11 @@ class Indexer(object):
         return [indexer.name for indexer in self.get_indexers()]
 
     @staticmethod
-    def get_builtin_indexers(check=True, indexer_id=None):
+    def get_builtin_indexers(check=True, indexer_id=None, public=True):
         """
         获取内置索引器的索引站点
         """
-        return BuiltinIndexer().get_indexers(check=check, indexer_id=indexer_id)
+        return BuiltinIndexer().get_indexers(check=check, indexer_id=indexer_id, public=public)
 
     @staticmethod
     def list_builtin_resources(index_id, page=0, keyword=None):
