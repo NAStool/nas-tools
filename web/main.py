@@ -712,7 +712,7 @@ def service():
     if "ptsignin" in Services:
         tim_ptsignin = pt.get('ptsignin_cron')
         if tim_ptsignin:
-            if str(tim_ptsignin).find(':') == -1:
+            if str(tim_ptsignin).replace(".", "").isdigit():
                 tim_ptsignin = "%s 小时" % tim_ptsignin
             Services['ptsignin'].update({
                 'state': 'ON',

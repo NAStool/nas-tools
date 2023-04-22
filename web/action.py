@@ -298,7 +298,7 @@ class WebAction:
         # 启动虚拟显示
         DisplayHelper()
         # 启动定时服务
-        Scheduler().run_service()
+        Scheduler()
         # 启动监控服务
         Sync()
         # 启动刷流服务
