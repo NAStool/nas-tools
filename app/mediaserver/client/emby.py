@@ -701,13 +701,13 @@ class Emby(_IMediaClient):
         """
         if not self._host or not self._apikey:
             return None
-        req_url = f"{self._host}Users/{self._user}/Items/Resume?api_key={self._apikey}"
+        req_url = f"{self._host}Users/{self._user}/Items/Resume?Limit={num}&MediaTypes=Video&api_key={self._apikey}"
         try:
             res = RequestUtils().get_res(req_url)
             if res:
                 result = res.json().get("Items") or []
                 ret_resume = []
-                for item in result[:num]:
+                for item in result:
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
                     link = f"{self._play_host or self._host}web/index.html#!" \
                            f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
@@ -754,7 +754,7 @@ class Emby(_IMediaClient):
         """
         if not self._host or not self._apikey:
             return None
-        req_url = f"{self._host}Users/{self._user}/Items/Latest?Limit={num}&api_key={self._apikey}"
+        req_url = f"{self._host}Users/{self._user}/Items/Latest?Limit={num}&MediaTypes=Video&api_key={self._apikey}"
         try:
             res = RequestUtils().get_res(req_url)
             if res:
