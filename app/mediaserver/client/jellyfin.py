@@ -71,17 +71,17 @@ class Jellyfin(_IMediaClient):
         """
         if not self._host or not self._apikey:
             return []
-        req_url = "%sLibrary/VirtualFolders?api_key=%s" % (self._host, self._apikey)
+        req_url = f"{self._host}Users/{self._user}/Views?api_key={self._apikey}"
         try:
             res = RequestUtils().get_res(req_url)
             if res:
-                return res.json()
+                return res.json().get("Items")
             else:
-                log.error(f"【{self.client_name}】Library/VirtualFolders 未获取到返回数据")
+                log.error(f"【{self.client_name}】Users/Views 未获取到返回数据")
                 return []
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.client_name}】连接Library/VirtualFolders 出错：" + str(e))
+            log.error(f"【{self.client_name}】连接Users/Views 出错：" + str(e))
             return []
 
     def get_user_count(self):
@@ -434,21 +434,25 @@ class Jellyfin(_IMediaClient):
         libraries = []
         for library in self.__get_jellyfin_librarys() or []:
             match library.get("CollectionType"):
-                case "Movies":
+                case "movies":
                     library_type = MediaType.MOVIE.value
-                case "TvShows":
+                case "tvshows":
                     library_type = MediaType.TV.value
                 case _:
                     continue
-            image = self.get_local_image_by_id(library.get("ItemId"), remote=False)
+            image = self.get_local_image_by_id(library.get("Id"), remote=False)
+            link = f"{self._play_host or self._host}web/index.html#!" \
+                   f"/movies.html?topParentId={library.get('Id')}" \
+                if library_type == MediaType.MOVIE.value \
+                else f"{self._play_host or self._host}web/index.html#!" \
+                     f"/tv.html?topParentId={library.get('Id')}"
             libraries.append({
-                "id": library.get("ItemId"),
+                "id": library.get("Id"),
                 "name": library.get("Name"),
-                "paths": library.get("Locations"),
+                "path": library.get("Path"),
                 "type": library_type,
                 "image": f'img?url={quote(image)}',
-                "link": f'{self._play_host or self._host}web/index.html'
-                        f'#!/videos?serverId={self._serverid}&parentId={library.get("ItemId")}'
+                "link": link
             })
         return libraries
 

@@ -390,7 +390,7 @@ class SiteUserInfo(object):
             return ""
         try:
             max_date = min([datetime.strptime(d.get("join_at"), '%Y-%m-%d %H:%M:%S')
-                            for d in statistics if d.get("join_at")])
+                            for d in statistics if d.get("join_at") and d.get("join_at") != 'None'])
             return max_date.strftime("%Y-%m-%d")
         except Exception as err:
             print(str(err))
