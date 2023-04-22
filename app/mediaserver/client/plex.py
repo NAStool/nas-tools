@@ -490,8 +490,7 @@ class Plex(_IMediaClient):
         ret_resume = []
         for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
-            link = f"{self._host}web/index.html#!" \
-                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            link = self.get_play_url(item.key)
             ret_resume.append({
                 "id": item.key,
                 "name": item.title,
@@ -512,8 +511,7 @@ class Plex(_IMediaClient):
         ret_resume = []
         for item in items[:num]:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
-            link = f"{self._host}web/index.html#!" \
-                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            link = self.get_play_url(item.key)
             title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
             ret_resume.append({
                 "id": item.key,
