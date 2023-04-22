@@ -1,4 +1,5 @@
 import io
+from functools import lru_cache
 
 import cn2an
 
@@ -191,6 +192,7 @@ class WebUtils:
         return range(StartPage, EndPage + 1)
 
     @staticmethod
+    @lru_cache(maxsize=128)
     def get_image_stream(url):
         """
         根据地址下载图片
