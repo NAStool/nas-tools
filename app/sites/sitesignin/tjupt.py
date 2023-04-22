@@ -1,11 +1,15 @@
 import json
 import os
 import time
+import zhconv
+import re
 from io import BytesIO
 
 from PIL import Image
 from lxml import etree
+from bs4 import BeautifulSoup
 
+from app.helper import ChromeHelper
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
@@ -165,7 +169,51 @@ class Tjupt(_ISiteSigninHandler):
                                                  site=site,
                                                  exits_answers=exits_answers,
                                                  captcha_img_hash=captcha_img_hash)
-            self.error(f"签到失败，未获取到匹配答案")
+            self.error(f"豆瓣图片匹配，未获取到匹配答案")
+
+            # 豆瓣未获取到答案，使用google识图
+            image_search_url = f"https://lens.google.com/uploadbyurl?url={img_url}"
+            chrome = ChromeHelper()
+            chrome.visit(url=image_search_url, proxy=Config().get_proxies())
+            # 等待页面加载
+            time.sleep(3)
+            # 获取识图结果
+            html_text = chrome.get_html()
+            search_results = BeautifulSoup(html_text, "lxml").find_all("div", class_="UAiK1e")
+            if not search_results:
+                self.info(f'Google识图失败，未获取到识图结果')
+            else:
+                res_count = len(search_results)
+                # 繁体转简体,合成查询内容
+                search_results = "@".join(
+                    [zhconv.convert(result.text, "zh-hans") for result in search_results if result.text]
+                )
+                # 查询每个选项出现的次数
+                count_results = []
+                count_flag = False
+                for value, answer in answers:
+                    answer_re = re.compile(re.sub(r"\d{1}$", "", answer))
+                    count = len(re.findall(answer_re, search_results))
+                    if count >= min(res_count, 3):
+                        count_flag = True
+                    count_results.append((count, value, answer))
+                if count_flag:
+                    log_content = f'Google识图结果共{res_count}条，各选项出现次数：'
+                    count_results.sort(key=lambda x: x[0], reverse=True)
+                    for result in count_results:
+                        count, value, answer = result
+                        log_content += f'{answer} {count}次；'
+                    log_content += f'其中选项 {count_results[0][2]} 出现次数最多，认为是正确答案'
+                    self.info(log_content)
+                    return self.__signin(answer=count_results[0][1],
+                                         site_cookie=site_cookie,
+                                         ua=ua,
+                                         proxy=proxy,
+                                         site=site,
+                                         exits_answers=exits_answers,
+                                         captcha_img_hash=captcha_img_hash)
+                else:
+                    self.info(f'Google识图结果中未有选项符合条件')
             # 没有匹配签到成功，则签到失败
             return False, f'【{site}】签到失败，未获取到匹配答案'
 
