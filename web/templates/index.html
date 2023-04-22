@@ -43,7 +43,7 @@
     <div class="d-grid gap-3 grid-normal-card">
       {% for Library in Librarys %}
       <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
-        <div class="img-responsive img-responsive-2x1 card-img-top" style="background-image: url({{ Library.image }})">
+        <div class="img-responsive img-responsive-2x1 card-img-top no-image-cover" style="background-image: url({{ Library.image }})">
           <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
             {{ Library.type }}
           </span>
@@ -73,7 +73,7 @@
     <div class="d-grid gap-3 grid-normal-card align-items-start">
       {% for Resume in Resumes %}
       <a class="card card-link-pop resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
-        <div class="img-responsive img-responsive-16x9 card-img-top" style="background-image: url({{ Resume.image }})">
+        <div class="img-responsive img-responsive-16x9 card-img-top no-image-cover" style="background-image: url({{ Resume.image }})">
           <span class="badge badge-pill {% if Resume.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
             {{ Resume.type }}
           </span>
@@ -108,7 +108,7 @@
     <div class="d-grid gap-3 grid-media-card align-items-start">
       {% for Latest in Latests %}
       <a class="card card-link-pop latest-{{ Latest.id }}" href="{{ Latest.link }}" target="_blank">
-        <div class="img-responsive img-responsive-3x4 card-img-top" style="background-image: url({{ Latest.image }})">
+        <div class="img-responsive img-responsive-3x4 card-img-top no-image-cover" style="background-image: url({{ Latest.image }})">
           <span class="badge badge-pill {% if Latest.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
             {{ Latest.type }}
           </span>
