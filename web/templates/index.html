@@ -49,7 +49,7 @@
           </span>
         </div>
         <div class="card-body">
-          <p class="text-muted">{{ Library.name }}</p>
+          <p>{{ Library.name }}</p>
         </div>
       </a>
       {% endfor %}
@@ -84,7 +84,7 @@
           </div>
         </div>
         {% endif %}
-        <div class="text-muted p-2">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</div>
+        <div class="p-2">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</div>
       </a>
       {% endfor %}
     </div>
@@ -113,7 +113,7 @@
             {{ Latest.type }}
           </span>
         </div>
-        <div class="text-muted p-2">{{ Latest.name }}</div>
+        <div class="p-2">{{ Latest.name }}</div>
       </a>
       {% endfor %}
     </div>
@@ -133,7 +133,7 @@
                   style="background-image: url('../static/img/mediaserver/{{ MediaServerType }}.png')"></span>
           </div>
           <div class="card-title mb-1">{{ MediaServerType|title }}</div>
-          <div class="text-muted" id="mediasync_status"></div>
+          <div id="mediasync_status"></div>
         </div>
         <details class="m-3">
             <summary class="summary">
