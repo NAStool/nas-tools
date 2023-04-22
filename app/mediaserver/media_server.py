@@ -377,3 +377,11 @@ class MediaServer:
             self.message.send_mediaserver_message(event_info=event_info,
                                                   channel=channel.value,
                                                   image_url=image_url)
+
+    def get_resume(self):
+        """
+        获取继续观看
+        """
+        if not self.server:
+            return []
+        return self.server.get_resume()

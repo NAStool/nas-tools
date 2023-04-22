@@ -22,22 +22,6 @@ export class CustomSlide extends CustomElement {
 
   render() {
     return html`
-      <style>
-        .media-slide-hide-scrollbar{
-          overflow-x: scroll!important;
-          overscroll-behavior-x: contain!important;
-          scrollbar-width: none!important;
-          -ms-overflow-style: none!important;
-        }
-        .media-slide-hide-scrollbar::-webkit-scrollbar{
-          display: none;
-        }
-        .media-slide-card-number{
-          position: relative;
-          flex:0 0 auto;
-          max-width: 11rem;
-        }
-      </style>
       <div class="container-fluid overflow-hidden px-0">
         <div class="page-header d-print-none">
           <div class="d-flex justify-content-between">

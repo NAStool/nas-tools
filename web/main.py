@@ -243,6 +243,9 @@ def index():
     Librarys = MediaServer().get_libraries()
     LibrarySyncConf = SystemConfig().get(SystemConfigKey.SyncLibrary) or []
 
+    # 继续观看
+    Resumes = MediaServer().get_resume()
+
     return render_template("index.html",
                            ServerSucess=ServerSucess,
                            MediaCount={'MovieCount': MediaCounts.get("Movie"),
@@ -257,7 +260,8 @@ def index():
                            UsedPercent=LibrarySpaces.get("UsedPercent"),
                            MediaServerType=MSType,
                            Librarys=Librarys,
-                           LibrarySyncConf=LibrarySyncConf
+                           LibrarySyncConf=LibrarySyncConf,
+                           Resumes=Resumes
                            )
 
 
