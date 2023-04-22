@@ -571,6 +571,8 @@ class Jellyfin(_IMediaClient):
                 result = res.json().get("Items") or []
                 ret_resume = []
                 for item in result:
+                    if item.get("Type") not in ["Movie", "Episode"]:
+                        continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
                     link = f"{self._play_host or self._host}web/index.html#!" \
                            f"/details?id={item.get('Id')}&context=home&serverId={self._serverid}"
