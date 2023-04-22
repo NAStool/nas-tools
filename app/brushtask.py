@@ -766,7 +766,7 @@ class BrushTask(object):
                     max_pubdate = min_max_pubdates[1] if len(min_max_pubdates) > 1 else None
                     localtz = pytz.timezone(Config().get_timezone())
                     localnowtime = datetime.now().astimezone(localtz)
-                    localpubdate = StringUtils.get_time_stamp(pubdate).astimezone(localtz)
+                    localpubdate = pubdate.astimezone(localtz)
                     pudate_hour = int(localnowtime.timestamp() - localpubdate.timestamp()) / 3600
                     log.debug('【Brush】发布时间：%s，当前时间：%s，时间间隔：%f hour' % (
                         localpubdate.isoformat(), localnowtime.isoformat(), pudate_hour))
