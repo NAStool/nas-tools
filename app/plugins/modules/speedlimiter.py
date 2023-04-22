@@ -325,7 +325,7 @@ class SpeedLimiter(_IPluginModule):
                 download_limit=download_limit,
                 upload_limit=upload_limit
             )
-            # 发送日志
+            # 记录日志
             log_info = f"{downloader_name}"
             if upload_limit:
                 log_info += f" 上传：{upload_limit}KB/s"
@@ -333,7 +333,6 @@ class SpeedLimiter(_IPluginModule):
                 log_info += f" 下载：{download_limit}KB/s"
             if not upload_limit and not download_limit:
                 log_info += " 不限速"
-            self.info(f"{'' if playing_flag else '未'}播放限速：{log_info}")
             limit_log.append(log_info)
         # 设置限速状态
         self._playing_flag = playing_flag
@@ -414,11 +413,11 @@ class SpeedLimiter(_IPluginModule):
             # 非定时检查，且进行过未播放限速
             if not time_check and _playing_flag == self._playing_flag:
                 return
-        # 发送通知标记
-        _notify = self._notify
-        # 定时检查时，如播放状态未改变，不发送通知
+        # 发送日志标记
+        _log = True
+        # 定时检查时，如播放状态未改变，不发送通知及日志
         if time_check and _playing_flag == self._playing_flag:
-            _notify = False
+            _log = False
 
         # 获取限速下载器
         limited_downloader_confs, limited_allocation_ratio = self.check_limited_downloader()
@@ -432,14 +431,17 @@ class SpeedLimiter(_IPluginModule):
             playing_flag=_playing_flag
         )
 
-        # 发送消息
-        if _notify:
-            limit_log = "\n".join(limit_log)
-            title = f"【{'定时检查'if time_check else mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】"
-            self.send_message(
-                title=title,
-                text=f"{message}\n{limit_log}"
-            )
+        # 发送消息及日志
+        if _log:
+            for log_info in limit_log:
+                self.info(f"{'' if _playing_flag else '未'}播放限速：{log_info}")
+            if self._notify:
+                limit_log = "\n".join(limit_log)
+                title = f"【{'定时检查'if time_check else mediaserver_type.value}{'开始' if _playing_flag else '停止'}播放限速】"
+                self.send_message(
+                    title=title,
+                    text=f"{message}\n{limit_log}"
+                )
 
     def calc_limit(self, total_bit_rate):
         """
