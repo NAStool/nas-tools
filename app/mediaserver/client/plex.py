@@ -481,9 +481,14 @@ class Plex(_IMediaClient):
         """
         if not self._plex:
             return []
-        items = self._plex.history()
+        items = self._plex.library.search(**{
+            'sort': 'lastViewedAt:desc',  # 按最后观看时间排序
+            'type': '1,4',  # 1 电影 4 剧集单集
+            'viewOffset!': '0',  # 播放进度不等于0的
+            'limit': num  # 限制结果数量
+        })
         ret_resume = []
-        for item in items[:num]:
+        for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
             link = f"{self._host}web/index.html#!" \
                    f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
@@ -493,7 +498,7 @@ class Plex(_IMediaClient):
                 "type": item_type,
                 "image": f"img?url={quote(item.artUrl)}",
                 "link": link,
-                "percent": item.viewOffset / item.duration
+                "percent": item.viewOffset / item.duration * 100
             })
         return ret_resume
 
