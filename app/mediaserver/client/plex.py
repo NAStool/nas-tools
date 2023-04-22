@@ -1,4 +1,6 @@
 from functools import lru_cache
+from urllib.parse import quote
+
 from app.utils import ExceptionUtils, ImageUtils
 from app.utils.types import MediaServerType, MediaType
 
@@ -489,8 +491,30 @@ class Plex(_IMediaClient):
                 "id": item.key,
                 "name": item.title,
                 "type": item_type,
-                "image": item.artUrl,
+                "image": f"img?url={quote(item.artUrl)}",
                 "link": link,
                 "percent": item.viewOffset / item.duration
+            })
+        return ret_resume
+
+    def get_latest(self, num=20):
+        """
+        获取最近添加媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.library.recentlyAdded()
+        ret_resume = []
+        for item in items[:num]:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = f"{self._host}web/index.html#!" \
+                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
+            ret_resume.append({
+                "id": item.key,
+                "name": title,
+                "type": item_type,
+                "image": f"img?url={quote(item.posterUrl)}",
+                "link": link
             })
         return ret_resume

@@ -70,7 +70,7 @@
 </div>
 <div class="page-body">
   <div class="container-xl">
-    <div class="d-grid gap-3 grid-normal-card">
+    <div class="d-grid gap-3 grid-normal-card align-items-start">
       {% for Resume in Resumes %}
       <a class="card card-link-pop resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
         <div class="img-responsive img-responsive-16x9 card-img-top" style="background-image: url({{ Resume.image }})">
@@ -84,9 +84,36 @@
           </div>
         </div>
         {% endif %}
-        <div class="card-body">
-          <p class="text-muted">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</p>
+        <div class="text-muted p-2">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% if Latests %}
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          最新入库
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-media-card align-items-start">
+      {% for Latest in Latests %}
+      <a class="card card-link-pop latest-{{ Latest.id }}" href="{{ Latest.link }}" target="_blank">
+        <div class="img-responsive img-responsive-3x4 card-img-top" style="background-image: url({{ Latest.image }})">
+          <span class="badge badge-pill {% if Latest.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+            {{ Latest.type }}
+          </span>
         </div>
+        <div class="text-muted p-2">{{ Latest.name }}</div>
       </a>
       {% endfor %}
     </div>

@@ -246,6 +246,9 @@ def index():
     # 继续观看
     Resumes = MediaServer().get_resume()
 
+    # 最近添加
+    Latests = MediaServer().get_latest()
+
     return render_template("index.html",
                            ServerSucess=ServerSucess,
                            MediaCount={'MovieCount': MediaCounts.get("Movie"),
@@ -261,7 +264,8 @@ def index():
                            MediaServerType=MSType,
                            Librarys=Librarys,
                            LibrarySyncConf=LibrarySyncConf,
-                           Resumes=Resumes
+                           Resumes=Resumes,
+                           Latests=Latests
                            )
 
 

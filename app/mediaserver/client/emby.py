@@ -139,59 +139,6 @@ class Emby(_IMediaClient):
         return f"{self._play_host or self._host}emby/Items/{item_id}/" \
                f"Images/Backdrop?tag={image_tag}&maxWidth=666&api_key={self._apikey}"
 
-    def get_resume(self, num=12):
-        """
-        获得继续观看
-        """
-        if not self._host or not self._apikey:
-            return None
-        req_url = f"{self._host}Users/{self._user}/Items/Resume?api_key={self._apikey}"
-        try:
-            res = RequestUtils().get_res(req_url)
-            if res:
-                result = res.json().get("Items") or []
-                ret_resume = []
-                for item in result[:num]:
-                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
-                    if item_type == MediaType.MOVIE.value:
-                        if item.get("BackdropImageTags"):
-                            image = self.__get_backdrop_url(item_id=item.get("Id"),
-                                                            image_tag=item.get("BackdropImageTags")[0])
-                            image = f"img?url={quote(image)}"
-                        else:
-                            image = ""
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": image,
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
-                    else:
-                        image = self.__get_backdrop_url(item_id=item.get("SeriesId"),
-                                                        image_tag=item.get("SeriesPrimaryImageTag"))
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": f"img?url={quote(image)}",
-                            "season_name": item.get("SeasonName"),
-                            "series_name": item.get("SeriesName"),
-                            "episode_num": item.get("IndexNumber"),
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
-                return ret_resume
-            else:
-                log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
-        except Exception as e:
-            ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.client_name}】连接Users/Items/Resume出错：" + str(e))
-        return []
-
     def get_server_id(self):
         """
         获得服务器信息
@@ -747,3 +694,88 @@ class Emby(_IMediaClient):
             eventItem['user_name'] = message.get("User").get('Name')
 
         return eventItem
+
+    def get_resume(self, num=12):
+        """
+        获得继续观看
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = f"{self._host}Users/{self._user}/Items/Resume?api_key={self._apikey}"
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                result = res.json().get("Items") or []
+                ret_resume = []
+                for item in result[:num]:
+                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
+                    link = f"{self._play_host or self._host}web/index.html#!" \
+                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    if item_type == MediaType.MOVIE.value:
+                        if item.get("BackdropImageTags"):
+                            image = self.__get_backdrop_url(item_id=item.get("Id"),
+                                                            image_tag=item.get("BackdropImageTags")[0])
+                            image = f"img?url={quote(image)}"
+                        else:
+                            image = ""
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": image,
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                    else:
+                        image = self.__get_backdrop_url(item_id=item.get("SeriesId"),
+                                                        image_tag=item.get("SeriesPrimaryImageTag"))
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": f"img?url={quote(image)}",
+                            "season_name": item.get("SeasonName"),
+                            "series_name": item.get("SeriesName"),
+                            "episode_num": item.get("IndexNumber"),
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                return ret_resume
+            else:
+                log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Users/Items/Resume出错：" + str(e))
+        return []
+
+    def get_latest(self, num=20):
+        """
+        获得最近更新
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = f"{self._host}Users/{self._user}/Items/Latest?Limit={num}&api_key={self._apikey}"
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                result = res.json() or []
+                ret_latest = []
+                for item in result:
+                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
+                    link = f"{self._play_host or self._host}web/index.html#!" \
+                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
+                    ret_latest.append({
+                        "id": item.get("Id"),
+                        "name": item.get("Name"),
+                        "type": item_type,
+                        "image": f"img?url={quote(image)}" if image else "",
+                        "link": link
+                    })
+                return ret_latest
+            else:
+                log.error(f"【{self.client_name}】Users/Items/Latest 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Users/Items/Latest出错：" + str(e))
+        return []
