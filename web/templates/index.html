@@ -75,11 +75,16 @@
         <div class="col-lg-4 mt-3">
           <div class="card">
             <div class="card-body">
-              <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
-              <div class="progress progress-separated mb-3">
+              <div class="d-flex align-items-center">
+                <div class="subheader">存储空间</div>
+              </div>
+              <div class="d-flex align-items-baseline">
+                <div class="h1 mb-0 me-2">{{ TotalSpace }}</div>
+              </div>
+              <div class="progress progress-separated mt-2">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
               </div>
-              <div class="row mb-2">
+              <div class="row mt-1">
                 <div class="col-auto d-flex align-items-center pe-2">
                   <span class="legend me-2 bg-primary"></span>
                   <span>已使用</span>
