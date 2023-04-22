@@ -1,4 +1,6 @@
 from functools import lru_cache
+from urllib.parse import quote
+
 from app.utils import ExceptionUtils, ImageUtils
 from app.utils.types import MediaServerType, MediaType
 
@@ -319,6 +321,8 @@ class Plex(_IMediaClient):
 
     @lru_cache(maxsize=10)
     def get_libraries_image(self, library_key):
+        if not self._plex:
+            return ""
         library = self._plex.library.sectionByID(library_key)
         items = library.recentlyAdded()
         poster_urls = []
@@ -470,3 +474,52 @@ class Plex(_IMediaClient):
             eventItem['user_name'] = message.get("Account").get('title')
 
         return eventItem
+
+    def get_resume(self, num=12):
+        """
+        获取继续观看的媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.library.search(**{
+            'sort': 'lastViewedAt:desc',  # 按最后观看时间排序
+            'type': '1,4',  # 1 电影 4 剧集单集
+            'viewOffset!': '0',  # 播放进度不等于0的
+            'limit': num  # 限制结果数量
+        })
+        ret_resume = []
+        for item in items:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = f"{self._host}web/index.html#!" \
+                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            ret_resume.append({
+                "id": item.key,
+                "name": item.title,
+                "type": item_type,
+                "image": f"img?url={quote(item.artUrl)}",
+                "link": link,
+                "percent": item.viewOffset / item.duration * 100
+            })
+        return ret_resume
+
+    def get_latest(self, num=20):
+        """
+        获取最近添加媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.library.recentlyAdded()
+        ret_resume = []
+        for item in items[:num]:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = f"{self._host}web/index.html#!" \
+                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
+            ret_resume.append({
+                "id": item.key,
+                "name": title,
+                "type": item_type,
+                "image": f"img?url={quote(item.posterUrl)}",
+                "link": link
+            })
+        return ret_resume

@@ -113,13 +113,13 @@ export class NormalCard extends observeState(CustomElement) {
 
   render() {
     return html`
-      <div class="card card-sm lit-normal-card rounded-4 cursor-pointer ratio shadow-sm"
+      <div class="card card-sm lit-normal-card rounded-3 cursor-pointer ratio shadow-sm"
            @click=${() => { if (Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseenter=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = this._card_id } } }
            @mouseleave=${() => { if (!Golbal.is_touch_device()){ cardState.more_id = undefined } } }>
         ${this._placeholder ? NormalCardPlaceholder.render_placeholder() : nothing}
-        <div ?hidden=${this._placeholder} class="rounded-4">
-          <img class="card-img rounded-4" alt="" style="box-shadow:0 0 0 1px #888888; display: block; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"
+        <div ?hidden=${this._placeholder} class="rounded-3">
+          <img class="card-img rounded-3" alt="" style="box-shadow:0 0 0 1px #888888; display: block; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"
              src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
              @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage; this._card_image_error = true} }}
              @load=${() => { this._placeholder = false }}/>
@@ -127,7 +127,7 @@ export class NormalCard extends observeState(CustomElement) {
           ${this._render_right_up()}
         </div>
         <div ?hidden=${cardState.more_id != this._card_id && this._card_image_error == false}
-             class="card-img-overlay rounded-4 ms-auto"
+             class="card-img-overlay rounded-3 ms-auto"
              style="background-color: rgba(0, 0, 0, 0.5); box-shadow:0 0 0 1px #dddddd;"
              @click=${() => { navmenu(`media_detail?type=${this.media_type}&id=${this.tmdb_id}`) }}>
           <div style="cursor: pointer">

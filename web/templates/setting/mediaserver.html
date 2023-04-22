@@ -16,7 +16,7 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
     {% for Type, MediaServer in MediaServerConf.items() %}
-      <a class="card card-link-pop p-0" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
+      <a class="card card-link-pop p-0 rounded-3 overflow-hidden" href="#" data-bs-toggle="modal" data-bs-target="#modal-{{ Type }}">
         <div class="card-cover card-cover-blurred text-center {{ MediaServer.background }}">
           <span class="avatar avatar-xl avatar-thumb avatar-rounded"
                 style="background-image: url({{ MediaServer.img_url }})">

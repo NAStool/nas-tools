@@ -35,11 +35,12 @@ class HDSky(_ISiteSigninHandler):
         site = site_info.get("name")
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
+        proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 判断今日是否已签到
         index_res = RequestUtils(cookies=site_cookie,
                                  headers=ua,
-                                 proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                 proxies=proxy
                                  ).get_res(url='https://hdsky.me')
         if not index_res or index_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
@@ -57,7 +58,7 @@ class HDSky(_ISiteSigninHandler):
         while not img_hash and res_times <= 3:
             image_res = RequestUtils(cookies=site_cookie,
                                      headers=ua,
-                                     proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                     proxies=proxy
                                      ).post_res(url='https://hdsky.me/image_code_ajax.php',
                                                 data={'action': 'new'})
             if image_res and image_res.status_code == 200:
@@ -73,7 +74,7 @@ class HDSky(_ISiteSigninHandler):
         if img_hash:
             # 完整验证码url
             img_get_url = 'https://hdsky.me/image.php?action=regimage&imagehash=%s' % img_hash
-            self.debug(f"获取到{site}验证码连接 {img_get_url}")
+            self.debug(f"获取到{site}验证码链接 {img_get_url}")
             # ocr识别多次，获取6位验证码
             times = 0
             ocr_result = None
@@ -83,13 +84,13 @@ class HDSky(_ISiteSigninHandler):
                 ocr_result = OcrHelper().get_captcha_text(image_url=img_get_url,
                                                           cookie=site_cookie,
                                                           ua=ua)
-                self.debug(f"orc识别{site}验证码 {ocr_result}")
+                self.debug(f"ocr识别{site}验证码 {ocr_result}")
                 if ocr_result:
                     if len(ocr_result) == 6:
-                        self.info(f"orc识别{site}验证码成功 {ocr_result}")
+                        self.info(f"ocr识别{site}验证码成功 {ocr_result}")
                         break
                 times += 1
-                self.debug(f"orc识别{site}验证码失败，正在进行重试，目前重试次数 {times}")
+                self.debug(f"ocr识别{site}验证码失败，正在进行重试，目前重试次数 {times}")
                 time.sleep(1)
 
             if ocr_result:
@@ -102,7 +103,7 @@ class HDSky(_ISiteSigninHandler):
                 # 访问签到链接
                 res = RequestUtils(cookies=site_cookie,
                                    headers=ua,
-                                   proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                   proxies=proxy
                                    ).post_res(url='https://hdsky.me/showup.php', data=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:

@@ -298,7 +298,7 @@ class WebAction:
         # 启动虚拟显示
         DisplayHelper()
         # 启动定时服务
-        Scheduler().run_service()
+        Scheduler()
         # 启动监控服务
         Sync()
         # 启动刷流服务
@@ -3408,32 +3408,32 @@ class WebAction:
         """
         查询转移历史统计数据
         """
-        MovieChartLabels = []
-        MovieNums = []
         TvChartData = {}
+        Labels = []
+        MovieNums = []
         TvNums = []
         AnimeNums = []
         for statistic in self.dbhelper.get_transfer_statistics():
+            if not statistic[2]:
+                continue
+            if statistic[1] not in Labels:
+                Labels.append(statistic[1])
             if statistic[0] == "电影":
-                MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
+                TvNums.append(0)
+                AnimeNums.append(0)
+            elif statistic[0] == "电视剧":
+                TvNums.append(statistic[2])
+                MovieNums.append(0)
+                AnimeNums.append(0)
             else:
-                if not TvChartData.get(statistic[1]):
-                    TvChartData[statistic[1]] = {"tv": 0, "anime": 0}
-                if statistic[0] == "电视剧":
-                    TvChartData[statistic[1]]["tv"] += statistic[2]
-                elif statistic[0] == "动漫":
-                    TvChartData[statistic[1]]["anime"] += statistic[2]
-        TvChartLabels = list(TvChartData)
-        for tv_data in TvChartData.values():
-            TvNums.append(tv_data.get("tv"))
-            AnimeNums.append(tv_data.get("anime"))
-
+                AnimeNums.append(statistic[2])
+                MovieNums.append(0)
+                TvNums.append(0)
         return {
             "code": 0,
-            "MovieChartLabels": MovieChartLabels,
+            "Labels": Labels,
             "MovieNums": MovieNums,
-            "TvChartLabels": TvChartLabels,
             "TvNums": TvNums,
             "AnimeNums": AnimeNums
         }

@@ -36,6 +36,8 @@ class Scheduler:
     def init_config(self):
         self._pt = Config().get_config('pt')
         self._media = Config().get_config('media')
+        self.stop_service()
+        self.run_service()
 
     def run_service(self):
         """
@@ -222,13 +224,6 @@ class Scheduler:
                 self.SCHEDULER = None
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-
-    def restart_service(self):
-        """
-        重启定时服务
-        """
-        self.stop_service()
-        self.start_service()
 
     def start_range_job(self, func, func_desc, hour, minute, next_run_time=None):
         year = datetime.datetime.now().year
