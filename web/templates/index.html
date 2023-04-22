@@ -18,124 +18,74 @@
           <a href="javascript:show_mediasync_modal()" class="btn btn-primary d-sm-none btn-icon">
             {{ SVG.refresh() }}
           </a>
+          <button class="btn d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-index-playhistory">
+            {{ SVG.history() }}
+            播放记录
+          </button>
+          <button class="btn d-sm-none btn-icon">
+            {{ SVG.history() }}
+          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
 {% if ServerSucess %}
-  <div class="page-body">
-    <div class="container-xl">
-      <div class="d-grid gap-3 grid-normal-card">
-        {% for Library in Librarys %}
-        <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
-          <div class="img-responsive img-responsive-21x9 card-img-top" style="background-image: url({{ Library.image }})">
-            <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
-              {{ Library.type }}
-            </span>
-          </div>
-          <div class="card-body">
-            <p class="text-muted">{{ Library.name }}</p>
-          </div>
-        </a>
-        {% endfor %}
-      </div>
-      <div class="row">
-        <div class="col-lg-4 mt-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="subheader">电影</div>
-              </div>
-              <div class="d-flex align-items-baseline">
-                <div class="h1 mb-0 me-2">{{ MediaCount.MovieCount }}</div>
-              </div>
-            </div>
-            <div id="chart-movie-bg" class="chart-sm"></div>
-          </div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+      {% for Library in Librarys %}
+      <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
+        <div class="img-responsive img-responsive-2x1 card-img-top" style="background-image: url({{ Library.image }})">
+          <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+            {{ Library.type }}
+          </span>
         </div>
-        <div class="col-lg-4 mt-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="subheader">电视剧/动漫</div>
-              </div>
-              <div class="d-flex align-items-baseline">
-                <div class="h1 mb-0 me-2">{{ MediaCount.SeriesCount }}</div>
-                <div class="me-auto">
-                <span class="text-green d-inline-flex align-items-center lh-1">
-                  {{ MediaCount.EpisodeCount }}
-                </span>
-                </div>
-              </div>
-            </div>
-            <div id="chart-tv-bg" class="chart-sm"></div>
-          </div>
+        <div class="card-body">
+          <p class="text-muted">{{ Library.name }}</p>
         </div>
-        <div class="col-lg-4 mt-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="subheader">存储空间</div>
-              </div>
-              <div class="d-flex align-items-baseline">
-                <div class="h1 mb-0 me-2">{{ TotalSpace }}</div>
-              </div>
-              <div class="progress progress-separated mt-2">
-                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
-              </div>
-              <div class="row mt-1">
-                <div class="col-auto d-flex align-items-center pe-2">
-                  <span class="legend me-2 bg-primary"></span>
-                  <span>已使用</span>
-                  <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
-                </div>
-                <div class="col-auto d-flex align-items-center ps-2">
-                  <span class="legend me-2"></span>
-                  <span>空闲</span>
-                  <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row mt-3">
-        <div class="col-12">
-          <div class="card overflow-hidden">
-            <div class="card-body card-body-scrollable card-body-scrollable-shadow" style="height: calc(100vh - 28rem)">
-              <div class="divide-y">
-                {% for Activity in Activitys %}
-                  <div>
-                    <div class="row">
-                      <div class="col-auto">
-                    <span class="avatar">
-                      {% if Activity.type == "LG" %}
-                        {{ SVG.user() }}
-                      {% else %}
-                        {{ SVG.player_play() }}
-                      {% endif %}
-                    </span>
-                      </div>
-                      <div class="col">
-                        <div class="text-truncate">
-                          {{ Activity.event }}
-                        </div>
-                        <div class="text-muted">{{ Activity.date }}</div>
-                      </div>
-                      <div class="col-auto align-self-center">
-                        <div class="bg-primary"></div>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% if Resumes %}
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          继续观看
+        </h2>
       </div>
     </div>
   </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="d-grid gap-3 grid-normal-card">
+      {% for Resume in Resumes %}
+      <a class="card card-link-pop resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
+        <div class="img-responsive img-responsive-16x9 card-img-top" style="background-image: url({{ Resume.image }})">
+          <span class="badge badge-pill {% if Resume.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+            {{ Resume.type }}
+          </span>
+        </div>
+        {% if Resume.percent %}
+        <div class="card-progress" style="overflow: hidden">
+          <div class="progress-bar bg-green" style="width:{{ Resume.percent }}%" role="progressbar" aria-valuenow="{{ Resume.percent }}" aria-valuemin="0" aria-valuemax="100">
+          </div>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <p class="text-muted">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
 {% else %}
 {{ OOPS.systemerror('媒体服务器连接失败！', '当前无法连接媒体服务器获取数据，请确认Emby/Jellyfin/Plex配置是否正确。') }}
 {% endif %}
@@ -173,6 +123,49 @@
                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         <a href="javascript:start_media_sync(true)" id="mediasync_btn" class="card-btn">开始同步</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-index-playhistory" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">播放记录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="card-body card-body-scrollable card-body-scrollable-shadow p-0 overflow-hidden">
+          <div class="divide-y">
+            {% for Activity in Activitys %}
+              <div>
+                <div class="row">
+                  <div class="col-auto">
+                <span class="avatar">
+                  {% if Activity.type == "LG" %}
+                    {{ SVG.user() }}
+                  {% else %}
+                    {{ SVG.player_play() }}
+                  {% endif %}
+                </span>
+                  </div>
+                  <div class="col">
+                    <div class="text-truncate">
+                      {{ Activity.event }}
+                    </div>
+                    <div class="text-muted">{{ Activity.date }}</div>
+                  </div>
+                  <div class="col-auto align-self-center">
+                    <div class="bg-primary"></div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
       </div>
     </div>
   </div>

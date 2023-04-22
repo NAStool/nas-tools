@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from urllib.parse import quote
@@ -126,6 +127,70 @@ class Emby(_IMediaClient):
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Users出错：" + str(e))
         return None
+
+    def __get_backdrop_url(self, item_id, image_tag):
+        """
+        获取Backdrop图片地址
+        """
+        if not self._host or not self._apikey:
+            return ""
+        if not image_tag or not item_id:
+            return ""
+        return f"{self._play_host or self._host}emby/Items/{item_id}/" \
+               f"Images/Backdrop?tag={image_tag}&maxWidth=666&api_key={self._apikey}"
+
+    def get_resume(self, num=12):
+        """
+        获得继续观看
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = f"{self._host}Users/{self._user}/Items/Resume?api_key={self._apikey}"
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                result = res.json().get("Items") or []
+                ret_resume = []
+                for item in result[:num]:
+                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
+                    link = f"{self._play_host or self._host}web/index.html#!" \
+                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    if item_type == MediaType.MOVIE.value:
+                        if item.get("BackdropImageTags"):
+                            image = self.__get_backdrop_url(item_id=item.get("Id"),
+                                                            image_tag=item.get("BackdropImageTags")[0])
+                            image = f"img?url={quote(image)}"
+                        else:
+                            image = ""
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": image,
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                    else:
+                        image = self.__get_backdrop_url(item_id=item.get("SeriesId"),
+                                                        image_tag=item.get("SeriesPrimaryImageTag"))
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": f"img?url={quote(image)}",
+                            "season_name": item.get("SeasonName"),
+                            "series_name": item.get("SeriesName"),
+                            "episode_num": item.get("IndexNumber"),
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                return ret_resume
+            else:
+                log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Users/Items/Resume出错：" + str(e))
+        return []
 
     def get_server_id(self):
         """

@@ -319,6 +319,8 @@ class Plex(_IMediaClient):
 
     @lru_cache(maxsize=10)
     def get_libraries_image(self, library_key):
+        if not self._plex:
+            return ""
         library = self._plex.library.sectionByID(library_key)
         items = library.recentlyAdded()
         poster_urls = []
@@ -470,3 +472,25 @@ class Plex(_IMediaClient):
             eventItem['user_name'] = message.get("Account").get('title')
 
         return eventItem
+
+    def get_resume(self, num=12):
+        """
+        获取继续观看的媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.history()
+        ret_resume = []
+        for item in items[:num]:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = f"{self._host}web/index.html#!" \
+                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            ret_resume.append({
+                "id": item.key,
+                "name": item.title,
+                "type": item_type,
+                "image": item.artUrl,
+                "link": link,
+                "percent": item.viewOffset / item.duration
+            })
+        return ret_resume
