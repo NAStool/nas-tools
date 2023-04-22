@@ -18,7 +18,7 @@ export class PersonCard extends CustomElement {
 
   render() {
     return html`
-      <div class="card card-sm lit-person-card rounded-4 overflow-hidden cursor-pointer ratio">
+      <div class="card card-sm lit-person-card rounded-3 overflow-hidden cursor-pointer ratio">
         <div class="text-center p-4 pt-3 placeholder-glow">
           <div class="avatar-rounded overflow-hidden" style="position:relative;z-index:1;">
             <custom-img

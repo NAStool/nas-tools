@@ -42,14 +42,14 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
       {% for Library in Librarys %}
-      <a class="card card-link-pop library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
-        <div class="img-responsive img-responsive-2x1 card-img-top no-image-cover" style="background-image: url({{ Library.image }})">
-          <span class="badge badge-pill {% if Library.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
-            {{ Library.type }}
-          </span>
-        </div>
-        <div class="card-body">
-          <p>{{ Library.name }}</p>
+      <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
+        <custom-img img-class="w-100"
+                    img-src="{{ Library.image }}"
+                    img-ratio="50%"
+                    img-style="object-fit: cover;"
+        ></custom-img>
+        <div class="m-2 text-center">
+          {{ Library.name }}
         </div>
       </a>
       {% endfor %}
@@ -72,19 +72,24 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card align-items-start">
       {% for Resume in Resumes %}
-      <a class="card card-link-pop resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
-        <div class="img-responsive img-responsive-16x9 card-img-top no-image-cover" style="background-image: url({{ Resume.image }})">
-          <span class="badge badge-pill {% if Resume.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
-            {{ Resume.type }}
-          </span>
-        </div>
+      <a class="card card-link-pop rounded-3 overflow-hidden resume-{{ Resume.id }}" href="{{ Resume.link }}" target="_blank">
+        <custom-img img-class="w-100"
+                    img-src="{{ Resume.image }}"
+                    img-ratio="50%"
+                    img-style="object-fit: cover;"
+        ></custom-img>
+        <span class="badge badge-pill {% if Resume.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+          {{ Resume.type }}
+        </span>
         {% if Resume.percent %}
         <div class="card-progress" style="overflow: hidden">
           <div class="progress-bar bg-green" style="width:{{ Resume.percent }}%" role="progressbar" aria-valuenow="{{ Resume.percent }}" aria-valuemin="0" aria-valuemax="100">
           </div>
         </div>
         {% endif %}
-        <div class="p-2">{% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}</div>
+        <div class="m-2 text-center" style="-webkit-line-clamp:1; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
+          {% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}
+        </div>
       </a>
       {% endfor %}
     </div>
@@ -107,13 +112,16 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-media-card align-items-start">
       {% for Latest in Latests %}
-      <a class="card card-link-pop latest-{{ Latest.id }}" href="{{ Latest.link }}" target="_blank">
-        <div class="img-responsive img-responsive-3x4 card-img-top no-image-cover" style="background-image: url({{ Latest.image }})">
-          <span class="badge badge-pill {% if Latest.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
-            {{ Latest.type }}
-          </span>
-        </div>
-        <div class="p-2">{{ Latest.name }}</div>
+      <a class="card card-link-pop overflow-hidden rounded-3 latest-{{ Latest.id }}" href="{{ Latest.link }}" target="_blank">
+        <custom-img img-class="w-100"
+                    img-src="{{ Latest.image }}"
+                    img-ratio="150%"
+                    img-style="object-fit: cover;"
+        ></custom-img>
+        <span class="badge badge-pill {% if Latest.type == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position: absolute; top: 10px; left: 10px">
+          {{ Latest.type }}
+        </span>
+        <div class="m-2 text-center" style="-webkit-line-clamp:1; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">{{ Latest.name }}</div>
       </a>
       {% endfor %}
     </div>
@@ -211,7 +219,7 @@
         <h5 class="modal-title">统计数据</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body py-0">
         <div class="row">
           <div class="col-lg-4 mt-3">
             <div class="card">

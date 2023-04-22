@@ -236,17 +236,3 @@ body, .page {
     flex:0 0 auto;
     max-width: 11rem;
 }
-
-/* 处理背景图片不存在的情况 */
-.no-image-cover:after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 100%;
-    background-image: url('../static/img/no-image.png');
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
