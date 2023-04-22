@@ -93,8 +93,10 @@ class ReleaseGroupsMatcher(object):
             else:
                 groups = self.__release_groups
         title = f"{title} "
-        groups_re = re.compile(r"(?<=[-@\[￡【])(?:%s)(?=[@.\s\]\[】])" % groups, re.I)
-        return '@'.join(re.findall(groups_re, title))
+        groups_re = re.compile(r"(?<=[-@\[￡【&])(?:%s)(?=[@.\s\]\[】&])" % groups, re.I)
+        # 处理一个制作组识别多次的情况
+        unique_groups = list(set(re.findall(groups_re, title)))
+        return '@'.join(unique_groups)
 
     def update_custom(self, custom):
         """
