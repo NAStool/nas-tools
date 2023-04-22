@@ -3413,7 +3413,7 @@ class WebAction:
         MovieNums = []
         TvNums = []
         AnimeNums = []
-        for statistic in self.dbhelper.get_transfer_statistics():
+        for statistic in self.dbhelper.get_transfer_statistics(90):
             if not statistic[2]:
                 continue
             if statistic[1] not in Labels:

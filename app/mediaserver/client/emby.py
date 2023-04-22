@@ -588,7 +588,7 @@ class Emby(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f"{self._play_host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
+        return f"{self._play_host or self._host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
 
     def get_items(self, parent):
         """
@@ -711,8 +711,7 @@ class Emby(_IMediaClient):
                     if item.get("Type") not in ["Movie", "Episode"]:
                         continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    link = self.get_play_url(item.get("Id"))
                     if item_type == MediaType.MOVIE.value:
                         if item.get("BackdropImageTags"):
                             image = self.__get_backdrop_url(item_id=item.get("Id"),
@@ -767,8 +766,7 @@ class Emby(_IMediaClient):
                     if item.get("Type") not in ["Movie", "Series"]:
                         continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    link = self.get_play_url(item.get("Id"))
                     image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
                     ret_latest.append({
                         "id": item.get("Id"),
