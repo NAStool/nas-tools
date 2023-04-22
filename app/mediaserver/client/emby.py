@@ -764,6 +764,8 @@ class Emby(_IMediaClient):
                 result = res.json() or []
                 ret_latest = []
                 for item in result:
+                    if item.get("Type") not in ["Movie", "Series"]:
+                        continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
                     link = f"{self._play_host or self._host}web/index.html#!" \
                            f"/item?id={item.get('Id')}&context=home&serverId={self._serverid}"
