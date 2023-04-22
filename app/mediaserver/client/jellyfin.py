@@ -526,7 +526,7 @@ class Jellyfin(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f"{self._play_host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
+        return f"{self._play_host or self._host}web/index.html#!/details?id={item_id}&serverId={self._serverid}"
 
     def get_playing_sessions(self):
         """
@@ -574,8 +574,7 @@ class Jellyfin(_IMediaClient):
                     if item.get("Type") not in ["Movie", "Episode"]:
                         continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/details?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    link = self.get_play_url(item.get("Id"))
                     if item.get("BackdropImageTags"):
                         image = self.__get_backdrop_url(item_id=item.get("Id"),
                                                         image_tag=item.get("BackdropImageTags")[0])
@@ -628,6 +627,7 @@ class Jellyfin(_IMediaClient):
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
                     link = f"{self._play_host or self._host}web/index.html#!" \
                            f"/details?id={item.get('Id')}&context=home&serverId={self._serverid}"
+                    link = self.get_play_url(item.get("Id"))
                     image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
                     ret_latest.append({
                         "id": item.get("Id"),
