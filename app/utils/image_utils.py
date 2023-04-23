@@ -39,36 +39,44 @@ class ImageUtils:
                 posters.append(image)
 
             # 准备参数
-            poster_width, poster_height, gradient_height = 123, 200, 47
-            width = poster_width * len(posters)
-            height = poster_height + gradient_height
-            poster_width_offset = 0
+            # 单张的宽和高
+            poster_width, poster_height, = 150, 252
+            # 边框的宽和高
+            margin_width, margin_height, = 8, 4
+            # 倒影的高
+            gradient_height = 100
+            # 倒影的真实的高度,单张图片的一般高度,多出来的部分不展示
+            gradient_actual_height = poster_height // 2
+            # 4 张海报的宽和高(不含外边框,含内边框)
+            all_poster_width = poster_width * len(posters) + 8 * (len(posters) - 1)
+            all_poster_height = poster_height
 
-            # 最终图片
-            all_posters_images = Image.new('RGB', (width, poster_height))
+            width = poster_width * len(posters) + margin_width * (len(posters) + 1)
+            height = poster_height + gradient_height + margin_height * 2
+
+            # 海报图片
+            all_posters_images = Image.new('RGB', (all_poster_width, all_poster_height))
 
             # 拼接海报
+            poster_width_offset = 0
             for image in posters:
                 image = image.resize((poster_width, poster_height))
                 all_posters_images.paste(image, (poster_width_offset, 0))
-                poster_width_offset += poster_width
+                poster_width_offset += poster_width + margin_width
             # 倒影
             reflection = all_posters_images.copy().transpose(Image.FLIP_TOP_BOTTOM)
-            # 渐变
-            gradient_image = Image.new('L', (width, gradient_height), 0)
-            draw = ImageDraw.Draw(gradient_image)
-            for i in range(gradient_height):
-                alpha = int(255 * i / gradient_height * 0.15)
-                draw.line((0, i, width, i), fill=alpha)
-            gradient_image = gradient_image.transpose(Image.FLIP_TOP_BOTTOM)
+            reflection = reflection.resize((all_poster_width, gradient_actual_height))
             # 渐变遮罩
-            gradient_mask = ImageOps.invert(gradient_image)
+            gradient_mask = Image.new('L', (all_poster_width, gradient_actual_height), 0)
+            draw = ImageDraw.Draw(gradient_mask)
+            for i in range(gradient_actual_height):
+                alpha = 128 - int(i * (256 / gradient_actual_height))
+                draw.line((0, i, width, i), fill=alpha)
 
             # 最终结果
             result_image = Image.new('RGB', (width, height))
-            result_image.paste(all_posters_images, (0, 0))
-            result_image.paste(reflection, (0, poster_height))
-            result_image.paste(gradient_image, (0, poster_height), gradient_mask)
+            result_image.paste(all_posters_images, (margin_width, margin_height))
+            result_image.paste(reflection, (margin_width, poster_height + margin_height * 2), gradient_mask)
 
             # 将图片转为base64
             buffer = BytesIO()

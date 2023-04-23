@@ -337,7 +337,8 @@ class Plex(_IMediaClient):
         if not self._plex:
             return ""
         library = self._plex.library.sectionByID(library_key)
-        items = library.recentlyAdded()
+        # 担心有些没图片,多获取几个
+        items = library.recentlyAdded(maxresults=8)
         poster_urls = []
         for item in items:
             if item.posterUrl is not None:
