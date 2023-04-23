@@ -51,20 +51,26 @@ class Rss:
         with lock:
             log.info("【Rss】开始RSS订阅...")
 
+            rss_titles = []
             # 读取电影订阅
             rss_movies = self.subscribe.get_subscribe_movies(state='R')
             if not rss_movies:
                 log.warn("【Rss】没有正在订阅的电影")
             else:
+                rss_movie_names = [info.get("name") for _, info in rss_movies.items()]
                 log.info("【Rss】电影订阅清单：%s"
-                         % " ".join('%s' % info.get("name") for _, info in rss_movies.items()))
+                         % " ".join(rss_movie_names))
+                rss_titles += rss_movie_names
             # 读取电视剧订阅
             rss_tvs = self.subscribe.get_subscribe_tvs(state='R')
             if not rss_tvs:
                 log.warn("【Rss】没有正在订阅的电视剧")
             else:
+                rss_tv_names = [info.get("name") for _, info in rss_tvs.items()]
                 log.info("【Rss】电视剧订阅清单：%s"
-                         % " ".join('%s' % info.get("name") for _, info in rss_tvs.items()))
+                         % " ".join(rss_tv_names))
+                rss_titles += rss_tv_names
+                rss_titles = list(set(rss_titles))
             # 没有订阅退出
             if not rss_movies and not rss_tvs:
                 return
@@ -150,6 +156,22 @@ class Rss:
                         if self.dbhelper.is_torrent_rssd(enclosure):
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
+                        # 判断rss是否含副标题，若含则快速预识别
+                        if "&ismalldescr=1" in rss_url.lower():
+                            match_flag_pre = False
+                            for rss_title in rss_titles:
+                                if rss_title:
+                                    rss_titlesplit = re.split(r'·|`|，|,|：|:|！|!|？|\?|（|\(|-|—|\$|￥|%|&|=|\+|~', rss_title) #适应标题名中含有符号的处理
+                                    quick_rss_title = ''
+                                    for rtsstr in rss_titlesplit:
+                                        if rtsstr:
+                                            quick_rss_title = rtsstr
+                                            break
+                                    if quick_rss_title and quick_rss_title.lower() in title.lower(): # 种子名中含订阅标题关键词
+                                        match_flag_pre = True
+                                        break
+                            if not match_flag_pre:
+                                continue
                         # 识别种子名称，开始搜索TMDB
                         media_info = MetaInfo(title=title)
                         cache_info = self.media.get_cache_info(media_info)
@@ -471,7 +493,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
@@ -517,7 +539,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
