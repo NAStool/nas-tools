@@ -503,10 +503,17 @@ class Plex(_IMediaClient):
         ret_resume = []
         for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            if item_type == MediaType.MOVIE.value:
+                name = item.title
+            else:
+                if item.parentIndex == 1:
+                    name = "%s 第%s集" % (item.grandparentTitle, item.index)
+                else:
+                    name = "%s 第%s季第%s集" % (item.grandparentTitle, item.parentIndex, item.index)
             link = self.get_play_url(item.key)
             ret_resume.append({
                 "id": item.key,
-                "name": item.title,
+                "name": name,
                 "type": item_type,
                 "image": f"img?url={quote(item.artUrl)}",
                 "link": link,
