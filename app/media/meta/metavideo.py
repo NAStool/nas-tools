@@ -222,11 +222,17 @@ class MetaVideo(MetaBase):
                     # 名字未出现前的第一个数字，记下来
                     if not self._unknown_name_str:
                         self._unknown_name_str = token
-            elif re.search(r"%s" % self._season_re, token, re.IGNORECASE) \
-                    or re.search(r"%s" % self._episode_re, token, re.IGNORECASE) \
+            elif re.search(r"%s" % self._season_re, token, re.IGNORECASE):
+                # 季的处理
+                if self.en_name and re.search(r"SEASON$", self.en_name, re.IGNORECASE):
+                    # 如果匹配到季，英文名结尾也有Season，说明Season属于标题，不应在后续作为干扰词去除
+                    self.en_name += ' '
+                self._stop_name_flag = True
+                return
+            elif re.search(r"%s" % self._episode_re, token, re.IGNORECASE) \
                     or re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE) \
                     or re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE):
-                # 季集等不要
+                # 集、来源、版本等不要
                 self._stop_name_flag = True
                 return
             else:
@@ -274,9 +280,12 @@ class MetaVideo(MetaBase):
             return
         if self.year:
             if self.en_name:
-                self.en_name = "%s %s" % (self.en_name, self.year)
+                self.en_name = "%s %s" % (self.en_name.strip(), self.year)
             elif self.cn_name:
                 self.cn_name = "%s %s" % (self.cn_name, self.year)
+        elif self.en_name and re.search(r"SEASON$", self.en_name, re.IGNORECASE):
+            # 如果匹配到年，且英文名结尾为Season，说明Season属于标题，不应在后续作为干扰词去除
+            self.en_name += ' '
         self.year = token
         self._last_token_type = "year"
         self._continue_flag = False

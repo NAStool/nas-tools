@@ -555,7 +555,7 @@ class MetaBase(object):
         self.backdrop_path = Config().get_tmdbimage_url(info.get('backdrop_path')) \
             if info.get('backdrop_path') else ""
 
-    # 整合种了信息
+    # 整合种子信息
     def set_torrent_info(self,
                          site=None,
                          site_order=0,
