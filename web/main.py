@@ -1,5 +1,6 @@
 import base64
 import datetime
+import hashlib
 import mimetypes
 import os.path
 import re
@@ -1649,7 +1650,20 @@ def Img():
     url = request.args.get('url')
     if not url:
         return make_response("参数错误", 400)
-    return Response(WebUtils.request_cache(url), mimetype='image/jpeg')
+    # 计算Etag
+    etag = hashlib.sha256(url.encode('utf-8')).hexdigest()
+    # 检查协商缓存
+    if_none_match = request.headers.get('If-None-Match')
+    if if_none_match and if_none_match == etag:
+        return make_response('', 304)
+    # 获取图片数据
+    response = Response(
+        WebUtils.request_cache(url),
+        mimetype='image/jpeg'
+    )
+    response.headers.set('Cache-Control', 'max-age=604800')
+    response.headers.set('Etag', etag)
+    return response
 
 
 # base64模板过滤器
