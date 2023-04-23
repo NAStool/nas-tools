@@ -3,10 +3,10 @@ import re
 from urllib.parse import quote
 
 import log
-from config import Config
 from app.mediaserver.client._base import _IMediaClient
 from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
 from app.utils.types import MediaType, MediaServerType
+from config import Config
 
 
 class Emby(_IMediaClient):
@@ -52,7 +52,7 @@ class Emby(_IMediaClient):
             self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
                 self._folders = self.__get_emby_folders()
-                self._user = self.get_admin_user()
+                self._user = self.get_user(Config().current_user)
                 self._serverid = self.get_server_id()
 
     @classmethod
@@ -93,20 +93,20 @@ class Emby(_IMediaClient):
         """
         if not self._host or not self._apikey:
             return []
-        req_url = "%semby/Library/VirtualFolders/Query?api_key=%s" % (self._host, self._apikey)
+        req_url = f"{self._host}emby/Users/{self._user}/Views?api_key={self._apikey}"
         try:
             res = RequestUtils().get_res(req_url)
             if res:
                 return res.json().get("Items")
             else:
-                log.error(f"【{self.client_name}】Library/VirtualFolders 未获取到返回数据")
+                log.error(f"【{self.client_name}】User/Views 未获取到返回数据")
                 return []
         except Exception as e:
             ExceptionUtils.exception_traceback(e)
-            log.error(f"【{self.client_name}】连接Library/VirtualFolders 出错：" + str(e))
+            log.error(f"【{self.client_name}】连接User/Views 出错：" + str(e))
             return []
 
-    def get_admin_user(self):
+    def get_user(self, user_name=None):
         """
         获得管理员用户
         """
@@ -117,6 +117,12 @@ class Emby(_IMediaClient):
             res = RequestUtils().get_res(req_url)
             if res:
                 users = res.json()
+                # 先查询是否有与当前用户名称匹配的
+                if user_name:
+                    for user in users:
+                        if user.get("Name") == user_name:
+                            return user.get("Id")
+                # 查询管理员
                 for user in users:
                     if user.get("Policy", {}).get("IsAdministrator"):
                         return user.get("Id")
@@ -126,6 +132,17 @@ class Emby(_IMediaClient):
             ExceptionUtils.exception_traceback(e)
             log.error(f"【{self.client_name}】连接Users出错：" + str(e))
         return None
+
+    def __get_backdrop_url(self, item_id, image_tag):
+        """
+        获取Backdrop图片地址
+        """
+        if not self._host or not self._apikey:
+            return ""
+        if not image_tag or not item_id:
+            return ""
+        return f"{self._play_host or self._host}emby/Items/{item_id}/" \
+               f"Images/Backdrop?tag={image_tag}&maxWidth=666&api_key={self._apikey}"
 
     def get_server_id(self):
         """
@@ -542,15 +559,15 @@ class Emby(_IMediaClient):
                     library_type = MediaType.TV.value
                 case _:
                     continue
-            image = self.get_local_image_by_id(library.get("ItemId"), remote=False)
+            image = self.get_local_image_by_id(library.get("Id"), remote=False)
             libraries.append({
-                "id": library.get("ItemId"),
+                "id": library.get("Id"),
                 "name": library.get("Name"),
-                "paths": library.get("Locations"),
+                "path": library.get("Path"),
                 "type": library_type,
                 "image": f'img?url={quote(image)}',
                 "link": f'{self._play_host or self._host}web/index.html'
-                        f'#!/videos?serverId={self._serverid}&parentId={library.get("ItemId")}'
+                        f'#!/videos?serverId={self._serverid}&parentId={library.get("Id")}'
             })
         return libraries
 
@@ -576,7 +593,7 @@ class Emby(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f"{self._play_host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
+        return f"{self._play_host or self._host}web/index.html#!/item?id={item_id}&context=home&serverId={self._serverid}"
 
     def get_items(self, parent):
         """
@@ -682,3 +699,91 @@ class Emby(_IMediaClient):
             eventItem['user_name'] = message.get("User").get('Name')
 
         return eventItem
+
+    def get_resume(self, num=12):
+        """
+        获得继续观看
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = f"{self._host}Users/{self._user}/Items/Resume?Limit={num}&MediaTypes=Video&api_key={self._apikey}"
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                result = res.json().get("Items") or []
+                ret_resume = []
+                for item in result:
+                    if item.get("Type") not in ["Movie", "Episode"]:
+                        continue
+                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
+                    link = self.get_play_url(item.get("Id"))
+                    if item_type == MediaType.MOVIE.value:
+                        if item.get("BackdropImageTags"):
+                            image = self.__get_backdrop_url(item_id=item.get("Id"),
+                                                            image_tag=item.get("BackdropImageTags")[0])
+                        else:
+                            image = self.get_local_image_by_id(item.get("Id"), remote=False)
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": f"img?url={quote(image)}",
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                    else:
+                        image = self.__get_backdrop_url(item_id=item.get("SeriesId"),
+                                                        image_tag=item.get("SeriesPrimaryImageTag"))
+                        if not image:
+                            image = self.get_local_image_by_id(item.get("SeriesId"), remote=False)
+                        ret_resume.append({
+                            "id": item.get("Id"),
+                            "name": item.get("Name"),
+                            "type": item_type,
+                            "image": f"img?url={quote(image)}",
+                            "season_name": item.get("SeasonName"),
+                            "series_name": item.get("SeriesName"),
+                            "episode_num": item.get("IndexNumber"),
+                            "link": link,
+                            "percent": item.get("UserData", {}).get("PlayedPercentage")
+                        })
+                return ret_resume
+            else:
+                log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Users/Items/Resume出错：" + str(e))
+        return []
+
+    def get_latest(self, num=20):
+        """
+        获得最近更新
+        """
+        if not self._host or not self._apikey:
+            return None
+        req_url = f"{self._host}Users/{self._user}/Items/Latest?Limit={num}&MediaTypes=Video&api_key={self._apikey}"
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res:
+                result = res.json() or []
+                ret_latest = []
+                for item in result:
+                    if item.get("Type") not in ["Movie", "Series"]:
+                        continue
+                    item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
+                    link = self.get_play_url(item.get("Id"))
+                    image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
+                    ret_latest.append({
+                        "id": item.get("Id"),
+                        "name": item.get("Name"),
+                        "type": item_type,
+                        "image": f"img?url={quote(image)}" if image else "",
+                        "link": link
+                    })
+                return ret_latest
+            else:
+                log.error(f"【{self.client_name}】Users/Items/Latest 未获取到返回数据")
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            log.error(f"【{self.client_name}】连接Users/Items/Latest出错：" + str(e))
+        return []

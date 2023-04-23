@@ -9,14 +9,14 @@ export class NormalCardPlaceholder extends CustomElement {
   static render_placeholder() {
     return html`
       <div class="placeholder-glow">
-        <div class="ratio placeholder rounded-4" style="--tblr-aspect-ratio:150%;"></div>
+        <div class="ratio placeholder rounded-3" style="--tblr-aspect-ratio:150%;"></div>
       </div>
     `;
   }
 
   render() {
     return html`
-      <div class="card card-sm rounded-4" style="border:none;">
+      <div class="card card-sm rounded-3" style="border:none;">
         ${NormalCardPlaceholder.render_placeholder()}
       </div>
     `;

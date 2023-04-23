@@ -76,11 +76,11 @@ class Unit3dSiteUserInfo(_ISiteUserInfo):
         size_col = 9
         seeders_col = 2
         # 搜索size列
-        if html.xpath('//tr[position()=1]/th[contains(@class,"size")]'):
-            size_col = len(html.xpath('//tr[position()=1]/th[contains(@class,"size")]/preceding-sibling::th')) + 1
+        if html.xpath('//thead//th[contains(@class,"size")]'):
+            size_col = len(html.xpath('//thead//th[contains(@class,"size")][1]/preceding-sibling::th')) + 1
         # 搜索seeders列
-        if html.xpath('//tr[position()=1]/th[contains(@class,"seeders")]'):
-            seeders_col = len(html.xpath('//tr[position()=1]/th[contains(@class,"seeders")]/preceding-sibling::th')) + 1
+        if html.xpath('//thead//th[contains(@class,"seeders")]'):
+            seeders_col = len(html.xpath('//thead//th[contains(@class,"seeders")]/preceding-sibling::th')) + 1
 
         page_seeding = 0
         page_seeding_size = 0

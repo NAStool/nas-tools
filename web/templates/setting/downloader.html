@@ -37,7 +37,7 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card align-items-start">
     {% for Id, Attr in Downloaders.items() %}
-      <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_downloader_modal('{{ Id }}')">
+      <a class="card card-link-pop p-0 overflow-hidden rounded-3" href="javascript:void(0)" onclick="show_edit_downloader_modal('{{ Id }}')">
         <div class="card-cover card-cover-blurred text-center"
           {% if DownloaderConf[Attr.type].color %}style="background-color: {{ DownloaderConf[Attr.type].color }}"{% endif %}>
           <span onclick="event.stopPropagation();set_default_downloader('{{ Attr.id }}')"

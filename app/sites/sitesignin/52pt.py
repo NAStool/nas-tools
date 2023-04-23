@@ -63,6 +63,10 @@ class FWpt(_ISiteSigninHandler):
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
+        if "login.php" in index_res.text:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
         sign_status = self.sign_in_result(html_res=index_res.text,
                                           regexs=self._sign_regex)
         if sign_status:

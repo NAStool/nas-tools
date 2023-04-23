@@ -1,3 +1,5 @@
+import re
+
 import log
 from app.sites.sitesignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
@@ -46,6 +48,10 @@ class HDUpt(_ISiteSigninHandler):
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
+        if "login.php" in index_res.text:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
         sign_status = self.sign_in_result(html_res=index_res.text,
                                           regexs=self._sign_regex)
         if sign_status:
@@ -62,9 +68,8 @@ class HDUpt(_ISiteSigninHandler):
             return False, f'【{site}】签到失败，请检查站点连通性'
 
         log.debug(f"签到接口返回 {sign_res.text}")
-        # todo 判断成功与否
-        # 判断是否已签到
-        if self._success_text in sign_res.text:
+        # 判断是否已签到 sign_res.text = ".23"
+        if len(list(map(int, re.findall("\d+", sign_res.text)))) > 0:
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
 

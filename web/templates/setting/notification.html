@@ -39,7 +39,7 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card align-items-start">
     {% for Id, Attr in MessageClients.items() %}
-      <a class="card card-link-pop p-0" href="javascript:void(0)" onclick="show_edit_message_client_modal('{{ Id }}')">
+      <a class="card card-link-pop p-0 rounded-3 overflow-hidden" href="javascript:void(0)" onclick="show_edit_message_client_modal('{{ Id }}')">
         <div class="card-cover card-cover-blurred text-center"
           {% if Channels[Attr.type].color %}style="background-color: {{ Channels[Attr.type].color }}"{% endif %}>
           <span class="avatar avatar-xl avatar-thumb avatar-rounded"

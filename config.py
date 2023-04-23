@@ -108,6 +108,7 @@ def singleconfig(cls):
 class Config(object):
     _config = {}
     _config_path = None
+    _user = None
 
     def __init__(self):
         self._config_path = os.environ.get('NASTOOL_CONFIG')
@@ -148,6 +149,14 @@ class Config(object):
                                            third_party_lib.strip()).replace("\\", "/")
                 if module_path not in sys.path:
                     sys.path.append(module_path)
+
+    @property
+    def current_user(self):
+        return self._user
+
+    @current_user.setter
+    def current_user(self, user):
+        self._user = user
 
     def get_proxies(self):
         return self.get_config('app').get("proxies")

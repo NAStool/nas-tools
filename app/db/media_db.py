@@ -18,7 +18,7 @@ _Engine = create_engine(
     echo=False,
     poolclass=QueuePool,
     pool_pre_ping=True,
-    pool_size=50,
+    pool_size=100,
     pool_recycle=60 * 10,
     max_overflow=0
 )

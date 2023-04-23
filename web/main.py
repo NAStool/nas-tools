@@ -124,6 +124,11 @@ def login():
         """
         跳转到导航页面
         """
+        # 存储当前用户
+        Config().current_user = current_user.username
+        # 让当前用户生效
+        MediaServer().init_config()
+        # 跳转页面
         if GoPage and GoPage != 'web':
             return redirect('/web#' + GoPage)
         else:
@@ -243,6 +248,12 @@ def index():
     Librarys = MediaServer().get_libraries()
     LibrarySyncConf = SystemConfig().get(SystemConfigKey.SyncLibrary) or []
 
+    # 继续观看
+    Resumes = MediaServer().get_resume()
+
+    # 最近添加
+    Latests = MediaServer().get_latest()
+
     return render_template("index.html",
                            ServerSucess=ServerSucess,
                            MediaCount={'MovieCount': MediaCounts.get("Movie"),
@@ -257,7 +268,9 @@ def index():
                            UsedPercent=LibrarySpaces.get("UsedPercent"),
                            MediaServerType=MSType,
                            Librarys=Librarys,
-                           LibrarySyncConf=LibrarySyncConf
+                           LibrarySyncConf=LibrarySyncConf,
+                           Resumes=Resumes,
+                           Latests=Latests
                            )
 
 
@@ -704,7 +717,7 @@ def service():
     if "ptsignin" in Services:
         tim_ptsignin = pt.get('ptsignin_cron')
         if tim_ptsignin:
-            if str(tim_ptsignin).find(':') == -1:
+            if str(tim_ptsignin).replace(".", "").isdigit():
                 tim_ptsignin = "%s 小时" % tim_ptsignin
             Services['ptsignin'].update({
                 'state': 'ON',

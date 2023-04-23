@@ -1,4 +1,7 @@
-from app.utils import ExceptionUtils
+from functools import lru_cache
+from urllib.parse import quote
+
+from app.utils import ExceptionUtils, ImageUtils
 from app.utils.types import MediaServerType, MediaType
 
 import log
@@ -25,6 +28,7 @@ class Plex(_IMediaClient):
     _password = None
     _servername = None
     _plex = None
+    _play_host = None
     _libraries = []
 
     def __init__(self, config=None):
@@ -43,6 +47,18 @@ class Plex(_IMediaClient):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
+            self._play_host = self._client_config.get('play_host')
+            if not self._play_host:
+                self._play_host = self._host
+            else:
+                if not self._play_host.startswith('http'):
+                    self._play_host = "http://" + self._play_host
+                if not self._play_host.endswith('/'):
+                    self._play_host = self._play_host + "/"
+            if "app.plex.tv" in self._play_host:
+                self._play_host = self._play_host + "desktop/"
+            else:
+                self._play_host = self._play_host + "web/index.html"
             self._username = self._client_config.get('username')
             self._password = self._client_config.get('password')
             self._servername = self._client_config.get('servername')
@@ -299,8 +315,10 @@ class Plex(_IMediaClient):
             match library.type:
                 case "movie":
                     library_type = MediaType.MOVIE.value
+                    library_image = self.get_libraries_image(library.key)
                 case "show":
                     library_type = MediaType.TV.value
+                    library_image = self.get_libraries_image(library.key)
                 case _:
                     continue
             libraries.append({
@@ -308,11 +326,28 @@ class Plex(_IMediaClient):
                 "name": library.title,
                 "paths": library.locations,
                 "type": library_type,
-                "image": "../static/img/mediaserver/plex_backdrop.png",
-                "link": f"https://app.plex.tv/desktop/#!/media/{self._plex.machineIdentifier}"
+                "image": library_image,
+                "link": f"{self._play_host}#!/media/{self._plex.machineIdentifier}"
                         f"/com.plexapp.plugins.library?source={library.key}"
             })
         return libraries
+
+    @lru_cache(maxsize=10)
+    def get_libraries_image(self, library_key):
+        if not self._plex:
+            return ""
+        library = self._plex.library.sectionByID(library_key)
+        items = library.recentlyAdded()
+        poster_urls = []
+        for item in items:
+            if item.posterUrl is not None:
+                poster_urls.append(item.posterUrl)
+            if len(poster_urls) == 4:
+                break
+        if len(poster_urls) < 4:
+            return "../static/img/mediaserver/plex_backdrop.png"
+        image = ImageUtils.get_libraries_image(poster_urls)
+        return image
 
     def get_iteminfo(self, itemid):
         """
@@ -333,7 +368,7 @@ class Plex(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f'https://app.plex.tv/desktop/#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
+        return f'{self._play_host}#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
 
     def get_items(self, parent):
         """
@@ -452,3 +487,50 @@ class Plex(_IMediaClient):
             eventItem['user_name'] = message.get("Account").get('title')
 
         return eventItem
+
+    def get_resume(self, num=12):
+        """
+        获取继续观看的媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.library.search(**{
+            'sort': 'lastViewedAt:desc',  # 按最后观看时间排序
+            'type': '1,4',  # 1 电影 4 剧集单集
+            'viewOffset!': '0',  # 播放进度不等于0的
+            'limit': num  # 限制结果数量
+        })
+        ret_resume = []
+        for item in items:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = self.get_play_url(item.key)
+            ret_resume.append({
+                "id": item.key,
+                "name": item.title,
+                "type": item_type,
+                "image": f"img?url={quote(item.artUrl)}",
+                "link": link,
+                "percent": item.viewOffset / item.duration * 100
+            })
+        return ret_resume
+
+    def get_latest(self, num=20):
+        """
+        获取最近添加媒体
+        """
+        if not self._plex:
+            return []
+        items = self._plex.library.recentlyAdded()
+        ret_resume = []
+        for item in items[:num]:
+            item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
+            link = self.get_play_url(item.key)
+            title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
+            ret_resume.append({
+                "id": item.key,
+                "name": title,
+                "type": item_type,
+                "image": f"img?url={quote(item.posterUrl)}",
+                "link": link
+            })
+        return ret_resume

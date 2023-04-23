@@ -767,7 +767,7 @@ class BrushTask(object):
                     localtz = pytz.timezone(Config().get_timezone())
                     localnowtime = datetime.now().astimezone(localtz)
                     localpubdate = pubdate.astimezone(localtz)
-                    pudate_hour = (localnowtime - localpubdate).seconds / 3600
+                    pudate_hour = int(localnowtime.timestamp() - localpubdate.timestamp()) / 3600
                     log.debug('【Brush】发布时间：%s，当前时间：%s，时间间隔：%f hour' % (
                         localpubdate.isoformat(), localnowtime.isoformat(), pudate_hour))
                     if rule_pubdates[0] == "lt" and pudate_hour >= float(min_pubdate):

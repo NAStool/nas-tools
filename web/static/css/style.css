@@ -194,6 +194,14 @@ body, .page {
     text-align: center;
 }
 
+.filter_releasegroup_span {
+    max-width: 100px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .scroll-top-btn {
     opacity: 0.8;
     position: fixed;
@@ -210,4 +218,21 @@ body, .page {
     right: 5%;
     z-index: 2;
     display: none;
+}
+
+.media-slide-hide-scrollbar{
+    overflow-x: scroll!important;
+    overscroll-behavior-x: contain!important;
+    scrollbar-width: none!important;
+    -ms-overflow-style: none!important;
+}
+
+.media-slide-hide-scrollbar::-webkit-scrollbar{
+    display: none;
+}
+
+.media-slide-card-number{
+    position: relative;
+    flex:0 0 auto;
+    max-width: 11rem;
 }

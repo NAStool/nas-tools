@@ -87,7 +87,7 @@ export class AccordionSeasons extends CustomElement {
                       <div class="col-lg-4 align-self-center">
                         ${episodes.still_path ? html`
                           <custom-img style="height: auto;"
-                              img-class="rounded-4 object-cover"
+                              img-class="rounded-3 object-cover"
                               img-ratio="50%"
                               img-src="${episodes.still_path}"
                           ></custom-img>` : nothing}

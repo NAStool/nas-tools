@@ -1,4 +1,5 @@
 import io
+from functools import lru_cache
 
 import cn2an
 
@@ -191,11 +192,19 @@ class WebUtils:
         return range(StartPage, EndPage + 1)
 
     @staticmethod
+    @lru_cache(maxsize=128)
+    def request_cache(url):
+        ret = RequestUtils().get_res(url)
+        if ret:
+            return ret.content
+        return None
+
+    @staticmethod
     def get_image_stream(url):
         """
         根据地址下载图片
         """
-        ret = RequestUtils().get_res(url)
-        if ret is not None:
-            return io.BytesIO(ret.content)
+        result = WebUtils.request_cache(url)
+        if result:
+            return io.BytesIO(result)
         return None
