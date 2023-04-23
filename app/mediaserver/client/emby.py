@@ -565,7 +565,7 @@ class Emby(_IMediaClient):
                 "name": library.get("Name"),
                 "path": library.get("Path"),
                 "type": library_type,
-                "image": f'img?url={quote(image)}',
+                "image": f'img?url={quote(image)}' if image else "",
                 "link": f'{self._play_host or self._host}web/index.html'
                         f'#!/videos?serverId={self._serverid}&parentId={library.get("Id")}'
             })
@@ -739,7 +739,7 @@ class Emby(_IMediaClient):
                         "id": item.get("Id"),
                         "name": title,
                         "type": item_type,
-                        "image": f"img?url={quote(image)}",
+                        "image": f"img?url={quote(image)}" if image else "",
                         "link": link,
                         "percent": item.get("UserData", {}).get("PlayedPercentage")
                     })
