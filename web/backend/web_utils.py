@@ -194,17 +194,10 @@ class WebUtils:
     @staticmethod
     @lru_cache(maxsize=128)
     def request_cache(url):
+        """
+        带缓存的请求
+        """
         ret = RequestUtils().get_res(url)
         if ret:
             return ret.content
-        return None
-
-    @staticmethod
-    def get_image_stream(url):
-        """
-        根据地址下载图片
-        """
-        result = WebUtils.request_cache(url)
-        if result:
-            return io.BytesIO(result)
         return None

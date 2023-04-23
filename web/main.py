@@ -1657,7 +1657,7 @@ def Img():
     if if_none_match and if_none_match == etag:
         return make_response('', 304)
     # 获取图片数据
-    response = make_response(send_file(WebUtils.get_image_stream(url),
+    response = make_response(send_file(WebUtils.request_cache(url),
                      mimetype='image/jpeg',
                      download_name='image.jpg',
                      as_attachment=True))

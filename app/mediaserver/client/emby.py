@@ -718,35 +718,31 @@ class Emby(_IMediaClient):
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
                     link = self.get_play_url(item.get("Id"))
                     if item_type == MediaType.MOVIE.value:
+                        title = item.get("Name")
+                    else:
+                        if item.get("ParentIndexNumber") == 1:
+                            title = f'{item.get("SeriesName")} 第{item.get("IndexNumber")}集'
+                        else:
+                            title = f'{item.get("SeriesName")} 第{item.get("ParentIndexNumber")}季第{item.get("IndexNumber")}集'
+                    if item_type == MediaType.MOVIE.value:
                         if item.get("BackdropImageTags"):
                             image = self.__get_backdrop_url(item_id=item.get("Id"),
                                                             image_tag=item.get("BackdropImageTags")[0])
                         else:
                             image = self.get_local_image_by_id(item.get("Id"), remote=False)
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": f"img?url={quote(image)}",
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
                     else:
                         image = self.__get_backdrop_url(item_id=item.get("SeriesId"),
                                                         image_tag=item.get("SeriesPrimaryImageTag"))
                         if not image:
                             image = self.get_local_image_by_id(item.get("SeriesId"), remote=False)
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": f"img?url={quote(image)}",
-                            "season_name": item.get("SeasonName"),
-                            "series_name": item.get("SeriesName"),
-                            "episode_num": item.get("IndexNumber"),
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
+                    ret_resume.append({
+                        "id": item.get("Id"),
+                        "name": title,
+                        "type": item_type,
+                        "image": f"img?url={quote(image)}",
+                        "link": link,
+                        "percent": item.get("UserData", {}).get("PlayedPercentage")
+                    })
                 return ret_resume
             else:
                 log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")

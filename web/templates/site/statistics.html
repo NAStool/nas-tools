@@ -996,6 +996,8 @@
         $('body').append(pic);
         domtoimage.toBlob(pic, {bgcolor: pic_bgcolor}).then(function (blob) {
          saveAs(blob, 'nastool_statistics.png');
+         // 从body中删除生成的dom
+         $('body')[0].lastChild.remove();
          $('#modal-statistics-pic-setting').modal("hide");
         });
       });
