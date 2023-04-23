@@ -49,7 +49,7 @@ class Jellyfin(_IMediaClient):
                     self._play_host = self._play_host + "/"
             self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
-                self._user = self.get_admin_user()
+                self._user = self.get_user(Config().current_user)
                 self._serverid = self.get_server_id()
 
     @classmethod
@@ -103,7 +103,7 @@ class Jellyfin(_IMediaClient):
             log.error(f"【{self.client_name}】连接Users出错：" + str(e))
             return 0
 
-    def get_admin_user(self):
+    def get_user(self, user_name=None):
         """
         获得管理员用户
         """
@@ -114,6 +114,12 @@ class Jellyfin(_IMediaClient):
             res = RequestUtils().get_res(req_url)
             if res:
                 users = res.json()
+                # 先查询是否有与当前用户名称匹配的
+                if user_name:
+                    for user in users:
+                        if user.get("Name") == user_name:
+                            return user.get("Id")
+                # 查询管理员
                 for user in users:
                     if user.get("Policy", {}).get("IsAdministrator"):
                         return user.get("Id")

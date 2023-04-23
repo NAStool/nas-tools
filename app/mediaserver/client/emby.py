@@ -1,13 +1,12 @@
-import json
 import os
 import re
 from urllib.parse import quote
 
 import log
-from config import Config
 from app.mediaserver.client._base import _IMediaClient
 from app.utils import RequestUtils, SystemUtils, ExceptionUtils, IpUtils
 from app.utils.types import MediaType, MediaServerType
+from config import Config
 
 
 class Emby(_IMediaClient):
@@ -53,7 +52,7 @@ class Emby(_IMediaClient):
             self._apikey = self._client_config.get('api_key')
             if self._host and self._apikey:
                 self._folders = self.__get_emby_folders()
-                self._user = self.get_admin_user()
+                self._user = self.get_user(Config().current_user)
                 self._serverid = self.get_server_id()
 
     @classmethod
@@ -107,7 +106,7 @@ class Emby(_IMediaClient):
             log.error(f"【{self.client_name}】连接User/Views 出错：" + str(e))
             return []
 
-    def get_admin_user(self):
+    def get_user(self, user_name=None):
         """
         获得管理员用户
         """
@@ -118,6 +117,12 @@ class Emby(_IMediaClient):
             res = RequestUtils().get_res(req_url)
             if res:
                 users = res.json()
+                # 先查询是否有与当前用户名称匹配的
+                if user_name:
+                    for user in users:
+                        if user.get("Name") == user_name:
+                            return user.get("Id")
+                # 查询管理员
                 for user in users:
                     if user.get("Policy", {}).get("IsAdministrator"):
                         return user.get("Id")
