@@ -124,6 +124,11 @@ def login():
         """
         跳转到导航页面
         """
+        # 存储当前用户
+        Config().current_user = current_user.username
+        # 让当前用户生效
+        MediaServer().init_config()
+        # 跳转页面
         if GoPage and GoPage != 'web':
             return redirect('/web#' + GoPage)
         else:

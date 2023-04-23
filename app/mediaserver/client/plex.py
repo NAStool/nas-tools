@@ -28,6 +28,7 @@ class Plex(_IMediaClient):
     _password = None
     _servername = None
     _plex = None
+    _play_host = None
     _libraries = []
 
     def __init__(self, config=None):
@@ -46,6 +47,18 @@ class Plex(_IMediaClient):
                     self._host = "http://" + self._host
                 if not self._host.endswith('/'):
                     self._host = self._host + "/"
+            self._play_host = self._client_config.get('play_host')
+            if not self._play_host:
+                self._play_host = self._host
+            else:
+                if not self._play_host.startswith('http'):
+                    self._play_host = "http://" + self._play_host
+                if not self._play_host.endswith('/'):
+                    self._play_host = self._play_host + "/"
+            if "app.plex.tv" in self._play_host:
+                self._play_host = self._play_host + "desktop/"
+            else:
+                self._play_host = self._play_host + "web/index.html"
             self._username = self._client_config.get('username')
             self._password = self._client_config.get('password')
             self._servername = self._client_config.get('servername')
@@ -314,7 +327,7 @@ class Plex(_IMediaClient):
                 "paths": library.locations,
                 "type": library_type,
                 "image": library_image,
-                "link": f"https://app.plex.tv/desktop/#!/media/{self._plex.machineIdentifier}"
+                "link": f"{self._play_host}#!/media/{self._plex.machineIdentifier}"
                         f"/com.plexapp.plugins.library?source={library.key}"
             })
         return libraries
@@ -355,7 +368,7 @@ class Plex(_IMediaClient):
         拼装媒体播放链接
         :param item_id: 媒体的的ID
         """
-        return f'https://app.plex.tv/desktop/#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
+        return f'{self._play_host}#!/server/{self._plex.machineIdentifier}/details?key={item_id}'
 
     def get_items(self, parent):
         """
@@ -490,8 +503,7 @@ class Plex(_IMediaClient):
         ret_resume = []
         for item in items:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
-            link = f"{self._host}web/index.html#!" \
-                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            link = self.get_play_url(item.key)
             ret_resume.append({
                 "id": item.key,
                 "name": item.title,
@@ -512,8 +524,7 @@ class Plex(_IMediaClient):
         ret_resume = []
         for item in items[:num]:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
-            link = f"{self._host}web/index.html#!" \
-                   f"/server/{self._plex.machineIdentifier}/details?key={item.key}&context=home"
+            link = self.get_play_url(item.key)
             title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
             ret_resume.append({
                 "id": item.key,

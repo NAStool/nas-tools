@@ -42,16 +42,18 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
       {% for Library in Librarys %}
-      <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
-        <custom-img img-class="w-100"
-                    img-src="{{ Library.image }}"
-                    img-ratio="50%"
-                    img-style="object-fit: cover;"
-        ></custom-img>
-        <div class="m-2 text-center">
-          {{ Library.name }}
-        </div>
-      </a>
+        {% if LibrarySyncConf and Library.id in LibrarySyncConf %}
+        <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
+          <custom-img img-class="w-100"
+                      img-src="{{ Library.image }}"
+                      img-ratio="50%"
+                      img-style="object-fit: cover;"
+          ></custom-img>
+          <div class="m-2 text-center">
+            {{ Library.name }}
+          </div>
+        </a>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
@@ -164,7 +166,10 @@
           <div class="progress-bar bg-green" id="mediasync_process_bar" style="width: 0" role="progressbar"
                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
-        <a href="javascript:start_media_sync(true)" id="mediasync_btn" class="card-btn">开始同步</a>
+        <div class="d-flex">
+          <a href="javascript:save_media_config()" id="save_mediasync_btn" class="card-btn">保存</a>
+          <a href="javascript:start_media_sync(true)" id="mediasync_btn" class="card-btn">开始同步</a>
+        </div>
       </div>
     </div>
   </div>
@@ -299,6 +304,7 @@
           }
           $("#mediasync_btn").text("开始同步")
               .attr("href", "javascript:start_media_sync(true)");
+          $("#save_mediasync_btn").show();
           $("#index-mediasync-modal").modal('show');
         }, true, false);
       }
@@ -315,6 +321,7 @@
   function start_media_sync(flag) {
     $("#mediasync_btn").text("关闭")
         .attr("href", "javascript:close_mediasync_modal()");
+    $("#save_mediasync_btn").hide();
     if (flag) {
       ajax_post("start_mediasync", {
         "librarys": select_GetSelectedVAL("sync_library")
@@ -326,6 +333,18 @@
       refresh_sync_process_flag = true;
       refresh_sync_process();
     }
+  }
+
+  // 保存媒体库配置
+  function save_media_config(){
+    let params = {
+      "key": "SyncLibrary",
+      "value": select_GetSelectedVAL("sync_library")
+    };
+    ajax_post("set_system_config", params, function (ret) {
+      $("#index-mediasync-modal").modal('hide');
+      window_history_refresh();
+    });
   }
 
   //刷新进度及文件

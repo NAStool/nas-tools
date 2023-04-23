@@ -48,6 +48,10 @@ class Opencd(_ISiteSigninHandler):
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
 
+        if "login.php" in index_res.text:
+            self.error(f"签到失败，cookie失效")
+            return False, f'【{site}】签到失败，cookie失效'
+
         if self._repeat_text in index_res.text:
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
