@@ -25,6 +25,7 @@ class MetaVideo(MetaBase):
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})$|S(\d{1,2})E"
     _episode_re = r"EP?(\d{2,4})$|^EP?(\d{1,4})$|^S\d{1,2}EP?(\d{1,4})$|S\d{2}EP?(\d{2,4})"
+    _episode_chinese_re = r"^\[.+?(EP?\d{1,4}-EP?\d{1,4})\]|^\[.+?(EP?\d{1,4})\]|第 ?(\d{1,4}-\d{1,4}) ?集|第 ?(\d{1,4}) ?集"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _source_re = r"^BLURAY$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^BLU$|^WEB$|^BD$|^HDRip$"
@@ -63,6 +64,17 @@ class MetaVideo(MetaBase):
             self.begin_episode = int(os.path.splitext(title)[0])
             self.type = MediaType.TV
             return
+        
+        # 对某些网站电视剧分集特殊名称的处理
+        _episode_chinese_match = re.search(self._episode_chinese_re, title, re.IGNORECASE)
+        if _episode_chinese_match:
+            _episode_chinese = _episode_chinese_match.group(0)
+            if _episode_chinese:
+                _episode_chinese_it = _episode_chinese.split('-')
+                for i in range(len(_episode_chinese_it)):
+                    if 'E' not in _episode_chinese_it[i].upper():
+                        _episode_chinese_it[i] = f"E{_episode_chinese_it[i]}"
+                title += " %s" % "-".join(_episode_chinese_it)
         # 去掉名称中第1个[]的内容
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
