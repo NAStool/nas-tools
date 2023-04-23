@@ -471,7 +471,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
@@ -517,7 +517,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
