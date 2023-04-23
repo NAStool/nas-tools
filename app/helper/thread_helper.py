@@ -5,7 +5,7 @@ from app.utils.commons import singleton
 
 @singleton
 class ThreadHelper:
-    _thread_num = 50
+    _thread_num = 100
     executor = None
 
     def __init__(self):
