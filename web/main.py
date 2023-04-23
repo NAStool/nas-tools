@@ -1657,10 +1657,10 @@ def Img():
     if if_none_match and if_none_match == etag:
         return make_response('', 304)
     # 获取图片数据
-    response = make_response(send_file(WebUtils.request_cache(url),
-                     mimetype='image/jpeg',
-                     download_name='image.jpg',
-                     as_attachment=True))
+    response = Response(
+        WebUtils.request_cache(url),
+        mimetype='image/jpeg'
+    )
     response.headers.set('Cache-Control', 'max-age=604800')
     response.headers.set('Etag', etag)
     return response
