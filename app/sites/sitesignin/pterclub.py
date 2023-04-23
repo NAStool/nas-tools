@@ -53,5 +53,5 @@ class PTerClub(_ISiteSigninHandler):
             return True, f'【{site}】签到成功'
         else:
             # {"status":"0","data":"抱歉","message":"您今天已经签到过了，请勿重复刷新。"}
-            self.error(f"今日已签到")
+            self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'

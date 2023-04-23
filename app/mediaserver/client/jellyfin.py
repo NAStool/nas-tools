@@ -587,26 +587,20 @@ class Jellyfin(_IMediaClient):
                     else:
                         image = self.get_local_image_by_id(item.get("Id"), remote=False)
                     if item_type == MediaType.MOVIE.value:
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": f"img?url={quote(image)}",
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
+                        title = item.get("Name")
                     else:
-                        ret_resume.append({
-                            "id": item.get("Id"),
-                            "name": item.get("Name"),
-                            "type": item_type,
-                            "image": image,
-                            "season_name": item.get("SeasonName"),
-                            "series_name": item.get("SeriesName"),
-                            "episode_num": item.get("IndexNumber"),
-                            "link": link,
-                            "percent": item.get("UserData", {}).get("PlayedPercentage")
-                        })
+                        if item.get("ParentIndexNumber") == 1:
+                            title = f'{item.get("SeriesName")} 第{item.get("IndexNumber")}集'
+                        else:
+                            title = f'{item.get("SeriesName")} 第{item.get("ParentIndexNumber")}季第{item.get("IndexNumber")}集'
+                    ret_resume.append({
+                        "id": item.get("Id"),
+                        "name": title,
+                        "type": item_type,
+                        "image": image,
+                        "link": link,
+                        "percent": item.get("UserData", {}).get("PlayedPercentage")
+                    })
                 return ret_resume
             else:
                 log.error(f"【{self.client_name}】Users/Items/Resume 未获取到返回数据")
@@ -631,8 +625,6 @@ class Jellyfin(_IMediaClient):
                     if item.get("Type") not in ["Movie", "Series"]:
                         continue
                     item_type = MediaType.MOVIE.value if item.get("Type") == "Movie" else MediaType.TV.value
-                    link = f"{self._play_host or self._host}web/index.html#!" \
-                           f"/details?id={item.get('Id')}&context=home&serverId={self._serverid}"
                     link = self.get_play_url(item.get("Id"))
                     image = self.get_local_image_by_id(item_id=item.get("Id"), remote=False)
                     ret_latest.append({
