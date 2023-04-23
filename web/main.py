@@ -1649,10 +1649,7 @@ def Img():
     url = request.args.get('url')
     if not url:
         return make_response("参数错误", 400)
-    return send_file(WebUtils.get_image_stream(url),
-                     mimetype='image/jpeg',
-                     download_name='image.jpg',
-                     as_attachment=True)
+    return Response(WebUtils.request_cache(url), mimetype='image/jpeg')
 
 
 # base64模板过滤器
