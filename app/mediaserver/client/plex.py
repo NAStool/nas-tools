@@ -533,7 +533,8 @@ class Plex(_IMediaClient):
         for item in items[:num]:
             item_type = MediaType.MOVIE.value if item.TYPE == "movie" else MediaType.TV.value
             link = self.get_play_url(item.key)
-            title = item.title if item_type == MediaType.MOVIE.value else f"{item.parentTitle} {item.title}"
+            title = item.title if item_type == MediaType.MOVIE.value else \
+                "%s 第%s季" % (item.parentTitle, item.index)
             ret_resume.append({
                 "id": item.key,
                 "name": title,
