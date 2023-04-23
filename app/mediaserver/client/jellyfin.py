@@ -457,7 +457,7 @@ class Jellyfin(_IMediaClient):
                 "name": library.get("Name"),
                 "path": library.get("Path"),
                 "type": library_type,
-                "image": f'img?url={quote(image)}',
+                "image": f'img?url={quote(image)}' if image else "",
                 "link": link
             })
         return libraries

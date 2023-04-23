@@ -516,7 +516,7 @@ class Plex(_IMediaClient):
                 "id": item.key,
                 "name": name,
                 "type": item_type,
-                "image": f"img?url={quote(item.artUrl)}",
+                "image": f"img?url={quote(item.artUrl)}" if item.artUrl else "",
                 "link": link,
                 "percent": item.viewOffset / item.duration * 100
             })
@@ -539,7 +539,7 @@ class Plex(_IMediaClient):
                 "id": item.key,
                 "name": title,
                 "type": item_type,
-                "image": f"img?url={quote(item.posterUrl)}",
+                "image": f"img?url={quote(item.posterUrl)}" if item.posterUrl else "",
                 "link": link
             })
         return ret_resume
