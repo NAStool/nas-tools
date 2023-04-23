@@ -157,7 +157,7 @@ class Rss:
                             log.info(f"【Rss】{title} 已成功订阅过")
                             continue
                         # 识别种子名称，开始搜索TMDB
-                        # 判断是否开启RSS抬头含副标题快速匹配
+                        # 判断是否开启RSS抬头含副标题快速匹配，若开启则用快速方式预匹配
                         if Config().get_config('pt').get('pt_check_rss_quick'):
                             match_flag_pre = False
                             for rss_title in rss_titles:
@@ -168,7 +168,7 @@ class Rss:
                                         if rtsstr:
                                             quick_rss_title = rtsstr
                                             break
-                                    if quick_rss_title and quick_rss_title in title: # 种子名中不含订阅标题关键词
+                                    if quick_rss_title and quick_rss_title.lower() in title.lower(): # 种子名中含订阅标题关键词
                                         match_flag_pre = True
                                         break
                             if not match_flag_pre:
@@ -493,7 +493,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
@@ -539,7 +539,7 @@ class Rss:
                         continue
                     # 匹配关键字或正则表达式
                     search_title = f"{media_info.org_string} {media_info.title} {media_info.year}"
-                    if not re.search(name, search_title, re.I) and name not in search_title:
+                    if not name.lower() in search_title.lower():
                         continue
                 # 媒体匹配成功
                 match_flag = True
