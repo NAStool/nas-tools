@@ -90,7 +90,7 @@
         </div>
         {% endif %}
         <div class="m-2 text-center" style="-webkit-line-clamp:1; display: -webkit-box; -webkit-box-orient:vertical; overflow:hidden; text-overflow: ellipsis;">
-          {% if Resume.series_name %}{{ Resume.series_name }}{% else %}{{ Resume.name }}{% endif %}{% if Resume.episode_num %} 第 {{ Resume.episode_num }} 集{% endif %}
+          {{ Resume.name }}
         </div>
       </a>
       {% endfor %}
