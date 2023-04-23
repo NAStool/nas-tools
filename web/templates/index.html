@@ -42,7 +42,7 @@
   <div class="container-xl">
     <div class="d-grid gap-3 grid-normal-card">
       {% for Library in Librarys %}
-        {% if LibrarySyncConf and Library.id in LibrarySyncConf %}
+        {% if LibrarySyncConf and Library.id|string in LibrarySyncConf %}
         <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ Library.link }}" target="_blank">
           <custom-img img-class="w-100"
                       img-src="{{ Library.image }}"
