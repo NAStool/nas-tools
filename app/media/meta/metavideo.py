@@ -144,9 +144,10 @@ class MetaVideo(MetaBase):
                         _episode_chinese_it[i] = int(re.sub(r'EP?', '', _episode_chinese_it, flags=re.IGNORECASE))
                         if self.begin_episode is None:
                             self.begin_episode = _episode_chinese_it[i]
+                            self.total_episodes = 1
                         else:
                             self.end_episode = _episode_chinese_it[i]
-                        self.total_episodes = i+1
+                            self.total_episodes = self.end_episode - self.begin_episode + 1
 
     def __fix_name(self, name):
         if not name:
