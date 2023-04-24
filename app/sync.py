@@ -363,7 +363,7 @@ class Sync(object):
         """
         if not sid:
             sids = self._monitor_sync_path_ids
-        elif isinstance(sid ,list):
+        elif isinstance(sid, list):
             sids = sid
         else:
             sids = [sid]

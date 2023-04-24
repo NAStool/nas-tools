@@ -3402,7 +3402,6 @@ class WebAction:
         """
         查询转移历史统计数据
         """
-        TvChartData = {}
         Labels = []
         MovieNums = []
         TvNums = []
