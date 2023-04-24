@@ -430,15 +430,16 @@ class IYUUAutoSeed(_IPluginModule):
         self.__update_config()
         # 发送消息
         if self._notify:
-            self.send_message(
-                title="【IYUU自动辅种任务完成】",
-                text=f"服务器返回可辅种总数：{self.total}\n"
-                     f"实际可辅种数：{self.realtotal}\n"
-                     f"已存在：{self.exist}\n"
-                     f"成功：{self.success}\n"
-                     f"失败：{self.fail}\n"
-                     f"{self.cached} 条失败记录已加入缓存"
-            )
+            if self.success or self.fail:
+                self.send_message(
+                    title="【IYUU自动辅种任务完成】",
+                    text=f"服务器返回可辅种总数：{self.total}\n"
+                        f"实际可辅种数：{self.realtotal}\n"
+                        f"已存在：{self.exist}\n"
+                        f"成功：{self.success}\n"
+                        f"失败：{self.fail}\n"
+                        f"{self.cached} 条失败记录已加入缓存"
+                )
         self.info("辅种任务执行完成")
 
     def check_recheck(self):
