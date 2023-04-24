@@ -198,7 +198,7 @@ class AutoSignIn(_IPluginModule):
             # 运行一次
             if self._onlyonce:
                 self.info(f"签到服务启动，立即运行一次")
-                self._scheduler.add_job(self.__sign_in, 'date',
+                self._scheduler.add_job(self.sign_in, 'date',
                                         run_date=datetime.now(tz=pytz.timezone(Config().get_timezone())))
                 # 关闭一次性开关
                 self._onlyonce = False
@@ -216,7 +216,7 @@ class AutoSignIn(_IPluginModule):
             # 周期运行
             if self._cron:
                 self.info(f"定时签到服务启动，周期：{self._cron}")
-                self._scheduler.add_job(self.__sign_in,
+                self._scheduler.add_job(self.sign_in,
                                         CronTrigger.from_crontab(self._cron))
 
             # 启动任务
@@ -225,7 +225,7 @@ class AutoSignIn(_IPluginModule):
                 self._scheduler.start()
 
     @EventHandler.register(EventType.SiteSignin)
-    def __sign_in(self, event=None):
+    def sign_in(self, event=None):
         """
         自动签到
         """
