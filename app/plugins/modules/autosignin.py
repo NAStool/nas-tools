@@ -6,6 +6,7 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
+from app.message import Message
 from app.plugins.modules._base import _IPluginModule
 from app.sites import Sites, SiteSignin
 from config import Config
@@ -59,7 +60,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '开启定时签到',
                             'required': "",
-                            'tooltip': '开启后会根据周期定时签到指定站点。',
+                            'tooltip': '开启后会根据周期定时签到指定站点。（开启后可关闭基础设置--站点签到时间）',
                             'type': 'switch',
                             'id': 'enable',
                         },
@@ -163,7 +164,7 @@ class AutoSignIn(_IPluginModule):
             self._cron = config.get("cron")
             self._retry_keyword = config.get("retry_keyword")
             self._sign_sites = config.get("sign_sites")
-            self._special_sites = config.get("special_sites")
+            self._special_sites = config.get("special_sites") or []
             self._notify = config.get("notify")
             self._queue_cnt = config.get("queue_cnt")
             self._onlyonce = config.get("onlyonce")
@@ -221,13 +222,11 @@ class AutoSignIn(_IPluginModule):
         else:
             # 根据重试关键词查找重签站点
             sign_sites = today_history if isinstance(today_history, list) else [today_history]
-            # 签到站点加入特殊站点
-            sign_sites = sign_sites + self._special_sites
-            self.debug(f"今日 {today} 已签到，开始签到重试站点及特殊站点")
-
-        # 站点去重
-        if sign_sites:
-            sign_sites = list(set(sign_sites))
+            if sign_sites:
+                self.debug(f"今日 {today} 已签到，开始重签重试站点及特殊站点")
+            else:
+                self.debug(f"今日 {today} 已签到，无重新签到站点")
+                return
 
         # 查询签到站点
         sites = Sites().get_sites(signin=True,
@@ -235,12 +234,15 @@ class AutoSignIn(_IPluginModule):
         if not sites:
             self.info("没有可签到站点，停止运行")
             return
+
         # 执行签到
         self.info("开始执行签到任务")
         with ThreadPool(min(len(sites), self._queue_cnt or 10)) as p:
             status = p.map(SiteSignin().signin_site, sites)
 
         if status:
+            # 签到详细信息
+            Message().send_site_signin_message(status)
             self.info("站点签到任务完成！")
 
             retry_sites = []
@@ -256,6 +258,12 @@ class AutoSignIn(_IPluginModule):
                             if site_id:
                                 self.debug(f"站点 {result[0]} 命中重试关键词 {self._retry_keyword}")
                                 retry_sites.append(str(site_id))
+
+                # 签到站点加入特殊站点
+                retry_sites = retry_sites + self._special_sites
+                # 站点去重
+                if retry_sites:
+                    retry_sites = list(set(retry_sites))
             else:
                 # 没设置重试关键词则重试已选站点
                 retry_sites = self._sign_sites
@@ -269,8 +277,11 @@ class AutoSignIn(_IPluginModule):
 
                 # 发送通知
                 if self._notify:
+                    # 签到汇总信息
                     self.send_message(title="【自动签到任务完成】",
-                                      text="\n".join(status))
+                                      text=f"本次签到站点数量: {len(sites)} \n"
+                                           f"下次签到数量: {len(retry_sites)} \n"
+                                           f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
 
