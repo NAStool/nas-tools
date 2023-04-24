@@ -948,7 +948,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col">
-            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="输入名称查询" onkeydown="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')">
+            <input id="search_tmdbid_name" type="text" class="form-control" placeholder="输入名称查询" onkeydown="if(event.keyCode==13) search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')">
           </div>
           <div class="col-auto">
             <button onclick="search_tmdbid_by_name('search_tmdbid_name', 'search_tmdbid_list')" class="btn btn-primary btn-icon" aria-label="Button">
