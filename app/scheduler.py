@@ -12,7 +12,7 @@ import log
 from app.helper import MetaHelper
 from app.mediaserver import MediaServer
 from app.rss import Rss
-from app.sites import SiteUserInfo, SiteSignin
+from app.sites import SiteUserInfo
 from app.subscribe import Subscribe
 from app.sync import Sync
 from app.utils import ExceptionUtils

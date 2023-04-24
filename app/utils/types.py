@@ -137,6 +137,8 @@ class EventType(Enum):
     AutoSeedStart = "autoseed.start"
     # 刷新媒体库
     RefreshMediaServer = "refresh.mediaserver"
+    # 站点签到
+    SiteSignin = "site.signin"
 
 
 # 系统配置Key字典

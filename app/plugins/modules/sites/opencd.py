@@ -4,7 +4,7 @@ import time
 from lxml import etree
 
 from app.helper import OcrHelper
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from app.plugins.modules.sites._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 

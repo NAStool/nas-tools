@@ -220,7 +220,7 @@ class ServiceNetworkTest(ClientResource):
 class ServiceRun(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('item', type=str,
-                        help='服务名称（autoremovetorrents、pttransfer、ptsignin、sync、rssdownload、subscribe_search_all）',
+                        help='服务名称（autoremovetorrents、pttransfer、sync、rssdownload、subscribe_search_all）',
                         location='form',
                         required=True)
 

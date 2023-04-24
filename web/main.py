@@ -653,8 +653,6 @@ def service():
     RuleGroups = Filter().get_rule_groups()
     # 所有同步目录
     SyncPaths = Sync().get_sync_path_conf()
-    # 所有站点
-    SigninSites = Sites().get_site_dict(signin=True)
 
     # 所有服务
     Services = current_user.get_services()
@@ -714,19 +712,6 @@ def service():
         else:
             Services.pop('autoremovetorrents')
 
-    # 自动签到
-    if "ptsignin" in Services:
-        tim_ptsignin = pt.get('ptsignin_cron')
-        if tim_ptsignin:
-            if str(tim_ptsignin).replace(".", "").isdigit():
-                tim_ptsignin = "%s 小时" % tim_ptsignin
-            Services['ptsignin'].update({
-                'state': 'ON',
-                'time': tim_ptsignin,
-            })
-        else:
-            Services.pop('ptsignin')
-
     # 目录同步
     if "sync" in Services:
         if Sync().monitor_sync_path_ids:
@@ -745,7 +730,6 @@ def service():
                            Count=len(Services),
                            RuleGroups=RuleGroups,
                            SyncPaths=SyncPaths,
-                           SigninSites=SigninSites,
                            SchedulerTasks=Services)
 
 

@@ -63,16 +63,13 @@ class Sites:
             site_uses = site.INCLUDE or ''
             uses = []
             if site_uses:
-                signin_enable = True if "Q" in site_uses and site_signurl and site_cookie else False
                 rss_enable = True if "D" in site_uses and site_rssurl else False
                 brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
                 statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
-                uses.append("Q") if signin_enable else None
                 uses.append("D") if rss_enable else None
                 uses.append("S") if brush_enable else None
                 uses.append("T") if statistic_enable else None
             else:
-                signin_enable = False
                 rss_enable = False
                 brush_enable = False
                 statistic_enable = False
@@ -85,7 +82,6 @@ class Sites:
                 "cookie": site_cookie,
                 "rule": site_note.get("rule"),
                 "download_setting": site_note.get("download_setting"),
-                "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
@@ -133,7 +129,6 @@ class Sites:
                   siteids=None,
                   rss=False,
                   brush=False,
-                  signin=False,
                   statistic=False):
         """
         获取站点配置
@@ -148,8 +143,6 @@ class Sites:
             if rss and not site.get('rss_enable'):
                 continue
             if brush and not site.get('brush_enable'):
-                continue
-            if signin and not site.get('signin_enable'):
                 continue
             if statistic and not site.get('statistic_enable'):
                 continue
@@ -193,7 +186,6 @@ class Sites:
     def get_site_dict(self,
                       rss=False,
                       brush=False,
-                      signin=False,
                       statistic=False):
         """
         获取站点字典
@@ -205,7 +197,6 @@ class Sites:
             } for site in self.get_sites(
                 rss=rss,
                 brush=brush,
-                signin=signin,
                 statistic=statistic
             )
         ]
@@ -213,7 +204,6 @@ class Sites:
     def get_site_names(self,
                        rss=False,
                        brush=False,
-                       signin=False,
                        statistic=False):
         """
         获取站点名称
@@ -222,7 +212,6 @@ class Sites:
             site.get("name") for site in self.get_sites(
                 rss=rss,
                 brush=brush,
-                signin=signin,
                 statistic=statistic
             )
         ]

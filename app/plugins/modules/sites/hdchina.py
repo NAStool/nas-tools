@@ -1,23 +1,21 @@
-import re
+import json
 
-from app.sites.sitesignin._base import _ISiteSigninHandler
+from lxml import etree
+
+from app.plugins.modules.sites._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class TTG(_ISiteSigninHandler):
+class HDChina(_ISiteSigninHandler):
     """
-    TTG签到
+    瓷器签到
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "totheglory.im"
+    site_url = "hdchina.org"
 
     # 已签到
-    _sign_regex = ['<b style="color:green;">已签到</b>']
-    _sign_text = '亲，您今天已签到过，不要太贪哦'
-
-    # 签到成功
-    _success_text = '您已连续签到'
+    _sign_regex = ['<a class="label label-default" href="#">已签到</a>']
 
     @classmethod
     def match(cls, url):
@@ -43,7 +41,7 @@ class TTG(_ISiteSigninHandler):
         html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://totheglory.im")
+                                ).get_res(url="https://hdchina.org/")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -60,32 +58,38 @@ class TTG(_ISiteSigninHandler):
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
 
-        # 获取签到参数
-        signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
-        signed_token = re.search('(?<=signed_token: ").*(?=")', html_res.text).group()
-        self.debug(f"signed_timestamp={signed_timestamp} signed_token={signed_token}")
+        # 没有签到则解析html
+        html = etree.HTML(html_res.text)
 
-        data = {
-            'signed_timestamp': signed_timestamp,
-            'signed_token': signed_token
-        }
+        if not html:
+            return False, f'【{site}】签到失败'
+
+        # x_csrf
+        x_csrf = html.xpath("//meta[@name='x-csrf']/@content")[0]
+        if not x_csrf:
+            self.error("签到失败，获取x-csrf失败")
+            return False, f'【{site}】签到失败'
+        self.debug(f"获取到x-csrf {x_csrf}")
+
         # 签到
+        data = {
+            'csrf': x_csrf
+        }
         sign_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).post_res(url="https://totheglory.im/signed.php",
-                                           data=data)
+                                ).post_res(url="https://hdchina.org/plugin_sign-in.php?cmd=signin", data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'
 
-        sign_res.encoding = "utf-8"
-        if self._success_text in sign_res.text:
+        sign_dict = json.loads(sign_res.text)
+        self.debug(f"签到返回结果 {sign_dict}")
+        if sign_dict['state']:
+            # {'state': 'success', 'signindays': 10, 'integral': 20}
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
-        if self._sign_text in sign_res.text:
-            self.info(f"今日已签到")
-            return True, f'【{site}】今日已签到'
-
-        self.error(f"签到失败，未知原因")
-        return False, f'【{site}】签到失败，未知原因'
+        else:
+            # {'state': False, 'msg': '不正确的CSRF / Incorrect CSRF token'}
+            self.error(f"签到失败，不正确的CSRF / Incorrect CSRF token")
+            return False, f'【{site}】签到失败'

@@ -1,26 +1,38 @@
 import re
+import time
 from datetime import datetime, timedelta
+from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing.pool import ThreadPool
 
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from lxml import etree
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as es
+from selenium.webdriver.support.wait import WebDriverWait
 
+from app.helper import ChromeHelper, SubmoduleHelper, SiteHelper
+from app.helper.cloudflare_helper import under_challenge
 from app.message import Message
+from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
-from app.sites import Sites, SiteSignin
+from app.sites.siteconf import SiteConf
+from app.sites.sites import Sites
+from app.utils import RequestUtils, ExceptionUtils, StringUtils
+from app.utils.types import EventType
 from config import Config
 
 
 class AutoSignIn(_IPluginModule):
     # 插件名称
-    module_name = "自动签到"
+    module_name = "站点自动签到"
     # 插件描述
-    module_desc = "自定义签到站点、重试关键词、重试次数。"
+    module_desc = "站点自动登录/签到保号，支持重试。"
     # 插件图标
     module_icon = "signin.png"
     # 主题色
-    module_color = "#1196EE"
+    module_color = "#4179F4"
     # 插件版本
     module_version = "1.0"
     # 插件作者
@@ -35,11 +47,13 @@ class AutoSignIn(_IPluginModule):
     auth_level = 2
 
     # 私有属性
+    siteconf = None
     _scheduler = None
 
     # 设置开关
     _enabled = False
     # 任务执行间隔
+    _site_schema = []
     _cron = None
     _sign_sites = None
     _queue_cnt = None
@@ -158,6 +172,8 @@ class AutoSignIn(_IPluginModule):
         ]
 
     def init_config(self, config=None):
+        self.siteconf = SiteConf()
+
         # 读取配置
         if config:
             self._enabled = config.get("enabled")
@@ -171,6 +187,12 @@ class AutoSignIn(_IPluginModule):
 
         # 启动服务
         if self._enabled or self._onlyonce:
+            # 加载模块
+            self._site_schema = SubmoduleHelper.import_submodules('app.plugins.modules.sites',
+                                                                  filter_func=lambda _, obj: hasattr(obj, 'match'))
+            self.debug(f"加载站点签到：{self._site_schema}")
+
+            # 定时服务
             self._scheduler = BackgroundScheduler(timezone=Config().get_timezone())
 
             # 运行一次
@@ -202,7 +224,8 @@ class AutoSignIn(_IPluginModule):
                 self._scheduler.print_jobs()
                 self._scheduler.start()
 
-    def __sign_in(self):
+    @EventHandler.register(EventType.SiteSignin)
+    def __sign_in(self, event=None):
         """
         自动签到
         """
@@ -237,7 +260,7 @@ class AutoSignIn(_IPluginModule):
         # 执行签到
         self.info("开始执行签到任务")
         with ThreadPool(min(len(sites), self._queue_cnt or 10)) as p:
-            status = p.map(SiteSignin().signin_site, sites)
+            status = p.map(self.signin_site, sites)
 
         if status:
             # 签到详细信息
@@ -283,6 +306,137 @@ class AutoSignIn(_IPluginModule):
                                            f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
+
+    def __build_class(self, url):
+        for site_schema in self._site_schema:
+            try:
+                if site_schema.match(url):
+                    return site_schema
+            except Exception as e:
+                ExceptionUtils.exception_traceback(e)
+        return None
+            
+    def signin_site(self, site_info):
+        """
+        签到一个站点
+        """
+        site_module = self.__build_class(site_info.get("signurl"))
+        if site_module and hasattr(site_module, "signin"):
+            try:
+                status, msg = site_module().signin(site_info)
+                # 特殊站点直接返回签到信息，防止仿真签到、模拟登陆有歧义
+                return msg
+            except Exception as e:
+                return f"【{site_info.get('name')}】签到失败：{str(e)}"
+        else:
+            return self.__signin_base(site_info)
+
+    def __signin_base(self, site_info):
+        """
+        通用签到处理
+        :param site_info: 站点信息
+        :return: 签到结果信息
+        """
+        if not site_info:
+            return ""
+        site = site_info.get("name")
+        try:
+            site_url = site_info.get("signurl")
+            site_cookie = site_info.get("cookie")
+            ua = site_info.get("ua")
+            if not site_url or not site_cookie:
+                self.warn("未配置 %s 的站点地址或Cookie，无法签到" % str(site))
+                return ""
+            chrome = ChromeHelper()
+            if site_info.get("chrome") and chrome.get_status():
+                # 首页
+                self.info("开始站点仿真签到：%s" % site)
+                home_url = StringUtils.get_base_url(site_url)
+                if not chrome.visit(url=home_url, ua=ua, cookie=site_cookie, proxy=site_info.get("proxy")):
+                    self.warn("%s 无法打开网站" % site)
+                    return f"【{site}】无法打开网站！"
+                # 循环检测是否过cf
+                cloudflare = chrome.pass_cloudflare()
+                if not cloudflare:
+                    self.warn("%s 跳转站点失败" % site)
+                    return f"【{site}】跳转站点失败！"
+                # 判断是否已签到
+                html_text = chrome.get_html()
+                if not html_text:
+                    self.warn("%s 获取站点源码失败" % site)
+                    return f"【{site}】获取站点源码失败！"
+                # 查找签到按钮
+                html = etree.HTML(html_text)
+                xpath_str = None
+                for xpath in self.siteconf.get_checkin_conf():
+                    if html.xpath(xpath):
+                        xpath_str = xpath
+                        break
+                if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
+                        and not xpath_str:
+                    self.info("%s 今日已签到" % site)
+                    return f"【{site}】今日已签到"
+                if not xpath_str:
+                    if SiteHelper.is_logged_in(html_text):
+                        self.warn("%s 未找到签到按钮，模拟登录成功" % site)
+                        return f"【{site}】模拟登录成功"
+                    else:
+                        self.info("%s 未找到签到按钮，且模拟登录失败" % site)
+                        return f"【{site}】模拟登录失败！"
+                # 开始仿真
+                try:
+                    checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
+                        es.element_to_be_clickable((By.XPATH, xpath_str)))
+                    if checkin_obj:
+                        checkin_obj.click()
+                        # 检测是否过cf
+                        time.sleep(3)
+                        if under_challenge(chrome.get_html()):
+                            cloudflare = chrome.pass_cloudflare()
+                            if not cloudflare:
+                                self.info("%s 仿真签到失败，无法通过Cloudflare" % site)
+                                return f"【{site}】仿真签到失败，无法通过Cloudflare！"
+                        self.info("%s 仿真签到成功" % site)
+                        return f"【{site}】仿真签到成功"
+                except Exception as e:
+                    ExceptionUtils.exception_traceback(e)
+                    self.warn("%s 仿真签到失败：%s" % (site, str(e)))
+                    return f"【{site}】签到失败！"
+            # 模拟登录
+            else:
+                if site_url.find("attendance.php") != -1:
+                    checkin_text = "签到"
+                else:
+                    checkin_text = "模拟登录"
+                self.info(f"开始站点{checkin_text}：{site}")
+                # 访问链接
+                res = RequestUtils(cookies=site_cookie,
+                                   headers=ua,
+                                   proxies=Config().get_proxies() if site_info.get("proxy") else None
+                                   ).get_res(url=site_url)
+                if res and res.status_code in [200, 500, 403]:
+                    if not SiteHelper.is_logged_in(res.text):
+                        if under_challenge(res.text):
+                            msg = "站点被Cloudflare防护，请开启浏览器仿真"
+                        elif res.status_code == 200:
+                            msg = "Cookie已失效"
+                        else:
+                            msg = f"状态码：{res.status_code}"
+                        self.warn(f"{site} {checkin_text}失败，{msg}")
+                        return f"【{site}】{checkin_text}失败，{msg}！"
+                    else:
+                        self.info(f"{site} {checkin_text}成功")
+                        return f"【{site}】{checkin_text}成功"
+                elif res is not None:
+                    self.warn(f"{site} {checkin_text}失败，状态码：{res.status_code}")
+                    return f"【{site}】{checkin_text}失败，状态码：{res.status_code}！"
+                else:
+                    self.warn(f"{site} {checkin_text}失败，无法打开网站")
+                    return f"【{site}】{checkin_text}失败，无法打开网站！"
+        except Exception as e:
+            ExceptionUtils.exception_traceback(e)
+            self.warn("%s 签到出错：%s" % (site, str(e)))
+            return f"{site} 签到出错：{str(e)}！"
 
     def stop_service(self):
         pass
