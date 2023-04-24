@@ -163,6 +163,8 @@ class _IPluginModule(metaclass=ABCMeta):
             return False
         if not plugin_id:
             plugin_id = self.__class__.__name__
+        if self.__is_obj(value):
+            value = json.dumps(value)
         return DbHelper().update_plugin_history(plugin_id=plugin_id, key=key, value=value)
 
     def delete_history(self, key, plugin_id=None):
