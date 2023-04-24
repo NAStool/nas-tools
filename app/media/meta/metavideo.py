@@ -135,7 +135,7 @@ class MetaVideo(MetaBase):
         # 对某些网站电视剧分集特殊名称的处理
         if self.begin_episode is None:
             _episode_chinese_re = r"^\[.+?(EP?\d{1,4}-EP?\d{1,4})\]|^\[.+?(EP?\d{1,4})\]|第 ?(\d{1,4}-\d{1,4}) ?集|第 ?(\d{1,4}) ?集"
-            _episode_chinese_match = re.search(_episode_chinese_re, title, re.IGNORECASE)
+            _episode_chinese_match = re.search(_episode_chinese_re, original_title, re.IGNORECASE)
             if _episode_chinese_match:
                 _episode_chinese = _episode_chinese_match.group(0)
                 if _episode_chinese:
