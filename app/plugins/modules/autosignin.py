@@ -259,7 +259,7 @@ class AutoSignIn(_IPluginModule):
 
         # 执行签到
         self.info("开始执行签到任务")
-        with ThreadPool(min(len(sites), self._queue_cnt or 10)) as p:
+        with ThreadPool(min(len(sites), int(self._queue_cnt) or 10)) as p:
             status = p.map(self.signin_site, sites)
 
         if status:
