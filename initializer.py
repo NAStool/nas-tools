@@ -267,7 +267,7 @@ def update_config():
         if indexer_sites:
             SystemConfig().set(SystemConfigKey.UserIndexerSites,
                                indexer_sites)
-            _config.pop("indexer_sites")
+            _config['pt'].pop("indexer_sites")
             overwrite_cofig = True
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
