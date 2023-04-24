@@ -225,7 +225,7 @@ class MetaVideo(MetaBase):
             elif re.search(r"%s" % self._season_re, token, re.IGNORECASE):
                 # 季的处理
                 if self.en_name and re.search(r"SEASON$", self.en_name, re.IGNORECASE):
-                    # 如果匹配到季，英文名结尾也有Season，说明Season属于标题，不应在后续作为干扰词去除
+                    # 如果匹配到季，英文名结尾为Season，说明Season属于标题，不应在后续作为干扰词去除
                     self.en_name += ' '
                 self._stop_name_flag = True
                 return
