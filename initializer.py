@@ -7,11 +7,13 @@ from watchdog.observers import Observer
 from werkzeug.security import generate_password_hash
 
 import log
+from app.conf import SystemConfig
 from app.helper import DbHelper
 from app.plugins import PluginManager
 from app.media import Category
 from app.utils import ConfigLoadCache, CategoryLoadCache, ExceptionUtils, StringUtils
 from app.utils.commons import INSTANCES
+from app.utils.types import SystemConfigKey
 from config import Config
 
 _observer = Observer(timeout=10)
@@ -234,6 +236,28 @@ def update_config():
             # 删除旧配置
             _config.pop("douban")
             overwrite_cofig = True
+    except Exception as e:
+        ExceptionUtils.exception_traceback(e)
+
+    # 刮削配置改为存数据库
+    try:
+        scraper_conf = {}
+        # Nfo
+        scraper_nfo = Config().get_config("scraper_nfo")
+        if scraper_nfo:
+            scraper_conf["scraper_nfo"] = scraper_nfo
+            _config.pop("scraper_nfo")
+            overwrite_cofig = True
+        # 图片
+        scraper_pic = Config().get_config("scraper_pic")
+        if scraper_pic:
+            scraper_conf["scraper_pic"] = scraper_pic
+            _config.pop("scraper_pic")
+            overwrite_cofig = True
+        # 保存
+        if scraper_conf:
+            SystemConfig().set(SystemConfigKey.UserScraperConf,
+                               scraper_conf)
     except Exception as e:
         ExceptionUtils.exception_traceback(e)
 

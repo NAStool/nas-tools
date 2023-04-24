@@ -133,53 +133,6 @@ plex:
   # 【Plex用户密码】
   password:
 
-# 【配置nfo刮削信息】
-scraper_nfo:
-  # 电影
-  movie:
-    basic: true
-    credits: true
-    credits_chinese: true
-  # 电视剧
-  tv:
-    basic: true
-    credits: true
-    credits_chinese: true
-    # 季
-    season_basic: true
-    # 集
-    episode_basic: true
-    episode_credits: true
-
-# 【配置图片刮削信息】
-scraper_pic:
-  # 电影
-  movie:
-    poster: true
-    backdrop: true
-    background: true
-    logo: true
-    disc: true
-    banner: true
-    thumb: true
-  # 电视剧
-  tv:
-    poster: true
-    backdrop: true
-    background: true
-    logo: true
-    clearart: true
-    banner: true
-    thumb: true
-    # 季
-    season_poster: true
-    season_banner: true
-    season_thumb: true
-    # 集
-    episode_thumb: false
-    # 开启后，读取视频文件生成缩略图
-    episode_thumb_ffmpeg: false
-
 # 【配置站点搜索信息】
 pt:
   #【聚合搜索使用的检索器】：builtin

@@ -5,13 +5,14 @@ from xml.dom import minidom
 from requests.exceptions import RequestException
 
 import log
+from app.conf import SystemConfig
 from app.helper import FfmpegHelper
 from app.media.douban import DouBan
 from app.media.meta import MetaInfo
 from app.utils.commons import retry
 from config import Config, RMT_MEDIAEXT
 from app.utils import DomUtils, RequestUtils, ExceptionUtils, NfoReader
-from app.utils.types import MediaType
+from app.utils.types import MediaType, SystemConfigKey
 from app.media import Media
 
 
@@ -25,8 +26,10 @@ class Scraper:
         self.media = Media()
         self.douban = DouBan()
         self._scraper_flag = Config().get_config('media').get("nfo_poster")
-        self._scraper_nfo = Config().get_config('scraper_nfo')
-        self._scraper_pic = Config().get_config('scraper_pic')
+        scraper_conf = SystemConfig().get(SystemConfigKey.UserScraperConf)
+        if scraper_conf:
+            self._scraper_nfo = scraper_conf.get('scraper_nfo') or {}
+            self._scraper_pic = scraper_conf.get('scraper_pic') or {}
 
     def folder_scraper(self, path, exclude_path=None, mode=None):
         """

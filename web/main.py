@@ -854,12 +854,15 @@ def basic():
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
     CustomScriptCfg = SystemConfig().get(SystemConfigKey.CustomScript)
+    ScraperConf = SystemConfig().get(SystemConfigKey.UserScraperConf)
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,
                            RmtModeDict=RmtModeDict,
                            CustomScriptCfg=CustomScriptCfg,
-                           CurrentUser=current_user)
+                           CurrentUser=current_user,
+                           ScraperNfo=ScraperConf.get("scraper_nfo") or {},
+                           ScraperPic=ScraperConf.get("scraper_pic") or {})
 
 
 # 自定义识别词设置页面
