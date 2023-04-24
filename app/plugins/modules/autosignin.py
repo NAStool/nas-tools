@@ -229,8 +229,7 @@ class AutoSignIn(_IPluginModule):
                 return
 
         # 查询签到站点
-        sites = Sites().get_sites(signin=True,
-                                  siteids=sign_sites)
+        sites = Sites().get_sites(siteids=sign_sites)
         if not sites:
             self.info("没有可签到站点，停止运行")
             return
