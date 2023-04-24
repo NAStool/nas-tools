@@ -241,14 +241,14 @@ class AutoSignIn(_IPluginModule):
         today_history = self.get_history(key=today)
         if not today_history:
             sign_sites = self._sign_sites
-            self.debug(f"今日 {today} 未签到，开始签到已选站点")
+            self.info(f"今日 {today} 未签到，开始签到已选站点")
         else:
             # 根据重试关键词查找重签站点
             sign_sites = today_history if isinstance(today_history, list) else [today_history]
             if sign_sites:
-                self.debug(f"今日 {today} 已签到，开始重签重试站点及特殊站点")
+                self.info(f"今日 {today} 已签到，开始重签重试站点及特殊站点")
             else:
-                self.debug(f"今日 {today} 已签到，无重新签到站点")
+                self.info(f"今日 {today} 已签到，无重新签到站点")
                 return
 
         # 查询签到站点
