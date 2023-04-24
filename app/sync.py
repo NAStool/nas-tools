@@ -333,7 +333,16 @@ class Sync(object):
                 log.info(f"{mon_path} 的监控服务启动")
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
-                log.error(f"{mon_path} 启动目录监控失败：{str(e)}")
+                err_msg = str(e)
+                if "inotify" in err_msg and "reached" in err_msg:
+                    log.warn(f"目录监控服务启动出现异常：{err_msg}，请在宿主机上（不是docker容器内）执行以下命令并重启："
+                             + """
+                             echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+                             echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf
+                             sudo sysctl -p
+                             """)
+                else:
+                    log.error(f"{mon_path} 启动目录监控失败：{err_msg}")
 
     def stop_service(self):
         """
