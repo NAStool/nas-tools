@@ -137,8 +137,6 @@ plex:
 pt:
   #【聚合搜索使用的检索器】：builtin
   search_indexer: builtin
-  # 【内建索引器使用的站点】：只有在该站点列表中内建索引器搜索时才会使用
-  indexer_sites:
   # 【远程搜索自动择优下载开关】：如开启则微信等渠道搜索后会自动择优选择一项下载，如不开启则需要手工点击进入WEB页面选择下载
   # 如没有配置app.domain或无公网环境建议开启，否则无法跳转WEB页面手工选择
   search_auto: true
