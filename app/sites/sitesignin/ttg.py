@@ -54,11 +54,11 @@ class TTG(_ISiteSigninHandler):
 
         # 判断是否已签到
         html_res.encoding = "utf-8"
-        # sign_status = self.sign_in_result(html_res=html_res.text,
-        #                                   regexs=self._sign_regex)
-        # if sign_status:
-        #     self.info(f"今日已签到")
-        #     return True, f'【{site}】今日已签到'
+        sign_status = self.sign_in_result(html_res=html_res.text,
+                                          regexs=self._sign_regex)
+        if sign_status:
+            self.info(f"今日已签到")
+            return True, f'【{site}】今日已签到'
 
         # 获取签到参数
         signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
