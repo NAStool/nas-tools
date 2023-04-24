@@ -60,7 +60,7 @@ class AutoSignIn(_IPluginModule):
                         {
                             'title': '开启定时签到',
                             'required': "",
-                            'tooltip': '开启后会根据周期定时签到指定站点。（开启后可关闭基础设置--站点签到时间）',
+                            'tooltip': '开启后会根据周期定时签到指定站点。',
                             'type': 'switch',
                             'id': 'enable',
                         },
