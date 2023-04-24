@@ -28,7 +28,7 @@ class AutoSignIn(_IPluginModule):
     # 插件名称
     module_name = "站点自动签到"
     # 插件描述
-    module_desc = "站点自动登录/签到保号，支持重试。"
+    module_desc = "站点自动签到保号，支持重试。"
     # 插件图标
     module_icon = "signin.png"
     # 主题色
@@ -76,7 +76,7 @@ class AutoSignIn(_IPluginModule):
                             'required': "",
                             'tooltip': '开启后会根据周期定时签到指定站点。',
                             'type': 'switch',
-                            'id': 'enable',
+                            'id': 'enabled',
                         },
                         {
                             'title': '运行时通知',
