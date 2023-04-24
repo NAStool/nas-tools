@@ -61,11 +61,11 @@ class SiteSignin(object):
         if not sites:
             return
         with ThreadPool(min(len(sites), self._MAX_CONCURRENCY)) as p:
-            status = p.map(self.__signin_site, sites)
+            status = p.map(self.signin_site, sites)
         if status:
             self.message.send_site_signin_message(status)
 
-    def __signin_site(self, site_info):
+    def signin_site(self, site_info):
         """
         签到一个站点
         """
