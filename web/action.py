@@ -4968,7 +4968,7 @@ class WebAction:
         return {"code": 0, "result": Events}
 
     @staticmethod
-    def install_plugin(data):
+    def install_plugin(data, reload=True):
         """
         安装插件
         """
@@ -4982,7 +4982,8 @@ class WebAction:
         # 保存配置
         SystemConfig().set(SystemConfigKey.UserInstalledPlugins, user_plugins)
         # 重新加载插件
-        PluginManager().init_config()
+        if reload:
+            PluginManager().init_config()
         return {"code": 0, "msg": "插件安装成功"}
 
     @staticmethod
