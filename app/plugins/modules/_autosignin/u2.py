@@ -3,7 +3,7 @@ import re
 
 from lxml import etree
 
-from app.plugins.modules.sites._base import _ISiteSigninHandler
+from app.plugins.modules._autosignin._base import _ISiteSigninHandler
 from app.utils import StringUtils, RequestUtils
 from config import Config
 

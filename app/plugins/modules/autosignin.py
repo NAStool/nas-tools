@@ -42,7 +42,7 @@ class AutoSignIn(_IPluginModule):
     # 插件配置项ID前缀
     module_config_prefix = "autosignin_"
     # 加载顺序
-    module_order = 23
+    module_order = 0
     # 可使用的用户级别
     auth_level = 2
 
@@ -188,7 +188,7 @@ class AutoSignIn(_IPluginModule):
         # 启动服务
         if self._enabled or self._onlyonce:
             # 加载模块
-            self._site_schema = SubmoduleHelper.import_submodules('app.plugins.modules.sites',
+            self._site_schema = SubmoduleHelper.import_submodules('app.plugins.modules._autosignin',
                                                                   filter_func=lambda _, obj: hasattr(obj, 'match'))
             self.debug(f"加载站点签到：{self._site_schema}")
 
