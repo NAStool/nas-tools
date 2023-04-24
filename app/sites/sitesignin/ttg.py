@@ -14,9 +14,10 @@ class TTG(_ISiteSigninHandler):
 
     # 已签到
     _sign_regex = ['<b style="color:green;">已签到</b>']
+    _sign_text = '亲，您今天已签到过，不要太贪哦'
 
     # 签到成功
-    _success_regex = ['您已连续签到\\d+天，奖励\\d+积分，明天继续签到将获得\\d+积分奖励。']
+    _success_text = '您已连续签到'
 
     @classmethod
     def match(cls, url):
@@ -53,11 +54,11 @@ class TTG(_ISiteSigninHandler):
 
         # 判断是否已签到
         html_res.encoding = "utf-8"
-        sign_status = self.sign_in_result(html_res=html_res.text,
-                                          regexs=self._sign_regex)
-        if sign_status:
-            self.info(f"今日已签到")
-            return True, f'【{site}】今日已签到'
+        # sign_status = self.sign_in_result(html_res=html_res.text,
+        #                                   regexs=self._sign_regex)
+        # if sign_status:
+        #     self.info(f"今日已签到")
+        #     return True, f'【{site}】今日已签到'
 
         # 获取签到参数
         signed_timestamp = re.search('(?<=signed_timestamp: ")\\d{10}', html_res.text).group()
@@ -78,12 +79,13 @@ class TTG(_ISiteSigninHandler):
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'
 
-        # 判断是否签到成功
-        sign_status = self.sign_in_result(html_res=sign_res.text,
-                                          regexs=self._success_regex)
-        if sign_status:
+        sign_res.encoding = "utf-8"
+        if self._success_text in sign_res.text:
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
-        else:
-            self.error(f"签到失败，未知原因")
-            return False, f'【{site}】签到失败，未知原因'
+        if self._sign_text in sign_res.text:
+            self.info(f"今日已签到")
+            return True, f'【{site}】今日已签到'
+
+        self.error(f"签到失败，未知原因")
+        return False, f'【{site}】签到失败，未知原因'
