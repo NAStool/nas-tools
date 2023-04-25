@@ -15,6 +15,7 @@ class Filter:
     dbhelper = None
     _groups = []
     _rules = []
+    _language_options = None # tmdb电影语言表
 
     def __init__(self):
         self.init_config()
@@ -24,6 +25,9 @@ class Filter:
         self.rg_matcher = ReleaseGroupsMatcher()
         self._groups = self.get_filter_group()
         self._rules = self.get_filter_rule()
+        self._language_options = {m.get('value'): m.get('name') for m in ModuleConf.DISCOVER_FILTER_CONF.get(
+            "tmdb_movie").get("with_original_language").get("options")
+            if m.get('value') }
 
     def get_rule_groups(self, groupid=None, default=False):
         """
@@ -109,6 +113,8 @@ class Filter:
         title = meta_info.org_string
         if meta_info.subtitle:
             title = f"{title} {meta_info.subtitle}"
+        if meta_info.original_language: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
+            title = f"{title} 原始语言：{self._language_options[meta_info.original_language]}"
         # 过滤规则组
         if not rulegroup:
             rulegroup = self.get_rule_groups(default=True)
@@ -259,6 +265,8 @@ class Filter:
         text = meta_info.org_string
         if meta_info.subtitle:
             text = f"{text} {meta_info.subtitle}"
+        if meta_info.original_language: # 将语种信息写入文本，以适应过滤规则中要求中文，而原始语言即中文的种子副标题可能不标记中文的情况
+            text = f"{text} 原始语言：{self._language_options[meta_info.original_language]}"
         # 过滤质量
         if filter_args.get("restype"):
             restype_re = ModuleConf.TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
