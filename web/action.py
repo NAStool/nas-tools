@@ -1115,7 +1115,7 @@ class WebAction:
             # 站点不存在
             if not sites:
                 return {"code": 400, "msg": "站点不存在"}
-            old_name = sites[0].NAME
+            old_name = sites.get('name')
             ret = _sites.update_site(tid=tid,
                                      name=name,
                                      site_pri=site_pri,
@@ -1228,8 +1228,7 @@ class WebAction:
             # 清理
             os.system("sudo git clean -dffx")
             # 升级
-            branch = "dev" if os.environ.get(
-                "NASTOOL_VERSION") == "dev" else "master"
+            branch = os.getenv("NASTOOL_VERSION", "master")
             os.system(f"sudo git fetch --depth 1 origin {branch}")
             os.system(f"sudo git reset --hard origin/{branch}")
             os.system("sudo git submodule update --init --recursive")

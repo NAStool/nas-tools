@@ -257,7 +257,7 @@ class Sites:
         site_cookie = site_info.get("cookie")
         if not site_cookie:
             return False, "未配置站点Cookie", 0
-        ua = site_info.get("ua")
+        ua = site_info.get("ua") or Config().get_ua()
         site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
         if not site_url:
             return False, "未配置站点地址", 0

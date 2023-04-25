@@ -1,4 +1,5 @@
 import time
+import os
 
 from func_timeout import func_timeout, FunctionTimedOut
 from pyquery import PyQuery
@@ -26,6 +27,7 @@ ACCESS_DENIED_SELECTORS = [
 CHALLENGE_TITLES = [
     # Cloudflare
     'Just a moment...',
+    '请稍候…',
     # DDoS-GUARD
     'DDOS-GUARD',
 ]
@@ -33,17 +35,21 @@ CHALLENGE_SELECTORS = [
     # Cloudflare
     '#cf-challenge-running', '.ray_id', '.attack-box', '#cf-please-wait', '#challenge-spinner', '#trk_jschal_js',
     # Custom CloudFlare for EbookParadijs, Film-Paleis, MuziekFabriek and Puur-Hollands
-    'td.info #js_info'
+    'td.info #js_info',
+    # Fairlane / pararius.com
+    'div.vc div.text-box h2'
 ]
 SHORT_TIMEOUT = 6
+CF_TIMEOUT = int(os.getenv("NASTOOL_CF_TIMEOUT", "60"))
 
 
-def resolve_challenge(driver: WebDriver, timeout=30):
+def resolve_challenge(driver: WebDriver, timeout=CF_TIMEOUT):
+    start_ts = time.time()
     try:
         func_timeout(timeout, _evil_logic, args=(driver,))
         return True
     except FunctionTimedOut:
-        log.error(f'Error solving the challenge. Timeout after {timeout} seconds.')
+        log.error(f'Error solving the challenge. Timeout {timeout} after {round(time.time() - start_ts, 1)} seconds.')
         return False
     except Exception as e:
         log.error('Error solving the challenge. ' + str(e))
@@ -60,8 +66,9 @@ def under_challenge(html_text: str):
     if not html_text:
         return False
     page_title = PyQuery(html_text)('title').text()
+    log.debug("under_challenge page_title=" + page_title)
     for title in CHALLENGE_TITLES:
-        if page_title == title:
+        if page_title.lower() == title.lower():
             return True
     for selector in CHALLENGE_SELECTORS:
         html_doc = PyQuery(html_text)
@@ -77,7 +84,7 @@ def _until_title_changes(driver: WebDriver, titles):
 def _any_match_titles(driver: WebDriver, titles):
     page_title = driver.title
     for title in titles:
-        if page_title == title:
+        if page_title.lower() == title.lower():
             return True
     return False
 
@@ -112,7 +119,7 @@ def _evil_logic(driver: WebDriver):
     challenge_found = False
     if _any_match_titles(driver, CHALLENGE_TITLES):
         challenge_found = True
-        log.info("Challenge detected. Title found")
+        log.info("Challenge detected. Title found: " + driver.title)
     if not challenge_found:
         # find challenge by selectors
         if _any_match_selectors(driver, CHALLENGE_SELECTORS):
@@ -150,6 +157,8 @@ def _evil_logic(driver: WebDriver):
             log.debug("Timeout waiting for redirect")
 
         log.info("Challenge solved!")
+    else:
+        log.info("Challenge not detected!")
 
 
 def click_verify(driver: WebDriver):
