@@ -1,7 +1,6 @@
 import os
 
 from app.downloader import Downloader
-from app.helper import DbHelper
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
 from app.utils.types import EventType
@@ -31,7 +30,6 @@ class TorrentRemover(_IPluginModule):
     auth_level = 2
 
     # 私有属性
-    dbhelper = None
     downloader = None
     _enable = False
 
@@ -39,7 +37,6 @@ class TorrentRemover(_IPluginModule):
         self._ua = Config().get_ua()
 
     def init_config(self, config: dict = None):
-        self.dbhelper = DbHelper()
         self.downloader = Downloader()
         if config:
             self._enable = config.get("enable")
@@ -88,7 +85,7 @@ class TorrentRemover(_IPluginModule):
         media_title = event_info.get("media_info", {}).get("title")
         source_file = os.path.join(source_path, source_filename)
         # 同一标题的所有下载任务
-        downloadinfos = self.dbhelper.get_download_history_by_title(title=media_title) or []
+        downloadinfos = Downloader().get_download_history_by_title(title=media_title)
         for info in downloadinfos:
             if not info.DOWNLOADER or not info.DOWNLOAD_ID:
                 continue

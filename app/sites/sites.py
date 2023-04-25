@@ -300,3 +300,38 @@ class Sites:
         if note:
             infos = json.loads(note)
         return infos
+
+    def add_site(self, name, site_pri,
+                 rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None):
+        """
+        添加站点
+        """
+        return self.dbhelper.insert_config_site(name=name,
+                                                site_pri=site_pri,
+                                                rssurl=rssurl,
+                                                signurl=signurl,
+                                                cookie=cookie,
+                                                note=note,
+                                                rss_uses=rss_uses)
+
+    def update_site(self, tid, name, site_pri,
+                    rssurl, signurl, cookie, note, rss_uses):
+        """
+        更新站点
+        """
+        return self.dbhelper.update_config_site(tid=tid,
+                                                name=name,
+                                                site_pri=site_pri,
+                                                rssurl=rssurl,
+                                                signurl=signurl,
+                                                cookie=cookie,
+                                                note=note,
+                                                rss_uses=rss_uses)
+
+    def update_site_cookie(self, siteid, cookie, ua=None):
+        """
+        更新站点Cookie和UA
+        """
+        return self.dbhelper.update_site_cookie_ua(tid=siteid,
+                                                   cookie=cookie,
+                                                   ua=ua)

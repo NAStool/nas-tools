@@ -1363,3 +1363,10 @@ class Downloader:
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+
+    def get_download_history_by_title(self, title):
+        """
+        根据标题查询下载历史记录
+        :return:
+        """
+        return self.dbhelper.get_download_history_by_title(title=title) or []

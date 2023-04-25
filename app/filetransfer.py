@@ -1242,6 +1242,14 @@ class FileTransfer:
 
         return file_list, ""
 
+    def get_transfer_info_by(self, tmdbid, season=None, season_episode=None):
+        """
+        查询转移历史记录
+        """
+        return self.dbhelper.get_transfer_info_by(tmdbid=tmdbid,
+                                                  season=season,
+                                                  season_episode=season_episode)
+
 
 if __name__ == "__main__":
     """
