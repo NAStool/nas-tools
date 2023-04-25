@@ -193,7 +193,6 @@ class WebAction:
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
             "get_remove_torrents": self.__get_remove_torrents,
             "auto_remove_torrents": self.__auto_remove_torrents,
-            "delete_douban_history": self.__delete_douban_history,
             "list_brushtask_torrents": self.__list_brushtask_torrents,
             "set_system_config": self.__set_system_config,
             "get_site_user_statistics": self.get_site_user_statistics,
@@ -410,11 +409,6 @@ class WebAction:
                                                       cfg_value, "http": "%s" % cfg_value}
             else:
                 cfg['app']['proxies'] = {"https": None, "http": None}
-            return cfg
-        # 豆瓣用户列表
-        if cfg_key == "douban.users":
-            vals = cfg_value.split(",")
-            cfg['douban']['users'] = vals
             return cfg
         # 最大支持三层赋值
         keys = cfg_key.split(".")
@@ -1115,21 +1109,19 @@ class WebAction:
             return {"code": 400, "msg": "站点名称重复"}
 
         if tid:
-            sites = self.dbhelper.get_site_by_id(tid)
+            sites = Sites().get_sites(siteid=tid)
             # 站点不存在
             if not sites:
                 return {"code": 400, "msg": "站点不存在"}
-
             old_name = sites[0].NAME
-
-            ret = self.dbhelper.update_config_site(tid=tid,
-                                                   name=name,
-                                                   site_pri=site_pri,
-                                                   rssurl=rssurl,
-                                                   signurl=signurl,
-                                                   cookie=cookie,
-                                                   note=note,
-                                                   rss_uses=rss_uses)
+            ret = Sites().update_site(tid=tid,
+                                      name=name,
+                                      site_pri=site_pri,
+                                      rssurl=rssurl,
+                                      signurl=signurl,
+                                      cookie=cookie,
+                                      note=note,
+                                      rss_uses=rss_uses)
             if ret and (name != old_name):
                 # 更新历史站点数据信息
                 self.dbhelper.update_site_user_statistics_site_name(
@@ -1138,13 +1130,13 @@ class WebAction:
                 self.dbhelper.update_site_statistics_site_name(name, old_name)
 
         else:
-            ret = self.dbhelper.insert_config_site(name=name,
-                                                   site_pri=site_pri,
-                                                   rssurl=rssurl,
-                                                   signurl=signurl,
-                                                   cookie=cookie,
-                                                   note=note,
-                                                   rss_uses=rss_uses)
+            ret = Sites().add_site(name=name,
+                                   site_pri=site_pri,
+                                   rssurl=rssurl,
+                                   signurl=signurl,
+                                   cookie=cookie,
+                                   note=note,
+                                   rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
         return {"code": ret}
@@ -4402,13 +4394,6 @@ class WebAction:
         """
         sitename = data.get("name")
         return {"code": 0, "icon": Sites().get_site_favicon(site_name=sitename)}
-
-    def __delete_douban_history(self, data):
-        """
-        删除豆瓣同步历史
-        """
-        self.dbhelper.delete_douban_history(data.get("id"))
-        return {"code": 0}
 
     def __list_brushtask_torrents(self, data):
         """

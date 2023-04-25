@@ -7,9 +7,9 @@ from selenium.webdriver.support import expected_conditions as es
 from selenium.webdriver.support.wait import WebDriverWait
 
 import log
-from app.helper import ChromeHelper, ProgressHelper, DbHelper, OcrHelper, SiteHelper
-from app.sites.sites import Sites
+from app.helper import ChromeHelper, ProgressHelper, OcrHelper, SiteHelper
 from app.sites.siteconf import SiteConf
+from app.sites.sites import Sites
 from app.utils import StringUtils, RequestUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import ProgressKey
@@ -21,14 +21,12 @@ class SiteCookie(object):
     sites = None
     siteconf = None
     ocrhelper = None
-    dbhelpter = None
     captcha_code = {}
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        self.dbhelpter = DbHelper()
         self.progress = ProgressHelper()
         self.sites = Sites()
         self.siteconf = SiteConf()
@@ -289,7 +287,7 @@ class SiteCookie(object):
                                      text="%s %s" % (site.get("name"), msg))
                 retcode = 1
             else:
-                self.dbhelpter.update_site_cookie_ua(site.get("id"), cookie, ua)
+                self.sites.update_site_cookie(siteid=site.get("id"), cookie=cookie, ua=ua)
                 log.info("【Sites】更新 %s 的Cookie和User-Agent成功" % site.get("name"))
                 messages.append("%s %s" % (site.get("name"), msg or "更新Cookie和User-Agent成功"))
                 self.progress.update(ptype=ProgressKey.SiteCookie,
