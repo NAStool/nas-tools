@@ -51,11 +51,15 @@
             {% set theLibLink = theLibLink|replace("localhost",curdomainleft,1) %}
           {% endif %}
           <a class="card card-link-pop rounded-3 overflow-hidden library-{{ Library.id }}" href="{{ theLibLink }}" target="_blank">
+          {% if Library.image %}
             <custom-img img-class="w-100"
                         img-src="{{ Library.image }}"
                         img-ratio="50%"
                         img-style="object-fit: cover;"
             ></custom-img>
+          {% else %}
+            <custom-plex-library-img img-src-list='{{ Library.image_list }}'></custom-plex-library-img>
+          {% endif %}
             <div class="m-2 text-center">
               {{ Library.name }}
             </div>
