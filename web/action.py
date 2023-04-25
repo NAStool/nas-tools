@@ -230,7 +230,8 @@ class WebAction:
             "update_category_config": self.update_category_config,
             "get_category_config": self.get_category_config,
             "get_system_processes": self.get_system_processes,
-            "iyuu_bind_site": self.iyuu_bind_site
+            "iyuu_bind_site": self.iyuu_bind_site,
+            "run_plugin_method": self.run_plugin_method,
         }
 
     def action(self, cmd, data=None):
@@ -5129,3 +5130,17 @@ class WebAction:
                                           passkey=data.get('passkey'),
                                           uid=data.get('uid'))
         return {"code": 0 if state else 1, "msg": msg}
+
+    @staticmethod
+    def run_plugin_method(data):
+        """
+        运行插件方法
+        """
+        plugin_id = data.get("plugin_id")
+        method = data.get("method")
+        if not plugin_id or not method:
+            return {"code": 1, "msg": "参数错误"}
+        data.pop("plugin_id")
+        data.pop("method")
+        result = PluginManager().run_plugin_method(pid=plugin_id, method=method, **data)
+        return {"code": 0, "result": result}

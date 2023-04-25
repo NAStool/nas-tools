@@ -322,3 +322,13 @@ class PluginManager:
             if hasattr(plugin, "get_command"):
                 ret_commands.append(plugin.get_command())
         return ret_commands
+
+    def run_plugin_method(self, pid, method, *args, **kwargs):
+        """
+        运行插件方法
+        """
+        if not self._running_plugins.get(pid):
+            return None
+        if not hasattr(self._running_plugins[pid], method):
+            return None
+        return getattr(self._running_plugins[pid], method)(*args, **kwargs)

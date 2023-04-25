@@ -334,12 +334,12 @@ class DoubanSync(_IPluginModule):
     @staticmethod
     def get_script():
         """
-        TODO 删除豆瓣历史记录的JS脚本
+        删除豆瓣历史记录的JS脚本
         """
         return """
           // 删除豆瓣历史记录
           function DoubanSync_delete_douban_history(id){
-            ajax_post("delete_douban_history", {"id": id}, function (ret) {
+            ajax_post("run_plugin_method", {"plugin_id": 'DoubanSync', 'method': 'delete_sync_history', 'douban_id': id}, function (ret) {
               $("#douban_history_" + id).remove();
             });
         
@@ -373,6 +373,12 @@ class DoubanSync(_IPluginModule):
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+
+    def delete_sync_history(self, douban_id):
+        """
+        删除同步历史
+        """
+        return self.delete_history(key=douban_id)
 
     @EventHandler.register(EventType.DoubanSync)
     def sync(self, event=None):
