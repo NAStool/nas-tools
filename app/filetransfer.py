@@ -1173,6 +1173,7 @@ class FileTransfer:
             "edition": media.get_edtion_string() or None,
             "videoFormat": media.resource_pix,
             "releaseGroup": media.resource_team,
+            "customization": media.customization,
             "effect": media.resource_effect,
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,

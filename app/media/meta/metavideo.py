@@ -7,6 +7,7 @@ from app.utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
 from app.media.meta.release_groups import ReleaseGroupsMatcher
+from app.media.meta.customization import CustomizationMatcher
 
 
 class MetaVideo(MetaBase):
@@ -132,6 +133,8 @@ class MetaVideo(MetaBase):
             self.part = None
         # 制作组/字幕组
         self.resource_team = ReleaseGroupsMatcher().match(title=original_title) or None
+        # 自定义占位符
+        self.customization = CustomizationMatcher().match(title=original_title) or None
 
     def __fix_name(self, name):
         if not name:

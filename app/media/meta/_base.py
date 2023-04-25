@@ -47,6 +47,8 @@ class MetaBase(object):
     resource_pix = None
     # 识别的制作组/字幕组
     resource_team = None
+    # 自定义占位符
+    customization = None
     # 视频编码
     video_encode = None
     # 音频编码
@@ -759,6 +761,7 @@ class MetaBase(object):
             "resource_effect": self.resource_effect,
             "resource_pix": self.resource_pix,
             "resource_team": self.resource_team,
+            "customization": self.customization,
             "video_encode": self.video_encode,
             "audio_encode": self.audio_encode,
             "category": self.category,
