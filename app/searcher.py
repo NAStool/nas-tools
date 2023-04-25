@@ -2,6 +2,7 @@ import log
 from app.helper import DbHelper
 from app.indexer import Indexer
 from app.plugins import EventManager
+from app.utils.commons import singleton
 from config import Config
 from app.message import Message
 from app.downloader import Downloader
@@ -10,6 +11,7 @@ from app.helper import ProgressHelper
 from app.utils.types import SearchType, EventType, ProgressKey
 
 
+@singleton
 class Searcher:
     downloader = None
     media = None

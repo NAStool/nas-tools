@@ -17,6 +17,7 @@ from app.media.meta import MetaInfo
 from app.message import Message
 from app.plugins import EventManager
 from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ExceptionUtils, NumberUtils
+from app.utils.commons import singleton
 from app.utils.types import MediaType, SyncType, RmtMode, EventType, ProgressKey, MovieTypes
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT, Config
@@ -24,6 +25,7 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, RMT_MIN_FILESIZE, DEFA
 lock = Lock()
 
 
+@singleton
 class FileTransfer:
     media = None
     message = None
@@ -54,6 +56,9 @@ class FileTransfer:
     _ignored_files = ''
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.media = Media()
         self.message = Message()
         self.category = Category()
@@ -62,9 +67,7 @@ class FileTransfer:
         self.dbhelper = DbHelper()
         self.progress = ProgressHelper()
         self.eventmanager = EventManager()
-        self.init_config()
 
-    def init_config(self):
         media = Config().get_config('media')
         if media:
             # 电影目录

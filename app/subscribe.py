@@ -14,12 +14,14 @@ from app.plugins import EventManager
 from app.searcher import Searcher
 from app.sites import Sites
 from app.utils import Torrent
+from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType, EventType, SystemConfigKey, RssType
 from web.backend.web_utils import WebUtils
 
 lock = Lock()
 
 
+@singleton
 class Subscribe:
     dbhelper = None
     metahelper = None
@@ -31,8 +33,12 @@ class Subscribe:
     douban = None
     filter = None
     eventmanager = None
+    indexer = None
 
     def __init__(self):
+        self.init_config()
+
+    def init_config(self):
         self.dbhelper = DbHelper()
         self.metahelper = MetaHelper()
         self.searcher = Searcher()

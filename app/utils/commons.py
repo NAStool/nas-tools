@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import threading
 import time
+from collections import OrderedDict
 
 # 线程锁
 lock = threading.RLock()
 
 # 全局实例
-INSTANCES = {}
+INSTANCES = OrderedDict()
 
 
 # 单例模式注解

@@ -12,12 +12,14 @@ from app.message import Message
 from app.sites import Sites, SiteConf
 from app.subscribe import Subscribe
 from app.utils import DomUtils, RequestUtils, StringUtils, ExceptionUtils, RssTitleUtils, Torrent
+from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
 from config import Config
 
 lock = Lock()
 
 
+@singleton
 class Rss:
     filter = None
     media = None
