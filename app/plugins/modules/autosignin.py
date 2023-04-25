@@ -224,6 +224,19 @@ class AutoSignIn(_IPluginModule):
                 self._scheduler.print_jobs()
                 self._scheduler.start()
 
+    @staticmethod
+    def get_command():
+        """
+        定义远程控制命令
+        :return: 命令关键字、事件、描述、附带数据
+        """
+        return {
+            "cmd": "/pts",
+            "event": EventType.SiteSignin,
+            "desc": "站点签到",
+            "data": {}
+        }
+
     @EventHandler.register(EventType.SiteSignin)
     def sign_in(self, event=None):
         """

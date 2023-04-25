@@ -31,6 +31,7 @@ class _IPluginModule(metaclass=ABCMeta):
     - get_history() 获取插件运行数据
     - update_history() 更新插件运行数据
     - delete_history() 删除插件运行数据
+    - get_command() 获取插件命令，使用消息机制通过远程控制
 
     """
     # 插件名称

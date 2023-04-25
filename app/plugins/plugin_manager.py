@@ -306,3 +306,19 @@ class PluginManager:
             # 汇总
             all_confs[pid] = conf
         return all_confs
+
+    def get_plugin_commands(self):
+        """
+        获取插件命令
+        [{
+            "cmd": "/xx",
+            "event": EventType.xx,
+            "desc": "xxxx",
+            "data": {}
+        }]
+        """
+        ret_commands = []
+        for _, plugin in self._running_plugins.items():
+            if hasattr(plugin, "get_command"):
+                ret_commands.append(plugin.get_command())
+        return ret_commands

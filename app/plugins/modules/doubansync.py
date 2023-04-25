@@ -350,6 +350,19 @@ class DoubanSync(_IPluginModule):
           }
         """
 
+    @staticmethod
+    def get_command():
+        """
+        定义远程控制命令
+        :return: 命令关键字、事件、描述、附带数据
+        """
+        return {
+            "cmd": "/db",
+            "event": EventType.DoubanSync,
+            "desc": "豆瓣同步",
+            "data": {}
+        }
+
     def stop_service(self):
         """
         停止服务
