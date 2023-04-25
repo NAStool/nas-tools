@@ -1,3 +1,5 @@
+import json
+
 from lxml import etree
 
 from app.plugins.modules._autosignin._base import _ISiteSigninHandler
@@ -51,11 +53,9 @@ class ZhuQue(_ISiteSigninHandler):
             return False, f'【{site}】模拟访问失败'
 
         # 释放技能
+        msg = '失败'
         x_csrf_token = html.xpath("//meta[@name='x-csrf-token']/@content")[0]
-        if not x_csrf_token:
-            msg = '失败'
-        else:
-            msg = '成功'
+        if x_csrf_token:
             data = {
                 "all": 1,
                 "resetModal": "true"
@@ -65,14 +65,18 @@ class ZhuQue(_ISiteSigninHandler):
                 "Content-Type": "application/json; charset=utf-8",
                 "User-Agent": ua
             }
-            res = RequestUtils(cookies=site_cookie,
-                               headers=headers,
-                               proxies=proxy
-                               ).post_res(url="https://zhuque.in/api/gaming/fireGenshinCharacterMagic", json=data)
-            if not res or res.status_code != 200:
+            skill_res = RequestUtils(cookies=site_cookie,
+                                     headers=headers,
+                                     proxies=proxy
+                                     ).post_res(url="https://zhuque.in/api/gaming/fireGenshinCharacterMagic", json=data)
+            if not skill_res or skill_res.status_code != 200:
                 self.error(f"模拟访问失败，释放技能失败")
-                msg = '失败'
 
             # '{"status":200,"data":{"code":"FIRE_GENSHIN_CHARACTER_MAGIC_SUCCESS","bonus":0}}'
-            # dict = json.loads(res.text)
+            skill_dict = json.loads(skill_res.text)
+            if skill_dict['status'] == 200:
+                bonus = int(skill_dict['data']['bonus'])
+                msg = f'成功，获得{bonus}魔力'
+
+        self.info(f'【{site}】模拟访问成功，技能释放{msg}')
         return True, f'【{site}】模拟访问成功，技能释放{msg}'

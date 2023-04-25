@@ -252,16 +252,23 @@ class AutoSignIn(_IPluginModule):
         # 查看今天有没有签到历史
         today = today.strftime('%Y-%m-%d')
         today_history = self.get_history(key=today)
+        # 今日没数据
         if not today_history:
             sign_sites = self._sign_sites
             self.info(f"今日 {today} 未签到，开始签到已选站点")
         else:
-            # 根据重试关键词查找重签站点
-            sign_sites = today_history if isinstance(today_history, list) else [today_history]
+            # 今天已签到需要重签站点
+            retry_sites = today_history['retry']
+            # 今天已签到站点
+            already_sign_sites = today_history['sign']
+            # 今日未签站点
+            no_sign_sites = [site_id for site_id in self._sign_sites if site_id not in already_sign_sites]
+            # 签到站点 = 需要重签+今日未签
+            sign_sites = list(set(retry_sites + no_sign_sites))
             if sign_sites:
-                self.info(f"今日 {today} 已签到，开始重签重试站点及特殊站点")
+                self.info(f"今日 {today} 已签到，开始重签重试站点、特殊站点、未签站点")
             else:
-                self.info(f"今日 {today} 已签到，无重新签到站点")
+                self.info(f"今日 {today} 已签到，无重新签到站点，本次任务结束")
                 return
 
         # 查询签到站点
@@ -285,13 +292,13 @@ class AutoSignIn(_IPluginModule):
             if self._retry_keyword:
                 sites = {site.get('name'): site.get("id") for site in Sites().get_site_dict()}
                 for s in status:
-                    match = re.search(self._retry_keyword, s)
-                    if match:
-                        result = re.findall(r'【(.*?)】', s)
-                        if result:
-                            site_id = sites.get(result[0])
+                    site_names = re.findall(r'【(.*?)】', s)
+                    if site_names:
+                        site_id = sites.get(site_names[0])
+                        match = re.search(self._retry_keyword, s)
+                        if match:
                             if site_id:
-                                self.debug(f"站点 {result[0]} 命中重试关键词 {self._retry_keyword}")
+                                self.debug(f"站点 {site_names[0]} 命中重试关键词 {self._retry_keyword}")
                                 retry_sites.append(str(site_id))
 
                 # 签到站点加入特殊站点
@@ -306,9 +313,17 @@ class AutoSignIn(_IPluginModule):
 
             # 存入历史
             if not today_history:
-                self.history(today, retry_sites)
+                self.history(key=today,
+                             value={
+                                 "sign": self._sign_sites,
+                                 "retry": retry_sites
+                             })
             else:
-                self.update_history(today, retry_sites)
+                self.update_history(key=today,
+                                    value={
+                                        "sign": self._sign_sites,
+                                        "retry": retry_sites
+                                    })
 
             # 发送通知
             if self._notify:
@@ -328,7 +343,7 @@ class AutoSignIn(_IPluginModule):
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
         return None
-            
+
     def signin_site(self, site_info):
         """
         签到一个站点
