@@ -827,7 +827,7 @@ def basic():
         proxy = proxy.replace("http://", "")
     RmtModeDict = WebAction().get_rmt_modes()
     CustomScriptCfg = SystemConfig().get(SystemConfigKey.CustomScript)
-    ScraperConf = SystemConfig().get(SystemConfigKey.UserScraperConf)
+    ScraperConf = SystemConfig().get(SystemConfigKey.UserScraperConf) or {}
     return render_template("setting/basic.html",
                            Config=Config().get_config(),
                            Proxy=proxy,
