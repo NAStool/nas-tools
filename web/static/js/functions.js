@@ -1201,7 +1201,7 @@ function check_manual_input_path(select_id, input_id, manual_path=null) {
 // 获取保存路径
 function get_savepath(select_id, input_id) {
   let savepath = $(`#${select_id}`).val();
-  if (savepath === "manual") {
+  if (savepath === "manual" || savepath === null) {
     return $(`#${input_id}`).val();
   } else {
     return savepath;
