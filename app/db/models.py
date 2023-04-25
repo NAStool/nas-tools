@@ -133,25 +133,6 @@ class CUSTOMWORDGROUPS(Base):
     NOTE = Column(Text)
 
 
-class DOUBANMEDIAS(Base):
-    __tablename__ = 'DOUBAN_MEDIAS'
-    __table_args__ = (
-        Index('INDX_DOUBAN_MEDIAS_NAME', 'NAME', 'YEAR'),
-    )
-
-    ID = Column(Integer, Sequence('ID'), primary_key=True)
-    NAME = Column(Text)
-    YEAR = Column(Text)
-    TYPE = Column(Text)
-    RATING = Column(Text)
-    IMAGE = Column(Text)
-    STATE = Column(Text)
-    ADD_TIME = Column(Text)
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-
 class DOWNLOADER(Base):
     __tablename__ = 'DOWNLOADER'
 

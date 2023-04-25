@@ -134,27 +134,34 @@ class _IPluginModule(metaclass=ABCMeta):
                                          key=key,
                                          value=value)
 
-    def get_history(self, key, plugin_id=None):
+    def get_history(self, key=None, plugin_id=None):
         """
         获取插件运行数据，只返回一条，自动识别转换为对象
         """
-        if not key:
-            return None
-
         if not plugin_id:
             plugin_id = self.__class__.__name__
 
-        history = DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
-        if history:
+        historys = DbHelper().get_plugin_history(plugin_id=plugin_id, key=key)
+        if not isinstance(historys, list):
+            historys = [historys]
+        result = []
+        for history in historys:
+            if not history:
+                continue
             if self.__is_obj(history.VALUE):
                 try:
-                    return json.loads(history.VALUE)
+                    if key:
+                        return json.loads(history.VALUE)
+                    else:
+                        result.append(json.loads(history.VALUE))
+                    continue
                 except Exception as err:
                     print(str(err))
-                    return history.VALUE
-            else:
+            if key:
                 return history.VALUE
-        return {}
+            else:
+                result.append(history.VALUE)
+        return None if key else result
 
     def update_history(self, key, value, plugin_id=None):
         """

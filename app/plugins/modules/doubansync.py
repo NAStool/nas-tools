@@ -8,8 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from jinja2 import Template
 
 from app.downloader import Downloader
-from app.helper import DbHelper
-from app.media import DouBan, Media
+from app.media import DouBan
 from app.media.meta import MetaInfo
 from app.plugins import EventHandler
 from app.plugins.modules._base import _IPluginModule
@@ -18,6 +17,7 @@ from app.subscribe import Subscribe
 from app.utils import ExceptionUtils
 from app.utils.types import SearchType, RssType, EventType, MediaType
 from config import Config
+from web.backend.web_utils import WebUtils
 
 lock = Lock()
 
@@ -50,8 +50,6 @@ class DoubanSync(_IPluginModule):
     douban = None
     searcher = None
     downloader = None
-    media = None
-    dbhelper = None
     subscribe = None
     _enable = False
     _onlyonce = False
@@ -68,8 +66,6 @@ class DoubanSync(_IPluginModule):
         self.douban = DouBan()
         self.searcher = Searcher()
         self.downloader = Downloader()
-        self.media = Media()
-        self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
         if config:
             self._enable = config.get("enable")
@@ -252,7 +248,7 @@ class DoubanSync(_IPluginModule):
         插件的额外页面，返回页面标题和页面内容
         :return: 标题，页面内容，确定按钮响应函数
         """
-        results = self.dbhelper.get_douban_history()
+        results = self.get_history()
         template = """
           <div class="table-responsive table-modal-body">
             <table class="table table-vcenter card-table table-hover table-striped">
@@ -269,36 +265,36 @@ class DoubanSync(_IPluginModule):
               <tbody>
               {% if HistoryCount > 0 %}
                 {% for Item in DoubanHistory %}
-                  <tr id="douban_history_{{ Item.ID }}">
+                  <tr id="douban_history_{{ Item.id }}">
                     <td class="w-5">
-                      <img class="rounded w-5" src="{{ Item.IMAGE }}"
+                      <img class="rounded w-5" src="{{ Item.image }}"
                            onerror="this.src='../static/img/no-image.png'" alt=""
                            style="min-width: 50px"/>
                     </td>
                     <td>
-                      <div>{{ Item.NAME }} ({{ Item.YEAR }})</div>
-                      {% if Item.RATING %}
+                      <div>{{ Item.name }} ({{ Item.year }})</div>
+                      {% if Item.rating %}
                         <div class="text-muted text-nowrap">
-                        评份：{{ Item.RATING }}
+                        评份：{{ Item.rating }}
                         </div>
                       {% endif %}
                     </td>
                     <td>
-                      {{ Item.TYPE }}
+                      {{ Item.type }}
                     </td>
                     <td>
-                      {% if Item.STATE == 'DOWNLOADED' %}
+                      {% if Item.state == 'DOWNLOADED' %}
                         <span class="badge bg-green">已下载</span>
-                      {% elif Item.STATE == 'RSS' %}
+                      {% elif Item.state == 'RSS' %}
                         <span class="badge bg-blue">已订阅</span>
-                      {% elif Item.STATE == 'NEW' %}
+                      {% elif Item.state == 'NEW' %}
                         <span class="badge bg-blue">新增</span>
                       {% else %}
                         <span class="badge bg-orange">处理中</span>
                       {% endif %}
                     </td>
                     <td>
-                      <small>{{ Item.ADD_TIME or '' }}</small>
+                      <small>{{ Item.add_time or '' }}</small>
                     </td>
                     <td>
                       <div class="dropdown">
@@ -315,7 +311,7 @@ class DoubanSync(_IPluginModule):
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                           <a class="dropdown-item text-danger"
-                             href='javascript:DoubanSync_delete_douban_history("{{ Item.ID }}")'>
+                             href='javascript:DoubanSync_delete_douban_history("{{ Item.id }}")'>
                             删除
                           </a>
                         </div>
@@ -338,7 +334,7 @@ class DoubanSync(_IPluginModule):
     @staticmethod
     def get_script():
         """
-        删除豆瓣历史记录的JS脚本
+        TODO 删除豆瓣历史记录的JS脚本
         """
         return """
           // 删除豆瓣历史记录
@@ -395,18 +391,14 @@ class DoubanSync(_IPluginModule):
                 if not media or not media.get_name():
                     continue
                 try:
-                    # 查询数据库状态，已经加入RSS的不处理
-                    search_state = self.dbhelper.get_douban_search_state(media.get_name(), media.year)
-                    if not search_state or search_state[0] == "NEW":
+                    # 查询数据库状态
+                    history = self.get_history(media.douban_id)
+                    if not history or history.get("state") == "NEW":
                         if self._auto_search:
                             # 需要搜索
-                            if media.begin_season:
-                                subtitle = "第%s季" % media.begin_season
-                            else:
-                                subtitle = None
-                            media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""),
-                                                                   subtitle=subtitle,
-                                                                   mtype=media.type)
+                            media_info = WebUtils.get_mediainfo_from_id(mtype=media.type,
+                                                                        mediaid=f"DB:{media.douban_id}",
+                                                                        wait=True)
                             # 不需要自动加订阅，则直接搜索
                             if not media_info or not media_info.tmdb_info:
                                 self.warn("%s 未查询到媒体信息" % media.get_name())
@@ -416,12 +408,10 @@ class DoubanSync(_IPluginModule):
                             # 已经存在
                             if exist_flag:
                                 # 更新为已下载状态
-                                self.info("%s 已存在" % media.get_name())
-                                self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
+                                self.info("%s 已存在" % media_info.title)
+                                self.__update_history(media=media_info, state="DOWNLOADED")
                                 continue
                             if not self._auto_rss:
-                                # 合并季
-                                media_info.begin_season = media.begin_season
                                 # 开始搜索
                                 search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                                     media_info=media_info,
@@ -430,26 +420,27 @@ class DoubanSync(_IPluginModule):
                                     user_name=media_info.user_name)
                                 if search_result:
                                     # 下载全了更新为已下载，没下载全的下次同步再次搜索
-                                    self.dbhelper.insert_douban_media_state(media, "DOWNLOADED")
+                                    self.__update_history(media=media_info, state="DOWNLOADED")
                             else:
                                 # 需要加订阅，则由订阅去搜索
                                 self.info(
-                                    "%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
-                                code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
-                                                                                name=media.get_name(),
-                                                                                year=media.year,
+                                    "%s %s 更新到%s订阅中..." % (media_info.title,
+                                                                 media_info.year,
+                                                                 media_info.type.value))
+                                code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media_info.type,
+                                                                                name=media_info.title,
+                                                                                year=media_info.year,
                                                                                 channel=RssType.Auto,
-                                                                                season=media.begin_season,
-                                                                                mediaid=f"DB:{media.douban_id}",
+                                                                                mediaid=f"DB:{media_info.douban_id}",
                                                                                 in_from=SearchType.DB)
                                 if code != 0:
-                                    self.error("%s 添加订阅失败：%s" % (media.get_name(), msg))
+                                    self.error("%s 添加订阅失败：%s" % (media_info.title, msg))
                                     # 订阅已存在
                                     if code == 9:
-                                        self.dbhelper.insert_douban_media_state(media, "RSS")
+                                        self.__update_history(media=media_info, state="RSS")
                                 else:
                                     # 插入为已RSS状态
-                                    self.dbhelper.insert_douban_media_state(media, "RSS")
+                                    self.__update_history(media=media_info, state="RSS")
                         else:
                             # 不需要搜索
                             if self._auto_rss:
@@ -459,30 +450,49 @@ class DoubanSync(_IPluginModule):
                                 code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
                                                                                 name=media.get_name(),
                                                                                 year=media.year,
-                                                                                channel=RssType.Auto,
-                                                                                season=media.begin_season,
                                                                                 mediaid=f"DB:{media.douban_id}",
+                                                                                channel=RssType.Auto,
                                                                                 state="R",
                                                                                 in_from=SearchType.DB)
                                 if code != 0:
                                     self.error("%s 添加订阅失败：%s" % (media.get_name(), msg))
                                     # 订阅已存在
                                     if code == 9:
-                                        self.dbhelper.insert_douban_media_state(media, "RSS")
+                                        self.__update_history(media=media, state="RSS")
                                 else:
                                     # 插入为已RSS状态
-                                    self.dbhelper.insert_douban_media_state(media, "RSS")
-                            elif not search_state:
+                                    self.__update_history(media=media, state="RSS")
+                            elif not history:
                                 self.info("%s %s 更新到%s列表中..." % (
                                     media.get_name(), media.year, media.type.value))
-                                self.dbhelper.insert_douban_media_state(media, "NEW")
+                                self.__update_history(media=media, state="NEW")
 
                     else:
-                        self.info("%s %s 已处理过" % (media.get_name(), media.year))
+                        self.info(f"{media.douban_id} {media.get_name()} {media.year} 已处理过")
                 except Exception as err:
-                    self.error("%s %s 处理失败：%s" % (media.get_name(), media.year, str(err)))
+                    self.error(f"{media.douban_id} {media.get_name()} {media.year} 处理失败：{str(err)}")
+                    ExceptionUtils.exception_traceback(err)
                     continue
             self.info("豆瓣数据同步完成")
+
+    def __update_history(self, media, state):
+        """
+        插入历史记录
+        """
+        value = {
+            "id": media.douban_id,
+            "name": media.title or media.get_name(),
+            "year": media.year,
+            "type": media.type.value,
+            "rating": media.vote_average,
+            "image": media.get_poster_image(),
+            "state": state,
+            "add_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        if self.get_history(key=media.douban_id):
+            self.update_history(key=media.douban_id, value=value)
+        else:
+            self.history(key=media.douban_id, value=value)
 
     def __get_all_douban_movies(self):
         """

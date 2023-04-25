@@ -145,62 +145,6 @@ class DbHelper:
         else:
             self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title).delete()
 
-    def is_douban_media_exists(self, media):
-        """
-        查询豆瓣是否存在
-        """
-        if not media:
-            return True
-        if self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name()).count() > 0:
-            return True
-        else:
-            return False
-
-    @DbPersist(_db)
-    def insert_douban_media_state(self, media, state):
-        """
-        将豆瓣的数据插入数据库
-        """
-        if not media or not state:
-            return
-        if self.is_douban_media_exists(media):
-            return
-        else:
-            # 插入
-            self._db.insert(
-                DOUBANMEDIAS(
-                    NAME=media.get_name(),
-                    YEAR=media.year,
-                    TYPE=media.type.value,
-                    RATING=media.vote_average,
-                    IMAGE=media.get_poster_image(),
-                    STATE=state,
-                    ADD_TIME=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                )
-            )
-
-    @DbPersist(_db)
-    def update_douban_media_state(self, media, state):
-        """
-        标记豆瓣数据的状态
-        """
-        self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.title,
-                                            DOUBANMEDIAS.YEAR == media.year).update(
-            {
-                "STATE": state
-            }
-        )
-
-    def get_douban_search_state(self, title, year=None):
-        """
-        查询未搜索的豆瓣数据
-        """
-        if not year:
-            return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title).first()
-        else:
-            return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title,
-                                                             DOUBANMEDIAS.YEAR == str(year)).first()
-
     def is_transfer_history_exists(self, source_path, source_filename, dest_path, dest_filename):
         """
         查询识别转移记录
@@ -2622,21 +2566,6 @@ class DbHelper:
         ))
 
     @DbPersist(_db)
-    def delete_douban_history(self, hid):
-        """
-        删除豆瓣同步记录
-        """
-        if not hid:
-            return
-        self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.ID == int(hid)).delete()
-
-    def get_douban_history(self):
-        """
-        查询豆瓣同步记录
-        """
-        return self._db.query(DOUBANMEDIAS).order_by(DOUBANMEDIAS.ADD_TIME.desc()).all()
-
-    @DbPersist(_db)
     def update_downloader(self,
                           did,
                           name,
@@ -2772,8 +2701,13 @@ class DbHelper:
         """
         查询插件运行记录
         """
-        return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
-                                                    PLUGINHISTORY.KEY == key).first()
+        if not plugin_id:
+            return None
+        if key:
+            return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id,
+                                                        PLUGINHISTORY.KEY == key).first()
+        else:
+            return self._db.query(PLUGINHISTORY).filter(PLUGINHISTORY.PLUGIN_ID == plugin_id).all()
 
     @DbPersist(_db)
     def update_plugin_history(self, plugin_id, key, value):

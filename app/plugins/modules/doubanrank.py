@@ -7,9 +7,9 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.helper import DbHelper
 from app.mediaserver import MediaServer
 from app.plugins.modules._base import _IPluginModule
+from app.rss import Rss
 from app.subscribe import Subscribe
 from app.utils import RequestUtils, DomUtils
 from app.utils.types import MediaType, SearchType, RssType
@@ -43,8 +43,8 @@ class DoubanRank(_IPluginModule):
     _event = Event()
     # 私有属性
     mediaserver = None
-    dbhelper = None
     subscribe = None
+    rss = None
     _douban_address = {
         'movie-ustop': 'https://rsshub.app/douban/movie/ustop',
         'movie-weekly': 'https://rsshub.app/douban/movie/weekly',
@@ -64,8 +64,8 @@ class DoubanRank(_IPluginModule):
 
     def init_config(self, config: dict = None):
         self.mediaserver = MediaServer()
-        self.dbhelper = DbHelper()
         self.subscribe = Subscribe()
+        self.rss = Rss()
         if config:
             self._enable = config.get("enable")
             self._onlyonce = config.get("onlyonce")
@@ -274,7 +274,7 @@ class DoubanRank(_IPluginModule):
                     mtype = rss_info.get('type')
                     unique_flag = f"doubanrank: {title} (DB:{douban_id})"
                     # 检查是否已处理过
-                    if self.dbhelper.is_userrss_finished(torrent_name=unique_flag, enclosure=None):
+                    if self.rss.is_rss_finished(torrent_name=unique_flag, enclosure=None):
                         self.info(f"已处理过：{title} （豆瓣id：{douban_id}）")
                         continue
                     # 识别媒体信息
@@ -298,7 +298,7 @@ class DoubanRank(_IPluginModule):
                         self.info(f"媒体服务器已存在：{media_info.get_title_string()}")
                         continue
                     # 检查是否已订阅过
-                    if self.dbhelper.check_rss_history(
+                    if self.subscribe.check_history(
                             type_str="MOV" if media_info.type == MediaType.MOVIE else "TV",
                             name=media_info.title,
                             year=media_info.year,
@@ -307,7 +307,7 @@ class DoubanRank(_IPluginModule):
                             f"{media_info.get_title_string()}{media_info.get_season_string()} 已订阅过")
                         continue
                     # 添加处理历史
-                    self.dbhelper.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
+                    self.rss.simple_insert_rss_torrents(title=unique_flag, enclosure=None)
                     # 添加订阅
                     code, msg, rss_media = self.subscribe.add_rss_subscribe(
                         mtype=media_info.type,

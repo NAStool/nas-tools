@@ -302,8 +302,6 @@ class CookieCloud(_IPluginModule):
                     add_count += 1
         # 发送消息
         if update_count or add_count:
-            # 重载站点信息
-            self.sites.init_config()
             msg = f"更新了 {update_count} 个站点的Cookie数据，新增了 {add_count} 个站点"
         else:
             msg = f"同步完成，但未更新任何站点数据！"

@@ -306,32 +306,38 @@ class Sites:
         """
         添加站点
         """
-        return self.dbhelper.insert_config_site(name=name,
-                                                site_pri=site_pri,
-                                                rssurl=rssurl,
-                                                signurl=signurl,
-                                                cookie=cookie,
-                                                note=note,
-                                                rss_uses=rss_uses)
+        ret = self.dbhelper.insert_config_site(name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note,
+                                               rss_uses=rss_uses)
+        self.init_config()
+        return ret
 
     def update_site(self, tid, name, site_pri,
                     rssurl, signurl, cookie, note, rss_uses):
         """
         更新站点
         """
-        return self.dbhelper.update_config_site(tid=tid,
-                                                name=name,
-                                                site_pri=site_pri,
-                                                rssurl=rssurl,
-                                                signurl=signurl,
-                                                cookie=cookie,
-                                                note=note,
-                                                rss_uses=rss_uses)
+        ret = self.dbhelper.update_config_site(tid=tid,
+                                               name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note,
+                                               rss_uses=rss_uses)
+        self.init_config()
+        return ret
 
     def update_site_cookie(self, siteid, cookie, ua=None):
         """
         更新站点Cookie和UA
         """
-        return self.dbhelper.update_site_cookie_ua(tid=siteid,
-                                                   cookie=cookie,
-                                                   ua=ua)
+        ret = self.dbhelper.update_site_cookie_ua(tid=siteid,
+                                                  cookie=cookie,
+                                                  ua=ua)
+        self.init_config()
+        return ret

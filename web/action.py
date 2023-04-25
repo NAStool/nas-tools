@@ -1137,8 +1137,7 @@ class WebAction:
                                    cookie=cookie,
                                    note=note,
                                    rss_uses=rss_uses)
-        # 生效站点配置
-        Sites().init_config()
+
         return {"code": ret}
 
     @staticmethod
