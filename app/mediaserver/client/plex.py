@@ -315,10 +315,10 @@ class Plex(_IMediaClient):
             match library.type:
                 case "movie":
                     library_type = MediaType.MOVIE.value
-                    library_image = self.get_libraries_image(library.key)
+                    image_list_str = self.get_libraries_image(library.key)
                 case "show":
                     library_type = MediaType.TV.value
-                    library_image = self.get_libraries_image(library.key)
+                    image_list_str = self.get_libraries_image(library.key)
                 case _:
                     continue
             libraries.append({
@@ -326,7 +326,7 @@ class Plex(_IMediaClient):
                 "name": library.title,
                 "paths": library.locations,
                 "type": library_type,
-                "image": library_image,
+                "image_list": image_list_str,
                 "link": f"{self._play_host}#!/media/{self._plex.machineIdentifier}"
                         f"/com.plexapp.plugins.library?source={library.key}"
             })
@@ -342,13 +342,11 @@ class Plex(_IMediaClient):
         poster_urls = []
         for item in items:
             if item.posterUrl is not None:
-                poster_urls.append(item.posterUrl)
+                poster_urls.append(f"img?url={quote(item.posterUrl)}")
             if len(poster_urls) == 4:
                 break
-        if len(poster_urls) < 4:
-            return "../static/img/mediaserver/plex_backdrop.png"
-        image = ImageUtils.get_libraries_image(poster_urls)
-        return image
+        image_list_str = ", ".join([url for url in poster_urls])
+        return image_list_str
 
     def get_iteminfo(self, itemid):
         """
