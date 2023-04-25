@@ -310,13 +310,13 @@ class AutoSignIn(_IPluginModule):
             else:
                 self.update_history(today, retry_sites)
 
-                # 发送通知
-                if self._notify:
-                    # 签到汇总信息
-                    self.send_message(title="【自动签到任务完成】",
-                                      text=f"本次签到站点数量: {len(sites)} \n"
-                                           f"下次签到数量: {len(retry_sites)} \n"
-                                           f"详见签到消息")
+            # 发送通知
+            if self._notify:
+                # 签到汇总信息
+                self.send_message(title="【自动签到任务完成】",
+                                  text=f"本次签到站点数量: {len(sites)} \n"
+                                       f"下次签到数量: {len(retry_sites)} \n"
+                                       f"详见签到消息")
         else:
             self.error("站点签到任务失败！")
 
