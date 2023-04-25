@@ -22,8 +22,8 @@ class Filter:
     def init_config(self):
         self.dbhelper = DbHelper()
         self.rg_matcher = ReleaseGroupsMatcher()
-        self._groups = self.dbhelper.get_config_filter_group()
-        self._rules = self.dbhelper.get_config_filter_rule()
+        self._groups = self.get_filter_group()
+        self._rules = self.get_filter_rule()
 
     def get_rule_groups(self, groupid=None, default=False):
         """
