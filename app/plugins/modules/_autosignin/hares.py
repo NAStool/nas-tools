@@ -5,15 +5,18 @@ from app.utils import StringUtils, RequestUtils
 from config import Config
 
 
-class PTerClub(_ISiteSigninHandler):
+class Hares(_ISiteSigninHandler):
     """
-    猫签到
+    白兔签到
     """
     # 匹配的站点Url，每一个实现类都需要设置为自己的站点Url
-    site_url = "pterclub.com"
+    site_url = "club.hares.top"
 
     # 已签到
-    _sign_regex = ['签到已得\\d+']
+    _sign_text = '已签到'
+
+    # 签到成功
+    _succeed_text = '签到成功'
 
     @classmethod
     def match(cls, url):
@@ -35,22 +38,41 @@ class PTerClub(_ISiteSigninHandler):
         ua = site_info.get("ua")
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
-        # 签到
-        sign_res = RequestUtils(cookies=site_cookie,
+        # 获取页面html
+        html_res = RequestUtils(cookies=site_cookie,
                                 headers=ua,
                                 proxies=proxy
-                                ).get_res(url="https://pterclub.com/attendance-ajax.php")
+                                ).get_res(url="https://club.hares.top")
+        if not html_res or html_res.status_code != 200:
+            self.error(f"模拟访问失败，请检查站点连通性")
+            return False, f'【{site}】模拟访问失败，请检查站点连通性'
+
+        if "login.php" in html_res.text:
+            self.error(f"模拟访问失败，cookie失效")
+            return False, f'【{site}】模拟访问失败，cookie失效'
+
+        # if self._sign_text in html_res.text:
+        #     self.info(f"今日已签到")
+        #     return True, f'【{site}】今日已签到'
+
+        headers = {
+            'Accept': 'application/json',
+            "User-Agent": ua
+        }
+        sign_res = RequestUtils(cookies=site_cookie,
+                                headers=headers,
+                                proxies=proxy
+                                ).get_res(url="https://club.hares.top/attendance.php?action=sign")
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
-            return False, f'【{site}】签到失败，请检查cookie是否失效'
+            return False, f'【{site}】签到失败，签到接口请求失败'
 
+        # {"code":1,"msg":"您今天已经签到过了"}
+        # {"code":0,"msg":"签到成功"}
         sign_dict = json.loads(sign_res.text)
-        if sign_dict['status'] == 1:
-            # {"status":"1","data":" (签到已成功300)","message":"<p>这是您的第<b>237</b>次签到，
-            # 已连续签到<b>237</b>天。</p><p>本次签到获得<b>300</b>克猫粮。</p>"}
+        if sign_dict['code'] == 0:
             self.info(f"签到成功")
             return True, f'【{site}】签到成功'
         else:
-            # {"status":"0","data":"抱歉","message":"您今天已经签到过了，请勿重复刷新。"}
             self.info(f"今日已签到")
             return True, f'【{site}】今日已签到'
