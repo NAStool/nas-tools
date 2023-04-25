@@ -1457,7 +1457,7 @@ function media_name_test_ui(data, result_div) {
   $(`#${result_div}`).empty();
   const sort_array = ["org_string", "ignored_words", "replaced_words", "offset_words",
     "type", "category", "name", "title", "tmdbid", "year", "season_episode", "part",
-    "restype", "effect", "pix", "video_codec", "audio_codec", "team"]
+    "restype", "effect", "pix", "video_codec", "audio_codec", "team","customization"]
   // 调用组件实例的自定义方法.. 一次性添加chips
   document.querySelector(`#${result_div}`).add_chips_all(sort_array, data);
 }

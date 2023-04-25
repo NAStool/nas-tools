@@ -5,6 +5,7 @@ import zhconv
 import anitopy
 from app.media.meta._base import MetaBase
 from app.media.meta.release_groups import ReleaseGroupsMatcher
+from app.media.meta.customization import CustomizationMatcher
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.types import MediaType
 
@@ -146,6 +147,8 @@ class MetaAnime(MetaBase):
                 self.resource_team = \
                     ReleaseGroupsMatcher().match(title=original_title) or \
                     anitopy_info_origin.get("release_group") or None
+                # 自定义占位符
+                self.customization = CustomizationMatcher().match(title=original_title) or None
                 # 视频编码
                 self.video_encode = anitopy_info.get("video_term")
                 if isinstance(self.video_encode, list):
